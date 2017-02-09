@@ -25,6 +25,10 @@ public interface NumericalReading extends Reading {
 
     BigDecimal getValue();
 
+    Optional<Quantity> getCollectedValue();
+
+    Optional<Quantity> getCalculatedValue();
+
     Optional<BigDecimal> getDelta();
 
     /**

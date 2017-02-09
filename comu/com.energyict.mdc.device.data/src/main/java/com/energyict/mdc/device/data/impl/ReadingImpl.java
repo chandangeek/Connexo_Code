@@ -5,6 +5,7 @@ import com.energyict.mdc.device.data.Reading;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.validation.DataValidationStatus;
+import com.energyict.mdc.device.data.Register;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -20,29 +21,37 @@ import java.util.Optional;
 public abstract class ReadingImpl implements Reading {
 
     private final ReadingRecord actualReading;
+    private final Optional<ReadingRecord> previousReading;
     private final Optional<DataValidationStatus> validationStatus;
+    private final Register<?, ?> register;
 
     /**
      * Creates a new Reading that is marked as not validated.
-     *
-     * @param actualReading The actual ReadingRecord from the Jupiter Kore bundle
+     *  @param actualReading The actual ReadingRecord from the Jupiter Kore bundle
+     * @param register the register for which this reading is applicable
+     * @param previousReading The previous ReadingRecord from the Jupiter Kore bundle
      */
-    protected ReadingImpl(ReadingRecord actualReading) {
+    protected ReadingImpl(ReadingRecord actualReading, Register<?, ?> register, ReadingRecord previousReading) {
         super();
         this.actualReading = actualReading;
+        this.register = register;
         this.validationStatus = Optional.empty();
+        this.previousReading = Optional.ofNullable(previousReading);
     }
 
     /**
      * Creates a new Reading that is marked as validated.
-     *
      * @param actualReading The actual ReadingRecord from the Jupiter Kore bundle
      * @param validationStatus The List of ReadingQuality
+     * @param register the register for which this reading is applicable
+     * @param previousReading The previous ReadingRecord from the Jupiter Kore bundle
      */
-    protected ReadingImpl(ReadingRecord actualReading, DataValidationStatus validationStatus) {
+    protected ReadingImpl(ReadingRecord actualReading, DataValidationStatus validationStatus, Register<?, ?> register, ReadingRecord previousReading) {
         super();
         this.actualReading = actualReading;
+        this.register = register;
         this.validationStatus = Optional.of(validationStatus);
+        this.previousReading = Optional.ofNullable(previousReading);
     }
 
     @Override
@@ -80,4 +89,16 @@ public abstract class ReadingImpl implements Reading {
         return this.validationStatus;
     }
 
+    @Override
+    public Optional<Instant> getEventDate() {
+        return getRegister().hasEventDate()? Optional.of(getTimeStamp()):Optional.empty();
+    }
+
+    Register<?, ?> getRegister() {
+        return register;
+    }
+
+    Optional<ReadingRecord> getPreviousReading() {
+        return previousReading;
+    }
 }

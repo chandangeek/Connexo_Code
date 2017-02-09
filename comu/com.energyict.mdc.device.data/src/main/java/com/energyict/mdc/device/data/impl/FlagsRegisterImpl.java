@@ -19,13 +19,13 @@ public class FlagsRegisterImpl extends RegisterImpl<FlagsReading, NumericalRegis
     }
 
     @Override
-    protected FlagsReading newUnvalidatedReading(ReadingRecord actualReading) {
-        return new FlagsReadingImpl(actualReading);
+    protected FlagsReading newUnvalidatedReading(ReadingRecord actualReading, ReadingRecord previousReading) {
+        return new FlagsReadingImpl(actualReading, this, previousReading);
     }
 
     @Override
-    protected FlagsReading newValidatedReading(ReadingRecord actualReading, DataValidationStatus validationStatus) {
-        return new FlagsReadingImpl(actualReading, validationStatus);
+    protected FlagsReading newValidatedReading(ReadingRecord actualReading, DataValidationStatus validationStatus, ReadingRecord previous) {
+        return new FlagsReadingImpl(actualReading, validationStatus, this, previous);
     }
 
 }

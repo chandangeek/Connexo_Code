@@ -25,13 +25,13 @@ public class NumericalRegisterImpl extends RegisterImpl<NumericalReading, Numeri
     }
 
     @Override
-    protected NumericalReading newUnvalidatedReading(ReadingRecord actualReading) {
-        return new NumericalReadingImpl(actualReading);
+    protected NumericalReading newUnvalidatedReading(ReadingRecord actualReading, ReadingRecord previousReading) {
+        return new NumericalReadingImpl(actualReading, this, previousReading);
     }
 
     @Override
-    protected NumericalReading newValidatedReading(ReadingRecord actualReading, DataValidationStatus validationStatus) {
-        return new NumericalReadingImpl(actualReading, validationStatus);
+    protected NumericalReading newValidatedReading(ReadingRecord actualReading, DataValidationStatus validationStatus, ReadingRecord previousReading) {
+        return new NumericalReadingImpl(actualReading, validationStatus, this, previousReading);
     }
 
     @Override

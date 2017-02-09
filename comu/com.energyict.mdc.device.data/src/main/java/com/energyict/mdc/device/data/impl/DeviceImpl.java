@@ -2465,19 +2465,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             }
         },
 
-        Billing {
-            @Override
-            boolean appliesTo(RegisterSpec registerSpec) {
-                Set<Aggregate> eventAggregates = EnumSet.of(Aggregate.AVERAGE, Aggregate.SUM, Aggregate.MAXIMUM, Aggregate.SECONDMAXIMUM, Aggregate.THIRDMAXIMUM, Aggregate.FOURTHMAXIMUM, Aggregate.FIFTHMAXIMIMUM, Aggregate.MINIMUM, Aggregate.SECONDMINIMUM);
-                return eventAggregates.contains(this.getReadingType(registerSpec).getAggregate());
-            }
-
-            @Override
-            RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
-                return new BillingRegisterImpl(device, (NumericalRegisterSpec) registerSpec);
-            }
-        },
-
         Flags {
             @Override
             boolean appliesTo(RegisterSpec registerSpec) {

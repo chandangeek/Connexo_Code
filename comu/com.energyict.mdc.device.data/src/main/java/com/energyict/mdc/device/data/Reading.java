@@ -22,6 +22,8 @@ public interface Reading {
 
     Instant getTimeStamp();
 
+    Optional<Instant> getEventDate();
+
     Instant getReportedDateTime();
 
     BigDecimal getSensorAccuracy();
