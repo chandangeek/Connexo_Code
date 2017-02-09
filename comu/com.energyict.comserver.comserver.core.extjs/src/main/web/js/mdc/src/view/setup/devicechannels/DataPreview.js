@@ -492,7 +492,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     {
                         xtype: 'fieldcontainer',
                         labelWidth: 200,
-                        fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
+                        fieldLabel: Uni.I18n.translate('general.collected.value', 'MDC', 'Collected value'),
                         layout: 'hbox',
                         items: [
                             {
