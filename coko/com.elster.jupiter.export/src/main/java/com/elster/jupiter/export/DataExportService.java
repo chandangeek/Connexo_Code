@@ -62,6 +62,8 @@ public interface DataExportService {
 
     void setExportDirectory(AppServer appServer, Path path);
 
+    DataExportOccurrenceFinder getDataExportOccurrenceFinder();
+
     void removeExportDirectory(AppServer appServer);
 
     Optional<Path> getExportDirectory(AppServer appServer);

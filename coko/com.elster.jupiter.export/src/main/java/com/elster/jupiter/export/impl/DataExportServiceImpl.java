@@ -10,6 +10,7 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DataExportTaskBuilder;
@@ -444,6 +445,13 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                 .filter(EQUAL.compare("readingTask", task))
                 .filter(EQUAL.compare("taskOccurrence.triggerTime", triggerTime))
                 .findFirst();
+    }
+
+    @Override
+    public DataExportOccurrenceFinder getDataExportOccurrenceFinder() {
+        Condition condition = Condition.TRUE;
+        Order order = Order.ascending("lastRun").nullsLast();
+        return new DataExportOccurrenceFinderImpl(dataModel, condition, order);
     }
 
     @Override

@@ -5,6 +5,8 @@
 package com.elster.jupiter.export;
 
 import com.elster.jupiter.orm.QueryStream;
+import com.elster.jupiter.util.conditions.Order;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -14,6 +16,8 @@ public interface DataExportOccurrenceFinder {
     DataExportOccurrenceFinder setStart(int start);
 
     DataExportOccurrenceFinder setLimit(int limit);
+
+    DataExportOccurrenceFinder setOrder(List<Order> sortingColumns);
 
     DataExportOccurrenceFinder withStartDateIn(Range<Instant> interval);
 

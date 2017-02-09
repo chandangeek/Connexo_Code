@@ -10,6 +10,7 @@ import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryStream;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -17,6 +18,7 @@ import com.elster.jupiter.util.conditions.Order;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -24,7 +26,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
 class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinder {
     private DataModel dataModel;
     private Condition condition;
-    private Order order;
+    private Order defaultOrder;
+    private List<Order> sortingColumns = new ArrayList<>();
     private Integer start;
     private Integer limit;
 
@@ -34,7 +37,7 @@ class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinder {
     public DataExportOccurrenceFinderImpl(DataModel dataModel, Condition condition, Order order) {
         this.dataModel = dataModel;
         this.condition = condition;
-        this.order = order;
+        this.defaultOrder = order;
     }
 
     @Override
@@ -49,6 +52,12 @@ class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinder {
         return this;
     }
 
+
+    @Override
+    public DataExportOccurrenceFinder setOrder(List<Order> sortingColumns) {
+        this.sortingColumns = sortingColumns;
+        return this;
+    }
 
     @Override
     public DataExportOccurrenceFinder withStartDateIn(Range<Instant> interval) {
@@ -93,8 +102,9 @@ class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinder {
     public QueryStream<DataExportOccurrence> stream() {
         QueryStream<DataExportOccurrence> queryStream = dataModel.stream(DataExportOccurrence.class)
                 .join(TaskOccurrence.class)
+                .join(RecurrentTask.class)
                 .filter(condition)
-                .sorted(order);
+                .sorted(defaultOrder, sortingColumns.toArray(new Order[sortingColumns.size()]));
         if (start != null) {
             queryStream.skip(start);
         }
@@ -107,7 +117,7 @@ class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinder {
     // documentation only
     public List<? extends DataExportOccurrence> findOldSyntax() {
         return dataModel.query(DataExportOccurrence.class, TaskOccurrence.class)
-                .select(condition, new Order[]{order}, true, null, start + 1, start + limit);
+                .select(condition, new Order[]{defaultOrder}, true, null, start + 1, start + limit);
     }
 
 }
