@@ -2295,7 +2295,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     private RegisterInfo newRegisterInfo(long id, String deviceName, long version) {
-        RegisterInfo mock = new NumericalRegisterInfo();
+        RegisterInfo mock = new RegisterInfo();
         mock.id = id;
         mock.deviceName = deviceName;
         mock.parent = new VersionInfo<>(id, version);

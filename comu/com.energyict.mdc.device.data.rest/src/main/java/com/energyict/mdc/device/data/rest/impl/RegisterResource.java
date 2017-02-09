@@ -72,7 +72,7 @@ public class RegisterResource {
     private List<ReadingType> getElegibleReadingTypes(@BeanParam JsonQueryFilter jsonQueryFilter, Device device) {
         List<Register> registers = device.getRegisters()
                 .stream()
-                .filter(register -> !(jsonQueryFilter.hasProperty("toTimeStart") || jsonQueryFilter.hasProperty("toTimeEnd")) || register instanceof BillingRegister)
+                .filter(register -> !(jsonQueryFilter.hasProperty("toTimeStart") || jsonQueryFilter.hasProperty("toTimeEnd")) || register instanceof NumericalRegister)
                 .collect(Collectors.toList());
         if (jsonQueryFilter.hasProperty("registers")) {
             List<Long> registerTypes = jsonQueryFilter.getLongList("registers").stream()
@@ -218,10 +218,10 @@ public class RegisterResource {
                     List<? extends Reading> readings = register1.getReadings(Interval.of(registerRangePair.getLast()))
                             .stream()
                             .filter(reading -> {
-                                if (toTimeFilterAvailable && !(register1 instanceof NumericalReading)) {
+                                if (toTimeFilterAvailable && !(register1 instanceof NumericalRegister)) {
                                     return false;
                                 }
-                                if (!toTimeFilterAvailable || !(register1 instanceof NumericalReading)) {
+                                if (!toTimeFilterAvailable || !(register1 instanceof NumericalRegister)) {
                                     return true;
                                 }
                                 NumericalReading reading1 = (NumericalReading) reading;

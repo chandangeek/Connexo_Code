@@ -178,9 +178,15 @@ public class RegisterResourceReadingsTest extends DeviceDataRestApplicationJerse
         NumericalReading numericalReading = mock(NumericalReading.class);
         Quantity quantity = Quantity.create(BigDecimal.TEN, "M");
         when(numericalReading.getQuantity()).thenReturn(quantity);
+        when(numericalReading.getCollectedValue()).thenReturn(Optional.of(quantity));
+        when(numericalReading.getCalculatedValue()).thenReturn(Optional.empty());
         when(numericalReading.getTimeStamp()).thenReturn(READING_TIMESTAMP);
         when(numericalReading.getValidationStatus()).thenReturn(Optional.empty());
         when(numericalReading.getActualReading()).thenReturn(actualReading);
+        when(numericalReading.getRange()).thenReturn(Optional.empty());
+        when(numericalReading.getDelta()).thenReturn(Optional.empty());
+        when(numericalReading.getEventDate()).thenReturn(Optional.empty());
+
         return numericalReading;
     }
 
@@ -188,11 +194,15 @@ public class RegisterResourceReadingsTest extends DeviceDataRestApplicationJerse
         BillingReading billingReading = mock(BillingReading.class);
         Quantity quantity = Quantity.create(BigDecimal.TEN, "M");
         when(billingReading.getQuantity()).thenReturn(quantity);
+        when(billingReading.getCollectedValue()).thenReturn(Optional.of(quantity));
+        when(billingReading.getCalculatedValue()).thenReturn(Optional.empty());
         when(billingReading.getTimeStamp()).thenReturn(READING_TIMESTAMP);
         Range<Instant> interval = Ranges.openClosed(BILLING_READING_INTERVAL_START, intervalEndTimestamp);
         when(billingReading.getRange()).thenReturn(Optional.of(interval));
         when(billingReading.getValidationStatus()).thenReturn(Optional.empty());
         when(billingReading.getActualReading()).thenReturn(actualReading1);
+        when(billingReading.getDelta()).thenReturn(Optional.empty());
+        when(billingReading.getEventDate()).thenReturn(Optional.empty());
         return billingReading;
     }
 
@@ -221,8 +231,8 @@ public class RegisterResourceReadingsTest extends DeviceDataRestApplicationJerse
 
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<List<?>>get("$.data")).hasSize(4);
-        assertThat(jsonModel.<String>get("$.data[0].type")).isEqualTo("billing");
-        assertThat(jsonModel.<String>get("$.data[1].type")).isEqualTo("billing");
+        assertThat(jsonModel.<String>get("$.data[0].type")).isEqualTo("numerical");
+        assertThat(jsonModel.<String>get("$.data[1].type")).isEqualTo("numerical");
         assertThat(jsonModel.<String>get("$.data[2].type")).isEqualTo("numerical");
         assertThat(jsonModel.<String>get("$.data[3].type")).isEqualTo("numerical");
     }
@@ -252,7 +262,7 @@ public class RegisterResourceReadingsTest extends DeviceDataRestApplicationJerse
 
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<List<?>>get("$.data")).hasSize(1);
-        assertThat(jsonModel.<String>get("$.data[0].type")).isEqualTo("billing");
+        assertThat(jsonModel.<String>get("$.data[0].type")).isEqualTo("numerical");
     }
 
     @Test
@@ -308,7 +318,7 @@ public class RegisterResourceReadingsTest extends DeviceDataRestApplicationJerse
 
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<List<?>>get("$.data")).hasSize(1);
-        assertThat(jsonModel.<String>get("$.data[0].type")).isEqualTo("billing");
+        assertThat(jsonModel.<String>get("$.data[0].type")).isEqualTo("numerical");
     }
 
     @Test

@@ -181,6 +181,11 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         when(numericalReading.getTimeStamp()).thenReturn(READING_TIMESTAMP);
         when(numericalReading.getValidationStatus()).thenReturn(Optional.empty());
         when(numericalReading.getActualReading()).thenReturn(actualReading);
+        when(numericalReading.getRange()).thenReturn(Optional.empty());
+        when(numericalReading.getCollectedValue()).thenReturn(Optional.empty());
+        when(numericalReading.getDelta()).thenReturn(Optional.empty());
+        when(numericalReading.getCalculatedValue()).thenReturn(Optional.empty());
+        when(numericalReading.getEventDate()).thenReturn(Optional.empty());
         return numericalReading;
     }
 

@@ -259,11 +259,16 @@ public class DeviceDataInfoFactory {
         setMultiplier(register, numericalReadingInfo, reading);
         setInterval(reading, numericalReadingInfo);
         setCollectedValue(reading, register, numericalReadingInfo, numberOfFractionDigits);
+        setDeltaValue(reading, numericalReadingInfo);
         setCalculatedValueIfApplicable(reading, register, numericalReadingInfo, numberOfFractionDigits);
         addValidationInfo(reading, numericalReadingInfo, isValidationStatusActive);
         setSlaveInformation(register, dataLoggerSlave, numericalReadingInfo);
         setEventDate(reading, numericalReadingInfo);
         return numericalReadingInfo;
+    }
+
+    private void setDeltaValue(NumericalReading reading, NumericalReadingInfo numericalReadingInfo) {
+        reading.getDelta().ifPresent(deltaValue -> numericalReadingInfo.deltaValue=deltaValue);
     }
 
     private void setInterval(NumericalReading reading, NumericalReadingInfo numericalReadingInfo) {
