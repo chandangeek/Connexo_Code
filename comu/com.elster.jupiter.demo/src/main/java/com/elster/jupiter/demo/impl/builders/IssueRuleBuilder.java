@@ -22,7 +22,6 @@ import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTempla
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 
@@ -30,9 +29,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.inject.Inject;
-import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -50,10 +47,10 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     public static final String BASIC_DATA_VALIDATION_RULE_TEMPLATE = "DataValidationIssueCreationRuleTemplate";
     public static final String BASIC_DEVICE_ALARM_RULE_TEMPLATE = "BasicDeviceAlarmRuleTemplate";
 
+    private static final String SEPARATOR = ":";
     private final IssueCreationService issueCreationService;
     private final IssueService issueService;
     private final DeviceConfigurationService deviceConfigurationService;
-    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final TimeService timeService;
 
     private String type;
@@ -63,12 +60,11 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private Priority priority;
 
     @Inject
-    public IssueRuleBuilder(IssueCreationService issueCreationService, IssueService issueService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TimeService timeService) {
+    public IssueRuleBuilder(IssueCreationService issueCreationService, IssueService issueService, DeviceConfigurationService deviceConfigurationService, TimeService timeService) {
         super(IssueRuleBuilder.class);
         this.issueCreationService = issueCreationService;
         this.issueService = issueService;
         this.deviceConfigurationService = deviceConfigurationService;
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.timeService = timeService;
     }
 
@@ -178,7 +174,8 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                     BasicDeviceAlarmRuleTemplate.EVENT_OCCURENCE_COUNT,
                     template.getPropertySpec(BasicDeviceAlarmRuleTemplate.EVENT_OCCURENCE_COUNT).get().getValueFactory().fromStringValue("2"));
             properties.put(
-                    BasicDeviceAlarmRuleTemplate.THRESHOLD, timeService.findRelativePeriodByName("Last 7 days").isPresent() ? timeService.findRelativePeriodByName("Last 7 days").get() : timeService.getAllRelativePeriod());
+                    BasicDeviceAlarmRuleTemplate.THRESHOLD, timeService.findRelativePeriodByName("Last 7 days").isPresent() ? timeService.findRelativePeriodByName("Last 7 days")
+                            .get() : timeService.getAllRelativePeriod());
         }
         return properties;
     }
@@ -243,69 +240,35 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     }
 
     private List<HasIdAndName> getAllDeviceStatesInAllDeviceTypes() {
-        List<HasIdAndName> listValue = new ArrayList<>();
-        /*deviceLifeCycleConfigurationService.findAllDeviceLifeCycles().find()
-                .stream().map(lifecycle -> lifecycle.getFiniteStateMachine().getStates())
-                .flatMap(Collection::stream)
-                .sorted(Comparator.comparing(State::getId)) */
+        List<HasIdAndName> list = new ArrayList<>();
         deviceConfigurationService.findAllDeviceTypes()
                 .find().stream()
                 .sorted(Comparator.comparing(DeviceType::getId))
-                .flatMap(deviceType ->
-                        deviceType.getDeviceLifeCycle().getFiniteStateMachine().getStates().stream()
+                .forEach(deviceType ->
+                        deviceType.getDeviceLifeCycle().getFiniteStateMachine().getStates().stream().distinct()
                                 .sorted(Comparator.comparing(State::getId))
-                                .map(state -> new AbstractMap.SimpleImmutableEntry<>(deviceType, state)))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)).entrySet()
-                .stream()
-                .forEach(value -> listValue.add(new HasIdAndName() {
-                                                    @Override
-                                                    public String getId() {
-                                                        try {
-                                                            JSONObject jsonId = new JSONObject();
-                                                            jsonId.put("deviceTypeId", value.getKey().getId());
-                                                            jsonId.put("lifeCycleStateId", value.getValue().getId());
-                                                            return jsonId.toString();
-                                                        } catch (JSONException e) {
-                                                        }
-                                                        return "";
-                                                    }
+                                .forEach(state -> list.add(new HasIdAndName() {
+                                                               @Override
+                                                               public String getId() {
+                                                                   return deviceType.getId() + SEPARATOR + state.getId();
+                                                               }
 
-                                                    @Override
-                                                    public String getName() {
-                                                        try {
-                                                            JSONObject jsonId = new JSONObject();
-                                                            jsonId.put("deviceTypeName", value.getKey().getName());
-                                                            jsonId.put("lifeCycleStateName", value.getKey().getName() + "." + value.getValue().getName());
-                                                            return jsonId.toString();
-                                                        } catch (JSONException e) {
-                                                            e.printStackTrace();
-                                                        }
-                                                        return "";
-                                                    }
-                                                }
-                ));
+                                                               @Override
+                                                               public String getName() {
+                                                                   try {
+                                                                       JSONObject jsonId = new JSONObject();
+                                                                       jsonId.put("deviceTypeName", deviceType.getName());
+                                                                       jsonId.put("lifeCycleStateName", deviceType.getName() + "." + state.getName());
+                                                                       return jsonId.toString();
+                                                                   } catch (JSONException e) {
+                                                                       e.printStackTrace();
+                                                                   }
+                                                                   return "";
+                                                               }
+                                                           }
+                                )));
 
-                    return listValue;
+        return list;
     }
 
-
-    private List<HasIdAndName> getAllDeviceTypes() {
-        List<HasIdAndName> listValue = new ArrayList<>();
-        deviceConfigurationService.findAllDeviceTypes().find()
-                .stream()
-                .sorted(Comparator.comparing(DeviceType::getId))
-                .forEach(value -> listValue.add(new HasIdAndName() {
-                    @Override
-                    public Object getId() {
-                        return value.getId();
-                    }
-
-                    @Override
-                    public String getName() {
-                        return value.getName();
-                    }
-                })
-        );
-        return listValue;
-    }
 }
