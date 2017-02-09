@@ -71,6 +71,7 @@ import org.joda.time.DateTime;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
@@ -89,6 +90,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -245,7 +247,6 @@ public class JobExecutionTest {
         when(comTaskExecution.getConnectionTask()).thenReturn(Optional.of(ct));
         when(comTaskExecution.getDevice()).thenReturn(device);
         when(comTaskExecution.getComTask()).thenReturn(this.comTask);
-      //  when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(mock(ProtocolDialectConfigurationProperties.class));
         when(connectionTask.getDevice()).thenReturn(device);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
         when(connectionTask.connect(eq(comPort), anyList())).thenReturn(new VoidTestComChannel());
@@ -281,17 +282,19 @@ public class JobExecutionTest {
 
     @Test
     public void testGenericDeviceProtocol() throws ConnectionException {
+        when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(mock(ProtocolDialectConfigurationProperties.class));
         OutboundComPort outboundComPort = mock(OutboundComPort.class);
-        ScheduledComTaskExecutionGroup jobExecution = spy(new ScheduledComTaskExecutionGroup(outboundComPort, comServerDAO, this.deviceCommandExecutor, connectionTask, jobExecutionServiceProvider));
         ExecutionContext executionContext = newTestExecutionContext();
-        when(jobExecution.getExecutionContext()).thenReturn(executionContext);
         createMockedComTaskWithGivenProtocolTasks();
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         DeviceProtocolPluggableClass severServerDeviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(severServerDeviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(genericDeviceProtocol);
         when(offlineDevice.getDeviceProtocolPluggableClass()).thenReturn(severServerDeviceProtocolPluggableClass);
         when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineDevice));
-        jobExecution.prepareAll(Arrays.asList(comTaskExecution));
+        doReturn(connectionTask).when(comServerDAO).executionStarted(connectionTask, comServer);
+        ScheduledComTaskExecutionGroup jobExecution = spy(new ScheduledComTaskExecutionGroup(outboundComPort, comServerDAO, this.deviceCommandExecutor, connectionTask, jobExecutionServiceProvider));
+        doReturn(executionContext).when(jobExecution).getExecutionContext();
+        jobExecution.prepareAll(Collections.singletonList(comTaskExecution));
         verify(genericDeviceProtocol, times(1)).organizeComCommands(any(CommandRoot.class));
     }
 
@@ -407,7 +410,7 @@ public class JobExecutionTest {
         when(basicCheckTask.getMaximumClockDifference()).thenReturn(Optional.of(new TimeDuration(1, TimeDuration.TimeUnit.SECONDS)));
         when(basicCheckTask.verifyClockDifference()).thenReturn(true);
         createMockedComTaskWithGivenProtocolTasks(basicCheckTask);
-
+        doReturn(connectionTask).when(comServerDAO).executionStarted(connectionTask, comServer);
         // business method
         comTaskExecutionGroup.createExecutionContext();
         comTaskExecutionGroup.prepareComTaskExecution(comTaskExecution, comTaskExecutionConnectionSteps, deviceProtocolSecurityPropertySet, groupedDeviceCommand1, commandCreator);
@@ -424,6 +427,8 @@ public class JobExecutionTest {
         String configuredSerial = "ThisIsTheConfiguredSerialNumber";
         when(deviceProtocol.getSerialNumber()).thenReturn(meterSerial);
         when(this.offlineDevice.getSerialNumber()).thenReturn(configuredSerial);
+        doReturn(connectionTask).when(comServerDAO).executionStarted(connectionTask, comServer);
+
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = mock(DeviceProtocolSecurityPropertySet.class);
         ScheduledComTaskExecutionGroup comTaskExecutionGroup = getJobExecutionForBasicCheckInFrontTests();
 
@@ -460,8 +465,10 @@ public class JobExecutionTest {
 
     private ScheduledComTaskExecutionGroup getJobExecutionForBasicCheckInFrontTests() {
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(connectionTask.getDevice()).thenReturn(device);
+        when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(mock(ProtocolDialectConfigurationProperties.class));
 
-        ScheduledComTaskExecutionGroup comTaskExecutionGroup = new ScheduledComTaskExecutionGroup((OutboundComPort) comPort, comServerDAO, this.deviceCommandExecutor, connectionTask, jobExecutionServiceProvider);
+        ScheduledComTaskExecutionGroup comTaskExecutionGroup = new ScheduledComTaskExecutionGroup(comPort, comServerDAO, this.deviceCommandExecutor, connectionTask, jobExecutionServiceProvider);
         comTaskExecutionGroup.add(comTaskExecution);
         comTaskExecutionGroup.setExecutionContext(new ExecutionContext(comTaskExecutionGroup, connectionTask, comPort, true, jobExecutionServiceProvider));
         return comTaskExecutionGroup;
