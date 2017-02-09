@@ -52,27 +52,7 @@ Ext.define('Dal.view.overview.HistoryGraph', {
     constructColors: function () {
         var me = this;
 
-        Ext.define('Ext.chart.theme.ColumnTheme', {
-            extend: 'Ext.chart.theme.Base',
-            constructor: function (config) {
-                this.callParent([Ext.apply({
-                    colors: me.defaultColors
-                }, config)]);
-            }
-        });
 
-        me.colors = new Ext.util.HashMap();
-        if (me.colorPerReason) { // use custom colors
-            Ext.Array.each(me.colorPerReason, function (color) {
-                me.colors.add(color.reason, color.color);
-            });
-        }
-        else { // use default colors
-            var pos = 0;
-            Ext.Array.each(me.fields, function (field) {
-                me.colors.add(field, me.defaultColors[pos++]);
-            });
-        }
     },
 
     constructTranslation: function () {
@@ -89,28 +69,7 @@ Ext.define('Dal.view.overview.HistoryGraph', {
     refresh: function (data) {
         var me = this, storeFields;
 
-        if ((me.fields == null) || (me.fields.length == 0)) {
-            me.fields = data.fields;
-            storeFields = data.fields.slice();
-            storeFields.push('date');
-        }
-        else {
-            storeFields = me.fields.slice();
-            storeFields.push('date');
-        }
 
-        me.store = Ext.create('Ext.data.JsonStore', {
-            fields: storeFields,
-            data: data.data
-        });
-        me.processStore();
-        me.constructColors();
-        me.constructTranslation();
-
-        // remove previous chart
-        me.remove(me.down('chart'), true);
-        //    me.add(me.getChart(me.store));
-        me.doLayout();
     },
 
     destroyControls: function () {
