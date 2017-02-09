@@ -18,7 +18,6 @@ import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.data.BillingReading;
 import com.energyict.mdc.device.data.BillingRegister;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -33,8 +32,6 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.TextReading;
 import com.energyict.mdc.device.data.TextRegister;
 import com.energyict.mdc.device.topology.TopologyService;
-
-import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -236,15 +233,10 @@ public class DeviceDataInfoFactory {
     }
 
     ReadingInfo createReadingInfo(Reading reading, Register<?, ?> register, boolean isValidationStatusActive, Device dataLoggerSlave) {
-        if (reading instanceof BillingReading) {
-            return createBillingReadingInfo((BillingReading) reading, register, isValidationStatusActive, dataLoggerSlave);
-        } else if (reading instanceof NumericalReading) {
+        if (reading instanceof NumericalReading) {
             return createNumericalReadingInfo((NumericalReading) reading, register, isValidationStatusActive, dataLoggerSlave);
         } else if (reading instanceof TextReading) {
             return createTextReadingInfo((TextReading) reading, register);
-        } else if (reading instanceof FlagsReading) {
-            return createFlagsReadingInfo((FlagsReading) reading, register);
-
         }
         throw new IllegalArgumentException("Unsupported reading type: " + reading.getClass().getSimpleName());
     }
@@ -276,69 +268,52 @@ public class DeviceDataInfoFactory {
                 .collect(Collectors.toList());
     }
 
-    private BillingReadingInfo createBillingReadingInfo(BillingReading reading, Register<?, ?> register, boolean isValidationStatusActive, Device dataLoggerSlave) {
-        BillingReadingInfo billingReadingInfo = new BillingReadingInfo();
-        setCommonReadingInfo(reading, billingReadingInfo, register);
-        Instant timeStamp = reading.getTimeStamp();
-        if (timeStamp != null) {
-            billingReadingInfo.multiplier = register.getMultiplier(timeStamp).orElseGet(() -> null);
-        }
-        Quantity collectedValue = reading.getQuantityFor(register.getReadingType());
-        int numberOfFractionDigits = ((BillingRegister) register).getNumberOfFractionDigits();
-        if (collectedValue != null) {
-            billingReadingInfo.value = reading.getQuantity().getValue().setScale(numberOfFractionDigits, BigDecimal.ROUND_UP);
-            billingReadingInfo.unit = register.getRegisterSpec().getRegisterType().getUnit();
-            billingReadingInfo.rawValue = billingReadingInfo.value;
-        }
-        setCalculatedValueIfApplicable(reading, register, billingReadingInfo, numberOfFractionDigits);
-        if (reading.getRange().isPresent()) {
-            billingReadingInfo.interval = IntervalInfo.from(reading.getRange().get());
-        } else {
-            billingReadingInfo.interval = IntervalInfo.from(Range.atMost(reading.getTimeStamp()));
-        }
-        addValidationInfo(reading, billingReadingInfo, isValidationStatusActive);
-        if (dataLoggerSlave != null) {
-            billingReadingInfo.slaveRegister = SlaveRegisterInfo.from(dataLoggerSlave, register);
-        }
-        if(register.hasEventDate()){
-            billingReadingInfo.eventDate = reading.getTimeStamp();
-        }
-        return billingReadingInfo;
-    }
-
     private NumericalReadingInfo createNumericalReadingInfo(NumericalReading reading, Register<?, ?> register, boolean isValidationStatusActive, Device dataLoggerSlave) {
         NumericalReadingInfo numericalReadingInfo = new NumericalReadingInfo();
-        setCommonReadingInfo(reading, numericalReadingInfo, register);
-        Instant timeStamp = reading.getTimeStamp();
-        if (timeStamp != null) {
-            numericalReadingInfo.multiplier = register.getMultiplier(timeStamp).orElseGet(() -> null);
-        }
-        numericalReadingInfo.interval =  IntervalInfo.from(Range.atMost(reading.getTimeStamp()));
-        Quantity collectedValue = reading.getQuantityFor(register.getReadingType());
         int numberOfFractionDigits = ((NumericalRegister) register).getNumberOfFractionDigits();
-        if (collectedValue != null) {
-            numericalReadingInfo.value = collectedValue.getValue().setScale(numberOfFractionDigits, BigDecimal.ROUND_UP);
-            numericalReadingInfo.unit = register.getRegisterSpec().getRegisterType().getUnit();
-            numericalReadingInfo.rawValue = numericalReadingInfo.value;
-        }
+        setCommonReadingInfo(reading, numericalReadingInfo, register);
+        setMultiplier(register, numericalReadingInfo, reading);
+        setInterval(reading, numericalReadingInfo);
+        setCollectedValue(reading, register, numericalReadingInfo, numberOfFractionDigits);
         setCalculatedValueIfApplicable(reading, register, numericalReadingInfo, numberOfFractionDigits);
         addValidationInfo(reading, numericalReadingInfo, isValidationStatusActive);
-        if (dataLoggerSlave != null) {
-            numericalReadingInfo.slaveRegister = SlaveRegisterInfo.from(dataLoggerSlave, register);
-        }
-        if(register.hasEventDate()){
-            numericalReadingInfo.eventDate = reading.getTimeStamp();
-        }
+        setSlaveInformation(register, dataLoggerSlave, numericalReadingInfo);
+        setEventDate(reading, numericalReadingInfo);
         return numericalReadingInfo;
     }
 
+    private void setInterval(NumericalReading reading, NumericalReadingInfo numericalReadingInfo) {
+        reading.getRange().ifPresent(instantRange -> numericalReadingInfo.interval = IntervalInfo.from(instantRange));
+    }
+
+    private void setSlaveInformation(Register<?, ?> register, Device dataLoggerSlave, NumericalReadingInfo numericalReadingInfo) {
+        if (dataLoggerSlave != null) {
+            numericalReadingInfo.slaveRegister = SlaveRegisterInfo.from(dataLoggerSlave, register);
+        }
+    }
+
+    private void setEventDate(NumericalReading reading, NumericalReadingInfo numericalReadingInfo) {
+        reading.getEventDate().ifPresent(eventDate -> numericalReadingInfo.eventDate = eventDate);
+    }
+
+    private void setCollectedValue(NumericalReading reading, Register<?, ?> register, NumericalReadingInfo numericalReadingInfo, int numberOfFractionDigits) {
+        reading.getCollectedValue().ifPresent(collectedValue -> {
+            numericalReadingInfo.value = collectedValue.getValue().setScale(numberOfFractionDigits, BigDecimal.ROUND_UP);
+            numericalReadingInfo.unit = register.getRegisterSpec().getRegisterType().getUnit();
+            numericalReadingInfo.rawValue = numericalReadingInfo.value;
+        });
+    }
+
     private void setCalculatedValueIfApplicable(NumericalReading reading, Register<?, ?> register, NumericalReadingInfo numericalReadingInfo, int numberOfFractionDigits) {
-        if (register.getCalculatedReadingType(reading.getTimeStamp()).isPresent()) {
-            Quantity calculatedQuantity = reading.getQuantityFor(register.getCalculatedReadingType(reading.getTimeStamp()).get());
-            if (calculatedQuantity != null) {
-                numericalReadingInfo.calculatedValue = calculatedQuantity.getValue().setScale(numberOfFractionDigits, BigDecimal.ROUND_UP);
-                numericalReadingInfo.calculatedUnit = register.getRegisterSpec().getRegisterType().getUnit();
-            }
+        reading.getCalculatedValue().ifPresent(calculatedValue -> {
+            numericalReadingInfo.calculatedValue = calculatedValue.getValue().setScale(numberOfFractionDigits, BigDecimal.ROUND_UP);
+            numericalReadingInfo.calculatedUnit = register.getRegisterSpec().getRegisterType().getUnit();
+        });
+    }
+
+    private void setMultiplier(Register<?, ?> register, NumericalReadingInfo numericalReadingInfo, Reading reading) {
+        if (reading.getTimeStamp() != null) {
+            numericalReadingInfo.multiplier = register.getMultiplier(reading.getTimeStamp()).orElseGet(() -> null);
         }
     }
 
@@ -361,7 +336,7 @@ public class DeviceDataInfoFactory {
         });
     }
 
-    private TextReadingInfo createTextReadingInfo(TextReading reading, Register<?,?> register) {
+    private TextReadingInfo createTextReadingInfo(TextReading reading, Register<?, ?> register) {
         TextReadingInfo textReadingInfo = new TextReadingInfo();
         setCommonReadingInfo(reading, textReadingInfo, register);
         textReadingInfo.value = reading.getValue();
@@ -369,28 +344,14 @@ public class DeviceDataInfoFactory {
         return textReadingInfo;
     }
 
-    private FlagsReadingInfo createFlagsReadingInfo(FlagsReading reading, Register<?,?> register) {
-        FlagsReadingInfo flagsReadingInfo = new FlagsReadingInfo();
-        setCommonReadingInfo(reading, flagsReadingInfo, register);
-        flagsReadingInfo.value = reading.getFlags();
-        return flagsReadingInfo;
-    }
-
     RegisterInfo createRegisterInfo(Register register, DetailedValidationInfo registerValidationInfo, TopologyService topologyService) {
-        if (register instanceof BillingRegister) {
-            BillingRegisterInfo info = createBillingRegisterInfo((BillingRegister) register, topologyService);
-            info.detailedValidationInfo = registerValidationInfo;
-            return info;
-        } else if (register instanceof NumericalRegister) {
-            NumericalRegisterInfo info = createNumericalRegisterInfo((NumericalRegister) register, topologyService);
+        if (register instanceof NumericalRegister) {
+            RegisterInfo info = createRegisterInfo((NumericalRegister) register, topologyService);
             info.detailedValidationInfo = registerValidationInfo;
             return info;
         } else if (register instanceof TextRegister) {
             return createTextRegisterInfo((TextRegister) register, topologyService);
-        } else if (register instanceof FlagsRegister) {
-            return createFlagsRegisterInfo((FlagsRegister) register, topologyService);
         }
-
         throw new IllegalArgumentException("Unsupported register type: " + register.getClass().getSimpleName());
     }
 
@@ -405,7 +366,7 @@ public class DeviceDataInfoFactory {
         registerInfo.obisCodeDescription = register.getDeviceObisCode().getDescription();
         registerInfo.isCumulative = register.getReadingType().isCumulative();
         registerInfo.hasEvent = register.hasEventDate();
-      //  register.getLastReading().isPresent(reading -> registerInfo.hasEvent = reading.)
+        //  register.getLastReading().isPresent(reading -> registerInfo.hasEvent = reading.)
         registerInfo.deviceName = device.getName();
         registerInfo.version = device.getVersion();
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
@@ -420,42 +381,24 @@ public class DeviceDataInfoFactory {
         }
     }
 
-    private BillingRegisterInfo createBillingRegisterInfo(BillingRegister register, TopologyService topologyService) {
-        BillingRegisterInfo billingRegisterInfo = new BillingRegisterInfo();
-        addCommonRegisterInfo(register, billingRegisterInfo, topologyService);
-        Instant timeStamp = register.getLastReadingDate().orElse(clock.instant());
-        register.getCalculatedReadingType(timeStamp).ifPresent(calculatedReadingType -> billingRegisterInfo.calculatedReadingType = readingTypeInfoFactory.from(calculatedReadingType));
-        billingRegisterInfo.multiplier = register.getMultiplier(timeStamp).orElseGet(() -> null);
-        billingRegisterInfo.useMultiplier = register.getRegisterSpec().isUseMultiplier();
-        billingRegisterInfo.overruledNumberOfFractionDigits = register.getRegisterSpec().getNumberOfFractionDigits();
-        return billingRegisterInfo;
-    }
-
-    private FlagsRegisterInfo createFlagsRegisterInfo(FlagsRegister flagsRegister, TopologyService topologyService) {
-        FlagsRegisterInfo flagsRegisterInfo = new FlagsRegisterInfo();
-        addCommonRegisterInfo(flagsRegister, flagsRegisterInfo, topologyService);
-        return flagsRegisterInfo;
-    }
-
     private TextRegisterInfo createTextRegisterInfo(TextRegister textRegister, TopologyService topologyService) {
         TextRegisterInfo textRegisterInfo = new TextRegisterInfo();
         addCommonRegisterInfo(textRegister, textRegisterInfo, topologyService);
         return textRegisterInfo;
     }
 
-    private NumericalRegisterInfo createNumericalRegisterInfo(NumericalRegister numericalRegister, TopologyService topologyService) {
-        NumericalRegisterInfo numericalRegisterInfo = new NumericalRegisterInfo();
-        addCommonRegisterInfo(numericalRegister, numericalRegisterInfo, topologyService);
-        NumericalRegisterSpec registerSpec = numericalRegister.getRegisterSpec();
-        numericalRegisterInfo.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
-        numericalRegisterInfo.overruledNumberOfFractionDigits = numericalRegister.getNumberOfFractionDigits();
-        registerSpec.getOverflowValue().ifPresent(overflow -> numericalRegisterInfo.overflow = overflow);
-        numericalRegister.getOverflow().ifPresent(overruledOverflowValue -> numericalRegisterInfo.overruledOverflow = overruledOverflowValue);
-        Instant timeStamp = numericalRegister.getLastReadingDate().orElse(clock.instant());
-        numericalRegister.getCalculatedReadingType(timeStamp)
-                .ifPresent(calculatedReadingType -> numericalRegisterInfo.calculatedReadingType = readingTypeInfoFactory.from(calculatedReadingType));
-        numericalRegisterInfo.multiplier = numericalRegister.getMultiplier(timeStamp).orElseGet(() -> null);
-        numericalRegisterInfo.useMultiplier = registerSpec.isUseMultiplier();
-        return numericalRegisterInfo;
+    private RegisterInfo createRegisterInfo(NumericalRegister register, TopologyService topologyService) {
+        RegisterInfo registerInfo = new RegisterInfo();
+        addCommonRegisterInfo(register, registerInfo, topologyService);
+        RegisterSpec registerSpec = register.getRegisterSpec();
+        registerInfo.numberOfFractionDigits = ((NumericalRegisterSpec) registerSpec).getNumberOfFractionDigits();
+        registerInfo.overruledNumberOfFractionDigits = ((NumericalRegisterSpec) registerSpec).getNumberOfFractionDigits();
+        ((NumericalRegisterSpec) registerSpec).getOverflowValue().ifPresent(overflow -> registerInfo.overflow = overflow);
+        registerInfo.useMultiplier = ((NumericalRegisterSpec) registerSpec).isUseMultiplier();
+        register.getOverflow().ifPresent(overruledOverflowValue -> registerInfo.overruledOverflow = overruledOverflowValue);
+        Instant timeStamp = register.getLastReadingDate().orElse(clock.instant());
+        register.getCalculatedReadingType(timeStamp).ifPresent(calculatedReadingType -> registerInfo.calculatedReadingType = readingTypeInfoFactory.from(calculatedReadingType));
+        registerInfo.multiplier = register.getMultiplier(timeStamp).orElseGet(() -> null);
+        return registerInfo;
     }
 }

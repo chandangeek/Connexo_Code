@@ -89,7 +89,6 @@ public class RegisterDataResource extends AbstractRegisterResource{
                             .isValidationActive(register1, this.clock.instant()), register.equals(register1) ? null : register1.getDevice());
                     // sort the list of readings
                     Collections.sort(infoList, (ri1, ri2) -> ri2.timeStamp.compareTo(ri1.timeStamp));
-                    addDeltaCalculationIfApplicableAndUpdateInterval(register1, infoList);
                     return infoList.stream()
                             // filter the list of readings based on user parameters
                             .filter(resourceHelper.getSuspectsFilter(filter, this::hasSuspects));
@@ -128,8 +127,7 @@ public class RegisterDataResource extends AbstractRegisterResource{
         BaseReading reading = readingInfo.createNew(register);
         validateLinkedToSlave(register, reading.getTimeStamp());
         validateManualAddedEditValueForOverflow(register, reading);
-        if ((readingInfo instanceof NumericalReadingInfo && NumericalReadingInfo.class.cast(readingInfo).isConfirmed != null && NumericalReadingInfo.class.cast(readingInfo).isConfirmed) ||
-                (readingInfo instanceof BillingReadingInfo && BillingReadingInfo.class.cast(readingInfo).isConfirmed != null && BillingReadingInfo.class.cast(readingInfo).isConfirmed)) {
+        if (readingInfo instanceof NumericalReadingInfo && NumericalReadingInfo.class.cast(readingInfo).isConfirmed != null && NumericalReadingInfo.class.cast(readingInfo).isConfirmed) {
             register.startEditingData().confirmReading(reading).complete();
         } else {
             register.startEditingData().editReading(reading).complete();
@@ -145,7 +143,8 @@ public class RegisterDataResource extends AbstractRegisterResource{
     public Response addRegisterData(@PathParam("name") String name, @PathParam("registerId") long registerId, ReadingInfo readingInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Register<?, ?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
-        if(readingInfo instanceof BillingReadingInfo && ((BillingReadingInfo) readingInfo).interval.start > ((BillingReadingInfo) readingInfo).interval.end){
+        if(readingInfo instanceof NumericalReadingInfo && ((NumericalReadingInfo) readingInfo).interval != null &&
+                ((NumericalReadingInfo) readingInfo).interval.start > ((NumericalReadingInfo) readingInfo).interval.end){
             throw new LocalizedFieldValidationException(MessageSeeds.INTERVAL_END_BEFORE_START, "interval.end");
         }
         try {
@@ -198,10 +197,7 @@ public class RegisterDataResource extends AbstractRegisterResource{
 
     private boolean hasSuspects(ReadingInfo info) {
         boolean result = true;
-        if (info instanceof BillingReadingInfo) {
-            BillingReadingInfo billingReadingInfo = (BillingReadingInfo) info;
-            result = ValidationStatus.SUSPECT.equals(billingReadingInfo.validationResult);
-        } else if (info instanceof NumericalReadingInfo) {
+        if (info instanceof NumericalReadingInfo) {
             NumericalReadingInfo numericalReadingInfo = (NumericalReadingInfo) info;
             result = ValidationStatus.SUSPECT.equals(numericalReadingInfo.validationResult);
         }

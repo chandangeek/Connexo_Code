@@ -17,7 +17,6 @@ import java.util.List;
 @XmlRootElement
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = BillingReadingInfo.class, name = "billing"),
         @JsonSubTypes.Type(value = NumericalReadingInfo.class, name = "numerical"),
         @JsonSubTypes.Type(value = TextReadingInfo.class, name = "text"),
         @JsonSubTypes.Type(value = FlagsReadingInfo.class, name = "flags")

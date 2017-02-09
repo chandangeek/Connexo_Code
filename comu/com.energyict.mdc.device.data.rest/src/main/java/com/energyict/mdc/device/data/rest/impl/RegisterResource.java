@@ -257,7 +257,6 @@ public class RegisterResource extends AbstractRegisterResource{
                             .isValidationActive(register1, this.clock.instant()), registers.contains(register1) ? null : register1.getDevice());
                     infoList.stream().forEach(readingInfo -> readingInfo.register = new IdWithNameInfo(register1.getRegisterSpecId(), register1.getReadingType().getFullAliasName()));
                     Collections.sort(infoList, (ri1, ri2) -> ri2.timeStamp.compareTo(ri1.timeStamp));
-                    addDeltaCalculationIfApplicableAndUpdateInterval(register1, infoList);
                     return infoList;
                 })
                 .flatMap(Collection::stream)
