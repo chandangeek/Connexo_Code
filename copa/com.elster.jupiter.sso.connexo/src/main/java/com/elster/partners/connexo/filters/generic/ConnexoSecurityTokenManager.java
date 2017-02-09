@@ -1,26 +1,23 @@
 package com.elster.partners.connexo.filters.generic;
 
-import com.nimbusds.jose.*;
-import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
 import javax.xml.bind.DatatypeConverter;
-import java.math.BigInteger;
-import java.security.*;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAKey;
-import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class ConnexoSecurityTokenManager {
 
@@ -31,25 +28,25 @@ public class ConnexoSecurityTokenManager {
 
     private static ConnexoSecurityTokenManager instance = null;
 
-    public static synchronized ConnexoSecurityTokenManager getInstance(Properties properties) {
+    public static synchronized ConnexoSecurityTokenManager getInstance() {
         if(instance == null) {
-            instance = new ConnexoSecurityTokenManager(properties);
+            instance = new ConnexoSecurityTokenManager();
         }
 
         return instance;
     }
 
-    private ConnexoSecurityTokenManager(Properties properties) {
-        String maxCount = properties.getProperty("com.elster.jupiter.token.refresh.maxcount");
+    private ConnexoSecurityTokenManager() {
+        String maxCount = System.getProperty("com.elster.jupiter.token.refresh.maxcount");
         MAX_COUNT = (maxCount != null)? Long.parseLong(maxCount) : 100;
 
-        String timeout = properties.getProperty("com.elster.jupiter.timeout");
+        String timeout = System.getProperty("com.elster.jupiter.timeout");
         TIMEOUT = (timeout != null) ? Integer.parseInt(timeout) : 300;
 
-        String tokenExpTime = properties.getProperty("com.elster.jupiter.token.expirationtime");
+        String tokenExpTime = System.getProperty("com.elster.jupiter.token.expirationtime");
         TOKEN_EXPTIME = (tokenExpTime != null) ? Integer.parseInt(tokenExpTime) : 300;
 
-        String publicKey = properties.getProperty("com.elster.jupiter.sso.public.key");
+        String publicKey = System.getProperty("com.elster.jupiter.sso.public.key");
         PUBLIC_KEY = (publicKey != null) ? publicKey : "";
     }
 

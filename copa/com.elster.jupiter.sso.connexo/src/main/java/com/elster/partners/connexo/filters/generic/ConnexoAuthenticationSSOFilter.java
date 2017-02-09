@@ -27,7 +27,7 @@ public class ConnexoAuthenticationSSOFilter extends ConnexoAbstractSSOFilter {
             return;
         }
 
-        ConnexoSecurityTokenManager securityManager = ConnexoSecurityTokenManager.getInstance(this.properties);
+        ConnexoSecurityTokenManager securityManager = ConnexoSecurityTokenManager.getInstance();
         ConnexoRestProxyManager restManager = ConnexoRestProxyManager.getInstance(getConnexoInternalUrl());
 
         String authorizationToken = getTokenFromCookie(request);
@@ -62,5 +62,4 @@ public class ConnexoAuthenticationSSOFilter extends ConnexoAbstractSSOFilter {
             filterChain.doFilter(new ConnexoAuthenticationRequestWrapper(principal, request, authorizationToken), response);
         }
     }
-
 }

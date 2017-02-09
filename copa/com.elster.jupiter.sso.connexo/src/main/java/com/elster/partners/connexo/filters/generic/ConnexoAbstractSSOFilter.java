@@ -10,7 +10,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.TimeZone;
 
 /**
  * Created by dragos on 11/19/2015.
@@ -147,7 +152,7 @@ public abstract class ConnexoAbstractSSOFilter implements Filter {
         response.setHeader("Set-Cookie", cookie.toString());
     }
 
-    private void loadProperties() {
+    protected void loadProperties() {
         if(CONNEXO_CONFIG != null){
             try {
                 FileInputStream inputStream = new FileInputStream(CONNEXO_CONFIG);
@@ -157,6 +162,8 @@ public abstract class ConnexoAbstractSSOFilter implements Filter {
                 e.printStackTrace();
             }
 
+            properties.putAll(System.getProperties());
+            System.setProperties(properties);
         }
     }
 }
