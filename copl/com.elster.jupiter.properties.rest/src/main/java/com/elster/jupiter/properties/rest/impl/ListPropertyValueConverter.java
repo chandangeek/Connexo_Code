@@ -10,9 +10,7 @@ import com.elster.jupiter.properties.ListValueFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.BpmProcessPropertyFactory;
 import com.elster.jupiter.properties.rest.DeviceConfigurationPropertyFactory;
-import com.elster.jupiter.properties.rest.DeviceTypePropertyFactory;
 import com.elster.jupiter.properties.rest.EndDeviceEventTypePropertyFactory;
-import com.elster.jupiter.properties.rest.LifecycleStatePropertyFactory;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.util.HasName;
@@ -41,12 +39,6 @@ public class ListPropertyValueConverter implements PropertyValueConverter {
         if (propertySpec.getValueFactory() instanceof ListReadingQualityFactory) {
             return SimplePropertyType.LISTREADINGQUALITY;
         }
-        if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory()instanceof DeviceTypePropertyFactory) {
-            return SimplePropertyType.DEVICETYPELIST;
-        }
-        if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof LifecycleStatePropertyFactory) {
-            return SimplePropertyType.LIFECYCLESTATUSLIST;
-        }
         if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof EndDeviceEventTypePropertyFactory) {
             return SimplePropertyType.ENDDEVICEEVENTTYPELIST;
         }
@@ -66,7 +58,10 @@ public class ListPropertyValueConverter implements PropertyValueConverter {
     @Override
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
         if (domainValue != null) {
-            List<Object> nameList = ((List<Object>) domainValue).stream().filter(value -> (value instanceof HasName) && !(value instanceof HasIdAndName)).map(value -> ((HasName) value).getName()).collect(Collectors.toList());
+            List<Object> nameList = ((List<Object>) domainValue).stream()
+                    .filter(value -> (value instanceof HasName) && !(value instanceof HasIdAndName))
+                    .map(value -> ((HasName) value).getName())
+                    .collect(Collectors.toList());
             List<Object> idAndnameList = ((List<Object>) domainValue).stream().filter(value -> value instanceof HasIdAndName).map(value -> ((HasIdAndName) value).getId()).collect(Collectors.toList());
             idAndnameList.addAll(nameList);
             return idAndnameList;

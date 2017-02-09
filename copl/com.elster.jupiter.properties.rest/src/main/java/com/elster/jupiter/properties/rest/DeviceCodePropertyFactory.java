@@ -1,5 +1,4 @@
 package com.elster.jupiter.properties.rest;
 
-
-public interface DeviceTypePropertyFactory {
+public interface DeviceCodePropertyFactory {
 }
