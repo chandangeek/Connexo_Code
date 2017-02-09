@@ -11,7 +11,7 @@ Ext.define('Dxp.view.tasks.SortMenu', {
     items: [
         {
             text: Uni.I18n.translate('exportTask.history.startedOn', 'DES', 'Started on'),
-            name: 'startedOn'
+            name: 'startDate'
         },
         {
             text: Uni.I18n.translate('general.status', 'DES', 'Status'),

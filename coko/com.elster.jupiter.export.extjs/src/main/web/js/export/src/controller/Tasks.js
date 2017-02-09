@@ -2787,7 +2787,7 @@ Ext.define('Dxp.controller.Tasks', {
                 direction: Uni.component.sort.model.Sort.DESC
             });
             sorting.push({
-                property: 'startedOn',
+                property: 'startDate',
                 direction: Uni.component.sort.model.Sort.DESC
             });
             store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
