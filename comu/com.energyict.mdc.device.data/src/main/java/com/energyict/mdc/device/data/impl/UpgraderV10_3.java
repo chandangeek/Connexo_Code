@@ -14,6 +14,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import javax.inject.Inject;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,4 +84,21 @@ class UpgraderV10_3 implements Upgrader {
             }
         });
     }
+
+    // Move ProtocolDialectProperties from Communication Task to Connection Task
+    private void moveProtocolDialectProperties(){
+        dataModel.useConnectionRequiringTransaction(connection -> {
+            try (Statement retrieveDialectPropertiesIdStatement = connection.createStatement();
+                Statement updatePartialConnectionTaskStatement = connection.createStatement()) {
+                String sql = "SELECT DISTINCT PROTOCOLDIALECTCONFIGPROPS, NVL(CONNECTIONTASK, DECODE(USEDEFAULTCONNECTIONTASK, 0, NULL, 1, DDC_CONNECTIONTASK.ID )) AS CONNECTIONTASKID \n" +
+                        "FROM DDC_COMTASKEXEC, DDC_CONNECTIONTASK WHERE DDC_COMTASKEXEC.DEVICE = DDC_CONNECTIONTASK.DEVICE AND DDC_CONNECTIONTASK.ISDEFAULT = 1";
+                ResultSet rs = retrieveDialectPropertiesIdStatement.executeQuery(sql);
+                while (rs.next()){
+                    updatePartialConnectionTaskStatement.addBatch(String.format("UPDATE DDC_CONNECTIONTASK SET PROTOCOLDIALECTCONFIGPROPS = %1s WHERE ID = %2s", rs.getLong(1), rs.getLong(2)));
+                }
+                updatePartialConnectionTaskStatement.executeBatch();
+            }
+        });
+    }
+
 }
