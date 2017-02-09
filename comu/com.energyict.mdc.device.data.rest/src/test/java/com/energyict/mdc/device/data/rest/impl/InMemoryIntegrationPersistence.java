@@ -41,6 +41,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoServiceModule;
@@ -257,6 +258,7 @@ public class InMemoryIntegrationPersistence {
                 new InMemoryMessagingModule(),
                 new OrmModule(),
                 new DataVaultModule(),
+                new PkiModule(),
                 new IssuesModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new BasicPropertiesModule(),
