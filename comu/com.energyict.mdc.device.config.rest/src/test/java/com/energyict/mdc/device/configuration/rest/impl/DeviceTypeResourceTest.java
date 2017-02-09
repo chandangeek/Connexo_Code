@@ -1342,7 +1342,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
         PartialScheduledConnectionTask partialConnectionTask = mock(PartialScheduledConnectionTask.class);
         when(partialConnectionTask.getConnectionType()).thenReturn(connectionType);
-        when(partialConnectionTask.getConnectionTypePropertySpecs()).thenReturn(propertySpecs);
         when(partialConnectionTask.getId()).thenReturn(id);
         when(partialConnectionTask.getName()).thenReturn("connection method");
         when(partialConnectionTask.getCommunicationWindow()).thenReturn(new ComWindow(100, 200));
