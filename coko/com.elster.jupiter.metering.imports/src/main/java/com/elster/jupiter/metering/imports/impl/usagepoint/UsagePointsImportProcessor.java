@@ -280,40 +280,42 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
 
 
     private void performUsagePointTransition(UsagePointImportRecord record, UsagePoint usagePoint) {
-        PropertyValueInfoService propertyValueInfoService = getContext().getPropertyValueInfoService();
-        UsagePointTransition usagePointTransition = getOptionalTransition(usagePoint.getState(), record.getTransition()
-                .get()).get();
+        if (record.getTransition().isPresent()) {
+            PropertyValueInfoService propertyValueInfoService = getContext().getPropertyValueInfoService();
+            UsagePointTransition usagePointTransition = getOptionalTransition(usagePoint.getState(), record.getTransition()
+                    .get()).get();
 
-        checkPreTransitionRequirements(usagePointTransition, usagePoint, record.getTransitionDate());
+            checkPreTransitionRequirements(usagePointTransition, usagePoint, record.getTransitionDate());
 
-        List<PropertySpec> transitionAttributes = usagePointTransition.getMicroActionsProperties();
+            List<PropertySpec> transitionAttributes = usagePointTransition.getMicroActionsProperties();
 
-        Map<String, String> propertiesFromCsv = record.getTransitionAttributes();
-        Map<String, Object> propertiesMap = new HashMap<>();
-        for (String propertyName : propertiesFromCsv.keySet()) {
-            Optional<PropertySpec> propertySpec = transitionAttributes
-                    .stream()
-                    .filter(spec -> spec.getDisplayName()
-                            .replaceAll(" ", "")
-                            .equalsIgnoreCase(propertyName))
-                    .findFirst();
-            if (propertySpec.isPresent()) {
-                Map<String, Object> propertyValueToSet = new HashMap<>(1);
-                //here trim(), upperCase and replaceAll() is required for searching enum values (id of propertySpec is enum value)
-                propertyValueToSet.put(propertySpec.get().getName(), propertySpec.get()
-                        .getValueFactory()
-                        .fromStringValue(propertiesFromCsv.get(propertyName)
-                                .toUpperCase()
-                                .trim()
-                                .replaceAll(" ", "_")));
-                List<PropertyInfo> propertyInfoList = propertyValueInfoService.getPropertyInfos(transitionAttributes, propertyValueToSet);
-                propertiesMap.put(propertySpec.get()
-                        .getName(), propertyValueInfoService.findPropertyValue(propertySpec.get(), propertyInfoList));
+            Map<String, String> propertiesFromCsv = record.getTransitionAttributes();
+            Map<String, Object> propertiesMap = new HashMap<>();
+            for (String propertyName : propertiesFromCsv.keySet()) {
+                Optional<PropertySpec> propertySpec = transitionAttributes
+                        .stream()
+                        .filter(spec -> spec.getDisplayName()
+                                .replaceAll(" ", "")
+                                .equalsIgnoreCase(propertyName))
+                        .findFirst();
+                if (propertySpec.isPresent()) {
+                    Map<String, Object> propertyValueToSet = new HashMap<>(1);
+                    //here trim(), upperCase and replaceAll() is required for searching enum values (id of propertySpec is enum value)
+                    propertyValueToSet.put(propertySpec.get().getName(), propertySpec.get()
+                            .getValueFactory()
+                            .fromStringValue(propertiesFromCsv.get(propertyName)
+                                    .toUpperCase()
+                                    .trim()
+                                    .replaceAll(" ", "_")));
+                    List<PropertyInfo> propertyInfoList = propertyValueInfoService.getPropertyInfos(transitionAttributes, propertyValueToSet);
+                    propertiesMap.put(propertySpec.get()
+                            .getName(), propertyValueInfoService.findPropertyValue(propertySpec.get(), propertyInfoList));
+                }
             }
-        }
 
-        getContext().getUsagePointLifeCycleService()
-                .scheduleTransition(usagePoint, usagePointTransition, record.getTransitionDate(), "INS", propertiesMap);
+            getContext().getUsagePointLifeCycleService()
+                    .scheduleTransition(usagePoint, usagePointTransition, record.getTransitionDate(), "INS", propertiesMap);
+        }
     }
 
     private Optional<UsagePointTransition> getOptionalTransition(UsagePointState usagePointState, String transitionName) {

@@ -92,7 +92,7 @@ public class UsagePointImportHelper {
         usagePoint.addDetail(usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, clock.instant()));
         usagePoint.update();
 
-        if(data.getMetrologyConfiguration().isPresent()) {
+        if (data.getMetrologyConfiguration().isPresent()) {
             validateMetrologyConfiguration(data.getMetrologyConfiguration().get(), usagePoint, data);
             setMetrologyConfigurationForUsagePoint(data, usagePoint);
         }
@@ -168,9 +168,13 @@ public class UsagePointImportHelper {
 
 
     public void setMetrologyConfigurationForUsagePoint(UsagePointImportRecord data, UsagePoint usagePoint) {
-        UsagePointMetrologyConfiguration metrologyConfiguration = (UsagePointMetrologyConfiguration) context.getMetrologyConfigurationService()
-                .findMetrologyConfiguration(data.getMetrologyConfiguration().get()).get();
-            usagePoint.apply(metrologyConfiguration, data.getMetrologyConfigurationApplyTime().get());
+        if(data.getMetrologyConfiguration().isPresent()) {
+            context.getMetrologyConfigurationService()
+                    .findMetrologyConfiguration(data.getMetrologyConfiguration().get())
+                    .ifPresent(configuration ->
+                            usagePoint.apply(((UsagePointMetrologyConfiguration) configuration), data.getMetrologyConfigurationApplyTime()
+                                    .get()));
+        }
     }
 
     private void addCustomPropertySetsValues(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data) {
@@ -204,12 +208,20 @@ public class UsagePointImportHelper {
     }
 
     private Range<Instant> getRangeToCreate(CustomPropertySetRecord customPropertySetRecord) {
-        if ((!customPropertySetRecord.getStartTime().isPresent() || customPropertySetRecord.getStartTime().get().equals(Instant.EPOCH))
-                && (!customPropertySetRecord.getEndTime().isPresent() || customPropertySetRecord.getEndTime().get().equals(Instant.EPOCH))) {
+        if ((!customPropertySetRecord.getStartTime().isPresent() || customPropertySetRecord.getStartTime()
+                .get()
+                .equals(Instant.EPOCH))
+                && (!customPropertySetRecord.getEndTime().isPresent() || customPropertySetRecord.getEndTime()
+                .get()
+                .equals(Instant.EPOCH))) {
             return Range.all();
-        } else if (!customPropertySetRecord.getStartTime().isPresent() || customPropertySetRecord.getStartTime().get().equals(Instant.EPOCH)) {
+        } else if (!customPropertySetRecord.getStartTime().isPresent() || customPropertySetRecord.getStartTime()
+                .get()
+                .equals(Instant.EPOCH)) {
             return Range.lessThan(customPropertySetRecord.getEndTime().get());
-        } else if (!customPropertySetRecord.getEndTime().isPresent() || customPropertySetRecord.getEndTime().get().equals(Instant.EPOCH)) {
+        } else if (!customPropertySetRecord.getEndTime().isPresent() || customPropertySetRecord.getEndTime()
+                .get()
+                .equals(Instant.EPOCH)) {
             return Range.atLeast(customPropertySetRecord.getStartTime().get());
         } else {
             return Range.closedOpen(
