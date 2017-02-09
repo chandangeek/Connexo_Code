@@ -39,7 +39,6 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksDetails', {
                 me.getOverviewLink().setText(record.get('name'));
                 me.getDetailForm().getForm().loadRecord(record);
                 me.getActionMenu().record = record;
-                widget.down('#estimationtasks-details-panel').setTitle(Ext.String.htmlEncode(record.get('name')));
                 if (record.get('status') !== 'Busy') {
                     if (Est.privileges.EstimationConfiguration.canRun()) {
                         widget.down('#run-estimation-task').show();

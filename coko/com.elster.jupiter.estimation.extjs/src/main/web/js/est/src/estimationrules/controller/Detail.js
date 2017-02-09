@@ -56,7 +56,6 @@ Ext.define('Est.estimationrules.controller.Detail', {
                     me.getApplication().fireEvent('loadEstimationRule', record);
                     widget.down('estimation-rules-detail-form').updateForm(record);
                     widget.down('#estimation-rule-detail-action-menu').record = record;
-                    widget.down('estimation-rules-detail-form').setTitle(Ext.String.htmlEncode(record.get('name')));
                 }
             }
         });
