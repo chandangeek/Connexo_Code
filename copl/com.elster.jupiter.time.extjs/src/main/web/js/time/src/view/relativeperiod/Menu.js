@@ -15,7 +15,7 @@ Ext.define('Tme.view.relativeperiod.Menu', {
 
         me.menuItems = [
             {
-                text: Uni.I18n.translate('general.overview', 'TME', 'Overview'),
+                text: Uni.I18n.translate('general.details', 'TME', 'Details'),
                 itemId: 'relative-period-overview-link',
                 href: me.router.getRoute('administration/relativeperiods/relativeperiod').buildUrl()
             }

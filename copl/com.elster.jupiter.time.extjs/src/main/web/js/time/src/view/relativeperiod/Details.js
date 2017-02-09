@@ -20,7 +20,7 @@ Ext.define('Tme.view.relativeperiod.Details', {
         items: [
             {
                 ui: 'large',
-                title: Uni.I18n.translate('general.overview', 'TME', 'Overview'),
+                title: Uni.I18n.translate('general.Details', 'TME', 'Details'),
                 flex: 1,
                 items: [
                     {
