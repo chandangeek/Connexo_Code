@@ -165,6 +165,12 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         dataModel.getInstance(KeyStoreImpl.class).init(dataVaultService);
         try (OutputStreamWriter writer = new OutputStreamWriter(Files.newOutputStream(FileSystems.getDefault()
                 .getPath(fileName)))) {
+            Optional<User> foundUser = userService.findUser("process executor");
+            if(foundUser.isPresent()) {
+                writer.write("\ncom.elster.jupiter.token=");
+                writer.write(securityToken.createPermanentToken(foundUser.get()));
+            }
+            writer.write("\ncom.elster.jupiter.sso.public.key=");
             writer.write(new String(dataVaultService.decrypt(getKeyPair().get().getPublicKey())));
             writer.flush();
         }

@@ -65,7 +65,15 @@ public class SecurityTokenImpl {
         return tokenExpiration + timeOut;
     }
 
+    public String createPermanentToken(User user) {
+        return createToken(user, 0, "", new Date(Long.MAX_VALUE));
+    }
+
     public String createToken(User user, long count, String ipAddr) {
+        return createToken(user, count, ipAddr, new Date(System.currentTimeMillis() + tokenExpiration * 1000));
+    }
+
+    private String createToken(User user, long count, String ipAddr, Date tokenExpiration) {
         try {
             JWSSigner signer = new RSASSASigner(privateKey);
 
@@ -83,7 +91,7 @@ public class SecurityTokenImpl {
             claimsSet.setCustomClaim("cnt", count);
             claimsSet.setJWTID("token" + count);
             claimsSet.setIssueTime(new Date());
-            claimsSet.setExpirationTime(new Date(System.currentTimeMillis() + tokenExpiration * 1000));
+            claimsSet.setExpirationTime(tokenExpiration);
 
             SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
 
