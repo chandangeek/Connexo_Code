@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 //Ext.require('Uni.Loader');
 
 Ext.onReady(function () {
