@@ -4,7 +4,6 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -16,8 +15,7 @@ import java.math.BigDecimal;
 @XmlRootElement
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = BillingRegisterInfo.class, name = "billing"),
-        @JsonSubTypes.Type(value = NumericalRegisterInfo.class, name = "numerical"),
+        @JsonSubTypes.Type(value = RegisterInfo.class, name = "numerical"),
         @JsonSubTypes.Type(value = TextRegisterInfo.class, name = "text"),
         @JsonSubTypes.Type(value = FlagsRegisterInfo.class, name = "flags")
 })
