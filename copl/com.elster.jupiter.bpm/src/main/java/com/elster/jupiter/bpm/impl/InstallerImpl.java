@@ -17,6 +17,7 @@ import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
@@ -30,6 +31,11 @@ class InstallerImpl implements FullInstaller, PrivilegesProvider {
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
     private static final String BPM_DESIGNER_ROLE = "Business process designer";
     private static final String BPM_DESIGNER_ROLE_DESCRIPTION = "Business process designer privilege";
+
+    private static final String BPM_EXECUTOR_ROLE = "Business process executor";
+    private static final String BPM_EXECUTOR_ROLE_DESCRIPTION = "Business process executor privilege";
+
+    private static final String BPM_EXECUTOR_USER = "process executor";
 
     private final DataModel dataModel;
     private final MessageService messageService;
@@ -53,6 +59,11 @@ class InstallerImpl implements FullInstaller, PrivilegesProvider {
         doTry(
                 "Create default roles for BPM",
                 this::createDefaultRoles,
+                logger
+        );
+        doTry(
+                "Create default user for BPM",
+                this::createProcessExecutor,
                 logger
         );
         userService.addModulePrivileges(this);
@@ -105,9 +116,26 @@ class InstallerImpl implements FullInstaller, PrivilegesProvider {
         destinationSpec.subscribe(TranslationKeys.QUEUE_SUBSCRIBER, BpmService.COMPONENTNAME, Layer.DOMAIN);
     }
 
-    private void createDefaultRoles() {
-        Group group = userService.createGroup(BPM_DESIGNER_ROLE, BPM_DESIGNER_ROLE_DESCRIPTION);
-        userService.grantGroupWithPrivilege(group.getName(), BpmService.COMPONENTNAME, new String[]{"privilege.design.bpm"});
+    protected void createDefaultRoles() {
+        createDesignerRole();
+        createExecutorRole();
     }
 
+    protected void createDesignerRole() {
+        Group designer = userService.createGroup(BPM_DESIGNER_ROLE, BPM_DESIGNER_ROLE_DESCRIPTION);
+        userService.grantGroupWithPrivilege(designer.getName(), BpmService.COMPONENTNAME, new String[]{"privilege.design.bpm"});
+    }
+
+    protected void createExecutorRole() {
+        Group executor = userService.createGroup(BPM_EXECUTOR_ROLE, BPM_EXECUTOR_ROLE_DESCRIPTION);
+        userService.grantGroupWithPrivilege(executor.getName(), BpmService.COMPONENTNAME, new String[]{"privilege.view.userAndRole", "privilege.pulse.public.api.rest", "privilege.public.api.rest"});
+    }
+
+    protected void createProcessExecutor() {
+        User user = userService.createUser(BPM_EXECUTOR_USER, "User to execute business processes.");
+        user.update();
+        Group group = userService.findGroup(BPM_EXECUTOR_ROLE).orElseThrow(() -> new IllegalStateException("Couldn't find Business process executor role"));
+        group.update();
+        user.join(group);
+    }
 }
