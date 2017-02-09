@@ -30,10 +30,9 @@ public enum TranslationKeys implements TranslationKey {
     TRIGGERING_EVENTS(ModuleConstants.TRIGGERING_EVENTS, "Alarm triggering events"),
     CLEARING_EVENTS(ModuleConstants.CLEARING_EVENTS, "Alarm clearing events"),
     EVENT_OCCURENCE_COUNT(ModuleConstants.EVENT_OCCURENCE_COUNT, "Event occurence count"),
-    DEVICE_LIFECYCLE_STATE(ModuleConstants.DEVICE_LIFECYCLE_STATE, "Device lifecycle state"),
-    DEVICE_TYPE(ModuleConstants.DEVICE_TYPE, "Device type"),
+    DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES(ModuleConstants.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, "Device lifecycle state in device type "),
     DEVICE_CODE(ModuleConstants.DEVICE_CODE, "Device code"),
-    ALARM_RELATIVE_PERIOD_CATEGORY(ModuleConstants.ALARM_RELATIVE_PERIOD_CATEGORY, "Alarms");
+    ALARM_RELATIVE_PERIOD_CATEGORY(ModuleConstants.ALARM_RELATIVE_PERIOD_CATEGORY, "Alarms")
     ;
     //TODO - update list
 

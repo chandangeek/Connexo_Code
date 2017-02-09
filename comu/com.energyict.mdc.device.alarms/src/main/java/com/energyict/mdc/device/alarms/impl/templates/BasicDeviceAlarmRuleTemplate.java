@@ -20,9 +20,9 @@ import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.properties.rest.DeviceTypePropertyFactory;
+import com.elster.jupiter.properties.rest.DeviceCodePropertyFactory;
+import com.elster.jupiter.properties.rest.DeviceLifeCycleInDeviceTypePropertyFactory;
 import com.elster.jupiter.properties.rest.EndDeviceEventTypePropertyFactory;
-import com.elster.jupiter.properties.rest.LifecycleStatePropertyFactory;
 import com.elster.jupiter.properties.rest.RaiseEventPropertyFactory;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasName;
@@ -40,6 +40,8 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -49,12 +51,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Component(name = "com.energyict.mdc.device.alarms.BasicDeviceAlarmRuleTemplate",
         property = {"name=" + BasicDeviceAlarmRuleTemplate.NAME},
@@ -69,9 +75,9 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     public static final String CLEARING_EVENTS = NAME + ".clearingEvents";
     public static final String THRESHOLD = NAME + ".threshold";
     public static final String EVENT_OCCURENCE_COUNT = NAME + ".eventCount";
-    public static final String DEVICE_LIFECYCLE_STATE = NAME + ".deviceLifecyle";
-    public static final String DEVICE_TYPES = NAME + ".deviceTypes";
+    public static final String DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES = NAME + ".deviceLifecyleInDeviceTypes";
     public static final String DEVICE_CODES = NAME + ".deviceCodes";
+    private static final String RAISE_EVENT_PROPS_DEFAULT_VALUE = "1-1-1";
 
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
@@ -161,8 +167,8 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 "when\n" +
                 "\tevent : DeviceAlarmEvent( eventType == \"@{" + EVENTTYPE + "}\" )\n" +
                 "\teval( event.computeOccurenceCount(@{ruleId}, \"@{" + THRESHOLD + "}\", \"@{" + RAISE_EVENT_PROPS + "}\", \"@{" + TRIGGERING_EVENTS + "}\", \"@{" + CLEARING_EVENTS + "}\", \"@{" + DEVICE_CODES + "}\") >= @{" + EVENT_OCCURENCE_COUNT + "} )\n" +
-                "\teval( event.hasAssociatedDeviceLifecycleStateIn(\"@{" + DEVICE_LIFECYCLE_STATE + "}\") == true )\n" +
-                "\teval( event.hasAssociatedDeviceTypeIn(\"@{" + DEVICE_TYPES + "}\") == true )\n" +
+                //"\teval( event.hasAssociatedDeviceLifecycleStateIn(\"@{" + DEVICE_LIFECYCLE_STATE + "}\") == true )\n" +
+               // "\teval( event.hasAssociatedDeviceTypeIn(\"@{" + DEVICE_TYPES + "}\") == true )\n" +
                 "then\n" +
                 "\tSystem.out.println(\"Processing device alarm based on rule template number @{ruleId}\");\n" +
                 "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event," + "\"@{" + RAISE_EVENT_PROPS + "}\");\n" +
@@ -193,17 +199,17 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
         EventTypes eventTypes = new EventTypes(getThesaurus(), DeviceAlarmEventDescription.values());
-        /*EventTypeInfo[] possibleEventTypes = meteringService.getAvailableEndDeviceEventTypes().stream().map(EventTypeInfo::new)
-                .toArray(EventTypeInfo[]::new); */
-        DeviceTypeInfo[] possibleDeviceTypes = deviceConfigurationService.findAllDeviceTypes()
-                .find().stream().map(DeviceTypeInfo::new)
-                .toArray(DeviceTypeInfo[]::new);
-        DeviceLifecycleStatusInfo[] possibleDeviceLifecycleStates = deviceLifeCycleConfigurationService
-                .findAllDeviceLifeCycles().find()
-                .stream().map(lifecycle -> lifecycle.getFiniteStateMachine().getStates())
-                .flatMap(Collection::stream)
-                .map(DeviceLifecycleStatusInfo::new)
-                .toArray(DeviceLifecycleStatusInfo[]::new);
+       /* DeviceLifeCycleInDeviceTypeInfo[] possibleValues = deviceConfigurationService.findAllDeviceTypes()
+                .find().stream()
+                .sorted(Comparator.comparing(DeviceType::getId))
+                .flatMap(deviceType ->
+                        deviceType.getDeviceLifeCycle().getFiniteStateMachine().getStates().stream()
+                                .sorted(Comparator.comparing(State::getId))
+                                .map(state -> new AbstractMap.SimpleImmutableEntry<>(deviceType, state)))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)).entrySet()
+                .stream()
+                .map(entry -> new DeviceLifeCycleInDeviceTypeInfo(entry.getKey(), entry.getValue()))
+                .toArray(DeviceLifeCycleInDeviceTypeInfo[]::new); */
         builder.add(propertySpecService
                 .specForValuesOf(new EventTypeValueFactory(eventTypes))
                 .named(EVENTTYPE, TranslationKeys.PARAMETER_NAME_EVENT_TYPE)
@@ -213,18 +219,11 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish());
         builder.add(propertySpecService
-                .stringSpec()
+                .specForValuesOf(new RaiseEventPropsInfoValueFactory())
                 .named(RAISE_EVENT_PROPS, TranslationKeys.RAISE_EVENT_PROPS)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-                .setDefaultValue("0-0-0")
-                .finish());
-        builder.add(propertySpecService
-                .relativePeriodSpec()
-                .named(THRESHOLD, TranslationKeys.EVENT_TEMPORAL_THRESHOLD)
-                .fromThesaurus(this.getThesaurus())
-                .markRequired()
-                .setDefaultValue(timeService.getAllRelativePeriod())
+                .setDefaultValue(new RaiseEventPropsInfo(RAISE_EVENT_PROPS_DEFAULT_VALUE))
                 .finish());
         builder.add(propertySpecService
                 .longSpec()
@@ -234,12 +233,19 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 // .markExhaustive()
                 .finish());
         builder.add(propertySpecService
+                .relativePeriodSpec()
+                .named(THRESHOLD, TranslationKeys.EVENT_TEMPORAL_THRESHOLD)
+                .fromThesaurus(this.getThesaurus())
+                .markRequired()
+                .setDefaultValue(timeService.getAllRelativePeriod())
+                .finish());
+        builder.add(propertySpecService
                 .specForValuesOf(new EventTypeInfoValueFactory())
                 .named(TRIGGERING_EVENTS, TranslationKeys.TRIGGERING_EVENTS)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 .markMultiValued(",")
-              //  .addValues(possibleEventTypes)
+                //  .addValues(possibleEventTypes)
                 .finish());
         builder.add(propertySpecService
                 .specForValuesOf(new EventTypeInfoValueFactory())
@@ -250,31 +256,21 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 // .markExhaustive()
                 .finish());
         builder.add(propertySpecService
-                .specForValuesOf(new DeviceLifecycleStatusInfoValueFactory())
-                .named(DEVICE_LIFECYCLE_STATE, TranslationKeys.DEVICE_LIFECYCLE_STATE)
+                .specForValuesOf(new DeviceLifeCycleInDeviceTypeInfoFactory())
+                .named(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, TranslationKeys.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 .markMultiValued(",")
-                .addValues(possibleDeviceLifecycleStates)
+               // .addValues(possibleValues)
                 .markExhaustive(PropertySelectionMode.LIST)
                 .finish());
         builder.add(propertySpecService
-                .specForValuesOf(new DeviceTypeInfoValueFactory())
-                .named(DEVICE_TYPES, TranslationKeys.DEVICE_TYPE)
-                .fromThesaurus(this.getThesaurus())
-                .addValues(possibleDeviceTypes)
-                .markRequired()
-                .markMultiValued(",")
-                .markExhaustive(PropertySelectionMode.LIST)
-                // .markExhaustive()
-                .finish());
-        builder.add(propertySpecService
-                .stringSpec()
+                .specForValuesOf(new DeviceCodeInfoValueFactory())
                 .named(DEVICE_CODES, TranslationKeys.DEVICE_CODE)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 .markMultiValued(",")
-             //   .markExhaustive(PropertySelectionMode.LIST)
+                //   .markExhaustive(PropertySelectionMode.LIST)
                 .finish());
         return builder.build();
     }
@@ -325,7 +321,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         @Override
         public HasName fromStringValue(String stringValue) {
             //TODO - add inexistent event, after being validated, to MTR_ENDDEVICEEVENTTYPE on creation rule save
-         return meteringService.getEndDeviceEventType(stringValue)
+            return meteringService.getEndDeviceEventType(stringValue)
                     .map(EventTypeInfo::new)
                     .orElse(null);
         }
@@ -450,13 +446,27 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     }
 
 
-    private class DeviceTypeInfoValueFactory implements ValueFactory<HasIdAndName>, DeviceTypePropertyFactory {
+    private class DeviceLifeCycleInDeviceTypeInfoFactory implements ValueFactory<HasIdAndName>, DeviceLifeCycleInDeviceTypePropertyFactory {
         @Override
         public HasIdAndName fromStringValue(String stringValue) {
-            return deviceConfigurationService
-                    .findDeviceType(Long.parseLong(stringValue))
-                    .map(DeviceTypeInfo::new)
-                    .orElse(null);
+
+            try {
+                JSONObject jsonData = new JSONObject(stringValue);
+                DeviceType deviceType = deviceConfigurationService
+                        .findDeviceType(Long.parseLong(jsonData.get("deviceTypeId").toString()))
+                        .orElse(null);
+                long lifecycleId = Long.parseLong(jsonData.get("lifecycleStateId").toString().substring(jsonData.get("lifecycleStateId").toString().indexOf(".") + 1));
+                State lifeCycleState = deviceLifeCycleConfigurationService
+                        .findAllDeviceLifeCycles().find()
+                        .stream().map(lifecycle -> lifecycle.getFiniteStateMachine().getStates())
+                        .flatMap(Collection::stream)
+                        .filter(stateValue -> stateValue.getId() == lifecycleId)
+                        .findFirst()
+                        .orElse(null);
+                return new DeviceLifeCycleInDeviceTypeInfo(deviceType, lifeCycleState);
+            } catch (JSONException e) {
+            }
+            return null;
         }
 
         @Override
@@ -498,23 +508,39 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         }
     }
 
-    @XmlRootElement
-    static class DeviceTypeInfo extends HasIdAndName {
+    public static class DeviceLifeCycleInDeviceTypeInfo extends HasIdAndName {
 
-        private transient DeviceType deviceType;
+        private Optional<DeviceType> deviceType;
+        private Optional<State> lifeCycleState;
 
-        DeviceTypeInfo(DeviceType deviceType) {
-            this.deviceType = deviceType;
+        public DeviceLifeCycleInDeviceTypeInfo(DeviceType deviceType, State lifeCycleState) {
+            this.deviceType = deviceType != null ? Optional.of(deviceType) : Optional.empty();
+            this.lifeCycleState = lifeCycleState != null ? Optional.of(lifeCycleState) : Optional.empty();
         }
 
         @Override
-        public Long getId() {
-            return deviceType.getId();
+        public String getId() {
+            try {
+                JSONObject jsonId = new JSONObject();
+                jsonId.put("deviceTypeId", deviceType.map(DeviceType::getId).orElse(-1L));
+                jsonId.put("lifeCycleStateId", lifeCycleState.map(State::getId).orElse(-1L));
+                return jsonId.toString();
+            } catch (JSONException e) {
+            }
+            return "";
         }
 
         @Override
         public String getName() {
-            return deviceType.getName();
+            try {
+                JSONObject jsonId = new JSONObject();
+                jsonId.put("deviceTypeName", deviceType.map(DeviceType::getName).orElse(""));
+                jsonId.put("lifeCycleStateName", deviceType.map(DeviceType::getName).orElse("") + "." + lifeCycleState.map(State::getName).orElse(""));
+                return jsonId.toString();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return "";
         }
 
         @Override
@@ -522,16 +548,16 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
             if (this == o) {
                 return true;
             }
-            if (!(o instanceof DeviceTypeInfo)) {
+            if (!(o instanceof DeviceLifeCycleInDeviceTypeInfo)) {
                 return false;
             }
             if (!super.equals(o)) {
                 return false;
             }
 
-            DeviceTypeInfo that = (DeviceTypeInfo) o;
+            DeviceLifeCycleInDeviceTypeInfo that = (DeviceLifeCycleInDeviceTypeInfo) o;
 
-            return deviceType.equals(that.deviceType);
+            return deviceType.equals(that.deviceType) && lifeCycleState.equals(that.lifeCycleState);
 
         }
 
@@ -539,103 +565,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         public int hashCode() {
             int result = super.hashCode();
             result = 31 * result + deviceType.hashCode();
-            return result;
-        }
-    }
-
-    private class DeviceLifecycleStatusInfoValueFactory implements ValueFactory<HasIdAndName>, LifecycleStatePropertyFactory {
-        @Override
-        public HasIdAndName fromStringValue(String stringValue) {
-            return deviceLifeCycleConfigurationService
-                    .findAllDeviceLifeCycles().find()
-                    .stream().map(lifecycle -> lifecycle.getFiniteStateMachine().getStates())
-                    .flatMap(Collection::stream)
-                    .filter(stateValue -> stateValue.getId() == Long.parseLong(stringValue))
-                    .findFirst()
-                    .map(DeviceLifecycleStatusInfo::new)
-                    .orElse(null);
-        }
-
-        @Override
-        public String toStringValue(HasIdAndName object) {
-            return String.valueOf(object.getId());
-        }
-
-        @Override
-        public Class<HasIdAndName> getValueType() {
-            return HasIdAndName.class;
-        }
-
-        @Override
-        public HasIdAndName valueFromDatabase(Object object) {
-            return this.fromStringValue((String) object);
-        }
-
-        @Override
-        public Object valueToDatabase(HasIdAndName object) {
-            return this.toStringValue(object);
-        }
-
-        @Override
-        public void bind(PreparedStatement statement, int offset, HasIdAndName value) throws SQLException {
-            if (value != null) {
-                statement.setObject(offset, valueToDatabase(value));
-            } else {
-                statement.setNull(offset, Types.VARCHAR);
-            }
-        }
-
-        @Override
-        public void bind(SqlBuilder builder, HasIdAndName value) {
-            if (value != null) {
-                builder.addObject(valueToDatabase(value));
-            } else {
-                builder.addNull(Types.VARCHAR);
-            }
-        }
-    }
-
-    @XmlRootElement
-    static class DeviceLifecycleStatusInfo extends HasIdAndName {
-
-        private transient State state;
-
-        DeviceLifecycleStatusInfo(State state) {
-            this.state = state;
-        }
-
-        @Override
-        public Long getId() {
-            return state.getId();
-        }
-
-        @Override
-        public String getName() {
-            return state.getName();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (!(o instanceof DeviceLifecycleStatusInfo)) {
-                return false;
-            }
-            if (!super.equals(o)) {
-                return false;
-            }
-
-            DeviceLifecycleStatusInfo that = (DeviceLifecycleStatusInfo) o;
-
-            return state.equals(that.state);
-
-        }
-
-        @Override
-        public int hashCode() {
-            int result = super.hashCode();
-            result = 31 * result + state.hashCode();
+            result = 31 * result + lifeCycleState.hashCode();
             return result;
         }
     }
@@ -701,15 +631,15 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
             return value;
         }
 
-        public boolean logOnSameAlarm(){
+        public boolean logOnSameAlarm() {
             return Integer.parseInt(Arrays.asList(value.split("-")).get(0)) == 1;
         }
 
-        public boolean hasIncreaseUrgency(){
+        public boolean hasIncreaseUrgency() {
             return Integer.parseInt(Arrays.asList(value.split("-")).get(1)) == 1;
         }
 
-        public boolean hasDecreaseUrgency(){
+        public boolean hasDecreaseUrgency() {
             return Integer.parseInt(Arrays.asList(value.split("-")).get(2)) == 1;
         }
 
@@ -736,6 +666,86 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
 
 
 
+    private class DeviceCodeInfoValueFactory implements ValueFactory<HasName>, DeviceCodePropertyFactory {
+        @Override
+        public HasName fromStringValue(String stringValue) {
+            return new RaiseEventPropsInfo(stringValue);
+        }
+
+        @Override
+        public String toStringValue(HasName object) {
+            return String.valueOf(object.getName());
+        }
+
+        @Override
+        public Class<HasName> getValueType() {
+            return HasName.class;
+        }
+
+        @Override
+        public HasName valueFromDatabase(Object object) {
+            return this.fromStringValue((String) object);
+        }
+
+        @Override
+        public Object valueToDatabase(HasName object) {
+            return this.toStringValue(object);
+        }
+
+        @Override
+        public void bind(PreparedStatement statement, int offset, HasName value) throws SQLException {
+            if (value != null) {
+                statement.setObject(offset, valueToDatabase(value));
+            } else {
+                statement.setNull(offset, Types.VARCHAR);
+            }
+        }
+
+        @Override
+        public void bind(SqlBuilder builder, HasName value) {
+            if (value != null) {
+                builder.addObject(valueToDatabase(value));
+            } else {
+                builder.addNull(Types.VARCHAR);
+            }
+        }
+    }
+
+    @XmlRootElement
+    static class DeviceCodeInfo implements HasName {
+
+        private transient String value;
+
+        DeviceCodeInfo(String value) {
+            this.value = value;
+        }
+
+
+        @Override
+        public String getName() {
+            return value;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof DeviceCodeInfo)) {
+                return false;
+            }
+
+            DeviceCodeInfo that = (DeviceCodeInfo) o;
+
+            return value.equals(that.value);
+
+        }
+
+        @Override
+        public int hashCode() {
+            return value.hashCode();
+        }
+    }
 
 
     //TODO - write a check method to avoid number format exceptions

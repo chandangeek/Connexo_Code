@@ -178,13 +178,18 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
                 StringTokenizer starredElementTokenizer = getTokenized(starredElement);
                 for (String loggedElement : loggedEventTypeList) {
                     StringTokenizer loggedElementTokenizer = getTokenized(loggedElement);
+                    int internalCount = 0;
                     while (starredElementTokenizer.hasMoreTokens()) {
                         String starredNextToken = starredElementTokenizer.nextToken();
-                        if (starredNextToken.equals("*")) {
-                            continue;
-                        } else if (starredNextToken.equals(loggedElementTokenizer.nextToken())) {
-                            ++count;
+                        String loggedElementNextToken = loggedElementTokenizer.nextToken();
+                        if (starredNextToken.equals("*") || starredNextToken.equals(loggedElementNextToken)) {
+                            ++internalCount;
+                        } else {
+                            break;
                         }
+                    }
+                    if (internalCount == 4) {
+                        ++count;
                     }
                 }
 
@@ -207,11 +212,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         Optional<String> foundAssociatedState = Arrays.asList(avaliableDeviceLifecycleState.split(","))
                 .stream().collect(Collectors.collectingAndThen(Collectors.toList(), Collection::stream))
                 .filter(state -> Long.parseLong(state) == deviceStateId).findFirst();
-        if (foundAssociatedState.isPresent()) {
-            return true;
-        } else {
-            return false;
-        }
+        return foundAssociatedState.isPresent();
     }
 
     public boolean hasAssociatedDeviceTypeIn(String deviceTypes) {
@@ -219,11 +220,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         Optional<String> foundAssociatedType = Arrays.asList(deviceTypes.split(","))
                 .stream().collect(Collectors.collectingAndThen(Collectors.toList(), Collection::stream))
                 .filter(type -> Long.parseLong(type) == deviceTypeId).findFirst();
-        if (foundAssociatedType.isPresent()) {
-            return true;
-        } else {
-            return false;
-        }
+        return foundAssociatedType.isPresent();
     }
 
     public boolean isClearing(List<String> endDeviceEventTypes) {
