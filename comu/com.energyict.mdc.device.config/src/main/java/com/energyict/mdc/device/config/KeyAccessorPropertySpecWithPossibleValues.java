@@ -4,6 +4,7 @@
 package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
@@ -15,7 +16,9 @@ import java.util.List;
 
 /**
  * Adds possible values to an existing property spec, all other methods are delegated to the original
- * We need to add these values in the backend, because FrontEnd can't handle looking them up on other rest resource.
+ *
+ * The possible values can not be added by the protocol of connection type, because the values can be configured on the DeviceType and are thus
+ * only available in a DeviceType context
  */
 public class KeyAccessorPropertySpecWithPossibleValues implements PropertySpec {
     private final Provider<List<KeyAccessorType>> keyAccessorTypeProvider;
@@ -24,6 +27,9 @@ public class KeyAccessorPropertySpecWithPossibleValues implements PropertySpec {
     private KeyAccessorPropertySpecWithPossibleValues(Provider<List<KeyAccessorType>> keyAccessorTypeProvider, PropertySpec propertySpec) {
         this.keyAccessorTypeProvider = keyAccessorTypeProvider;
         this.propertySpec = propertySpec;
+        if (BasicPropertySpec.class.isAssignableFrom(propertySpec.getClass())) {
+            ((BasicPropertySpec)propertySpec).setPossibleValues(getPossibleValues()); // Explicit call to set values to allow validation
+        }
     }
 
     /**
