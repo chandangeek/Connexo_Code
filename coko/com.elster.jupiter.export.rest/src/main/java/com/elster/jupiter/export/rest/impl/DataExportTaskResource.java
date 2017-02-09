@@ -127,15 +127,16 @@ public class DataExportTaskResource {
     @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
     public PagedInfoList getAllDataExportTaskHistory(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
         String applicationName = getApplicationNameFromCode(appCode);
-        ExportTaskFinder finder = dataExportService.findExportTasks().ofApplication(applicationName);
-        queryParameters.getStart().ifPresent(finder::setStart);
-        queryParameters.getLimit().ifPresent(finder::setLimit);
-
-        List<DataExportTaskHistoryInfo> infos = finder.stream()
-                .flatMap(task -> getAllHistoryFromTask(task, filter, task.getOccurrencesFinder()).stream())
+        DataExportOccurrenceFinder occurrencesFinder = dataExportService.getDataExportOccurrenceFinder();
+        List<Long> taskIds = dataExportService.findExportTasks().ofApplication(applicationName)
+                .stream()
+                .map(ExportTask::getId)
                 .collect(Collectors.toList());
+        queryParameters.getStart().ifPresent(occurrencesFinder::setStart);
+        queryParameters.getLimit().ifPresent(occurrencesFinder::setLimit);
+        occurrencesFinder.setOrder(queryParameters.getSortingColumns());
 
-        return PagedInfoList.fromPagedList("data", infos, queryParameters);
+        return PagedInfoList.fromPagedList("data", getHistoryFromTasks(filter, occurrencesFinder, taskIds), queryParameters);
     }
 
     private String getApplicationNameFromCode(String appCode) {
@@ -596,7 +597,7 @@ public class DataExportTaskResource {
                         .ifPresent(destination -> destinationInfo.type.update(destination, destinationInfo)));
     }
 
-    private List<DataExportTaskHistoryInfo> getAllHistoryFromTask(ExportTask task, JsonQueryFilter filter, DataExportOccurrenceFinder occurrencesFinder) {
+    private List<DataExportTaskHistoryInfo> getHistoryFromTasks(JsonQueryFilter filter, DataExportOccurrenceFinder occurrencesFinder, List<Long> exportTaskIds) {
         if (filter.hasProperty("startedOnFrom")) {
             if (filter.hasProperty("startedOnTo")) {
                 occurrencesFinder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"), filter.getInstant("startedOnTo")));
@@ -618,21 +619,17 @@ public class DataExportTaskResource {
         if (filter.hasProperty("exportTask")) {
             occurrencesFinder.withExportTask(filter.getLongList("exportTask"));
         }
-        return getFinderWithStatusFilter(occurrencesFinder, filter)
-                .stream()
-                .map(occurrence -> dataExportTaskHistoryInfoFactory.asInfo(task.getHistory(), occurrence))
-                .collect(Collectors.toList());
-    }
-
-    private DataExportOccurrenceFinder getFinderWithStatusFilter(DataExportOccurrenceFinder occurrenceFinder, JsonQueryFilter filter) {
         if (filter.hasProperty("status")) {
-            occurrenceFinder.withExportStatus(filter.getStringList("status")
+            occurrencesFinder.withExportStatus(filter.getStringList("status")
                     .stream()
                     .map(DataExportStatus::valueOf)
                     .collect(Collectors.toList()));
         }
-
-        return occurrenceFinder;
+        return occurrencesFinder
+                .withExportTask(exportTaskIds)
+                .stream()
+                .map(occurrence -> dataExportTaskHistoryInfoFactory.asInfo(occurrence.getTask().getHistory(), occurrence))
+                .collect(Collectors.toList());
     }
 
     private Predicate<DestinationInfo> isNewDestination() {

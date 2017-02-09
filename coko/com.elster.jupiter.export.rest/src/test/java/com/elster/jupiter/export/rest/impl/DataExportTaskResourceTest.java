@@ -75,6 +75,7 @@ import static com.elster.jupiter.export.rest.impl.DataExportTaskResource.X_CONNE
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
@@ -637,15 +638,23 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
 
     @Test
     public void testGetAllDataExportTaskHistory() throws Exception {
+        DataExportTaskInfo dataExportTaskInfo = new DataExportTaskInfo();
+        dataExportTaskInfo.id = 123L;
         DataExportTaskHistoryInfo dataExportTaskHistoryInfo = new DataExportTaskHistoryInfo();
         dataExportTaskHistoryInfo.id = 13L;
+        dataExportTaskHistoryInfo.task  = dataExportTaskInfo;
 
         when(dataExportService.findExportTasks()).thenReturn(exportTaskFinder);
+        when(dataExportService.getDataExportOccurrenceFinder()).thenReturn(dataExportOccurrenceFinder);
         when(exportTaskFinder.ofApplication(anyString())).thenReturn(exportTaskFinder);
-        when(exportTaskFinder.setLimit(anyInt())).thenReturn(exportTaskFinder);
-        when(exportTaskFinder.setStart(anyInt())).thenReturn(exportTaskFinder);
         when(exportTaskFinder.stream()).thenReturn(queryStream);
+        when(exportTask.getId()).thenReturn(123L);
+        when(dataExportOccurrenceFinder.setLimit(anyInt())).thenReturn(dataExportOccurrenceFinder);
+        when(dataExportOccurrenceFinder.setStart(anyInt())).thenReturn(dataExportOccurrenceFinder);
+        when(dataExportOccurrenceFinder.stream()).thenReturn(queryStream);
+        when(dataExportOccurrenceFinder.withExportTask(anyList())).thenReturn(dataExportOccurrenceFinder);
         when(queryStream.flatMap(any())).thenReturn(queryStream);
+        when(queryStream.map(any())).thenReturn(queryStream);
         when(queryStream.collect(any())).thenReturn(Collections.singletonList(dataExportTaskHistoryInfo));
 
         Response response = target("/dataexporttask/history").request()
