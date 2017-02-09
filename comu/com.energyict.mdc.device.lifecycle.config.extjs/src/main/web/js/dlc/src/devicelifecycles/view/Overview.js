@@ -19,7 +19,7 @@ Ext.define('Dlc.devicelifecycles.view.Overview', {
                 layout: 'hbox',
                 items: [
                     {
-                        title: Uni.I18n.translate('general.overview', 'DLC', 'Overview'),
+                        title: Uni.I18n.translate('general.details', 'DLC', 'Details'),
                         ui: 'large',
                         flex: 1,
                         items: [
