@@ -125,7 +125,9 @@ Ext.define('Dal.controller.Overview', {
 
                     graphsPanel.setVisible(decoded.fields.length != 0);
                     noHistoryAlarmsFoundPanel.setVisible(decoded.fields.length == 0);
-                    historySection.refresh(decoded);
+                    if (decoded.fields.length != 0) {
+                        historySection.refresh(decoded);
+                    }
                     historySection.setLoading(false);
                 }
             });

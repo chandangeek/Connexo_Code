@@ -48,7 +48,7 @@ Ext.define('Dal.view.overview.HistoryGraph', {
         me.store.each(function (rec) {
             var sumPerDay = 0;
             Ext.Array.each(me.fields, function (field) {
-                sumPerDay += rec.get(field);
+                sumPerDay += Number(rec.get(field));
             });
             me.yMaxSumPerDay = Math.max(me.yMaxSumPerDay, sumPerDay);
         });
@@ -275,5 +275,4 @@ Ext.define('Dal.view.overview.HistoryGraph', {
             };
         return cmp;
     }
-
 });
