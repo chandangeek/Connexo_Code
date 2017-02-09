@@ -57,7 +57,7 @@ public enum TranslationKeys implements TranslationKey {
     ERRORCODE("ReadingQualityErrorCode", "Error code"),
     SUSPECT("ReadingQualitySuspect", "Suspect"),
     KNOWNMISSINGREAD("ReadingQualityKnownMissingRead", "Known missing read"),
-    VALIDATIONGENERIC("ReadingQualityValidationGeneric", "Validated by specific rule"),
+    VALIDATIONGENERIC("ReadingQualityValidationGeneric", "Validated with specific rule"),
     ZEROUSAGE("ReadingQualityZeroUsage", "Failed validation - zero usages"),
     USAGEONINACTIVEMETER("ReadingQualityUsageOnInactiveMeter", "Failed validation - usage on inactive meter"),
     USAGEABOVE("ReadingQualityUsageAbove", "Failed validation - usage above maximum"),
