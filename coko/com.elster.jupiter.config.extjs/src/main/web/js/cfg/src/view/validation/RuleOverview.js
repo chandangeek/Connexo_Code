@@ -25,7 +25,7 @@ Ext.define('Cfg.view.validation.RuleOverview', {
             layout: 'hbox',
             items: [
                 {
-                    title: Uni.I18n.translate('general.overview', 'CFG', 'Overview'),
+                    title: Uni.I18n.translate('general.details', 'CFG', 'Details'),
                     ui: 'large',
                     flex: 1,
                     items: [

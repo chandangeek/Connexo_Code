@@ -14,7 +14,7 @@ Ext.define('Cfg.view.log.Menu', {
         if (me.router.arguments.taskId) {
             me.menuItems = [
                 {
-                    text: Uni.I18n.translate('general.overview', 'CFG', 'Overview'),
+                    text: Uni.I18n.translate('general.details', 'CFG', 'Details'),
                     itemId: 'tasks-view-link',
                     href: '#/administration/validationtasks/' + me.router.arguments.taskId
                 }

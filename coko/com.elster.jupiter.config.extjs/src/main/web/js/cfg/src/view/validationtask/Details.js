@@ -25,7 +25,7 @@ Ext.define('Cfg.view.validationtask.Details', {
                 {
                     ui: 'large',
                     itemId: 'frm-validation-task-details-panel',
-                    title: Uni.I18n.translate('general.overview', 'CFG', 'Overview'),
+                    title: Uni.I18n.translate('general.details', 'CFG', 'Details'),
                     flex: 1,
                     items: {
                         xtype: 'cfg-tasks-preview-form',

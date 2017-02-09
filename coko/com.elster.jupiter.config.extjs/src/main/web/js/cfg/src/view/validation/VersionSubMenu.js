@@ -16,7 +16,7 @@ Ext.define('Cfg.view.validation.VersionSubMenu', {
 
         me.menuItems = [
             {
-                text: Uni.I18n.translate('general.overview', 'CFG', 'Overview'),
+                text: Uni.I18n.translate('general.details', 'CFG', 'Details'),
                 itemId: 'versionOverviewLink',
                 href: '#/administration/validation/rulesets/' + me.ruleSetId + '/versions/' + me.versionId
             },
