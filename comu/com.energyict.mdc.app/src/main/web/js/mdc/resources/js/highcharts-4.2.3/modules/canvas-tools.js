@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  A class to parse color values
  @author Stoyan Stefanov <sstoo@gmail.com>
  @link   http://www.phpied.com/rgb-color-parser-in-javascript/
