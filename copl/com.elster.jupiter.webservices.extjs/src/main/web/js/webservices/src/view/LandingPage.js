@@ -37,7 +37,7 @@ Ext.define('Wss.view.LandingPage', {
             items: [
                 {
                     ui: 'large',
-                    title: Uni.I18n.translate('general.overview', 'WSS', 'Overview'),
+                    title: Uni.I18n.translate('general.details', 'WSS', 'Details'),
                     flex: 1,
                     items: {
                         xtype: 'webservices-preview-form',

@@ -17,7 +17,7 @@ Ext.define('Wss.view.Menu', {
 
         me.menuItems = [
             {
-                text: Uni.I18n.translate('general.overview', 'WSS', 'Overview'),
+                text: Uni.I18n.translate('general.details', 'WSS', 'Details'),
                 itemId: 'webservice-overview-link',
                 href: me.router.getRoute('administration/webserviceendpoints/view').buildUrl({endpointId: me.record.get('id')})
             },
