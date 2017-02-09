@@ -67,7 +67,7 @@ public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
         this.connectionTypePluggableClass = partialConnectionTask.getPluggableClass().getName();
         this.comPortPool= partialConnectionTask.getComPortPool()!=null?partialConnectionTask.getComPortPool().getName():null;
         this.isDefault= partialConnectionTask.isDefault();
-        List<PropertySpec> propertySpecs = partialConnectionTask.getConnectionType().getPropertySpecs();
+        List<PropertySpec> propertySpecs = partialConnectionTask.getConnectionTypePropertySpecs();
         TypedProperties typedProperties = partialConnectionTask.getTypedProperties();
         this.properties = new ArrayList<>();
         mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, typedProperties, this.properties);
