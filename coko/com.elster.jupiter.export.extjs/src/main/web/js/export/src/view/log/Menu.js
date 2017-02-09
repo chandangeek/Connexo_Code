@@ -13,7 +13,7 @@ Ext.define('Dxp.view.log.Menu', {
         if (me.router.arguments.taskId) {
             me.menuItems = [
                 {
-                    text: Uni.I18n.translate('general.overview', 'DES', 'Overview'),
+                    text: Uni.I18n.translate('general.details', 'DES', 'Details'),
                     itemId: 'tasks-view-link',
                     href: '#/administration/dataexporttasks/' + me.router.arguments.taskId
                 }

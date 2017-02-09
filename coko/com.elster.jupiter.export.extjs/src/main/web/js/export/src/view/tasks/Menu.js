@@ -15,7 +15,7 @@ Ext.define('Dxp.view.tasks.Menu', {
 
         me.menuItems = [
             {
-                text: Uni.I18n.translate('general.overview', 'DES', 'Overview'),
+                text: Uni.I18n.translate('general.details', 'DES', 'Details'),
                 itemId: 'tasks-view-link',
                 href:  '#/administration/dataexporttasks/' + this.taskId
             }

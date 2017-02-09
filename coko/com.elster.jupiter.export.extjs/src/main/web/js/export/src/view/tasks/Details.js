@@ -21,7 +21,7 @@ Ext.define('Dxp.view.tasks.Details', {
             {
                 ui: 'large',
                 itemId: 'tasks-details-panel',
-                title: Uni.I18n.translate('general.overview', 'DES', 'Overview'),
+                title: Uni.I18n.translate('general.details', 'DES', 'Details'),
                 flex: 1,
                 items: {
                     xtype: 'dxp-tasks-preview-form',
