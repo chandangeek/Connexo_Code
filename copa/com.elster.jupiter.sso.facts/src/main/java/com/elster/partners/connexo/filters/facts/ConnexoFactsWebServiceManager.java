@@ -1,15 +1,17 @@
 package com.elster.partners.connexo.filters.facts;
 
-import com.hof.mi.web.service.*;
+import com.hof.mi.web.service.AdministrationPerson;
+import com.hof.mi.web.service.AdministrationServiceRequest;
+import com.hof.mi.web.service.AdministrationServiceResponse;
+import com.hof.mi.web.service.AdministrationServiceService;
+import com.hof.mi.web.service.AdministrationServiceServiceLocator;
+import com.hof.mi.web.service.AdministrationServiceSoapBindingStub;
 
 import javax.xml.rpc.ServiceException;
 import java.rmi.RemoteException;
+import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 
-/**
- * Created by dragos on 11/17/2015.
- */
 public class ConnexoFactsWebServiceManager {
     private final String host = "localhost";
     private final int port;
@@ -20,19 +22,19 @@ public class ConnexoFactsWebServiceManager {
     private final String adminUser;
     private final String adminPwd;
 
-    ConnexoFactsWebServiceManager(Properties properties, int port, String contextPath, String protocol) {
+    ConnexoFactsWebServiceManager(int port, String contextPath, String protocol) {
         this.port = port;
         this.contextPath = contextPath;
         this.protocol = protocol;
 
-        String usr = properties.getProperty("com.elster.yellowfin.admin.usr");
-        String pwd = properties.getProperty("com.elster.yellowfin.admin.pwd");
+        String usr = System.getProperty("com.elster.yellowfin.admin.usr");
+        String pwd = System.getProperty("com.elster.yellowfin.admin.pwd");
 
         this.adminUser = (usr!=null)?usr:"admin";
         this.adminPwd = (pwd!=null)?pwd:"admin";
     }
 
-    Optional<String> getUser(String username)  {
+    Optional<String> getUser(String username, List<String> roles) {
         System.out.println("YFN: Get user at " + this.protocol + "://" + this.host + ":" + this.port + this.contextPath + "/services/AdministrationService");
         AdministrationServiceResponse rs = null;
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
@@ -60,7 +62,7 @@ public class ConnexoFactsWebServiceManager {
                 if (rs != null){
                     if("SUCCESS".equals(rs.getStatusCode()) ) {
                         if(rs.getPerson().getRoleCode().equals("YFREPORTCONSUMER")){
-                            return updateUser(username);
+                            return updateUser(username, roles);
                         }
                         else {
                             return Optional.of("SUCCESS");
@@ -79,7 +81,7 @@ public class ConnexoFactsWebServiceManager {
         return Optional.empty();
     }
 
-    Optional<String> createUser(String username)  {
+    Optional<String> createUser(String username, List<String> roles) {
         System.out.println("YFN: Create user at " + this.protocol + "://" + this.host + ":" + this.port + this.contextPath + "/services/AdministrationService");
         AdministrationServiceResponse rs = null;
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
@@ -97,7 +99,7 @@ public class ConnexoFactsWebServiceManager {
         person.setPassword("test");
         person.setFirstName("Connexo");
         person.setLastName(username);
-        if(username.equals(this.adminUser)) {
+        if (roles.contains("Report administrator")) {
             person.setRoleCode("YFADMIN");
         }
         else {
@@ -131,7 +133,7 @@ public class ConnexoFactsWebServiceManager {
         return Optional.empty();
     }
 
-    Optional<String> updateUser(String username)  {
+    Optional<String> updateUser(String username, List<String> roles) {
         System.out.println("YFN: Update user at " + this.protocol + "://" + this.host + ":" + this.port + this.contextPath + "/services/AdministrationService");
         AdministrationServiceResponse rs = null;
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
@@ -146,7 +148,11 @@ public class ConnexoFactsWebServiceManager {
         AdministrationPerson person = new AdministrationPerson();
 
         person.setUserId(username);
-        person.setRoleCode("YFCORPWRITER");
+        if (roles.contains("Report administrator")) {
+            person.setRoleCode("YFADMIN");
+        } else {
+            person.setRoleCode("YFCORPWRITER");
+        }
 
         rsr.setLoginId(this.adminUser);
         rsr.setPassword(this.adminPwd);
