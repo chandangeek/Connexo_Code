@@ -26,7 +26,11 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import javax.inject.Inject;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -166,11 +170,10 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             properties.put(
                     BasicDeviceAlarmRuleTemplate.RAISE_EVENT_PROPS,
                     template.getPropertySpec(BasicDeviceAlarmRuleTemplate.RAISE_EVENT_PROPS).get().getValueFactory().fromStringValue("1-1-1"));
-            properties.put(BasicDeviceAlarmRuleTemplate.DEVICE_TYPES, getAllDeviceTypes());
+            properties.put(BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, getAllDeviceStatesInAllDeviceTypes());
             properties.put(
                     BasicDeviceAlarmRuleTemplate.DEVICE_CODES,
                     template.getPropertySpec(BasicDeviceAlarmRuleTemplate.DEVICE_CODES).get().getValueFactory().fromStringValue("1"));
-            properties.put(BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE, getAllDeviceStates());
             properties.put(
                     BasicDeviceAlarmRuleTemplate.EVENT_OCCURENCE_COUNT,
                     template.getPropertySpec(BasicDeviceAlarmRuleTemplate.EVENT_OCCURENCE_COUNT).get().getValueFactory().fromStringValue("2"));
@@ -239,25 +242,50 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         return listValue;
     }
 
-    private List<HasIdAndName> getAllDeviceStates() {
+    private List<HasIdAndName> getAllDeviceStatesInAllDeviceTypes() {
         List<HasIdAndName> listValue = new ArrayList<>();
-        deviceLifeCycleConfigurationService.findAllDeviceLifeCycles().find()
+        /*deviceLifeCycleConfigurationService.findAllDeviceLifeCycles().find()
                 .stream().map(lifecycle -> lifecycle.getFiniteStateMachine().getStates())
                 .flatMap(Collection::stream)
-                .sorted(Comparator.comparing(State::getId))
+                .sorted(Comparator.comparing(State::getId)) */
+        deviceConfigurationService.findAllDeviceTypes()
+                .find().stream()
+                .sorted(Comparator.comparing(DeviceType::getId))
+                .flatMap(deviceType ->
+                        deviceType.getDeviceLifeCycle().getFiniteStateMachine().getStates().stream()
+                                .sorted(Comparator.comparing(State::getId))
+                                .map(state -> new AbstractMap.SimpleImmutableEntry<>(deviceType, state)))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)).entrySet()
+                .stream()
                 .forEach(value -> listValue.add(new HasIdAndName() {
-                            @Override
-                            public Object getId() {
-                                return value.getId();
-                            }
+                                                    @Override
+                                                    public String getId() {
+                                                        try {
+                                                            JSONObject jsonId = new JSONObject();
+                                                            jsonId.put("deviceTypeId", value.getKey().getId());
+                                                            jsonId.put("lifeCycleStateId", value.getValue().getId());
+                                                            return jsonId.toString();
+                                                        } catch (JSONException e) {
+                                                        }
+                                                        return "";
+                                                    }
 
-                            @Override
-                            public String getName() {
-                                return value.getName();
-                            }
-                        })
-                );
-        return listValue;
+                                                    @Override
+                                                    public String getName() {
+                                                        try {
+                                                            JSONObject jsonId = new JSONObject();
+                                                            jsonId.put("deviceTypeName", value.getKey().getName());
+                                                            jsonId.put("lifeCycleStateName", value.getKey().getName() + "." + value.getValue().getName());
+                                                            return jsonId.toString();
+                                                        } catch (JSONException e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                        return "";
+                                                    }
+                                                }
+                ));
+
+                    return listValue;
     }
 
 
