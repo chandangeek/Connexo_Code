@@ -1,30 +1,33 @@
 package com.elster.partners.connexo.filters.flow.authorization;
 
-import com.elster.partners.connexo.filters.flow.identity.ConnexoIdentityService;
+import com.elster.partners.connexo.filters.flow.identity.ConnexoFlowRestProxyService;
 import org.jboss.errai.security.shared.api.identity.User;
-import org.jboss.errai.security.shared.api.identity.UserImpl;
 import org.jboss.errai.security.shared.service.AuthenticationService;
+import org.uberfire.backend.server.security.IOSecurityAuth;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 
-/**
- * Created by dragos on 5/12/2016.
- */
-
 @Alternative
 @ApplicationScoped
+@IOSecurityAuth
 public class ConnexoAuthenticationService implements AuthenticationService {
     private final ThreadLocal<User> userOnThisThread = new ThreadLocal<>();
 
     @Inject
-    ConnexoIdentityService identityService;
+    ConnexoFlowRestProxyService connexoFlowRestProxyService;
 
     @Override
     public User login(String username, String password) {
-        UserImpl user = new UserImpl(username, identityService.getSubject().getRoles(), identityService.getSubject().getGroups());
-        userOnThisThread.set(user);
+        User user = userOnThisThread.get();
+        if (user == null) {
+            user = connexoFlowRestProxyService.authenticate(username, password);
+            if (user == null) {
+                userOnThisThread.set(user);
+            }
+        }
+
         return user;
     }
 
@@ -45,5 +48,11 @@ public class ConnexoAuthenticationService implements AuthenticationService {
             return User.ANONYMOUS;
         }
         return user;
+    }
+
+    public void setUser(User user) {
+        if (userOnThisThread.get() != user) {
+            userOnThisThread.set(user);
+        }
     }
 }

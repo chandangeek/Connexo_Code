@@ -1,14 +1,14 @@
 package com.elster.partners.connexo.filters.flow;
 
 import com.elster.partners.connexo.filters.flow.authorization.ConnexoAuthenticationService;
-import com.elster.partners.connexo.filters.flow.identity.ConnexoFlowRestProxyManager;
-import com.elster.partners.connexo.filters.flow.identity.ConnexoIdentityService;
+import com.elster.partners.connexo.filters.flow.identity.ConnexoFlowRestProxyService;
 import com.elster.partners.connexo.filters.generic.ConnexoAbstractSSOFilter;
 import com.elster.partners.connexo.filters.generic.ConnexoPrincipal;
 import org.jboss.errai.security.shared.api.Group;
 import org.jboss.errai.security.shared.api.GroupImpl;
 import org.jboss.errai.security.shared.api.Role;
 import org.jboss.errai.security.shared.api.RoleImpl;
+import org.uberfire.backend.server.security.IOSecurityAuth;
 import org.uberfire.commons.services.cdi.Veto;
 
 import javax.inject.Inject;
@@ -23,19 +23,16 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Created by dragos on 11/6/2015.
- */
-
 @Veto
 public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
 
     private final static String LOGOUT_URI = "/logout.jsp";
 
     @Inject
-    ConnexoIdentityService identityService;
+    ConnexoFlowRestProxyService connexoFlowRestProxyService;
 
     @Inject
+    @IOSecurityAuth
     ConnexoAuthenticationService authenticationService;
 
     @Override
@@ -51,38 +48,47 @@ public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
         if (principal == null || token == null || isForbidden(request, principal)) {
             // Not authenticated; redirect to login
             redirectToLogin(request, response);
-            identityService.setSubject(null);
+            authenticationService.setUser(null);
         } else {
             if (isLogoutRequest(request)) {
                 redirectToLogout(request, response);
-                identityService.setSubject(null);
+                authenticationService.setUser(null);
             } else {
                 Set<Role> roles = new HashSet<>();
                 Set<Group> groups = new HashSet<>();
                 for (String role : principal.getRoles()) {
-                    if(role.equals("Administrators")){
-                        groups.add(new GroupImpl(role));
-                    }
                     roles.add(new RoleImpl(role));
                 }
 
-                // Bug in jBPM 6.4.0 web console - only the default admin role is allowed to access AdministrationPerspective
-                RoleImpl defaultAdmin = new RoleImpl("admin");
-                if (!roles.contains(defaultAdmin)) {
-                    roles.add(defaultAdmin);
-                }
+                connexoFlowRestProxyService.getGroupsOf(principal.getName())
+                        .stream()
+                        .forEach(group -> groups.add(new GroupImpl(group)));
+                appendKieDefaults(roles, groups);
 
-                // Bug in jBPM 6.4.0 rest - only the default rest-all role is allowed to access all rest resources
-                RoleImpl defaultRest = new RoleImpl("rest-all");
-                if (!roles.contains(defaultRest)) {
-                    roles.add(defaultRest);
-                }
-                ConnexoFlowRestProxyManager.getInstance().getGroupsOf(principal.getName()).stream().forEach(group -> groups.add(new GroupImpl(group)));
                 ConnexoUberfireSubject subject = new ConnexoUberfireSubject(principal.getName(), groups, roles);
-                identityService.setSubject(subject);
-                authenticationService.login(subject.getIdentifier(), "");
+                authenticationService.setUser(subject);
                 filterChain.doFilter(new ConnexoFlowRequestWrapper(subject, request), response);
             }
+        }
+    }
+
+    private void appendKieDefaults(Set<Role> roles, Set<Group> groups) {
+        // Add default Administrators group, hard-coded in jBPM as Business Administrators - required to manage user tasks
+        GroupImpl defaultAdministrators = new GroupImpl("Administrators");
+        if (!groups.contains(defaultAdministrators)) {
+            groups.add(defaultAdministrators);
+        }
+
+        // Bug in jBPM 6.4.0 web console - only the default admin role is allowed to access AdministrationPerspective
+        RoleImpl defaultAdmin = new RoleImpl("admin");
+        if (!roles.contains(defaultAdmin)) {
+            roles.add(defaultAdmin);
+        }
+
+        // Bug in jBPM 6.4.0 rest - only the default rest-all role is allowed to access all rest resources
+        RoleImpl defaultRest = new RoleImpl("rest-all");
+        if (!roles.contains(defaultRest)) {
+            roles.add(defaultRest);
         }
     }
 

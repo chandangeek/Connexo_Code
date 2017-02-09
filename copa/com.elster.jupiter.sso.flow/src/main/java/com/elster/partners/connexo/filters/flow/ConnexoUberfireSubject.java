@@ -9,10 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created by dragos on 11/6/2015.
- */
-
 @Veto
 public class ConnexoUberfireSubject implements User {
     private final String user;

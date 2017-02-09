@@ -8,6 +8,7 @@ import org.kie.internal.task.api.UserInfo;
 import org.kie.internal.task.api.model.InternalOrganizationalEntity;
 import org.uberfire.commons.services.cdi.Veto;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -15,7 +16,8 @@ import java.util.List;
 @Veto
 public class ConnexoUserInfo implements UserInfo {
 
-	ConnexoFlowRestProxyManager manager = ConnexoFlowRestProxyManager.getInstance();
+	@Inject
+	ConnexoFlowRestProxyService connexoFlowRestProxyService;
 
     ConnexoUserInfo() {}
 
@@ -28,7 +30,7 @@ public class ConnexoUserInfo implements UserInfo {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Iterator<OrganizationalEntity> getMembersForGroup(Group group) {
-		List<String> members = manager.getMembersOf(group.getId());
+		List<String> members = connexoFlowRestProxyService.getMembersOf(group.getId());
 
 		List<OrganizationalEntity> membersList = new ArrayList<>();
 		for(String member : members) {
@@ -54,7 +56,7 @@ public class ConnexoUserInfo implements UserInfo {
 
 	@Override
 	public String getLanguageForEntity(OrganizationalEntity entity) {
-		return manager.getLanguageOf(entity.getId());
+		return connexoFlowRestProxyService.getLanguageOf(entity.getId());
 		//return "en_US";
 	}
 

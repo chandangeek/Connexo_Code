@@ -72,8 +72,39 @@
             <version>${jbpm.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.jbpm</groupId>
+            <artifactId>jbpm-workitems</artifactId>
+            <version>${jbpm.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jbpm</groupId>
+            <artifactId>jbpm-designer-backend</artifactId>
+            <version>${jbpm.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jbpm</groupId>
+            <artifactId>jbpm-runtime-manager</artifactId>
+            <version>${jbpm.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.uberfire</groupId>
+            <artifactId>uberfire-commons</artifactId>
+            <version>${uberfire.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.uberfire</groupId>
             <artifactId>uberfire-server</artifactId>
+            <version>${uberfire.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.uberfire</groupId>
+            <artifactId>uberfire-security-management-api</artifactId>
+            <version>${uberfire.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.uberfire</groupId>
+            <artifactId>uberfire-security-management-backend</artifactId>
             <version>${uberfire.version}</version>
         </dependency>
         <dependency>

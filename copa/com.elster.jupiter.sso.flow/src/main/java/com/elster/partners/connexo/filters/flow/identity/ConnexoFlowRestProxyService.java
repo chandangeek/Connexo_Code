@@ -1,63 +1,41 @@
 package com.elster.partners.connexo.filters.flow.identity;
 
+import org.jboss.errai.security.shared.api.Group;
+import org.jboss.errai.security.shared.api.Role;
+import org.jboss.errai.security.shared.api.RoleImpl;
+import org.jboss.errai.security.shared.api.identity.User;
+import org.jboss.errai.security.shared.api.identity.UserImpl;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.*;
+import javax.enterprise.context.ApplicationScoped;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
+import java.util.Set;
 
-/**
- * Created by dragos on 11/17/2015.
- */
-public class ConnexoFlowRestProxyManager {
+@ApplicationScoped
+public class ConnexoFlowRestProxyService {
 
-    private static final String CONNEXO_CONFIG = System.getProperty("connexo.configuration");
+    private String url;
+    private String user;
+    private String password;
+    private String token;
 
-    private final String url;
-    private final String user;
-    private final String password;
-
-    private static ConnexoFlowRestProxyManager instance = null;
-
-    public static synchronized ConnexoFlowRestProxyManager getInstance() {
-        if (instance == null) {
-            Properties properties = new Properties();
-            if (CONNEXO_CONFIG != null) {
-                try {
-                    FileInputStream inputStream = new FileInputStream(CONNEXO_CONFIG);
-                    properties.load(inputStream);
-                    inputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            String property = properties.getProperty("com.elster.jupiter.url");
-            String url_param = (property != null) ? property : "http://localhost:8080";
-
-            property = properties.getProperty("com.elster.jupiter.user");
-            String user_param = (property != null) ? property : "admin";
-
-            property = properties.getProperty("com.elster.jupiter.password");
-            String password_param = (property != null) ? property : "admin";
-
-            instance = new ConnexoFlowRestProxyManager(url_param, user_param, password_param);
-        }
-
-        return instance;
-    }
-
-    private ConnexoFlowRestProxyManager(String url, String user, String password) {
-        this.url = url;
-        this.user = user;
-        this.password = password;
+    public ConnexoFlowRestProxyService() {
+        this.url = System.getProperty("com.elster.jupiter.url");
+        this.user = System.getProperty("com.elster.jupiter.user");
+        this.password = System.getProperty("com.elster.jupiter.password");
+        this.token = System.getProperty("com.elster.jupiter.token");
     }
 
     public boolean existsUser(String userId) {
@@ -179,16 +157,9 @@ public class ConnexoFlowRestProxyManager {
             jsonContent = doGet(targetUrl);
             if (!"".equals(jsonContent)) {
                 object = new JSONObject(jsonContent);
-                if (object != null) {
-                    return object;
-                } else {
-                    throw new RuntimeException("No entity found at " + targetUrl);
-                }
+                return object;
             }
-        } catch (JSONException e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        } catch (RuntimeException e) {
+        } catch (JSONException | RuntimeException e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
@@ -204,21 +175,14 @@ public class ConnexoFlowRestProxyManager {
             jsonContent = doGet(targetUrl);
             if (!"".equals(jsonContent)) {
                 JSONObject object = new JSONObject(jsonContent);
-                if (object != null) {
-                    array = object.getJSONArray(element);
-                    if (array != null && array.length() > 0) {
-                        return array;
-                    }
-                } else {
-                    throw new RuntimeException("No entity found at " + targetUrl);
+                array = object.getJSONArray(element);
+                if (array != null && array.length() > 0) {
+                    return array;
                 }
             }
-        } catch (JSONException e) {
+        } catch (JSONException | RuntimeException e) {
             System.out.println(e.getMessage());
-            System.out.println(e.getStackTrace().toString());
-        } catch (RuntimeException e) {
-            System.out.println(e.getMessage());
-            System.out.println(e.getStackTrace().toString());
+            e.printStackTrace();
         }
 
         return null;
@@ -231,7 +195,12 @@ public class ConnexoFlowRestProxyManager {
             httpConnection = (HttpURLConnection) targetUrl.openConnection();
             httpConnection.setDoOutput(true);
             httpConnection.setRequestMethod("GET");
-            httpConnection.setRequestProperty("Authorization", "Basic " + Base64.getEncoder().encodeToString((this.user + ":" + this.password).getBytes()));
+            if (this.token != null && !this.token.isEmpty()) {
+                httpConnection.setRequestProperty("Authorization", "Bearer " + this.token);
+            } else {
+                httpConnection.setRequestProperty("Authorization", "Basic " + Base64.getEncoder()
+                        .encodeToString((this.user + ":" + this.password).getBytes()));
+            }
             httpConnection.setRequestProperty("Accept", "application/json");
             if (httpConnection.getResponseCode() < 200 || httpConnection.getResponseCode() >= 300) {
                 throw new RuntimeException("Failed : HTTP error code : "
@@ -248,7 +217,7 @@ public class ConnexoFlowRestProxyManager {
             return jsonContent.toString();
 
         } catch (IOException e) {
-            throw new RuntimeException(e.getStackTrace().toString());
+            throw new RuntimeException(e);
         } finally {
             if (httpConnection != null) {
                 httpConnection.disconnect();
@@ -256,5 +225,43 @@ public class ConnexoFlowRestProxyManager {
         }
     }
 
+    private String doPost(String targetURL, String username, String password) {
+        HttpURLConnection httpConnection = null;
+        try {
+            URL connexoUrl = new URL(url + targetURL);
+            httpConnection = (HttpURLConnection) connexoUrl.openConnection();
+            httpConnection.setRequestMethod("POST");
+            httpConnection.setRequestProperty("Authorization", "Basic " + Base64.getEncoder()
+                    .encodeToString((username + ":" + password).getBytes()));
+            httpConnection.setRequestProperty("Accept", "application/json");
+            if (httpConnection.getResponseCode() != 204) {
+                return null;
+            }
 
+            return httpConnection.getHeaderField("X-AUTH-TOKEN");
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (httpConnection != null) {
+                httpConnection.disconnect();
+            }
+        }
+    }
+
+    public User authenticate(String username, String password) {
+
+        String authorization = doPost("/api/apps/apps/login", username, password);
+        if (authorization != null) {
+            Set<Role> roles = new HashSet<Role>();
+            RoleImpl defaultAdmin = new RoleImpl("admin");
+            if (!roles.contains(defaultAdmin)) {
+                roles.add(defaultAdmin);
+            }
+
+            return new UserImpl(username, roles, new HashSet<Group>());
+        }
+
+        return null;
+    }
 }
