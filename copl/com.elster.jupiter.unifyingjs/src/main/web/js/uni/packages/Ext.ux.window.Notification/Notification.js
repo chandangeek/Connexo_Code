@@ -1,14 +1,5 @@
-/* 
- *	Notification extension for Ext JS 4.0.2+
- *	Version: 2.1.3
- *
- *	Copyright (c) 2011 Eirik Lorentsen (http://www.eirik.net/)
- *
- *	Follow project on GitHub: https://github.com/EirikLorentsen/Ext.ux.window.Notification
- *
- *	Dual licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) 
- *	and GPL (http://opensource.org/licenses/GPL-3.0) licenses.
- *
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Ext.ux.window.Notification', {

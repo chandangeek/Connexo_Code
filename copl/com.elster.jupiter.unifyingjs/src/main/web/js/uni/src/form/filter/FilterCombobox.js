@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.form.filter.FilterCombobox', {
     extend: 'Ext.form.field.ComboBox',
     alias: 'widget.uni-filter-combo',
