@@ -9,9 +9,12 @@ import com.elster.jupiter.properties.ListReadingQualityFactory;
 import com.elster.jupiter.properties.ListValueFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.BpmProcessPropertyFactory;
+import com.elster.jupiter.properties.rest.DeviceCodePropertyFactory;
 import com.elster.jupiter.properties.rest.DeviceConfigurationPropertyFactory;
+import com.elster.jupiter.properties.rest.DeviceLifeCycleInDeviceTypePropertyFactory;
 import com.elster.jupiter.properties.rest.EndDeviceEventTypePropertyFactory;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
+import com.elster.jupiter.properties.rest.RaiseEventPropertyFactory;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.util.HasName;
 
@@ -39,8 +42,17 @@ public class ListPropertyValueConverter implements PropertyValueConverter {
         if (propertySpec.getValueFactory() instanceof ListReadingQualityFactory) {
             return SimplePropertyType.LISTREADINGQUALITY;
         }
+        if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory()instanceof DeviceCodePropertyFactory) {
+            return SimplePropertyType.DEVICECODE;
+        }
+        if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof DeviceLifeCycleInDeviceTypePropertyFactory) {
+            return SimplePropertyType.LIFECYCLESTATUSINDEVICETYPE;
+        }
+        if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof RaiseEventPropertyFactory) {
+            return SimplePropertyType.RAISEEVENTPROPS;
+        }
         if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof EndDeviceEventTypePropertyFactory) {
-            return SimplePropertyType.ENDDEVICEEVENTTYPELIST;
+            return SimplePropertyType.ENDDEVICEEVENTTYPE;
         }
         return SimplePropertyType.LISTVALUE;
     }
@@ -58,10 +70,7 @@ public class ListPropertyValueConverter implements PropertyValueConverter {
     @Override
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
         if (domainValue != null) {
-            List<Object> nameList = ((List<Object>) domainValue).stream()
-                    .filter(value -> (value instanceof HasName) && !(value instanceof HasIdAndName))
-                    .map(value -> ((HasName) value).getName())
-                    .collect(Collectors.toList());
+            List<Object> nameList = ((List<Object>) domainValue).stream().filter(value -> (value instanceof HasName) && !(value instanceof HasIdAndName)).map(value -> ((HasName) value).getName()).collect(Collectors.toList());
             List<Object> idAndnameList = ((List<Object>) domainValue).stream().filter(value -> value instanceof HasIdAndName).map(value -> ((HasIdAndName) value).getId()).collect(Collectors.toList());
             idAndnameList.addAll(nameList);
             return idAndnameList;
