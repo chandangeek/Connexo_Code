@@ -89,6 +89,12 @@ public abstract class AbstractUdpSession implements VirtualUdpSession {
             pipedOutputStream = src;
         }
 
+        @Override
+        public synchronized int available() throws IOException {
+            udpRead();
+            return super.available();
+        }
+
         /**
          * Check if currently we have data available on the pipedInputStream.
          * If data is available, then don't add any additional data.
@@ -97,10 +103,21 @@ public abstract class AbstractUdpSession implements VirtualUdpSession {
          * @throws IOException if a connection related exception occurs
          */
         private void udpRead() throws IOException {
-            if (available() <= 0) {
+            if (super.available() <= 0) {
+                int soTimeout = datagramSocket.getSoTimeout();
                 this.receiveData = new byte[bufferSize];
                 DatagramPacket datagramPacket = cleanDatagramPacket();
-                datagramSocket.receive(datagramPacket);
+
+                datagramSocket.setSoTimeout(100);
+
+                try {
+                    datagramSocket.receive(datagramPacket);
+                } catch (Throwable e) {
+                    return;//No data for now, OK, let's move on
+                } finally {
+                    datagramSocket.setSoTimeout(soTimeout);
+                }
+
                 write(receiveData, datagramPacket.getOffset(), datagramPacket.getLength());
             }
         }
