@@ -36,6 +36,7 @@ class UpgraderV10_3 implements Upgrader {
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         upgradeExistingScheduledComTaskExecutions();
         dataModelUpgrader.upgrade(dataModel, Version.version(10,3));
+        moveProtocolDialectProperties();
     }
 
     private void upgradeExistingScheduledComTaskExecutions() {
