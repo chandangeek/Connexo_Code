@@ -340,7 +340,7 @@ public class DeviceDataInfoFactory {
         TextReadingInfo textReadingInfo = new TextReadingInfo();
         setCommonReadingInfo(reading, textReadingInfo, register);
         textReadingInfo.value = reading.getValue();
-
+        textReadingInfo.interval =  IntervalInfo.from(Range.atMost(reading.getTimeStamp()));
         return textReadingInfo;
     }
 
