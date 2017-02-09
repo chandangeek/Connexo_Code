@@ -3,56 +3,32 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.data.BillingReading;
-import com.energyict.mdc.device.data.BillingRegister;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.NumericalReading;
-import com.energyict.mdc.device.data.NumericalRegister;
-import com.energyict.mdc.device.data.Reading;
-import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
-
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
-public class RegisterResource extends AbstractRegisterResource{
+public class RegisterResource {
 
     private final ExceptionFactory exceptionFactory;
     private final ResourceHelper resourceHelper;
@@ -65,7 +41,6 @@ public class RegisterResource extends AbstractRegisterResource{
 
     @Inject
     public RegisterResource(ExceptionFactory exceptionFactory, ResourceHelper resourceHelper, Provider<RegisterDataResource> registerDataResourceProvider, ValidationInfoHelper validationInfoHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, TopologyService topologyService, MasterDataService masterDataService) {
-        super(clock);
         this.exceptionFactory = exceptionFactory;
         this.resourceHelper = resourceHelper;
         this.registerDataResourceProvider = registerDataResourceProvider;
@@ -232,8 +207,8 @@ public class RegisterResource extends AbstractRegisterResource{
         Instant toTimeStart = jsonQueryFilter.getInstant("toTimeStart") == null ? Instant.EPOCH : jsonQueryFilter.getInstant("toTimeStart");
         Instant toTimeEnd = jsonQueryFilter.getInstant("toTimeEnd") == null ? null : jsonQueryFilter.getInstant("toTimeEnd");
 
-        Range<Instant> intervalReg = measurementTimeEnd==null ? Range.atLeast(measurementTimeStart) : Range.openClosed(measurementTimeStart, measurementTimeEnd);
-        Range<Instant> toTimeRange = toTimeEnd==null ? Range.atLeast(toTimeStart) : Range.openClosed(toTimeStart, toTimeEnd);
+        Range<Instant> intervalReg = measurementTimeEnd == null ? Range.atLeast(measurementTimeStart) : Range.openClosed(measurementTimeStart, measurementTimeEnd);
+        Range<Instant> toTimeRange = toTimeEnd == null ? Range.atLeast(toTimeStart) : Range.openClosed(toTimeStart, toTimeEnd);
 
         List<ReadingInfo> readingInfos = registers.stream()
                 .map(register -> topologyService.getDataLoggerRegisterTimeLine(register, intervalReg))
@@ -244,7 +219,7 @@ public class RegisterResource extends AbstractRegisterResource{
                             .stream()
                             .filter(reading -> {
                                 if (toTimeFilterAvailable && !(register1 instanceof NumericalReading)) {
-                                     return false;
+                                    return false;
                                 }
                                 if (!toTimeFilterAvailable || !(register1 instanceof NumericalReading)) {
                                     return true;

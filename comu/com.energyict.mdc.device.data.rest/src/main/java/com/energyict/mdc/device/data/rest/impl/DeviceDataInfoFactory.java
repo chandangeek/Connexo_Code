@@ -18,31 +18,15 @@ import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.data.BillingRegister;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.FlagsReading;
-import com.energyict.mdc.device.data.FlagsRegister;
-import com.energyict.mdc.device.data.LoadProfileReading;
-import com.energyict.mdc.device.data.NumericalReading;
-import com.energyict.mdc.device.data.NumericalRegister;
-import com.energyict.mdc.device.data.Reading;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.TextReading;
-import com.energyict.mdc.device.data.TextRegister;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -340,7 +324,7 @@ public class DeviceDataInfoFactory {
         TextReadingInfo textReadingInfo = new TextReadingInfo();
         setCommonReadingInfo(reading, textReadingInfo, register);
         textReadingInfo.value = reading.getValue();
-        textReadingInfo.interval =  IntervalInfo.from(Range.atMost(reading.getTimeStamp()));
+        textReadingInfo.interval = IntervalInfo.from(Range.atMost(reading.getTimeStamp()));
         return textReadingInfo;
     }
 
