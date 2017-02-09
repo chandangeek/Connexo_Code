@@ -266,16 +266,18 @@ public class UsagePointOutputResource {
                 outputChannelDataInfoList = preFilledChannelDataMap.entrySet().stream()
                         .sorted(Collections.reverseOrder(Comparator.comparing(Map.Entry::getKey)))
                         .map(Map.Entry::getValue)
-                        .map(outputChannelDataInfoFactory::createChannelDataInfo)
                         .filter(getSuspectsFilter(filter, this::hasSuspects))
+                        .map(outputChannelDataInfoFactory::createChannelDataInfo)
                         .collect(Collectors.toList());
             }
         }
         return PagedInfoList.fromCompleteList("channelData", outputChannelDataInfoList, queryParameters);
     }
 
-    private boolean hasSuspects(OutputChannelDataInfo info) {
-        return ValidationStatus.SUSPECT.equals(info.validationResult);
+    private boolean hasSuspects(ChannelReadingWithValidationStatus channelReadingWithValidationStatus) {
+        return channelReadingWithValidationStatus.getValidationStatus()
+                .map(dataValidationStatus -> ValidationStatus.SUSPECT.equals(ValidationStatus.forResult(dataValidationStatus.getValidationResult())))
+                .orElse(false);
     }
 
     private <T extends BaseReadingRecord> Map<Instant, T> toMap(List<T> readings) {
@@ -471,16 +473,18 @@ public class UsagePointOutputResource {
                 outputRegisterData = preFilledRegisterDataMap.entrySet().stream()
                         .sorted(Collections.reverseOrder(Comparator.comparing(Map.Entry::getKey)))
                         .map(Map.Entry::getValue)
-                        .map(reading -> outputRegisterDataInfoFactory.createRegisterDataInfo(reading, readingTypeDeliverable))
                         .filter(getSuspectsFilter(filter, this::hasSuspects))
+                        .map(reading -> outputRegisterDataInfoFactory.createRegisterDataInfo(reading, readingTypeDeliverable))
                         .collect(Collectors.toList());
             }
         }
         return PagedInfoList.fromPagedList("registerData", outputRegisterData, queryParameters);
     }
 
-    private boolean hasSuspects(OutputRegisterDataInfo info) {
-        return ValidationStatus.SUSPECT.equals(info.validationResult);
+    private boolean hasSuspects(RegisterReadingWithValidationStatus registerReadingWithValidationStatus) {
+        return registerReadingWithValidationStatus.getValidationStatus()
+                .map(dataValidationStatus -> ValidationStatus.SUSPECT.equals(ValidationStatus.forResult(dataValidationStatus.getValidationResult())))
+                .orElse(false);
     }
 
     @GET
