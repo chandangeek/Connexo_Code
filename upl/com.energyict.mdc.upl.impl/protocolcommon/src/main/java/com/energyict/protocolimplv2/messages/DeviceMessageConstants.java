@@ -778,5 +778,8 @@ public class DeviceMessageConstants {
     public static final String requiredProtection = "DataProtection.requiredProtection";
     public static final String notificationCiphering = "AlarmConfigurationMessage.notificationCiphering";
     public static final String echoTestNotification = "AlarmConfigurationMessage.echoTestNotification";
+    public static final String startDate = "DeviceActionMessage.startDate";
+    public static final String endDate = "DeviceActionMessage.endDate";
+    public static final String configurationId = "DeviceActionMessage.configurationId";
 
 }

@@ -420,7 +420,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     protected Beacon3100Messaging getBeacon3100Messaging() {
         if (beacon3100Messaging == null) {
-            beacon3100Messaging = new Beacon3100Messaging(this);
+            beacon3100Messaging = new Beacon3100Messaging(this, getDlmsSessionProperties().getReadOldObisCodes());
         }
         return beacon3100Messaging;
     }

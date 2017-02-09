@@ -90,8 +90,15 @@ public enum DeviceActionMessage implements DeviceMessageSpec {
     
     /** Trigger the preliminary protocol (read out serial) for a group of meters. */
 	TRIGGER_PRELIMINARY_PROTOCOL(48, 
-				PropertySpecFactory.groupReferencePropertySpec(DeviceMessageConstants.deviceGroupAttributeName));
-
+				PropertySpecFactory.groupReferencePropertySpec(DeviceMessageConstants.deviceGroupAttributeName)),
+    SyncAllDevicesWithDC(49),
+    SyncOneDeviceWithDC(50,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.deviceId)),
+    SyncOneDeviceWithDCAdvanced(51,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.deviceId),
+            PropertySpecFactory.datePropertySpec(DeviceMessageConstants.startDate),
+            PropertySpecFactory.datePropertySpec(DeviceMessageConstants.endDate),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.configurationId));
     private static final DeviceMessageCategory category = DeviceMessageCategories.DEVICE_ACTIONS;
     private final int id;
     private final List<PropertySpec> deviceMessagePropertySpecs;

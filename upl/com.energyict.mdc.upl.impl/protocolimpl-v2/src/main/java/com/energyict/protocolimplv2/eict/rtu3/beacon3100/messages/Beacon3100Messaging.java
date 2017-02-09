@@ -46,7 +46,6 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobject
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.DeviceInfoSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSync;
-import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers.RegisterFactory;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
@@ -109,12 +108,12 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     public static final ObisCode PING_SERVICE_NEW_OBISCODE = ObisCode.fromString("0.160.96.144.0.255");
     public static final ObisCode SCHEDULE_MANAGER_NEW_OBISCODE = ObisCode.fromString("0.187.96.160.0.255");
     public static final ObisCode CLIENT_MANAGER_NEW_OBISCODE = ObisCode.fromString("0.187.96.170.0.255");
-    public static final ObisCode DEVICE_TYPE_MANAGER_NEW_OBISCODE = ObisCode.fromString("0.187.96.171.0.255");
     public static final ObisCode MODEM_WATCHDOG_NEW_OBISCODE = ObisCode.fromString("0.162.96.128.0.255");
     public static final ObisCode G3_NETWORK_MANAGEMENT_NEW_OBISCODE = ObisCode.fromString("0.168.96.128.0.255");
 
     private static final String SEPARATOR = ";";
     private static final String SEPARATOR2 = ",";
+    private boolean readOldObisCodes = false;
 
 
     /**
@@ -266,12 +265,18 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private MasterDataSync masterDataSync;
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor = null;
 
-    public Beacon3100Messaging(Beacon3100 protocol) {
+    public Beacon3100Messaging(Beacon3100 protocol, boolean readOldObisCodes) {
         super(protocol);
+        this.readOldObisCodes = readOldObisCodes;
     }
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
+        if(!readOldObisCodes){
+            SUPPORTED_MESSAGES.add(DeviceActionMessage.SyncAllDevicesWithDC);
+            SUPPORTED_MESSAGES.add(DeviceActionMessage.SyncOneDeviceWithDC);
+            SUPPORTED_MESSAGES.add(DeviceActionMessage.SyncOneDeviceWithDCAdvanced);
+        }
         return SUPPORTED_MESSAGES;
     }
 
@@ -491,6 +496,12 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = getMasterDataSync().syncMasterData(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncDeviceDataForDC)) {
                         collectedMessage = getMasterDataSync().syncDeviceData(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncAllDevicesWithDC)) {
+                        collectedMessage = getMasterDataSync().syncAllDeviceData(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncOneDeviceWithDC)) {
+                        collectedMessage = getMasterDataSync().syncOneDeviceData(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncOneDeviceWithDCAdvanced)) {
+                        collectedMessage = getMasterDataSync().syncOneDeviceWithDCAdvanced(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.PauseDCScheduler)) {
                         setSchedulerState(SchedulerState.PAUSED);
                     } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.ResumeDCScheduler)) {
@@ -1564,7 +1575,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private ScheduleManager getScheduleManager() throws NotInObjectListException {
-        if(readOldObisCodes()) {
+        if(readOldObisCodes) {
             return getCosemObjectFactory().getScheduleManager();
         }else{
             return getCosemObjectFactory().getScheduleManager(SCHEDULE_MANAGER_NEW_OBISCODE);
@@ -1856,7 +1867,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private NTPServerAddress getNtpServerAddress() throws NotInObjectListException {
-        if(readOldObisCodes()){
+        if(readOldObisCodes){
             return getCosemObjectFactory().getNTPServerAddress();
         }else {
             return getCosemObjectFactory().getNTPServerAddress(TIME_SERVER_NEW_OBISCODE);
@@ -1868,7 +1879,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void setDeviceName(OfflineDeviceMessage pendingMessage) throws IOException {
-        if(readOldObisCodes()) {
+        if(readOldObisCodes) {
             writeOctetStringData(pendingMessage, DEVICE_NAME_OLD_OBISCODE);
         }else{
             writeOctetStringData(pendingMessage, DEVICE_NAME_NEW_OBISCODE);
@@ -1876,19 +1887,15 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void setDeviceHostName(OfflineDeviceMessage pendingMessage) throws IOException {
-        if(readOldObisCodes()){
+        if(readOldObisCodes){
             writeOctetStringData(pendingMessage, DEVICE_HOST_NAME_OLD_OBISCODE);
         }else {
             writeOctetStringData(pendingMessage, DEVICE_HOST_NAME_NEW_OBISCODE);
         }
     }
 
-    public boolean readOldObisCodes() {
-        return ((Beacon3100Properties)getProtocol().getDlmsSessionProperties()).getReadOldObisCodes();
-    }
-
     private void setDeviceLocation(OfflineDeviceMessage pendingMessage) throws IOException {
-        if(readOldObisCodes()) {
+        if(readOldObisCodes) {
             writeOctetStringData(pendingMessage, DEVICE_LOCATION_OLD_OBISCODE);
         }else{
             writeOctetStringData(pendingMessage, DEVICE_LOCATION_NEW_OBISCODE);
@@ -1901,7 +1908,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void rebootApplication(OfflineDeviceMessage pendingMessage) throws IOException {
-        if(readOldObisCodes()){
+        if(readOldObisCodes){
             getCosemObjectFactory().getLifeCycleManagement().restartApplication();
         }else {
             getCosemObjectFactory().getLifeCycleManagement(LIFE_CYCLEMANAGEMENT_NEW_OBISCODE).restartApplication();
@@ -1941,7 +1948,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private ModemWatchdogConfiguration getModemWatchdogConfiguration() throws NotInObjectListException {
-        if(readOldObisCodes()){
+        if(readOldObisCodes){
             return getCosemObjectFactory().getModemWatchdogConfiguration();
         }else{
             return getCosemObjectFactory().getModemWatchdogConfiguration(MODEM_WATCHDOG_NEW_OBISCODE);
@@ -1994,7 +2001,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private UplinkPingConfiguration getUplinkPingConfiguration() throws NotInObjectListException {
-        if(readOldObisCodes()) {
+        if(readOldObisCodes) {
             return getCosemObjectFactory().getUplinkPingConfiguration();
         }else{
             return getCosemObjectFactory().getUplinkPingConfiguration(PING_SERVICE_NEW_OBISCODE);
@@ -2077,7 +2084,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private void configureAPNs(OfflineDeviceMessage pendingMessage) throws IOException {
         final long activeApn = Long.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.activeAPN).getDeviceMessageAttributeValue());
         final String apnConfigurations = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.apnConfigurations).getDeviceMessageAttributeValue();
-        if(readOldObisCodes()) {
+        if(readOldObisCodes) {
             getCosemObjectFactory().getData(MULTI_APN_COFIG_OLD_OBISCODE).setValueAttr(createApnConfigs(activeApn, apnConfigurations));
         }else{
             getCosemObjectFactory().getData(MULTI_APN_COFIG_NEW_OBISCODE).setValueAttr(createApnConfigs(activeApn, apnConfigurations));
@@ -2175,5 +2182,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
         eventPushNotificationConfig.setSendTestNotificationMethod(echoTestNotification);
         return collectedMessage;
+    }
+
+    public boolean readOldObisCodes() {
+        return readOldObisCodes;
     }
 }

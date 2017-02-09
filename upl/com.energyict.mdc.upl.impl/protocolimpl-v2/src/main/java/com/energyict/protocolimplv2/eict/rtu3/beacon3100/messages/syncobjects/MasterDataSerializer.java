@@ -187,6 +187,7 @@ public class MasterDataSerializer {
         return jsonSerialize(result);
     }
 
+
     private Beacon3100MeterDetails createMeterDetails(Device device, Device masterDevice) {
         final String callHomeId = parseCallHomeId(device);
 
@@ -724,4 +725,6 @@ public class MasterDataSerializer {
     protected ProtocolRuntimeException missingProperty(String propertyName) {
         return DeviceConfigurationException.missingProperty(propertyName);
     }
+
+
 }

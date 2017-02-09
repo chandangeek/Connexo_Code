@@ -25,6 +25,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -117,12 +119,15 @@ public class MasterDataSync {
 
         return masterDataAnalyser;
     }
+    private List<Beacon3100ClientType> getDeviceTypes(AllMasterData allMasterData){
+        return allMasterData.getClientTypes();
+    }
 
     private DeviceTypeManager getDeviceTypeManager() throws NotInObjectListException {
         if(beacon3100Messaging.readOldObisCodes()) {
             return getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager();
         }else{
-            return getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager(Beacon3100Messaging.DEVICE_TYPE_MANAGER_NEW_OBISCODE);
+            return getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager(DeviceTypeManager.NEW_FW_OBISCODE);
         }
     }
 
@@ -209,6 +214,14 @@ public class MasterDataSync {
         return deviceTypesIDs;
     }
 
+    /**
+     * Return a cached (read out only once) list of the IDs of all device types in the Beacon3100 data.
+     */
+    private Array readDeviceTypes() throws IOException {
+
+        return getDeviceTypeManager().readDeviceTypes();
+    }
+
     public AbstractDlmsProtocol getProtocol() {
         return beacon3100Messaging.getProtocol();
     }
@@ -232,7 +245,7 @@ public class MasterDataSync {
     private void syncDevices(Beacon3100MeterDetails[] allMeterDetails) throws IOException {
         boolean isFirmwareVersion140OrAbove = getIsFirmwareVersion140OrAbove();
         for (Beacon3100MeterDetails beacon3100MeterDetails : allMeterDetails) {
-            getDeviceTypeManager().assignDeviceType(beacon3100MeterDetails.toStructure(isFirmwareVersion140OrAbove));
+            syncOneDevice(beacon3100MeterDetails.toStructure(isFirmwareVersion140OrAbove));
         }
     }
 
@@ -366,5 +379,96 @@ public class MasterDataSync {
                 info.append("- Could not delete DeviceType [" + beacon3100DeviceTypeId + "]: " + ex.getMessage() + "\n");
             }
         }
+    }
+
+    public CollectedMessage syncAllDeviceData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        Beacon3100MeterDetails[] meterDetails;
+        try {
+            final String serializedMasterData = pendingMessage.getPreparedContext();    //This context field contains the serialized version of the master data.
+            final JSONArray jsonObject = new JSONArray(serializedMasterData);
+            meterDetails = ObjectMapperFactory.getObjectMapper().readValue(new StringReader(jsonObject.toString()), Beacon3100MeterDetails[].class);
+        } catch (JSONException | IOException e) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            collectedMessage.setDeviceProtocolInformation(e.getMessage());
+            collectedMessage.setFailureInformation(ResultType.InCompatible, beacon3100Messaging.createMessageFailedIssue(pendingMessage, e));
+            return collectedMessage;
+        }
+
+        syncAllDevices(meterDetails);
+
+        return collectedMessage;
+    }
+
+
+
+    private void syncAllDevices(Beacon3100MeterDetails[] allMeterDetails) throws IOException {
+        for (Beacon3100MeterDetails beacon3100MeterDetails : allMeterDetails) {
+            syncOneDevice(beacon3100MeterDetails.toStructureNewFW());
+        }
+    }
+
+    private void syncOneDevice(Structure meterDetails) throws IOException {
+        getDeviceTypeManager().assignDeviceType(meterDetails);
+    }
+
+    public CollectedMessage syncOneDeviceData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        Beacon3100MeterDetails[] meterDetails;
+        try {
+            final String serializedMasterData = pendingMessage.getPreparedContext();    //This context field contains the serialized version of the master data.
+            final JSONArray jsonObject = new JSONArray(serializedMasterData);
+            meterDetails = ObjectMapperFactory.getObjectMapper().readValue(new StringReader(jsonObject.toString()), Beacon3100MeterDetails[].class);
+        } catch (JSONException | IOException e) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            collectedMessage.setDeviceProtocolInformation(e.getMessage());
+            collectedMessage.setFailureInformation(ResultType.InCompatible, beacon3100Messaging.createMessageFailedIssue(pendingMessage, e));
+            return collectedMessage;
+        }
+
+        if(meterDetails[0] != null) {
+            syncOneDevice(meterDetails[0].toStructureNewFW());
+        }
+
+        return collectedMessage;
+    }
+
+    public CollectedMessage syncOneDeviceWithDCAdvanced(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        long configurationId = Long.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.configurationId).getDeviceMessageAttributeValue());
+        String startTime = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.startDate).getDeviceMessageAttributeValue();
+        String endTime = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.endDate).getDeviceMessageAttributeValue();
+
+        Beacon3100MeterDetails[] meterDetails;
+        try {
+            final String serializedMasterData = pendingMessage.getPreparedContext();    //This context field contains the serialized version of the master data.
+            final JSONArray jsonObject = new JSONArray(serializedMasterData);
+            meterDetails = ObjectMapperFactory.getObjectMapper().readValue(new StringReader(jsonObject.toString()), Beacon3100MeterDetails[].class);
+        } catch (JSONException | IOException e) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            collectedMessage.setDeviceProtocolInformation(e.getMessage());
+            collectedMessage.setFailureInformation(ResultType.InCompatible, beacon3100Messaging.createMessageFailedIssue(pendingMessage, e));
+            return collectedMessage;
+        }
+
+        if(meterDetails[0] != null) {
+            try {
+                syncOneDevice(meterDetails[0], configurationId, startTime, endTime);
+            } catch (ParseException e) {
+                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                collectedMessage.setDeviceProtocolInformation(e.getMessage());
+                collectedMessage.setFailureInformation(ResultType.InCompatible, beacon3100Messaging.createMessageFailedIssue(pendingMessage, e));
+                return collectedMessage;
+            }
+        }
+
+        return collectedMessage;
+    }
+
+    private void syncOneDevice(Beacon3100MeterDetails beacon3100MeterDetails, long configurationId, String startTime, String endTime) throws ParseException, IOException {
+        ArrayList deviceTypeAssignements = new ArrayList();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+
+        deviceTypeAssignements.add(new DeviceTypeAssignment(configurationId, dateFormat.parse(startTime), dateFormat.parse(endTime)));
+        beacon3100MeterDetails.setDeviceTypeAssignments(deviceTypeAssignements);
+
+        syncOneDevice(beacon3100MeterDetails.toStructureNewFW());
     }
 }
