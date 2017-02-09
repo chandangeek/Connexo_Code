@@ -6,20 +6,16 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 
+import java.time.Instant;
 import java.util.List;
 
-public class HistoricalMeterActivationInfo implements Comparable<HistoricalMeterActivationInfo> {
+public class HistoricalMeterActivationInfo {
     public long id;
-    public Long start;
-    public Long end;
+    public Instant start;
+    public Instant end;
     public String meter;
     public String url;
     public String meterRole;
     public boolean current;
     public List<IdWithNameInfo> ongoingProcesses;
-
-    @Override
-    public int compareTo(HistoricalMeterActivationInfo o) {
-        return Long.compare(start, o.start);
-    }
 }

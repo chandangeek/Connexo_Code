@@ -24,8 +24,8 @@ public class HistoricalMeterActivationInfoFactory {
     public HistoricalMeterActivationInfo from(MeterActivation meterActivation, UsagePoint usagePoint, String auth) {
         HistoricalMeterActivationInfo info = new HistoricalMeterActivationInfo();
         info.id = meterActivation.getId();
-        info.start = meterActivation.getStart() == null ? null : meterActivation.getStart().toEpochMilli();
-        info.end = meterActivation.getEnd() == null ? null : meterActivation.getEnd().toEpochMilli();
+        info.start = meterActivation.getStart() == null ? null : meterActivation.getStart();
+        info.end = meterActivation.getEnd() == null ? null : meterActivation.getEnd();
         info.current = meterActivation.getEnd() == null;
         meterActivation.getMeter().ifPresent(meter -> {
             info.meter = meter.getName();

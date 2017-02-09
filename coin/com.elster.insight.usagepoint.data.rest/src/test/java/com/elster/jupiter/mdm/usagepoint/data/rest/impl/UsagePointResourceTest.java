@@ -699,12 +699,11 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         MeterActivation meterActivation = mock(MeterActivation.class);
         Meter meter = mock(Meter.class);
         HeadEndInterface headEndInterface = mock(HeadEndInterface.class);
-        ProcessInstanceInfo processInstanceInfo = mock(ProcessInstanceInfo.class);
-        ProcessInstanceInfos processInstanceInfos = mock(ProcessInstanceInfos.class);
         MeterRole meterRole = mock(MeterRole.class);
+        ProcessInstanceInfo processInstanceInfo = new ProcessInstanceInfo();
         processInstanceInfo.processId = "1";
         processInstanceInfo.name = "Replace meter";
-        processInstanceInfos.processes = Collections.singletonList(processInstanceInfo);
+        ProcessInstanceInfos processInstanceInfos = new ProcessInstanceInfos(Collections.singletonList(processInstanceInfo));
         when(meterRole.getDisplayName()).thenReturn("Meter role");
         when(meterActivation.getId()).thenReturn(1L);
         when(meterActivation.getStart()).thenReturn(Instant.ofEpochMilli(1486466700000L));

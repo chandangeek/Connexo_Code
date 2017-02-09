@@ -914,15 +914,14 @@ public class UsagePointResource {
 
     @GET
     @Path("/{name}/history/meters")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
+            Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getHistoryOfMeters(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @HeaderParam("Authorization") String auth) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         List<HistoricalMeterActivationInfo> meterActivationInfoList = usagePoint.getMeterActivations().stream()
                 .map(ma -> historicalMeterActivationInfoFactory.from(ma, usagePoint, auth))
-                .sorted(Comparator.reverseOrder())
-                .sorted(Comparator.comparing(info -> info.meterRole))
-                .sorted(Comparator.comparing(info -> info.meter))
+                .sorted(Comparator.comparing((HistoricalMeterActivationInfo info) -> info.start).reversed().thenComparing(info -> info.meterRole).thenComparing(info -> info.meter))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("meters", meterActivationInfoList, queryParameters);
     }
