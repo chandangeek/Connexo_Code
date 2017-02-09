@@ -15,7 +15,7 @@ Ext.define('Fim.view.importservices.Menu', {
 
         me.menuItems = [
             {
-                text: Uni.I18n.translate('general.overview', 'FIM', 'Overview'),
+                text: Uni.I18n.translate('general.details', 'FIM', 'Details'),
                 itemId: 'import-services-view-link',
                 href: '#/administration/importservices/' + this.importServiceId
             },

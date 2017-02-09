@@ -15,7 +15,7 @@ Ext.define('Fim.view.history.Menu', {
 
         me.menuItems = [
             {
-                text: Uni.I18n.translate('general.overview', 'FIM', 'Overview'),
+                text: Uni.I18n.translate('general.details', 'FIM', 'Details'),
                 hidden: me.showImportService,
                 itemId: 'import-service-view-link',
                 href: '#/administration/importservices/' + this.importServiceId
