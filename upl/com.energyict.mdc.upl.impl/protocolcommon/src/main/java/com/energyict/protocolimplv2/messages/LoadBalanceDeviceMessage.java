@@ -408,10 +408,6 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
         return this.referenceSpec(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation, NumberLookup.class.getName());
     }
 
-    protected PropertySpec readingTypeSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        return this.referenceSpec(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation, "com.energyict.mdc.upl.properties.ReadingType");
-    }
-
     private String getNameResourceKey() {
         return LoadBalanceDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
