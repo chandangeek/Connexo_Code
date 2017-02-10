@@ -97,7 +97,8 @@ public enum PropertyTranslationKeys implements TranslationKey {
     DEVICE_DATA_STATUS_INACTIVE("device.data.status.INACTIVE", "Inactive"),
     DEVICE_MANUFACTURER("device.manufacturer", "Manufacturer"),
     DEVICE_MODEL_NBR("device.model.nbr", "Model number"),
-    DEVICE_MODEL_VERSION("device.model.version", "Model version")
+    DEVICE_MODEL_VERSION("device.model.version", "Model version"),
+    DEVICE_ATTRIBUTES("device.attributes", "Device attributes")
     ;
 
     private String key;

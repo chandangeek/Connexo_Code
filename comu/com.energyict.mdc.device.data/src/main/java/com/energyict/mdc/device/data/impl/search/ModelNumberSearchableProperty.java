@@ -26,6 +26,7 @@ import java.util.Optional;
 public class ModelNumberSearchableProperty extends AbstractSearchableDeviceProperty {
 
     private DeviceSearchDomain domain;
+    private SearchablePropertyGroup group;
     private final PropertySpecService propertySpecService;
 
     @Inject
@@ -34,8 +35,9 @@ public class ModelNumberSearchableProperty extends AbstractSearchableDevicePrope
         this.propertySpecService = propertySpecService;
     }
 
-    ModelNumberSearchableProperty init(DeviceSearchDomain domain) {
+    ModelNumberSearchableProperty init(DeviceSearchDomain domain, SearchablePropertyGroup group) {
         this.domain = domain;
+        this.group = group;
         return this;
     }
 
@@ -51,7 +53,7 @@ public class ModelNumberSearchableProperty extends AbstractSearchableDevicePrope
 
     @Override
     public Optional<SearchablePropertyGroup> getGroup() {
-        return Optional.empty();
+        return Optional.of(group);
     }
 
     @Override

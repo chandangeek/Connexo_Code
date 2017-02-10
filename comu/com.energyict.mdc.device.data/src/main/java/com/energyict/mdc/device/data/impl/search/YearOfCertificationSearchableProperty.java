@@ -23,6 +23,7 @@ import java.util.Optional;
 public class YearOfCertificationSearchableProperty extends AbstractSearchableDeviceProperty {
 
     private DeviceSearchDomain domain;
+    private SearchablePropertyGroup group;
     private final PropertySpecService propertySpecService;
     private static final int YEARS_IN_LIST_NUMBER = 20;
     private Long[] years = new Long [YEARS_IN_LIST_NUMBER];
@@ -36,8 +37,9 @@ public class YearOfCertificationSearchableProperty extends AbstractSearchableDev
         }
     }
 
-    YearOfCertificationSearchableProperty init(DeviceSearchDomain domain) {
+    YearOfCertificationSearchableProperty init(DeviceSearchDomain domain, SearchablePropertyGroup group) {
         this.domain = domain;
+        this.group = group;
         return this;
     }
 
@@ -53,7 +55,7 @@ public class YearOfCertificationSearchableProperty extends AbstractSearchableDev
 
     @Override
     public Optional<SearchablePropertyGroup> getGroup() {
-        return Optional.empty();
+        return Optional.of(group);
     }
 
     @Override
