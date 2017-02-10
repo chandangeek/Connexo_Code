@@ -11,7 +11,7 @@ import javax.xml.bind.DatatypeConverter;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-24 (10:04)
  */
-@Component(name = "com.energyict.mdc.hexservice", service = HexService.class)
+@Component(name = "com.energyict.mdc.hexservice", service = HexService.class, immediate = true)
 public class HexServiceImpl implements HexService {
 
     @Override
