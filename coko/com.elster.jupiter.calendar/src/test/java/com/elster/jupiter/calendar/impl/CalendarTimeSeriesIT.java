@@ -4,12 +4,12 @@
 
 package com.elster.jupiter.calendar.impl;
 
+import com.elster.jupiter.calendar.CalendarTimeSeries;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.nls.Thesaurus;
 
 import java.time.LocalDate;
@@ -69,12 +69,13 @@ public class CalendarTimeSeriesIT {
         ServerCalendar calendar = this.createSimplePeakOffPeakCalendar("Monthly");
 
         // Business methods
-        TimeSeries monthly = calendar.toTimeSeries(Period.ofMonths(1), ZoneOffset.UTC);
+        CalendarTimeSeries monthly = calendar.toTimeSeries(Period.ofMonths(1), ZoneOffset.UTC);
 
         // Asserts
         assertThat(monthly).isNotNull();
         assertThat(monthly.getId()).isGreaterThan(0);
-        assertThat(monthly.interval()).isEqualTo(Period.ofMonths(1));
+        assertThat(monthly.getInterval()).isEqualTo(Period.ofMonths(1));
+        assertThat(monthly.getZoneId()).isEqualTo(ZoneOffset.UTC);
     }
 
     private ServerCalendar createSimplePeakOffPeakCalendar(String name) {

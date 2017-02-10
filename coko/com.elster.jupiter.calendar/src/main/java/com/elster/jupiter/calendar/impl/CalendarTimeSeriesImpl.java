@@ -4,149 +4,114 @@
 
 package com.elster.jupiter.calendar.impl;
 
-import com.elster.jupiter.calendar.CalendarService;
-import com.elster.jupiter.ids.StorerStats;
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarTimeSeries;
+import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.ids.TimeSeries;
-import com.elster.jupiter.ids.TimeSeriesDataStorer;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.ids.TimeSeriesEntry;
+import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlFragment;
 
 import com.google.common.collect.Range;
 
-import javax.inject.Inject;
-import javax.validation.constraints.Size;
-import java.time.Duration;
 import java.time.Instant;
-import java.time.Period;
-import java.time.Year;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAmount;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
- * Provides an implementation for the {@link CalendarTimeSeries} interface.
+ * Provides an implementation for the {@link CalendarTimeSeries} interface
+ * that wraps a {@link CalendarTimeSeriesEntity} to delegate some of the work to.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2017-02-02 (16:26)
+ * @since 2017-02-07 (15:06)
  */
-class CalendarTimeSeriesImpl implements CalendarTimeSeries, PersistenceAware {
+class CalendarTimeSeriesImpl implements CalendarTimeSeries {
+    static final String FIELD_SPEC_CODE_NAME = "code";
 
-    private static final int SECONDS_IN_HOUR = 3600;
-    private static final int SECONDS_IN_MINUTE = 60;
+    private final CalendarTimeSeriesEntity entity;
 
-    private static final Logger LOGGER = Logger.getLogger(CalendarService.class.getName());
-
-    private Reference<ServerCalendar> calendar = ValueReference.absent();
-    private TimeDuration interval;
-    @Size(min = 1, max = 64)
-    private String zoneIdString;
-    private ZoneId zoneId;
-    private Reference<TimeSeries> timeSeries = ValueReference.absent();
-
-    private ServerCalendarService calendarService;
-
-    @Inject
-    CalendarTimeSeriesImpl(ServerCalendarService calendarService) {
-        this.calendarService = calendarService;
+    CalendarTimeSeriesImpl(CalendarTimeSeriesEntity entity) {
+        this.entity = entity;
     }
 
     @Override
-    public void postLoad() {
-        this.zoneId = ZoneId.of(this.zoneIdString);
-    }
-
-    CalendarTimeSeriesImpl initialize(ServerCalendar calendar, TemporalAmount interval, ZoneId zoneId) {
-        this.calendar.set(calendar);
-        this.zoneId = zoneId;
-        this.zoneIdString = zoneId.getId();
-        this.interval = toTimeDuration(interval);
-        return this;
-    }
-
-
-    private static TimeDuration toTimeDuration(TemporalAmount temporalAmount) {
-        if (temporalAmount instanceof Duration) {
-            return toTimeDuration((Duration) temporalAmount);
-        } else {
-            return toTimeDuration((Period) temporalAmount);
-        }
-    }
-
-    private static TimeDuration toTimeDuration(Duration duration) {
-        int seconds = (int) duration.getSeconds();
-        if (duration.getSeconds() % SECONDS_IN_HOUR == 0) {
-            return TimeDuration.hours(seconds / SECONDS_IN_HOUR);
-        } else if (duration.getSeconds() % SECONDS_IN_MINUTE == 0) {
-            return TimeDuration.minutes(seconds / SECONDS_IN_MINUTE);
-        } else {
-            return TimeDuration.seconds(seconds);
-        }
-    }
-
-    private static TimeDuration toTimeDuration(Period period) {
-        if (period.getYears() != 0) {
-            // Ignore rest of fields
-            return TimeDuration.years(period.getYears());
-        } else if (period.getMonths() != 0) {
-            // Ignore rest of fields
-            return TimeDuration.months(period.getMonths());
-        } else {
-            // Ignore rest of fields
-            return TimeDuration.days(period.getDays());
-        }
+    public long getId() {
+        return this.entity.timeSeries().getId();
     }
 
     @Override
-    public TimeSeries timeSeries() {
-        return this.timeSeries.get();
+    public Calendar getCalendar() {
+        return this.entity.calendar();
     }
 
     @Override
-    public ServerCalendar calendar() {
-        return this.calendar.get();
+    public TemporalAmount getInterval() {
+        return this.entity.timeSeries().interval();
     }
 
     @Override
-    public boolean matches(TemporalAmount interval, ZoneId zoneId) {
-        return this.interval.equals(toTimeDuration(interval)) && this.zoneId.equals(zoneId);
+    public ZoneId getZoneId() {
+        return this.entity.timeSeries().getZoneId();
     }
 
-    CalendarTimeSeries generate() {
-        ServerCalendar calendar = this.calendar();
-        TimeSeries newlyCreated =
-                this.calendarService
-                    .getVault()
-                    .createRegularTimeSeries(
-                            this.calendarService.getRecordSpec(),
-                            this.zoneId,
-                            this.interval.asTemporalAmount(),
-                            0);
-        if (Year.now(this.calendarService.getClock()).getValue() >= calendar.getStartYear().getValue()) {
-            // Calendar does not start in the future
-            ServerCalendar.ZonedView zonedView = calendar.forZone(this.zoneId, calendar.getStartYear());
-            TimeSeriesDataStorer storer = this.calendarService.getIdsService().createNonOverrulingStorer();// Change this to overruling storer to support regenerating after calendar was updated
-            newlyCreated
-                    .toList(this.initialGenerationRange())
-                    .forEach(instant -> storer.add(newlyCreated, instant, zonedView.eventFor(instant).getCode()));
-            this.log(storer.execute());
+    @Override
+    public List<Event> getEvents(Range<Instant> interval) {
+        return this.entity
+                .timeSeries()
+                .getEntries(interval)
+                .stream()
+                .map(this::toEvent)
+                .collect(Collectors.toList());
+    }
+
+    private Event toEvent(TimeSeriesEntry timeSeriesEntry) {
+        long timeSeriesEventCode = timeSeriesEntry.getLong(0);
+        return this.entity
+                    .calendar()
+                    .getEvents()
+                    .stream()
+                    .filter(event -> event.getCode() == timeSeriesEventCode)
+                    .findAny()
+                    .orElseThrow(() -> new IllegalStateException("Calendar time series generation produced event code (value=" + timeSeriesEventCode + ") that does not exist in the calendar(id=" + this.entity.calendar().getId() + ", name=" + this.entity.calendar().getName() + ")"));
+    }
+
+    @Override
+    public Optional<Event> getEvent(Instant when) {
+        return this.entity.timeSeries().getEntry(when).map(this::toEvent);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public SqlFragment joinSql(TimeSeries timeSeries, Event event, Range<Instant> interval, Pair<String, String>... fieldSpecAndAliasNames) {
+        SqlBuilder builder = new SqlBuilder("SELECT ts.* FROM (");
+        builder.add(this.entity.timeSeries().getRawValuesSql(interval, Pair.of(FIELD_SPEC_CODE_NAME, "Value")));
+        builder.append(") cal, (");
+        builder.add(timeSeries.getRawValuesSql(interval, fieldSpecAndAliasNames));
+        builder.append(") ts WHERE cal.utcstamp = ts.utcstamp and cal.value = ");
+        builder.addLong(event.getCode());
+        return builder;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.getId());
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
         }
-        this.timeSeries.set(newlyCreated);
-        return this;
-    }
-
-    private Range<Instant> initialGenerationRange() {
-        ZonedDateTime startOfFirstYear = this.calendar().getStartYear().atDay(1).atStartOfDay(this.zoneId);
-        ZonedDateTime startOfNextYear = Year.now(this.calendarService.getClock()).atDay(1).plusYears(1).atStartOfDay(this.zoneId);
-        return Range.closedOpen(startOfFirstYear.toInstant(), startOfNextYear.toInstant());
-    }
-
-    private void log(StorerStats stats) {
-        LOGGER.log(Level.INFO, () -> "Generated timeseries for calendar(id=" + this.calendar().getId() + ", name=" + this.calendar().getName() + ")");
-        LOGGER.log(Level.INFO, () -> "Inserted " + stats.getEntryCount() + " entries in " + stats.getExecuteTime() + " millis");
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        CalendarTimeSeriesImpl that = (CalendarTimeSeriesImpl) other;
+        return this.getId() == that.getId();
     }
 
 }

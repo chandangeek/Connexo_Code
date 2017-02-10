@@ -315,13 +315,14 @@ public enum TableSpecs {
     CAL_TIMESERIES {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<CalendarTimeSeries> table = dataModel.addTable(name(), CalendarTimeSeries.class);
+            Table<CalendarTimeSeriesEntity> table = dataModel.addTable(name(), CalendarTimeSeriesEntity.class);
             table.since(version(10, 3));
-            table.map(CalendarTimeSeriesImpl.class);
+            table.map(CalendarTimeSeriesEntityImpl.class);
             Column calendar = table.column("CALENDAR").number().notNull().add();
             Column zoneId = table.column("ZONEID").varChar().notNull().map("zoneIdString").add();
             Column intervalValue = table.column("INTERVAL_VALUE").number().conversion(NUMBER2INT).notNull().map("interval.count").add();
             Column intervalUnit = table.column("INTERVAL_UNIT").number().conversion(NUMBER2INT).notNull().map("interval.timeUnitCode").add();
+            Column timeSeries = table.column("TIMESERIES").number().notNull().add();
 
             table
                 .primaryKey("CAL_PK_TIMESERIES")
@@ -337,7 +338,7 @@ public enum TableSpecs {
                 .add();
             table
                 .foreignKey("CAL_FK_TIMESERIES_TIMESERIES")
-                .on(calendar)
+                .on(timeSeries)
                 .references(TimeSeries.class)
                 .map("timeSeries")
                 .add();

@@ -5,6 +5,7 @@
 package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.CalendarTimeSeries;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.Status;
 import com.elster.jupiter.events.EventService;
@@ -138,11 +139,11 @@ public class CalendarTimeSeriesGenerateTest {
     @Test
     public void firstCallCreatesTimeSeries() {
         ServerCalendarService calendarService = this.getCalendarService();
-        when(this.dataModel.getInstance(CalendarTimeSeriesImpl.class)).thenReturn(new CalendarTimeSeriesImpl(calendarService));
+        when(this.dataModel.getInstance(CalendarTimeSeriesEntityImpl.class)).thenReturn(new CalendarTimeSeriesEntityImpl(calendarService));
         ServerCalendar calendar = this.createSimplePeakOffPeakCalendar(calendarService, "FirstCall");
 
         // Business methods
-        TimeSeries hourly = calendar.toTimeSeries(Duration.ofHours(1L), ZoneOffset.UTC);
+        calendar.toTimeSeries(Duration.ofHours(1L), ZoneOffset.UTC);
 
         // Asserts
         verify(this.vault).createRegularTimeSeries(this.recordSpec, ZoneOffset.UTC, Duration.ofHours(1), 0);
@@ -152,14 +153,14 @@ public class CalendarTimeSeriesGenerateTest {
     @Test
     public void secondCallReusesTimeSeries() {
         ServerCalendarService calendarService = this.getCalendarService();
-        when(this.dataModel.getInstance(CalendarTimeSeriesImpl.class)).thenReturn(new CalendarTimeSeriesImpl(calendarService));
+        when(this.dataModel.getInstance(CalendarTimeSeriesEntityImpl.class)).thenReturn(new CalendarTimeSeriesEntityImpl(calendarService));
         ServerCalendar calendar = this.createSimplePeakOffPeakCalendar(calendarService, "SecondCall");
-        TimeSeries hourly = calendar.toTimeSeries(Duration.ofHours(1L), ZoneOffset.UTC);
+        CalendarTimeSeries hourly = calendar.toTimeSeries(Duration.ofHours(1L), ZoneOffset.UTC);
         reset(this.vault);
         reset(this.storer);
 
         // Business methods
-        TimeSeries sameAsHourly = calendar.toTimeSeries(Duration.ofHours(1L), ZoneOffset.UTC);
+        CalendarTimeSeries sameAsHourly = calendar.toTimeSeries(Duration.ofHours(1L), ZoneOffset.UTC);
 
         // Asserts
         verify(this.vault, never()).createRegularTimeSeries(this.recordSpec, ZoneOffset.UTC, Duration.ofHours(1), 0);
@@ -170,13 +171,13 @@ public class CalendarTimeSeriesGenerateTest {
     @Test
     public void sameIntervalDifferentTimeZoneCreatesTimeSeries() {
         ServerCalendarService calendarService = this.getCalendarService();
-        when(this.dataModel.getInstance(CalendarTimeSeriesImpl.class)).thenReturn(new CalendarTimeSeriesImpl(calendarService));
+        when(this.dataModel.getInstance(CalendarTimeSeriesEntityImpl.class)).thenReturn(new CalendarTimeSeriesEntityImpl(calendarService));
         ServerCalendar calendar = this.createSimplePeakOffPeakCalendar(calendarService, "SecondCall");
-        TimeSeries hourlyUTC = calendar.toTimeSeries(Duration.ofHours(1L), ZoneOffset.UTC);
+        calendar.toTimeSeries(Duration.ofHours(1L), ZoneOffset.UTC);
 
         // Business methods
         ZoneId zoneId = TimeZone.getTimeZone("EST").toZoneId();
-        TimeSeries hourlyEST = calendar.toTimeSeries(Duration.ofHours(1L), zoneId);
+        calendar.toTimeSeries(Duration.ofHours(1L), zoneId);
 
         // Asserts
         verify(this.vault).createRegularTimeSeries(this.recordSpec, ZoneOffset.UTC, Duration.ofHours(1), 0);

@@ -16,7 +16,7 @@ import java.time.temporal.TemporalAmount;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-02-02 (16:12)
  */
-public interface CalendarTimeSeries {
+public interface CalendarTimeSeriesEntity {
     TimeSeries timeSeries();
     ServerCalendar calendar();
 

@@ -6,6 +6,7 @@ package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.CalendarTimeSeries;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.Event;
@@ -23,7 +24,6 @@ import com.elster.jupiter.calendar.Status;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -122,7 +122,7 @@ public class CalendarImpl implements ServerCalendar {
     private List<ExceptionalOccurrence> exceptionalOccurrences = new ArrayList<>();
     @Valid
     private List<PeriodTransitionSpec> periodTransitionSpecs = new ArrayList<>();
-    private List<CalendarTimeSeries> timeSeries = new ArrayList<>();    // Composition managed by ORM
+    private List<CalendarTimeSeriesEntity> timeSeries = new ArrayList<>();    // Composition managed by ORM
 
     private final ServerCalendarService calendarService;
     private final EventService eventService;
@@ -520,19 +520,19 @@ public class CalendarImpl implements ServerCalendar {
     }
 
     @Override
-    public TimeSeries toTimeSeries(TemporalAmount interval, ZoneId zoneId) {
-        return this.timeSeries
-                .stream()
-                .filter(timeSeries -> timeSeries.matches(interval, zoneId))
-                .findAny()
-                .orElseGet(() -> this.createTimeSeries(interval, zoneId))
-                .timeSeries();
+    public CalendarTimeSeries toTimeSeries(TemporalAmount interval, ZoneId zoneId) {
+        return new CalendarTimeSeriesImpl(
+                this.timeSeries
+                    .stream()
+                    .filter(timeSeries -> timeSeries.matches(interval, zoneId))
+                    .findAny()
+                    .orElseGet(() -> this.createTimeSeries(interval, zoneId)));
     }
 
-    private CalendarTimeSeries createTimeSeries(TemporalAmount interval, ZoneId zoneId) {
-        CalendarTimeSeries generated = this.calendarService
+    private CalendarTimeSeriesEntity createTimeSeries(TemporalAmount interval, ZoneId zoneId) {
+        CalendarTimeSeriesEntity generated = this.calendarService
                 .getDataModel()
-                .getInstance(CalendarTimeSeriesImpl.class)
+                .getInstance(CalendarTimeSeriesEntityImpl.class)
                 .initialize(this, interval, zoneId)
                 .generate();
         this.timeSeries.add(generated);

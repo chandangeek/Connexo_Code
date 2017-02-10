@@ -95,10 +95,19 @@ public class ZonedCalenderViewImpl implements ServerCalendar.ZonedView {
      */
     private void fixPeriodTransitions() {
         ZonedDateTime defaultEnd = Year.of(this.endYear).atDay(1).plusYears(1).atStartOfDay(this.zoneId);
-        Stream.Builder<FixedPeriodOccurrence> builder = Stream.builder();
+        List<FixedPeriodOccurrence> builder = new ArrayList<>();
+        ZonedDateTime fromJan1stToFirstStart = null;   // We may not need it if the first occurrence starts on Jan 1st
+        boolean first = true;
         FixedPeriodOccurrence previous = null;
         for (PeriodTransition transition : this.calendar.getTransitions()) {
             ZonedDateTime start = transition.getOccurrence().atStartOfDay(this.zoneId);
+            if (first && transition.getOccurrence().getDayOfYear() != 1) {
+                /* First entry does not start on Jan 1st,
+                 * add an additional one that will get the same code
+                 * as the last event occurrence. */
+                fromJan1stToFirstStart = start;
+            }
+            first = false;
             FixedPeriodOccurrence current = new FixedPeriodOccurrence(this.toZonedPeriod(transition.getPeriod()), start, defaultEnd);
             builder.add(current);
             if (previous != null) {
@@ -106,8 +115,16 @@ public class ZonedCalenderViewImpl implements ServerCalendar.ZonedView {
             }
             previous = current;
         }
+        if (fromJan1stToFirstStart != null && previous != null) {
+            builder.add(
+                    0,
+                    new FixedPeriodOccurrence(
+                            previous.period,
+                            this.calendar.getStartYear().atDay(1).atStartOfDay(this.zoneId),
+                            fromJan1stToFirstStart));
+        }
         this.dayTypeOccurrences =
-                builder.build()
+                builder.stream()
                         .map(FixedPeriodOccurrence::occurrences)
                         .flatMap(Collection::stream)
                         .collect(Collectors.toCollection(TreeSet::new));
@@ -194,9 +211,9 @@ public class ZonedCalenderViewImpl implements ServerCalendar.ZonedView {
                     /* First entry does not start at midnight,
                      * add an additional one that will get the same code
                      * as the last event occurrence. */
-                    first = false;
                     fromMidnightToFirstStart = from;
                 }
+                first = false;
                 FixedEventOccurrence current = new FixedEventOccurrence(eventOccurrence.getEvent(), from, startOfNextDay);
                 this.eventOccurrences.add(current);
                 if (previous != null) {

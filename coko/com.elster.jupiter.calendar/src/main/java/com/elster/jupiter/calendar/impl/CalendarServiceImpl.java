@@ -59,6 +59,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.calendar.impl.CalendarTimeSeriesImpl.FIELD_SPEC_CODE_NAME;
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -386,7 +387,7 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
         this.recordSpec =
                 idsService
                         .createRecordSpec(COMPONENTNAME, RECORD_SPEC_ID, "calendar")
-                        .addFieldSpec("code", FieldType.LONGINTEGER)
+                        .addFieldSpec(FIELD_SPEC_CODE_NAME, FieldType.LONGINTEGER)
                         .create();
     }
 

@@ -200,6 +200,6 @@ public interface Calendar extends HasId, HasName {
      * @return The TimeSeries
      * @see TimeSeries#interval()
      */
-    TimeSeries toTimeSeries(TemporalAmount interval, ZoneId zoneId);
+    CalendarTimeSeries toTimeSeries(TemporalAmount interval, ZoneId zoneId);
 
 }
