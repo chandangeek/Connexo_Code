@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserPreferencesService;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.DateTimeFormatGenerator;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.legacy.Formatter;
@@ -27,7 +27,7 @@ import java.time.Instant;
 public class FormatterImpl implements Formatter {
 
     private volatile ThreadPrincipalService threadPrincipalService;
-    private volatile UserPreferencesService userPreferencesService;
+    private volatile UserService userService;
 
     // For OSGi purposes
     public FormatterImpl() {
@@ -36,10 +36,10 @@ public class FormatterImpl implements Formatter {
 
     // For testing purposes
     @Inject
-    public FormatterImpl(ThreadPrincipalService threadPrincipalService, UserPreferencesService userPreferencesService) {
+    public FormatterImpl(ThreadPrincipalService threadPrincipalService, UserService userService) {
         this();
         this.setThreadPrincipalService(threadPrincipalService);
-        this.setUserPreferencesService(userPreferencesService);
+        this.setUserService(userService);
     }
 
     @Activate
@@ -58,8 +58,8 @@ public class FormatterImpl implements Formatter {
     }
 
     @Reference
-    public void setUserPreferencesService(UserPreferencesService userPreferencesService) {
-        this.userPreferencesService = userPreferencesService;
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     @Override
@@ -69,7 +69,7 @@ public class FormatterImpl implements Formatter {
                 .getDateFormatForUser(
                         DateTimeFormatGenerator.Mode.SHORT,
                         DateTimeFormatGenerator.Mode.SHORT,
-                        this.userPreferencesService,
+                        userService.getUserPreferencesService(),
                         principal)
                 .format(instant);
     }
