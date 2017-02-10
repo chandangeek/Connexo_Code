@@ -5,6 +5,7 @@
 package com.energyict.mdc.scheduling.model.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -102,6 +103,7 @@ public class InMemoryPersistence {
                 new IdsModule(),
                 new FiniteStateMachineModule(),
                 new UsagePointLifeCycleConfigurationModule(),
+                new CalendarModule(),
                 new MeteringModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new InMemoryMessagingModule(),
