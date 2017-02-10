@@ -17,7 +17,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-01-17 (14:40)
  */
-@Component(name = "com.energyict.mdc.device.data.upl.extractor", service = {DeviceExtractor.class})
+@Component(name = "com.energyict.mdc.device.data.upl.extractor", service = {DeviceExtractor.class}, immediate = true)
 @SuppressWarnings("unused")
 public class DeviceExtractorImpl implements DeviceExtractor {
 
