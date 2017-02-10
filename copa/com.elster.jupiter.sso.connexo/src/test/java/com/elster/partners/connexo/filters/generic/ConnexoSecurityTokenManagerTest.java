@@ -8,9 +8,6 @@ import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import net.minidev.json.JSONObject;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import javax.xml.bind.DatatypeConverter;
 import java.lang.reflect.Field;
@@ -20,13 +17,26 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by dragos on 2/2/2016.
@@ -55,12 +65,11 @@ public class ConnexoSecurityTokenManagerTest {
     @Test
     public void testVerifyInvalidToken(){
         // Given
-        Properties properties = mock(Properties.class);
-        ConnexoSecurityTokenManager manager = ConnexoSecurityTokenManager.getInstance(properties);
-        when(properties.getProperty("com.elster.jupiter.token.refresh.maxcount")).thenReturn("100");
-        when(properties.getProperty("com.elster.jupiter.timeout")).thenReturn("300");
-        when(properties.getProperty("com.elster.jupiter.token.expirationtime")).thenReturn("300");
-        when(properties.getProperty("com.elster.jupiter.sso.public.key")).thenReturn("test-key");
+        ConnexoSecurityTokenManager manager = ConnexoSecurityTokenManager.getInstance();
+        System.setProperty("com.elster.jupiter.token.refresh.maxcount", "100");
+        System.setProperty("com.elster.jupiter.timeout", "300");
+        System.setProperty("com.elster.jupiter.token.expirationtime", "300");
+        System.setProperty("com.elster.jupiter.sso.public.key", "test-key");
 
         // When
         // Then
@@ -78,10 +87,9 @@ public class ConnexoSecurityTokenManagerTest {
         role.put("name", "Role1");
         String token = createToken(1, "TestUser", Arrays.asList(new JSONObject(role)), "Elster Connexo", 1, new Date(), calendar.getTime());
 
-        Properties properties = mock(Properties.class);
-        when(properties.getProperty("com.elster.jupiter.sso.public.key")).thenReturn(new String(DatatypeConverter.printBase64Binary(publicKey.getEncoded())));
-
-        ConnexoSecurityTokenManager manager = ConnexoSecurityTokenManager.getInstance(properties);
+        System.setProperty("com.elster.jupiter.sso.public.key", new String(DatatypeConverter.printBase64Binary(publicKey
+                .getEncoded())));
+        ConnexoSecurityTokenManager manager = ConnexoSecurityTokenManager.getInstance();
 
         // When
         ConnexoPrincipal principal = manager.verifyToken(token, true);
@@ -107,9 +115,9 @@ public class ConnexoSecurityTokenManagerTest {
         role.put("name", "Role1");
         String token = createToken(1, "TestUser", Arrays.asList(new JSONObject(role)), "Elster Connexo", 1, issueDate, calendar.getTime());
 
-        Properties properties = mock(Properties.class);
-        when(properties.getProperty("com.elster.jupiter.sso.public.key")).thenReturn(new String(DatatypeConverter.printBase64Binary(publicKey.getEncoded())));
-        ConnexoSecurityTokenManager manager = ConnexoSecurityTokenManager.getInstance(properties);
+        System.setProperty("com.elster.jupiter.sso.public.key", new String(DatatypeConverter.printBase64Binary(publicKey
+                .getEncoded())));
+        ConnexoSecurityTokenManager manager = ConnexoSecurityTokenManager.getInstance();
 
         // When
         ConnexoPrincipal principal = manager.verifyToken(token, true);
@@ -128,9 +136,9 @@ public class ConnexoSecurityTokenManagerTest {
         role.put("name", "Role1");
         String token = createToken(1, "TestUser", Arrays.asList(new JSONObject(role)), "Another issuer", 1, new Date(), calendar.getTime());
 
-        Properties properties = mock(Properties.class);
-        when(properties.getProperty("com.elster.jupiter.sso.public.key")).thenReturn(new String(DatatypeConverter.printBase64Binary(publicKey.getEncoded())));
-        ConnexoSecurityTokenManager manager = ConnexoSecurityTokenManager.getInstance(properties);
+        System.setProperty("com.elster.jupiter.sso.public.key", new String(DatatypeConverter.printBase64Binary(publicKey
+                .getEncoded())));
+        ConnexoSecurityTokenManager manager = ConnexoSecurityTokenManager.getInstance();
 
         // When
         ConnexoPrincipal principal = manager.verifyToken(token, true);
@@ -149,9 +157,9 @@ public class ConnexoSecurityTokenManagerTest {
         role.put("name", "Role1");
         String token = createToken(1, "TestUser", Arrays.asList(new JSONObject(role)), "Elster Connexo", 100, new Date(), calendar.getTime());
 
-        Properties properties = mock(Properties.class);
-        when(properties.getProperty("com.elster.jupiter.sso.public.key")).thenReturn(new String(DatatypeConverter.printBase64Binary(publicKey.getEncoded())));
-        ConnexoSecurityTokenManager manager = ConnexoSecurityTokenManager.getInstance(properties);
+        System.setProperty("com.elster.jupiter.sso.public.key", new String(DatatypeConverter.printBase64Binary(publicKey
+                .getEncoded())));
+        ConnexoSecurityTokenManager manager = ConnexoSecurityTokenManager.getInstance();
 
         // When
         ConnexoPrincipal principal = manager.verifyToken(token, true);
@@ -172,10 +180,9 @@ public class ConnexoSecurityTokenManagerTest {
         role.put("name", "Role1");
         String token = createToken(1, "TestUser", Arrays.asList(new JSONObject(role)), "Elster Connexo", 1, issueDate, calendar.getTime());
 
-        Properties properties = mock(Properties.class);
-        when(properties.getProperty("com.elster.jupiter.sso.public.key")).thenReturn(new String(DatatypeConverter.printBase64Binary(publicKey.getEncoded())));
-
-        ConnexoSecurityTokenManager manager = ConnexoSecurityTokenManager.getInstance(properties);
+        System.setProperty("com.elster.jupiter.sso.public.key", new String(DatatypeConverter.printBase64Binary(publicKey
+                .getEncoded())));
+        ConnexoSecurityTokenManager manager = ConnexoSecurityTokenManager.getInstance();
 
         ConnexoRestProxyManager restManager = mock(ConnexoRestProxyManager.class);
         Field restInstance = ConnexoRestProxyManager.class.getDeclaredField("instance");
@@ -209,10 +216,9 @@ public class ConnexoSecurityTokenManagerTest {
         role.put("name", "Role1");
         String token = createToken(1, "TestUser", Arrays.asList(new JSONObject(role)), "Elster Connexo", 1, issueDate, calendar.getTime());
 
-        Properties properties = mock(Properties.class);
-        when(properties.getProperty("com.elster.jupiter.sso.public.key")).thenReturn(new String(DatatypeConverter.printBase64Binary(publicKey.getEncoded())));
-
-        ConnexoSecurityTokenManager manager = ConnexoSecurityTokenManager.getInstance(properties);
+        System.setProperty("com.elster.jupiter.sso.public.key", new String(DatatypeConverter.printBase64Binary(publicKey
+                .getEncoded())));
+        ConnexoSecurityTokenManager manager = ConnexoSecurityTokenManager.getInstance();
 
         ConnexoRestProxyManager restManager = mock(ConnexoRestProxyManager.class);
         Field restInstance = ConnexoRestProxyManager.class.getDeclaredField("instance");
