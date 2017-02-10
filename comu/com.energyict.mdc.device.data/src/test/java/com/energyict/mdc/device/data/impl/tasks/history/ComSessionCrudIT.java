@@ -249,6 +249,7 @@ public class ComSessionCrudIT {
                     new IdsModule(),
                     new FiniteStateMachineModule(),
                     new UsagePointLifeCycleConfigurationModule(),
+                    new CalendarModule(),
                     new MeteringModule(),
                     new MeteringGroupsModule(),
                     new SearchModule(),

@@ -246,6 +246,7 @@ public class InMemoryIntegrationPersistence {
                 new FiniteStateMachineModule(),
                 new UsagePointLifeCycleConfigurationModule(),
                 new UsagePointLifeCycleModule(),
+                new CalendarModule(),
                 new MeteringModule(
                         "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
                         "0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
