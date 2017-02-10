@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
-import com.energyict.ObjectMapperFactory;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -524,7 +523,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.RemoveMetersFromBlackList)) {
                         collectedMessage = removeMetersFromBlackList(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.BroadcastFirmwareUpgrade)) {
-                        collectedMessage = new BroadcastUpgrade(this, this.propertySpecService, this.certificateWrapperExtractor).broadcastFirmware(pendingMessage, collectedMessage);
+                        collectedMessage = new BroadcastUpgrade(this, this.propertySpecService, objectMapperService, this.certificateWrapperExtractor).broadcastFirmware(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER)) {
                         upgradeFirmware(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES)) {
@@ -1107,7 +1106,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         MulticastProtocolConfiguration protocolConfiguration;
         try {
             final JSONObject jsonObject = new JSONObject(pendingMessage.getPreparedContext());  //This context field contains the serialized version of the protocol configuration
-            protocolConfiguration = ObjectMapperFactory.getObjectMapper().readValue(new StringReader(jsonObject.toString()), MulticastProtocolConfiguration.class);
+            protocolConfiguration = objectMapperService.newJacksonMapper().readValue(new StringReader(jsonObject.toString()), MulticastProtocolConfiguration.class);
         } catch (JSONException | IOException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             collectedMessage.setDeviceProtocolInformation(e.getMessage());
@@ -1170,7 +1169,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         MulticastProtocolConfiguration protocolConfiguration;
         try {
             final JSONObject jsonObject = new JSONObject(pendingMessage.getPreparedContext());  //This context field contains the serialized version of the protocol configuration
-            protocolConfiguration = ObjectMapperFactory.getObjectMapper().readValue(new StringReader(jsonObject.toString()), MulticastProtocolConfiguration.class);
+            protocolConfiguration = objectMapperService.newJacksonMapper().readValue(new StringReader(jsonObject.toString()), MulticastProtocolConfiguration.class);
         } catch (JSONException | IOException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             collectedMessage.setDeviceProtocolInformation(e.getMessage());
@@ -1504,7 +1503,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private MasterDataSync getMasterDataSync() {
         if (masterDataSync == null) {
-            masterDataSync = new MasterDataSync(this, this.getIssueFactory());
+            masterDataSync = new MasterDataSync(this, objectMapperService, this.getIssueFactory());
         }
         return masterDataSync;
     }

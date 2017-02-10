@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects;
 
-import com.energyict.ObjectMapperFactory;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.InvokeIdAndPriority;
 import com.energyict.dlms.axrdencoding.BitString;
@@ -12,6 +11,7 @@ import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
+import com.energyict.mdc.upl.ObjectMapperService;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -53,11 +53,13 @@ public class BroadcastUpgrade {
     private static final ObisCode AM540_BROADCAST_FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.1.255");
     private final Beacon3100Messaging beacon3100Messaging;
     private final PropertySpecService propertySpecService;
+    private final ObjectMapperService objectMapperService;
     private final CertificateWrapperExtractor certificateWrapperExtractor;
 
-    public BroadcastUpgrade(Beacon3100Messaging beacon3100Messaging, PropertySpecService propertySpecService, CertificateWrapperExtractor certificateWrapperExtractor) {
+    public BroadcastUpgrade(Beacon3100Messaging beacon3100Messaging, PropertySpecService propertySpecService, ObjectMapperService objectMapperService, CertificateWrapperExtractor certificateWrapperExtractor) {
         this.beacon3100Messaging = beacon3100Messaging;
         this.propertySpecService = propertySpecService;
+        this.objectMapperService = objectMapperService;
         this.certificateWrapperExtractor = certificateWrapperExtractor;
     }
 
@@ -82,7 +84,7 @@ public class BroadcastUpgrade {
         DeviceInfo[] deviceInfos;
         try {
             final JSONArray jsonObject = new JSONArray(serializedDeviceInfos);
-            deviceInfos = ObjectMapperFactory.getObjectMapper().readValue(new StringReader(jsonObject.toString()), DeviceInfo[].class);
+            deviceInfos = objectMapperService.newJacksonMapper().readValue(new StringReader(jsonObject.toString()), DeviceInfo[].class);
         } catch (JSONException | IOException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             collectedMessage.setDeviceProtocolInformation(e.toString());

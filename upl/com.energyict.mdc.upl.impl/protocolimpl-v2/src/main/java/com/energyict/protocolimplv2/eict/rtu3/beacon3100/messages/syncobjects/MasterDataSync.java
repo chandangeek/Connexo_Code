@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
-import com.energyict.ObjectMapperFactory;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.ClientTypeManager;
 import com.energyict.dlms.cosem.DeviceTypeManager;
 import com.energyict.dlms.cosem.ScheduleManager;
 import com.energyict.mdc.upl.NotInObjectListException;
+import com.energyict.mdc.upl.ObjectMapperService;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
@@ -36,12 +36,14 @@ import java.util.StringTokenizer;
 public class MasterDataSync {
 
     private final Beacon3100Messaging beacon3100Messaging;
+    private final ObjectMapperService objectMapperService;
     private final IssueFactory issueFactory;
 
     protected StringBuilder info = new StringBuilder();
 
-    public MasterDataSync(Beacon3100Messaging beacon3100Messaging, IssueFactory issueFactory) {
+    public MasterDataSync(Beacon3100Messaging beacon3100Messaging, ObjectMapperService objectMapperService, IssueFactory issueFactory) {
         this.beacon3100Messaging = beacon3100Messaging;
+        this.objectMapperService = objectMapperService;
         this.issueFactory = issueFactory;
     }
 
@@ -53,7 +55,7 @@ public class MasterDataSync {
         try {
             final String serializedMasterData = pendingMessage.getPreparedContext();    //This context field contains the serialized version of the master data.
             final JSONObject jsonObject = new JSONObject(serializedMasterData);
-            allMasterData = ObjectMapperFactory.getObjectMapper().readValue(new StringReader(jsonObject.toString()), AllMasterData.class);
+            allMasterData = objectMapperService.newJacksonMapper().readValue(new StringReader(jsonObject.toString()), AllMasterData.class);
         } catch (JSONException | IOException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             collectedMessage.setDeviceProtocolInformation(e.getMessage());
@@ -135,7 +137,7 @@ public class MasterDataSync {
         try {
             final String serializedMasterData = pendingMessage.getPreparedContext();    //This context field contains the serialized version of the master data.
             final JSONArray jsonObject = new JSONArray(serializedMasterData);
-            meterDetails = ObjectMapperFactory.getObjectMapper().readValue(new StringReader(jsonObject.toString()), Beacon3100MeterDetails[].class);
+            meterDetails = objectMapperService.newJacksonMapper().readValue(new StringReader(jsonObject.toString()), Beacon3100MeterDetails[].class);
         } catch (JSONException | IOException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             collectedMessage.setDeviceProtocolInformation(e.getMessage());
