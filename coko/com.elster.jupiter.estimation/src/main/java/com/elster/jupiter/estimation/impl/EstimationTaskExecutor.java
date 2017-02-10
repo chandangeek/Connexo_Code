@@ -131,9 +131,9 @@ class EstimationTaskExecutor implements TaskExecutor {
                 metrologyContracts.get()
                         .stream()
                         .forEach(metrologyContract ->
-                                validateWithPurpose(metrologyContract, occurrence, system, channelsContainer, relativePeriod, taskLogger));
+                                estimateWithPurpose(metrologyContract, occurrence, system, channelsContainer, relativePeriod, taskLogger));
             } else {
-                validate(system, channelsContainer, relativePeriod, occurrence, taskLogger);
+                estimate(system, channelsContainer, relativePeriod, occurrence, taskLogger);
             }
         } catch (Exception ex) {
             transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to estimate "
@@ -158,13 +158,13 @@ class EstimationTaskExecutor implements TaskExecutor {
         return taskLogger;
     }
 
-    private void validateWithPurpose(MetrologyContract metrologyContract, TaskOccurrence occurrence, QualityCodeSystem system, ChannelsContainer channelsContainer, RelativePeriod relativePeriod, Logger taskLogger) {
+    private void estimateWithPurpose(MetrologyContract metrologyContract, TaskOccurrence occurrence, QualityCodeSystem system, ChannelsContainer channelsContainer, RelativePeriod relativePeriod, Logger taskLogger) {
         if (metrologyContract.getMetrologyPurpose().equals(getEstimationTask(occurrence).getMetrologyPurpose().get())) {
-            validate(system, channelsContainer, relativePeriod, occurrence, taskLogger);
+            estimate(system, channelsContainer, relativePeriod, occurrence, taskLogger);
         }
     }
 
-    private void validate(QualityCodeSystem system, ChannelsContainer channelsContainer, RelativePeriod relativePeriod, TaskOccurrence occurrence, Logger taskLogger) {
+    private void estimate(QualityCodeSystem system, ChannelsContainer channelsContainer, RelativePeriod relativePeriod, TaskOccurrence occurrence, Logger taskLogger) {
         try (TransactionContext transactionContext = transactionService.getContext()) {
             estimationService.estimate(system, channelsContainer, period(channelsContainer, relativePeriod, occurrence
                     .getTriggerTime()), taskLogger);
