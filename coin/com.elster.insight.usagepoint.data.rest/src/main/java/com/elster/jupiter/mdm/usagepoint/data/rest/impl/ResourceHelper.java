@@ -147,7 +147,7 @@ public class ResourceHelper {
                 .filter(mc -> mc.getId() == contractId)
                 .filter(mc -> !mc.isMandatory())
                 .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.CANNOT_ACTIVATE_METROLOGY_PURPOSE));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.CANNOT_ACTIVATE_METROLOGY_PURPOSE, contractId));
 
         if(effectiveMC.getChannelsContainer(metrologyContract, clock.instant()).isPresent()){
             throw conflictFactory.contextDependentConflictOn(metrologyContract.getMetrologyPurpose().getName()).build();
