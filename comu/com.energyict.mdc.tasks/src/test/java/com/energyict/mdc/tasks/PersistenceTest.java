@@ -5,6 +5,7 @@
 package com.energyict.mdc.tasks;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -95,6 +96,7 @@ public class PersistenceTest {
                 new DomainUtilModule(),
                 new FiniteStateMachineModule(),
                 new UsagePointLifeCycleConfigurationModule(),
+                new CalendarModule(),
                 new MeteringModule("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"),
                 new MasterDataModule(),
                 new PluggableModule(),
