@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2017 by Honeywell Inc. All rights reserved.
  */
 
 package com.energyict.protocols.impl.channels.ip;
@@ -8,8 +8,8 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.protocols.naming.CustomPropertySetComponentName;
 
 import com.google.inject.Module;
@@ -26,7 +26,9 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-06 (13:04)
  */
-public class OutboundIpConnectionPropertiesPersistenceSupport implements PersistenceSupport<ConnectionProvider, OutboundIpConnectionProperties> {
+public class OutboundTlsConnectionPropertiesPersistenceSupport implements PersistenceSupport<ConnectionProvider, OutboundIpConnectionProperties> {
+    private static final String COMPONENT_NAME = "PKI";
+
     @Override
     public String application() {
         return "MultiSense";
@@ -34,12 +36,12 @@ public class OutboundIpConnectionPropertiesPersistenceSupport implements Persist
 
     @Override
     public String componentName() {
-        return CustomPropertySetComponentName.P02.name();
+        return CustomPropertySetComponentName.P36.name();
     }
 
     @Override
     public String tableName() {
-        return DeviceProtocolService.COMPONENT_NAME + "_IP_OUT_CONNECTION_TASK";
+        return COMPONENT_NAME + "_TLS_OUT_CONN_TASK";
     }
 
     @Override
@@ -54,7 +56,7 @@ public class OutboundIpConnectionPropertiesPersistenceSupport implements Persist
 
     @Override
     public String domainForeignKeyName() {
-        return "FK_PR1_IP_OUT_CT";
+        return "FK_PKI_IP_OUT_CT";
     }
 
     @Override
@@ -97,6 +99,14 @@ public class OutboundIpConnectionPropertiesPersistenceSupport implements Persist
             .conversion(ColumnConversion.NUMBER2INT)
             .map(OutboundIpConnectionProperties.Fields.CONNECTION_TIMEOUT.javaName() + ".timeUnitCode")
             .add();
+        Column keyAccessorType = table.column(OutboundIpConnectionProperties.Fields.TLS_CLIENT_CERTIFICATE.databaseName())
+                .number()
+                .add();
+        table.foreignKey("FK_CONN_TLS_CERT")
+                .on(keyAccessorType)
+                .references(KeyAccessorType.class)
+                .map(OutboundIpConnectionProperties.Fields.TLS_CLIENT_CERTIFICATE.javaName())
+                .add();
         Stream
             .of(
                 OutboundIpConnectionProperties.Fields.BUFFER_SIZE,

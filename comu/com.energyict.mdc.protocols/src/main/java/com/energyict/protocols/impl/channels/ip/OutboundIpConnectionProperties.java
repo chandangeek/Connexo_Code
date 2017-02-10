@@ -190,6 +190,7 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
         this.copyConnectionTimeout(propertyValues);
         this.copyBufferSize(propertyValues);
         this.copyPostDialProperties(propertyValues);
+        this.copyTlsClientCertificate(propertyValues);
     }
 
     protected void copyHost(CustomPropertySetValues propertyValues) {
@@ -208,6 +209,10 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
         this.bufferSize = (BigDecimal) propertyValues.getProperty(Fields.BUFFER_SIZE.propertySpecName());
     }
 
+    protected void copyTlsClientCertificate(CustomPropertySetValues propertyValues) {
+        this.tlsClientCertificate.set((KeyAccessorType) propertyValues.getProperty(Fields.TLS_CLIENT_CERTIFICATE.propertySpecName()));
+    }
+
     protected void copyPostDialProperties(CustomPropertySetValues propertyValues) {
         this.postDialDelayMillis = (BigDecimal) propertyValues.getProperty(Fields.POST_DIAL_DELAY_MILLIS.propertySpecName());
         this.postDialCommandAttempts = (BigDecimal) propertyValues.getProperty(Fields.POST_DIAL_COMMAND_ATTEMPTS.propertySpecName());
@@ -220,6 +225,7 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
         this.copyNullablePropertyTo(propertySetValues, Fields.PORT_NUMBER, this.portNumber );
         this.copyNullablePropertyTo(propertySetValues, Fields.CONNECTION_TIMEOUT, this.connectionTimeout);
         this.copyNullablePropertyTo(propertySetValues, Fields.BUFFER_SIZE, this.bufferSize);
+        this.copyNullablePropertyTo(propertySetValues, Fields.TLS_CLIENT_CERTIFICATE, this.tlsClientCertificate.get());
         this.copyPostDialPropertiesTo(propertySetValues);
     }
 

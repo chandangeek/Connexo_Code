@@ -13,8 +13,8 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
 import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionProperties;
-import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionPropertiesPersistenceSupport;
 import com.energyict.protocols.impl.channels.ip.OutboundIpCustomPropertySet;
+import com.energyict.protocols.impl.channels.ip.OutboundTlsConnectionPropertiesPersistenceSupport;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,7 +35,7 @@ public class OutboundTlsCustomPropertySet extends OutboundIpCustomPropertySet {
 
     @Override
     public PersistenceSupport<ConnectionProvider, OutboundIpConnectionProperties> getPersistenceSupport() {
-        return new OutboundIpConnectionPropertiesPersistenceSupport();
+        return new OutboundTlsConnectionPropertiesPersistenceSupport();
     }
 
     @Override
