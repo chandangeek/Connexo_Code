@@ -31,7 +31,7 @@ Ext.define('Dal.view.overview.HistoryPanel', {
                 items: [
                     {
                         xtype: 'history-graph',
-                        title: Uni.I18n.translate('workspace.perStatusAlarms', 'DAL', 'Alarms per reasons'),
+                        title: Uni.I18n.translate('workspace.alarmsPerReason', 'DAL', 'Alarms per reason'),
                         itemId: 'crt-alarms-per-reason',
                         margin: '20 10 0 0',
                         showLegend: false,
@@ -41,7 +41,7 @@ Ext.define('Dal.view.overview.HistoryPanel', {
                     },
                     {
                         xtype: 'history-graph',
-                        title: Uni.I18n.translate('workspace.alarmOpenClosed', 'DAL', 'Alarms open vs closed'),
+                        title: Uni.I18n.translate('workspace.alarmsOpenClosed', 'DAL', 'Alarms open vs closed'),
                         itemId: 'crt-alarms-open-closed',
                         margin: '20 10 0 0',
                         defaultFields: ['open', 'closed'],

@@ -117,6 +117,10 @@ Ext.define('Dal.view.overview.HistoryGraph', {
         // remove previous chart
         me.remove(me.down('chart'), true);
         me.add(me.getChart(me.store));
+
+        if (me.showLegend) {
+            me.setHeight(me.height + 24);
+        }
         me.doLayout();
     },
 

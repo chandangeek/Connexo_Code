@@ -92,7 +92,7 @@ Ext.define('Dal.controller.Overview', {
             me.getApplication().fireEvent('changecontentevent', widget);
 
             me.getOverview().down('button[action=clearAll]').setDisabled(false);
-            me.getHistoryOverview().down('button[action=clearAll]').setDisabled(false);
+            me.getHistoryOverview().down('button[action=clearAll]').setDisabled(true);
             me.updateSections();
             me.updateHistorySections();
         }
