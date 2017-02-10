@@ -9,7 +9,6 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.upl.io.LibraryType;
 import com.energyict.mdc.upl.io.ModemType;
 import com.energyict.mdc.upl.io.SerialComponentService;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -22,7 +21,7 @@ import javax.inject.Inject;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-11-03 (09:10)
  */
-@Component(name = "com.energyict.mdc.io.serialio.at", service = SerialComponentService.class, property = {"library=" + LibraryType.Target.SERIALIO, "modem-type=" + ModemType.Target.AT})
+@Component(name = "com.energyict.mdc.io.serialio.at", service = SerialComponentService.class, property = {"library=" + LibraryType.Target.SERIALIO, "modem-type=" + ModemType.Target.AT}, immediate = true)
 @SuppressWarnings("unused")
 public class SerialIOAtModemComponentServiceImpl extends AbstractSerialComponentServiceImpl {
 

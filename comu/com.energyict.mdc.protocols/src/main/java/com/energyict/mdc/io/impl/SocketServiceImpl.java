@@ -6,7 +6,6 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.io.InboundUdpSession;
 import com.energyict.mdc.upl.io.SocketService;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -23,7 +22,7 @@ import java.net.SocketException;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-13 (11:56)
  */
-@Component(name = "com.energyict.mdc.io.socketservice", service = SocketService.class)
+@Component(name = "com.energyict.mdc.io.socketservice", service = SocketService.class, immediate = true)
 public class SocketServiceImpl implements SocketService {
 
     @Activate
