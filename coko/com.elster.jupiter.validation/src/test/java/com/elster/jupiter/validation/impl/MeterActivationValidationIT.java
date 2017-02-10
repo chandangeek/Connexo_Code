@@ -5,6 +5,7 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -166,6 +167,7 @@ public class MeterActivationValidationIT {
                 new TaskModule(),
                 new DataVaultModule(),
                 new TimeModule(),
+                new CalendarModule(),
                 new BasicPropertiesModule(),
                 new CustomPropertySetsModule()
         );
