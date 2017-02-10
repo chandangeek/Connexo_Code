@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringTranslationService;
@@ -41,6 +43,10 @@ public interface MeteringDataModelService {
     void removeCustomUsagePointMeterActivationValidator(com.elster.jupiter.metering.CustomUsagePointMeterActivationValidator customUsagePointMeterActivationValidator);
 
     void validateUsagePointMeterActivation(MeterRole meterRole, Meter meter, UsagePoint usagePoint) throws CustomUsagePointMeterActivationValidationException;
+
+    CalendarService getCalendarService();
+
+    CustomPropertySetService getCustomPropertySetService();
 
     ServerMeteringService getMeteringService();
 

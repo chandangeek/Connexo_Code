@@ -29,6 +29,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.ServerUsagePoint;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
@@ -73,11 +74,11 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
     private CustomPropertySetService customPropertySetService;
     private ReadingTypeDeliverableForMeterActivationFactory readingTypeDeliverableForMeterActivationFactory;
 
-    public DataAggregationServiceImpl(CalendarService calendarService, ServerMeteringService meteringService, InstantTruncaterFactory truncaterFactory, CustomPropertySetService customPropertySetService) {
-        this(calendarService, SqlBuilderFactoryImpl::new, () -> new VirtualFactoryImpl(meteringService.getThesaurus()), () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringService));
-        this.meteringService = meteringService;
+    public DataAggregationServiceImpl(MeteringDataModelService meteringDataModelService, InstantTruncaterFactory truncaterFactory) {
+        this(meteringDataModelService.getCalendarService(), SqlBuilderFactoryImpl::new, () -> new VirtualFactoryImpl(meteringDataModelService), () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringDataModelService.getMeteringService()));
+        this.meteringService = meteringDataModelService.getMeteringService();
         this.truncaterFactory = truncaterFactory;
-        this.customPropertySetService = customPropertySetService;
+        this.customPropertySetService = meteringDataModelService.getCustomPropertySetService();
     }
 
     // For testing purposes only

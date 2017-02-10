@@ -39,6 +39,7 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -118,6 +119,7 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
     private static Instant feb1st2016 = Instant.ofEpochMilli(1454281200000L);
     private static SqlBuilderFactory sqlBuilderFactory = mock(SqlBuilderFactory.class);
     private static ClauseAwareSqlBuilder clauseAwareSqlBuilder = mock(ClauseAwareSqlBuilder.class);
+    private static MeteringDataModelService dataModelService;
     private static Thesaurus thesaurus;
 
     @Rule
@@ -149,6 +151,7 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
 
     @BeforeClass
     public static void setUp() {
+        dataModelService = mock(MeteringDataModelService.class);
         setupThesaurus();
         setupServices();
         setupReadingTypes();
@@ -163,6 +166,7 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
         thesaurus = mock(Thesaurus.class);
         when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
+        when(dataModelService.getThesaurus()).thenReturn(thesaurus);
     }
 
     private static void setupServices() {
@@ -227,7 +231,7 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
                 meteringService,
                 new InstantTruncaterFactory(meteringService),
                 DataAggregationServiceImplCalculateWithRegisterIT::getSqlBuilderFactory,
-                () -> new VirtualFactoryImpl(thesaurus),
+                () -> new VirtualFactoryImpl(dataModelService),
                 () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringService));
     }
 

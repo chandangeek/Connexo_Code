@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.nls.Thesaurus;
 
 import com.google.common.collect.Range;
@@ -34,8 +35,8 @@ public class VirtualFactoryImpl implements VirtualFactory {
     private VirtualFactory currentFactory = new NoCurrentMeterActivation();
 
     @Inject
-    public VirtualFactoryImpl(Thesaurus thesaurus) {
-        this.thesaurus = thesaurus;
+    public VirtualFactoryImpl(MeteringDataModelService dataModelService) {
+        this.thesaurus = dataModelService.getThesaurus();
     }
 
     @Override

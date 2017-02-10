@@ -16,6 +16,7 @@ import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
+import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -52,13 +53,15 @@ public class InferReadingTypeTest {
     @Mock
     private Thesaurus thesaurus;
     @Mock
+    private MeteringDataModelService dataModelService;
+    @Mock
     private FullySpecifiedReadingTypeRequirement requirement;
     @Mock
     private ReadingTypeDeliverable deliverable;
     @Mock
     private MeterActivationSet meterActivationSet;
 
-    private VirtualFactory virtualFactory = new VirtualFactoryImpl(thesaurus);
+    private VirtualFactory virtualFactory;
 
     @Before
     public void initializeMocks() {
@@ -69,6 +72,8 @@ public class InferReadingTypeTest {
         ReadingType readingType = this.mock15minkWhReadingType();
         when(this.deliverable.getReadingType()).thenReturn(readingType);
         when(this.meterActivationSet.getRange()).thenReturn(Range.all());
+        when(this.dataModelService.getThesaurus()).thenReturn(this.thesaurus);
+        this.virtualFactory = new VirtualFactoryImpl(this.dataModelService);
     }
 
     @Test

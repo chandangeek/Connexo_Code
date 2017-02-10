@@ -40,6 +40,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
@@ -126,6 +127,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
     private static Instant jan1st2016 = Instant.ofEpochMilli(1451602800000L);
     private static SqlBuilderFactory sqlBuilderFactory = mock(SqlBuilderFactory.class);
     private static ClauseAwareSqlBuilder clauseAwareSqlBuilder = mock(ClauseAwareSqlBuilder.class);
+    private static MeteringDataModelService meteringDataModelService;
     private static Thesaurus thesaurus;
 
     @Rule
@@ -163,6 +165,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
 
     @BeforeClass
     public static void setUp() {
+        meteringDataModelService = mock(MeteringDataModelService.class);
         setupThesaurus();
         setupServices();
         setupReadingTypes();
@@ -176,6 +179,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         thesaurus = mock(Thesaurus.class);
         when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
+        when(meteringDataModelService.getThesaurus()).thenReturn(thesaurus);
     }
 
     private static void setupServices() {
@@ -238,7 +242,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
                 meteringService,
                 new InstantTruncaterFactory(meteringService),
                 DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT::getSqlBuilderFactory,
-                () -> new VirtualFactoryImpl(thesaurus),
+                () -> new VirtualFactoryImpl(meteringDataModelService),
                 () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringService));
     }
 

@@ -99,7 +99,6 @@ public class MeteringModule extends AbstractModule {
         bindConstant().annotatedWith(Names.named("createReadingTypes")).to(createReadingTypes);
         bind(MeteringDataModelService.class).to(MeteringDataModelServiceImpl.class).in(Scopes.SINGLETON);
         bind(MeteringService.class).toProvider(MeteringServiceProvider.class);
-        bind(Thesaurus.class).toProvider(ThesaurusProvider.class);
         bind(MeteringTranslationService.class).toProvider(MeteringTranslationServiceProvider.class);
         bind(ServerMeteringService.class).toProvider(MeteringServiceProvider.class);
         bind(ServerMetrologyConfigurationService.class).toProvider(MetrologyConfigurationServiceProvider.class);

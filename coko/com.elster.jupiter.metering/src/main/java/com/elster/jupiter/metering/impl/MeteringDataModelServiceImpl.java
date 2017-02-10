@@ -211,7 +211,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         this.meteringTranslationService = new MeteringTranslationServiceImpl(this.thesaurus);
         this.truncaterFactory = new InstantTruncaterFactory(this.meteringService);
         if (this.dataAggregationService == null) { // It is possible that service was already set to mocked instance.
-            this.dataAggregationService = new DataAggregationServiceImpl(this.calendarService, this.meteringService, this.truncaterFactory, this.customPropertySetService);
+            this.dataAggregationService = new DataAggregationServiceImpl(this, this.truncaterFactory);
         }
         this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.dataModel, this.thesaurus);
         this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this.meteringService, this.meteringTranslationService, this.metrologyConfigurationService, this.clock, this.licenseService);
@@ -434,6 +434,11 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         this.finiteStateMachineService = service;
     }
 
+    @Override
+    public CustomPropertySetService getCustomPropertySetService() {
+        return customPropertySetService;
+    }
+
     @Reference
     public final void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
         this.customPropertySetService = customPropertySetService;
@@ -508,6 +513,11 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     @Reference
     public void setUsagePointLifeCycleConfigurationService(UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
         this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
+    }
+
+    @Override
+    public CalendarService getCalendarService() {
+        return calendarService;
     }
 
     @Reference

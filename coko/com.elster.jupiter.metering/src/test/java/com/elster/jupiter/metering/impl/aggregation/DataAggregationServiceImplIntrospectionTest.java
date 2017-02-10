@@ -134,6 +134,7 @@ public class DataAggregationServiceImplIntrospectionTest {
         when(this.effectiveMetrologyConfiguration.getRange()).thenReturn(year2016());
         when(this.effectiveMetrologyConfiguration.getInterval()).thenReturn(Interval.of(year2016()));
         when(this.usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
+        when(this.meteringDataModelService.getThesaurus()).thenReturn(this.thesaurus);
     }
 
     /**
@@ -647,23 +648,15 @@ public class DataAggregationServiceImplIntrospectionTest {
         return readingType;
     }
 
-    private ReadingType mockDailyReadingType(String mRID) {
-        ReadingType readingType = mock(ReadingType.class);
-        when(readingType.getMRID()).thenReturn(mRID);
-        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
-        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
-        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
-        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
-        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ENERGY);
-        return readingType;
-    }
-
     private DataAggregationServiceImpl testInstance() {
         return new DataAggregationServiceImpl(
                 this.calendarService,
+                this.customPropertySetService,
                 this.meteringService,
                 new InstantTruncaterFactory(this.meteringService),
-                this.customPropertySetService);
+                SqlBuilderFactoryImpl::new,
+                () -> new VirtualFactoryImpl(meteringDataModelService),
+                () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(this.meteringService));
     }
 
     private ServerFormulaBuilder newFormulaBuilder() {
