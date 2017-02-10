@@ -5,6 +5,7 @@
 package com.elster.jupiter.data.lifecycle;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.data.lifecycle.impl.DataLifeCycleModule;
@@ -96,6 +97,7 @@ public class LifeCycleServiceTest {
                 new PartyModule(),
                 new FiniteStateMachineModule(),
                 new UsagePointLifeCycleConfigurationModule(),
+                new CalendarModule(),
                 new MeteringModule(),
                 new BasicPropertiesModule(),
                 new TimeModule(),
