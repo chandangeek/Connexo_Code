@@ -14,4 +14,7 @@ Export-Package:  \
 Include-Resource: \
 	capabilitymappings.properties\=src/main/resources/capabilitymappings.properties,\
 	messagemappings.properties\=src/main/resources/messagemappings.properties,\
-	securitymappings.properties\=src/main/resources/securitymappings.properties
+	securitymappings.properties\=src/main/resources/securitymappings.properties,\
+	connectiontype-custom-property-set-mapping.properties\=src/main/resources/connectiontype-custom-property-set-mapping.properties,\
+	dialect-custom-property-set-mapping.properties\=src/main/resources/dialect-custom-property-set-mapping.properties,\
+	security-custom-property-set-mapping.properties\=src/main/resources/security-custom-property-set-mapping.properties

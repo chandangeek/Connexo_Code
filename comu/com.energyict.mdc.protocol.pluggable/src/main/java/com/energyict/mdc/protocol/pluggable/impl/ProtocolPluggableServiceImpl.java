@@ -50,6 +50,7 @@ import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.api.services.NotAppropriateDeviceCacheMarshallingTargetException;
@@ -147,6 +148,8 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     private Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
     private volatile PluggableService pluggableService;
+    private volatile IdentificationService identificationService;
+    private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile List<DeviceProtocolService> deviceProtocolServices = new CopyOnWriteArrayList<>();
     private volatile List<InboundDeviceProtocolService> inboundDeviceProtocolServices = new CopyOnWriteArrayList<>();
@@ -184,6 +187,8 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
             MeteringService meteringService,
             PropertySpecService propertySpecService,
             PluggableService pluggableService,
+            IdentificationService identificationService,
+            DeviceMessageSpecificationService deviceMessageSpecificationService,
             CustomPropertySetService customPropertySetService,
             LicenseService licenseService,
             DataVaultService dataVaultService,
@@ -198,6 +203,8 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         setMeteringService(meteringService);
         setIssueService(issueService);
         setPropertySpecService(propertySpecService);
+        setIdentificationService(identificationService);
+        setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         setCustomPropertySetService(customPropertySetService);
         setPluggableService(pluggableService);
         setUserService(userService);
@@ -287,9 +294,9 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
             unsupportedPropertyNames.remove(propertySpec.getName());
             if (properties.hasValueFor(propertySpec.getName())) {
                 deviceProtocolPluggableClass
-                    .setProperty(
-                        propertySpec,
-                        properties.getProperty(propertySpec.getName()));
+                        .setProperty(
+                                propertySpec,
+                                properties.getProperty(propertySpec.getName()));
                 dirty = true;
             }
         }
@@ -714,6 +721,16 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     }
 
     @Reference
+    public void setIdentificationService(IdentificationService identificationService) {
+        this.identificationService = identificationService;
+    }
+
+    @Reference
+    public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+    }
+
+    @Reference
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
         this.customPropertySetService = customPropertySetService;
     }
@@ -873,6 +890,8 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(PluggableService.class).toInstance(pluggableService);
+                bind(IdentificationService.class).toInstance(identificationService);
+                bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(IssueService.class).toInstance(issueService);
                 bind(LicenseService.class).toInstance(licenseService);

@@ -31,6 +31,9 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterM
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolAdapterImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapterImpl;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLDeviceProtocolAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLMeterProtocolAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLSmartMeterProtocolAdapter;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.Device;
 
@@ -105,10 +108,20 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     @Override
     protected DeviceProtocol newInstance(PluggableClass pluggableClass) {
         Object protocol = this.protocolPluggableService.createProtocol(pluggableClass.getJavaClassName());
+
         DeviceProtocol deviceProtocol;
         if (protocol instanceof DeviceProtocol) {
             deviceProtocol = (DeviceProtocol) protocol;
+        } else if (protocol instanceof com.energyict.mdc.upl.DeviceProtocol) {
+            //Adapt it from UPL to CXO DeviceProtocol if necessary
+            deviceProtocol = UPLDeviceProtocolAdapter.adapt((com.energyict.mdc.upl.DeviceProtocol) protocol).with(getThesaurus(), propertySpecService);
         } else {
+            if (protocol instanceof com.energyict.mdc.upl.MeterProtocol) {
+                protocol = new UPLMeterProtocolAdapter((com.energyict.mdc.upl.MeterProtocol) protocol);
+            } else if (protocol instanceof com.energyict.mdc.upl.SmartMeterProtocol) {
+                protocol = new UPLSmartMeterProtocolAdapter((com.energyict.mdc.upl.SmartMeterProtocol) protocol);
+            }
+
             // Must be a lecagy pluggable class
             deviceProtocol = this.checkForProtocolWrappers(protocol);
         }
