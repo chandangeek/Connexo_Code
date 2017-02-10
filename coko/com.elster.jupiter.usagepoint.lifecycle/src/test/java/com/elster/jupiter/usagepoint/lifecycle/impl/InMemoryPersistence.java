@@ -5,6 +5,7 @@
 package com.elster.jupiter.usagepoint.lifecycle.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -76,6 +77,7 @@ public class InMemoryPersistence {
                 new CustomPropertySetsModule(),
                 new PartyModule(),
                 new IdsModule(),
+                new CalendarModule(),
                 new MeteringModule(),
                 new TaskModule());
         TransactionService transactionService = this.injector.getInstance(TransactionService.class);
