@@ -53,9 +53,11 @@ public class UpgraderV10_3 implements Upgrader {
                 com.elster.jupiter.export.security.Privileges.Constants.UPDATE_DATA_EXPORT_TASK,
                 com.elster.jupiter.export.security.Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK,
                 com.elster.jupiter.export.security.Privileges.Constants.RUN_DATA_EXPORT_TASK,
+                com.elster.jupiter.export.security.Privileges.Constants.VIEW_HISTORY,
 
                 // Import services
                 com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
+                com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_HISTORY,
 
                 // Usage point groups
                 com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_USAGE_POINT_GROUP,
@@ -91,9 +93,12 @@ public class UpgraderV10_3 implements Upgrader {
                 // Export
                 com.elster.jupiter.export.security.Privileges.Constants.VIEW_DATA_EXPORT_TASK,
                 com.elster.jupiter.export.security.Privileges.Constants.RUN_DATA_EXPORT_TASK,
+                com.elster.jupiter.export.security.Privileges.Constants.VIEW_HISTORY,
 
                 // Import services
                 com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
+                com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_HISTORY,
+
 
                 // Usage point groups
                 com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.VIEW_USAGE_POINT_GROUP_DETAIL,
