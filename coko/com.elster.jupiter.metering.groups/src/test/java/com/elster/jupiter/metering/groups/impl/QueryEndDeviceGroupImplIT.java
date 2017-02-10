@@ -5,6 +5,7 @@
 package com.elster.jupiter.metering.groups.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
@@ -52,7 +53,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.event.EventAdmin;
 
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
@@ -104,7 +104,7 @@ public class QueryEndDeviceGroupImplIT {
     }
 
     @BeforeClass
-    public static void setUp() throws SQLException {
+    public static void setUp() {
         when(bundleContext.registerService(any(Class.class), anyObject(), any(Dictionary.class))).thenReturn(serviceRegistration);
         try {
             injector = Guice.createInjector(
@@ -128,6 +128,7 @@ public class QueryEndDeviceGroupImplIT {
                     new PubSubModule(),
                     new TransactionModule(),
                     new NlsModule(),
+                    new CalendarModule(),
                     new DataVaultModule(),
                     new CustomPropertySetsModule()
             );
@@ -148,7 +149,7 @@ public class QueryEndDeviceGroupImplIT {
     }
 
     @AfterClass
-    public static void tearDown() throws SQLException {
+    public static void tearDown() {
         inMemoryBootstrapModule.deactivate();
     }
 

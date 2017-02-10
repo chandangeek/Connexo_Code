@@ -5,6 +5,7 @@
 package com.elster.jupiter.metering.groups.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -57,7 +58,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.event.EventAdmin;
 
-import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -116,7 +116,7 @@ public class QueryUsagePointGroupImplIT {
     }
 
     @BeforeClass
-    public static void setUp() throws SQLException {
+    public static void setUp() {
         License license = mock(License.class);
         when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.of(license));
         when(bundleContext.registerService(any(Class.class), anyObject(), any(Dictionary.class)))
@@ -143,6 +143,7 @@ public class QueryUsagePointGroupImplIT {
                     new ThreadSecurityModule(),
                     new PubSubModule(),
                     new TransactionModule(),
+                    new CalendarModule(),
                     new DataVaultModule(),
                     new CustomPropertySetsModule()
             );
@@ -170,7 +171,7 @@ public class QueryUsagePointGroupImplIT {
     }
 
     @AfterClass
-    public static void tearDown() throws SQLException {
+    public static void tearDown() {
         inMemoryBootstrapModule.deactivate();
     }
 

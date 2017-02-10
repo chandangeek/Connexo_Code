@@ -5,6 +5,7 @@
 package com.elster.jupiter.metering.groups.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
@@ -51,7 +52,6 @@ import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
-import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -91,7 +91,7 @@ public class EnumeratedEndDeviceGroupImplIT {
     }
 
     @BeforeClass
-    public static void setUp() throws SQLException {
+    public static void setUp() {
         injector = Guice.createInjector(
                 new MockModule(),
                 inMemoryBootstrapModule,
@@ -113,6 +113,7 @@ public class EnumeratedEndDeviceGroupImplIT {
                 new TransactionModule(),
                 new NlsModule(),
                 new FiniteStateMachineModule(),
+                new CalendarModule(),
                 new DataVaultModule(),
                 new CustomPropertySetsModule()
         );
@@ -124,7 +125,7 @@ public class EnumeratedEndDeviceGroupImplIT {
     }
 
     @AfterClass
-    public static void tearDown() throws SQLException {
+    public static void tearDown() {
         inMemoryBootstrapModule.deactivate();
     }
 
