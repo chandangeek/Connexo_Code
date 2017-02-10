@@ -51,6 +51,7 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
     public Integer numberOfSimultaneousConnections = 1;
     public TimeDurationInfo rescheduleRetryDelay;
     public TemporalExpressionInfo nextExecutionSpecs;
+    public String protocolDialect;
 
     public ConnectionMethodInfo() {
     }
@@ -66,6 +67,7 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
         List<PropertySpec> propertySpecs = connectionTask.getConnectionType().getPropertySpecs();
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         this.properties = new ArrayList<>();
+        this.protocolDialect = connectionTask.getProtocolDialectConfigurationProperties().getDeviceProtocolDialectName();
         mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, typedProperties, this.properties);
         this.version = connectionTask.getVersion();
         Device device = connectionTask.getDevice();

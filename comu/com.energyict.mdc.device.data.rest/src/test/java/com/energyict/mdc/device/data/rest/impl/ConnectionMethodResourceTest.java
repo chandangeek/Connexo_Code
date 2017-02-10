@@ -19,6 +19,7 @@ import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask.ConnectionTaskLifecycleStatus;
 import com.energyict.mdc.device.data.tasks.ConnectionTask.SuccessIndicator;
@@ -270,7 +271,9 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
     }
 
     private ScheduledConnectionTask mockConnectionTask(long id) {
+        ProtocolDialectConfigurationProperties properties =  mockProtocolDialectConfigurationProperties();
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
+        when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(properties);
         ComSession comSession = mockComSession(comSessionStart, comSessionEnd);
         when(connectionTask.getLastComSession()).thenReturn(Optional.of(comSession));
         when(connectionTask.getId()).thenReturn(id);
@@ -298,9 +301,11 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
     }
 
     private PartialScheduledConnectionTask mockPartialConnectionTask(long id, String name) {
+        ProtocolDialectConfigurationProperties properties =  mockProtocolDialectConfigurationProperties();
         PartialScheduledConnectionTask connectionTask = mock(PartialScheduledConnectionTask.class);
         when(connectionTask.getId()).thenReturn(id);
         when(connectionTask.getName()).thenReturn(name);
+        when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(properties);
         ConnectionType connectionType = mock(ConnectionType.class);
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
         when(connectionType.getDirection()).thenReturn(Direction.OUTBOUND);
@@ -369,5 +374,11 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
         when(pluggableClass.getName()).thenReturn("Pluggable class");
         return pluggableClass;
+    }
+
+    private ProtocolDialectConfigurationProperties mockProtocolDialectConfigurationProperties(){
+        ProtocolDialectConfigurationProperties properties = mock(ProtocolDialectConfigurationProperties.class);
+        when(properties.getDeviceProtocolDialectName()).thenReturn("My Test Device Protocol Dialect");
+        return properties;
     }
 }

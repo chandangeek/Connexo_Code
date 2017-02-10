@@ -6,6 +6,8 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.rest.ObjectMapperProvider;
 import com.elster.jupiter.messaging.MessageService;
@@ -38,6 +40,7 @@ import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
@@ -56,6 +59,8 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
@@ -84,6 +89,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Optional;
@@ -119,6 +125,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     private static InMemoryIntegrationPersistence inMemoryPersistence;
     private static DeviceProtocol deviceProtocol;
     private static DeviceProtocolPluggableClass deviceProtocolPluggableClass;
+    private static ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties;
     private static ConnectionTypePluggableClass outboundIpConnectionTypePluggableClass;
     private static EnumSet<DeviceMessageId> deviceMessageIds;
     private static PartialScheduledConnectionTaskImpl as1440WithoutProperties;
@@ -211,27 +218,26 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
             AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
             int anySecurityLevel = 0;
             when(authenticationAccessLevel.getId()).thenReturn(anySecurityLevel);
-            when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authenticationAccessLevel));
+            when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Collections.singletonList(authenticationAccessLevel));
             EncryptionDeviceAccessLevel encryptionAccessLevel = mock(EncryptionDeviceAccessLevel.class);
             when(encryptionAccessLevel.getId()).thenReturn(anySecurityLevel);
-            when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(encryptionAccessLevel));
+            when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(encryptionAccessLevel));
             when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.values()));
+
             freezeClock(2014, Calendar.JANUARY, 1); // Experiencing timing issues in tests that set clock back in time and the respective devices need their device life cycle
             deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
             DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
             deviceConfigurationBuilder.isDirectlyAddressable(true);
             deviceConfiguration = deviceConfigurationBuilder.add();
-            as1440WithoutProperties = deviceConfiguration.newPartialScheduledConnectionTask(AS_1440_INCOMPLETE, outboundIpConnectionTypePluggableClass, TimeDuration.hours(1), ConnectionStrategy.AS_SOON_AS_POSSIBLE).build();
+            protocolDialectConfigurationProperties = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new PartialConnectionTaskProtocolDialect());
 
-            as1440WithProperties = deviceConfiguration.newPartialScheduledConnectionTask(AS_1440_COMPLETED, outboundIpConnectionTypePluggableClass, TimeDuration.hours(1), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
+            as1440WithoutProperties = deviceConfiguration.newPartialScheduledConnectionTask(AS_1440_INCOMPLETE, outboundIpConnectionTypePluggableClass, TimeDuration.hours(1), ConnectionStrategy.AS_SOON_AS_POSSIBLE, protocolDialectConfigurationProperties).build();
+            as1440WithProperties = deviceConfiguration.newPartialScheduledConnectionTask(AS_1440_COMPLETED, outboundIpConnectionTypePluggableClass, TimeDuration.hours(1), ConnectionStrategy.AS_SOON_AS_POSSIBLE, protocolDialectConfigurationProperties).
                     addProperty("ipAddress", IP_ADDRESS_FROM_PARTIAL).
                     addProperty("port", PORT_FROM_PARTIAL).
                     build();
             deviceMessageIds.stream().forEach(deviceConfiguration::createDeviceMessageEnablement);
             deviceConfiguration.activate();
-
-//            device.getScheduledConnectionTaskBuilder(as1440).add();
-
             whirlpool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool("Whirlpool", ComPortType.TCP, TimeDuration.minutes(1));
             resetClock();
             context.commit();
@@ -497,6 +503,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
             device.save();
             scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(as1440WithoutProperties).
                     setComPortPool(whirlpool).
+                    setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties).
                     setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE).
                     setConnectionTaskLifecycleStatus(ConnectionTaskLifecycleStatus.ACTIVE).
                     setProperty("ipAddress", "1.1.1.256"). // <--- the only required property
@@ -514,6 +521,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.version = scheduledConnectionTask.getVersion();
         info.connectionStrategy = "AS_SOON_AS_POSSIBLE";
         info.comPortPool = "Whirlpool";
+        info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
@@ -538,6 +546,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
             device.save();
             scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(as1440WithoutProperties).
                     setComPortPool(whirlpool).
+                    setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties).
                     setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE).
                     setConnectionTaskLifecycleStatus(ConnectionTaskLifecycleStatus.ACTIVE).
                     setProperty("ipAddress", "1.1.1.256").
@@ -556,6 +565,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.version = scheduledConnectionTask.getVersion();
         info.connectionStrategy = "AS_SOON_AS_POSSIBLE";
         info.comPortPool = "Whirlpool";
+        info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", true, null),
@@ -580,6 +590,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
             device.save();
             scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(as1440WithoutProperties).
                     setComPortPool(whirlpool).
+                    setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties).
                     setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE).
                     setConnectionTaskLifecycleStatus(ConnectionTaskLifecycleStatus.INCOMPLETE).
                     setNextExecutionSpecsFrom(new TemporalExpression(TimeDuration.days(1))).
@@ -596,6 +607,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.version = scheduledConnectionTask.getVersion();
         info.connectionStrategy = "AS_SOON_AS_POSSIBLE";
         info.comPortPool = "Whirlpool";
+        info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", true, null),
@@ -629,6 +641,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.version = 0L;
         info.connectionStrategy = "AS_SOON_AS_POSSIBLE";
         info.comPortPool = "Whirlpool";
+        info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>(null, true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
@@ -654,6 +667,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
             device.save();
             scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(as1440WithProperties).
                     setComPortPool(whirlpool).
+                    setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties).
                     setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE).
                     setConnectionTaskLifecycleStatus(ConnectionTaskLifecycleStatus.INCOMPLETE).
                     setNextExecutionSpecsFrom(new TemporalExpression(TimeDuration.days(1))).
@@ -673,6 +687,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.version = scheduledConnectionTask.getVersion();
         info.connectionStrategy = "AS_SOON_AS_POSSIBLE";
         info.comPortPool = "Whirlpool";
+        info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>(null, true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
@@ -697,6 +712,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
             device.save();
             scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(as1440WithoutProperties).
                     setComPortPool(whirlpool).
+                    setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties).
                     setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE).
                     setConnectionTaskLifecycleStatus(ConnectionTaskLifecycleStatus.INCOMPLETE).
                     setNextExecutionSpecsFrom(new TemporalExpression(TimeDuration.days(1))).
@@ -713,6 +729,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.version = scheduledConnectionTask.getVersion();
         info.connectionStrategy = "AS_SOON_AS_POSSIBLE";
         info.comPortPool = "Whirlpool";
+        info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(4096, true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
@@ -734,6 +751,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
             device.save();
             scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(as1440WithoutProperties).
                     setComPortPool(whirlpool).
+                    setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties).
                     setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE).
                     setConnectionTaskLifecycleStatus(ConnectionTaskLifecycleStatus.ACTIVE).
                     setNextExecutionSpecsFrom(new TemporalExpression(TimeDuration.days(1))).
@@ -752,6 +770,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.version = scheduledConnectionTask.getVersion();
         info.connectionStrategy = "AS_SOON_AS_POSSIBLE";
         info.comPortPool = "Whirlpool";
+        info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(4096, true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
@@ -772,6 +791,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
             device.save();
             scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(as1440WithoutProperties).
                     setComPortPool(whirlpool).
+                    setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties).
                     setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE).
                     setConnectionTaskLifecycleStatus(ConnectionTaskLifecycleStatus.ACTIVE).
                     setNextExecutionSpecsFrom(new TemporalExpression(TimeDuration.days(1))).
@@ -790,6 +810,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.version = scheduledConnectionTask.getVersion();
         info.connectionStrategy = "AS_SOON_AS_POSSIBLE";
         info.comPortPool = "Whirlpool";
+        info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<>(null, null, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
@@ -811,6 +832,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
             device.save();
             scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(as1440WithoutProperties).
                     setComPortPool(whirlpool).
+                    setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties).
                     setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE).
                     setConnectionTaskLifecycleStatus(ConnectionTaskLifecycleStatus.ACTIVE).
                     setNextExecutionSpecsFrom(new TemporalExpression(TimeDuration.days(1))).
@@ -829,6 +851,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.version = scheduledConnectionTask.getVersion();
         info.connectionStrategy = "AS_SOON_AS_POSSIBLE";
         info.comPortPool = "Whirlpool";
+        info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", null, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
@@ -844,5 +867,25 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         assertThat(connectionTask.getProperty("port")).isNull();
         assertThat(connectionTask.getProperty("ipAddress").getValue()).isEqualTo("10.10.10.1");
     }
+
+    private static class PartialConnectionTaskProtocolDialect implements DeviceProtocolDialect {
+
+        @Override
+        public String getDeviceProtocolDialectName() {
+            return "dialect";
+        }
+
+        @Override
+        public String getDisplayName() {
+            return "It's a Dell Display";
+        }
+
+        @Override
+        public Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet() {
+            return Optional.empty();
+        }
+
+    }
+
 
 }

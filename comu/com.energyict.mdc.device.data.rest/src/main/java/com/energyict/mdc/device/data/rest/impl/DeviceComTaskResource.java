@@ -111,29 +111,6 @@ public class DeviceComTaskResource {
 
     @PUT
     @Transactional
-    @Path("/{comTaskId}/protocoldialect")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response updateProtocolDialect(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, ComTaskProtocolDialectInfo comTaskProtocolDialectInfo) {
-        Device device = resourceHelper.lockDeviceOrThrowException(comTaskProtocolDialectInfo.device);
-        List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
-        if (comTaskExecutions.isEmpty()) {
-            List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
-            for (ComTaskEnablement comTaskEnablement : comTaskEnablements) {
-                comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add());
-            }
-        }
-        if (!comTaskExecutions.isEmpty()) {
-            comTaskExecutions.forEach(updateProtocolDialect(comTaskProtocolDialectInfo, device));
-        } else {
-            throw exceptionFactory.newException(MessageSeeds.UPDATE_DIALECT_PROPERTIES_NOT_ALLOWED);
-        }
-        return Response.ok().build();
-    }
-
-    @PUT
-    @Transactional
     @Path("/{comTaskId}/frequency")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -474,51 +451,6 @@ public class DeviceComTaskResource {
             } else {
                 throw exceptionFactory.newException(MessageSeeds.UPDATE_URGENCY_NOT_ALLOWED);
             }
-        };
-    }
-
-    private Consumer<ComTaskExecution> updateProtocolDialect(ComTaskProtocolDialectInfo comTaskProtocolDialectInfo, Device device) {
-//        return comTaskExecution -> {
-//            List<ProtocolDialectConfigurationProperties> protocolDialectConfigurationPropertiesList = device.getDeviceConfiguration().getProtocolDialectConfigurationPropertiesList();
-//            Optional<ProtocolDialectConfigurationProperties> dialectConfigurationPropertiesOptional = protocolDialectConfigurationPropertiesList.stream()
-//                    .filter(protocolDialectConfigurationProperties -> protocolDialectConfigurationProperties.getDeviceProtocolDialect()
-//                            .getDisplayName()
-//                            .equals(comTaskProtocolDialectInfo.protocolDialect))
-//                    .findFirst();
-//            if (dialectConfigurationPropertiesOptional.isPresent())
-//            if (comTaskExecution.isScheduledManually() && dialectConfigurationPropertiesOptional.isPresent()) {
-//                device.getComTaskExecutionUpdater(comTaskExecution).protocolDialectConfigurationProperties(dialectConfigurationPropertiesOptional.get()).update();
-//            } else {
-//                throw exceptionFactory.newException(MessageSeeds.UPDATE_DIALECT_PROPERTIES_NOT_ALLOWED);
-//            }
-//        };
-        // TODO: CXO-5339
-        return comTaskExecution -> {throw exceptionFactory.newException(new MessageSeed() {
-                @Override
-                public String getModule() {
-                    return null;
-                }
-
-                @Override
-                public int getNumber() {
-                    return 0;
-                }
-
-                @Override
-                public String getKey() {
-                    return null;
-                }
-
-                @Override
-                public String getDefaultFormat() {
-                    return "Connection taks should update instead of the comtaskExecution";
-                }
-
-                @Override
-                public Level getLevel() {
-                    return null;
-                }
-            });
         };
     }
 

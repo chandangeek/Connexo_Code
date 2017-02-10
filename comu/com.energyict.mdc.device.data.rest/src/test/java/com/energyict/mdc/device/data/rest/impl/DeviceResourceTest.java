@@ -77,6 +77,7 @@ import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -224,6 +225,15 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findAndLockDeviceByNameAndVersion(name, device.getVersion())).thenReturn(Optional.of(device));
         when(deviceService.findDeviceByName(name)).thenReturn(Optional.of(device));
 
+        ProtocolDialectConfigurationProperties dialectProperties = mock(ProtocolDialectConfigurationProperties.class);
+        when(dialectProperties.getDeviceProtocolDialectName()).thenReturn("My Test Protocol Dialect Properties");
+
+        NextExecutionSpecs nextExecSpecs = mock(NextExecutionSpecs.class);
+        when(nextExecSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.minutes(60)));
+
+        OutboundComPortPool comPortPool = mock(OutboundComPortPool.class);
+        when(comPortPool.getName()).thenReturn("occp");
+
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         PartialScheduledConnectionTask partialConnectionTask = mock(PartialScheduledConnectionTask.class);
         ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
@@ -233,23 +243,20 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         when(connectionTask.getRescheduleDelay()).thenReturn(TimeDuration.minutes(15));
         when(connectionTask.getProperties()).thenReturn(Collections.emptyList());
-        OutboundComPortPool comPortPool = mock(OutboundComPortPool.class);
-        when(comPortPool.getName()).thenReturn("occp");
+        when(connectionTask.getDevice()).thenReturn(device);
+        when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(dialectProperties);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
-        NextExecutionSpecs nextExecSpecs = mock(NextExecutionSpecs.class);
-        when(nextExecSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.minutes(60)));
         when(connectionTask.getNextExecutionSpecs()).thenReturn(nextExecSpecs);
         when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
         when(connectionTask.getName()).thenReturn("sct");
         when(connectionTask.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
-        when(connectionTask.getDevice()).thenReturn(device);
         when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(connectionTask.getId(), connectionTask.getVersion())).thenReturn(Optional.of(connectionTask));
         when(connectionTaskService.findConnectionTask(connectionTask.getId())).thenReturn(Optional.of(connectionTask));
         when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());
         when(pluggableClass.getName()).thenReturn("ctpc");
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggableClass);
-        when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
+        when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
 
         Map<String, Object> response = target("/devices/" + name + "/connectionmethods").request().get(Map.class);
         assertThat(response).hasSize(2).containsKey("total").containsKey("connectionMethods");
@@ -275,6 +282,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testCreatePausedInboundConnectionMethod() throws Exception {
+        ProtocolDialectConfigurationProperties dialectProperties = mock(ProtocolDialectConfigurationProperties.class);
+        when(dialectProperties.getDeviceProtocolDialectName()).thenReturn("My Test Protocol Dialect Properties");
+
         InboundConnectionMethodInfo info = new InboundConnectionMethodInfo();
         info.name = "inbConnMethod";
         info.status = ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE;
@@ -305,6 +315,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
         when(connectionTask.getDevice()).thenReturn(device);
+        when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(dialectProperties);
+
         when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(connectionTask.getId(), connectionTask.getVersion())).thenReturn(Optional.of(connectionTask));
         when(connectionTaskService.findConnectionTask(connectionTask.getId())).thenReturn(Optional.of(connectionTask));
         when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());
@@ -321,7 +333,6 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testCreateActiveInboundConnectionMethod() throws Exception {
-
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = mock(Device.InboundConnectionTaskBuilder.class);
 
         ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
@@ -349,11 +360,15 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         ConnectionType connectionType = mock(ConnectionType.class);
         when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());
 
+        ProtocolDialectConfigurationProperties dialectProperties = mock(ProtocolDialectConfigurationProperties.class);
+        when(dialectProperties.getDeviceProtocolDialectName()).thenReturn("My Test Protocol Dialect Properties");
+
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
-        when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
         when(connectionTask.getDevice()).thenReturn(device);
+        when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(dialectProperties);
+        when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
         when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(connectionTask.getId(), connectionTask.getVersion())).thenReturn(Optional.of(connectionTask));
         when(connectionTaskService.findConnectionTask(connectionTask.getId())).thenReturn(Optional.of(connectionTask));
 
@@ -376,6 +391,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testCreateDefaultInboundConnectionMethod() throws Exception {
+        ProtocolDialectConfigurationProperties dialectProperties = mock(ProtocolDialectConfigurationProperties.class);
+        when(dialectProperties.getDeviceProtocolDialectName()).thenReturn("My Test Protocol Dialect Properties");
+
         InboundConnectionMethodInfo info = new InboundConnectionMethodInfo();
         info.name = "inbConnMethod";
         info.status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;
@@ -405,6 +423,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
         when(connectionTask.getDevice()).thenReturn(device);
+        when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(dialectProperties);
         when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(connectionTask.getId(), connectionTask.getVersion())).thenReturn(Optional.of(connectionTask));
         when(connectionTaskService.findConnectionTask(connectionTask.getId())).thenReturn(Optional.of(connectionTask));
         when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());
@@ -418,6 +437,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testUpdateAndUndefaultInboundConnectionMethod() throws Exception {
+        ProtocolDialectConfigurationProperties dialectProperties = mock(ProtocolDialectConfigurationProperties.class);
+        when(dialectProperties.getDeviceProtocolDialectName()).thenReturn("My Test Protocol Dialect Properties");
+
         Device device = mock(Device.class);
         when(device.getVersion()).thenReturn(1L);
         String deviceName = "ZABF0000000";
@@ -444,6 +466,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
         when(connectionTask.isDefault()).thenReturn(true);
         when(connectionTask.getDevice()).thenReturn(device);
+        when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(dialectProperties);
         when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(connectionTask.getId(), connectionTask.getVersion())).thenReturn(Optional.of(connectionTask));
         when(connectionTaskService.findConnectionTask(connectionTask.getId())).thenReturn(Optional.of(connectionTask));
         when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());
@@ -465,6 +488,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testUpdateOnlyClearsDefaultIfConnectionMethodWasDefaultBeforeUpdate() throws Exception {
+        ProtocolDialectConfigurationProperties dialectProperties = mock(ProtocolDialectConfigurationProperties.class);
+        when(dialectProperties.getDeviceProtocolDialectName()).thenReturn("My Test Protocol Dialect Properties");
+
         Device device = mock(Device.class);
         when(device.getVersion()).thenReturn(1L);
         String deviceName = "ZABF0000000";
@@ -491,6 +517,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
         when(connectionTask.isDefault()).thenReturn(false);
         when(connectionTask.getDevice()).thenReturn(device);
+        when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(dialectProperties);
         when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(connectionTask.getId(), connectionTask.getVersion())).thenReturn(Optional.of(connectionTask));
         when(connectionTaskService.findConnectionTask(connectionTask.getId())).thenReturn(Optional.of(connectionTask));
         when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());

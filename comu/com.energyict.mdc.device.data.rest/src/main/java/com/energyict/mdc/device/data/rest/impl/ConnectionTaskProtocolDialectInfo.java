@@ -6,7 +6,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ComTaskProtocolDialectInfo {
+public class ConnectionTaskProtocolDialectInfo {
     @JsonProperty("protocolDialect")
     public String protocolDialect;
 
