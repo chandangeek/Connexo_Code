@@ -3,12 +3,9 @@ package com.energyict.protocols.impl.channels.sms;
 import com.elster.jupiter.cps.AbstractVersionedPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.channels.sms.OutboundProximusSmsConnectionType;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
@@ -24,6 +21,43 @@ import javax.validation.constraints.Size;
  * @since 2015-11-06 (11:36)
  */
 public class OutboundProximusConnectionProperties extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<ConnectionProvider> {
+
+    @SuppressWarnings("unused")
+    private Reference<ConnectionProvider> connectionProvider = Reference.empty();
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String phoneNumber;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String connectionUrl;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String source;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String authentication;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String serviceCode;
+
+    @Override
+    public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
+        this.connectionProvider.set(connectionProvider);
+        this.phoneNumber = (String) propertyValues.getProperty(DeviceProtocolProperty.PHONE_NUMBER.javaFieldName());
+        this.connectionUrl = (String) propertyValues.getProperty(Fields.CONNECTION_URL.propertySpecName());
+        this.source = (String) propertyValues.getProperty(Fields.SOURCE.propertySpecName());
+        this.authentication = (String) propertyValues.getProperty(Fields.AUTHENTICATION.propertySpecName());
+        this.serviceCode = (String) propertyValues.getProperty(Fields.SERVICE_CODE.propertySpecName());
+    }
+
+    @Override
+    public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
+        propertySetValues.setProperty(DeviceProtocolProperty.PHONE_NUMBER.javaFieldName(), this.phoneNumber);
+        propertySetValues.setProperty(Fields.CONNECTION_URL.propertySpecName(), this.connectionUrl);
+        propertySetValues.setProperty(Fields.SOURCE.propertySpecName(), this.source);
+        propertySetValues.setProperty(Fields.AUTHENTICATION.propertySpecName(), this.authentication);
+        propertySetValues.setProperty(Fields.SERVICE_CODE.propertySpecName(), this.serviceCode);
+    }
+
+    @Override
+    public void validateDelete() {
+        // Nothing to validate
+    }
 
     public enum Fields {
         CONNECTION_PROVIDER {
@@ -145,58 +179,11 @@ public class OutboundProximusConnectionProperties extends AbstractVersionedPersi
 
         public void addTo(Table table) {
             table
-                .column(this.databaseName())
-                .varChar()
-                .map(this.javaName())
-                .add();
+                    .column(this.databaseName())
+                    .varChar()
+                    .map(this.javaName())
+                    .add();
         }
-
-        public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-            return propertySpecService
-                    .stringSpec()
-                    .named(this.propertySpecName(), this.nameTranslationKey())
-                    .fromThesaurus(thesaurus)
-                    .markRequired()
-                    .finish();
-        }
-
-    }
-
-    @SuppressWarnings("unused")
-    private Reference<ConnectionProvider> connectionProvider = Reference.empty();
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String phoneNumber;
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String connectionUrl;
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String source;
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String authentication;
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String serviceCode;
-
-    @Override
-    public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
-        this.connectionProvider.set(connectionProvider);
-        this.phoneNumber = (String) propertyValues.getProperty(DeviceProtocolProperty.PHONE_NUMBER.javaFieldName());
-        this.connectionUrl = (String) propertyValues.getProperty(Fields.CONNECTION_URL.propertySpecName());
-        this.source = (String) propertyValues.getProperty(Fields.SOURCE.propertySpecName());
-        this.authentication = (String) propertyValues.getProperty(Fields.AUTHENTICATION.propertySpecName());
-        this.serviceCode = (String) propertyValues.getProperty(Fields.SERVICE_CODE.propertySpecName());
-    }
-
-    @Override
-    public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(DeviceProtocolProperty.PHONE_NUMBER.javaFieldName(), this.phoneNumber);
-        propertySetValues.setProperty(Fields.CONNECTION_URL.propertySpecName(), this.connectionUrl);
-        propertySetValues.setProperty(Fields.SOURCE.propertySpecName(), this.source);
-        propertySetValues.setProperty(Fields.AUTHENTICATION.propertySpecName(), this.authentication);
-        propertySetValues.setProperty(Fields.SERVICE_CODE.propertySpecName(), this.serviceCode);
-    }
-
-    @Override
-    public void validateDelete() {
-        // Nothing to validate
     }
 
 }

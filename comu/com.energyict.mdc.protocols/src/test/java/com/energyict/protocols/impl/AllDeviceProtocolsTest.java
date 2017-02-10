@@ -14,6 +14,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.license.LicensedProtocolRule;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -30,11 +31,15 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.protocols.mdc.services.impl.InboundDeviceProtocolRule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
-
-import com.energyict.license.LicensedProtocolRule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -46,13 +51,6 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -95,8 +93,6 @@ public class AllDeviceProtocolsTest {
     private DataModel dataModel;
     @Mock
     private TransactionService transactionService;
-    @Mock
-    private com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     @Mock
     private PropertySpecService propertySpecService;
     @Mock
@@ -216,7 +212,6 @@ public class AllDeviceProtocolsTest {
             bind(MessageInterpolator.class).toInstance(thesaurus);
             bind(OrmService.class).toInstance(ormService);
             bind(TransactionService.class).toInstance(transactionService);
-            bind(com.elster.jupiter.properties.PropertySpecService.class).toInstance(jupiterPropertySpecService);
             bind(PropertySpecService.class).toInstance(propertySpecService);
             bind(TopologyService.class).toInstance(topologyService);
             bind(IssueService.class).toInstance(issueService);

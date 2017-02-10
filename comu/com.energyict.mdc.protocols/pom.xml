@@ -274,7 +274,6 @@
                             artifactId=!commons-logging|serialio-xmodemapi-osgi|javax.servlet-api|org.osgi.core|org.osgi.compendium|mdc.*
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
-                        <Include-Resource>src/main/resources</Include-Resource>
                     </instructions>
                 </configuration>
                 <executions>

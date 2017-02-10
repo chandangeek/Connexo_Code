@@ -94,8 +94,6 @@ public class AllConnectionTypesTest {
     @Mock
     private TransactionService transactionService;
     @Mock
-    private com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
-    @Mock
     private PropertySpecService propertySpecService;
     @Mock
     private IssueService issueService;
@@ -259,7 +257,6 @@ public class AllConnectionTypesTest {
             bind(MessageInterpolator.class).toInstance(thesaurus);
             bind(OrmService.class).toInstance(ormService);
             bind(TransactionService.class).toInstance(transactionService);
-            bind(com.elster.jupiter.properties.PropertySpecService.class).toInstance(jupiterPropertySpecService);
             bind(PropertySpecService.class).toInstance(propertySpecService);
             bind(IssueService.class).toInstance(issueService);
             bind(MdcReadingTypeUtilService.class).toInstance(mdcReadingTypeUtilService);
