@@ -10,7 +10,6 @@ import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.properties.DeviceGroup;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -31,7 +30,7 @@ import static java.util.stream.Collectors.toList;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-01-19 (08:40)
  */
-@Component(name = "com.energyict.mdc.device.data.upl.group.extractor", service = {DeviceGroupExtractor.class})
+@Component(name = "com.energyict.mdc.device.data.upl.group.extractor", service = {DeviceGroupExtractor.class}, immediate = true)
 @SuppressWarnings("unused")
 public class DeviceGroupExtractorImpl implements DeviceGroupExtractor {
 

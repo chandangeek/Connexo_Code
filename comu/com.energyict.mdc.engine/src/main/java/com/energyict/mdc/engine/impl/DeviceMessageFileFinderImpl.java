@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-01-19 (15:33)
  */
-@Component(name = "com.energyict.mdc.upl.messages.legacy.finder", service = {DeviceMessageFileFinder.class})
+@Component(name = "com.energyict.mdc.upl.messages.legacy.finder", service = {DeviceMessageFileFinder.class}, immediate = true)
 @SuppressWarnings("unused")
 public class DeviceMessageFileFinderImpl implements DeviceMessageFileFinder {
     private volatile DeviceConfigurationService service;

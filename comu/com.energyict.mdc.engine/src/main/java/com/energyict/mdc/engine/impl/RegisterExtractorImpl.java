@@ -7,7 +7,6 @@ import com.energyict.mdc.device.data.TextReading;
 import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.legacy.RegisterExtractor;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
@@ -20,7 +19,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-01-19 (09:26)
  */
-@Component(name = "com.energyict.mdc.device.data.upl.register.extractor", service = {DeviceGroupExtractor.class})
+@Component(name = "com.energyict.mdc.device.data.upl.register.extractor", service = {DeviceGroupExtractor.class}, immediate = true)
 @SuppressWarnings("unused")
 public class RegisterExtractorImpl implements RegisterExtractor {
 

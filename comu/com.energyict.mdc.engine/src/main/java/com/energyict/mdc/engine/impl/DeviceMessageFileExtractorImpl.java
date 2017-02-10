@@ -22,7 +22,7 @@ import java.util.function.Consumer;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-01-19 (10:52)
  */
-@Component(name = "com.energyict.mdc.upl.messages.legacy.file.extractor", service = {DeviceMessageFileExtractor.class})
+@Component(name = "com.energyict.mdc.upl.messages.legacy.file.extractor", service = {DeviceMessageFileExtractor.class}, immediate = true)
 @SuppressWarnings("unused")
 public class DeviceMessageFileExtractorImpl implements DeviceMessageFileExtractor {
 

@@ -4,7 +4,6 @@ import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.TariffCalendar;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -20,7 +19,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-01-19 (15:06)
  */
-@Component(name = "com.energyict.mdc.upl.messages.legacy.tariff.calendar.finder", service = {TariffCalendarFinder.class})
+@Component(name = "com.energyict.mdc.upl.messages.legacy.tariff.calendar.finder", service = {TariffCalendarFinder.class}, immediate = true)
 @SuppressWarnings("unused")
 public class TariffCalendarFinderImpl implements TariffCalendarFinder {
     private volatile CalendarService calendarService;

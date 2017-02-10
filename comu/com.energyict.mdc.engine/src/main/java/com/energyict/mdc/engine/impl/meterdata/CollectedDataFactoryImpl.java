@@ -25,7 +25,6 @@ import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.security.CertificateAlias;
-
 import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -39,7 +38,7 @@ import java.util.List;
  * Date: 14/05/13
  * Time: 11:31
  */
-@Component(name = "com.energyict.mdc.engine.meterdata.collector", service = {CollectedDataFactory.class})
+@Component(name = "com.energyict.mdc.engine.meterdata.collector", service = {CollectedDataFactory.class}, immediate = true)
 @SuppressWarnings("unused")
 public class CollectedDataFactoryImpl implements CollectedDataFactory {
 

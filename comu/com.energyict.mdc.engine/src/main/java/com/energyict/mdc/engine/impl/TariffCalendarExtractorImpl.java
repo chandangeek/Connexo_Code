@@ -13,7 +13,6 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.TariffCalendar;
-
 import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -39,7 +38,7 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-01-19 (11:07)
  */
-@Component(name = "com.energyict.mdc.upl.messages.legacy.tariff.calendar.extractor", service = {TariffCalendarExtractor.class})
+@Component(name = "com.energyict.mdc.upl.messages.legacy.tariff.calendar.extractor", service = {TariffCalendarExtractor.class}, immediate = true)
 @SuppressWarnings("unused")
 public class TariffCalendarExtractorImpl implements TariffCalendarExtractor {
 

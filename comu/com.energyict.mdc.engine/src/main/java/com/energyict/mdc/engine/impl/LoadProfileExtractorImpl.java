@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-01-19 (09:48)
  */
-@Component(name = "com.energyict.mdc.upl.messages.legacy.loadprofile.extractor", service = {DeviceGroupExtractor.class})
+@Component(name = "com.energyict.mdc.upl.messages.legacy.loadprofile.extractor", service = {DeviceGroupExtractor.class}, immediate = true)
 @SuppressWarnings("unused")
 public class LoadProfileExtractorImpl implements LoadProfileExtractor {
 

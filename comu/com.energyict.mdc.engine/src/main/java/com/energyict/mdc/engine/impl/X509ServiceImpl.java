@@ -2,7 +2,6 @@ package com.energyict.mdc.engine.impl;
 
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.crypto.X509Service;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -24,7 +23,7 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-01-20 (08:51)
  */
-@Component(name = "com.energyict.mdc.upl.crypto.x509", service = {X509Service.class})
+@Component(name = "com.energyict.mdc.upl.crypto.x509", service = {X509Service.class}, immediate = true)
 @SuppressWarnings("unused")
 public class X509ServiceImpl implements X509Service {
 

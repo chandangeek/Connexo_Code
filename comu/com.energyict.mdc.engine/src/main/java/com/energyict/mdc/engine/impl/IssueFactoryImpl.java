@@ -2,7 +2,6 @@ package com.energyict.mdc.engine.impl;
 
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.issue.IssueFactory;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -22,7 +21,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-01-19 (16:27)
  */
-@Component(name = "com.energyict.mdc.upl.issue.factory", service = {IssueFactory.class})
+@Component(name = "com.energyict.mdc.upl.issue.factory", service = {IssueFactory.class}, immediate = true)
 @SuppressWarnings("unused")
 public class IssueFactoryImpl implements IssueFactory {
     private volatile Clock clock;

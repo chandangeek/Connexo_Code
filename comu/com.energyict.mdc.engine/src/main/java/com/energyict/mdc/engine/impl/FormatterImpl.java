@@ -6,7 +6,6 @@ import com.elster.jupiter.users.UserPreferencesService;
 import com.energyict.mdc.common.DateTimeFormatGenerator;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.legacy.Formatter;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -23,7 +22,7 @@ import java.time.Instant;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-01-19 (16:49)
  */
-@Component(name = "com.energyict.mdc.upl.messages.legacy.date.formatter", service = {Formatter.class})
+@Component(name = "com.energyict.mdc.upl.messages.legacy.date.formatter", service = {Formatter.class}, immediate = true)
 @SuppressWarnings("unused")
 public class FormatterImpl implements Formatter {
 

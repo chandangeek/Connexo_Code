@@ -21,7 +21,6 @@ import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
 import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -46,7 +45,7 @@ import static com.elster.jupiter.util.streams.Currying.use;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-01-17 (13:19)
  */
-@Component(name = "com.energyict.mdc.device.data.upl.master.data.extractor", service = {DeviceMasterDataExtractor.class})
+@Component(name = "com.energyict.mdc.device.data.upl.master.data.extractor", service = {DeviceMasterDataExtractor.class}, immediate = true)
 @SuppressWarnings("unused")
 public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor {
 

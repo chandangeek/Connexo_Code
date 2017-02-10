@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl;
 
 import com.energyict.mdc.upl.crypto.KeyStoreService;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -17,7 +16,7 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-01-20 (08:51)
  */
-@Component(name = "com.energyict.mdc.upl.crypto.keystore", service = {KeyStoreService.class})
+@Component(name = "com.energyict.mdc.upl.crypto.keystore", service = {KeyStoreService.class}, immediate = true)
 @SuppressWarnings("unused")
 public class KeyStoreServiceImpl implements KeyStoreService {
 
