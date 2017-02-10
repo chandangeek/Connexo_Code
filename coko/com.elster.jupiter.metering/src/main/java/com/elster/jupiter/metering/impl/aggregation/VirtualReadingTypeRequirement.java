@@ -4,15 +4,20 @@
 
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.aggregation.TimeOfUseBucketInconsitencyException;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.PartiallySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -38,24 +43,30 @@ import java.util.Optional;
  */
 class VirtualReadingTypeRequirement {
 
+    private final Thesaurus thesaurus;
     private final Formula.Mode mode;
     private final ReadingTypeRequirement requirement;
     private final ReadingTypeDeliverable deliverable;
+    private final Calendar calendar;
     private final List<Channel> matchingChannels;
     private VirtualReadingType targetReadingType;
     private final Range<Instant> rawDataPeriod;
     private final int meterActivationSequenceNumber;
+    private final UsagePoint usagePoint;
     private Optional<ChannelContract> preferredChannel;   // Lazy from the list of matching channels and the targetIntervalLength
 
-    VirtualReadingTypeRequirement(Formula.Mode mode, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, List<Channel> matchingChannels, VirtualReadingType targetReadingType, MeterActivationSet meterActivationSet, Range<Instant> requestedPeriod, int meterActivationSequenceNumber) {
+    VirtualReadingTypeRequirement(Thesaurus thesaurus, Formula.Mode mode, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, List<Channel> matchingChannels, VirtualReadingType targetReadingType, MeterActivationSet meterActivationSet, Range<Instant> requestedPeriod, int meterActivationSequenceNumber) {
         super();
+        this.thesaurus = thesaurus;
         this.mode = mode;
         this.requirement = requirement;
         this.deliverable = deliverable;
+        this.calendar = meterActivationSet.getCalendar();
         this.rawDataPeriod = this.toOpenClosed(requestedPeriod.intersection(meterActivationSet.getRange()));
         this.matchingChannels = Collections.unmodifiableList(matchingChannels);
         this.targetReadingType = targetReadingType;
         this.meterActivationSequenceNumber = meterActivationSequenceNumber;
+        this.usagePoint = meterActivationSet.getUsagePoint();
     }
 
     private Range<Instant> toOpenClosed(Range<Instant> period) {
@@ -135,19 +146,54 @@ class VirtualReadingTypeRequirement {
         sqlBuilder.append(", ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.fieldSpecName());
         sqlBuilder.append(" FROM (");
-
-        sqlBuilder.add(
-                this.getPreferredChannel()
-                        .getTimeSeries()
-                        .getRawValuesSql(
-                                this.rawDataPeriod,
-                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
-                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)));
+        this.appendPreferredChannel(sqlBuilder);
         sqlBuilder.append(") rawdata) GROUP BY TRUNC(");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.fieldSpecName());
         sqlBuilder.append(", ");
         this.targetReadingType.getIntervalLength().appendOracleFormatModelTo(sqlBuilder);
         sqlBuilder.append(")");
+    }
+
+    @SuppressWarnings("unchecked")
+    private void appendPreferredChannel(SqlBuilder sqlBuilder) {
+        ChannelContract preferredChannel = this.getPreferredChannel();
+        int requestedTimeOfUseBucket = this.targetReadingType.getTimeOfUseBucket();
+        int providedTimeOfUseBucket = preferredChannel.getMainReadingType().getTou();
+        if (providedTimeOfUseBucket == requestedTimeOfUseBucket) {
+            // Note that this also supports the case where time of use is not requested (i.e. both are zero)
+            sqlBuilder.add(
+                    this.getPreferredChannel()
+                            .getTimeSeries()
+                            .getRawValuesSql(
+                                    this.rawDataPeriod,
+                                    this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
+                                    this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)));
+        } else if (requestedTimeOfUseBucket != 0 && providedTimeOfUseBucket == 0) {
+            // Requested but not provided so use calendar at the appropriate interval
+            if (this.calendar == null) {
+                String errorMessage = "Deliverable (name=" + this.deliverable.getName() + ", id=" + this.deliverable.getId() + ") requires time of use bucket " + requestedTimeOfUseBucket + " but no calendar is configured on the usage point. Validation of linking metrology configuration failed before!";
+                Loggers.SQL.severe(() -> errorMessage);
+                throw new IllegalStateException(errorMessage);
+            }
+            sqlBuilder.add(
+                    this.calendar
+                            .toTimeSeries(
+                                    this.targetReadingType.getIntervalLength().toTemporalAmount(),
+                                    preferredChannel.getZoneId())
+                            .joinSql(
+                                preferredChannel.getTimeSeries(),
+                                new EventFromReadingType(this.targetReadingType),
+                                this.rawDataPeriod,
+                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
+                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)));
+        } else {
+            /* One of the following erroneous conditions:
+             * 1. Not requested but time of use bucket is provided
+             * 2. Requested but different time of use bucket is provided
+             */
+            Loggers.SQL.severe(() -> "Inconsistency between time of use bucket requested by deliverable (name=" + this.deliverable.getName() + ", id=" + this.deliverable.getId() + ") and time of use bucket provided by the preferred channel. Requested " + requestedTimeOfUseBucket + " but got " + providedTimeOfUseBucket);
+            throw new TimeOfUseBucketInconsitencyException(this.thesaurus, requestedTimeOfUseBucket, providedTimeOfUseBucket, this.deliverable, this.usagePoint, this.rawDataPeriod);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -176,12 +222,7 @@ class VirtualReadingTypeRequirement {
         sqlBuilder.append(" FROM(");
         TimeSeries timeSeries = this.getPreferredChannel().getTimeSeries();
         if (timeSeries.isRegular()) {
-            sqlBuilder.add(
-                    timeSeries
-                            .getRawValuesSql(
-                                    this.rawDataPeriod,
-                                    this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
-                                    this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)));
+            this.appendPreferredChannel(sqlBuilder);
         } else {
             this.appendDefinitionWithoutLocalDate(sqlBuilder, timeSeries);
         }
@@ -258,4 +299,46 @@ class VirtualReadingTypeRequirement {
         this.preferredChannel = Optional.of(preferredChannel);
     }
 
+    private static class EventFromReadingType implements Event {
+        private final VirtualReadingType readingType;
+
+        private EventFromReadingType(VirtualReadingType readingType) {
+            this.readingType = readingType;
+        }
+
+        @Override
+        public long getCode() {
+            return this.readingType.getTimeOfUseBucket();
+        }
+
+        @Override
+        public Instant getCreateTime() {
+            return Instant.now();
+        }
+
+        @Override
+        public long getVersion() {
+            return 0;
+        }
+
+        @Override
+        public Instant getModTime() {
+            return this.getCreateTime();
+        }
+
+        @Override
+        public String getUserName() {
+            return "DataAggregationService";
+        }
+
+        @Override
+        public long getId() {
+            return 0;
+        }
+
+        @Override
+        public String getName() {
+            return this.readingType.toString();
+        }
+    }
 }

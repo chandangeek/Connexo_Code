@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
@@ -1933,7 +1934,33 @@ public enum TableSpecs {
                     .map("state")
                     .add();
         }
-    },;
+    },
+    MTR_CALENDAR_ON_USAGEPOINT {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<UsagePoint.CalendarUsage> table = dataModel.addTable(this.name(), UsagePoint.CalendarUsage.class).since(version(10, 3));
+            table.map(CalendarUsageImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            Column usagePoint = table.column("USAGEPOINT").number().notNull().add();
+            Column calendar = table.column("CALENDAR").number().notNull().add();
+            table.addIntervalColumns(CalendarUsageImpl.Fields.INTERVAL.fieldName());
+            table.setJournalTableName("MTR_CALENDAR_ON_USAGEPOINTJRNL");
+            table.addAuditColumns();
+            table.primaryKey("MTR_PK_CAL_ON_UP").on(idColumn).add();
+            table.foreignKey("MTR_FK_MTRP_UP")
+                    .on(usagePoint)
+                    .references(UsagePoint.class)
+                    .map(CalendarUsageImpl.Fields.USAGEPOINT.fieldName())
+                    .composition()
+                    .reverseMap("calendarUsages")
+                    .add();
+            table.foreignKey("MTR_FK_MTRP_CAL")
+                    .on(calendar)
+                    .map(CalendarUsageImpl.Fields.CALENDAR.fieldName())
+                    .references(Calendar.class)
+                    .add();
+        }
+    };
 
     abstract void addTo(DataModel dataModel);
 

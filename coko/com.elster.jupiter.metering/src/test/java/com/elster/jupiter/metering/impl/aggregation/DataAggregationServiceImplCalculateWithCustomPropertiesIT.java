@@ -6,6 +6,8 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.AbstractVersionedPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -50,7 +52,9 @@ import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
@@ -77,6 +81,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigu
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.Range;
@@ -104,7 +109,6 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -139,6 +143,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
     private static Instant jan1st2016 = Instant.ofEpochMilli(1451602800000L);
     private static SqlBuilderFactory sqlBuilderFactory = mock(SqlBuilderFactory.class);
     private static ClauseAwareSqlBuilder clauseAwareSqlBuilder = mock(ClauseAwareSqlBuilder.class);
+    private static Thesaurus thesaurus;
 
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(injector.getInstance(TransactionService.class));
@@ -158,9 +163,6 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
     private SqlBuilder completeSqlBuilder;
     private Meter meter;
 
-    @Mock
-    private Thesaurus thesaurus;
-
     private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {
@@ -175,12 +177,21 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
 
     @BeforeClass
     public static void setUp() {
+        setupThesaurus();
         setupServices();
         setupReadingTypes();
         setupCustomPropertySets();
         setupMetrologyPurpose();
         setupDefaultUsagePointLifeCycle();
         ELECTRICITY = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
+    }
+
+    private static void setupThesaurus() {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+        thesaurus = mock(Thesaurus.class);
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
     }
 
     private static void setupServices() {
@@ -210,6 +221,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
                     new FiniteStateMachineModule(),
                     new NlsModule(),
                     new BasicPropertiesModule(),
+                    new CalendarModule(),
                     new CustomPropertySetsModule(),
                     new UsagePointLifeCycleConfigurationModule()
             );
@@ -226,6 +238,10 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
 
     private static PropertySpecService getPropertySpecService() {
         return injector.getInstance(PropertySpecService.class);
+    }
+
+    private static CalendarService getCalendarService() {
+        return injector.getInstance(CalendarService.class);
     }
 
     private static CustomPropertySetService getCustomPropertySetService() {
@@ -247,11 +263,12 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
     private static DataAggregationService getDataAggregationService() {
         ServerMeteringService meteringService = getMeteringService();
         return new DataAggregationServiceImpl(
+                        getCalendarService(),
                         getCustomPropertySetService(),
                         meteringService,
                         new InstantTruncaterFactory(meteringService),
                         DataAggregationServiceImplCalculateWithCustomPropertiesIT::getSqlBuilderFactory,
-                        VirtualFactoryImpl::new,
+                        () -> new VirtualFactoryImpl(thesaurus),
                         () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringService));
     }
 

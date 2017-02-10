@@ -4,11 +4,13 @@
 
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -34,6 +36,8 @@ import java.util.stream.Stream;
  * @since 2016-06-09 (13:18)
  */
 class MeterActivationSetImpl implements MeterActivationSet {
+    private final UsagePoint usagePoint;
+    private final Calendar calendar;
     private final UsagePointMetrologyConfiguration configuration;
     private final List<MeterActivation> meterActivations = new ArrayList<>();
     private final int sequenceNumber;
@@ -41,11 +45,23 @@ class MeterActivationSetImpl implements MeterActivationSet {
     private final Instant start;
     private Instant end;
 
-    MeterActivationSetImpl(UsagePointMetrologyConfiguration configuration, int sequenceNumber, Range<Instant> period, Instant start) {
+    MeterActivationSetImpl(UsagePoint usagePoint, Calendar calendar, UsagePointMetrologyConfiguration configuration, int sequenceNumber, Range<Instant> period, Instant start) {
+        this.usagePoint = usagePoint;
+        this.calendar = calendar;
         this.configuration = configuration;
         this.sequenceNumber = sequenceNumber;
         this.period = period;
         this.start = start;
+    }
+
+    @Override
+    public UsagePoint getUsagePoint() {
+        return usagePoint;
+    }
+
+    @Override
+    public Calendar getCalendar() {
+        return calendar;
     }
 
     @Override

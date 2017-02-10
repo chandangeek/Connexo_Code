@@ -4,8 +4,9 @@
 
 package com.elster.jupiter.metering.impl.aggregation;
 
-import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
+import com.elster.jupiter.metering.impl.ServerUsagePoint;
 
 import com.google.common.collect.Range;
 
@@ -14,8 +15,10 @@ import java.util.List;
 
 public interface ServerDataAggregationService extends DataAggregationService {
 
-    List<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Range<Instant> period);
+    List<MeterActivationSet> getMeterActivationSets(ServerUsagePoint usagePoint, Range<Instant> period);
 
-    List<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Instant when);
+    List<MeterActivationSet> getMeterActivationSets(ServerUsagePoint usagePoint, Instant when);
+
+    Category getTimeOfUseCategory();
 
 }

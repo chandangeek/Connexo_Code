@@ -16,6 +16,10 @@ import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.units.Dimension;
 
 import com.google.common.collect.Range;
@@ -31,6 +35,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -44,16 +50,22 @@ import static org.mockito.Mockito.when;
 public class InferReadingTypeTest {
 
     @Mock
+    private Thesaurus thesaurus;
+    @Mock
     private FullySpecifiedReadingTypeRequirement requirement;
     @Mock
     private ReadingTypeDeliverable deliverable;
     @Mock
     private MeterActivationSet meterActivationSet;
 
-    private VirtualFactory virtualFactory = new VirtualFactoryImpl();
+    private VirtualFactory virtualFactory = new VirtualFactoryImpl(thesaurus);
 
     @Before
     public void initializeMocks() {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+        when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
+        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
         ReadingType readingType = this.mock15minkWhReadingType();
         when(this.deliverable.getReadingType()).thenReturn(readingType);
         when(this.meterActivationSet.getRange()).thenReturn(Range.all());

@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
@@ -32,6 +33,7 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.impl.ServerUsagePoint;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
 import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
@@ -80,7 +82,7 @@ import static org.mockito.Mockito.when;
 public class DataAggregationServiceImplIntrospectionTest {
 
     @Mock
-    private UsagePoint usagePoint;
+    private ServerUsagePoint usagePoint;
     @Mock
     private UsagePointMetrologyConfiguration configuration;
     @Mock
@@ -99,6 +101,8 @@ public class DataAggregationServiceImplIntrospectionTest {
     private EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration;
     @Mock
     private CustomPropertySetService customPropertySetService;
+    @Mock
+    private CalendarService calendarService;
     @Mock
     private ServerMeteringService meteringService;
     @Mock
@@ -656,6 +660,7 @@ public class DataAggregationServiceImplIntrospectionTest {
 
     private DataAggregationServiceImpl testInstance() {
         return new DataAggregationServiceImpl(
+                this.calendarService,
                 this.meteringService,
                 new InstantTruncaterFactory(this.meteringService),
                 this.customPropertySetService);

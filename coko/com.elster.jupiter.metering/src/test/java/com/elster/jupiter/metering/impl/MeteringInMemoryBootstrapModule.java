@@ -5,6 +5,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -132,6 +133,7 @@ public class MeteringInMemoryBootstrapModule {
         modules.add(new NlsModule());
         modules.add(new BasicPropertiesModule());
         modules.add(new TimeModule());
+        modules.add(new CalendarModule());
         modules.add(new SearchModule());
         modules.add(new UsagePointLifeCycleConfigurationModule());
         if (this.customPropertySetService == null) {
