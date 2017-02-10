@@ -2,10 +2,6 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 Ext.define('Uni.override.panel.Tool', {
     override: 'Ext.panel.Tool',
 
