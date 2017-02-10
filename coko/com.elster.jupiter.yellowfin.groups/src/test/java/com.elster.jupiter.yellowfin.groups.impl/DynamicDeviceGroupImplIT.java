@@ -5,6 +5,7 @@
 package com.elster.jupiter.yellowfin.groups.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -107,6 +108,7 @@ public class DynamicDeviceGroupImplIT {
                     new InMemoryMessagingModule(),
                     new IdsModule(),
                     new UsagePointLifeCycleConfigurationModule(),
+                    new CalendarModule(),
                     new MeteringModule(),
                     new BasicPropertiesModule(),
                     new TimeModule(),
