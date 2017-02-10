@@ -29,6 +29,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.time.TimeService;
@@ -478,7 +479,7 @@ public class UsagePointOutputResource {
                         .collect(Collectors.toList());
             }
         }
-        return PagedInfoList.fromPagedList("registerData", outputRegisterData, queryParameters);
+        return PagedInfoList.fromPagedList("registerData", ListPager.of(outputRegisterData).from(queryParameters).find(), queryParameters);
     }
 
     private boolean hasSuspects(RegisterReadingWithValidationStatus registerReadingWithValidationStatus) {
