@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
@@ -26,7 +27,9 @@ import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.security.CertificateAlias;
 import com.energyict.obis.ObisCode;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import java.security.cert.X509Certificate;
@@ -48,6 +51,16 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Activate
+    public void activate() {
+        Services.collectedDataFactory(this);
+    }
+
+    @Deactivate
+    public void deactivate() {
+        Services.collectedDataFactory(null);
     }
 
     @Reference

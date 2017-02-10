@@ -1,7 +1,10 @@
 package com.energyict.mdc.engine.impl;
 
+import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.crypto.KeyStoreService;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -32,6 +35,16 @@ public class KeyStoreServiceImpl implements KeyStoreService {
     public KeyStoreServiceImpl(com.elster.jupiter.datavault.KeyStoreService actual) {
         this();
         this.setActualKeyStoreService(actual);
+    }
+
+    @Activate
+    public void activate() {
+        Services.keyStoreService(this);
+    }
+
+    @Deactivate
+    public void deactivate() {
+        Services.keyStoreService(null);
     }
 
     @Reference
