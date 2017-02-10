@@ -5,6 +5,7 @@
 package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.FlowDirection;
@@ -133,6 +134,7 @@ public class RegisterValidationEvaluatorIT {
                 new IdsModule(),
                 new FiniteStateMachineModule(),
                 new UsagePointLifeCycleConfigurationModule(),
+                new CalendarModule(),
                 new MeteringModule("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"),
                 new MeteringGroupsModule(),
                 new SearchModule(),
