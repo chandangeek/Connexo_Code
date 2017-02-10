@@ -2,7 +2,6 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 
 import com.energyict.mdc.upl.RuntimeEnvironment;
 import com.energyict.mdc.upl.Services;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -17,7 +16,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-01-16 (14:52)
  */
-@Component(name = "com.energyict.mdc.protocol.pluggable.upl.runtime", service = {RuntimeEnvironment.class})
+@Component(name = "com.energyict.mdc.protocol.pluggable.upl.runtime", service = {RuntimeEnvironment.class}, immediate = true)
 @SuppressWarnings("unused")
 public class RuntimeEnvironmentImpl implements RuntimeEnvironment {
 
