@@ -42,7 +42,7 @@ import java.util.Optional;
  */
 @Component(
         name = "com.elster.jupiter.keystore.service",
-        service = ServerKeyStoreService.class,
+        service = {KeyStoreService.class, ServerKeyStoreService.class},
         property = "name=" + DataVaultService.COMPONENT_NAME,
         immediate = true)
 @SuppressWarnings("unused")
