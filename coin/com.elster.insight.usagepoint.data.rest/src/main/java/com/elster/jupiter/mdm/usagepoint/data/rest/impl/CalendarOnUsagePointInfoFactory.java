@@ -5,7 +5,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
-import com.elster.jupiter.usagepoint.calendar.CalendarOnUsagePoint;
+import com.elster.jupiter.metering.UsagePoint;
 
 import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
@@ -29,13 +29,13 @@ public class CalendarOnUsagePointInfoFactory {
         this.calendarInfoFactory = calendarInfoFactory;
     }
 
-    CalendarOnUsagePointInfo from(CalendarOnUsagePoint calendarOnUsagePoint) {
+    CalendarOnUsagePointInfo from(UsagePoint.CalendarUsage calendarUsage, UsagePoint usagePoint) {
         CalendarOnUsagePointInfo info = new CalendarOnUsagePointInfo();
-        info.calendar = calendarInfoFactory.detailedFromCalendar(calendarOnUsagePoint.getCalendar());
-        Range<Instant> range = calendarOnUsagePoint.getRange();
+        info.calendar = calendarInfoFactory.detailedFromCalendar(calendarUsage.getCalendar());
+        Range<Instant> range = calendarUsage.getRange();
         info.fromTime = range.lowerEndpoint().toEpochMilli();
         info.toTime = range.hasUpperBound() ? range.upperEndpoint().toEpochMilli() : null;
-        info.usagePointId = calendarOnUsagePoint.getUsagePoint().getId();
+        info.usagePointId = usagePoint.getId();
         return info;
     }
 

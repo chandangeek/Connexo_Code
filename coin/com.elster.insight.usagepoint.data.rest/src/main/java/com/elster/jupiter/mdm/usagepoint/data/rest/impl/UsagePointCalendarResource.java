@@ -13,9 +13,6 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.usagepoint.calendar.CalendarOnUsagePoint;
-import com.elster.jupiter.usagepoint.calendar.UsagePointCalendarService;
 
 import com.google.common.collect.Range;
 
@@ -52,29 +49,25 @@ public class UsagePointCalendarResource {
     private final CalendarOnUsagePointInfoFactory calendarOnUsagePointInfoFactory;
     private final Clock clock;
     private final ResourceHelper resourceHelper;
-    private final UsagePointCalendarService usagePointCalendarService;
     private final CalendarService calendarService;
     private final ExceptionFactory exceptionFactory;
     private final CalendarInfoFactory calendarInfoFactory;
-    private final TransactionService transactionService;
 
     @Inject
-    public UsagePointCalendarResource(CalendarOnUsagePointInfoFactory calendarOnUsagePointInfoFactory, Clock clock, ResourceHelper resourceHelper, UsagePointCalendarService usagePointCalendarService, CalendarService calendarService, ExceptionFactory exceptionFactory, CalendarInfoFactory calendarInfoFactory, TransactionService transactionService) {
+    public UsagePointCalendarResource(CalendarOnUsagePointInfoFactory calendarOnUsagePointInfoFactory, Clock clock, ResourceHelper resourceHelper, CalendarService calendarService, ExceptionFactory exceptionFactory, CalendarInfoFactory calendarInfoFactory) {
         this.calendarOnUsagePointInfoFactory = calendarOnUsagePointInfoFactory;
         this.clock = clock;
         this.resourceHelper = resourceHelper;
-        this.usagePointCalendarService = usagePointCalendarService;
         this.calendarService = calendarService;
         this.exceptionFactory = exceptionFactory;
         this.calendarInfoFactory = calendarInfoFactory;
-        this.transactionService = transactionService;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getCalendarsOnUsagePoint(@PathParam("name") String usagePointName, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(usagePointName);
-        return usagePointCalendarService.calendarsFor(usagePoint)
+        return usagePoint.getUsedCalendars()
                 .getCalendars()
                 .entrySet()
                 .stream()
@@ -96,8 +89,7 @@ public class UsagePointCalendarResource {
         } else {
             Instant instant = Instant.ofEpochMilli(milliseconds);
             Calendar calendar = calendarService.findCalendar(calendarId).get();
-            LocalDate localDate = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"))
-                    .toLocalDate();
+            LocalDate localDate = LocalDateTime.ofInstant(instant, ZoneId.of("UTC")).toLocalDate();
             return transformToWeekCalendar(calendar, localDate);
         }
     }
@@ -116,24 +108,21 @@ public class UsagePointCalendarResource {
             @Context UriInfo uriInfo,
             CalendarOnUsagePointInfo calendarOnUsagePointInfo) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(usagePointName);
-        Calendar calendar = calendarService.findCalendar(calendarOnUsagePointInfo.calendar.id)
-                .orElse(null);
+        Calendar calendar = calendarService.findCalendar(calendarOnUsagePointInfo.calendar.id).orElse(null);
         Instant start = Instant.ofEpochMilli(calendarOnUsagePointInfo.fromTime);
-        CalendarOnUsagePoint calendarOnUsagePoint;
+        UsagePoint.CalendarUsage calendarUsage;
         if(calendarOnUsagePointInfo.immediately){
-            calendarOnUsagePoint = usagePointCalendarService.calendarsFor(usagePoint)
-                    .addCalendar(calendar);
+            calendarUsage = usagePoint.getUsedCalendars().addCalendar(calendar);
         } else {
-            calendarOnUsagePoint = usagePointCalendarService.calendarsFor(usagePoint)
-                    .addCalendar(start, calendar);
+            calendarUsage = usagePoint.getUsedCalendars().addCalendar(start, calendar);
         }
-        return Response.ok(calendarOnUsagePointInfoFactory.from(calendarOnUsagePoint)).build();
+        return Response.ok(calendarOnUsagePointInfoFactory.from(calendarUsage, usagePoint)).build();
     }
 
-    private CalendarOnUsagePointInfo createFrom(UsagePoint usagePoint, List<CalendarOnUsagePoint> calendars) {
+    private CalendarOnUsagePointInfo createFrom(UsagePoint usagePoint, List<UsagePoint.CalendarUsage> calendars) {
         List<CalendarOnUsagePointInfo> infoList = calendars.stream()
                 .filter(calendarOnUsagePoint -> !endsBeforeNow(calendarOnUsagePoint.getRange()))
-                .map(calendarOnUsagePointInfoFactory::from)
+                .map(usage -> calendarOnUsagePointInfoFactory.from(usage, usagePoint))
                 .collect(Collectors.toList());
         return link(usagePoint, infoList);
     }
