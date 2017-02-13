@@ -94,5 +94,4 @@ class CollectSourceReadingTypes implements ServerExpressionNode.Visitor<VirtualR
         aggregationNode.getAggregatedExpression().accept(this);
         return null;
     }
-
 }

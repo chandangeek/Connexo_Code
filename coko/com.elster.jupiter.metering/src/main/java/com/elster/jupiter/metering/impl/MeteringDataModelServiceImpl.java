@@ -38,6 +38,7 @@ import com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecordFacto
 import com.elster.jupiter.metering.impl.aggregation.DataAggregationServiceImpl;
 import com.elster.jupiter.metering.impl.aggregation.InstantTruncaterFactory;
 import com.elster.jupiter.metering.impl.aggregation.ServerDataAggregationService;
+import com.elster.jupiter.metering.impl.aggregation.SourceChannelSetFactory;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
@@ -129,6 +130,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     private MeteringServiceImpl meteringService;
     private MeteringTranslationServiceImpl meteringTranslationService;
     private InstantTruncaterFactory truncaterFactory;
+    private SourceChannelSetFactory sourceChannelSetFactory;
     private DataAggregationService dataAggregationService;
     private UsagePointRequirementsSearchDomain usagePointRequirementsSearchDomain;
     private MetrologyConfigurationServiceImpl metrologyConfigurationService;
@@ -206,8 +208,9 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         this.meteringService.defineLocationTemplates(bundleContext, createDefaultLocationTemplate); // This call has effect on resulting table spec!
         this.meteringTranslationService = new MeteringTranslationServiceImpl(this.thesaurus);
         this.truncaterFactory = new InstantTruncaterFactory(this.meteringService);
+        this.sourceChannelSetFactory = new SourceChannelSetFactory(this.meteringService);
         if (this.dataAggregationService == null) { // It is possible that service was already set to mocked instance.
-            this.dataAggregationService = new DataAggregationServiceImpl(this.meteringService, this.truncaterFactory, this.customPropertySetService);
+            this.dataAggregationService = new DataAggregationServiceImpl(this.meteringService, this.truncaterFactory, this.sourceChannelSetFactory, this.customPropertySetService);
         }
         this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.dataModel, this.thesaurus);
         this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this.meteringService, this.meteringTranslationService, this.metrologyConfigurationService, this.clock, this.licenseService);
@@ -226,6 +229,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 bind(ServerMeteringService.class).toInstance(meteringService);
                 bind(MeteringTranslationService.class).toInstance(meteringTranslationService);
                 bind(InstantTruncaterFactory.class).toInstance(truncaterFactory);
+                bind(SourceChannelSetFactory.class).toInstance(sourceChannelSetFactory);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
                 bind(IdsService.class).toInstance(idsService);
