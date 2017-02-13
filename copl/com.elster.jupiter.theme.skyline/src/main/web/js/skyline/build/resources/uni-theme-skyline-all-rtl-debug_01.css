@@ -67,6 +67,20 @@
 /* including package ext-theme-neutral */
 /* including package ext-theme-neptune */
 /* including package uni-theme-skyline */
+/* line 2, ../../sass/etc/all.scss */
+.trlegend td {
+  padding: 3px 5px 3px 0;
+}
+/* line 4, ../../sass/etc/all.scss */
+.trlegend td:first-child {
+  font-weight: bold;
+  text-align: right;
+}
+/* line 8, ../../sass/etc/all.scss */
+.trlegend td:last-child {
+  padding-right: 0;
+}
+
 /* including package uni-theme-skyline */
 /**
  * @class Ext.button.Button
@@ -24070,9 +24084,4 @@ a.x-color-picker-item:hover {
 .x-panel-header-light-framed-collapsed-right-mr {
   zoom: 1;
   background-image: url(images/panel-header/panel-header-light-framed-collapsed-right-corners.gif);
-}
-
-/* line 390, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-rtl.x-panel-header-light-framed-collapsed-right-tl, .x-rtl.x-panel-header-light-framed-collapsed-right-ml, .x-rtl.x-panel-header-light-framed-collapsed-right-bl, .x-rtl.x-panel-header-light-framed-collapsed-right-tr, .x-rtl.x-panel-header-light-framed-collapsed-right-mr, .x-rtl.x-panel-header-light-framed-collapsed-right-br {
-  background-image: url(images/panel-header/panel-header-light-framed-collapsed-right-corners-rtl.gif);
 }

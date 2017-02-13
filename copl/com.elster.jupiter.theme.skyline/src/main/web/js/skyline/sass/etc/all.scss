@@ -1,4 +1,15 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
+.trlegend {
+  td {
+    padding: 3px 5px 3px 0;
+    &:first-child {
+      font-weight: bold;
+      text-align: right;
+    }
+    &:last-child {
+      padding-right: 0;
+    }
+  }
+}
