@@ -10,12 +10,17 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes;
 
-import java.util.*;
-import java.io.*;
-import java.math.BigDecimal;
-
-import com.energyict.protocol.*;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.elster.alpha.core.classes.ClassParseUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -80,10 +85,9 @@ public class DayRecord {
        // parse day interval values
        boolean include=false;
        int eiStatus=0;
-       int eiChannelStatus=0;
        int nrOfChannels = classFactory.getClass14LoadProfileConfiguration().getNrOfChannels();
        for (int interval=0;interval<classFactory.getClass14LoadProfileConfiguration().getIntervalsPerDay();interval++) {
-           eiStatus=eiChannelStatus=0;
+           eiStatus=0;
            cal.add(Calendar.SECOND,classFactory.getClass14LoadProfileConfiguration().getLoadProfileInterval());
            
              
@@ -92,9 +96,10 @@ public class DayRecord {
               int rawValue = ProtocolUtils.getInt(data,6+2*(interval*nrOfChannels+profileChannel),2);
               int value = rawValue & 0x7FFF;
               boolean eventFlag = (rawValue & 0x8000) == 0x8000;
+               if (eventFlag) {
+                   eiStatus |= IntervalStateBits.OTHER;
+               }
 
-              // What to do with the eventflag ? 
-              
               // verify value
               if (value == 0x7FFF) {
                   include=false;
@@ -102,7 +107,6 @@ public class DayRecord {
               else if (value == 0x7FFE) {
                   include = true;
                   eiStatus |= IntervalStateBits.OVERFLOW;
-                  eiChannelStatus = IntervalStateBits.OVERFLOW;
               }
               else {
                   include = true;
@@ -150,7 +154,7 @@ public class DayRecord {
                   }
                   
                   
-                  intervalData.addValue(bd, eiChannelStatus, eiStatus);
+                  intervalData.addValue(bd, eiStatus, eiStatus);
               }
           } // for (int profileChannel=0;profileChannel<nrOfChannels;profileChannel++)
           
