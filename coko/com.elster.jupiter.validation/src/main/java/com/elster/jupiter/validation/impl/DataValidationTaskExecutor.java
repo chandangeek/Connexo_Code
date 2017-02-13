@@ -8,11 +8,11 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -153,10 +153,8 @@ class DataValidationTaskExecutor implements TaskExecutor {
                                 .getMetrologyConfiguration()
                                 .getContracts()
                                 .forEach(metrologyContract -> {
-                                    // Validate inputs provided by linked meters
-                                    validateUsagePointInputs(EnumSet.of(task.getQualityCodeSystem()), metrologyContract, metrologyConfigurationOnUsagePoint);
                                     // Validate outputs provided by metrology configuration
-                                    validateUsagePointOutputs(EnumSet.of(task.getQualityCodeSystem()), metrologyContract, metrologyConfigurationOnUsagePoint);
+                                    validateUsagePointOutputs(EnumSet.of(task.getQualityCodeSystem()), metrologyContract, metrologyConfigurationOnUsagePoint, task.getMetrologyPurpose());
                                     transactionService
                                             .execute(VoidTransaction.of(() ->
                                                     MessageSeeds.USAGE_POINT_TASK_VALIDATED_SUCCESFULLY
@@ -170,25 +168,27 @@ class DataValidationTaskExecutor implements TaskExecutor {
         return DefaultDateTimeFormatters.longDate(locale).withLongTime().build().withZone(ZoneId.systemDefault()).withLocale(locale);
     }
 
-    private void validateUsagePointInputs(Set<QualityCodeSystem> qualityCodeSystems, MetrologyContract metrologyContract, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration) {
-        effectiveMetrologyConfiguration.getUsagePoint().getCurrentMeterActivations()
-                .stream()
-                .map(MeterActivation::getChannelsContainer)
-                .forEach(channelsContainer -> {
-                    try (TransactionContext transactionContext = transactionService.getContext()) {
-                        validationService.validate(new ValidationContextImpl(qualityCodeSystems, channelsContainer, metrologyContract));
-                        transactionContext.commit();
+    private void validateUsagePointOutputs(Set<QualityCodeSystem> qualityCodeSystems, MetrologyContract metrologyContract, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, Optional<MetrologyPurpose> purpose) {
+        effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract, clock.instant())
+                .ifPresent(channelsContainer -> {
+                    if (purpose.isPresent()) {
+                        validateWithPurpose(qualityCodeSystems, channelsContainer, metrologyContract, purpose.get());
+                    } else {
+                        validate(qualityCodeSystems, channelsContainer, metrologyContract);
                     }
                 });
     }
 
-    private void validateUsagePointOutputs(Set<QualityCodeSystem> qualityCodeSystems, MetrologyContract metrologyContract, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration) {
-        effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)
-                .ifPresent(channelsContainer -> {
-            try (TransactionContext transactionContext = transactionService.getContext()) {
-                validationService.validate(new ValidationContextImpl(qualityCodeSystems, channelsContainer, metrologyContract));
-                transactionContext.commit();
-            }
-        });
+    private void validate(Set<QualityCodeSystem> qualityCodeSystems, ChannelsContainer channelsContainer, MetrologyContract metrologyContract) {
+        try (TransactionContext transactionContext = transactionService.getContext()) {
+            validationService.validate(new ValidationContextImpl(qualityCodeSystems, channelsContainer, metrologyContract));
+            transactionContext.commit();
+        }
+    }
+
+    private void validateWithPurpose(Set<QualityCodeSystem> qualityCodeSystems, ChannelsContainer channelsContainer, MetrologyContract metrologyContract, MetrologyPurpose metrologyPurpose) {
+        if (metrologyContract.getMetrologyPurpose().equals(metrologyPurpose)) {
+            validate(qualityCodeSystems, channelsContainer, metrologyContract);
+        }
     }
 }
