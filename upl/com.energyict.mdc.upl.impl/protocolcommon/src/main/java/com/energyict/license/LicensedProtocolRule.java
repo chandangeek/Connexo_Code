@@ -41,7 +41,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     SIEMENS_7ED62(13, "com.energyict.protocolimpl.siemens7ED62.Siemens7ED62"),
     SDC(14, "com.energyict.protocolimpl.iec1107.sdc.Sdc"),
     QUANTUM_SCHLUMBERGER(15, "com.energyict.protocolimpl.itron.quantum.Quantum"),
-    FULCRUM(16, "com.energyict.protocolimpl.itron.quantum.Fulcrum"),
+    FULCRUM(16, "com.energyict.protocolimpl.itron.fulcrum.Fulcrum"),
     DATASTAR(17, "com.energyict.protocolimpl.itron.datastar.Datastar"),
     VECTRON(18, "com.energyict.protocolimpl.itron.vectron.Vectron"),
     EZ7(19, "com.energyict.protocolimpl.emon.ez7.EZ7"),
