@@ -3,7 +3,6 @@ package com.energyict.protocolimpl.eig.nexus1272;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
-
 import com.energyict.protocolimpl.eig.nexus1272.parse.LinePoint;
 import com.energyict.protocolimpl.properties.AbstractPropertySpec;
 
@@ -57,7 +56,7 @@ class ChannelMappingPropertySpec extends AbstractPropertySpec {
 
     @Override
     public ValueFactory getValueFactory() {
-        return null;
+        return new ValueFactory();
     }
 
     private class ValueFactory implements com.energyict.mdc.upl.properties.ValueFactory {
@@ -87,7 +86,7 @@ class ChannelMappingPropertySpec extends AbstractPropertySpec {
 
         @Override
         public String getValueTypeName() {
-            return LinePoint.class.getName();
+            return com.energyict.mdc.upl.properties.LinePoint.class.getName();
         }
 
         @Override

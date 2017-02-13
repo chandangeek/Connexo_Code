@@ -9,7 +9,6 @@ package com.energyict.protocolimpl.base;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
-
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocolimpl.properties.AbstractPropertySpec;
 
@@ -37,7 +36,7 @@ import java.util.StringTokenizer;
  *         e.g. 2.5.6.7+7 6.7.1.8+5
  *         means 2.5 6.7 mapping with registers 6.7+7 and 1.8+5
  */
-public class ProtocolChannelMap {
+public class ProtocolChannelMap implements com.energyict.mdc.upl.properties.ProtocolChannelMap {
 
     private List<ProtocolChannel> protocolChannels = null;
     private boolean mappedChannels = false; // KV 06092005 K&P
@@ -68,7 +67,7 @@ public class ProtocolChannelMap {
         builder.append("ProtocolChannelMap:\n");
         builder.append("mappedChannels = ").append(isMappedChannels()).append("\n");
         for (int i = 0; i < protocolChannels.size(); i++) {
-            ProtocolChannel pc = (ProtocolChannel) protocolChannels.get(i);
+            ProtocolChannel pc = protocolChannels.get(i);
             builder.append(pc).append("\n");
         }
         return builder.toString();
@@ -302,16 +301,12 @@ public class ProtocolChannelMap {
 
         @Override
         public String toStringValue(Object object) {
-            return null;
-        }
-
-        private String toStringValue(ProtocolChannelMap protocolChannelMap) {
-            return protocolChannelMap.toString();
+            return object.toString();
         }
 
         @Override
         public String getValueTypeName() {
-            return ProtocolChannelMap.class.getName();
+            return com.energyict.mdc.upl.properties.ProtocolChannelMap.class.getName();
         }
 
         @Override

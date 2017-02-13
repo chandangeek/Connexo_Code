@@ -3,7 +3,7 @@ package com.energyict.protocolimpl.eig.nexus1272.parse;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LinePoint {
+public class LinePoint implements com.energyict.mdc.upl.properties.LinePoint {
     public static final Map<String, String> descriptions = new HashMap<String, String>();
 
     static {

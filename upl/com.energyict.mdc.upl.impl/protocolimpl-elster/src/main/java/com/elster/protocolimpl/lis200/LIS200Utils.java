@@ -142,7 +142,7 @@ public class LIS200Utils {
         return new LIS200AddressPropertySpec(name, required);
     }
 
-    private static class Lis200Address {
+    private static class Lis200Address implements com.energyict.mdc.upl.properties.Lis200Address{
         private final int c, d, e;
 
         static Lis200Address from(String objectAddress) {
@@ -251,16 +251,12 @@ public class LIS200Utils {
 
         @Override
         public String toStringValue(Object object) {
-            return null;
-        }
-
-        private String toStringValue(Lis200Address lis200Address) {
-            return lis200Address.toString();
+            return object.toString();
         }
 
         @Override
         public String getValueTypeName() {
-            return Lis200Address.class.getName();
+            return com.energyict.mdc.upl.properties.Lis200Address.class.getName();
         }
 
         @Override
