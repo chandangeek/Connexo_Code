@@ -7,6 +7,8 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -15,6 +17,7 @@ import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvent;
+import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 
 import com.google.common.collect.Range;
 
@@ -22,9 +25,11 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public final class OpenDeviceAlarmImpl extends DeviceAlarmImpl implements OpenDeviceAlarm {
 
@@ -89,6 +94,11 @@ public final class OpenDeviceAlarmImpl extends DeviceAlarmImpl implements OpenDe
             if (events.size() == 1) {
                 event.init(this, events.get(0));
                 deviceAlarmRelatedEvents.add(event);
+                if(event.getEventRecord().getCreatedDateTime().isBefore(this.getCreatedDateTime())){
+                    this.setCreatedDateTime(event.getEventRecord().getCreatedDateTime());
+                }
+            } else {
+                throw new LocalizedFieldValidationException(MessageSeeds.INCORRECT_NUMBER_OF_CONCURRENT_PROCESSED_EVENTS, events.stream().map(record -> record.getEndDevice().getId() + ":" + record.getEventTypeCode() + ":" + record.getCreatedDateTime()).collect(Collectors.joining(",")));
             }
         }
 

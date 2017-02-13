@@ -206,6 +206,16 @@ public class DeviceAlarmImpl implements DeviceAlarm {
     }
 
     @Override
+    public Instant getCreatedDateTime() {
+        return getBaseIssue().getCreatedDateTime();
+    }
+
+    @Override
+    public void setCreatedDateTime(Instant dateTime) {
+        getBaseIssue().setCreatedDateTime(dateTime);
+    }
+
+    @Override
     public List<DeviceAlarmRelatedEvent> getDeviceAlarmRelatedEvents() {
         Optional<? extends DeviceAlarm> alarm;
         if (getStatus().isHistorical()) {
