@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
+import java.util.logging.Level;
 
 /**
  * Copyrights EnergyICT
@@ -64,6 +65,7 @@ public class DataValidationTaskBuilder extends NamedBuilder<DataValidationTask, 
         Log.write(this);
         com.elster.jupiter.validation.DataValidationTaskBuilder taskBuilder = validationService.newTaskBuilder();
         taskBuilder.setName(getName());
+        taskBuilder.setLogLevel(Level.WARNING.intValue());
         taskBuilder.setQualityCodeSystem(QualityCodeSystem.MDC);
         taskBuilder.setEndDeviceGroup(deviceGroup);
         taskBuilder.setScheduleExpression(scheduleExpression);
