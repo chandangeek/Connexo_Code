@@ -183,6 +183,16 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     }
 
     @Override
+    public Instant getCreatedDateTime() {
+        return getBaseIssue().getCreatedDateTime();
+    }
+
+    @Override
+    public void setCreatedDateTime(Instant dateTime) {
+        getBaseIssue().setCreatedDateTime(dateTime);
+    }
+
+    @Override
     public Optional<ConnectionTask> getConnectionTask() {
         return connectionTask.getOptional();
     }
