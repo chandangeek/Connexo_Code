@@ -3,7 +3,8 @@ Ext.define('Cfg.controller.Tasks', {
 
     requires: [,
         'Cfg.privileges.Validation',
-        'Uni.util.Application'
+        'Uni.util.Application',
+        'Uni.util.LogLevel'
     ],
 
     views: [
@@ -74,6 +75,7 @@ Ext.define('Cfg.controller.Tasks', {
     INSIGHT_KEY: 'MdmApp',
 
     init: function () {
+        Uni.util.LogLevel.loadLogLevels();
         this.control({
             'cfg-validation-tasks-add #rgr-validation-tasks-recurrence-trigger': {
                 change: this.onRecurrenceTriggerChange
