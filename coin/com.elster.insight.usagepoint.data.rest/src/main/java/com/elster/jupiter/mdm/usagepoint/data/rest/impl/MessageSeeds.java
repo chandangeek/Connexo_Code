@@ -56,6 +56,7 @@ public enum MessageSeeds implements MessageSeed {
     REMOVE_FROM_FAVORITES_CONFLICT_TITLE(51, "RemoveFromFavoritesConflictTitle", "Failed to remove ''{0}'' from the favorites"),
     NO_SUCH_MESSAGE_QUEUE(52, "usagepoint.bulk.no.such.messagequeue", "Unable to queue command: no message queue was found"),
     INTERVAL_END_BEFORE_START(53, "intervalEndBeforeStart", "End time before start time"),
+    WRONG_ACTION_SPECIFIED(54, "wrongActionSpecified", "Unknown value for \"action\" is specified"),
     ;
 
     private final int number;
