@@ -28,7 +28,8 @@ Ext.define('Uni.grid.plugin.EditableCells', {
      */
     updateCells: function (gridView) {
         var me = this,
-            grid = gridView.up('gridpanel');
+            grid = gridView.up('gridpanel'),
+            suffix = 0;
 
         me.fieldsListeners.map(function (listener) {
             listener.destroy();
@@ -52,6 +53,7 @@ Ext.define('Uni.grid.plugin.EditableCells', {
                                         renderTo: inner,
                                         constrain: true,
                                         value: record ? record.get(column.dataIndex) : null,
+                                        itemId: column.dataIndex + '-' + column.editor.xtype + '-' + suffix++,
                                         cell: {
                                             record: record,
                                             dataIndex: column.dataIndex
