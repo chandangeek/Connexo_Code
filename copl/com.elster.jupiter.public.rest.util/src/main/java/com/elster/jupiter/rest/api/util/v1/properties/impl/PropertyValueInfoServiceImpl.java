@@ -148,7 +148,6 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService, M
                 && propertyType != SimplePropertyType.QUANTITY
                 && propertyType != SimplePropertyType.SELECTIONGRID
                 && propertyType != SimplePropertyType.ENDDEVICEEVENTTYPE
-                && propertyType != SimplePropertyType.DEVICECODE
                 && propertyType != SimplePropertyType.LIFECYCLESTATUSINDEVICETYPE
                 && propertyType != SimplePropertyType.RAISEEVENTPROPS) {
             // this means we have a default value, so no predefinedPropertyValues necessary in frontend.
@@ -159,7 +158,7 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService, M
         if (converter != null) {
             for (int i = 0; i < possibleValues.getAllValues().size(); i++) {
                 if (propertyType == SimplePropertyType.SELECTIONGRID || propertyType == SimplePropertyType.LISTREADINGQUALITY || propertyType == SimplePropertyType.DEVICECONFIGURATIONLIST ||
-                        propertyType == SimplePropertyType.ENDDEVICEEVENTTYPE || propertyType == SimplePropertyType.DEVICECODE || propertyType == SimplePropertyType.LIFECYCLESTATUSINDEVICETYPE || propertyType == SimplePropertyType.RAISEEVENTPROPS) {
+                        propertyType == SimplePropertyType.ENDDEVICEEVENTTYPE || propertyType == SimplePropertyType.LIFECYCLESTATUSINDEVICETYPE) {
                     possibleObjects[i] = possibleValues.getAllValues().get(i);
                 } else if (propertyType == SimplePropertyType.IDWITHNAME) {
                     HasIdAndName idWithName = (HasIdAndName) possibleValues.getAllValues().get(i);
