@@ -9,6 +9,7 @@ import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.ReadingTypeInEstimationRule;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.Column;
@@ -127,6 +128,7 @@ public enum TableSpecs {
             Column endDeviceGroupIdOld = table.column("ENDDEVICEGROUP").number().notNull().conversion(ColumnConversion.NUMBER2LONG).upTo(version(10, 3)).add();
             Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().conversion(ColumnConversion.NUMBER2LONG).since(version(10, 3)).previously(endDeviceGroupIdOld).add();
             Column usagePointGroupId = table.column("USAGEPOINTGROUP").number().conversion(ColumnConversion.NUMBER2LONG).since(version(10, 3)).add();
+            Column metrologyPurposeId = table.column("METROLOGYPURPOSE").number().conversion(ColumnConversion.NUMBER2LONG).since(version(10, 3)).add();
             Column relativePeriod = table.column("PERIOD").number().add();
 
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").notAudited().add();
@@ -152,6 +154,12 @@ public enum TableSpecs {
                     .on(relativePeriod)
                     .references(RelativePeriod.class)
                     .map("period")
+                    .add();
+            table.foreignKey("EST_FK_METROLOGYPURPOSE")
+                    .on(metrologyPurposeId)
+                    .references(MetrologyPurpose.class)
+                    .map("metrologyPurpose")
+                    .since(version(10, 3))
                     .add();
             table.primaryKey("EST_PK_ESTIMATIONTASK").on(idColumn).add();
         }

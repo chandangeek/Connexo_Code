@@ -5,6 +5,7 @@
 package com.elster.jupiter.estimation;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.time.RelativePeriod;
@@ -29,6 +30,8 @@ public interface EstimationTaskBuilder {
     EstimationTaskBuilder setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
 
     EstimationTaskBuilder setUsagePointGroup(UsagePointGroup usagePointGroup);
+
+    EstimationTaskBuilder setMetrologyPurpose(MetrologyPurpose metrologyPurpose);
 
     EstimationTaskBuilder setPeriod(RelativePeriod relativePeriod);
 }
