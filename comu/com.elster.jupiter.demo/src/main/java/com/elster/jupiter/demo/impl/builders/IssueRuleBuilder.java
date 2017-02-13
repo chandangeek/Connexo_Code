@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -165,11 +166,8 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             properties.put(BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS, getRandomEventCodeList(BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS));
             properties.put(
                     BasicDeviceAlarmRuleTemplate.RAISE_EVENT_PROPS,
-                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.RAISE_EVENT_PROPS).get().getValueFactory().fromStringValue("1-1-1"));
+                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.RAISE_EVENT_PROPS).get().getValueFactory().fromStringValue("1:1:1"));
             properties.put(BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, getAllDeviceStatesInAllDeviceTypes());
-            properties.put(
-                    BasicDeviceAlarmRuleTemplate.DEVICE_CODES,
-                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.DEVICE_CODES).get().getValueFactory().fromStringValue("1"));
             properties.put(
                     BasicDeviceAlarmRuleTemplate.EVENT_OCCURENCE_COUNT,
                     template.getPropertySpec(BasicDeviceAlarmRuleTemplate.EVENT_OCCURENCE_COUNT).get().getValueFactory().fromStringValue("2"));
@@ -216,6 +214,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                     }))
                     .limit(10)
                     .map(EndDeviceEventTypeMapping::getEndDeviceEventTypeMRID)
+                    .map(type -> type.concat(SEPARATOR).concat(String.valueOf(new Random().nextInt(65))))
                     .collect(Collectors.toList());
             rawList.stream().forEach(value ->
                     listValue.add(() -> String.valueOf(value))
@@ -230,6 +229,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                     }))
                     .limit(10)
                     .map(EndDeviceEventTypeMapping::getEndDeviceEventTypeMRID)
+                    .map(type -> type.concat(SEPARATOR).concat(String.valueOf(new Random().nextInt(65))))
                     .collect(Collectors.toList());
             rawList.stream().forEach(value ->
                     listValue.add(() -> String.valueOf(value))
