@@ -4,7 +4,8 @@ Ext.define('Dxp.controller.Tasks', {
     requires: [
         'Dxp.privileges.DataExport',
         'Uni.form.field.Password',
-        'Uni.util.Application'
+        'Uni.util.Application',
+        'Uni.util.LogLevel'
     ],
 
     views: [
@@ -149,6 +150,7 @@ Ext.define('Dxp.controller.Tasks', {
     comboBoxValueForAll: -1,
 
     init: function () {
+        Uni.util.LogLevel.loadLogLevels();
         this.control({
             'data-export-tasks-add': {
                 render: this.populateStores
