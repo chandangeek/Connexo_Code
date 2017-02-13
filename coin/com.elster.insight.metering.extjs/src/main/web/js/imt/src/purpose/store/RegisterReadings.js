@@ -11,9 +11,6 @@ Ext.define('Imt.purpose.store.RegisterReadings', {
         reader: {
             type: 'json',
             root: 'registerData'
-        },
-        pageParam: false,
-        startParam: false,
-        limitParam: false
+        }
     }
 });
