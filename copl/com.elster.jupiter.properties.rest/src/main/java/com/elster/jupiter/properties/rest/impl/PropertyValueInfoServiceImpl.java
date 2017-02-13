@@ -145,7 +145,6 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
                 && propertyType != SimplePropertyType.QUANTITY
                 && propertyType != SimplePropertyType.SELECTIONGRID
                 && propertyType != SimplePropertyType.ENDDEVICEEVENTTYPE
-                && propertyType != SimplePropertyType.DEVICECODE
                 && propertyType != SimplePropertyType.LIFECYCLESTATUSINDEVICETYPE
                 && propertyType != SimplePropertyType.RAISEEVENTPROPS
                 ) {
@@ -157,7 +156,7 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
         if (converter != null) {
             for (int i = 0; i < possibleValues.getAllValues().size(); i++) {
                 if (propertyType == SimplePropertyType.SELECTIONGRID || propertyType == SimplePropertyType.LISTREADINGQUALITY || propertyType == SimplePropertyType.DEVICECONFIGURATIONLIST ||
-                        propertyType == SimplePropertyType.ENDDEVICEEVENTTYPE || propertyType == SimplePropertyType.DEVICECODE || propertyType == SimplePropertyType.LIFECYCLESTATUSINDEVICETYPE || propertyType == SimplePropertyType.RAISEEVENTPROPS) {
+                        propertyType == SimplePropertyType.ENDDEVICEEVENTTYPE || propertyType == SimplePropertyType.LIFECYCLESTATUSINDEVICETYPE) {
                     possibleObjects[i] = possibleValues.getAllValues().get(i);
                 } else if (propertyType == SimplePropertyType.IDWITHNAME) {
                     HasIdAndName idWithName = (HasIdAndName) possibleValues.getAllValues().get(i);
