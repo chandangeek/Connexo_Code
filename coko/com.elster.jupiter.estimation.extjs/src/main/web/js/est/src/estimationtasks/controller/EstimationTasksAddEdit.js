@@ -1,7 +1,10 @@
 Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
     extend: 'Ext.app.Controller',
 
-    requires: ['Uni.util.Application'],
+    requires: [
+        'Uni.util.Application',
+        'Uni.util.LogLevel'
+    ],
 
     stores: [
         'Est.estimationtasks.store.DeviceGroups',
@@ -27,6 +30,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
     taskId: null,
 
     init: function () {
+        Uni.util.LogLevel.loadLogLevels();
         this.control({
             'estimationtasks-addedit #add-button': {
                 click: this.createEstimationTask
