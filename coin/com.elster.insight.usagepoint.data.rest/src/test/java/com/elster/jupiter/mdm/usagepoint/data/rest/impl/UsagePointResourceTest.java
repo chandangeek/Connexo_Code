@@ -5,6 +5,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.bpm.ProcessInstanceInfos;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
@@ -40,6 +41,7 @@ import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPrope
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
+import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
@@ -229,6 +231,23 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         when(usagePointLifeCycleService.getLastUsagePointStateChangeRequest(usagePoint)).thenReturn(Optional.of(usagePointStateChangeRequest));
         when(usagePointStateChangeRequest.getTransitionTime()).thenReturn(Instant.EPOCH);
+        when(validationService.findValidationTasks()).thenReturn(Collections.singletonList(validationTask));
+        when(validationTask.getUsagePointGroup()).thenReturn(Optional.of(usagePointGroup));
+        when(validationTask.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
+        when(validationTask.getScheduleExpression()).thenReturn(PeriodicalScheduleExpression
+                .every(6)
+                .hours()
+                .at(10, 0)
+                .build());
+        when(validationTask.getEndDeviceGroup()).thenReturn(Optional.empty());
+        when(validationTask.getLastRun()).thenReturn(Optional.empty());
+        when(validationTask.getLastOccurrence()).thenReturn(Optional.empty());
+        when(validationTask.getId()).thenReturn(31L);
+        doReturn(usagePointQuery).when(meteringService).getUsagePointQuery();
+        doReturn(Collections.singletonList(usagePoint)).when(usagePointQuery)
+                .select(any(Condition.class), anyInt(), anyInt());
+        when(usagePointGroup.toSubQuery()).thenReturn(mock(Subquery.class));
+        when(usagePointGroup.getId()).thenReturn(51L);
     }
 
     @Test
