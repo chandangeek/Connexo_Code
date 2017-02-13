@@ -67,16 +67,15 @@ public final class IssueReasonImpl extends EntityImpl implements IssueReason {
 
     @Override
     public String getName() {
-        if(this.key.equals(this.translationKey)){
-            return this.translationKey;
-        }else {
-            return this.thesaurus.getFormat(new SimpleTranslationKey(this.translationKey, this.translationKey))
-                    .format();
-        }
+        return this.thesaurus.getFormat(new SimpleTranslationKey(this.translationKey, this.translationKey)).format();
     }
 
     String getDescriptionFor(String deviceMrid) {
-        return this.thesaurus.getFormat(new SimpleTranslationKey(this.descrTranslationKey, this.descrTranslationKey)).format(deviceMrid);
+        if (this.key.equals(this.translationKey)) {
+            return this.translationKey.concat(" on ").concat(deviceMrid);
+        } else {
+            return this.thesaurus.getFormat(new SimpleTranslationKey(this.descrTranslationKey, this.descrTranslationKey)).format(deviceMrid);
+        }
     }
 
     @Override
