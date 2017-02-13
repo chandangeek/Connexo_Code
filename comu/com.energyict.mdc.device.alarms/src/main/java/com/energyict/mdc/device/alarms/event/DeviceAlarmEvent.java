@@ -25,6 +25,7 @@ import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.impl.ModuleConstants;
 import com.energyict.mdc.device.alarms.impl.event.EventDescription;
 import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
+import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
@@ -64,6 +65,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
 
     private static final String ANY = "*";
     private static final String ALL_EVENT_TYPES = "*.*.*.*";
+    private static final String SEPARATOR = ":";
 
     public DeviceAlarmEvent(DeviceAlarmService deviceAlarmService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, Thesaurus thesaurus, TimeService timeService, Clock clock, Injector injector) {
         this.deviceAlarmService = deviceAlarmService;
@@ -119,19 +121,19 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         getEventTimestamp(rawEvent);
     }
 
-    public int computeOccurenceCount(int ruleId, String relativePeriodId, String raiseEventProps, String triggeringEndDeviceEventTypes, String clearingEndDeviceEventTypes, String deiceCodes) {
+    public int computeOccurenceCount(int ruleId, String relativePeriodId, String raiseEventProps, String triggeringEndDeviceEventTypes, String clearingEndDeviceEventTypes) {
         Optional<RelativePeriod> relativePeriod = timeService.findRelativePeriod(Long.parseLong(relativePeriodId));
         if (!relativePeriod.isPresent()) {
             return -1;
         }
 
-        List<String> inputTriggeringEventTypeList = parseCommaSeparatedStringToList(triggeringEndDeviceEventTypes);
+        List<String> inputTriggeringEventTypeList = getEndDeviceEventTypes(triggeringEndDeviceEventTypes);
         if (isAllEventTypesList(inputTriggeringEventTypeList)) {
             return getLoggedEvents(relativePeriod.get()).size();
         } else if (eventTypeMridContainedInListCount(inputTriggeringEventTypeList, Collections.singletonList(this.getEventTypeMrid())) == 0) {
             return -1;
         }
-        if (parseCommaSeparatedStringToList(clearingEndDeviceEventTypes).contains(this.getEventTypeMrid())) {
+        if (getEndDeviceEventTypes(clearingEndDeviceEventTypes).contains(this.getEventTypeMrid())) {
             if (raiseEventProps != null && !raiseEventProps.isEmpty() && Integer.parseInt(Arrays.asList(raiseEventProps.split("-")).get(0)) == 1 &&
                     // issueService.getIssueCreationService().findCreationRuleById(Long.parseLong(ruleId)).isPresent() &&
                     issueService.findOpenIssuesForDevice(getDevice().getName()).find().stream().filter(issue -> issue.getRule().getId() == ruleId).findAny().isPresent()) {
@@ -140,11 +142,20 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
                 return -1;
             }
         }
-        return getOccurenceCount(getLoggedEvents(relativePeriod.get()), parseCommaSeparatedStringToList(triggeringEndDeviceEventTypes), Arrays.asList(deiceCodes.split(",")));
+        return getOccurenceCount(getLoggedEvents(relativePeriod.get()), getEndDeviceEventTypes(triggeringEndDeviceEventTypes), getDeviceCodes(triggeringEndDeviceEventTypes));
     }
 
-    private List<String> parseCommaSeparatedStringToList(String endDeviceEventTypes) {
-        return Arrays.asList(endDeviceEventTypes.split(",")).stream().collect(Collectors.toList());
+
+    private List<String> parseCommaSeparatedStringToList(String rawInput) {
+        return Arrays.asList(rawInput.split(",")).stream().collect(Collectors.toList());
+    }
+
+    private List<String> getEndDeviceEventTypes(String endDeviceEventTypes) {
+        return parseCommaSeparatedStringToList(endDeviceEventTypes).stream().map(type -> type.substring(0,type.indexOf(SEPARATOR))).collect(Collectors.toList());
+    }
+
+    private List<String> getDeviceCodes(String endDeviceEventTypes) {
+        return parseCommaSeparatedStringToList(endDeviceEventTypes).stream().map(type -> type.substring(type.indexOf(SEPARATOR)+1)).filter(code -> !code.equals(ANY)).collect(Collectors.toList());
     }
 
     private List<EndDeviceEventRecord> getLoggedEvents(RelativePeriod relativePeriod) {
