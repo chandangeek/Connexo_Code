@@ -208,7 +208,7 @@ public class IssueDataValidationImpl implements IssueDataValidation {
 
     @Override
     public List<NotEstimatedBlock> getNotEstimatedBlocks() {
-        Optional<? extends IssueDataValidation> issue = null;
+        Optional<? extends IssueDataValidation> issue;
         if (getStatus().isHistorical()) {
             issue = issueDataValidationService.findHistoricalIssue(getId());
         } else {
@@ -229,6 +229,16 @@ public class IssueDataValidationImpl implements IssueDataValidation {
     @Override
     public void setPriority(Priority priority) {
         getBaseIssue().setPriority(priority);
+    }
+
+    @Override
+    public Instant getCreatedDateTime() {
+        return getBaseIssue().getCreatedDateTime();
+    }
+
+    @Override
+    public void setCreatedDateTime(Instant dateTime) {
+        getBaseIssue().setCreatedDateTime(dateTime);
     }
 
     @Override
