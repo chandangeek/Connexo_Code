@@ -19,7 +19,8 @@ public enum Privileges implements TranslationKey {
     VIEW_DATA_EXPORT_TASK(Constants.VIEW_DATA_EXPORT_TASK, "View"),
     UPDATE_DATA_EXPORT_TASK(Constants.UPDATE_DATA_EXPORT_TASK, "Update"),
     UPDATE_SCHEDULE_DATA_EXPORT_TASK(Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, "Update schedule"),
-    RUN_DATA_EXPORT_TASK(Constants.RUN_DATA_EXPORT_TASK, "Run");
+    RUN_DATA_EXPORT_TASK(Constants.RUN_DATA_EXPORT_TASK, "Run"),
+    VIEW_HISTORY(Constants.VIEW_HISTORY, "View history");
 
     private final String key;
     private final String description;
@@ -55,5 +56,6 @@ public enum Privileges implements TranslationKey {
         String UPDATE_DATA_EXPORT_TASK = "privilege.update.dataExportTask";
         String UPDATE_SCHEDULE_DATA_EXPORT_TASK = "privilege.update.schedule.dataExportTask";
         String RUN_DATA_EXPORT_TASK = "privilege.run.dataExportTask";
+        String VIEW_HISTORY = "privilege.view.export.history";
     }
 }

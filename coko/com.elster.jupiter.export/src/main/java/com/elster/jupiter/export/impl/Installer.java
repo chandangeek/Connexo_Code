@@ -96,7 +96,8 @@ class Installer implements FullInstaller, PrivilegesProvider {
                         Privileges.Constants.VIEW_DATA_EXPORT_TASK,
                         Privileges.Constants.UPDATE_DATA_EXPORT_TASK,
                         Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK,
-                        Privileges.Constants.RUN_DATA_EXPORT_TASK)));
+                        Privileges.Constants.RUN_DATA_EXPORT_TASK,
+                        Privileges.Constants.VIEW_HISTORY)));
         return resources;
     }
 

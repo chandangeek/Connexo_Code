@@ -58,7 +58,11 @@ public interface DataExportService {
 
     Optional<? extends DataExportOccurrence> findDataExportOccurrence(ExportTask task, Instant triggerTime);
 
+    Optional<DataExportOccurrence> findDataExportOccurrence(long occurrenceId);
+
     void setExportDirectory(AppServer appServer, Path path);
+
+    DataExportOccurrenceFinder getDataExportOccurrenceFinder();
 
     void removeExportDirectory(AppServer appServer);
 
