@@ -204,8 +204,10 @@ public class DataExportTaskHistoryInfoFactory {
     }
 
     private static Long calculateDuration(Instant startedOn, Instant finishedOn) {
-        if (startedOn == null || finishedOn == null) {
+        if (startedOn == null) {
             return null;
+        } else if (finishedOn == null) {
+            return Instant.now().minusMillis(startedOn.toEpochMilli()).toEpochMilli();
         }
         return finishedOn.toEpochMilli() - startedOn.toEpochMilli();
     }
