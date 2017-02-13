@@ -40,6 +40,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -117,6 +118,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -281,14 +283,38 @@ public class UsagePointResource {
         info.customPropertySets
                 .forEach(customPropertySetInfo -> {
                     UsagePointPropertySet propertySet = extension.getPropertySet(customPropertySetInfo.id);
+                    List<PropertySpec> propertySpecs = propertySet.getCustomPropertySet().getPropertySpecs();
                     CustomPropertySetValues newValues = customPropertySetInfoFactory
-                            .getCustomPropertySetValues(customPropertySetInfo, propertySet.getCustomPropertySet().getPropertySpecs());
-                    if (!propertySet.getValues().equals(newValues)) {
+                            .getCustomPropertySetValues(customPropertySetInfo, propertySpecs);
+                    if (!areEquivalent(newValues, propertySet.getValues(), propertySpecs)) {
+                        // TODO: equivalence logic can be better encapsulated in CustomPropertySetValues class,
+                        // by adding to its map all default values during construction: old constructors to be deprecated,
+                        // new ones to take a Collection of PropertySpec, looks feasible. Pls see CXO-5526.
                         propertySet.setValues(newValues);
                     }
                 });
 
         return usagePointInfoFactory.fullInfoFrom(usagePoint);
+    }
+
+    private static boolean areEquivalent(CustomPropertySetValues values1, CustomPropertySetValues values2, Collection<PropertySpec> specs) {
+        if (values1.equals(values2)) {
+            return true;
+        }
+        Map<String, PropertySpec> propertySpecMap = specs.stream()
+                .collect(Collectors.toMap(PropertySpec::getName, Function.identity()));
+        return containsOnlyDefaultValues(values1, propertySpecMap) && containsOnlyDefaultValues(values2, propertySpecMap);
+    }
+
+    private static boolean containsOnlyDefaultValues(CustomPropertySetValues values, Map<String, PropertySpec> propertySpecMap) {
+        return values.propertyNames().stream()
+                .allMatch(name -> Objects.equals(values.getProperty(name), getDefaultValue(propertySpecMap.get(name))));
+    }
+
+    private static Object getDefaultValue(PropertySpec spec) {
+        return Optional.ofNullable(spec.getPossibleValues())
+                .map(PropertySpecPossibleValues::getDefault)
+                .orElse(null);
     }
 
     @GET

@@ -365,7 +365,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         CustomPropertySetAttributeInfo attributeInfo = new CustomPropertySetAttributeInfo();
         attributeInfo.key = propertySpec.getName();
-        attributeInfo.propertyValueInfo = new PropertyValueInfo<>("Poor", "Fine", true);
+        attributeInfo.propertyValueInfo = new PropertyValueInfo<>("Poor", null, true);
         CustomPropertySetInfo casInfo = new CustomPropertySetInfo();
         casInfo.id = registeredCustomPropertySet.getId();
         casInfo.properties = Collections.singletonList(attributeInfo);
@@ -404,7 +404,50 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         CustomPropertySetAttributeInfo attributeInfo = new CustomPropertySetAttributeInfo();
         attributeInfo.key = propertySpec.getName();
-        attributeInfo.propertyValueInfo = new PropertyValueInfo<>("Poor", "Fine", true);
+        attributeInfo.propertyValueInfo = new PropertyValueInfo<>("Poor", null, true);
+        CustomPropertySetInfo casInfo = new CustomPropertySetInfo();
+        casInfo.id = registeredCustomPropertySet.getId();
+        casInfo.properties = Collections.singletonList(attributeInfo);
+        UsagePointInfo info = new UsagePointInfo();
+        info.id = 1L;
+        info.mRID = "upd";
+        info.name = "upd";
+        info.installationTime = Instant.EPOCH.toEpochMilli();
+        info.isSdp = true;
+        info.isVirtual = true;
+        info.readRoute = "upd";
+        info.serviceDeliveryRemark = "upd";
+        info.version = 1L;
+        info.techInfo = new ElectricityUsagePointDetailsInfo();
+        info.geoCoordinates = "";
+        info.location = "";
+        info.extendedGeoCoordinates = new CoordinatesInfo();
+        info.extendedLocation = new LocationInfo();
+        info.customPropertySets = Collections.singletonList(casInfo);
+
+        Response response = target("usagepoints/1").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(usagePoint).setName("upd");
+        verify(usagePoint, never()).setInstallationTime(any(Instant.class));
+        verify(usagePoint, never()).setSdp(anyBoolean());
+        verify(usagePoint, never()).setVirtual(anyBoolean());
+        verify(usagePoint).setReadRoute("upd");
+        verify(usagePoint).setServiceDeliveryRemark("upd");
+        verify(usagePoint).update();
+        verify(usagePoint).newElectricityDetailBuilder(any(Instant.class));
+        verify(usagePointPropertySet, never()).setValues(any(CustomPropertySetValues.class));
+    }
+
+    @Test
+    public void testUpdateUsagePointWithCustomPropertySetEquivalent() {
+        when(meteringService.findUsagePointById(1L)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findAndLockUsagePointByIdAndVersion(1L, 1L)).thenReturn(Optional.of(usagePoint));
+        when(customPropertySet.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
+        when(usagePointPropertySet.getValues()).thenReturn(CustomPropertySetValues.empty());
+
+        CustomPropertySetAttributeInfo attributeInfo = new CustomPropertySetAttributeInfo();
+        attributeInfo.key = propertySpec.getName();
+        attributeInfo.propertyValueInfo = new PropertyValueInfo<>(null, null, true);
         CustomPropertySetInfo casInfo = new CustomPropertySetInfo();
         casInfo.id = registeredCustomPropertySet.getId();
         casInfo.properties = Collections.singletonList(attributeInfo);
