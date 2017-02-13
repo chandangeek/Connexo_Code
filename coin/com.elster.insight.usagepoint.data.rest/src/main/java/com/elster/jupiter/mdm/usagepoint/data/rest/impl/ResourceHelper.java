@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -28,6 +29,7 @@ import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.rest.util.ConcurrentModificationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
@@ -136,7 +138,7 @@ public class ResourceHelper {
                 .withMessageTitle(MessageSeeds.USAGE_POINT_LINKED_EXCEPTION, name)
                 .build();
     }
-    
+
     public Optional<MetrologyPurpose> findMetrologyPurpose(long id) {
         return metrologyConfigurationService.findMetrologyPurpose(id);
     }
@@ -151,6 +153,11 @@ public class ResourceHelper {
                 .filter(contract -> contract.getId() == contractId)
                 .findAny()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYCONTRACT_IS_NOT_LINKED_TO_USAGEPOINT, contractId, effectiveMC.getUsagePoint().getName()));
+    }
+
+    public MetrologyContract findMetrologyContractOrThrowException(UsagePoint usagePoint, long contractId) {
+        return metrologyConfigurationService.findMetrologyContract(contractId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYCONTRACT_IS_NOT_LINKED_TO_USAGEPOINT, contractId, usagePoint.getName()));
     }
 
     public UsagePointTransition findUsagePointTransitionOrThrowException(long transitionId) {
@@ -263,5 +270,16 @@ public class ResourceHelper {
         return requirements.stream()
                 .filter(requirement -> !meterProvidedReadingTypes.stream().anyMatch(requirement::matches))
                 .collect(Collectors.toSet());
+    }
+
+    public IdWithNameInfo getApplicationInfo(QualityCodeSystem system) {
+        switch (system) {
+            case MDC:
+                return new IdWithNameInfo(system.name(), "MultiSense");
+            case MDM:
+                return new IdWithNameInfo(system.name(), "Insight");
+            default:
+                return new IdWithNameInfo(system.name(), system.name());
+        }
     }
 }

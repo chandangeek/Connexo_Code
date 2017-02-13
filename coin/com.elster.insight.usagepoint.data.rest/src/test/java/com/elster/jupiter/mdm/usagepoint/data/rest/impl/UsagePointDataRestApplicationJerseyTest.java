@@ -31,6 +31,7 @@ import com.elster.jupiter.mdm.usagepoint.data.favorites.FavoritesService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
@@ -150,6 +151,8 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     @Mock
     MessageService messageService;
     @Mock
+    MeteringTranslationService meteringTranslationService;
+    @Mock
     UsagePointLifeCycleService usagePointLifeCycleService;
     @Mock
     UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
@@ -203,6 +206,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setAppService(appService);
         application.setSearchService(searchService);
         application.setMessageService(messageService);
+        application.setMeteringTranslationService(meteringTranslationService);
         application.setUsagePointLifeCycleService(usagePointLifeCycleService);
         application.setUsagePointLifeCycleConfigurationService(usagePointLifeCycleConfigurationService);
         application.setPropertySpecService(propertySpecService);

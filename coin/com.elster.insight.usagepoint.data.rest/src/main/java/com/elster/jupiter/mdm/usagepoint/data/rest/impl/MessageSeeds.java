@@ -54,11 +54,12 @@ public enum MessageSeeds implements MessageSeed {
     NO_APPSERVER(49, "usagepoint.bulk.no.appserver.to.serve", "There is currently no active application server that can handle this request"),
     FLAG_AS_FAVORITE_CONFLICT_TITLE(50, "FlagAsFavoriteConflictTitle", "Failed to flag ''{0}'' as favorite"),
     REMOVE_FROM_FAVORITES_CONFLICT_TITLE(51, "RemoveFromFavoritesConflictTitle", "Failed to remove ''{0}'' from the favorites"),
-    INTERVAL_END_BEFORE_START(52, "intervalEndBeforeStart", "End time before start time"),
-    NO_SUCH_MESSAGE_QUEUE(53, "usagepoint.bulk.no.such.messagequeue", "Unable to queue command: no message queue was found"),
-    INVALID_ACTIVATION_TIME_OF_METER_ROLE(54, "usagepoint.meterrole.activation.must.be.greater.than.up.creation.date", "Meter role activation time must be greater or equal to Created date of usage point"),
-    MISSING_TRANSITION_REQUIREMENT(55, "missing.transition.requirements", "Pre-transition check failed: {0}"),
-    NO_USAGEPOINT_TRANSITION_WITH_ID(56, Keys.NO_TRANSITION_WITH_ID, "No usage point transition with id {0}");
+    NO_SUCH_MESSAGE_QUEUE(52, "usagepoint.bulk.no.such.messagequeue", "Unable to queue command: no message queue was found"),
+    INTERVAL_END_BEFORE_START(53, "intervalEndBeforeStart", "End time before start time"),
+    WRONG_ACTION_SPECIFIED(54, "wrongActionSpecified", "Unknown value for \"action\" is specified"),
+    INVALID_ACTIVATION_TIME_OF_METER_ROLE(55, "usagepoint.meterrole.activation.must.be.greater.than.up.creation.date", "Meter role activation time must be greater or equal to Created date of usage point"),
+    MISSING_TRANSITION_REQUIREMENT(56, "missing.transition.requirements", "Pre-transition check failed: {0}"),
+    NO_USAGEPOINT_TRANSITION_WITH_ID(57, Keys.NO_TRANSITION_WITH_ID, "No usage point transition with id {0}");
 
     private final int number;
     private final String key;

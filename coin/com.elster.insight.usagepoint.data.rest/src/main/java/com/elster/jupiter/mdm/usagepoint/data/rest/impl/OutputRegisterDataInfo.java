@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 
 @XmlRootElement
@@ -49,6 +50,8 @@ public abstract class OutputRegisterDataInfo {
     public Instant modificationDate;
 
     public IdWithNameInfo editedInApp;
+
+    public List<ReadingQualityInfo> readingQualities;
 
     public abstract BaseReading createNew(ReadingType readingType);
 }

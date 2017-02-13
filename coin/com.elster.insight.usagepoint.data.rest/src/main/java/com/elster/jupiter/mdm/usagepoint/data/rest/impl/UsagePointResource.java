@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -33,7 +32,6 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -69,14 +67,11 @@ import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfo;
 import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.TemporalAmountComparator;
-import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.rest.DataValidationTaskInfo;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
 
 import com.google.common.collect.Range;
@@ -141,7 +136,6 @@ public class UsagePointResource {
     private final RestQueryService queryService;
     private final TimeService timeService;
     private final MeteringService meteringService;
-    private final ValidationService validationService;
     private final Clock clock;
     private final CustomPropertySetService customPropertySetService;
     private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
@@ -174,7 +168,6 @@ public class UsagePointResource {
                               MeteringService meteringService,
                               TimeService timeService,
                               Clock clock,
-                              ValidationService validationService,
                               ServiceCallService serviceCallService,
                               ServiceCallInfoFactory serviceCallInfoFactory,
                               Provider<UsagePointCustomPropertySetResource> usagePointCustomPropertySetResourceProvider,
@@ -194,13 +187,13 @@ public class UsagePointResource {
                               Provider<GoingOnResource> goingOnResourceProvider,
                               Provider<UsagePointOutputResource> usagePointOutputResourceProvider,
                               ReadingTypeDeliverableFactory readingTypeDeliverableFactory,
-                              DataValidationTaskInfoFactory dataValidationTaskInfoFactory, TransactionService transactionService,
+                              DataValidationTaskInfoFactory dataValidationTaskInfoFactory,
+                              TransactionService transactionService,
                               UsagePointLifeCycleService usagePointLifeCycleService,
                               PropertyValueInfoService propertyValueInfoService) {
         this.queryService = queryService;
         this.timeService = timeService;
         this.meteringService = meteringService;
-        this.validationService = validationService;
         this.clock = clock;
         this.serviceCallService = serviceCallService;
         this.serviceCallInfoFactory = serviceCallInfoFactory;
@@ -743,8 +736,9 @@ public class UsagePointResource {
             if (!interval.isEmpty()) {
                 interval = UsagePointOutputResource.getUsagePointAdjustedDataRange(usagePoint, interval).orElse(Range.openClosed(now, now));
                 List<ChannelDataValidationSummaryInfo> result = usagePointDataCompletionService
-                        .getValidationSummary(effectiveMC, metrologyContract, interval).entrySet().stream()
+                        .getDataCompletionStatistics(effectiveMC, metrologyContract, interval).entrySet().stream()
                         .map(channelEntry -> validationSummaryInfoFactory.from(channelEntry.getKey(), channelEntry.getValue()))
+                        .sorted(Comparator.comparing(info -> info.name))
                         .collect(Collectors.toList());
                 return PagedInfoList.fromCompleteList("outputs", result, queryParameters);
             }
