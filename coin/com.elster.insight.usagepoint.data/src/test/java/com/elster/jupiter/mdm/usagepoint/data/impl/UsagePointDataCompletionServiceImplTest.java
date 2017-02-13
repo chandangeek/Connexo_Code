@@ -7,10 +7,13 @@ package com.elster.jupiter.mdm.usagepoint.data.impl;
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummary;
-import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummaryFlag;
+import com.elster.jupiter.mdm.usagepoint.data.ChannelDataCompletionSummaryFlag;
+import com.elster.jupiter.mdm.usagepoint.data.ChannelDataCompletionSummaryType;
+import com.elster.jupiter.mdm.usagepoint.data.ChannelDataModificationSummaryFlags;
+import com.elster.jupiter.mdm.usagepoint.data.IChannelDataCompletionSummary;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
+import com.elster.jupiter.mdm.usagepoint.data.ValidChannelDataSummaryFlags;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -25,11 +28,9 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationService;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
@@ -66,7 +67,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointDataCompletionServiceImplTest {
     private static final ZoneId PARIS = ZoneId.of("Europe/Paris");
-    private static final Instant FIRST_DATE = ZonedDateTime.of(2016, 7, 5, 12, 0, 0, 0, PARIS).toInstant();
+    private static final Instant FIRST_DATE = ZonedDateTime.of(2016, 7, 3, 12, 0, 0, 0, PARIS).toInstant();
+    private static final Instant INFORMATIVE_DATE = ZonedDateTime.of(2016, 7, 4, 12, 0, 0, 0, PARIS).toInstant();
+    private static final Instant CONFIRMED_DATE = ZonedDateTime.of(2016, 7, 5, 12, 0, 0, 0, PARIS).toInstant();
     private static final Instant EDITED_DATE = ZonedDateTime.of(2016, 7, 6, 12, 0, 0, 0, PARIS).toInstant();
     private static final Instant ESTIMATED_DATE = ZonedDateTime.of(2016, 7, 7, 12, 0, 0, 0, PARIS).toInstant();
     private static final Instant MISSING_DATE = ZonedDateTime.of(2016, 7, 8, 12, 0, 0, 0, PARIS).toInstant();
@@ -100,15 +103,15 @@ public class UsagePointDataCompletionServiceImplTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ReadingQualityWithTypeFetcher fetcher;
     @Mock
-    private ReadingQualityRecord error, suspect, missing, added, edited, removed, estimated;
+    private ReadingQualityRecord error, suspect, added, edited, removed, estimated, informative, confirmed;
 
     @Captor
     ArgumentCaptor<Range<Instant>> captor;
 
     private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     private UsagePointDataCompletionService usagePointDataCompletionService;
-    private ChannelDataValidationSummary summary;
-    private Map<ReadingTypeDeliverable, ChannelDataValidationSummary> summaries;
+    private IChannelDataCompletionSummary summary, editedSummary, validSummary;
+    private Map<ReadingTypeDeliverable, List<IChannelDataCompletionSummary>> summaries;
 
     @Before
     public void setUp() {
@@ -134,8 +137,6 @@ public class UsagePointDataCompletionServiceImplTest {
         when(error.getReadingTimestamp()).thenReturn(MISSING_DATE);
         when(suspect.getType()).thenReturn(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT));
         when(suspect.getReadingTimestamp()).thenReturn(SUSPECT_DATE);
-        when(missing.getType()).thenReturn(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.KNOWNMISSINGREAD));
-        when(missing.getReadingTimestamp()).thenReturn(MISSING_DATE);
         when(added.getType()).thenReturn(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ADDED));
         when(added.getReadingTimestamp()).thenReturn(LAST_CHECKED);
         when(edited.getType()).thenReturn(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.EDITGENERIC));
@@ -144,15 +145,19 @@ public class UsagePointDataCompletionServiceImplTest {
         when(removed.getReadingTimestamp()).thenReturn(REJECTED_DATE);
         when(estimated.getType()).thenReturn(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 42));
         when(estimated.getReadingTimestamp()).thenReturn(ESTIMATED_DATE);
+        when(informative.getType()).thenReturn(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 1001));
+        when(informative.getReadingTimestamp()).thenReturn(INFORMATIVE_DATE);
+        when(confirmed.getType()).thenReturn(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ACCEPTED));
+        when(confirmed.getReadingTimestamp()).thenReturn(CONFIRMED_DATE);
 
         when(fetcher.inTimeInterval(captor.capture())
                 .actual()
                 .ofQualitySystem(QualityCodeSystem.MDM)
-                .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.KNOWNMISSINGREAD, QualityCodeIndex.ERRORCODE))
+                .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.KNOWNMISSINGREAD, QualityCodeIndex.ERRORCODE, QualityCodeIndex.ACCEPTED))
                 .orOfAnotherTypeInSameSystems()
-                .ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.EDITED, QualityCodeCategory.ESTIMATED))
+                .ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.EDITED, QualityCodeCategory.ESTIMATED, QualityCodeCategory.VALIDATION))
                 .stream())
-                .thenAnswer(invocation -> Stream.of(error, suspect, missing, added, edited, removed, estimated)
+                .thenAnswer(invocation -> Stream.of(error, suspect, added, edited, removed, estimated, informative, confirmed)
                         .filter(record -> captor.getValue().contains(record.getReadingTimestamp())));
     }
 
@@ -163,7 +168,7 @@ public class UsagePointDataCompletionServiceImplTest {
     @Test
     public void testGetValidationSummaryForPeriodWithoutData() {
         Range<Instant> interval = Range.openClosed(NOW, NOW.plusNanos(1));
-        summary = usagePointDataCompletionService.getValidationSummary(channel, interval);
+        summary = usagePointDataCompletionService.getDataCompletionStatistics(channel, interval).get(0);
         assertThat(summary.getValues()).isEmpty();
         assertThat(summary.getSum()).isZero();
         assertThat(summary.getTargetInterval()).isEqualTo(interval);
@@ -172,78 +177,35 @@ public class UsagePointDataCompletionServiceImplTest {
     @Test
     public void testGetValidationSummaryForFuturePeriod() {
         Range<Instant> interval = Range.openClosed(NOW, FUTURE_DATE);
-        summaries = usagePointDataCompletionService.getValidationSummary(effectiveMetrologyConfiguration, metrologyContract, interval);
+        summaries = usagePointDataCompletionService.getDataCompletionStatistics(effectiveMetrologyConfiguration, metrologyContract, interval);
         assertThat(summaries.keySet()).containsExactly(deliverable1, deliverable2);
         assertThat(summaries.values().stream()
-                .peek(summary -> assertThat(summary.getValues()).containsExactly(MapEntry.entry(ChannelDataValidationSummaryFlag.NOT_VALIDATED, 1)))
-                .peek(summary -> assertThat(summary.getSum()).isEqualTo(1))
-                .peek(summary -> assertThat(summary.getTargetInterval()).isEqualTo(interval))
+                .peek(summary -> assertThat(summary.get(0).getValues()).containsExactly(MapEntry.entry(ChannelDataCompletionSummaryFlag.NOT_VALIDATED, 1)))
+                .peek(summary -> assertThat(summary.get(0).getSum()).isEqualTo(1))
+                .peek(summary -> assertThat(summary.get(0).getTargetInterval()).isEqualTo(interval))
                 .count()).isEqualTo(2);
     }
 
     @Test
     public void testGetValidationSummaryForUnvalidatedPeriod() {
         Range<Instant> interval = Range.openClosed(LAST_CHECKED, FUTURE_DATE);
-        summaries = usagePointDataCompletionService.getValidationSummary(effectiveMetrologyConfiguration, metrologyContract, interval);
+        summaries = usagePointDataCompletionService.getDataCompletionStatistics(effectiveMetrologyConfiguration, metrologyContract, interval);
         assertThat(summaries.keySet()).containsExactly(deliverable1, deliverable2);
         assertThat(summaries.values().stream()
-                .peek(summary -> assertThat(summary.getValues()).containsExactly(MapEntry.entry(ChannelDataValidationSummaryFlag.NOT_VALIDATED, 3)))
-                .peek(summary -> assertThat(summary.getSum()).isEqualTo(3))
-                .peek(summary -> assertThat(summary.getTargetInterval()).isEqualTo(interval))
-                .count()).isEqualTo(2);
-    }
-
-    @Test
-    public void testGetValidationSummaryForPeriodStartingBeforeChannelsContainerStart() {
-        Range<Instant> actualRange = Range.openClosed(FIRST_DATE, NOW);
-        when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.atLeast(FIRST_DATE)));
-        summaries = usagePointDataCompletionService.getValidationSummary(effectiveMetrologyConfiguration, metrologyContract, NOMINAL_RANGE);
-        assertThat(summaries.keySet()).containsExactly(deliverable1, deliverable2);
-        assertThat(summaries.values().stream()
-                .peek(summary -> assertThat(summary.getValues()).containsExactly(
-                        MapEntry.entry(ChannelDataValidationSummaryFlag.MISSING, 1),
-                        MapEntry.entry(ChannelDataValidationSummaryFlag.SUSPECT, 1),
-                        MapEntry.entry(ChannelDataValidationSummaryFlag.ESTIMATED, 1),
-                        MapEntry.entry(ChannelDataValidationSummaryFlag.EDITED, 3),
-                        MapEntry.entry(ChannelDataValidationSummaryFlag.NOT_VALIDATED, 2)
-                ))
-                .peek(summary -> assertThat(summary.getSum()).isEqualTo(8))
-                .peek(summary -> assertThat(summary.getTargetInterval()).isEqualTo(actualRange))
-                .count()).isEqualTo(2);
-    }
-
-    @Test
-    public void testGetValidationSummaryForPeriodEndingBeforeChannelsContainerStart() {
-        when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.atLeast(NOW)));
-        summaries = usagePointDataCompletionService.getValidationSummary(effectiveMetrologyConfiguration, metrologyContract, NOMINAL_RANGE);
-        assertThat(summaries.keySet()).containsExactly(deliverable1, deliverable2);
-        assertThat(summaries.values().stream()
-                .peek(summary -> assertThat(summary.getValues()).isEmpty())
-                .peek(summary -> assertThat(summary.getSum()).isZero())
-                .peek(summary -> assertThat(summary.getTargetInterval()).isEqualTo(NOMINAL_RANGE))
+                .peek(summary -> assertThat(summary.get(0).getValues()).containsExactly(MapEntry.entry(ChannelDataCompletionSummaryFlag.NOT_VALIDATED, 3)))
+                .peek(summary -> assertThat(summary.get(0).getSum()).isEqualTo(3))
+                .peek(summary -> assertThat(summary.get(0).getTargetInterval()).isEqualTo(interval))
                 .count()).isEqualTo(2);
     }
 
     @Test
     public void testGetValidationSummaryForEmptyPeriod() {
-        summaries = usagePointDataCompletionService.getValidationSummary(effectiveMetrologyConfiguration, metrologyContract, Range.openClosed(NOW, NOW));
+        summaries = usagePointDataCompletionService.getDataCompletionStatistics(effectiveMetrologyConfiguration, metrologyContract, Range.openClosed(NOW, NOW));
         assertThat(summaries.keySet()).containsExactly(deliverable1, deliverable2);
         assertThat(summaries.values().stream()
-                .peek(summary -> assertThat(summary.getValues()).isEmpty())
-                .peek(summary -> assertThat(summary.getSum()).isZero())
-                .peek(summary -> assertThat(summary.getTargetInterval()).isEqualTo(Range.openClosed(NOW, NOW)))
-                .count()).isEqualTo(2);
-    }
-
-    @Test
-    public void testGetValidationSummaryForPeriodStartingBeforeChannelsContainerEnd() {
-        when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.closedOpen(FIRST_DATE.minusSeconds(1), FIRST_DATE.minusNanos(1))));
-        summaries = usagePointDataCompletionService.getValidationSummary(effectiveMetrologyConfiguration, metrologyContract, NOMINAL_RANGE);
-        assertThat(summaries.keySet()).containsExactly(deliverable1, deliverable2);
-        assertThat(summaries.values().stream()
-                .peek(summary -> assertThat(summary.getValues()).isEmpty())
-                .peek(summary -> assertThat(summary.getSum()).isZero())
-                .peek(summary -> assertThat(summary.getTargetInterval()).isEqualTo(NOMINAL_RANGE))
+                .peek(summary -> assertThat(summary.get(0).getValues()).isEmpty())
+                .peek(summary -> assertThat(summary.get(0).getSum()).isZero())
+                .peek(summary -> assertThat(summary.get(0).getTargetInterval()).isEqualTo(Range.openClosed(NOW, NOW)))
                 .count()).isEqualTo(2);
     }
 
@@ -252,7 +214,7 @@ public class UsagePointDataCompletionServiceImplTest {
         when(effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)).thenReturn(Optional.empty());
         expectedException.expect(LocalizedException.class);
         expectedException.expectMessage(equalTo("Metrology contract with id 777 is not found on usage point Mrmrmrrr."));
-        usagePointDataCompletionService.getValidationSummary(effectiveMetrologyConfiguration, metrologyContract, NOMINAL_RANGE);
+        usagePointDataCompletionService.getDataCompletionStatistics(effectiveMetrologyConfiguration, metrologyContract, NOMINAL_RANGE);
     }
 
     @Test
@@ -260,56 +222,63 @@ public class UsagePointDataCompletionServiceImplTest {
         when(metrologyContract.getDeliverables()).thenReturn(Arrays.asList(deliverable1, deliverable1));
         expectedException.expect(LocalizedException.class);
         expectedException.expectMessage(equalTo("Same reading type deliverable appear several times on metrology contract with id 777."));
-        usagePointDataCompletionService.getValidationSummary(effectiveMetrologyConfiguration, metrologyContract, NOMINAL_RANGE);
+        usagePointDataCompletionService.getDataCompletionStatistics(effectiveMetrologyConfiguration, metrologyContract, NOMINAL_RANGE);
     }
 
     @Test
     public void testGetValidationSummaryNominalCase() {
-        summary = usagePointDataCompletionService.getValidationSummary(channel, NOMINAL_RANGE);
-        assertThat(summary.getValues()).containsExactly(
-                MapEntry.entry(ChannelDataValidationSummaryFlag.MISSING, 1),
-                MapEntry.entry(ChannelDataValidationSummaryFlag.SUSPECT, 1),
-                MapEntry.entry(ChannelDataValidationSummaryFlag.ESTIMATED, 1),
-                MapEntry.entry(ChannelDataValidationSummaryFlag.EDITED, 3),
-                MapEntry.entry(ChannelDataValidationSummaryFlag.VALID, 1),
-                MapEntry.entry(ChannelDataValidationSummaryFlag.NOT_VALIDATED, 2));
-        assertThat(summary.getSum()).isEqualTo(9);
+        summary = usagePointDataCompletionService.getDataCompletionStatistics(channel, NOMINAL_RANGE).stream().filter(sum -> sum.getType() == ChannelDataCompletionSummaryType.GENERAL).findFirst().get();
+        editedSummary = usagePointDataCompletionService.getDataCompletionStatistics(channel, NOMINAL_RANGE).stream().filter(sum -> sum.getType() == ChannelDataCompletionSummaryType.EDITED).findFirst().get();
+        validSummary = usagePointDataCompletionService.getDataCompletionStatistics(channel, NOMINAL_RANGE).stream().filter(sum -> sum.getType() == ChannelDataCompletionSummaryType.VALID).findFirst().get();
+        assertThat(summary.getValues()).contains(
+                MapEntry.entry(ChannelDataCompletionSummaryFlag.SUSPECT, 2),
+                MapEntry.entry(ChannelDataCompletionSummaryFlag.NOT_VALIDATED, 2),
+                MapEntry.entry(ChannelDataCompletionSummaryFlag.VALID, 7));
+        assertThat(editedSummary.getValues()).contains(
+                MapEntry.entry(ChannelDataModificationSummaryFlags.EDITED, 1),
+                MapEntry.entry(ChannelDataModificationSummaryFlags.ADDED, 1),
+                MapEntry.entry(ChannelDataModificationSummaryFlags.REMOVED, 1));
+        assertThat(validSummary.getValues()).contains(
+                MapEntry.entry(ValidChannelDataSummaryFlags.VALID, 4),
+                MapEntry.entry(ValidChannelDataSummaryFlags.CONFIRMED, 1),
+                MapEntry.entry(ValidChannelDataSummaryFlags.INFORMATIVE, 1),
+                MapEntry.entry(ValidChannelDataSummaryFlags.ESTIMATED, 1));
         assertThat(summary.getTargetInterval()).isEqualTo(NOMINAL_RANGE);
+        assertThat(summary.getSum()).isEqualTo(11);
+        assertThat(editedSummary.getSum()).isEqualTo(3);
+        assertThat(validSummary.getSum()).isEqualTo(7);
+        assertThat(summary.getType()).isEqualTo(ChannelDataCompletionSummaryType.GENERAL);
+        assertThat(editedSummary.getType()).isEqualTo(ChannelDataCompletionSummaryType.EDITED);
+        assertThat(validSummary.getType()).isEqualTo(ChannelDataCompletionSummaryType.VALID);
     }
 
     @Test
     public void testGetValidationSummaryForInfiniteRange() {
-        summary = usagePointDataCompletionService.getValidationSummary(channel, Range.all());
-        assertThat(summary.getValues()).containsExactly(
-                MapEntry.entry(ChannelDataValidationSummaryFlag.MISSING, 1),
-                MapEntry.entry(ChannelDataValidationSummaryFlag.SUSPECT, 1),
-                MapEntry.entry(ChannelDataValidationSummaryFlag.ESTIMATED, 1),
-                MapEntry.entry(ChannelDataValidationSummaryFlag.EDITED, 3),
-                MapEntry.entry(ChannelDataValidationSummaryFlag.VALID, 1),
-                MapEntry.entry(ChannelDataValidationSummaryFlag.NOT_VALIDATED, 3));
-        assertThat(summary.getSum()).isEqualTo(10);
+        summary = usagePointDataCompletionService.getDataCompletionStatistics(channel, Range.all()).get(0);
+        assertThat(summary.getValues()).contains(
+                MapEntry.entry(ChannelDataCompletionSummaryFlag.SUSPECT, 2),
+                MapEntry.entry(ChannelDataCompletionSummaryFlag.NOT_VALIDATED, 3),
+                MapEntry.entry(ChannelDataCompletionSummaryFlag.VALID, 7));
+        assertThat(summary.getSum()).isEqualTo(12);
         assertThat(summary.getTargetInterval()).isEqualTo(Range.all());
     }
 
     @Test
     public void testGetValidationSummaryForDifferentNumberOfDeliverables() {
         when(metrologyContract.getDeliverables()).thenReturn(Collections.emptyList());
-        summaries = usagePointDataCompletionService.getValidationSummary(effectiveMetrologyConfiguration, metrologyContract, NOMINAL_RANGE);
+        summaries = usagePointDataCompletionService.getDataCompletionStatistics(effectiveMetrologyConfiguration, metrologyContract, NOMINAL_RANGE);
         assertThat(summaries).isEmpty();
         when(metrologyContract.getDeliverables()).thenReturn(Collections.singletonList(deliverable2));
-        summaries = usagePointDataCompletionService.getValidationSummary(effectiveMetrologyConfiguration, metrologyContract, NOMINAL_RANGE);
+        summaries = usagePointDataCompletionService.getDataCompletionStatistics(effectiveMetrologyConfiguration, metrologyContract, NOMINAL_RANGE);
         assertThat(summaries.keySet()).containsExactly(deliverable2);
         assertThat(summaries.values().stream()
-                .peek(summary -> assertThat(summary.getValues()).containsExactly(
-                        MapEntry.entry(ChannelDataValidationSummaryFlag.MISSING, 1),
-                        MapEntry.entry(ChannelDataValidationSummaryFlag.SUSPECT, 1),
-                        MapEntry.entry(ChannelDataValidationSummaryFlag.ESTIMATED, 1),
-                        MapEntry.entry(ChannelDataValidationSummaryFlag.EDITED, 3),
-                        MapEntry.entry(ChannelDataValidationSummaryFlag.VALID, 1),
-                        MapEntry.entry(ChannelDataValidationSummaryFlag.NOT_VALIDATED, 2)
+                .peek(summary -> assertThat(summary.get(0).getValues()).contains(
+                        MapEntry.entry(ChannelDataCompletionSummaryFlag.SUSPECT, 2),
+                        MapEntry.entry(ChannelDataCompletionSummaryFlag.NOT_VALIDATED, 2),
+                        MapEntry.entry(ChannelDataCompletionSummaryFlag.VALID, 7)
                 ))
-                .peek(summary -> assertThat(summary.getSum()).isEqualTo(9))
-                .peek(summary -> assertThat(summary.getTargetInterval()).isEqualTo(NOMINAL_RANGE))
+                .peek(summary -> assertThat(summary.get(0).getSum()).isEqualTo(11))
+                .peek(summary -> assertThat(summary.get(0).getTargetInterval()).isEqualTo(NOMINAL_RANGE))
                 .count()).isEqualTo(1);
         when(metrologyContract.getDeliverables()).thenReturn(Arrays.asList(deliverable2, deliverable1));
         ReadingType readingType2 = mock(ReadingType.class);
@@ -330,72 +299,30 @@ public class UsagePointDataCompletionServiceImplTest {
         when(channel2.toList(any())).thenReturn(Arrays.asList(MISSING_DATE, REJECTED_DATE, LAST_CHECKED, UNCHECKED_DATE, NOW));
         when(validationService.getLastChecked(channel2)).thenReturn(Optional.of(UNCHECKED_DATE));
         Range<Instant> interval = Range.openClosed(FIRST_DATE, NOW);
-        summaries = usagePointDataCompletionService.getValidationSummary(effectiveMetrologyConfiguration, metrologyContract, interval);
+        summaries = usagePointDataCompletionService.getDataCompletionStatistics(effectiveMetrologyConfiguration, metrologyContract, interval);
         assertThat(summaries.keySet()).containsExactly(deliverable2, deliverable1);
-        summary = summaries.get(deliverable1);
-        assertThat(summary.getValues()).containsExactly(
-                MapEntry.entry(ChannelDataValidationSummaryFlag.MISSING, 1),
-                MapEntry.entry(ChannelDataValidationSummaryFlag.SUSPECT, 1),
-                MapEntry.entry(ChannelDataValidationSummaryFlag.ESTIMATED, 1),
-                MapEntry.entry(ChannelDataValidationSummaryFlag.EDITED, 3),
-                MapEntry.entry(ChannelDataValidationSummaryFlag.NOT_VALIDATED, 2));
-        assertThat(summary.getSum()).isEqualTo(8);
+        summary = summaries.get(deliverable1).get(0);
+        assertThat(summary.getValues()).contains(
+                MapEntry.entry(ChannelDataCompletionSummaryFlag.SUSPECT, 2),
+                MapEntry.entry(ChannelDataCompletionSummaryFlag.NOT_VALIDATED, 2),
+                MapEntry.entry(ChannelDataCompletionSummaryFlag.VALID, 6));
+        assertThat(summary.getSum()).isEqualTo(10);
         assertThat(summary.getTargetInterval()).isEqualTo(interval);
-        summary = summaries.get(deliverable2);
-        assertThat(summary.getValues()).containsExactly(
-                MapEntry.entry(ChannelDataValidationSummaryFlag.VALID, 4),
-                MapEntry.entry(ChannelDataValidationSummaryFlag.NOT_VALIDATED, 1));
+        summary = summaries.get(deliverable2).get(0);
+        assertThat(summary.getValues()).contains(
+                MapEntry.entry(ChannelDataCompletionSummaryFlag.NOT_VALIDATED, 1),
+                MapEntry.entry(ChannelDataCompletionSummaryFlag.VALID, 4));
         assertThat(summary.getSum()).isEqualTo(5);
         assertThat(summary.getTargetInterval()).isEqualTo(interval);
     }
 
     @Test
-    public void testGetValidationSummaryFlagPrecedence() {
-        Range<Instant> oneTimestampRange = Range.singleton(MISSING_DATE);
-        when(suspect.getReadingTimestamp()).thenReturn(MISSING_DATE);
-        when(added.getReadingTimestamp()).thenReturn(MISSING_DATE);
-        when(edited.getReadingTimestamp()).thenReturn(MISSING_DATE);
-        when(removed.getReadingTimestamp()).thenReturn(MISSING_DATE);
-        when(estimated.getReadingTimestamp()).thenReturn(MISSING_DATE);
-        List<Pair<ChannelDataValidationSummaryFlag, ReadingQualityRecord>> expectedMapping = ImmutableList.of(
-                Pair.of(ChannelDataValidationSummaryFlag.MISSING, missing), // check that flag is missing, remove missing
-                Pair.of(ChannelDataValidationSummaryFlag.SUSPECT, suspect), // etc.
-                Pair.of(ChannelDataValidationSummaryFlag.SUSPECT, error),
-                Pair.of(ChannelDataValidationSummaryFlag.ESTIMATED, estimated),
-                Pair.of(ChannelDataValidationSummaryFlag.EDITED, edited),
-                Pair.of(ChannelDataValidationSummaryFlag.EDITED, added),
-                Pair.of(ChannelDataValidationSummaryFlag.EDITED, removed)
-        );
-        expectedMapping.forEach(pair -> {
-            summary = usagePointDataCompletionService.getValidationSummary(channel, oneTimestampRange);
-            assertThat(summary.getValues()).containsExactly(
-                    MapEntry.entry(pair.getFirst(), 1));
-            assertThat(summary.getSum()).isEqualTo(1);
-            assertThat(summary.getTargetInterval()).isEqualTo(oneTimestampRange);
-            ReadingQualityRecord mock = pair.getLast();
-            when(mock.getReadingTimestamp()).thenReturn(FIRST_DATE);
-        });
-        // now no qualities, no readings
-        summary = usagePointDataCompletionService.getValidationSummary(channel, oneTimestampRange);
-        assertThat(summary.getValues()).isEmpty();
-        assertThat(summary.getSum()).isEqualTo(0);
-        assertThat(summary.getTargetInterval()).isEqualTo(oneTimestampRange);
-        // but if we add reading...
-        when(channel.toList(oneTimestampRange)).thenReturn(Collections.singletonList(MISSING_DATE));
-        summary = usagePointDataCompletionService.getValidationSummary(channel, oneTimestampRange);
-        assertThat(summary.getValues()).containsExactly(
-                MapEntry.entry(ChannelDataValidationSummaryFlag.VALID, 1));
-        assertThat(summary.getSum()).isEqualTo(1);
-        assertThat(summary.getTargetInterval()).isEqualTo(oneTimestampRange);
-    }
-
-    @Test
     public void testGetValidationSummaryNoLastChecked() {
         when(validationService.getLastChecked(channel)).thenReturn(Optional.empty());
-        summary = usagePointDataCompletionService.getValidationSummary(channel, NOMINAL_RANGE);
-        assertThat(summary.getValues()).containsExactly(
-                MapEntry.entry(ChannelDataValidationSummaryFlag.NOT_VALIDATED, 7));
-        assertThat(summary.getSum()).isEqualTo(7);
+        summary = usagePointDataCompletionService.getDataCompletionStatistics(channel, NOMINAL_RANGE).get(0);
+        assertThat(summary.getValues()).contains(
+                MapEntry.entry(ChannelDataCompletionSummaryFlag.NOT_VALIDATED, 11));
+        assertThat(summary.getSum()).isEqualTo(11);
         assertThat(summary.getTargetInterval()).isEqualTo(NOMINAL_RANGE);
     }
 
@@ -411,15 +338,12 @@ public class UsagePointDataCompletionServiceImplTest {
                 })
                 .collect(Collectors.toList());
         when(channel.getReadings(NOMINAL_RANGE)).thenReturn(readings);
-        summary = usagePointDataCompletionService.getValidationSummary(channel, NOMINAL_RANGE);
-        assertThat(summary.getValues()).containsExactly(
-                MapEntry.entry(ChannelDataValidationSummaryFlag.MISSING, 1),
-                MapEntry.entry(ChannelDataValidationSummaryFlag.SUSPECT, 1),
-                MapEntry.entry(ChannelDataValidationSummaryFlag.ESTIMATED, 1),
-                MapEntry.entry(ChannelDataValidationSummaryFlag.EDITED, 3),
-                MapEntry.entry(ChannelDataValidationSummaryFlag.VALID, 1),
-                MapEntry.entry(ChannelDataValidationSummaryFlag.NOT_VALIDATED, 2));
-        assertThat(summary.getSum()).isEqualTo(9);
+        summary = usagePointDataCompletionService.getDataCompletionStatistics(channel, NOMINAL_RANGE).get(0);
+        assertThat(summary.getValues()).contains(
+                MapEntry.entry(ChannelDataCompletionSummaryFlag.SUSPECT, 2),
+                MapEntry.entry(ChannelDataCompletionSummaryFlag.VALID, 7),
+                MapEntry.entry(ChannelDataCompletionSummaryFlag.NOT_VALIDATED, 2));
+        assertThat(summary.getSum()).isEqualTo(11);
         assertThat(summary.getTargetInterval()).isEqualTo(NOMINAL_RANGE);
     }
 
