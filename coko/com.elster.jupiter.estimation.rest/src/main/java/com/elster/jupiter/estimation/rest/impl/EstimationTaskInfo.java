@@ -13,6 +13,7 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.logging.Level;
 
 public class EstimationTaskInfo {
 
@@ -29,7 +30,7 @@ public class EstimationTaskInfo {
     public long version;
     public String application;
     public String recurrence;
-    public int logLevel;
+    public int logLevel = Level.WARNING.intValue();
 
     public EstimationTaskInfo() {
     }
