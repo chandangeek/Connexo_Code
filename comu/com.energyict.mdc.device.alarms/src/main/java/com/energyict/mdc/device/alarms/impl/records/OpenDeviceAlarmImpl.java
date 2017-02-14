@@ -62,7 +62,7 @@ public final class OpenDeviceAlarmImpl extends DeviceAlarmImpl implements OpenDe
 
 
     @Override
-    public List<DeviceAlarmRelatedEvent> getDeviceAlarmRelatedEvents(){
+    public List<DeviceAlarmRelatedEvent> getDeviceAlarmRelatedEvents() {
         return Collections.unmodifiableList(deviceAlarmRelatedEvents);
     }
 
@@ -83,20 +83,19 @@ public final class OpenDeviceAlarmImpl extends DeviceAlarmImpl implements OpenDe
         MeteringService meteringService = getDataModel().getInstance(MeteringService.class);
         Optional<EndDeviceEventType> eventType = meteringService.getEndDeviceEventType(endDeviceEventType);
         if (getDevice().getId() == endDeviceId && eventType.isPresent()) {
-            /*if (!eventType.isPresent()) {
-                eventType = Optional.of(meteringService.createEndDeviceEventType(endDeviceEventType));
-            }*/
             List<EndDeviceEventRecord> events = getDevice().getDeviceEvents(Range.closedOpen(eventTimestamp, eventTimestamp.plusMillis(1)), Collections.singletonList(eventType
                     .get()));
             // Beautify
             if (events.size() == 1) {
                 event.init(this, events.get(0));
                 deviceAlarmRelatedEvents.add(event);
-                if(event.getEventRecord().getCreatedDateTime().isBefore(this.getCreateDateTime())){
-                    this.setCreateDateTime(event.getEventRecord().getCreatedDateTime());
+                if (eventTimestamp.isBefore(this.getCreateDateTime())) {
+                    this.setCreateDateTime(eventTimestamp);
                 }
             } else {
-                throw new LocalizedFieldValidationException(MessageSeeds.INCORRECT_NUMBER_OF_CONCURRENT_PROCESSED_EVENTS, events.stream().map(record -> record.getEndDevice().getId() + ":" + record.getEventTypeCode() + ":" + record.getCreatedDateTime()).collect(Collectors.joining(",")));
+                throw new LocalizedFieldValidationException(MessageSeeds.INCORRECT_NUMBER_OF_CONCURRENT_PROCESSED_EVENTS, events.stream()
+                        .map(record -> record.getEndDevice().getId() + ":" + record.getEventTypeCode() + ":" + record.getCreatedDateTime())
+                        .collect(Collectors.joining(",")));
             }
         }
 
