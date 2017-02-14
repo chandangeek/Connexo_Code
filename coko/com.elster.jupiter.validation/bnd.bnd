@@ -1,10 +1,11 @@
 -classpath: target/classes 
 -dsannotations: *
 Import-Package: !net.jcip.annotations,\
-	*
-Private-Package: com.elster.jupiter.validation.impl.*
+    *
+Private-Package: \
+    com.elster.jupiter.validation.impl.*
 
-Export-Package:  \
-	com.elster.jupiter.validation,\
-	com.elster.jupiter.validation.security,\
-	com.elster.jupiter.validation.kpi
+Export-Package: \
+    com.elster.jupiter.validation,\
+    com.elster.jupiter.validation.security,\
+    com.elster.jupiter.validation.kpi

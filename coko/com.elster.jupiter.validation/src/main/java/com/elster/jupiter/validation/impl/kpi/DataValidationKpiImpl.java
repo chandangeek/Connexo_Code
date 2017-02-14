@@ -4,7 +4,9 @@
 
 package com.elster.jupiter.validation.impl.kpi;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.kpi.KpiBuilder;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -25,6 +27,7 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.ScheduleExpression;
+import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.MessageSeeds;
 import com.elster.jupiter.validation.kpi.DataValidationKpi;
 
@@ -72,6 +75,8 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     private final MeteringService meteringService;
     private final Thesaurus thesaurus;
     private final Clock clock;
+    private final ValidationService validationService;
+    private final EstimationService estimationService;
 
     @SuppressWarnings("unused") // Managed by ORM
     private long id;
@@ -93,7 +98,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     private RecurrentTaskSaveStrategy recurrentTaskSaveStrategy = new CreateRecurrentTask(dataValidationKpiTask, KpiType.VALIDATION);
 
     @Inject
-    public DataValidationKpiImpl(DataModel dataModel, TaskService taskService, MessageService messageService, KpiService kpiService, MeteringService meteringService, Thesaurus thesaurus, Clock clock) {
+    public DataValidationKpiImpl(DataModel dataModel, TaskService taskService, MessageService messageService, KpiService kpiService, MeteringService meteringService, Thesaurus thesaurus, Clock clock, ValidationService validationService, EstimationService estimationService) {
         super();
         this.dataModel = dataModel;
         this.taskService = taskService;
@@ -102,6 +107,8 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         this.meteringService = meteringService;
         this.thesaurus = thesaurus;
         this.clock = clock;
+        this.validationService = validationService;
+        this.estimationService = estimationService;
     }
 
     DataValidationKpiImpl initialize(EndDeviceGroup group) {
@@ -131,12 +138,23 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         KpiBuilder builder = kpiService.newKpi();
         builder.interval(frequency);
         builder.timeZone(((Meter) endDevice).getZoneId());
-        Stream.of(DataQualityKpiMemberTypes.values())
-                .map(DataQualityKpiMemberTypes::fieldName)
+
+        Stream<DataQualityKpiMemberType> fixedMembers = Stream.of(FixedDataQualityKpiMemberType.values())
+                .map(DataQualityKpiMemberType.class::cast);
+        Stream<DataQualityKpiMemberType> validators = validationService.getAvailableValidators(QualityCodeSystem.MDC).stream()
+                .map(Object::getClass)
+                .map(Class::getSimpleName)
+                .map(NamedDataQualityKpiMemberType::new);
+        Stream<DataQualityKpiMemberType> estimators = estimationService.getAvailableEstimators(QualityCodeSystem.MDC).stream()
+                .map(Object::getClass)
+                .map(Class::getSimpleName)
+                .map(NamedDataQualityKpiMemberType::new);
+
+        Stream.of(fixedMembers, estimators, validators)
+                .flatMap(Function.identity())
+                .map(DataQualityKpiMemberType::getName)
                 .forEach(member ->
-                        builder.member()
-                                .named(member + endDevice.getId())
-                                .add()
+                        builder.member().named(member.toUpperCase() + "_" + endDevice.getId()).add()
                 );
         DataValidationKpiChildImpl dataValidationKpiChild = DataValidationKpiChildImpl.from(dataModel, this, builder.create());
         childrenKpis.add(dataValidationKpiChild);

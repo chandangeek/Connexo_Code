@@ -5,10 +5,11 @@
 package com.elster.jupiter.validation.impl.kpi;
 
 import com.elster.jupiter.cbo.QualityCodeCategory;
-import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationRule;
+import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.kpi.KpiMember;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -25,7 +26,7 @@ import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.impl.IValidationRule;
+import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.impl.kpi.DeviceDataQualityKpiSqlBuilder.ResultSetColumn;
 
 import com.google.common.collect.Range;
@@ -35,6 +36,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -42,6 +44,7 @@ import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -51,6 +54,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
 public class DeviceDataQualityKpiCalculator implements DataQualityKpiCalculator {
@@ -65,6 +69,9 @@ public class DeviceDataQualityKpiCalculator implements DataQualityKpiCalculator 
 
     private Map<ReadingQualityType, ValidationRule> qualitiesToValidationRules;
     private Map<ReadingQualityType, EstimationRule> qualitiesToEstimationRules;
+    private List<Validator> validators;
+    private List<Estimator> estimators;
+
     private ZonedDateTime end;
     private ZonedDateTime start;
     private Map<Key, LongCounter> counterMap;
@@ -115,6 +122,8 @@ public class DeviceDataQualityKpiCalculator implements DataQualityKpiCalculator 
         }
         qualitiesToValidationRules = mapQualitiesToValidationRules();
         qualitiesToEstimationRules = mapQualitiesToEstimationRules();
+        validators = validationService.getAvailableValidators(QualityCodeSystem.MDC);
+        estimators = estimationService.getAvailableEstimators(QualityCodeSystem.MDC);
         end = now().with(LocalTime.MIDNIGHT).plusDays(1);
         start = end.minusMonths(1);
         counterMap = calculateFromQuery(start, end);
@@ -136,7 +145,7 @@ public class DeviceDataQualityKpiCalculator implements DataQualityKpiCalculator 
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
 
-        Map<DataQualityKpiMemberTypes, Map<Instant, BigDecimal>> dataMap = new HashMap<>();
+        Map<DataQualityKpiMemberType, Map<Instant, BigDecimal>> dataMap = new HashMap<>();
         ZonedDateTime calculateDate = start;
         while (!calculateDate.isAfter(end)) {
 
@@ -144,7 +153,7 @@ public class DeviceDataQualityKpiCalculator implements DataQualityKpiCalculator 
 
             long registerSuspects = channels.stream()
                     .filter(not(Channel::isRegular))
-                    .map(channelToKey(calculateDate, DefaultDataQualityMetric.SUSPECT))
+                    .map(channelToKey(calculateDate, PredefinedDataQualityMetric.SUSPECT))
                     .map(counterMap::get)
                     .filter(Objects::nonNull)
                     .mapToLong(LongCounter::getValue)
@@ -152,7 +161,7 @@ public class DeviceDataQualityKpiCalculator implements DataQualityKpiCalculator 
 
             long channelSuspects = channels.stream()
                     .filter(Channel::isRegular)
-                    .map(channelToKey(calculateDate, DefaultDataQualityMetric.SUSPECT))
+                    .map(channelToKey(calculateDate, PredefinedDataQualityMetric.SUSPECT))
                     .map(counterMap::get)
                     .filter(Objects::nonNull)
                     .mapToLong(LongCounter::getValue)
@@ -160,68 +169,79 @@ public class DeviceDataQualityKpiCalculator implements DataQualityKpiCalculator 
 
             long totalSuspects = registerSuspects + channelSuspects;
 
-            long missing = channels.stream()
-                    .map(channelToKey(calculateDate, DefaultDataQualityMetric.MISSING))
-                    .map(counterMap::get)
-                    .filter(Objects::nonNull)
-                    .mapToLong(LongCounter::getValue)
-                    .sum();
-
             long informative = channels.stream()
-                    .map(channelToKey(calculateDate, DefaultDataQualityMetric.INFORMATIVE))
+                    .map(channelToKey(calculateDate, PredefinedDataQualityMetric.INFORMATIVE))
                     .map(counterMap::get)
                     .filter(Objects::nonNull)
                     .mapToLong(LongCounter::getValue)
                     .sum();
 
             long added = channels.stream()
-                    .map(channelToKey(calculateDate, DefaultDataQualityMetric.ADDED))
+                    .map(channelToKey(calculateDate, PredefinedDataQualityMetric.ADDED))
                     .map(counterMap::get)
                     .filter(Objects::nonNull)
                     .mapToLong(LongCounter::getValue)
                     .sum();
 
             long edited = channels.stream()
-                    .map(channelToKey(calculateDate, DefaultDataQualityMetric.EDITED))
+                    .map(channelToKey(calculateDate, PredefinedDataQualityMetric.EDITED))
                     .map(counterMap::get)
                     .filter(Objects::nonNull)
                     .mapToLong(LongCounter::getValue)
                     .sum();
 
             long removed = channels.stream()
-                    .map(channelToKey(calculateDate, DefaultDataQualityMetric.REMOVED))
+                    .map(channelToKey(calculateDate, PredefinedDataQualityMetric.REMOVED))
                     .map(counterMap::get)
                     .filter(Objects::nonNull)
                     .mapToLong(LongCounter::getValue)
                     .sum();
 
             long estimated = channels.stream()
-                    .map(channelToKey(calculateDate, DefaultDataQualityMetric.ESTIMATED))
+                    .map(channelToKey(calculateDate, PredefinedDataQualityMetric.ESTIMATED))
                     .map(counterMap::get)
                     .filter(Objects::nonNull)
                     .mapToLong(LongCounter::getValue)
                     .sum();
 
             long confirmed = channels.stream()
-                    .map(channelToKey(calculateDate, DefaultDataQualityMetric.CONFIRMED))
+                    .map(channelToKey(calculateDate, PredefinedDataQualityMetric.CONFIRMED))
                     .map(counterMap::get)
                     .filter(Objects::nonNull)
                     .mapToLong(LongCounter::getValue)
                     .sum();
 
-            // TODO add validators
-            // TODO add estimators
+            dataMap.computeIfAbsent(FixedDataQualityKpiMemberType.CHANNEL, newMap()).put(calculateInstant, BigDecimal.valueOf(channelSuspects));
+            dataMap.computeIfAbsent(FixedDataQualityKpiMemberType.REGISTER, newMap()).put(calculateInstant, BigDecimal.valueOf(registerSuspects));
+            dataMap.computeIfAbsent(FixedDataQualityKpiMemberType.SUSPECT, newMap()).put(calculateInstant, BigDecimal.valueOf(totalSuspects));
+            dataMap.computeIfAbsent(FixedDataQualityKpiMemberType.INFORMATIVE, newMap()).put(calculateInstant, BigDecimal.valueOf(informative));
+            dataMap.computeIfAbsent(FixedDataQualityKpiMemberType.ADDED, newMap()).put(calculateInstant, BigDecimal.valueOf(added));
+            dataMap.computeIfAbsent(FixedDataQualityKpiMemberType.EDITED, newMap()).put(calculateInstant, BigDecimal.valueOf(edited));
+            dataMap.computeIfAbsent(FixedDataQualityKpiMemberType.REMOVED, newMap()).put(calculateInstant, BigDecimal.valueOf(removed));
+            dataMap.computeIfAbsent(FixedDataQualityKpiMemberType.ESTIMATED, newMap()).put(calculateInstant, BigDecimal.valueOf(estimated));
+            dataMap.computeIfAbsent(FixedDataQualityKpiMemberType.CONFIRMED, newMap()).put(calculateInstant, BigDecimal.valueOf(confirmed));
 
-            dataMap.computeIfAbsent(DataQualityKpiMemberTypes.CHANNEL, type -> new HashMap<>()).put(calculateInstant, BigDecimal.valueOf(channelSuspects));
-            dataMap.computeIfAbsent(DataQualityKpiMemberTypes.REGISTER, type -> new HashMap<>()).put(calculateInstant, BigDecimal.valueOf(registerSuspects));
-            dataMap.computeIfAbsent(DataQualityKpiMemberTypes.SUSPECT, type -> new HashMap<>()).put(calculateInstant, BigDecimal.valueOf(totalSuspects));
-            dataMap.computeIfAbsent(DataQualityKpiMemberTypes.MISSINGVALUESVALIDATOR, type -> new HashMap<>()).put(calculateInstant, BigDecimal.valueOf(missing));
-            dataMap.computeIfAbsent(DataQualityKpiMemberTypes.INFORMATIVE, type -> new HashMap<>()).put(calculateInstant, BigDecimal.valueOf(informative));
-            dataMap.computeIfAbsent(DataQualityKpiMemberTypes.ADDED, type -> new HashMap<>()).put(calculateInstant, BigDecimal.valueOf(added));
-            dataMap.computeIfAbsent(DataQualityKpiMemberTypes.EDITED, type -> new HashMap<>()).put(calculateInstant, BigDecimal.valueOf(edited));
-            dataMap.computeIfAbsent(DataQualityKpiMemberTypes.REMOVED, type -> new HashMap<>()).put(calculateInstant, BigDecimal.valueOf(removed));
-            dataMap.computeIfAbsent(DataQualityKpiMemberTypes.ESTIMATED, type -> new HashMap<>()).put(calculateInstant, BigDecimal.valueOf(estimated));
-            dataMap.computeIfAbsent(DataQualityKpiMemberTypes.CONFIRMED, type -> new HashMap<>()).put(calculateInstant, BigDecimal.valueOf(confirmed));
+            for (Validator validator : validators) {
+                long count = channels.stream()
+                        .map(channelToKey(calculateDate, new ValidatorDataQualityMetric(validator)))
+                        .map(counterMap::get)
+                        .filter(Objects::nonNull)
+                        .mapToLong(LongCounter::getValue)
+                        .sum();
+                dataMap.computeIfAbsent(new NamedDataQualityKpiMemberType(validator.getClass().getSimpleName()), newMap())
+                        .put(calculateInstant, BigDecimal.valueOf(count));
+            }
+
+            for (Estimator estimator : estimators) {
+                long count = channels.stream()
+                        .map(channelToKey(calculateDate, new EstimatorDataQualityMetric(estimator)))
+                        .map(counterMap::get)
+                        .filter(Objects::nonNull)
+                        .mapToLong(LongCounter::getValue)
+                        .sum();
+                dataMap.computeIfAbsent(new NamedDataQualityKpiMemberType(estimator.getClass().getSimpleName()), newMap())
+                        .put(calculateInstant, BigDecimal.valueOf(count));
+            }
 
             calculateDate = calculateDate.plusDays(1);
         }
@@ -232,7 +252,7 @@ public class DeviceDataQualityKpiCalculator implements DataQualityKpiCalculator 
             KpiMember entryMember = dataValidationKpiChild.getChildKpi()
                     .getMembers()
                     .stream()
-                    .filter(kpiMember -> kpiMember.getName().toUpperCase().startsWith(entry.getKey().name()))
+                    .filter(kpiMember -> kpiMember.getName().startsWith(entry.getKey().getName().toUpperCase()))
                     .findAny()
                     .get();
             memberScores.put(entryMember, entry.getValue());
@@ -243,6 +263,10 @@ public class DeviceDataQualityKpiCalculator implements DataQualityKpiCalculator 
 
     private Function<Channel, Key> channelToKey(ZonedDateTime calculateDate, DataQualityMetric dataQualityMetric) {
         return channel -> new Key(channel.getId(), calculateDate.toLocalDate(), dataQualityMetric);
+    }
+
+    private Function<Object, Map<Instant, BigDecimal>> newMap() {
+        return any -> new HashMap<>();
     }
 
     private final static class Key {
@@ -293,38 +317,28 @@ public class DeviceDataQualityKpiCalculator implements DataQualityKpiCalculator 
     private Key toKey(ResultSet resultSet) {
         try {
             long channelId = resultSet.getLong(ResultSetColumn.CHANNELID.index());
-            LocalDate localDate = LocalDate.from(ZonedDateTime.ofInstant(resultSet.getTimestamp(ResultSetColumn.READINGTIMESTAMP.index()).toInstant(), clock.getZone()));
+            Timestamp timestamp = resultSet.getTimestamp(ResultSetColumn.READINGTIMESTAMP.index());
+            LocalDate localDate = LocalDate.from(ZonedDateTime.ofInstant(timestamp.toInstant(), clock.getZone()));
             String type = resultSet.getString(ResultSetColumn.READINGQUALITYTYPE.index());
             boolean notSuspect = parseYesNo(resultSet.getString(ResultSetColumn.NOTSUSPECTFLAG.index()));
 
             ReadingQualityType readingQualityType = new ReadingQualityType(type);
 
-            if (readingQualityType.isSuspect()) {
-                return new Key(channelId, localDate, DefaultDataQualityMetric.SUSPECT);
-            }
-            if (readingQualityType.isMissing()) {
-                return new Key(channelId, localDate, DefaultDataQualityMetric.MISSING);
-            }
-            if (readingQualityType.isConfirmed()) {
-                return new Key(channelId, localDate, DefaultDataQualityMetric.CONFIRMED);
-            }
-            if (readingQualityType.qualityIndex().map(QualityCodeIndex.ESTIMATEGENERIC::equals).orElse(false)) {
-                return new Key(channelId, localDate, DefaultDataQualityMetric.ESTIMATED);
+            for (PredefinedDataQualityMetric metric : PredefinedDataQualityMetric.values()) {
+                if (metric.accept(readingQualityType)) {
+                    return new Key(channelId, localDate, metric);
+                }
             }
             if (qualitiesToValidationRules.containsKey(readingQualityType)) {
                 ValidationRule validationRule = qualitiesToValidationRules.get(readingQualityType);
-                if (notSuspect) {
-                    return new Key(channelId, localDate, DefaultDataQualityMetric.INFORMATIVE);
-                } else {
-                    return new Key(channelId, localDate, new ValidatorType(validationRule.getImplementation()));
-                }
-            } else if (qualitiesToEstimationRules.containsKey(readingQualityType)) {
-                EstimationRule estimationRule = qualitiesToEstimationRules.get(readingQualityType);
-                return new Key(channelId, localDate, new EstimatorType(estimationRule.getImplementation()));
-            } else {
-                // this should normally not happen
-                return new Key(channelId, localDate, DefaultDataQualityMetric.UNKNOWN);
+                return new Key(channelId, localDate, notSuspect ? PredefinedDataQualityMetric.INFORMATIVE : new ValidatorDataQualityMetric(validationRule.getImplementation()));
             }
+            if (qualitiesToEstimationRules.containsKey(readingQualityType)) {
+                EstimationRule estimationRule = qualitiesToEstimationRules.get(readingQualityType);
+                return new Key(channelId, localDate, new EstimatorDataQualityMetric(estimationRule.getImplementation()));
+            }
+            // this should normally not happen
+            return new Key(channelId, localDate, PredefinedDataQualityMetric.UNKNOWN);
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
@@ -346,25 +360,31 @@ public class DeviceDataQualityKpiCalculator implements DataQualityKpiCalculator 
     }
 
     private Map<ReadingQualityType, ValidationRule> mapQualitiesToValidationRules() {
-        return validationService.getValidationRuleSets().stream()
-                .filter(ruleSet -> QualityCodeSystem.MDC == ruleSet.getQualityCodeSystem())
+        return validationService.getRuleSetQuery()
+                .select(where("qualityCodeSystem").isEqualTo(QualityCodeSystem.MDC))
+                .stream()
                 .map(ValidationRuleSet::getRuleSetVersions)
                 .flatMap(Collection::stream)
                 .map(ValidationRuleSetVersion::getRules)
                 .flatMap(Collection::stream)
-                .map(IValidationRule.class::cast)
-                .filter(rule -> !rule.getReadingQualityType().isMissing())
-                .filter(rule -> !rule.getReadingQualityType().isSuspect())
-                .collect(Collectors.toMap(IValidationRule::getReadingQualityType, Function.identity()));
+                .collect(Collectors.toMap(this::getReadingQualityType, Function.identity()));
     }
 
     private Map<ReadingQualityType, EstimationRule> mapQualitiesToEstimationRules() {
-        return estimationService.getEstimationRuleSets().stream()
-                .filter(ruleSet -> QualityCodeSystem.MDC == ruleSet.getQualityCodeSystem())
-                .flatMap(ruleSet -> ruleSet.getRules().stream())
-                .collect(Collectors.toMap(
-                        rule -> ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, Long.valueOf(rule.getId()).intValue()),
-                        Function.identity()));
+        return estimationService.getEstimationRuleSetQuery()
+                .select(where("qualityCodeSystem").isEqualTo(QualityCodeSystem.MDC))
+                .stream()
+                .map(EstimationRuleSet::getRules)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toMap(this::getReadingQualityType, Function.identity()));
+    }
+
+    private ReadingQualityType getReadingQualityType(ValidationRule validationRule) {
+        return validationRule.getReadingQualityType();
+    }
+
+    private ReadingQualityType getReadingQualityType(EstimationRule estimationRule) {
+        return ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, Long.valueOf(estimationRule.getId()).intValue());
     }
 
     private Boolean parseYesNo(String value) {

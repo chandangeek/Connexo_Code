@@ -4,25 +4,68 @@
 
 package com.elster.jupiter.validation.impl.kpi;
 
-enum DataQualityKpiMemberTypes {
-    CHANNEL("CHANNEL_"),
-    REGISTER("REGISTER_"),
-    SUSPECT("SUSPECT_"),
-    MISSINGVALUESVALIDATOR("MISSINGVALUESVALIDATOR_"),
-    INFORMATIVE("INFORMATIVE_"),
-    ADDED("ADDED_"),
-    EDITED("EDITED_"),
-    REMOVED("REMOVED_"),
-    ESTIMATED("ESTIMATED_"),
-    CONFIRMED("CONFIRMED_");
+interface DataQualityKpiMemberType {
 
-    private final String javaFieldName;
+    String getName();
 
-    DataQualityKpiMemberTypes(String javaFieldName) {
-        this.javaFieldName = javaFieldName;
+}
+
+enum FixedDataQualityKpiMemberType implements DataQualityKpiMemberType {
+    CHANNEL("CHANNEL"),
+    REGISTER("REGISTER"),
+    SUSPECT("SUSPECT"),
+    INFORMATIVE("INFORMATIVE"),
+    ADDED("ADDED"),
+    EDITED("EDITED"),
+    REMOVED("REMOVED"),
+    ESTIMATED("ESTIMATED"),
+    CONFIRMED("CONFIRMED");
+
+    private final String name;
+
+    FixedDataQualityKpiMemberType(String name) {
+        this.name = name;
     }
 
-    public String fieldName() {
-        return javaFieldName;
+    public String getName() {
+        return name;
+    }
+}
+
+class NamedDataQualityKpiMemberType implements DataQualityKpiMemberType {
+
+    private String name;
+
+    public NamedDataQualityKpiMemberType(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        NamedDataQualityKpiMemberType that = (NamedDataQualityKpiMemberType) o;
+
+        return name.equals(that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "KpiMemberType: " + this.name;
     }
 }

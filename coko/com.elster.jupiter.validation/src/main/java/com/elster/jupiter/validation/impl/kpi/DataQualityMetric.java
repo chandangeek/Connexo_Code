@@ -4,42 +4,54 @@
 
 package com.elster.jupiter.validation.impl.kpi;
 
-import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.estimation.Estimator;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.validation.Validator;
 
 import java.util.Objects;
 
-interface DataQualityMetric extends HasName {
+interface DataQualityMetric {
 
 }
 
-enum DefaultDataQualityMetric implements DataQualityMetric {
-    SUSPECT,
-    MISSING,
+enum PredefinedDataQualityMetric implements DataQualityMetric {
+
+    SUSPECT(QualityCodeIndex.SUSPECT),
     INFORMATIVE,
-    ADDED,
-    EDITED,
-    REMOVED,
-    ESTIMATED,
-    CONFIRMED,
+    ADDED(QualityCodeIndex.ADDED),
+    EDITED(QualityCodeIndex.EDITGENERIC),
+    REMOVED(QualityCodeIndex.REJECTED),
+    ESTIMATED(QualityCodeIndex.ESTIMATEGENERIC),
+    CONFIRMED(QualityCodeIndex.ACCEPTED),
     UNKNOWN;
 
-    @Override
-    public String getName() {
-        return name();
+    private QualityCodeIndex qualityCodeIndex;
+
+    PredefinedDataQualityMetric() {
+    }
+
+    PredefinedDataQualityMetric(QualityCodeIndex qualityCodeIndex) {
+        this();
+        this.qualityCodeIndex = qualityCodeIndex;
+    }
+
+    boolean accept(ReadingQualityType readingQualityType) {
+        return this.qualityCodeIndex != null &&
+                readingQualityType.qualityIndex().map(this.qualityCodeIndex::equals).orElse(false);
     }
 }
 
-class ValidatorType implements DataQualityMetric {
+class ValidatorDataQualityMetric implements DataQualityMetric {
 
     private final String validator;
 
-    ValidatorType(String validator) {
-        this.validator = validator;
+    ValidatorDataQualityMetric(String validatorImplementation) {
+        this.validator = validatorImplementation;
     }
 
-    @Override
-    public String getName() {
-        return validator;
+    ValidatorDataQualityMetric(Validator validator) {
+        this(validator.getClass().getName());
     }
 
     @Override
@@ -50,7 +62,7 @@ class ValidatorType implements DataQualityMetric {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ValidatorType that = (ValidatorType) o;
+        ValidatorDataQualityMetric that = (ValidatorDataQualityMetric) o;
         return Objects.equals(validator, that.validator);
     }
 
@@ -60,17 +72,16 @@ class ValidatorType implements DataQualityMetric {
     }
 }
 
-class EstimatorType implements DataQualityMetric {
+class EstimatorDataQualityMetric implements DataQualityMetric {
 
     private final String estimator;
 
-    EstimatorType(String estimator) {
-        this.estimator = estimator;
+    EstimatorDataQualityMetric(String estimatorImplementation) {
+        this.estimator = estimatorImplementation;
     }
 
-    @Override
-    public String getName() {
-        return estimator;
+    EstimatorDataQualityMetric(Estimator estimator) {
+        this(estimator.getClass().getName());
     }
 
     @Override
@@ -81,7 +92,7 @@ class EstimatorType implements DataQualityMetric {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        EstimatorType that = (EstimatorType) o;
+        EstimatorDataQualityMetric that = (EstimatorDataQualityMetric) o;
         return Objects.equals(estimator, that.estimator);
     }
 

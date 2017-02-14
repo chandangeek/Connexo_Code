@@ -7,6 +7,7 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -120,6 +121,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     private volatile UserService userService;
     private volatile UpgradeService upgradeService;
     private volatile KpiService kpiService;
+    private volatile EstimationService estimationService;
 
     private final List<ValidatorFactory> validatorFactories = new CopyOnWriteArrayList<>();
     private final List<ValidationRuleSetResolver> ruleSetResolvers = new CopyOnWriteArrayList<>();
@@ -182,6 +184,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
                 bind(MessageService.class).toInstance(messageService);
                 bind(SearchService.class).toInstance(searchService);
                 bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
+                bind(EstimationService.class).toInstance(estimationService);
             }
         });
         this.registerDataValidationKpiService(context);
@@ -830,4 +833,8 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
         this.serviceRegistrations.add(bundleContext.registerService(DataValidationKpiService.class, this.dataValidationKpiService, null));
     }
 
+    @Reference
+    public void setEstimationService(EstimationService estimationService) {
+        this.estimationService = estimationService;
+    }
 }

@@ -65,11 +65,13 @@ public class DeviceDataQualityKpiSqlBuilder {
     private void appendAllReadingQualitiesWithClause() {
         sqlBuilder.append("WITH allReadingQualities (channelid, readingtimestamp, type, notsuspect) AS (");
         sqlBuilder.append(" SELECT q.channelid, utc2date(q.readingtimestamp, t.timezonename), q.type, CASE WHEN q2.channelid IS NULL THEN 'Y' ELSE 'N' END");
-        sqlBuilder.append(" FROM MTR_READINGQUALITY q, IDS_TIMESERIES t, MTR_READINGQUALITY q2");
-        sqlBuilder.append(" WHERE EXISTS (SELECT id FROM MTR_CHANNEL c WHERE q.channelid  = c.id AND c.timeseriesid = t.id)");
-        sqlBuilder.append(" AND q.readingtimestamp = q2.readingtimestamp");
+        sqlBuilder.append(" FROM MTR_READINGQUALITY q LEFT JOIN MTR_READINGQUALITY q2");
+        sqlBuilder.append(" ON  q.readingtimestamp = q2.readingtimestamp");
         sqlBuilder.append(" AND q.channelid = q2.channelid");
-        sqlBuilder.append(" AND q.type = " + toSql(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT)));
+        sqlBuilder.append(" AND q2.type = " + toSql(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT)));
+        sqlBuilder.append(" AND q2.actual = 'Y'");
+        sqlBuilder.append(" , IDS_TIMESERIES t");
+        sqlBuilder.append(" WHERE EXISTS (SELECT id FROM MTR_CHANNEL c WHERE q.channelid  = c.id AND c.timeseriesid = t.id)");
         sqlBuilder.append(" AND q.channelid IN (");
         this.appendChannelsSubQuery();
         sqlBuilder.append(" )");
