@@ -38,6 +38,7 @@ public class RegisterInfo {
     public ReadingInfo lastReading;
     public boolean isCumulative;
     public boolean hasEvent;
+    public boolean isBilling;
     public String deviceName;
     public long version;
     public VersionInfo<Long> parent;

@@ -12,6 +12,8 @@ import com.energyict.mdc.device.data.rest.BigDecimalAsStringAdapter;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -59,7 +61,12 @@ public class NumericalReadingInfo extends ReadingInfo {
 
     @Override
     protected BaseReading createNew(Register<?, ?> register) {
-        return ReadingImpl.of(register.getReadingType().getMRID(), this.value, this.timeStamp);
+        if(interval != null){
+            return ReadingImpl.of(register.getReadingType().getMRID(), this.value, this.timeStamp, Instant.ofEpochMilli(interval.start), Instant.ofEpochMilli(interval.end));
+        } else if (!register.isBilling()){
+            return ReadingImpl.of(register.getReadingType().getMRID(), this.value, this.timeStamp);
+        } else {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
     }
-
 }

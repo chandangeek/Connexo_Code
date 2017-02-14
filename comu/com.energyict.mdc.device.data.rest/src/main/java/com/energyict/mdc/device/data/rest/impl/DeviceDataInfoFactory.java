@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringTranslationService;
@@ -355,6 +356,7 @@ public class DeviceDataInfoFactory {
         registerInfo.obisCodeDescription = register.getDeviceObisCode().getDescription();
         registerInfo.isCumulative = register.getReadingType().isCumulative();
         registerInfo.hasEvent = register.hasEventDate();
+        registerInfo.isBilling = register.isBilling();
         //  register.getLastReading().isPresent(reading -> registerInfo.hasEvent = reading.)
         registerInfo.deviceName = device.getName();
         registerInfo.version = device.getVersion();
