@@ -64,6 +64,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                 itemId: 'comboTool',
                 margin: '0 20 0 0',
                 layout: 'fit',
+                maxHeight: 26,
                 items: [
                     {
                         xtype: 'combobox',
@@ -72,6 +73,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                         value: 'all',
                         store: healthTypeStore,
                         displayField: 'displayValue',
+                        maxHeight: 26,
                         valueField: 'type',
                         listeners: {
                             change: function (combo, newvalue) {
