@@ -15,16 +15,6 @@
     <dependencies>
         <!-- EIServer dependencies -->
         <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdw</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdwimpl</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
         </dependency>
@@ -45,11 +35,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>xmodem</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdwutil</artifactId>
         </dependency>
 
         <dependency>
@@ -83,12 +68,6 @@
             <groupId>axis</groupId>
             <artifactId>axis-jaxrpc</artifactId>
             <version>1.2.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdwdevtools</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
