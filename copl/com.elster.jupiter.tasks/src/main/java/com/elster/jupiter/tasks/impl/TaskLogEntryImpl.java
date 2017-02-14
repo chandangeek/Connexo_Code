@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.orm.Table;
@@ -10,11 +14,6 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * Date: 5/11/2014
- * Time: 10:30
- */
 public class TaskLogEntryImpl implements TaskLogEntry {
 
     private Reference<TaskOccurrence> taskOccurrence = ValueReference.absent();
