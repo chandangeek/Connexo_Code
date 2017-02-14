@@ -1,5 +1,6 @@
 package com.elster.jupiter.pki;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
@@ -29,21 +30,17 @@ public interface KeyAccessorType extends HasId, HasName {
      * This name will identify a key for a certain purpose. E.g. the Shipment file will map keys to KeyAccessorType by
      * name, that is, the keys from the shipment file will be labelled, the label matches the name of a KeyAccessor.
      */
-    void setName(String name);
     String getName();
 
     /**
      * User can add a description clarifying the purpose of this key on a device.
      */
-    void setDescription(String description);
     String getDescription();
 
     /**
      * Duration is a default validity period of a key. This makes sense mostly for symmetric keys who, unlike certificates,
      * do not contain a validity period by themselves. The validity will determine the frequency for key renewal.
-     * @param duration The period for which a (symmetric key) crypto entity will be valid, after which renewal is required.
      */
-    void setDuration(TimeDuration duration);
     Optional<TimeDuration> getDuration();
 
 
@@ -61,14 +58,18 @@ public interface KeyAccessorType extends HasId, HasName {
      */
     String getKeyEncryptionMethod();
 
-    /**
-     * Saves the changes made via the setters of the key function type
-     */
-    void save();
+    Updater startUpdate();
 
     interface Builder {
         Builder description(String description);
         Builder duration(TimeDuration duration);
         KeyAccessorType add();
+    }
+
+    interface Updater {
+        Updater name(String name);
+        Updater description(String description);
+        Updater duration(TimeDuration duration);
+        KeyAccessorType complete();
     }
 }
