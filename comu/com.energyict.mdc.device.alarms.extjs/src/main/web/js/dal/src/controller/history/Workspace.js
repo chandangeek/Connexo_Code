@@ -3,9 +3,6 @@ Ext.define('Dal.controller.history.Workspace', {
     requires: [
         'Dal.privileges.Alarm',
         'Dal.controller.Overview',
-        'Dal.controller.CreationRules',
-        'Dal.controller.CreationRuleEdit',
-        'Dal.controller.CreationRuleActionEdit'
     ],
     rootToken: 'workspace',
     previousPath: '',
@@ -90,58 +87,6 @@ Ext.define('Dal.controller.history.Workspace', {
             controller: 'Dal.controller.Overview',
             action: 'showAlarmOverview',
             privileges: Dal.privileges.Alarm.viewAdminAlarm
-        },
-        administration : {
-            title: Uni.I18n.translate('route.administration', 'DAL', 'Administration'),
-            route: 'administration',
-            disabled: true,
-            items: {
-                alarmcreationrules: {
-                    title: Uni.I18n.translate('general.alarmCreationRules', 'DAL', 'Alarm creation rules'),
-                    route: 'alarmcreationrules',
-                    controller: 'Dal.controller.CreationRules',
-                    privileges: Dal.privileges.Alarm.viewAdminAlarmCreationRule,
-                    items: {
-                        add: {
-                            title: Uni.I18n.translate('general.alarmCreationRules.add', 'DAL', 'Add alarm creation rule'),
-                            route: 'add',
-                            controller: 'Dal.controller.CreationRuleEdit',
-                            privileges: Dal.privileges.Alarm.createAlarmRule,
-                            action: 'showEdit',
-                            items: {
-                                addaction: {
-                                    title: Uni.I18n.translate('general.addAction', 'DAL', 'Add action'),
-                                    route: 'addaction',
-                                    controller: 'Dal.controller.CreationRuleActionEdit',
-                                    action: 'showEdit'
-                                }
-                            }
-                        },
-                        edit: {
-                            title: Uni.I18n.translate('general.edit','DAL','Edit'),
-                            route: '{id}/edit',
-                            controller: 'Dal.controller.CreationRuleEdit',
-                            action: 'showEdit',
-                            privileges: Dal.privileges.Alarm.createAlarmRule,
-                            callback: function (route) {
-                                this.getApplication().on('alarmCreationRuleEdit', function (record) {
-                                    route.setTitle(Uni.I18n.translate('administration.alarmCreationRules.title.editIssueCreationRule', 'DAL', "Edit '{0}'", record.get('name'), false));
-                                    return true;
-                                }, {single: true});
-                                return this;
-                            },
-                            items: {
-                                addaction: {
-                                    title: Uni.I18n.translate('general.addAction', 'DAL', 'Add action'),
-                                    route: 'addaction',
-                                    controller: 'Dal.controller.CreationRuleActionEdit',
-                                    action: 'showEdit'
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
 
     },
