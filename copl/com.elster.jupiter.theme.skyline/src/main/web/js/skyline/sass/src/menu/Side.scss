@@ -19,6 +19,24 @@
         padding-left: 4px;
         font-size: 24px;
         color: #1e7d9e;
+
+        .#{$prefix}menu-header-object-type {
+          font-size: 14px;
+          font-family: 'Lato', helvetica, arial, verdana, sans-serif;
+          padding-left: 0px;
+          font-weight: bold;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          width: 210px;
+        }
+
+        .#{$prefix}menu-header-object-name {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          width: 210px;
+        }
     }
 
     .#{$prefix}menu-item + .#{$prefix}menu-item .#{$prefix}menu-item-link {
