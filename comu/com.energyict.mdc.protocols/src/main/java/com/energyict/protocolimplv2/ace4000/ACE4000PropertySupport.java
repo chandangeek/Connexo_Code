@@ -15,7 +15,7 @@ import java.util.List;
  * Date: 29-sep-2010
  * Time: 15:58:56
  */
-public class ACE4000Properties {
+public class ACE4000PropertySupport {
 
     public static final String TIMEOUT = "Timeout";
     public static final String RETRIES = "Retries";
@@ -50,11 +50,11 @@ public class ACE4000Properties {
 
     public TypedProperties properties;
 
-    public ACE4000Properties(PropertySpecService propertySpecService) {
+    public ACE4000PropertySupport(PropertySpecService propertySpecService) {
         this(TypedProperties.empty(), propertySpecService);
     }
 
-    public ACE4000Properties(TypedProperties properties, PropertySpecService propertySpecService) {
+    public ACE4000PropertySupport(TypedProperties properties, PropertySpecService propertySpecService) {
         super();
         this.properties = properties;
         this.propertySpecService = propertySpecService;

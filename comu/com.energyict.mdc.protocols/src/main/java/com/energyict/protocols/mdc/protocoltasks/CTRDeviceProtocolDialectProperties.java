@@ -96,7 +96,7 @@ class CTRDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
         MAX_ALLOWED_INVALID_PROFILE_RESP("maxAllowedInvalidProfileResponses", "MaxAllowedInvalidProfileResponses", CTRTranslationKeys.MAX_ALLOWED_INVALID_PROFILE_RESPONSES, "MAX_ALLOWED_INVALID_RESP") {
             @Override
             public void addTo(Table table) {
-                this.addAsTimeDurationColumnTo(table);
+                this.addAsBigDecimalColumnTo(table);
             }
         };
 

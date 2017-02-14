@@ -38,8 +38,8 @@ class ACE4000DeviceProtocolDialectProperties extends CommonDeviceProtocolDialect
     }
 
     enum ActualFields {
-        TIMEOUT_PROPERTY("timeoutMillis", ACE4000Properties.TranslationKeys.TIMEOUT, "TIMEOUTMILLIS"),
-        RETRIES("retries", ACE4000Properties.TranslationKeys.RETRIES, "RETRIES");
+        TIMEOUT_PROPERTY("timeoutMillis", ACE4000PropertySupport.TranslationKeys.TIMEOUT, "TIMEOUTMILLIS"),
+        RETRIES("retries", ACE4000PropertySupport.TranslationKeys.RETRIES, "RETRIES");
 
         private final String javaName;
         private final TranslationKey nameTranslationKey;
