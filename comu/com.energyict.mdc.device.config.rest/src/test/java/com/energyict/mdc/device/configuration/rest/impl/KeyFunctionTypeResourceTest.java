@@ -29,7 +29,6 @@ import org.junit.Test;
 
 import static java.lang.Math.toIntExact;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -53,8 +52,8 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
         assertThat((List) map.get("keyfunctiontypes")).hasSize(2);
     }
 
-    @Test(expected= WebApplicationException.class)
-    public void getUnexistingDeviceType() throws Exception{
+    @Test(expected = WebApplicationException.class)
+    public void getUnexistingDeviceType() throws Exception {
         when(deviceConfigurationService.findDeviceType(66)).thenReturn(Optional.empty());
         target("/devicetypes/66/keyfunctiontypes").request().get(Map.class);
     }
@@ -87,7 +86,7 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
     public void addKeyFunctionTypeOnDeviceType() throws Exception {
         DeviceType deviceType = mockDeviceType("device type 1", 66);
         KeyFunctionTypeInfo info = new KeyFunctionTypeInfo();
-        when(deviceConfigurationService.findAndLockDeviceType(66,1)).thenReturn(Optional.of(deviceType));
+        when(deviceConfigurationService.findAndLockDeviceType(66, 1)).thenReturn(Optional.of(deviceType));
         info.id = 1;
         info.description = DESCRIPTION;
         info.name = NAME;
@@ -124,7 +123,7 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
         DeviceType deviceType = mockDeviceType("device type 1", 66);
         KeyAccessorType keyFunctionType = mockKeyFunctionType(1, "Name", "Epic description");
         when(deviceType.getKeyAccessorTypes()).thenReturn(Collections.singletonList(keyFunctionType));
-        when(deviceConfigurationService.findAndLockDeviceType(66,1)).thenReturn(Optional.of(deviceType));
+        when(deviceConfigurationService.findAndLockDeviceType(66, 1)).thenReturn(Optional.of(deviceType));
         KeyFunctionTypeInfo info = new KeyFunctionTypeInfo();
         info.id = 1;
         info.description = "New Description";
@@ -151,7 +150,7 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
         DeviceType deviceType = mockDeviceType("device type 1", 66);
         KeyAccessorType keyFunctionType = mockKeyFunctionType(1, "Name", "Epic description");
         when(deviceType.getKeyAccessorTypes()).thenReturn(Collections.singletonList(keyFunctionType));
-        when(deviceConfigurationService.findAndLockDeviceType(66,1)).thenReturn(Optional.of(deviceType));
+        when(deviceConfigurationService.findAndLockDeviceType(66, 1)).thenReturn(Optional.of(deviceType));
         KeyFunctionTypeInfo info = new KeyFunctionTypeInfo();
         info.parent = new VersionInfo<>("device type 1", 1L);
 

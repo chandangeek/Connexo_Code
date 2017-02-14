@@ -31,7 +31,7 @@ public class KeyFunctionTypeInfoFactory {
         info.name = keyFunctionType.getName();
         info.description = keyFunctionType.getDescription();
         info.keyType = new KeyTypeInfo(keyFunctionType.getKeyType());
-        if(keyFunctionType.getDuration().isPresent()) {
+        if (keyFunctionType.getDuration().isPresent()) {
             info.validityPeriod = new TimeDurationInfo(keyFunctionType.getDuration().get());
         }
         info.parent = new VersionInfo<>(deviceType.getName(), deviceType.getVersion());
