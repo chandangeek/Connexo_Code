@@ -1303,7 +1303,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         typedProperties.setProperty("macAddress", "aa:bb:cc:dd:ee:ff");
 
         ConnectionType connectionType = mock(ConnectionType.class);
-        when(connectionType.getPropertySpecs()).thenReturn(Arrays.<PropertySpec>asList(propertySpec1));
+        List<PropertySpec> propertySpecs = Arrays.<PropertySpec>asList(propertySpec1);
+        when(connectionType.getPropertySpecs()).thenReturn(propertySpecs);
 
         NextExecutionSpecs nextExecSpecs = mock(NextExecutionSpecs.class);
         when(nextExecSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.minutes(60)));

@@ -80,7 +80,7 @@ public class ConnectionMethodResource {
                                               @QueryParam("deviceId") long deviceId) {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         List<PartialConnectionTask> partialConnectionTasks;
-        if (available != null) {
+        if (available != null && available) {
             Device device = deviceService.findDeviceById(deviceId).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE, deviceId));
             if (device.getDeviceConfiguration().getId() != deviceConfigurationId) {
                 throw exceptionFactory.newException(MessageSeeds.DEVICE_DOES_NOT_MATCH_CONFIG);
