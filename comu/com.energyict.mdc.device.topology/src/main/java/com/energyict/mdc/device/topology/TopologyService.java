@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.topology;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Channel;
@@ -10,6 +12,7 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
+import com.energyict.mdc.device.topology.impl.PhysicalGatewayReference;
 
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
@@ -364,7 +367,7 @@ public interface TopologyService {
 
     List<Pair<Register, Range<Instant>>> getDataLoggerRegisterTimeLine(Register register, Range<Instant> intervalReg);
 
-    public interface G3CommunicationPathSegmentBuilder {
+    interface G3CommunicationPathSegmentBuilder {
 
         /**
          * Adds a {@link G3CommunicationPathSegment} from the source to the target
@@ -400,7 +403,7 @@ public interface TopologyService {
      * the {@link #addNeighbor(Device, ModulationScheme, Modulation, PhaseInfo)}
      * was not called will be deleted upon completion.
      */
-    public interface G3NeighborhoodBuilder {
+    interface G3NeighborhoodBuilder {
 
         /**
          * Adds the specified {@link Device} to the neighborhood
@@ -427,7 +430,9 @@ public interface TopologyService {
         List<G3Neighbor> complete();
     }
 
-    public interface G3NeighborBuilder {
+    Subquery IsLinkedToMaster(Device device);
+
+    interface G3NeighborBuilder {
         G3NeighborBuilder txGain(int txGain);
 
         G3NeighborBuilder txResolution(int txResolution);
