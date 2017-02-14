@@ -75,6 +75,7 @@ public class IssueInfoFactory  extends SelectableFieldFactory<IssueInfo, Issue> 
     @Override
     protected Map<String, PropertyCopier<IssueInfo, Issue>> buildFieldMap() {
         Map<String, PropertyCopier<IssueInfo, Issue>> map = new HashMap<>();
+        map.put("title", (issueInfo, issue, uriInfo) -> issueInfo.title = issue.getTitle());
         map.put("id", (issueInfo, issue, uriInfo) -> issueInfo.id = issue.getId());
         map.put("issueId", (issueInfo, issue, uriInfo) -> issueInfo.issueId = issue.getIssueId());
         map.put("reason", (issueInfo, issue, uriInfo) -> issueInfo.reason = issueReasonInfoFactory.asInfo(issue.getReason()));
@@ -86,10 +87,9 @@ public class IssueInfoFactory  extends SelectableFieldFactory<IssueInfo, Issue> 
         map.put("workGroupAssignee", (issueInfo, issue, uriInfo) -> issueInfo.workGroupAssignee = issueAssigneeInfoFactory.asInfo("WORKGROUP", issue.getAssignee()));
         map.put("userAssignee", (issueInfo, issue, uriInfo) -> issueInfo.userAssignee = issueAssigneeInfoFactory.asInfo("USER", issue.getAssignee()));
         map.put("device", (issueInfo, issue, uriInfo) -> issueInfo.device = endDeviceInfoFactory.from((Meter)issue.getDevice(),uriInfo,null));
-        map.put("assignee", (issueInfo, issue, uriInfo) -> issueInfo.title = issue.getTitle());
-        map.put("assignee", (issueInfo, issue, uriInfo) -> issueInfo.issueType = issueTypeInfoFactory.asInfo(issue.getReason().getIssueType()));
-        map.put("assignee", (issueInfo, issue, uriInfo) -> issueInfo.creationDate = issue.getCreateTime().toEpochMilli());
-        map.put("assignee", (issueInfo, issue, uriInfo) -> issueInfo.modTime = issue.getModTime().toEpochMilli());
+        map.put("issueType", (issueInfo, issue, uriInfo) -> issueInfo.issueType = issueTypeInfoFactory.asInfo(issue.getReason().getIssueType()));
+        map.put("creationDate", (issueInfo, issue, uriInfo) -> issueInfo.creationDate = issue.getCreateTime().toEpochMilli());
+        map.put("modTime", (issueInfo, issue, uriInfo) -> issueInfo.modTime = issue.getModTime().toEpochMilli());
         map.put("version", (issueInfo, issue, uriInfo) -> issueInfo.version = issue.getVersion());
         return map;
     }

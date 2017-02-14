@@ -14,7 +14,6 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kore.api.impl.MessageSeeds;
 import com.elster.jupiter.kore.api.security.Privileges;
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PagedInfoList;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -86,7 +85,6 @@ public class IssueResource {
                 .path(IssueResource.class);
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
         //addSorting(finder, params);
-
     }
 
 
@@ -108,20 +106,20 @@ public class IssueResource {
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public IssueInfo closeIssue(@PathParam("id") long issueId, IssueShortInfo issueShortInfo, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         if (issueShortInfo == null || issueShortInfo.version == null) {
-            throw new LocalizedFieldValidationException(MessageSeeds.VERSION_MISSING, "version");
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "version");
         }
         Issue issue = issueService.findAndLockIssueByIdAndVersion(issueId, issueShortInfo.version).filter(isu -> !isu.getStatus().isHistorical())
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, String.valueOf(issueId)));
         if (issueShortInfo.status == null || issueShortInfo.status.id == null || issueShortInfo.status.id.isEmpty()) {
-            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "status.id");
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.FIELD_MISSING, "status.id");
         }
         IssueStatus status = issueService.findStatus(issueShortInfo.status.id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_STATUS, issueShortInfo.status.id));
         HistoricalIssue closedIssue = null;
-        if (!status.isHistorical()) {
+        if (status.isHistorical()) {
             closedIssue = ((OpenIssue) issue).close(status);
         } else {
-            throw new LocalizedFieldValidationException(MessageSeeds.BAD_FIELD_VALUE, "status.id");
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.BAD_FIELD_VALUE, "status.id");
         }
         return closedIssue != null ? issueInfoFactory.from(closedIssue, uriInfo, fieldSelection.getFields()) : null;
     }
@@ -138,7 +136,15 @@ public class IssueResource {
         User user = userService.findUser(issueCommentInfo.author.name)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USER, issueCommentInfo.author.id));
         issue.addComment(issueCommentInfo.comment, user).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
-
+        if (issueCommentInfo == null || issueCommentInfo.version == null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.BAD_FIELD_VALUE, "version");
+        } else if (issueCommentInfo.author == null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.BAD_FIELD_VALUE, "author");
+        } else if (issueCommentInfo.comment == null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.BAD_FIELD_VALUE, "comment");
+        } else if (issueCommentInfo.creationDate == null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.BAD_FIELD_VALUE, "creationDate");
+        }
         URI uri = uriInfo.getBaseUriBuilder().
                 path(IssueResource.class).
                 path(IssueResource.class, "getComments").

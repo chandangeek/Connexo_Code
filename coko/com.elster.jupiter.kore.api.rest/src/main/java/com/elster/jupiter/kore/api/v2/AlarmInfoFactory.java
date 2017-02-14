@@ -70,6 +70,7 @@ public class AlarmInfoFactory extends SelectableFieldFactory<AlarmInfo, Issue> {
     @Override
     protected Map<String, PropertyCopier<AlarmInfo, Issue>> buildFieldMap() {
         Map<String, PropertyCopier<AlarmInfo, Issue>> map = new HashMap<>();
+        map.put("title", (alarmInfo, alarm, uriInfo) -> alarmInfo.title = alarm.getTitle());
         map.put("id", (alarmInfo, alarm, uriInfo) -> alarmInfo.id = alarm.getId());
         map.put("alarmId", (alarmInfo, alarm, uriInfo) -> alarmInfo.alarmId = alarm.getIssueId());
         map.put("reason", (alarmInfo, alarm, uriInfo) -> alarmInfo.reason = issueReasonInfoFactory.asInfo(alarm.getReason()));
@@ -81,10 +82,9 @@ public class AlarmInfoFactory extends SelectableFieldFactory<AlarmInfo, Issue> {
         map.put("workGroupAssignee", (alarmInfo, alarm, uriInfo) -> alarmInfo.workGroupAssignee = issueAssigneeInfoFactory.asInfo("WORKGROUP", alarm.getAssignee()));
         map.put("userAssignee", (alarmInfo, alarm, uriInfo) -> alarmInfo.userAssignee = issueAssigneeInfoFactory.asInfo("USER", alarm.getAssignee()));
         map.put("device", (alarmInfo, alarm, uriInfo) -> alarmInfo.device = endDeviceInfoFactory.from((Meter)alarm.getDevice(),uriInfo,null));
-        map.put("assignee", (alarmInfo, alarm, uriInfo) -> alarmInfo.title = alarm.getTitle());
-        map.put("assignee", (alarmInfo, alarm, uriInfo) -> alarmInfo.alarmType = issueTypeInfoFactory.asInfo(alarm.getReason().getIssueType()));
-        map.put("assignee", (alarmInfo, alarm, uriInfo) -> alarmInfo.creationDate = alarm.getCreateTime().toEpochMilli());
-        map.put("assignee", (alarmInfo, alarm, uriInfo) -> alarmInfo.modTime = alarm.getModTime().toEpochMilli());
+        map.put("alarmType", (alarmInfo, alarm, uriInfo) -> alarmInfo.alarmType = issueTypeInfoFactory.asInfo(alarm.getReason().getIssueType()));
+        map.put("creationDate", (alarmInfo, alarm, uriInfo) -> alarmInfo.creationDate = alarm.getCreateTime().toEpochMilli());
+        map.put("modTime", (alarmInfo, alarm, uriInfo) -> alarmInfo.modTime = alarm.getModTime().toEpochMilli());
         map.put("version", (alarmInfo, alarm, uriInfo) -> alarmInfo.version = alarm.getVersion());
         return map;
     }

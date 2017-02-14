@@ -14,7 +14,6 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kore.api.impl.MessageSeeds;
 import com.elster.jupiter.kore.api.security.Privileges;
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PagedInfoList;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -110,23 +109,23 @@ public class AlarmResource {
                 .filter(alm -> !alm.getStatus().isHistorical()).findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ALARM, String.valueOf(alarmId)));
         if (alarm.getStatus().isHistorical()) {
-            throw new LocalizedFieldValidationException(MessageSeeds.ALARM_ALREADY_CLOSED, "status.id");
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.ALARM_ALREADY_CLOSED, "status.id");
         }
         if (alarmShortInfo == null || alarmShortInfo.version == null) {
-            throw new LocalizedFieldValidationException(MessageSeeds.VERSION_MISSING, "version");
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "version");
         }
         Issue baseIssue = issueService.findAndLockIssueByIdAndVersion(alarmId, alarmShortInfo.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.ALARM_LOCK_ATTEMPT_FAILED, alarmId));
         if (alarmShortInfo.status == null || alarmShortInfo.status.id == null || alarmShortInfo.status.id.isEmpty()) {
-            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "status.id");
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.FIELD_MISSING, "status.id");
         }
         IssueStatus status = issueService.findStatus(alarmShortInfo.status.id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_STATUS, alarmShortInfo.status.id));
         HistoricalIssue closedAlarm;
-        if (!status.isHistorical()) {
+        if (status.isHistorical()) {
             closedAlarm = ((OpenIssue) baseIssue).close(status);
         } else {
-            throw new LocalizedFieldValidationException(MessageSeeds.BAD_FIELD_VALUE, "status.id");
+            throw exceptionFactory.newException(MessageSeeds.BAD_FIELD_VALUE, "status.id");
         }
         return closedAlarm != null ? alarmInfoFactory.from(closedAlarm, uriInfo, fieldSelection.getFields()) : null;
     }
@@ -142,6 +141,15 @@ public class AlarmResource {
         IssueFilter filter = issueService.newIssueFilter();
         Issue alarm = issueService.findAlarms(filter).find().stream().filter(alm -> alm.getId() == alarmId).findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ALARM, String.valueOf(alarmId)));
+        if (issueCommentInfo == null || issueCommentInfo.version == null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.BAD_FIELD_VALUE, "version");
+        } else if (issueCommentInfo.author == null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.BAD_FIELD_VALUE, "author");
+        } else if (issueCommentInfo.comment == null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.BAD_FIELD_VALUE, "comment");
+        } else if (issueCommentInfo.creationDate == null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.BAD_FIELD_VALUE, "creationDate");
+        }
         User user = userService.findUser(issueCommentInfo.author.name)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USER, issueCommentInfo.author.id));
         alarm.addComment(issueCommentInfo.comment, user).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
@@ -177,7 +185,6 @@ public class AlarmResource {
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
 
     }
-
 
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
