@@ -29,7 +29,7 @@ public class TopIssuesResource extends BaseResource {
     public TopIssuesResource(){
 
     }
-
+issueser
     @GET
     @Transactional
     @Path("/issues")
