@@ -232,13 +232,13 @@ public class IssueDataValidationImpl implements IssueDataValidation {
     }
 
     @Override
-    public Instant getCreatedDateTime() {
-        return getBaseIssue().getCreatedDateTime();
+    public Instant getCreateDateTime() {
+        return getBaseIssue().getCreateDateTime();
     }
 
     @Override
-    public void setCreatedDateTime(Instant dateTime) {
-        getBaseIssue().setCreatedDateTime(dateTime);
+    public void setCreateDateTime(Instant dateTime) {
+        getBaseIssue().setCreateDateTime(dateTime);
     }
 
     @Override
