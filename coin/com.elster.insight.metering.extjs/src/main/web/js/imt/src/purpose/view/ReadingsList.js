@@ -11,7 +11,8 @@ Ext.define('Imt.purpose.view.ReadingsList', {
         'Uni.view.toolbar.PagingTop',
         'Imt.purpose.view.SingleReadingActionMenu',
         'Imt.purpose.view.MultipleReadingsActionMenu',
-        'Uni.grid.column.Edited'
+        'Uni.grid.column.Edited',
+        'Imt.purpose.util.TooltipRenderer'
     ],
     selModel: {
         mode: 'MULTI'
@@ -45,12 +46,12 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             {
                 header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'IMT', 'End of interval'),
                 dataIndex: 'interval',
-                renderer: function (interval) {
-                    return  interval.end
-                        ? Uni.I18n.translate(
-                        'general.dateAtTime', 'IMT', '{0} at {1}',
-                        [Uni.DateTime.formatDateShort(new Date(interval.end)), Uni.DateTime.formatTimeShort(new Date(interval.end))] )
-                        : '';
+                renderer: function (interval, metaData, record) {
+                    var text = interval.end
+                            ? Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(interval.end)), Uni.DateTime.formatTimeShort(new Date(interval.end))])
+                            : '-';
+
+                    return text + Imt.purpose.util.TooltipRenderer.prepareIcon(record);
                 },
                 flex: 1
             },
@@ -138,6 +139,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
     formatColumn: function (v, metaData, record) {
         var status = record.get('validationResult') ? record.get('validationResult').split('.')[1] : '',
             value = Ext.isEmpty(v) ? '-' : v,
+            estimatedByRule = record.get('estimatedByRule'),
             icon = '';
 
         if (status === 'notValidated') {
@@ -149,7 +151,14 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             icon = '<span class="icon-flag5" style="margin-left:10px; color:red; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.validationResult.suspect', 'IMT', 'Suspect') + '"></span>';
         }
-        if (record.get('isConfirmed') && !record.isModified('value')) {
+        if (!Ext.isEmpty(estimatedByRule) && !record.isModified('value')) {
+            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;" data-qtip="'
+                + Uni.I18n.translate('reading.estimated', 'IMT', 'Estimated in {0} on {1} at {2}',[
+                    estimatedByRule.application.name,
+                    Uni.DateTime.formatDateLong(new Date(estimatedByRule.when)),
+                    Uni.DateTime.formatTimeLong(new Date(estimatedByRule.when))
+                ], false) + '"></span>';
+        } else if (record.get('isConfirmed') && !record.isModified('value')) {
             icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.validationResult.confirmed', 'IMT', 'Confirmed') + '"></span>';
         }

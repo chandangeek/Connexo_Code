@@ -5,7 +5,8 @@
 Ext.define('Imt.purpose.model.Output', {
     extend: 'Uni.model.Version',
     requires: [
-        'Imt.metrologyconfiguration.model.Formula'
+        'Imt.metrologyconfiguration.model.Formula',
+        'Imt.usagepointmanagement.model.DataCompletion'
     ],
 
     fields: [
@@ -28,6 +29,14 @@ Ext.define('Imt.purpose.model.Output', {
             associationKey: 'formula',
             getterName: 'getFormula',
             setterName: 'setFormula'
+        },
+        {
+            name: 'summary',
+            type: 'hasOne',
+            model: 'Imt.usagepointmanagement.model.DataCompletion',
+            associationKey: 'summary',
+            getterName: 'getSummary',
+            setterName: 'setSummary'
         }
     ],
 
