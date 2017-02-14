@@ -28,6 +28,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -944,6 +945,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public Optional<DeviceMessageFile> findDeviceMessageFile(long id) {
         return this.getDataModel().mapper(DeviceMessageFile.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<KeyAccessorType> findKeyAccessorTypeById(long id) {
+        return this.getDataModel().mapper(KeyAccessorType.class).getOptional(id);
     }
 
     @Override

@@ -14,8 +14,11 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.AbstractConnectionTypeDelegate;
+import com.energyict.mdc.device.config.AbstractConnectionTypePluggableClassDelegate;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.KeyAccessorPropertySpecWithPossibleValues;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
@@ -40,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.device.config.PartialConnectionTask} interface.
@@ -243,7 +247,7 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
         if (pluggableClass == null && pluggableClassId != 0) {
             pluggableClass = protocolPluggableService.findConnectionTypePluggableClass(pluggableClassId).get();
         }
-        return pluggableClass;
+        return new PluggableClassWithPossibleValues(pluggableClass);
     }
 
     @Override
@@ -331,5 +335,57 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
     @Override
     public long getVersion() {
         return version;
+    }
+
+    /**
+     * Modifies behaviour so a wrapper for the ConnectionType is returned, containing possible values for the
+     * KeyAccessorType PropertySpecs
+     */
+    private class PluggableClassWithPossibleValues extends AbstractConnectionTypePluggableClassDelegate {
+
+        public PluggableClassWithPossibleValues(ConnectionTypePluggableClass connectionTypePluggableClass) {
+            super(connectionTypePluggableClass);
+        }
+
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return super.getPropertySpecs().stream().
+                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(()->getConfiguration().getDeviceType().getKeyAccessorTypes(), ps)).
+                    collect(Collectors.toList());
+        }
+
+        @Override
+        public Optional<PropertySpec> getPropertySpec(String name) {
+            return super.getPropertySpec(name).
+                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(()->getConfiguration().getDeviceType().getKeyAccessorTypes(), ps));
+        }
+
+        @Override
+        public ConnectionType getConnectionType() {
+            return new ConnectionTypeWithPossibleValues(super.getConnectionType());
+        }
+    }
+
+    /**
+     * The wrapper is used to add additional PossibleValue to KeyAccessorType possible values
+     */
+    private class ConnectionTypeWithPossibleValues extends AbstractConnectionTypeDelegate {
+
+        private ConnectionTypeWithPossibleValues(ConnectionType connectionType) {
+            super(connectionType);
+        }
+
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return this.connectionType.getPropertySpecs().stream().
+                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(()->getConfiguration().getDeviceType().getKeyAccessorTypes(), ps)).
+                    collect(Collectors.toList());
+        }
+
+        @Override
+        public Optional<PropertySpec> getPropertySpec(String name) {
+            return this.connectionType.getPropertySpec(name).
+                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(()->getConfiguration().getDeviceType().getKeyAccessorTypes(), ps));
+        }
     }
 }
