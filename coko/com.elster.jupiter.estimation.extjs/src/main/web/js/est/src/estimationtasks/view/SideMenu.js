@@ -8,6 +8,7 @@ Ext.define('Est.estimationtasks.view.SideMenu', {
 
     router: null,
     title: Uni.I18n.translate('general.estimationTask', 'EST', 'Estimation task'),
+    objectType: Uni.I18n.translate('general.estimationTask', 'EST', 'Estimation task'),
 
     initComponent: function () {
         var me = this;
