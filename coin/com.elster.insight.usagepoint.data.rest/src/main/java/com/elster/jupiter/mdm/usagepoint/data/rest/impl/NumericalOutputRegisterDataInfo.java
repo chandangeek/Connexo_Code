@@ -3,6 +3,7 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
+import com.elster.jupiter.rest.util.IntervalInfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -20,6 +21,9 @@ public class NumericalOutputRegisterDataInfo extends OutputRegisterDataInfo {
     @JsonProperty("calculatedValue")
     @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
     public BigDecimal calculatedValue;
+
+    @JsonProperty("interval")
+    public IntervalInfo interval;
 
     public Boolean isConfirmed;
 

@@ -86,6 +86,9 @@ public class OutputRegisterDataInfoFactory {
                 numericalOutputRegisterDataInfo.value = readingWithValidationStatus.getValue();
                 numericalOutputRegisterDataInfo.calculatedValue = readingWithValidationStatus.getCalculatedValue()
                         .orElse(null);
+                numericalOutputRegisterDataInfo.interval = readingWithValidationStatus.getBillingPeriod()
+                        .map(IntervalInfo::from)
+                        .orElse(null);
                 return numericalOutputRegisterDataInfo;
         }
     }
