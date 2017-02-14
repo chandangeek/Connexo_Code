@@ -24,13 +24,20 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
         {name: 'trigger', type: 'string'},
         {name: 'updatePeriodFrom', type: 'string'},
         {name: 'updatePeriodTo', type: 'string'},
-
+        {
+            name: 'name',
+            persist:false,
+            mapping: 'task.name'
+        },
+        {
+            name: 'taskId',
+            persist:false,
+            mapping: 'task.id'
+        },
         {
             name: 'dataProcessor',
             persist:false,
-            mapping:  function (data) {
-                return data.task.dataProcessor;
-            }
+            mapping:  'task.dataProcessor'
         },
 
         {
@@ -87,20 +94,6 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
                 } else {
                     return '-';
                 }
-            }
-        },
-        {
-            name: 'name',
-            persist:false,
-            mapping:  function (data) {
-                return data.task.name;
-            }
-        },
-        {
-            name: 'taskId',
-            persist:false,
-            mapping:  function (data) {
-                return data.task.id;
             }
         },
         {
