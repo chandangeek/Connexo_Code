@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.Column;
@@ -29,7 +30,12 @@ import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.impl.kpi.DataValidationKpiChild;
 import com.elster.jupiter.validation.impl.kpi.DataValidationKpiChildImpl;
 import com.elster.jupiter.validation.impl.kpi.DataValidationKpiImpl;
+import com.elster.jupiter.validation.impl.kpi.EndDeviceDataQualityImpl;
+import com.elster.jupiter.validation.impl.kpi.UsagePointDataQualityImpl;
 import com.elster.jupiter.validation.kpi.DataValidationKpi;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
@@ -262,11 +268,21 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<DataValidationKpi> table = dataModel.addTable(name(), DataValidationKpi.class);
-            table.map(DataValidationKpiImpl.class);
+            Map<String, Class<? extends DataValidationKpi>> implementers = new HashMap<>();
+
+            implementers.put("EndDeviceDataQuality", EndDeviceDataQualityImpl.class);
+            implementers.put("UsagePointDataQuality", UsagePointDataQualityImpl.class);
+            table.map(implementers);
+
             table.since(version(10, 2));
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
-            Column endDeviceGroup = table.column("ENDDEVICEGROUP").number().notNull().add();
+
+            table.column("DISCRIMINATOR").varChar(NAME_LENGTH).notNull().installValue("EndDeviceGroup").map(Column.TYPEFIELDNAME).since(version(10, 3)).add(); // discriminator column
+            Column endDeviceGroup = table.column("ENDDEVICEGROUP").number().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column usagePointGroup = table.column("USAGEPOINTGROUP").number().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column purpose = table.column("PURPOSE").number().conversion(ColumnConversion.NUMBER2LONG).add();
+
             Column dataValidationKpiTask = table.column("DATAVALIDATIONKPI_TASK").number().add();
 
             table.primaryKey("PK_DDC_DATA_VALIDATION_KPI").on(id).add();
@@ -275,10 +291,20 @@ public enum TableSpecs {
                     references(EndDeviceGroup.class).
                     map(DataValidationKpiImpl.Fields.END_DEVICE_GROUP.fieldName()).
                     add();
+            table.foreignKey("FK_VAL_USAGEPOINTGROUP").
+                    on(usagePointGroup).
+                    references(UsagePointGroup.class).
+                    map(DataValidationKpiImpl.Fields.USAGE_POINT_GROUP.fieldName()).
+                    add();
             table.foreignKey("FK_DDC_VAL_KPI_TASK").
                     on(dataValidationKpiTask).
                     references(RecurrentTask.class).
                     map(DataValidationKpiImpl.Fields.DATA_VALIDATION_KPI_TASK.fieldName()).
+                    add();
+            table.foreignKey("FK_VAL_METROLOGY_PURPOSE").
+                    on(purpose).
+                    references(MetrologyPurpose.class).
+                    map(DataValidationKpiImpl.Fields.PURPOSE.fieldName()).
                     add();
         }
     },
