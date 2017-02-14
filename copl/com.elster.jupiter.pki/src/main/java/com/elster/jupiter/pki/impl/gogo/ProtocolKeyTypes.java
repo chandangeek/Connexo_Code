@@ -13,7 +13,7 @@ import com.elster.jupiter.pki.PkiService;
  * Protocols will create the KeyTypes it requires itself, with this enum, created keytypes can be retrieved by name
  * afterwards
  */
-public enum ProtocolKeyTypes implements KeyTypeCreator {
+public enum ProtocolKeyTypes {
     AES_128 {
         public String getName() {
             return "AES 128";
@@ -64,5 +64,8 @@ public enum ProtocolKeyTypes implements KeyTypeCreator {
         }
     },
     ;
+
+    abstract public String getName();
+    abstract public KeyType createKeyType(PkiService pkiService);
 
 }

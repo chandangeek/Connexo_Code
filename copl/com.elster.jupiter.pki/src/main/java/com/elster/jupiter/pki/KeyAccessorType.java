@@ -1,6 +1,8 @@
 package com.elster.jupiter.pki;
 
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ConsumerType;
 
@@ -16,7 +18,7 @@ import java.util.Optional;
  * name of a KeyAccessor.
  */
 @ConsumerType
-public interface KeyAccessorType {
+public interface KeyAccessorType extends HasId, HasName {
 
     /**
      * The KeyAccessorType system assigned id
