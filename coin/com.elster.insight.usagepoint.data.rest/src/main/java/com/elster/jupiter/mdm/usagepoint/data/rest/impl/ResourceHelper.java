@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -24,6 +25,7 @@ import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.rest.util.ConcurrentModificationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.util.Pair;
 
 import javax.inject.Inject;
@@ -140,6 +142,11 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYCONTRACT_IS_NOT_LINKED_TO_USAGEPOINT, contractId, effectiveMC.getUsagePoint().getName()));
     }
 
+    public MetrologyContract findMetrologyContractOrThrowException(UsagePoint usagePoint, long contractId) {
+        return metrologyConfigurationService.findMetrologyContract(contractId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYCONTRACT_IS_NOT_LINKED_TO_USAGEPOINT, contractId, usagePoint.getName()));
+    }
+
     public ReadingTypeDeliverable findReadingTypeDeliverableOrThrowException(MetrologyContract metrologyContract, long outputId, String usagePointName) {
         return metrologyContract.getDeliverables().stream()
                 .filter(deliverable -> deliverable.getId() == outputId)
@@ -192,5 +199,16 @@ public class ResourceHelper {
         return requirements.stream()
                 .filter(requirement -> !meterProvidedReadingTypes.stream().anyMatch(requirement::matches))
                 .collect(Collectors.toSet());
+    }
+
+    public IdWithNameInfo getApplicationInfo(QualityCodeSystem system) {
+        switch (system) {
+            case MDC:
+                return new IdWithNameInfo(system.name(), "MultiSense");
+            case MDM:
+                return new IdWithNameInfo(system.name(), "Insight");
+            default:
+                return new IdWithNameInfo(system.name(), system.name());
+        }
     }
 }
