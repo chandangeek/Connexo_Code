@@ -88,17 +88,17 @@ public abstract class ReadingWithValidationStatus<T extends BaseReadingRecord> {
         return Optional.ofNullable(this.channelGeneralValidation.lastChecked);
     }
 
-    public Optional<Pair<ReadingModificationFlag, ReadingQualityRecord>> getReadingModificationFlag() {
-        if (this.persistedReadingRecord != null) {
+    public Optional<Pair<ReadingModificationFlag, ReadingQuality>> getReadingModificationFlag() {
+        if (this.validationStatus != null) {
             return Optional.ofNullable(
                     ReadingModificationFlag.getModificationFlagWithQualityRecord(
-                            this.persistedReadingRecord,
-                            this.persistedReadingRecord.getReadingQualities(),
+                            this.validationStatus.getReadingQualities(),
                             Optional.ofNullable(this.calculatedReadingRecord)
                     )
             );
+        } else {
+            return Optional.empty();
         }
-        return Optional.empty();
     }
 
     public List<? extends ReadingQuality> getReadingQualities() {
