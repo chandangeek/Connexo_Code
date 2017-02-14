@@ -1,13 +1,5 @@
 package com.elster.protocolimpl.lis200;
 
-import com.energyict.mdc.upl.io.NestedIOException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecBuilder;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TypedProperties;
-
 import com.elster.protocolimpl.dlms.util.ElsterProtocolIOExceptionHandler;
 import com.elster.protocolimpl.lis200.commands.AbstractCommand;
 import com.elster.protocolimpl.lis200.objects.AbstractObject;
@@ -32,6 +24,13 @@ import com.elster.protocolimpl.lis200.registers.ValueRegisterDefinition;
 import com.elster.protocolimpl.lis200.utils.RawArchiveLineInfo;
 import com.elster.utils.lis200.events.EventInterpreter;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
@@ -183,11 +182,16 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
         propertySpecs.add(this.integerSpec(SUPPRESS_WAKEUP_SEQUENCE));
         propertySpecs.add(this.stringSpec(USE_LOCK));
         propertySpecs.add(this.integerRangeSpec(METER_INDEX, false, Range.closed(1, this.maxMeterIndex)));
-        propertySpecs.add(this.integerRangeSpec(ARCHIVE_TO_READOUT, false, Range.atLeast(1)));
-        propertySpecs.add(this.integerRangeSpec(ARCHIVE_STRUCTURE, false, Range.atLeast(1)));
+        propertySpecs.add(this.integerRangeSpec(ARCHIVE_TO_READOUT, false));
+        propertySpecs.add(this.integerRangeSpec(ARCHIVE_STRUCTURE, false));
         propertySpecs.add(LIS200Utils.propertySpec(ARCHIVE_INTERVAL_ADDRESS, false));
         propertySpecs.add(this.integerSpec(DELAY_AFTER_CHECK));
         return propertySpecs;
+    }
+
+    private PropertySpec integerRangeSpec(String name, boolean required) {
+        PropertySpecBuilder<Integer> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, this.getPropertySpecService()::integerSpec);
+        return specBuilder.finish();
     }
 
     private PropertySpec integerRangeSpec(String name, boolean required, Range<Integer> range) {
