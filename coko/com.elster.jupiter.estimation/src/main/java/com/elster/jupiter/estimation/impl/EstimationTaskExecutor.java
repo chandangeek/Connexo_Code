@@ -7,6 +7,7 @@ package com.elster.jupiter.estimation.impl;
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
@@ -26,6 +27,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.streams.Functions;
 
@@ -98,15 +100,16 @@ class EstimationTaskExecutor implements TaskExecutor {
                     .flatMap(Functions.asStream())
                     .forEach(meterActivation -> doEstimateTransactional(meterActivation, system, relativePeriod, occurrence
                             .getTriggerTime(), taskLogger));
-        } else if (estimationTask.getUsagePointGroup().isPresent()) {
-            meteringService.getChannelsContainerWithReadingQualitiesQuery(relativePeriod.getOpenClosedInterval(ZonedDateTime
-                    .ofInstant(occurrence
-                            .getTriggerTime(), ZoneId.systemDefault())), ReadingQualityType.of(system, QualityCodeIndex.SUSPECT))
-                    .select(ListOperator.IN.contains(estimationTask.getUsagePointGroup()
-                            .get()
-                            .toSubQuery("id"), "effectiveMetrologyContract.metrologyConfiguration.usagePoint"))
+        } else if (estimationTask.getUsagePointGroup().isPresent() && !estimationTask.getMetrologyPurpose().isPresent()) {
+            getChannelsContainersQuery(relativePeriod, occurrence, system, estimationTask)
+                    .select(ListOperator.IN.contains(estimationTask.getUsagePointGroup().get().toSubQuery("id"), "effectiveMetrologyContract.metrologyConfiguration.usagePoint"))
                     .stream()
                     .forEach(channelsContainer -> doEstimateTransactional(occurrence, channelsContainer, system, relativePeriod, taskLogger));
+        } else if(estimationTask.getUsagePointGroup().isPresent() && estimationTask.getMetrologyPurpose().isPresent()) {
+            ChannelsContainer channelsContainer = getChannelsContainersQuery(relativePeriod, occurrence, system, estimationTask)
+                    .select(ListOperator.IN.contains(estimationTask.getUsagePointGroup().get().toSubQuery("id"), "effectiveMetrologyContract.metrologyConfiguration.usagePoint")
+                    .and(Where.where("effectiveMetrologyContract.metrologyContract.metrologyPurpose").isEqualTo(estimationTask.getMetrologyPurpose().get()))).get(0);
+            doEstimateTransactional(occurrence, channelsContainer, system, relativePeriod, taskLogger);
         }
     }
 
@@ -177,5 +180,11 @@ class EstimationTaskExecutor implements TaskExecutor {
                 .flatMap(UsagePoint::getCurrentEffectiveMetrologyConfiguration)
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
                 .map(UsagePointMetrologyConfiguration::getContracts);
+    }
+
+    private Query<ChannelsContainer> getChannelsContainersQuery(RelativePeriod relativePeriod, TaskOccurrence occurrence, QualityCodeSystem system, EstimationTask estimationTask) {
+        return meteringService.getChannelsContainerWithReadingQualitiesQuery(
+                relativePeriod.getOpenClosedInterval(
+                        ZonedDateTime.ofInstant(occurrence.getTriggerTime(), ZoneId.systemDefault())), ReadingQualityType.of(system, QualityCodeIndex.SUSPECT));
     }
 }
