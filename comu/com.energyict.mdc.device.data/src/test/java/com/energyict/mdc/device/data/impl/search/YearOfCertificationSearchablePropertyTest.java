@@ -55,12 +55,14 @@ public class YearOfCertificationSearchablePropertyTest {
 
     private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
+    private SearchablePropertyGroup deviceAttributesGroup;
 
     @Before
     public void initializeThesaurus() {
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(this.messageFormat);
         when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(this.messageFormat);
         when(this.messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+        this.deviceAttributesGroup = new DeviceAttributesPropertyGroup(this.thesaurus);
     }
 
     @Before
@@ -209,7 +211,7 @@ public class YearOfCertificationSearchablePropertyTest {
     }
 
     private YearOfCertificationSearchableProperty getTestInstance() {
-        return new YearOfCertificationSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain);
+        return new YearOfCertificationSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, deviceAttributesGroup);
     }
 
 }

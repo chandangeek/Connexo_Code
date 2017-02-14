@@ -61,6 +61,7 @@ public class ModelVersionSearchablePropertyTest {
     private BeanService beanService = new DefaultBeanService();
     private com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     private PropertySpecService propertySpecService;
+    private SearchablePropertyGroup deviceAttributesGroup;
 
     @Before
     public void initializeThesaurus() {
@@ -74,6 +75,7 @@ public class ModelVersionSearchablePropertyTest {
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
         this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
         this.propertySpecService = new PropertySpecServiceImpl(this.jupiterPropertySpecService, this.dataVaultService, this.ormService);
+        this.deviceAttributesGroup = new DeviceAttributesPropertyGroup(this.thesaurus);
     }
 
     @Test
@@ -216,7 +218,7 @@ public class ModelVersionSearchablePropertyTest {
     }
 
     private ModelVersionSearchableProperty getTestInstance() {
-        return new ModelVersionSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain);
+        return new ModelVersionSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, deviceAttributesGroup);
     }
 
 }
