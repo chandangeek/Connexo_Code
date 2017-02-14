@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Cfg.controller.Tasks', {
     extend: 'Ext.app.Controller',
 
@@ -24,7 +28,8 @@ Ext.define('Cfg.controller.Tasks', {
         'Cfg.store.ValidationTasks',
         'Cfg.store.ValidationTasksHistory',
         'Cfg.store.MetrologyContracts',
-        'Cfg.store.MetrologyConfigurations'
+        'Cfg.store.MetrologyConfigurations',
+        'Cfg.store.MetrologyPurposes'
     ],
 
     models: [
@@ -82,6 +87,9 @@ Ext.define('Cfg.controller.Tasks', {
             },
             'cfg-validation-tasks-add #add-button': {
                 click: this.addTask
+            },
+            'cfg-validation-tasks-add #reset-purpose-btn': {
+                click: this.resetPurpose
             },
             'validation-tasks-setup cfg-validation-tasks-grid': {
                 select: this.showPreview
@@ -144,7 +152,7 @@ Ext.define('Cfg.controller.Tasks', {
                     if (Cfg.privileges.Validation.canRun()) {
                         view.down('#run-task').show();
                     }
-                }              
+                }
             }
         });
     },
@@ -213,6 +221,7 @@ Ext.define('Cfg.controller.Tasks', {
                 break;
             case me.INSIGHT_KEY:
                 me.getStore('Cfg.store.UsagePointGroups').load(onGroupsLoad);
+                me.getStore('Cfg.store.MetrologyPurposes').load();
                 break;
         }
     },
@@ -284,11 +293,11 @@ Ext.define('Cfg.controller.Tasks', {
                     };
                 if (view.rendered) {
                     switch (appName) {
-                        case me.MULTISENSE_KEY:{
+                        case me.MULTISENSE_KEY: {
                             callback();
                         }
                             break;
-                        case me.INSIGHT_KEY:{
+                        case me.INSIGHT_KEY: {
                             callback();
                         }
                             break;
@@ -444,7 +453,7 @@ Ext.define('Cfg.controller.Tasks', {
                     confWindow.destroy();
                 }
             },
-            callback: function() {
+            callback: function () {
                 mainView.setLoading(false);
             }
         });
@@ -490,10 +499,18 @@ Ext.define('Cfg.controller.Tasks', {
                     return
                 }
             },
-            callback: function() {
+            callback: function () {
                 mainView.setLoading(false);
             }
         });
+    },
+
+    resetPurpose: function (btn) {
+        var me = this,
+            page = me.getAddPage(),
+            form = page.down('#frm-add-validation-task');
+        form.down('#cbo-validation-task-purpose').clearValue();
+        btn.disable();
     },
 
     addTask: function (button) {
@@ -646,7 +663,7 @@ Ext.define('Cfg.controller.Tasks', {
                     }
                 }
             },
-            callback: function() {
+            callback: function () {
                 page.setLoading(false);
             }
         })
@@ -667,10 +684,10 @@ Ext.define('Cfg.controller.Tasks', {
         me.recurrenceEnableDisable();
     },
 
-    recurrenceEnableDisable: function() {
+    recurrenceEnableDisable: function () {
         var me = this,
             page = me.getAddPage();
-        if(!page.down('#rgr-validation-tasks-recurrence-trigger').getValue().recurrence) {
+        if (!page.down('#rgr-validation-tasks-recurrence-trigger').getValue().recurrence) {
             page.down('#recurrence-values').disable();
         } else {
             page.down('#recurrence-values').enable();

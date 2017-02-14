@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Cfg.view.log.Setup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.cfg-log-setup',

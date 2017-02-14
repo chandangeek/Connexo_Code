@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Cfg.view.validation.RuleActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.validation-rule-action-menu',

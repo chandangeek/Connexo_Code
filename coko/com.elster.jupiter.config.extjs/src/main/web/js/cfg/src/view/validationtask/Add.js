@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Cfg.view.validationtask.Add', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.cfg-validation-tasks-add',
@@ -69,6 +73,9 @@ Ext.define('Cfg.view.validationtask.Add', {
                     {
                         xtype: 'cfg-data-sources-container',
                         itemId: 'field-validation-task-group',
+                        defaults: {
+                            labelWidth: 250
+                        },
                         appName: me.appName,
                         edit: me.edit
                     },

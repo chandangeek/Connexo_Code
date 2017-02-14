@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Cfg.model.ValidationTaskHistory', {
     extend: 'Ext.data.Model',
     requires: [        
@@ -25,6 +29,13 @@ Ext.define('Cfg.model.ValidationTaskHistory', {
             persist:false,
             mapping:  function (data) {
                 return data.task.usagePointGroup;
+            }
+        },
+        {
+            name: 'metrologyPurpose',
+            persist:false,
+            mapping:  function (data) {
+                return data.task.metrologyPurpose;
             }
         },
         {

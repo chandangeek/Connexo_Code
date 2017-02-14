@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Cfg.view.validation.RulePreview', {
     extend: 'Ext.form.Panel',
     alias: 'widget.validation-rule-preview',

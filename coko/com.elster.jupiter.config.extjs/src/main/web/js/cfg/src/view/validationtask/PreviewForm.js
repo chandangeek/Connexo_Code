@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Cfg.view.validationtask.PreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.cfg-tasks-preview-form',
