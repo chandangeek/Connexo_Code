@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.EstimationTaskBuilder;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.DataModel;
@@ -22,6 +27,7 @@ class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
     private String name;
     private EndDeviceGroup endDeviceGroup;
     private UsagePointGroup usagePointGroup;
+    private MetrologyPurpose metrologyPurpose;
     private QualityCodeSystem qualityCodeSystem;
     private int logLevel;
 
@@ -66,6 +72,9 @@ class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
         if (period != null) {
             task.setPeriod(period);
         }
+        if (metrologyPurpose != null) {
+            task.setMetrologyPurpose(metrologyPurpose);
+        }
         task.doSave();
         return task;
     }
@@ -85,6 +94,12 @@ class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
     @Override
     public EstimationTaskBuilder setUsagePointGroup(UsagePointGroup usagePointGroup) {
         this.usagePointGroup = usagePointGroup;
+        return this;
+    }
+
+    @Override
+    public EstimationTaskBuilder setMetrologyPurpose(MetrologyPurpose metrologyPurpose) {
+        this.metrologyPurpose = metrologyPurpose;
         return this;
     }
 

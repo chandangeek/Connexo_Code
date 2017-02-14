@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.estimation.impl;
@@ -15,6 +15,11 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -104,6 +109,16 @@ public class EstimationTaskExecutorTest {
     private RelativePeriod relativePeriod;
     @Mock
     private com.elster.jupiter.transaction.TransactionContext transactionContext;
+    @Mock
+    private UsagePoint usagePoint;
+    @Mock
+    private EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint;
+    @Mock
+    private UsagePointMetrologyConfiguration usagePointMetrologyConfiguration;
+    @Mock
+    private MetrologyContract metrologyContract;
+    @Mock
+    private MetrologyPurpose metrologyPurpose;
 
 
     private MyHandler myHandler;
@@ -156,6 +171,10 @@ public class EstimationTaskExecutorTest {
         when(estimationTask.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
         when(relativePeriod.getOpenClosedInterval(triggerTime)).thenReturn(periodRange);
         when(transactionService.getContext()).thenReturn(transactionContext);
+        when(channelsContainer.getUsagePoint()).thenReturn(Optional.of(usagePoint));
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
+        when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
+        when(usagePointMetrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
 
         doAnswer(invocationOnMock -> {
             invocationOnMock.getArgumentAt(1, Runnable.class).run();
@@ -186,6 +205,7 @@ public class EstimationTaskExecutorTest {
     public void testSuccessfullRunWithUsagePoint() {
         when(estimationTask.getEndDeviceGroup()).thenReturn(Optional.empty());
         when(estimationTask.getUsagePointGroup()).thenReturn(Optional.of(usagePointGroup));
+        when(estimationTask.getMetrologyPurpose()).thenReturn(Optional.empty());
         when(usagePointGroup.toSubQuery()).thenReturn(usagePointSubQuery);
 
         EstimationTaskExecutor executor = new EstimationTaskExecutor(estimationService, transactionService, meteringService,
@@ -214,6 +234,25 @@ public class EstimationTaskExecutorTest {
         verify(estimationTask, times(1)).updateLastRun(eq(triggerTime.toInstant()));
         assertTrue(myHandler.records.stream().anyMatch(record -> Level.WARNING.equals(record.getLevel()) && record.getThrown() instanceof NullPointerException));
 
+    }
+
+    @Test
+    public void testEstimationTaskWithPurpose() {
+        when(estimationTask.getEndDeviceGroup()).thenReturn(Optional.empty());
+        when(estimationTask.getUsagePointGroup()).thenReturn(Optional.of(usagePointGroup));
+        when(usagePointGroup.toSubQuery()).thenReturn(usagePointSubQuery);
+        when(estimationTask.getMetrologyPurpose()).thenReturn(Optional.of(metrologyPurpose));
+        when(metrologyContract.getMetrologyPurpose()).thenReturn(metrologyPurpose);
+        EstimationTaskExecutor executor = new EstimationTaskExecutor(estimationService, transactionService, meteringService,
+                timeService, threadPrincipleService, estimationUser);
+        executor.postExecute(occurrence);
+
+        verify(transactionService, times(1)).getContext();
+        verify(estimationService, times(1)).estimate(eq(QUALITY_CODE_SYSTEM), eq(channelsContainer), eq(periodRange), any(Logger.class));
+        verify(transactionContext, times(1)).commit();
+        verify(transactionContext, times(1)).close();
+        verify(transactionService, times(1)).run(any(Runnable.class));
+        verify(estimationTask, times(1)).updateLastRun(eq(triggerTime.toInstant()));
     }
 
     private class MyHandler extends Handler {

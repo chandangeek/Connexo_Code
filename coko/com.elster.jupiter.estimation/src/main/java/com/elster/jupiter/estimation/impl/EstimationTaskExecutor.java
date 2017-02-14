@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
@@ -8,6 +12,10 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskExecutor;
@@ -26,7 +34,9 @@ import com.google.common.collect.Range;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -96,8 +106,7 @@ class EstimationTaskExecutor implements TaskExecutor {
                             .get()
                             .toSubQuery("id"), "effectiveMetrologyContract.metrologyConfiguration.usagePoint"))
                     .stream()
-                    .forEach(channelsContainer -> doEstimateTransactional(channelsContainer, system, relativePeriod, occurrence
-                            .getTriggerTime(), taskLogger));
+                    .forEach(channelsContainer -> doEstimateTransactional(occurrence, channelsContainer, system, relativePeriod, taskLogger));
         }
     }
 
@@ -114,11 +123,17 @@ class EstimationTaskExecutor implements TaskExecutor {
         }
     }
 
-    private void doEstimateTransactional(ChannelsContainer channelsContainer, QualityCodeSystem system, RelativePeriod relativePeriod, Instant triggerTime, Logger taskLogger) {
+    private void doEstimateTransactional(TaskOccurrence occurrence, ChannelsContainer channelsContainer, QualityCodeSystem system, RelativePeriod relativePeriod, Logger taskLogger) {
         try {
-            try (TransactionContext transactionContext = transactionService.getContext()) {
-                estimationService.estimate(system, channelsContainer, period(channelsContainer, relativePeriod, triggerTime), taskLogger);
-                transactionContext.commit();
+            Optional<List<MetrologyContract>> metrologyContracts = getMetrologyContractsFromChannelsContainer(channelsContainer);
+            if (getEstimationTask(occurrence).getMetrologyPurpose()
+                    .isPresent() && metrologyContracts.isPresent()) {
+                metrologyContracts.get()
+                        .stream()
+                        .forEach(metrologyContract ->
+                                estimateWithPurpose(metrologyContract, occurrence, system, channelsContainer, relativePeriod, taskLogger));
+            } else {
+                estimate(system, channelsContainer, relativePeriod, occurrence, taskLogger);
             }
         } catch (Exception ex) {
             transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to estimate "
@@ -143,5 +158,24 @@ class EstimationTaskExecutor implements TaskExecutor {
         return taskLogger;
     }
 
+    private void estimateWithPurpose(MetrologyContract metrologyContract, TaskOccurrence occurrence, QualityCodeSystem system, ChannelsContainer channelsContainer, RelativePeriod relativePeriod, Logger taskLogger) {
+        if (metrologyContract.getMetrologyPurpose().equals(getEstimationTask(occurrence).getMetrologyPurpose().get())) {
+            estimate(system, channelsContainer, relativePeriod, occurrence, taskLogger);
+        }
+    }
 
+    private void estimate(QualityCodeSystem system, ChannelsContainer channelsContainer, RelativePeriod relativePeriod, TaskOccurrence occurrence, Logger taskLogger) {
+        try (TransactionContext transactionContext = transactionService.getContext()) {
+            estimationService.estimate(system, channelsContainer, period(channelsContainer, relativePeriod, occurrence
+                    .getTriggerTime()), taskLogger);
+            transactionContext.commit();
+        }
+    }
+
+    private Optional<List<MetrologyContract>> getMetrologyContractsFromChannelsContainer(ChannelsContainer channelsContainer) {
+        return channelsContainer.getUsagePoint()
+                .flatMap(UsagePoint::getCurrentEffectiveMetrologyConfiguration)
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
+                .map(UsagePointMetrologyConfiguration::getContracts);
+    }
 }
