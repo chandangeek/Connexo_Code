@@ -15,7 +15,6 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsSlaveProtocol;
 import com.energyict.protocolimplv2.eict.webrtuz3.messages.emeter.WebRTUZ3EMeterMessaging;
@@ -31,7 +30,7 @@ public class EMeter extends AbstractDlmsSlaveProtocol {
     private final AbstractDlmsProtocol masterProtocol;
     private final WebRTUZ3EMeterMessaging eMeterMessaging;
 
-    private EMeter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, NumberLookupExtractor numberLookupExtractor) {
+    public EMeter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, NumberLookupExtractor numberLookupExtractor) {
         this.masterProtocol = new WebRTUZ3(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, calendarExtractor, messageFileExtractor, numberLookupExtractor);
         this.eMeterMessaging = new WebRTUZ3EMeterMessaging(masterProtocol, propertySpecService, nlsService, converter);
     }
