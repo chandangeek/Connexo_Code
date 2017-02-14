@@ -11,6 +11,7 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -298,13 +299,7 @@ final class SqlConstants {
         }
 
         static String[] names() {
-            String[] names = new String[values().length];
-            int i = 0;
-            for (TimeSeriesColumnNames columnNames : values()) {
-                names[i] = columnNames.sqlName();
-                i++;
-            }
-            return names;
+            return Stream.of(values()).toArray(String[]::new);
         }
 
     }

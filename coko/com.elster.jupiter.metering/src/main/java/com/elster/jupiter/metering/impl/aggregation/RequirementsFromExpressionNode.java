@@ -42,6 +42,11 @@ class RequirementsFromExpressionNode implements ServerExpressionNode.Visitor<Lis
     }
 
     @Override
+    public List<VirtualRequirementNode> visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
+        return Collections.emptyList();
+    }
+
+    @Override
     public List<VirtualRequirementNode> visitSqlFragment(SqlFragmentNode variable) {
         return Collections.emptyList();
     }

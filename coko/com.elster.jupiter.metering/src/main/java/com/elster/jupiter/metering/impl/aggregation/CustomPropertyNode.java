@@ -12,6 +12,9 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.units.Dimension;
 
+import com.google.common.collect.Range;
+
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -50,8 +53,16 @@ class CustomPropertyNode implements ServerExpressionNode {
         return IntermediateDimension.of(Dimension.DIMENSIONLESS);
     }
 
+    protected Range<Instant> rawDataPeriod() {
+        return this.meterActivationSet.getRange();
+    }
+
     String sqlName() {
-        return "cps" + this.customPropertySet.getId() + "_" + Math.abs(this.propertySpec.getName().hashCode()) + "_" + this.meterActivationSet.sequenceNumber();
+        return this.sqlName("cps");
+    }
+
+    protected String sqlName(String prefix) {
+        return prefix + this.customPropertySet.getId() + "_" + Math.abs(this.propertySpec.getName().hashCode()) + "_" + this.meterActivationSet.sequenceNumber();
     }
 
     void appendDefinitionTo(ClauseAwareSqlBuilder sqlBuilder) {
@@ -59,13 +70,19 @@ class CustomPropertyNode implements ServerExpressionNode {
         this.appendWithClause(withClauseBuilder);
     }
 
-    private String sqlComment() {
-        return "Value for custom property '" + this.propertySpec.getName() + "' of set '" + this.getCustomPropertySet()
-                .getName() + "' (id=" + this.customPropertySet.getId() + ") in " + this.meterActivationSet
-                .getRange();
+    protected String sqlComment() {
+        return "Value for custom property '" + this.propertySpec.getName() +
+                "' of set '" + this.getCustomPropertySet().getName() + "' (id=" + this.customPropertySet.getId() +
+                ") in " + this.rawDataPeriod();
     }
 
-    private String[] withClauseSqlNames() {
+    protected String sqlComment(String type) {
+        return "Value for " + type + "custom property '" + this.propertySpec.getName() +
+                "' of set '" + this.getCustomPropertySet().getName() + "' (id=" + this.customPropertySet.getId() +
+                ") in " + this.rawDataPeriod();
+    }
+
+    protected String[] withClauseSqlNames() {
         return new String[]{
                 "starttime",
                 "endtime",
@@ -74,7 +91,7 @@ class CustomPropertyNode implements ServerExpressionNode {
     }
 
     @SuppressWarnings("unchecked")
-    private void appendWithClause(SqlBuilder withClauseBuilder) {
+    protected void appendWithClause(SqlBuilder withClauseBuilder) {
         withClauseBuilder.append("SELECT starttime, endtime, value, null FROM (");
         withClauseBuilder.add(
                 this.customPropertySetService.getRawValuesSql(
@@ -82,7 +99,7 @@ class CustomPropertyNode implements ServerExpressionNode {
                         this.propertySpec,
                         SqlConstants.TimeSeriesColumnNames.VALUE.sqlName(),
                         this.usagePoint,
-                        this.meterActivationSet.getRange()));
+                        this.rawDataPeriod()));
         withClauseBuilder.append(")");
     }
 

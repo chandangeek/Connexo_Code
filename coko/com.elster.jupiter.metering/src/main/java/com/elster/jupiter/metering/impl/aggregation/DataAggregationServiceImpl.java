@@ -159,7 +159,13 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
                  * if all formulas of the contract are using only constants
                  * or expressions that behave as a constant (e.g. custom properties). */
                 if (this.onlyConstantLikeExpressions(contract)) {
-                    MeterActivationSetImpl meterActivationSet = new MeterActivationSetImpl(usagePoint, null, (UsagePointMetrologyConfiguration) contract.getMetrologyConfiguration(), 1, clippedPeriod, clippedPeriod.lowerEndpoint());
+                    MeterActivationSetImpl meterActivationSet =
+                            new MeterActivationSetImpl(
+                                    usagePoint,
+                                    (UsagePointMetrologyConfiguration) contract.getMetrologyConfiguration(),
+                                    1,
+                                    period,
+                                    period.lowerEndpoint());
                     this.prepare(usagePoint, meterActivationSet, contract, clippedPeriod, virtualFactory, deliverablesPerMeterActivation);
                 } else {
                     throw new VirtualUsagePointsOnlySupportConstantLikeExpressionsException(this.getThesaurus());
@@ -221,12 +227,12 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
 
     @Override
     public List<MeterActivationSet> getMeterActivationSets(ServerUsagePoint usagePoint, Range<Instant> period) {
-        return new MeterActivationSetBuilder(usagePoint, period).build();
+        return new MeterActivationSetBuilder(this.customPropertySetService, usagePoint, period).build();
     }
 
     @Override
     public List<MeterActivationSet> getMeterActivationSets(ServerUsagePoint usagePoint, Instant when) {
-        return new MeterActivationSetBuilder(usagePoint, when).build();
+        return new MeterActivationSetBuilder(this.customPropertySetService, usagePoint, when).build();
     }
 
     private void prepare(UsagePoint usagePoint, MeterActivationSet meterActivationSet, MetrologyContract contract, Range<Instant> period, VirtualFactory virtualFactory, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) {

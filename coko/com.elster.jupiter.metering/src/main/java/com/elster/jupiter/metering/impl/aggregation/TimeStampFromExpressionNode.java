@@ -41,6 +41,11 @@ class TimeStampFromExpressionNode implements ServerExpressionNode.Visitor<String
     }
 
     @Override
+    public String visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
+        return slp.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName();
+    }
+
+    @Override
     public String visitSqlFragment(SqlFragmentNode variable) {
         return null;
     }

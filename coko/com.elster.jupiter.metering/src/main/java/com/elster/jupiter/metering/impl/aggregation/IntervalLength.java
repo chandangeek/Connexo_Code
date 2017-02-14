@@ -772,6 +772,14 @@ public enum IntervalLength {
         return from(readingType.getMacroPeriod(), readingType.getMeasuringPeriod());
     }
 
+    public static IntervalLength from(Duration duration) {
+        return Stream
+                    .of(values())
+                    .filter(each -> each.toTemporalAmount().equals(duration))
+                    .findAny()
+                    .orElseThrow(() -> new IllegalArgumentException("Unsupported duration: " + duration.toString()));
+    }
+
     public static Set<IntervalLength> multiples(IntervalLength from, IntervalLength to) {
         if (from.equals(to)) {
             return Collections.singleton(from);
