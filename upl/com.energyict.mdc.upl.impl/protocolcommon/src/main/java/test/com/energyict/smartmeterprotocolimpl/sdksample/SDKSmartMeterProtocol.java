@@ -32,6 +32,7 @@ import test.com.energyict.protocolimpl.sdksample.SDKSampleProtocolConnection;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -45,7 +46,7 @@ import java.util.logging.Logger;
  * Date: 17-jan-2011
  * Time: 15:14:31
  */
-public abstract class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements MessageProtocol {
+public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements MessageProtocol {
 
     private static final String MeterSerialNumber = "Master";
     private final PropertySpecService propertySpecService;
@@ -451,5 +452,15 @@ public abstract class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol i
 
     public String writeValue(final MessageValue value) {
         return null;  //TODO implement proper functionality.
+    }
+
+    @Override
+    public Serializable getCache() {
+        return null;
+    }
+
+    @Override
+    public void setCache(Serializable cacheObject) {
+
     }
 }
