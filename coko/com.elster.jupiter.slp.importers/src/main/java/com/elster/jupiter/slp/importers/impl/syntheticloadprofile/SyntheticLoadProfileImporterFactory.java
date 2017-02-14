@@ -81,7 +81,7 @@ public class SyntheticLoadProfileImporterFactory extends AbstractFileImporterFac
 
     @Override
     public String getApplicationName() {
-        return context.insightInstalled() ? "INS" : "MDC";
+        return "INS";
     }
 
     @Override

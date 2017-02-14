@@ -10,8 +10,11 @@ import com.elster.jupiter.slp.SyntheticLoadProfile;
 import com.elster.jupiter.slp.importers.impl.AbstractImportProcessor;
 import com.elster.jupiter.slp.importers.impl.MessageSeeds;
 import com.elster.jupiter.slp.importers.impl.SyntheticLoadProfileDataImporterContext;
+import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
+import com.elster.jupiter.util.time.Interval;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -23,7 +26,9 @@ import java.util.Map;
 public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor<SyntheticLoadProfileImportRecord> {
 
     private Map<String, Map<Instant, BigDecimal>> values = new HashMap<>();
+    private Map<String, SyntheticLoadProfile> syntheticLoadProfiles = new HashMap<>();
     private Instant previousTimeStamp;
+    private Duration interval;
 
     SyntheticLoadProfileImportProcessor(SyntheticLoadProfileDataImporterContext context) {
         super(context);
@@ -35,8 +40,9 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
             validateTimeStamps(data);
             data.getSyntheticLoadProfiles().entrySet().forEach(e -> addSyntheticLoadProfile(data.getTimeStamp(), e.getKey(), e.getValue()));
         } catch (Exception e) {
-            previousTimeStamp = data.getTimeStamp();
             throw e;
+        } finally {
+            previousTimeStamp = data.getTimeStamp();
         }
     }
 
@@ -57,15 +63,12 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
         for (Map.Entry<String, BigDecimal> entry : data.getSyntheticLoadProfiles().entrySet()) {
             if (findSyntheticLoadProfile(entry.getKey()).getStartTime().isAfter(data.getTimeStamp())) {
                 throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_TIMESTAMP_BEFORE_STARTTIME, data.getLineNumber(),
-                        DateTimeFormatter.ofPattern("dd/MMM/YYYY-HH:mm", Locale.ENGLISH)
-                                .format(LocalDateTime.ofInstant(findSyntheticLoadProfile(entry.getKey()).getStartTime(), ZoneId.systemDefault())));
+                        DefaultDateTimeFormatters.shortDate().withShortTime().build().format(findSyntheticLoadProfile(entry.getKey()).getStartTime()));
             }
         }
         //Check for wrong interval of data (current timestamp minus previous timestamp is not equal to 'Interval' of all of the synthetic load profiles specified in the file)
-        if (previousTimeStamp != null && !previousTimeStamp.plus(findSyntheticLoadProfile(data.getSyntheticLoadProfiles().keySet().iterator().next()).getInterval()).equals(data.getTimeStamp())) {
+        if (previousTimeStamp != null && !previousTimeStamp.plus(getInterval(data)).equals(data.getTimeStamp())) {
             throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_WRONG_INTERVAL, data.getLineNumber());
-        } else {
-            previousTimeStamp = data.getTimeStamp();
         }
     }
 
@@ -92,8 +95,17 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
     }
 
     private SyntheticLoadProfile findSyntheticLoadProfile(String syntheticLoadProfileName) {
-        return getContext().getSyntheticLoadProfileService().findSyntheticLoadProfile(syntheticLoadProfileName)
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.CORRECTIONFACTOR_HEADER_NOT_FOUND, syntheticLoadProfileName));
+        if(!syntheticLoadProfiles.containsKey(syntheticLoadProfileName)) {
+            syntheticLoadProfiles.put(syntheticLoadProfileName, getContext().getSyntheticLoadProfileService().findSyntheticLoadProfile(syntheticLoadProfileName)
+                    .orElseThrow(() -> new ProcessorException(MessageSeeds.CORRECTIONFACTOR_HEADER_NOT_FOUND, syntheticLoadProfileName)));
+        }
+        return syntheticLoadProfiles.get(syntheticLoadProfileName);
     }
 
+    private Duration getInterval(SyntheticLoadProfileImportRecord data){
+        if(interval == null) {
+            interval = findSyntheticLoadProfile(data.getSyntheticLoadProfiles().keySet().iterator().next()).getInterval();
+        }
+        return  interval;
+    }
 }
