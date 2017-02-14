@@ -15,7 +15,7 @@ import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.configuration.rest.SecurityPropertySetPrivilegeTranslationKeys;
+import com.energyict.mdc.device.configuration.rest.KeyFunctionTypePrivilegeTranslationKeys;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
@@ -53,11 +53,11 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
     @Override
     protected void setupTranslations() {
         super.setupTranslations();
-        Stream.of(SecurityPropertySetPrivilegeTranslationKeys.values()).forEach(this::mockTranslation);
+        Stream.of(KeyFunctionTypePrivilegeTranslationKeys.values()).forEach(this::mockTranslation);
         Stream.of(DefaultTranslationKey.values()).forEach(this::mockTranslation);
     }
 
-    private void mockTranslation(SecurityPropertySetPrivilegeTranslationKeys translationKey) {
+    private void mockTranslation(KeyFunctionTypePrivilegeTranslationKeys translationKey) {
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
         when(messageFormat.format(anyVararg())).thenReturn(translationKey.getDefaultFormat());
         doReturn(messageFormat).when(thesaurus).getFormat(translationKey);
