@@ -9,6 +9,7 @@ import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 
 import com.energyict.mdc.device.data.NumericalRegister;
+
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -86,15 +87,29 @@ public class NumericalReadingImpl extends ReadingImpl implements NumericalReadin
     @Override
     public Optional<Range<Instant>> getRange() {
         if (getRegister().getReadingType().isCumulative()) {
-            if (getPreviousReading().isPresent()) {
-                return Optional.of(Range.openClosed(getPreviousReading().get().getTimeStamp(), getActualReading().getTimeStamp()));
-            } else {
-                return Optional.of(Range.atMost(this.getActualReading().getTimeStamp()));
-            }
-        } else if (getRegister().getReadingType().getMacroPeriod().equals(MacroPeriod.BILLINGPERIOD)) {
+            return getRangeIfCumulative();
+        } else if (getRegister().isBilling()) {
             return this.getActualReading().getTimePeriod();
         } else {
             return Optional.empty();
+        }
+    }
+
+    private Optional<Range<Instant>> getRangeIfCumulative() {
+        if (getPreviousReading().isPresent()) {
+            return getRangeFromPrevious();
+        } else if (getRegister().isBilling()) {
+            return getActualReading().getTimePeriod();
+        } else {
+            return Optional.of(Range.atMost(this.getActualReading().getTimeStamp()));
+        }
+    }
+
+    private Optional<Range<Instant>> getRangeFromPrevious() {
+        if(getRegister().isBilling() && getActualReading().getTimePeriod().isPresent()){
+            return Optional.of(Range.openClosed(getPreviousReading().get().getTimeStamp(), getActualReading().getTimePeriod().get().upperEndpoint()));
+        } else {
+            return Optional.of(Range.openClosed(getPreviousReading().get().getTimeStamp(), getActualReading().getTimeStamp()));
         }
     }
 

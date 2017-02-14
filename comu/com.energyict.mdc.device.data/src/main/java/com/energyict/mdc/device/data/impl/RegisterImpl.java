@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -200,6 +201,11 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
     @Override
     public boolean isCumulative() {
         return getRegisterSpec().getReadingType().isCumulative();
+    }
+
+    @Override
+    public boolean isBilling() {
+        return getReadingType().getMacroPeriod().equals(MacroPeriod.BILLINGPERIOD);
     }
 
     @Override
