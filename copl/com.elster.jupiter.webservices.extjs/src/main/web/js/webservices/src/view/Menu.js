@@ -8,6 +8,7 @@ Ext.define('Wss.view.Menu', {
 
     router: null,
     record: null,
+    objectType: Uni.I18n.translate('webservices.webserviceEndpoints', 'WSS', 'Web service endpoints'),
 
 
     initComponent: function () {
