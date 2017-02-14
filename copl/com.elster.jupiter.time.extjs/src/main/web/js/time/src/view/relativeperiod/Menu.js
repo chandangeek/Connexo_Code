@@ -8,7 +8,8 @@ Ext.define('Tme.view.relativeperiod.Menu', {
 
     router: null,
 
-    title: Uni.I18n.translate('general.relativePeriods', 'TME', 'Relative periods'),
+    title: Uni.I18n.translate('general.relativePeriod', 'TME', 'Relative period'),
+    objectType: Uni.I18n.translate('general.relativePeriod', 'TME', 'Relative period'),
 
     initComponent: function () {
         var me = this;
