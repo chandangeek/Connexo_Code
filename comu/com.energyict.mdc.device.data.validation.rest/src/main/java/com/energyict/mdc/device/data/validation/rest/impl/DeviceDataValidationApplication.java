@@ -12,7 +12,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.data.validation.DeviceDataValidationService;
+import com.energyict.mdc.device.data.validation.DeviceDataQualityService;
 
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -37,7 +37,7 @@ public class DeviceDataValidationApplication extends Application implements Mess
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "DVR";
 
-    private volatile DeviceDataValidationService deviceDataValidationService;
+    private volatile DeviceDataQualityService deviceDataQualityService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile License license;
     private volatile Thesaurus thesaurus;
@@ -59,8 +59,8 @@ public class DeviceDataValidationApplication extends Application implements Mess
     }
 
     @Reference
-    public void setDeviceDataValidationService(DeviceDataValidationService deviceDataValidationService) {
-        this.deviceDataValidationService = deviceDataValidationService;
+    public void setDeviceDataQualityService(DeviceDataQualityService deviceDataQualityService) {
+        this.deviceDataQualityService = deviceDataQualityService;
     }
 
     @Reference
@@ -93,7 +93,7 @@ public class DeviceDataValidationApplication extends Application implements Mess
 
         @Override
         protected void configure() {
-            bind(deviceDataValidationService).to(DeviceDataValidationService.class);
+            bind(deviceDataQualityService).to(DeviceDataQualityService.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(thesaurus).to(Thesaurus.class);

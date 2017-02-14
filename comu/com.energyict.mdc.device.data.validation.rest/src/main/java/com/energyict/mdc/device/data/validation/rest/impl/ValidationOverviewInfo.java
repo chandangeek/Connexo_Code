@@ -4,12 +4,12 @@
 
 package com.energyict.mdc.device.data.validation.rest.impl;
 
-import com.energyict.mdc.device.data.validation.ValidationOverview;
+import com.energyict.mdc.device.data.validation.DataQualityOverview;
 
 import java.time.Instant;
 
 /**
- * Ships information of a {@link ValidationOverview} between front and backend.
+ * Ships information of a {@link DataQualityOverview} between front and backend.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-09-09 (15:53)
@@ -30,21 +30,21 @@ public final class ValidationOverviewInfo {
     public boolean readingQualitiesValidator;
     public boolean registerIncreaseValidator;
 
-    public static ValidationOverviewInfo from(ValidationOverview overview) {
+    public static ValidationOverviewInfo from(DataQualityOverview overview) {
         ValidationOverviewInfo info = new ValidationOverviewInfo();
         info.name = overview.getDeviceName();
         info.serialNumber = overview.getDeviceSerialNumber();
         info.deviceType = overview.getDeviceTypeName();
         info.deviceConfig = overview.getDeviceConfigurationName();
-        info.allDataValidated = overview.getDeviceValidationKpiResults().isAllDataValidated();
-        info.amountOfSuspects = overview.getDeviceValidationKpiResults().getAmountOfSuspects();
-        info.channelSuspects = overview.getDeviceValidationKpiResults().getChannelSuspects();
-        info.registerSuspects = overview.getDeviceValidationKpiResults().getRegisterSuspects();
-        info.lastSuspect = overview.getDeviceValidationKpiResults().getLastSuspect();
-        info.thresholdValidator = overview.getDeviceValidationKpiResults().isThresholdValidator();
-        info.missingValuesValidator = overview.getDeviceValidationKpiResults().isMissingValuesValidator();
-        info.readingQualitiesValidator = overview.getDeviceValidationKpiResults().isReadingQualitiesValidator();
-        info.registerIncreaseValidator = overview.getDeviceValidationKpiResults().isRegisterIncreaseValidator();
+        info.allDataValidated = overview.getDataQualityKpiResults().isAllDataValidated();
+        info.amountOfSuspects = overview.getDataQualityKpiResults().getAmountOfSuspects();
+        info.channelSuspects = overview.getDataQualityKpiResults().getChannelSuspects();
+        info.registerSuspects = overview.getDataQualityKpiResults().getRegisterSuspects();
+        info.lastSuspect = overview.getDataQualityKpiResults().getLastSuspect();
+        info.thresholdValidator = overview.getDataQualityKpiResults().isThresholdValidator();
+        info.missingValuesValidator = overview.getDataQualityKpiResults().isMissingValuesValidator();
+        info.readingQualitiesValidator = overview.getDataQualityKpiResults().isReadingQualitiesValidator();
+        info.registerIncreaseValidator = overview.getDataQualityKpiResults().isRegisterIncreaseValidator();
         return info;
     }
 }

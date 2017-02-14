@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.data.validation.rest.impl;
 
-import com.energyict.mdc.device.data.validation.ValidationOverview;
+import com.energyict.mdc.device.data.validation.DataQualityOverview;
 
 import java.time.Instant;
 
@@ -27,19 +27,19 @@ public class ValidationSummaryInfo {
     public boolean readingQualitiesValidator;
     public boolean registerIncreaseValidator;
 
-    public ValidationSummaryInfo(ValidationOverview validationOverview) {
-        this.name = validationOverview.getDeviceName();
-        this.serialNumber = validationOverview.getDeviceSerialNumber();
-        this.deviceType = validationOverview.getDeviceTypeName();
-        this.deviceConfig = validationOverview.getDeviceConfigurationName();
-        this.amountOfSuspects = validationOverview.getDeviceValidationKpiResults().getAmountOfSuspects();
-        this.channelSuspects = validationOverview.getDeviceValidationKpiResults().getChannelSuspects();
-        this.registerSuspects = validationOverview.getDeviceValidationKpiResults().getRegisterSuspects();
-        this.allDataValidated = validationOverview.getDeviceValidationKpiResults().isAllDataValidated();
-        this.lastSuspect = validationOverview.getDeviceValidationKpiResults().getLastSuspect();
-        this.thresholdValidator = validationOverview.getDeviceValidationKpiResults().isThresholdValidator();
-        this.missingValuesValidator = validationOverview.getDeviceValidationKpiResults().isMissingValuesValidator();
-        this.readingQualitiesValidator = validationOverview.getDeviceValidationKpiResults().isReadingQualitiesValidator();
-        this.registerIncreaseValidator = validationOverview.getDeviceValidationKpiResults().isRegisterIncreaseValidator();
+    public ValidationSummaryInfo(DataQualityOverview dataQualityOverview) {
+        this.name = dataQualityOverview.getDeviceName();
+        this.serialNumber = dataQualityOverview.getDeviceSerialNumber();
+        this.deviceType = dataQualityOverview.getDeviceTypeName();
+        this.deviceConfig = dataQualityOverview.getDeviceConfigurationName();
+        this.amountOfSuspects = dataQualityOverview.getDataQualityKpiResults().getAmountOfSuspects();
+        this.channelSuspects = dataQualityOverview.getDataQualityKpiResults().getChannelSuspects();
+        this.registerSuspects = dataQualityOverview.getDataQualityKpiResults().getRegisterSuspects();
+        this.allDataValidated = dataQualityOverview.getDataQualityKpiResults().isAllDataValidated();
+        this.lastSuspect = dataQualityOverview.getDataQualityKpiResults().getLastSuspect();
+        this.thresholdValidator = dataQualityOverview.getDataQualityKpiResults().isThresholdValidator();
+        this.missingValuesValidator = dataQualityOverview.getDataQualityKpiResults().isMissingValuesValidator();
+        this.readingQualitiesValidator = dataQualityOverview.getDataQualityKpiResults().isReadingQualitiesValidator();
+        this.registerIncreaseValidator = dataQualityOverview.getDataQualityKpiResults().isRegisterIncreaseValidator();
     }
 }

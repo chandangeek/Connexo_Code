@@ -5,10 +5,10 @@
 package com.energyict.mdc.device.data.validation.rest.impl;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.energyict.mdc.device.data.validation.DeviceDataValidationService;
-import com.energyict.mdc.device.data.validation.DeviceValidationKpiResults;
-import com.energyict.mdc.device.data.validation.ValidationOverview;
-import com.energyict.mdc.device.data.validation.ValidationOverviews;
+import com.energyict.mdc.device.data.validation.DataQualityOverview;
+import com.energyict.mdc.device.data.validation.DataQualityOverviews;
+import com.energyict.mdc.device.data.validation.DeviceDataQualityKpiResults;
+import com.energyict.mdc.device.data.validation.DeviceDataQualityService;
 
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
@@ -46,11 +46,11 @@ public class ValidationResultsResourceTest extends DeviceDataValidationRestAppli
 
     @Test
     public void testValidationOverview() throws UnsupportedEncodingException {
-        ValidationOverview o1 = this.mockValidationOverview("ABC123451", "123451", "DT1", "DC1", this.mockResults(2, 1, 1, true, Instant.now(), true, true, true, true));
-        ValidationOverview o2 = this.mockValidationOverview("ABC123452", "123452", "DT2", "DC2", this.mockResults(2, 1, 1, true, Instant.now(), true, true, true, true));
+        DataQualityOverview o1 = this.mockValidationOverview("ABC123451", "123451", "DT1", "DC1", this.mockResults(2, 1, 1, true, Instant.now(), true, true, true, true));
+        DataQualityOverview o2 = this.mockValidationOverview("ABC123452", "123452", "DT2", "DC2", this.mockResults(2, 1, 1, true, Instant.now(), true, true, true, true));
 
-        DeviceDataValidationService.ValidationOverviewBuilder builder = mock(DeviceDataValidationService.ValidationOverviewBuilder.class);
-        DeviceDataValidationService.ValidationOverviewSuspectsSpecificationBuilder suspectsBuilder = mock(DeviceDataValidationService.ValidationOverviewSuspectsSpecificationBuilder.class);
+        DeviceDataQualityService.DataQualityOverviewBuilder builder = mock(DeviceDataQualityService.DataQualityOverviewBuilder.class);
+        DeviceDataQualityService.MetricSpecificationBuilder suspectsBuilder = mock(DeviceDataQualityService.MetricSpecificationBuilder.class);
         when(suspectsBuilder.equalTo(anyInt())).thenReturn(builder);
         when(suspectsBuilder.inRange(any(Range.class))).thenReturn(builder);
         when(builder.excludeAllValidators()).thenReturn(builder);
@@ -61,11 +61,11 @@ public class ValidationResultsResourceTest extends DeviceDataValidationRestAppli
         when(builder.includeRegisterIncreaseValidator()).thenReturn(builder);
         when(builder.in(any(Range.class))).thenReturn(builder);
         when(builder.suspects()).thenReturn(suspectsBuilder);
-        ValidationOverviews overviews = mock(ValidationOverviews.class);
+        DataQualityOverviews overviews = mock(DataQualityOverviews.class);
         when(overviews.allOverviews()).thenReturn(Arrays.asList(o1, o2));
         when(builder.paged(anyInt(), anyInt())).thenReturn(overviews);
 
-        when(deviceDataValidationService.forAllGroups(anyList())).thenReturn(builder);
+        when(deviceDataQualityService.forAllGroups(anyList())).thenReturn(builder);
 
         JsonModel jsonModel = JsonModel.model(target("/validationresults/devicegroups")
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"deviceGroups\",\"value\":[97]}]", "UTF-8"))
@@ -94,19 +94,19 @@ public class ValidationResultsResourceTest extends DeviceDataValidationRestAppli
         assertThat(jsonModel.<Boolean>get("$.summary[0].thresholdValidator")).isEqualTo(true);
     }
 
-    private ValidationOverview mockValidationOverview(String deviceName, String serialNumber, String deviceTypeName, String deviceConfigurationName, DeviceValidationKpiResults kpiResults) {
-        ValidationOverview validationOverview = mock(ValidationOverview.class);
-        when(validationOverview.getDeviceName()).thenReturn(deviceName);
-        when(validationOverview.getDeviceSerialNumber()).thenReturn(serialNumber);
-        when(validationOverview.getDeviceTypeName()).thenReturn(deviceTypeName);
-        when(validationOverview.getDeviceConfigurationName()).thenReturn(deviceConfigurationName);
-        when(validationOverview.getDeviceValidationKpiResults()).thenReturn(kpiResults);
-        return validationOverview;
+    private DataQualityOverview mockValidationOverview(String deviceName, String serialNumber, String deviceTypeName, String deviceConfigurationName, DeviceDataQualityKpiResults kpiResults) {
+        DataQualityOverview dataQualityOverview = mock(DataQualityOverview.class);
+        when(dataQualityOverview.getDeviceName()).thenReturn(deviceName);
+        when(dataQualityOverview.getDeviceSerialNumber()).thenReturn(serialNumber);
+        when(dataQualityOverview.getDeviceTypeName()).thenReturn(deviceTypeName);
+        when(dataQualityOverview.getDeviceConfigurationName()).thenReturn(deviceConfigurationName);
+        when(dataQualityOverview.getDataQualityKpiResults()).thenReturn(kpiResults);
+        return dataQualityOverview;
     }
 
-    private DeviceValidationKpiResults mockResults(long amountOfSuspects, long channelSuspects, long registerSuspects, boolean allDataValidated, Instant lastSuspect,
-            boolean thresholdValidator, boolean missingValuesValidator, boolean readingQualitiesValidator, boolean registerIncreaseValidator) {
-        DeviceValidationKpiResults kpiResults = mock(DeviceValidationKpiResults.class);
+    private DeviceDataQualityKpiResults mockResults(long amountOfSuspects, long channelSuspects, long registerSuspects, boolean allDataValidated, Instant lastSuspect,
+                                                    boolean thresholdValidator, boolean missingValuesValidator, boolean readingQualitiesValidator, boolean registerIncreaseValidator) {
+        DeviceDataQualityKpiResults kpiResults = mock(DeviceDataQualityKpiResults.class);
         when(kpiResults.getAmountOfSuspects()).thenReturn(amountOfSuspects);
         when(kpiResults.getChannelSuspects()).thenReturn(channelSuspects);
         when(kpiResults.getRegisterSuspects()).thenReturn(registerSuspects);
