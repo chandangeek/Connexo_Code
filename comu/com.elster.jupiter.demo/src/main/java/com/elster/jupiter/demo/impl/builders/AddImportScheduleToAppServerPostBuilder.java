@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.appserver.AppServer;
@@ -9,11 +13,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-/**
- * Copyrights EnergyICT
- * Date: 29/09/2015
- * Time: 16:22
- */
 public class AddImportScheduleToAppServerPostBuilder implements Consumer<ImportSchedule> {
 
     private final AppServer appServer;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.commands.devices;
 
 import com.elster.jupiter.demo.impl.Builders;
@@ -25,35 +29,6 @@ import java.util.Collections;
 import java.util.TimeZone;
 import java.util.function.Consumer;
 
-/**
- * Create 2 Slave devices for a G3 gatewat
- * <p>
- * Meter AS3000 E0023000520685414
- * PropertyID: E0023000520685414
- * SerialNumber (meter) 05206854
- * Master key: 00112233445566778899AABBCCDDEEFF
- * MAC: 02237EFFFEFD835B     'MAC_address' and value '02237EFFFEFD82F4''
- * AK: D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF
- * EK: 000102030405060708090A0B0C0D0E0F
- * PSK: 00112233445566778899AABBCCDDEEFF
- * HLSsecretHEX: 31323334353637383930313233343536
- * HLSsecretASCII: 1234567890123456
- * <p>
- * Meter AS220 123457S
- * PropertyID: 123457S
- * SerialNumber (meter) 35075302
- * Master key: 00112233445566778899AABBCCDDEEFF
- * MAC: 02237EFFFEFD82F4
- * AK: D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF
- * EK: 000102030405060708090A0B0C0D0E0F
- * PSK: 92DA010836AA91222BCBEA49713DD9C1
- * HLSsecretHEX: 31323334353637383930313233343536
- * HLSsecretASCII: 1234567890123456
- * <p>
- * Copyrights EnergyICT
- * Date: 22/04/2015
- * Time: 9:30
- */
 public class CreateG3SlaveCommand {
 
     private static final String SECURITY_SET_NAME = "High level MD5 authentication - No encryption";

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.Builders;
@@ -5,7 +9,6 @@ import com.elster.jupiter.demo.impl.Constants;
 import com.elster.jupiter.demo.impl.builders.ValidationRuleDetectMissingValuesPostBuilder;
 import com.elster.jupiter.demo.impl.builders.ValidationRuleDetectThresholdViolationPostBuilder;
 import com.elster.jupiter.demo.impl.builders.ValidationRuleRegisterIncreasePostBuilder;
-import com.elster.jupiter.demo.impl.commands.devices.CreateValidationDeviceCommand;
 import com.elster.jupiter.demo.impl.templates.DataValidationTaskTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
@@ -18,13 +21,10 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 import java.time.Clock;
-import java.time.Instant;
 import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
