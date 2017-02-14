@@ -29,7 +29,11 @@ import java.util.stream.Collectors;
 @Component(name = "com.energyict.mdc.service.licensedtestprotocols", service = LicensedProtocolService.class, immediate = true)
 public class LicensedProtocolServiceImpl implements LicensedProtocolService {
 
-    private final static List<String> EXCLUDED = Arrays.asList("com.energyict.rtuprotocol.EIWeb");      //This old version of the EIWeb protocol is in mdwutil.jar, not available in Connexo
+    private final static List<String> EXCLUDED = Arrays.asList(
+            "com.energyict.rtuprotocol.EIWeb",               //This old version of the EIWeb protocol is in mdwutil.jar, not available in Connexo
+            "com.energyict.rtuprotocol.Echelon",
+            "com.energyict.rtuprotocol.RtuServer"
+    );
 
     /**
      * Every protocol of the TEST family
