@@ -15,7 +15,8 @@ public enum Privileges implements TranslationKey {
 
     //Privileges
     ADMINISTRATE_IMPORT_SERVICES(Constants.ADMINISTRATE_IMPORT_SERVICES, "Administrate"),
-    VIEW_IMPORT_SERVICES(Constants.VIEW_IMPORT_SERVICES, "View");
+    VIEW_IMPORT_SERVICES(Constants.VIEW_IMPORT_SERVICES, "View"),
+    VIEW_HISTORY(Constants.VIEW_HISTORY, "View history");
 
     private final String key;
     private final String description;
@@ -48,5 +49,6 @@ public enum Privileges implements TranslationKey {
     public interface Constants {
         String ADMINISTRATE_IMPORT_SERVICES = "privilege.administrate.importServices";
         String VIEW_IMPORT_SERVICES = "privilege.view.importServices";
+        String VIEW_HISTORY = "privilege.view.import.history";
     }
 }
