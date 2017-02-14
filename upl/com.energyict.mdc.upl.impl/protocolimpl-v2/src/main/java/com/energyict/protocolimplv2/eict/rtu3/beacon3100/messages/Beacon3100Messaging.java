@@ -1400,7 +1400,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private PLCConfigurationDeviceMessageExecutor getPLCConfigurationDeviceMessageExecutor() {
         if (plcConfigurationDeviceMessageExecutor == null) {
-            plcConfigurationDeviceMessageExecutor = new Beacon3100PLCConfigurationDeviceMessageExecutor(getProtocol().getDlmsSession(), getProtocol().getOfflineDevice());
+            plcConfigurationDeviceMessageExecutor = new Beacon3100PLCConfigurationDeviceMessageExecutor(getProtocol().getDlmsSession(), getProtocol().getOfflineDevice(), readOldObisCodes());
         }
         return plcConfigurationDeviceMessageExecutor;
     }
@@ -1471,7 +1471,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         final long normalTimeout = getProtocol().getDlmsSessionProperties().getTimeout();
         final long fullRoundTripTimeout = timeoutInMillis + normalTimeout;
         getProtocol().getDlmsSession().getDLMSConnection().setTimeout(fullRoundTripTimeout);
-        final int pingTime = getCosemObjectFactory().getG3NetworkManagement().pingNode(hexMacAddress, ((int) timeoutInMillis) / 1000);
+        final int pingTime = getG3NetworkManagement().pingNode(hexMacAddress, ((int) timeoutInMillis) / 1000);
         getProtocol().getDlmsSession().getDLMSConnection().setTimeout(normalTimeout);
 
         collectedMessage.setDeviceProtocolInformation(pingTime + " ms");
@@ -1481,7 +1481,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private CollectedMessage kickMeter(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         String macAddress = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
 
-        final boolean result = getCosemObjectFactory().getG3NetworkManagement().detachNode(macAddress);
+        final boolean result = getG3NetworkManagement().detachNode(macAddress);
 
         if (!result) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
@@ -1516,7 +1516,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             macAddresses.add(macAddress);
         }
 
-        final boolean result = getCosemObjectFactory().getG3NetworkManagement().addToBlacklist(macAddresses);
+
+        final boolean result = getG3NetworkManagement().addToBlacklist(macAddresses);
 
         if (!result) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
@@ -1526,6 +1527,14 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         }
 
         return collectedMessage;
+    }
+
+    private G3NetworkManagement getG3NetworkManagement() throws NotInObjectListException {
+        if(readOldObisCodes()){
+            return getCosemObjectFactory().getG3NetworkManagement();
+        }else{
+            return getCosemObjectFactory().getG3NetworkManagement(G3_NETWORK_MANAGEMENT_NEW_OBISCODE);
+        }
     }
 
     private CollectedMessage removeMetersFromBlackList(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
@@ -1551,7 +1560,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             macAddresses.add(macAddress);
         }
 
-        final boolean result = getCosemObjectFactory().getG3NetworkManagement().removeFromBlacklist(macAddresses);
+        final boolean result = getG3NetworkManagement().removeFromBlacklist(macAddresses);
 
         if (!result) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);

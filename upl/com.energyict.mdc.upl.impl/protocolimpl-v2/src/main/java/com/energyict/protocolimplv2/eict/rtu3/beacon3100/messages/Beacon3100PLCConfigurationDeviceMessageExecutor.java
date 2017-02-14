@@ -10,6 +10,7 @@ import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
@@ -32,9 +33,11 @@ import java.util.List;
 public class Beacon3100PLCConfigurationDeviceMessageExecutor extends PLCConfigurationDeviceMessageExecutor {
 
     private static final String SEPARATOR = ";";
+    boolean readOldObisCodes = false;
 
-    public Beacon3100PLCConfigurationDeviceMessageExecutor(DlmsSession session, OfflineDevice offlineDevice) {
+    public Beacon3100PLCConfigurationDeviceMessageExecutor(DlmsSession session, OfflineDevice offlineDevice, boolean readOldObisCodes) {
         super(session, offlineDevice);
+        this.readOldObisCodes = readOldObisCodes;
     }
 
     @Override
@@ -76,7 +79,8 @@ public class Beacon3100PLCConfigurationDeviceMessageExecutor extends PLCConfigur
             final long fullRoundTripTimeout = timeoutInMillis + normalTimeout;
             session.getDLMSConnection().setTimeout(fullRoundTripTimeout);
 
-            final G3NetworkManagement g3NetworkManagement = this.session.getCosemObjectFactory().getG3NetworkManagement();
+
+            final G3NetworkManagement g3NetworkManagement = getG3NetworkManagement();
             List<CollectedRegister> collectedRegisters = new ArrayList<>();
             for (String macAddress : macAddresses) {
 
@@ -114,6 +118,14 @@ public class Beacon3100PLCConfigurationDeviceMessageExecutor extends PLCConfigur
             session.getDLMSConnection().setTimeout(normalTimeout);
         }
         return collectedMessage;
+    }
+
+    private G3NetworkManagement getG3NetworkManagement() throws NotInObjectListException {
+        if(readOldObisCodes) {
+            return this.session.getCosemObjectFactory().getG3NetworkManagement();
+        }else{
+            return this.session.getCosemObjectFactory().getG3NetworkManagement(Beacon3100Messaging.G3_NETWORK_MANAGEMENT_NEW_OBISCODE);
+        }
     }
 
 
