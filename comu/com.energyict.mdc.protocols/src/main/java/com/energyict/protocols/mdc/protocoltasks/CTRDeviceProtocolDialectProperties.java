@@ -37,7 +37,7 @@ class CTRDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
         this.delayAfterError = (TimeDuration) propertyValues.getProperty(ActualFields.DELAY_AFTER_ERROR.propertySpecName());
         this.address = (BigDecimal) propertyValues.getProperty(ActualFields.ADDRESS.propertySpecName());
         this.sendEndOfSession = (Boolean) propertyValues.getProperty(ActualFields.SEND_END_OF_SESSION.propertySpecName());
-        this.maxAllowedInvalidProfileResponses = (BigDecimal) propertyValues.getProperty(ActualFields.MAX_ALLOWED_INVALID_PROFILE_RESPONSES.propertySpecName());
+        this.maxAllowedInvalidProfileResponses = (BigDecimal) propertyValues.getProperty(ActualFields.MAX_ALLOWED_INVALID_PROFILE_RESP.propertySpecName());
     }
 
     @Override
@@ -48,7 +48,7 @@ class CTRDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
         this.setPropertyIfNotNull(propertySetValues, ActualFields.DELAY_AFTER_ERROR.propertySpecName(), this.delayAfterError);
         this.setPropertyIfNotNull(propertySetValues, ActualFields.ADDRESS.propertySpecName(), this.address);
         this.setPropertyIfNotNull(propertySetValues, ActualFields.SEND_END_OF_SESSION.propertySpecName(), this.sendEndOfSession);
-        this.setPropertyIfNotNull(propertySetValues, ActualFields.MAX_ALLOWED_INVALID_PROFILE_RESPONSES.propertySpecName(), this.maxAllowedInvalidProfileResponses);
+        this.setPropertyIfNotNull(propertySetValues, ActualFields.MAX_ALLOWED_INVALID_PROFILE_RESP.propertySpecName(), this.maxAllowedInvalidProfileResponses);
     }
 
     @Override
@@ -84,16 +84,16 @@ class CTRDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
         ADDRESS("address", MeterProtocol.NODEID, CTRTranslationKeys.ADDRESS, "ADDRESS") {
             @Override
             public void addTo(Table table) {
-                this.addAsTimeDurationColumnTo(table);
+                this.addAsBigDecimalColumnTo(table);
             }
         },
         SEND_END_OF_SESSION("sendEndOfSession", "SendEndOfSession", CTRTranslationKeys.SEND_END_OF_SESSION, "SEND_END_OF_SESSION") {
             @Override
             public void addTo(Table table) {
-                this.addAsTimeDurationColumnTo(table);
+                this.addAsBooleanColumnTo(table);
             }
         },
-        MAX_ALLOWED_INVALID_PROFILE_RESPONSES("maxAllowedInvalidProfileResponses", "MaxAllowedInvalidProfileResponses", CTRTranslationKeys.MAX_ALLOWED_INVALID_PROFILE_RESPONSES, "MAX_ALLOWED_INVALID_RESPONSES") {
+        MAX_ALLOWED_INVALID_PROFILE_RESP("maxAllowedInvalidProfileResponses", "MaxAllowedInvalidProfileResponses", CTRTranslationKeys.MAX_ALLOWED_INVALID_PROFILE_RESPONSES, "MAX_ALLOWED_INVALID_RESP") {
             @Override
             public void addTo(Table table) {
                 this.addAsTimeDurationColumnTo(table);
@@ -134,6 +134,14 @@ class CTRDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
             table
                     .column(this.databaseName())
                     .number()
+                    .map(this.javaName())
+                    .add();
+        }
+
+        public void addAsBooleanColumnTo(Table table) {
+            table
+                    .column(this.databaseName())
+                    .number().conversion(ColumnConversion.NUMBER2BOOLEAN)
                     .map(this.javaName())
                     .add();
         }
