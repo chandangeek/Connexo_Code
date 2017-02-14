@@ -1,15 +1,15 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23;
 
-import com.energyict.mdc.upl.properties.PropertySpec;
-
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -50,7 +50,7 @@ public class Dsmr23Properties extends DlmsProtocolProperties {
 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
-        return Arrays.asList(
+        return new ArrayList<>(Arrays.asList(
                 UPLPropertySpecFactory.specBuilder(SECURITY_LEVEL, securityLevelIsRequired(), this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(ADDRESSING_MODE, false, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(CLIENT_MAC_ADDRESS, false, this.propertySpecService::integerSpec).finish(),
@@ -70,7 +70,7 @@ public class Dsmr23Properties extends DlmsProtocolProperties {
                 UPLPropertySpecFactory.specBuilder(DATATRANSPORT_ENCRYPTIONKEY, false, this.propertySpecService::hexStringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(OLD_MBUS_DISCOVERY, false, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(FIX_MBUS_HEX_SHORT_ID, false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(WAKE_UP, false, this.propertySpecService::integerSpec).finish());
+                UPLPropertySpecFactory.specBuilder(WAKE_UP, false, this.propertySpecService::integerSpec).finish()));
     }
 
     protected boolean securityLevelIsRequired() {

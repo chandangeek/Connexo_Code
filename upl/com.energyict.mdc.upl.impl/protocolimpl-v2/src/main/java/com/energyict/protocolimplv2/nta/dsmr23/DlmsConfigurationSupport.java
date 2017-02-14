@@ -1,12 +1,17 @@
 package com.energyict.protocolimplv2.nta.dsmr23;
 
-import com.energyict.mdc.upl.properties.*;
-
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -50,7 +55,7 @@ public class DlmsConfigurationSupport implements HasDynamicProperties{
     }
 
     public List<PropertySpec> getUPLPropertySpecs() {
-        return Arrays.asList(
+        return new ArrayList<>(Arrays.asList(
                 this.forcedDelayPropertySpec(),
                 this.maxRecPduSizePropertySpec(),
                 this.bulkRequestPropertySpec(),
@@ -64,7 +69,7 @@ public class DlmsConfigurationSupport implements HasDynamicProperties{
                 this.validateInvokeIdPropertySpec(),
                 this.serverUpperMacAddressPropertySpec(),
                 this.serverLowerMacAddressPropertySpec(),
-                this.deviceId());
+                this.deviceId()));
     }
 
     @Override

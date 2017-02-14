@@ -33,6 +33,7 @@ import com.energyict.protocolimpl.utils.ProtocolUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -163,10 +164,10 @@ public class UNIFLO1200 extends Modbus implements SerialNumberSupport {
 	@Override
 	public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs =
-                super.getUPLPropertySpecs()
+				new ArrayList<>(super.getUPLPropertySpecs()
                         .stream()
                         .filter(propertySpec -> !propertySpec.getName().equals(PASSWORD.getName()))
-                        .collect(Collectors.toList());
+                        .collect(Collectors.toList()));
         PropertySpecService propertySpecService = this.getPropertySpecService();
         propertySpecs.add(
                 UPLPropertySpecFactory

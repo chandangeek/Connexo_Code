@@ -119,7 +119,7 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
-        return Arrays.asList(
+        return new ArrayList<>(Arrays.asList(
                 UPLPropertySpecFactory
                     .specBuilder(TIMEOUT_KEY, false, this.propertySpecService::durationSpec)
                     .setDefaultValue(TIMEOUT_DEFAULT)
@@ -127,7 +127,7 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
                 UPLPropertySpecFactory
                     .specBuilder(RETRIES_KEY, false, this.propertySpecService::bigDecimalSpec)
                     .setDefaultValue(RETRIES_DEFAULT)
-                    .finish());
+                    .finish()));
     }
 
     public int getTimeOutProperty() {

@@ -2,12 +2,12 @@ package com.energyict.mdc.channels.ip;
 
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.upl.properties.PropertySpec;
-
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -74,11 +74,11 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
-        return Arrays.asList(
+        return new ArrayList<>(Arrays.asList(
                 this.hostPropertySpec(),
                 this.portNumberPropertySpec(),
                 this.connectionTimeOutPropertySpec()
-        );
+        ));
     }
 
     @Override

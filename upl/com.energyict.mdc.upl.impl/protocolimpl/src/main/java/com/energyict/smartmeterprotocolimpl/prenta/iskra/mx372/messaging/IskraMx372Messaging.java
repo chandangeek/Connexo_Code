@@ -870,7 +870,12 @@ public class IskraMx372Messaging extends ProtocolMessages {
                 if (mbusAddress > 0) {
                     mSerial = getMbusSerial(mbusCustomerID[i]);
                     if (!"".equals(mSerial)) {
-                        mbusDevices[i] = new MbusDevice(this.propertySpecService, this.calendarFinder, this.calendarExtractor, this.messageFileExtractor, deviceMessageFileFinder, numberLookupFinder, numberLookupExtractor, i, mSerial, protocol);
+                        MbusDevice mbusDevice = new MbusDevice(this.propertySpecService, this.calendarFinder, this.calendarExtractor, this.messageFileExtractor, deviceMessageFileFinder, numberLookupFinder, numberLookupExtractor);
+                        mbusDevice.setCustomerID(mSerial);
+                        mbusDevice.setLogger(protocol.getLogger());
+                        mbusDevice.setHasBreaker(protocol.hasBreaker());
+                        mbusDevice.setPhysicalAddress(i);
+                        mbusDevices[i] = mbusDevice;
                     } else {
                         mbusDevices[i] = null;
                     }

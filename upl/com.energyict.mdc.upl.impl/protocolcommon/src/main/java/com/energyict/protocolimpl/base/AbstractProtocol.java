@@ -38,6 +38,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -234,7 +235,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
-        return Arrays.asList(
+        return new ArrayList<>(Arrays.asList(
                 this.stringSpec(ADDRESS.getName(), false),
                 this.stringSpec(PASSWORD.getName(), this.passwordIsRequired()),
                 this.stringSpec(PROP_TIMEOUT, false),
@@ -254,7 +255,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
                 this.integerSpec(PROP_HALF_DUPLEX, false),
                 this.integerSpec(PROP_DTR_BEHAVIOUR, false),
                 this.spec(PROP_ADJUST_CHANNEL_MULTIPLIER, false, this.propertySpecService::bigDecimalSpec),
-                this.spec(PROP_ADJUST_REGISTER_MULTIPLIER, false, this.propertySpecService::bigDecimalSpec));
+                this.spec(PROP_ADJUST_REGISTER_MULTIPLIER, false, this.propertySpecService::bigDecimalSpec)));
     }
 
     protected PropertySpecService getPropertySpecService() {

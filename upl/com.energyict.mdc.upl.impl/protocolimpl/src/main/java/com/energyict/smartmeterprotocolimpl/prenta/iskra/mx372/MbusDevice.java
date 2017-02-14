@@ -22,25 +22,17 @@ import java.util.logging.Logger;
  */
 public class MbusDevice extends AbstractNtaMbusDevice {
 
-    private final boolean hasBreaker;
+    private boolean hasBreaker = true;
     private int physicalAddress = -1;    // this is the orderNumber of the MBus meters on the E-meter, we need this to compute the ObisRegisterValues
     private String customerID;
     private Logger logger;
 
     public MbusDevice(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, DeviceMessageFileFinder deviceMessageFileFinder, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor) {
-        this(propertySpecService, calendarFinder, calendarExtractor, messageFileExtractor, deviceMessageFileFinder, numberLookupFinder, numberLookupExtractor, true);
-    }
-
-    public MbusDevice(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, DeviceMessageFileFinder deviceMessageFileFinder, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor, boolean hasBreaker) {
         super(propertySpecService, calendarFinder, calendarExtractor, messageFileExtractor, deviceMessageFileFinder, numberLookupFinder, numberLookupExtractor);
-        this.hasBreaker = hasBreaker;
     }
 
-    public MbusDevice(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, DeviceMessageFileFinder deviceMessageFileFinder, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor, int phyAddress, String serial, IskraMx372 protocol) {
-        this(propertySpecService, calendarFinder, calendarExtractor, messageFileExtractor, deviceMessageFileFinder, numberLookupFinder, numberLookupExtractor, protocol.hasBreaker());
-        this.physicalAddress = phyAddress;
-        this.customerID = serial;
-        this.logger = protocol.getLogger();
+    public void setHasBreaker(boolean hasBreaker) {
+        this.hasBreaker = hasBreaker;
     }
 
     @Override
@@ -60,14 +52,26 @@ public class MbusDevice extends AbstractNtaMbusDevice {
         return customerID;
     }
 
+    public void setCustomerID(String customerID) {
+        this.customerID = customerID;
+    }
+
     @Override
     public int getPhysicalAddress() {
         return physicalAddress;
     }
 
+    public void setPhysicalAddress(int physicalAddress) {
+        this.physicalAddress = physicalAddress;
+    }
+
     @Override
     public Logger getLogger() {
         return logger;
+    }
+
+    public void setLogger(Logger logger) {
+        this.logger = logger;
     }
 
 }
