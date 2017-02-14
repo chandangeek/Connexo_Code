@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.export;
 
 import com.elster.jupiter.appserver.AppServer;
@@ -54,7 +58,11 @@ public interface DataExportService {
 
     Optional<? extends DataExportOccurrence> findDataExportOccurrence(ExportTask task, Instant triggerTime);
 
+    Optional<DataExportOccurrence> findDataExportOccurrence(long occurrenceId);
+
     void setExportDirectory(AppServer appServer, Path path);
+
+    DataExportOccurrenceFinder getDataExportOccurrenceFinder();
 
     void removeExportDirectory(AppServer appServer);
 

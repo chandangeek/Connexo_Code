@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.appserver.AppServer;
@@ -5,6 +9,8 @@ import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DataExportTaskBuilder;
@@ -45,6 +51,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 
@@ -427,11 +434,24 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     }
 
     @Override
+    public Optional<DataExportOccurrence> findDataExportOccurrence(long occurrenceId) {
+        return dataModel.stream(DataExportOccurrence.class).join(TaskOccurrence.class)
+                .filter(Where.where("taskOccurrence.id").isEqualTo(occurrenceId)).findFirst();
+    }
+
+    @Override
     public Optional<IDataExportOccurrence> findDataExportOccurrence(ExportTask task, Instant triggerTime) {
         return dataModel.stream(IDataExportOccurrence.class).join(TaskOccurrence.class).join(IExportTask.class)
                 .filter(EQUAL.compare("readingTask", task))
                 .filter(EQUAL.compare("taskOccurrence.triggerTime", triggerTime))
                 .findFirst();
+    }
+
+    @Override
+    public DataExportOccurrenceFinder getDataExportOccurrenceFinder() {
+        Condition condition = Condition.TRUE;
+        Order order = Order.ascending("lastRun").nullsLast();
+        return new DataExportOccurrenceFinderImpl(dataModel, condition, order);
     }
 
     @Override
