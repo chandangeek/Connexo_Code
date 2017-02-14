@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
 @Component(name = "com.energyict.mdc.service.licensedtestprotocols", service = LicensedProtocolService.class, immediate = true)
 public class LicensedProtocolServiceImpl implements LicensedProtocolService {
 
+    private final static List<String> EXCLUDED = Arrays.asList("com.energyict.rtuprotocol.EIWeb");      //This old version of the EIWeb protocol is in mdwutil.jar, not available in Connexo
+
     /**
      * Every protocol of the TEST family
      */
@@ -37,6 +39,8 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
     static {
         TEST_PROTOCOLS = Arrays.stream(LicensedProtocolRule.values())
                 .filter(licensedProtocolRule -> licensedProtocolRule.getFamilies().contains(FamilyRule.TEST))
+                .filter(licensedProtocolRule -> licensedProtocolRule.getCode() < 10000)     //Entries above 10000 ar deprecated
+                .filter(licensedProtocolRule -> !EXCLUDED.contains(licensedProtocolRule.getClassName()))
                 .collect(Collectors.toList());
     }
 
@@ -82,7 +86,7 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
          * @param className The name of the protocol class
          * @return A flag that indicates of the protocol class is covered by the license
          */
-        public boolean isCovered(String className);
+        boolean isCovered(String className);
 
     }
 
