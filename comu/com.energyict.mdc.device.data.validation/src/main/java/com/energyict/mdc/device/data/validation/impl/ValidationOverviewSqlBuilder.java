@@ -7,6 +7,7 @@ package com.energyict.mdc.device.data.validation.impl;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.energyict.mdc.device.data.validation.DataQualityOverviews;
 
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
@@ -22,7 +23,7 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.streams.Currying.perform;
 
 /**
- * Builds the custom sql that supports the {@link com.energyict.mdc.device.data.validation.ValidationOverviews}.
+ * Builds the custom sql that supports the {@link DataQualityOverviews}.
  * The sql uses "WITH" clauses which will make it impossible to unit test this against H2 :-(
  * A with clause is generated for every with clause
  *
@@ -34,7 +35,7 @@ class ValidationOverviewSqlBuilder {
     private SqlBuilder sqlBuilder;
     private final List<EndDeviceGroup> deviceGroups;
     private final Range<Instant> range;
-    private final DeviceDataValidationServiceImpl.SuspectsRange suspectsRange;
+    private final DeviceDataQualityServiceImpl.SuspectsRange suspectsRange;
     private final Set<KpiType> kpiTypes;
     private final int from;
     private final int to;
@@ -61,7 +62,7 @@ class ValidationOverviewSqlBuilder {
             }
 
             @Override
-            public void appendHavingTo(SqlBuilder sqlBuilder, DeviceDataValidationServiceImpl.SuspectsRange suspectsRange) {
+            public void appendHavingTo(SqlBuilder sqlBuilder, DeviceDataQualityServiceImpl.SuspectsRange suspectsRange) {
                 suspectsRange.appendHavingTo(sqlBuilder, "sum(totalSuspectsKpi.value)");
             }
         },
@@ -142,7 +143,7 @@ class ValidationOverviewSqlBuilder {
             sqlBuilder.append(".devicegroup");
         }
 
-        public void appendHavingTo(SqlBuilder sqlBuilder, DeviceDataValidationServiceImpl.SuspectsRange suspectsRange) {
+        public void appendHavingTo(SqlBuilder sqlBuilder, DeviceDataQualityServiceImpl.SuspectsRange suspectsRange) {
             throw new UnsupportedOperationException(this.name() + " does not support HAVING clause");
         }
     }
@@ -219,7 +220,7 @@ class ValidationOverviewSqlBuilder {
         public abstract void appendWhereSlot0LargerThanZeroTo(SqlBuilder sqlBuilder);
     }
 
-    ValidationOverviewSqlBuilder(List<EndDeviceGroup> deviceGroups, Range<Instant> range, Set<KpiType> kpiTypes, DeviceDataValidationServiceImpl.SuspectsRange suspectsRange, int from, int to) {
+    ValidationOverviewSqlBuilder(List<EndDeviceGroup> deviceGroups, Range<Instant> range, Set<KpiType> kpiTypes, DeviceDataQualityServiceImpl.SuspectsRange suspectsRange, int from, int to) {
         this.deviceGroups = deviceGroups;
         this.range = range;
         this.kpiTypes = kpiTypes;
