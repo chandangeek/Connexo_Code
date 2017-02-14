@@ -62,7 +62,8 @@ class CustomPropertyNode implements ServerExpressionNode {
     }
 
     protected String sqlName(String prefix) {
-        return prefix + this.customPropertySet.getId() + "_" + Math.abs(this.propertySpec.getName().hashCode()) + "_" + this.meterActivationSet.sequenceNumber();
+        String name = this.propertySpec.getName();
+        return prefix + this.customPropertySet.getId() + "_" + Math.abs(name.hashCode()) + "_" + this.meterActivationSet.sequenceNumber();
     }
 
     void appendDefinitionTo(ClauseAwareSqlBuilder sqlBuilder) {
@@ -71,9 +72,7 @@ class CustomPropertyNode implements ServerExpressionNode {
     }
 
     protected String sqlComment() {
-        return "Value for custom property '" + this.propertySpec.getName() +
-                "' of set '" + this.getCustomPropertySet().getName() + "' (id=" + this.customPropertySet.getId() +
-                ") in " + this.rawDataPeriod();
+        return this.sqlComment("");
     }
 
     protected String sqlComment(String type) {

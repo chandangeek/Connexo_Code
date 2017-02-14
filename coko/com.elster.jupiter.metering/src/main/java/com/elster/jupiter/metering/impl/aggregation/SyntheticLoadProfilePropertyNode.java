@@ -74,11 +74,12 @@ class SyntheticLoadProfilePropertyNode  extends CustomPropertyNode {
     @SuppressWarnings("unchecked")
     protected void appendWithClause(SqlBuilder withClauseBuilder) {
         withClauseBuilder.append("SELECT slpvalues.* FROM (");
-        this.actual
-                .getRawValuesSql(
-                        this.rawDataPeriod(),
-                        this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
-                        this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE));
+        withClauseBuilder.add(
+            this.actual
+                    .getRawValuesSql(
+                            this.rawDataPeriod(),
+                            this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
+                            this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)));
         withClauseBuilder.append(") slpvalues");
     }
 
