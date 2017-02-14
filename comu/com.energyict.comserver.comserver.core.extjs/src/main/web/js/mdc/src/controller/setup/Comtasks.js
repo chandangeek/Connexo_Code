@@ -276,7 +276,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                     taskName = communicationTask.get('name');
 
                 me.getApplication().fireEvent('loadCommunicationTask', communicationTask);
-                widget.down('#mdc-comtask-overview-sidemenu #mdc-comtask-sidemenu-overviewLink').setText(taskName);
+                widget.down('#mdc-comtask-overview-sidemenu').setHeader(taskName);
                 widget.down('#mdc-comtask-overview-form').loadRecord(communicationTask);
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.goToTaskOverview = true;
@@ -322,7 +322,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                             actionsStore: actionsStore
                         });
                         me.getApplication().fireEvent('loadCommunicationTask', communicationTask);
-                        widget.down('#mdc-comtask-actions-sidemenu #mdc-comtask-sidemenu-overviewLink').setText(communicationTask.get('name'));
+                        widget.down('#mdc-comtask-actions-sidemenu').setHeader(communicationTask.get('name'));
                         me.getApplication().fireEvent('changecontentevent', widget);
 
                         if (Ext.isEmpty(me.categoriesStore)) {
@@ -376,7 +376,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                     }),
                     executeWhenStoreLoaded = function() {
                         me.getApplication().fireEvent('loadCommunicationTask', communicationTask);
-                        widget.down('#mdc-comtask-cmdcategories-sidemenu #mdc-comtask-sidemenu-overviewLink').setText(taskName);
+                        widget.down('#mdc-comtask-cmdcategories-sidemenu').setHeader(taskName);
                         widget.down('#mdc-comtask-commandCategories-grid').maxHeight = undefined;
                         me.getApplication().fireEvent('changecontentevent', widget);
 

@@ -16,6 +16,7 @@ Ext.define('Mdc.usagepointmanagement.view.Setup', {
     content: [
         {
             xtype: 'panel',
+            title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
             ui: 'large',
             itemId: 'usagePointSetupPanel',
             layout: {
@@ -28,7 +29,6 @@ Ext.define('Mdc.usagepointmanagement.view.Setup', {
     initComponent: function () {
         var me = this,
             panel = me.content[0];
-        panel.title = me.router.getRoute().getTitle();
 
         panel.tools = [
             {

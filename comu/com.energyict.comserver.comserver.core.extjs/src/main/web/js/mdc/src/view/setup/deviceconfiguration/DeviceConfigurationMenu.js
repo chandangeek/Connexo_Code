@@ -10,6 +10,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
     deviceConfigurationId: null,
 
     title: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
+    objectType: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
 
     initComponent: function () {
         var me = this;

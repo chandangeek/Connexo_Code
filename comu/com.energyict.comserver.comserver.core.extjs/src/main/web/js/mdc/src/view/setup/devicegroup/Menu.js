@@ -9,6 +9,7 @@ Ext.define('Mdc.view.setup.devicegroup.Menu', {
     deviceGroupId: null,
 
     title: Uni.I18n.translate('general.deviceGroup', 'MDC', 'Device group'),
+    objectType: Uni.I18n.translate('general.deviceGroup', 'MDC', 'Device group'),
 
     initComponent: function () {
         var me = this;

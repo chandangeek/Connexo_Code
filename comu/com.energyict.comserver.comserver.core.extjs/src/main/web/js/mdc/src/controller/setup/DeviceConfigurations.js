@@ -182,7 +182,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     success: function (deviceType) {
                         me.getApplication().fireEvent('loadDeviceType', deviceType);
                         if (widget.down('deviceTypeSideMenu')) {
-                            widget.down('deviceTypeSideMenu').setDeviceTypeLink(deviceType.get('name'));
+                            widget.down('deviceTypeSideMenu').setDeviceTypeTitle(deviceType.get('name'));
                             widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(
                                 Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', deviceType.get('deviceConflictsCount'))
                             );
@@ -281,7 +281,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         deviceConfigModel.load(deviceconfiguration, {
             success: function (deviceConfiguration) {
                 me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
-                widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfiguration.get('name'));
+                widget.down('#stepsMenu').setHeader(deviceConfiguration.get('name'));
                 Ext.ModelManager.getModel('Mdc.model.DeviceType').load(devicetype, {
                     success: function (deviceType) {
                         var deviceConfigurationId = deviceConfiguration.get('id'),
@@ -732,7 +732,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                             deviceConfigModel.load(deviceConfigurationId, {
                                 success: function (deviceConfiguration) {
                                     me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
-                                    widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfiguration.get('name'));
+                                    widget.down('#stepsMenu').setHeader(deviceConfiguration.get('name'));
                                     widget.setLoading(false);
                                 }
                             });

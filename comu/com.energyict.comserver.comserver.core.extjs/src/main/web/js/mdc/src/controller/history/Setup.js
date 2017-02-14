@@ -2294,16 +2294,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                 route: 'edit',
                                 controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
                                 privileges: Mdc.privileges.UsagePoint.canAdmin(),
-                                action: 'showEditUsagePoint',
-                                callback: function (route) {
-                                    me.checkInsightRedirect(route);
-                                    this.getApplication().on('editUsagePointLoaded', function (record) {
-                                        route.setTitle(Uni.I18n.translate('general.editCurrentUsagePoint', 'MDC', "Edit '{0}'", record.get('name')));
-                                        return true;
-                                    }, {single: true});
-
-                                    return this;
-                                }
+                                action: 'showEditUsagePoint'
                             },
                             'processes': {
                                 title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),

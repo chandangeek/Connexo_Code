@@ -6,6 +6,7 @@ Ext.define('Mdc.view.setup.comtasks.SideMenu', {
     extend: 'Uni.view.menu.SideMenu',
     alias: 'widget.comTaskSideMenu',
     title: Uni.I18n.translate('general.communicationTask', 'MDC', 'Communication task'),
+    objectType: Uni.I18n.translate('general.communicationTask', 'MDC', 'Communication task'),
     router: null,
     initComponent: function () {
         var me = this;

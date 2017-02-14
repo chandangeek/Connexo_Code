@@ -120,7 +120,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                 success: function (record) {
                     widget.down('comServerComPortsGrid').reconfigure(comPortsStore);
                     me.getApplication().fireEvent('comServerOverviewLoad', record);
-                    widget.down('comserversidemenu #comserverLink').setText(record.get('name'));
+                    widget.down('comserversidemenu').setHeader(record.get('name'));
                 }
             });
         }, false);

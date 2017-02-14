@@ -10,7 +10,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
 //    toggleId: null,
     device: null,
 
-    title: Uni.I18n.translate('devicemenu.title', 'MDC', 'Device'),
+    objectType: Uni.I18n.translate('devicemenu.title', 'MDC', 'Device'),
 
     initComponent: function () {
         var me = this,
@@ -19,7 +19,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 xtype: 'menu',
                 items: [
                     {
-                        text: deviceId,
+                        text: Uni.I18n.translate('devicemenu.overview', 'MDC', 'Overwiev'),
                         itemId: 'deviceOverviewLink',
                         href: '#/devices/' + encodeURIComponent(deviceId)
                     },
@@ -37,6 +37,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                     }
                 ]
             };
+        me.title = deviceId || Uni.I18n.translate('devicemenu.title', 'MDC', 'Device');
 
         if ( !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger') ) {
             menu.items.push(
