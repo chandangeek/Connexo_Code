@@ -29,13 +29,13 @@ Ext.define('Mdc.keyfunctiontypes.view.PreviewContainer', {
             reasons: [
                 Uni.I18n.translate('keyfunctiontypes.empty.list.item', 'MDC', 'No key function types have been defined yet'),
             ],
-            //stepItems: [
-            //    {
-            //        xtype: 'button',
-            //        text: Uni.I18n.translate('keyfunctiontypes.addKeyFunctionType', 'MDC', 'Add key function type'),
-            //        itemId: 'add-key-function-type'
-            //    }
-            //]
+            stepItems: [
+                {
+                    xtype: 'button',
+                    text: Uni.I18n.translate('keyfunctiontypes.addKeyFunctionType', 'MDC', 'Add key function type'),
+                    itemId: 'add-key-function-type'
+                }
+            ]
         };
 
         me.previewComponent = {
