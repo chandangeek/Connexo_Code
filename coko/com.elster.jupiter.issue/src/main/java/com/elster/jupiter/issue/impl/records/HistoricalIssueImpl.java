@@ -25,7 +25,7 @@ public final class HistoricalIssueImpl extends IssueImpl implements HistoricalIs
         this.setStatus(issue.getStatus());
         this.setDevice(issue.getDevice());
         this.setRule(issue.getRule());
-        this.setCreatedDateTime(issue.getCreatedDateTime());
+        this.setCreateDateTime(issue.getCreateDateTime());
         this.setPriority(issue.getPriority());
         this.assignTo(issue.getAssignee());
     }

@@ -50,7 +50,7 @@ public class IssueImpl extends EntityImpl implements Issue {
     private final IssueService issueService;
     private final IssueAssignmentService issueAssignmentService;
     private final Clock clock;
-    private Instant createdDateTime;
+    private Instant createDateTime;
 
     private static final String DEFAULT_ISSUE_PREFIX = "ISU";
 
@@ -60,7 +60,7 @@ public class IssueImpl extends EntityImpl implements Issue {
         this.issueService = issueService;
         this.clock = clock;
         this.issueAssignmentService = issueService.getIssueAssignmentService();
-        setCreatedDateTime(Instant.now(clock));
+        setCreateDateTime(Instant.now(clock));
     }
 
     @Override
@@ -213,13 +213,13 @@ public class IssueImpl extends EntityImpl implements Issue {
     }
 
     @Override
-    public Instant getCreatedDateTime() {
-        return createdDateTime;
+    public Instant getCreateDateTime() {
+        return createDateTime;
     }
 
     @Override
-    public void setCreatedDateTime(Instant dateTime) {
-        createdDateTime = dateTime;
+    public void setCreateDateTime(Instant dateTime) {
+        createDateTime = dateTime;
     }
 
     @Override

@@ -59,8 +59,8 @@ public interface Issue extends Entity {
 
     void setPriority(Priority priority);
 
-    Instant getCreatedDateTime();
+    Instant getCreateDateTime();
 
-    void setCreatedDateTime(Instant dateTime);
+    void setCreateDateTime(Instant dateTime);
 
 }

@@ -81,7 +81,7 @@ import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_ISSUE_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_PK_NAME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_USER_ID;
-import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_CREATEDDATETIME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_CREATEDATETIME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_DEVICE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_REASON;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_RULE;
@@ -432,11 +432,11 @@ public enum TableSpecs {
                     .alias("priorityTotal")
                     .add()
                     .since(Version.version(10, 3));
-            Column createdDateTimeColumn = table.column(ISSUE_CREATEDDATETIME)
+            Column createdDateTimeColumn = table.column(ISSUE_CREATEDATETIME)
                     .number()
                     .notNull()
                     .conversion(NUMBER2INSTANT)
-                    .map("createdDateTime")
+                    .map("createDateTime")
                     .add()
                     .since(Version.version(10, 3));
             table.partitionOn(createdDateTimeColumn);
