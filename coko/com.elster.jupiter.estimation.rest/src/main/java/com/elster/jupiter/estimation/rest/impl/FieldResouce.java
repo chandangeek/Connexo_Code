@@ -1,7 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.estimation.security.Privileges;
-import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -22,10 +26,12 @@ import java.util.stream.Collectors;
 public class FieldResouce {
 
     private final MeteringGroupsService meteringGroupsService;
+    private final MetrologyConfigurationService metrologyConfigurationService;
 
     @Inject
-    public FieldResouce(MeteringGroupsService meteringGroupsService) {
+    public FieldResouce(MeteringGroupsService meteringGroupsService, MetrologyConfigurationService metrologyConfigurationService) {
         this.meteringGroupsService = meteringGroupsService;
+        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     @GET
@@ -40,5 +46,19 @@ public class FieldResouce {
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromCompleteList("usagePointGroups", infos, queryParameters);
+    }
+
+    @GET
+    @Path("/purposes")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION})
+    public PagedInfoList getMetrologyPurpose(@BeanParam JsonQueryParameters queryParameters) {
+        List<IdWithDisplayValueInfo> infos = metrologyConfigurationService.getMetrologyPurposes()
+                .stream()
+                .map(purpose -> new IdWithDisplayValueInfo<>(purpose.getId(), purpose.getName()))
+                .collect(Collectors.toList());
+
+        return PagedInfoList.fromCompleteList("metrologyPurposes", infos, queryParameters);
     }
 }

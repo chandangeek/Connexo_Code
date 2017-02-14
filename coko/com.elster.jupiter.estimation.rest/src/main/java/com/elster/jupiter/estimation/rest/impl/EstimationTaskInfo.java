@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.estimation.EstimationTask;
@@ -22,6 +26,7 @@ public class EstimationTaskInfo {
     public boolean active = true;
     public MeterGroupInfo deviceGroup;
     public IdWithDisplayValueInfo<Long> usagePointGroup;
+    public IdWithDisplayValueInfo<Long> metrologyPurpose;
     public PeriodicalExpressionInfo schedule;
     public RelativePeriodInfo period;
     public EstimationTaskHistoryInfo lastEstimationOccurrence;
@@ -69,6 +74,7 @@ public class EstimationTaskInfo {
         active = estimationTask.isActive();
         deviceGroup =  estimationTask.getEndDeviceGroup().map(MeterGroupInfo::new).orElse(null);
         usagePointGroup = estimationTask.getUsagePointGroup().map(upg -> new IdWithDisplayValueInfo<>(upg.getId(), upg.getName())).orElse(null);
+        metrologyPurpose = estimationTask.getMetrologyPurpose().map(mp -> new IdWithDisplayValueInfo<>(mp.getId(), mp.getName())).orElse(null);
         estimationTask.getPeriod().ifPresent(period -> this.period = RelativePeriodInfo.withCategories(period));
 
         Instant nextExecution = estimationTask.getNextExecution();

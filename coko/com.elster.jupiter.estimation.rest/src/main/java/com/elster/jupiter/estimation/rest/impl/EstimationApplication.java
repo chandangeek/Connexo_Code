@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Layer;
@@ -42,11 +47,15 @@ public class EstimationApplication extends Application implements MessageSeedPro
     private volatile TransactionService transactionService;
     private volatile RestQueryService restQueryService;
     private volatile MeteringGroupsService meteringGroupsService;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile TimeService timeService;
     private volatile PropertyValueInfoService propertyValueInfoService;
 
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
+
+    public EstimationApplication() {
+    }
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
@@ -85,6 +94,11 @@ public class EstimationApplication extends Application implements MessageSeedPro
     @Reference
     public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
         this.meteringGroupsService = meteringGroupsService;
+    }
+
+    @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     @Reference
@@ -135,6 +149,7 @@ public class EstimationApplication extends Application implements MessageSeedPro
             bind(transactionService).to(TransactionService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
+            bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
             bind(timeService).to(TimeService.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
