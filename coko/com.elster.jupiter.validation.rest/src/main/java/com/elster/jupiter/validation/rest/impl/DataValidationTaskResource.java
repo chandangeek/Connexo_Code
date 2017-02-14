@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.validation.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
@@ -108,6 +113,9 @@ public class DataValidationTaskResource {
         if (info.usagePointGroup != null) {
             builder = builder.setUsagePointGroup(usagePointGroup(info.usagePointGroup.id));
         }
+        if(info.metrologyPurpose != null) {
+            builder = builder.setMetrologyPurpose(metrologyPurpose(info.metrologyPurpose.id));
+        }
         DataValidationTask dataValidationTask = builder.create();
 
         return Response.status(Response.Status.CREATED).entity(dataValidationTaskInfoFactory.asInfo(dataValidationTask)).build();
@@ -172,6 +180,7 @@ public class DataValidationTaskResource {
         }
         if (info.usagePointGroup != null) {
             task.setUsagePointGroup(usagePointGroup(info.usagePointGroup.id));
+            task.setMetrologyPurpose(metrologyPurpose(info.metrologyPurpose.id));
             task.setEndDeviceGroup(null);
         }
         if (info.deviceGroup == null && info.usagePointGroup == null) {
@@ -281,6 +290,10 @@ public class DataValidationTaskResource {
 
     private UsagePointGroup usagePointGroup(long usagePointGroupId) {
         return meteringGroupsService.findUsagePointGroup(usagePointGroupId).orElse(null);
+    }
+
+    private MetrologyPurpose metrologyPurpose(long metrologyPurposeId) {
+        return metrologyConfigurationService.findMetrologyPurpose(metrologyPurposeId).orElse(null);
     }
 
     private MetrologyContract metrologyContract(long metrologyContractId) {

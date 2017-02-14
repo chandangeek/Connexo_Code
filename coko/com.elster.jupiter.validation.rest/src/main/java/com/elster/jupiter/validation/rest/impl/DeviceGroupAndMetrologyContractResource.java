@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.validation.rest.impl;
 
 
@@ -62,6 +66,20 @@ public class DeviceGroupAndMetrologyContractResource {
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromCompleteList("metrologyContracts", infos, queryParameters);
+    }
+
+    @GET
+    @Path("/purposes")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
+    public PagedInfoList getMetrologyPurposes(@BeanParam JsonQueryParameters queryParameters) {
+        List<IdWithDisplayValueInfo> infos = metrologyConfigurationService.getMetrologyPurposes()
+                .stream()
+                .map(mp -> new IdWithDisplayValueInfo<>(mp.getId(), mp.getName()))
+                .collect(Collectors.toList());
+
+        return PagedInfoList.fromCompleteList("metrologyPurposes", infos, queryParameters);
     }
 
     @GET

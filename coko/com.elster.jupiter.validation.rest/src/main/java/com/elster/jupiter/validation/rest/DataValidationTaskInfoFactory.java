@@ -1,5 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.validation.rest;
 
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.History;
@@ -71,6 +77,10 @@ public class DataValidationTaskInfoFactory {
         if (dataValidationTask.getUsagePointGroup().isPresent()) {
             UsagePointGroup usagePointGroup = dataValidationTask.getUsagePointGroup().get();
             info.usagePointGroup = new IdWithDisplayValueInfo<>(usagePointGroup.getId(), usagePointGroup.getName());
+            if (dataValidationTask.getMetrologyPurpose().isPresent()) {
+                MetrologyPurpose metrologyPurpose = dataValidationTask.getMetrologyPurpose().get();
+                info.metrologyPurpose = new IdWithDisplayValueInfo<>(metrologyPurpose.getId(), metrologyPurpose.getName());
+            }
         }
         ScheduleExpression scheduleExpression = dataValidationTask.getScheduleExpression();
         if (Never.NEVER.equals(dataValidationTask.getScheduleExpression())) {

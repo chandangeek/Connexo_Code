@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
@@ -52,6 +57,8 @@ public class BaseValidationRestTest extends FelixRestApplicationJerseyTest {
     protected KpiService kpiService;
     @Mock
     protected PropertyValueInfoService propertyValueInfoService;
+    @Mock
+    protected MetrologyPurpose metrologyPurpose;
 
     protected DataValidationTaskBuilder builder = initBuilderStub();
 
@@ -79,6 +86,7 @@ public class BaseValidationRestTest extends FelixRestApplicationJerseyTest {
         when(validationService.newTaskBuilder()).thenReturn(builder);
         when(meteringGroupsService.findEndDeviceGroup(1)).thenReturn(Optional.of(endDeviceGroup));
         when(metrologyConfigurationService.findMetrologyContract(1)).thenReturn(Optional.of(metrologyContract));
+        when(metrologyConfigurationService.findMetrologyPurpose(Matchers.any(Long.class))).thenReturn(Optional.of(metrologyPurpose));
         when(transactionService.execute(Matchers.any())).thenAnswer(invocation -> ((Transaction<?>) invocation.getArguments()[0]).perform());
     }
 
