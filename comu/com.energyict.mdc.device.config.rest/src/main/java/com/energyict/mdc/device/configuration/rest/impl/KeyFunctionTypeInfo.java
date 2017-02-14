@@ -12,6 +12,9 @@ import com.energyict.mdc.device.config.DeviceType;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class KeyFunctionTypeInfo {
     public long id;
@@ -20,19 +23,8 @@ public class KeyFunctionTypeInfo {
     public KeyTypeInfo keyType;
     public TimeDurationInfo validityPeriod;
     public VersionInfo<String> parent;
-
-    public KeyFunctionTypeInfo() {
-
-    }
-
-    public KeyFunctionTypeInfo(KeyAccessorType keyFunctionType, DeviceType deviceType) {
-        this.id = keyFunctionType.getId();
-        this.name = keyFunctionType.getName();
-        this.description = keyFunctionType.getDescription();
-        this.keyType = new KeyTypeInfo(keyFunctionType.getKeyType());
-        if(keyFunctionType.getDuration().isPresent()) {
-            this.validityPeriod = new TimeDurationInfo(keyFunctionType.getDuration().get());
-        }
-        this.parent = new VersionInfo<>(deviceType.getName(), deviceType.getVersion());
-    }
+    public List<ExecutionLevelInfo> editLevels = new ArrayList<>();
+    public List<ExecutionLevelInfo> defaultEditLevels = new ArrayList<>();
+    public List<ExecutionLevelInfo> viewLevels = new ArrayList<>();
+    public List<ExecutionLevelInfo> defaultViewLevels = new ArrayList<>();
 }

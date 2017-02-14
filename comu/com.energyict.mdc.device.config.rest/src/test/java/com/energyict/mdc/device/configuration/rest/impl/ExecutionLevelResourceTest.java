@@ -9,7 +9,7 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.users.Group;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.configuration.rest.SecurityPropertySetPrivilegeTranslationKeys;
+import com.energyict.mdc.device.configuration.rest.KeyFunctionTypePrivilegeTranslationKeys;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -45,11 +45,11 @@ public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJe
     @Override
     protected void setupThesaurus() {
         super.setupThesaurus();
-        Stream.of(SecurityPropertySetPrivilegeTranslationKeys.values()).forEach(this::mockTranslation);
+        Stream.of(KeyFunctionTypePrivilegeTranslationKeys.values()).forEach(this::mockTranslation);
         Stream.of(MessageSeeds.values()).forEach(this::mockTranslation);
     }
 
-    private void mockTranslation(SecurityPropertySetPrivilegeTranslationKeys translationKey) {
+    private void mockTranslation(KeyFunctionTypePrivilegeTranslationKeys translationKey) {
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
         when(messageFormat.format(anyVararg())).thenReturn(translationKey.getDefaultFormat());
         doReturn(messageFormat).when(thesaurus).getFormat(translationKey);
@@ -149,7 +149,7 @@ public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJe
         assertThat(jsonModel.<List>get("$.executionLevels[*].id"))
                 .hasSize(4)
                 .containsExactly(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1.getPrivilege(), DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2.getPrivilege(), DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3.getPrivilege(), DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES4.getPrivilege());
-        assertThat(jsonModel.<List>get("$.executionLevels[*].name")).containsExactly("Edit device security settings (level 1)", "Edit device security settings (level 2)", "Edit device security settings (level 3)", "Edit device security settings (level 4)");
+        assertThat(jsonModel.<List>get("$.executionLevels[*].name")).containsExactly("Level 1", "Level 2", "Level 3", "Level 4");
     }
     @Test
     public void testGetExecutionLevels() throws Exception {
@@ -167,9 +167,9 @@ public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJe
         assertThat(jsonModel.<List>get("$.executionLevels[*].id"))
                 .hasSize(2)
                 .containsExactly(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1.getPrivilege(), DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2.getPrivilege());
-        assertThat(jsonModel.<List>get("$.executionLevels[*].name")).containsExactly("View device security settings (level 1)", "View device security settings (level 2)");
+        assertThat(jsonModel.<List>get("$.executionLevels[*].name")).containsExactly("Level 1", "Level 2");
         assertThat(jsonModel.<List>get("$.executionLevels[0].userRoles")).hasSize(3);
-        assertThat(jsonModel.<List<String>>get("$.executionLevels[0].userRoles[*].name")).isSortedAccordingTo((n1,n2)->n1.compareToIgnoreCase(n2));
+        assertThat(jsonModel.<List<String>>get("$.executionLevels[0].userRoles[*].name")).isSortedAccordingTo(String::compareToIgnoreCase);
     }
 
     private Group mockUserGroup(long id, String name) {

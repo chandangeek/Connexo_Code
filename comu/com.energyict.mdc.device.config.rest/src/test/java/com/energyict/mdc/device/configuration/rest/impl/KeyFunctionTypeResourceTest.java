@@ -131,11 +131,15 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
         info.name = "New name";
         info.validityPeriod = new TimeDurationInfo(new TimeDuration(1, TimeDuration.TimeUnit.YEARS));
         info.parent = new VersionInfo<>("device type 1", 1L);
+        KeyAccessorType.Updater updater = mock(KeyAccessorType.Updater.class);
+        when(keyFunctionType.startUpdate()).thenReturn(updater);
+        when(updater.complete()).thenReturn(keyFunctionType);
 
         target("/devicetypes/66/keyfunctiontypes/1").request().put(Entity.entity(info, MediaType.APPLICATION_JSON));
-        verify(keyFunctionType).setDescription(info.description);
-        verify(keyFunctionType).setName(info.name);
-        verify(keyFunctionType).setDuration(info.validityPeriod.asTimeDuration());
+        verify(keyFunctionType).startUpdate();
+        verify(updater).description(info.description);
+        verify(updater).name(info.name);
+        verify(updater).duration(info.validityPeriod.asTimeDuration());
     }
 
     @Test

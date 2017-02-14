@@ -13,8 +13,11 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.time.TimeDuration.TimeUnit;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.KeyAccessorTypeUpdater;
 import com.energyict.mdc.device.config.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
@@ -32,16 +35,19 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class KeyFunctionTypeResource {
     private final ResourceHelper resourceHelper;
     private final PkiService pkiService;
+    private final KeyFunctionTypeInfoFactory keyFunctionTypeInfoFactory;
 
     @Inject
-    public KeyFunctionTypeResource(ResourceHelper resourceHelper, PkiService pkiService) {
+    public KeyFunctionTypeResource(ResourceHelper resourceHelper, PkiService pkiService, KeyFunctionTypeInfoFactory keyFunctionTypeInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.pkiService = pkiService;
+        this.keyFunctionTypeInfoFactory = keyFunctionTypeInfoFactory;
     }
 
     @GET
@@ -52,7 +58,7 @@ public class KeyFunctionTypeResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<KeyAccessorType> keyAccessorTypes = deviceType.getKeyAccessorTypes();
         List<KeyFunctionTypeInfo> infos = keyAccessorTypes.stream()
-                .map(keyAccessorType -> new KeyFunctionTypeInfo(keyAccessorType, deviceType))
+                .map(keyAccessorType -> keyFunctionTypeInfoFactory.from(keyAccessorType, deviceType))
                 .sorted((k1, k2) -> k1.name.compareTo(k2.name))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("keyfunctiontypes", infos, queryParameters);
@@ -88,7 +94,7 @@ public class KeyFunctionTypeResource {
             keyFunctionTypeBuilder.duration(null);
         }
         KeyAccessorType keyFunctionType = keyFunctionTypeBuilder.add();
-        return new KeyFunctionTypeInfo(keyFunctionType, deviceType);
+        return keyFunctionTypeInfoFactory.from(keyFunctionType, deviceType);
     }
 
     @GET
@@ -102,7 +108,7 @@ public class KeyFunctionTypeResource {
                 .filter(kFType -> kFType.getId() == keyFunctionTypeId)
                 .findAny()
                 .orElseThrow(() -> new WebApplicationException("No key function type with id " + keyFunctionTypeId, Response.Status.NOT_FOUND));
-        return new KeyFunctionTypeInfo(keyFunctionType, deviceType);
+        return keyFunctionTypeInfoFactory.from(keyFunctionType, deviceType);
     }
 
     @PUT
@@ -116,16 +122,24 @@ public class KeyFunctionTypeResource {
                 .filter(kFType -> kFType.getId() == keyFunctionTypeId)
                 .findAny()
                 .orElseThrow(() -> new WebApplicationException("No key function type with id " + keyFunctionTypeId, Response.Status.NOT_FOUND));
-        keyFunctionType.setName(keyFunctionTypeInfo.name);
-        keyFunctionType.setDescription(keyFunctionTypeInfo.description);
+        KeyAccessorTypeUpdater updater = deviceType.getKeyAccessorTypeUpdater(keyFunctionType).get();
+        updater.name(keyFunctionTypeInfo.name);
+        updater.description(keyFunctionTypeInfo.description);
         if(keyFunctionTypeInfo.validityPeriod != null && keyFunctionType.getKeyType().getCryptographicType().requiresDuration()) {
             checkValidDurationOrThrowException(keyFunctionTypeInfo.validityPeriod);
-            keyFunctionType.setDuration(keyFunctionTypeInfo.validityPeriod.asTimeDuration());
+            updater.duration(keyFunctionTypeInfo.validityPeriod.asTimeDuration());
         } else {
-            keyFunctionType.setDuration(null);
+            updater.duration(null);
         }
-        keyFunctionType.save();
-        return new KeyFunctionTypeInfo(keyFunctionType, deviceType);
+        Set<DeviceSecurityUserAction> keyAccessorTypeUserActions = deviceType.getKeyAccessorTypeUserActions(keyFunctionType);
+        keyAccessorTypeUserActions.stream()
+                .forEach(updater::removeUserAction);
+        keyFunctionTypeInfo.viewLevels.stream()
+                .forEach(level -> updater.addUserAction(DeviceSecurityUserAction.forPrivilege(level.id).get()));
+        keyFunctionTypeInfo.editLevels.stream()
+                .forEach(level -> updater.addUserAction(DeviceSecurityUserAction.forPrivilege(level.id).get()));
+        KeyAccessorType updated = updater.complete();
+        return keyFunctionTypeInfoFactory.from(updated, deviceType);
     }
 
     @DELETE

@@ -13,7 +13,7 @@
     </parent>
 
     <artifactId>mdc.device.config.rest</artifactId>
-    <version>3.1.0${revision}</version>
+    <version>4.0.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.device.config.rest [init DCR]</name>
     <description>
