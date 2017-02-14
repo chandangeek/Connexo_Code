@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.EMCO;
 
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
@@ -11,8 +12,6 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
@@ -25,11 +24,11 @@ import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.google.common.collect.Range;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -46,13 +45,12 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
  */
 public class FP93 extends AbstractProtocol implements MessageProtocol {
 
+    private final MessageProtocol messageProtocol;
     private FP93Connection connection;
     private ObisCodeMapper obisCodeMapper;
     private EventLog eventLog;
     private String unitInformationBlock;
     private int deviceID;
-
-    private final MessageProtocol messageProtocol;
 
     public FP93(PropertySpecService propertySpecService) {
         super(propertySpecService);
@@ -85,8 +83,7 @@ public class FP93 extends AbstractProtocol implements MessageProtocol {
                 .filter(propertySpec -> !propertySpec.getName().equals(ADDRESS.getName()))
                 .forEach(propertySpecs::add);
         PropertySpecService propertySpecService = this.getPropertySpecService();
-        PropertySpecBuilder<Integer> specBuilder = UPLPropertySpecFactory.specBuilder(ADDRESS.getName(), false, propertySpecService::integerSpec);
-        UPLPropertySpecFactory.addIntegerValues(specBuilder, Range.closed(1, 99999));
+        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(ADDRESS.getName(), false, () -> propertySpecService.boundedBigDecimalSpec(BigDecimal.ONE, BigDecimal.valueOf(99999)));
         propertySpecs.add(specBuilder.finish());
         return propertySpecs;
     }
@@ -126,7 +123,7 @@ public class FP93 extends AbstractProtocol implements MessageProtocol {
 
     @Override
     public String getProtocolVersion() {
-         return "$Date: 2012-03-09 09:42:11 +0100 (vr, 09 mrt 2012) $";
+        return "$Date: 2012-03-09 09:42:11 +0100 (vr, 09 mrt 2012) $";
     }
 
     @Override

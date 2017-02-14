@@ -25,6 +25,7 @@ import com.google.common.collect.Range;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -150,8 +151,8 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
         return Arrays.asList(
                 this.integerSpec("HalfDuplex"),
                 this.integerSpec("ForcedDelay"),
-                this.integerSpec(NODEID.getName(), Range.closedOpen(new Integer(3), new Integer(255))),
-                this.longSpec(PASSWORD.getName(), Range.closedOpen(1L, 0x7FFFFFFFL)),
+                this.integerSpec(NODEID.getName(), Range.closedOpen(3, 255)),
+                this.longSpec(PASSWORD.getName(), 1L, 0x7FFFFFFFL),
                 this.integerSpec(TIMEOUT.getName()),
                 this.integerSpec(RETRIES.getName()),
                 this.integerSpec(ROUNDTRIPCORRECTION.getName()),
@@ -165,9 +166,8 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
         return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
     }
 
-    private PropertySpec longSpec(String name, Range<Long> validValues) {
-        PropertySpecBuilder<Long> specBuilder = UPLPropertySpecFactory.specBuilder(name, false, this.propertySpecService::longSpec);
-        UPLPropertySpecFactory.addLongValues(specBuilder, validValues);
+    private PropertySpec longSpec(String name, long min, long max) {
+        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, false, () -> this.propertySpecService.boundedBigDecimalSpec(BigDecimal.valueOf(min), BigDecimal.valueOf(max)));
         return specBuilder.finish();
     }
 
