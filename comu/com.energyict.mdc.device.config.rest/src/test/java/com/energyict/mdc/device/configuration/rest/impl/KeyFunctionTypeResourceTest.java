@@ -12,7 +12,9 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.KeyAccessorTypeUpdater;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -131,15 +133,19 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
         info.name = "New name";
         info.validityPeriod = new TimeDurationInfo(new TimeDuration(1, TimeDuration.TimeUnit.YEARS));
         info.parent = new VersionInfo<>("device type 1", 1L);
-        KeyAccessorType.Updater updater = mock(KeyAccessorType.Updater.class);
-        when(keyFunctionType.startUpdate()).thenReturn(updater);
+        ExecutionLevelInfo executionLevelInfo = new ExecutionLevelInfo();
+        executionLevelInfo.id = "edit.device.security.properties.level1";
+        info.editLevels = Collections.singletonList(executionLevelInfo);
+        KeyAccessorTypeUpdater updater = mock(KeyAccessorTypeUpdater.class);
+        when(deviceType.getKeyAccessorTypeUpdater(keyFunctionType)).thenReturn(Optional.of(updater));
         when(updater.complete()).thenReturn(keyFunctionType);
 
         target("/devicetypes/66/keyfunctiontypes/1").request().put(Entity.entity(info, MediaType.APPLICATION_JSON));
-        verify(keyFunctionType).startUpdate();
+        verify(deviceType).getKeyAccessorTypeUpdater(keyFunctionType);
         verify(updater).description(info.description);
         verify(updater).name(info.name);
         verify(updater).duration(info.validityPeriod.asTimeDuration());
+        verify(updater).addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
     }
 
     @Test
