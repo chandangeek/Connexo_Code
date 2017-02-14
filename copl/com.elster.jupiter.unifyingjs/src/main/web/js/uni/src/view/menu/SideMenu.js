@@ -87,6 +87,11 @@ Ext.define('Uni.view.menu.SideMenu', {
      */
     showCondition: 'showCondition',
 
+    /**
+     * @cfg objectType
+     */
+    objectType: null,
+
     initComponent: function () {
         var me = this;
 
@@ -102,6 +107,8 @@ Ext.define('Uni.view.menu.SideMenu', {
         if (Ext.isDefined(me.menuItems) && Ext.isArray(me.menuItems)) {
             me.buildMenuItems();
         }
+
+        me.buildHeader();
 
         me.checkNavigation(Ext.util.History.getToken());
 
@@ -264,6 +271,40 @@ Ext.define('Uni.view.menu.SideMenu', {
             return a
         } else if (a.fitness > b.fitness) {
             return b
+        }
+    },
+
+    buildHeader: function () {
+        var me = this;
+        me.header = {
+            xtype: 'panel',
+            height: 50,
+            maxWidth: 223,
+            items: [{
+                xtype: 'component',
+                itemId: 'side-menu-header-object-type',
+                cls: 'x-menu-header-object-type',
+                html: Ext.htmlEncode(me.objectType)
+            }, {
+                xtype: 'component',
+                itemId: 'side-menu-header-object-name',
+                cls: 'x-menu-header-object-name',
+                html: Ext.htmlEncode(me.title)
+            }],
+            title: false
+        };
+    },
+
+    setHeader: function (title) {
+        var me = this;
+        if (me.rendered) {
+            if (title) {
+                me.down('#side-menu-header-object-name').update(Ext.htmlEncode(title));
+            }
+            me.updateLayout();
+        } else {
+            me.title = title;
+            me.buildHeader();
         }
     }
 });
