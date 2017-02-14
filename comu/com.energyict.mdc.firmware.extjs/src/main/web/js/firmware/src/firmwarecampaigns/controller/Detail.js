@@ -38,7 +38,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Detail', {
             success: function (record) {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 Ext.suspendLayouts();
-                me.getSideMenu().down('#firmware-campaign-link').setText(record.get('name'));
+                me.getSideMenu().setHeader(record.get('name'));
                 widget.down('firmware-campaigns-detail-form').loadRecord(record);
                 widget.down('firmware-campaigns-detail-form property-form').loadRecord(record);
                 me.getApplication().fireEvent('loadFirmwareCampaign', record);

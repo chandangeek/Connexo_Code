@@ -7,13 +7,14 @@ Ext.define('Fwc.firmwarecampaigns.view.SideMenu', {
     alias: 'widget.firmware-campaign-side-menu',
     router: null,
     title: Uni.I18n.translate('firmware.campaigns.firmwareCampaign', 'FWC', 'Firmware campaign'),
+    objectType: Uni.I18n.translate('firmware.campaigns.firmwareCampaign', 'FWC', 'Firmware campaign'),
 
     initComponent: function () {
         var me = this;
 
         me.menuItems = [
             {
-                text: Uni.I18n.translate('firmware.campaigns.firmwareCampaign', 'FWC', 'Firmware campaign'),
+                text: Uni.I18n.translate('firmware.campaigns.details', 'FWC', 'Details'),
                 itemId: 'firmware-campaign-link',
                 href: me.router.getRoute('workspace/firmwarecampaigns/firmwarecampaign').buildUrl()
             },
