@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.view.form.CustomAttributeSetDetails', {
     extend: 'Ext.form.Panel',
     alias: 'widget.custom-attribute-set-details-form',
