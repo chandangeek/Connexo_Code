@@ -100,6 +100,7 @@ public enum TableSpecs {
             Table<KeyAccessorType> table = dataModel.addTable(name(), KeyAccessorType.class);
             table.map(KeyAccessorTypeImpl.class);
             Column id = table.addAutoIdColumn();
+            table.addAuditColumns();
             table.column("NAME")
                     .varChar()
                     .notNull()
@@ -149,6 +150,26 @@ public enum TableSpecs {
                     .map(KeyAccessorTypeImpl.Fields.KEYTYPE.fieldName())
                     .add();
             table.primaryKey("PK_DTC_KEYACCESSOR").on(id).add();
+        }
+    },
+
+    DTC_KEYACCTYPEUSRACTN {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<KeyAccessorTypeImpl.UserActionRecord> table = dataModel.addTable(name(), KeyAccessorTypeImpl.UserActionRecord.class).since(version(10, 3));
+            table.map(KeyAccessorTypeImpl.UserActionRecord.class);
+            Column useraction = table.column("USERACTION").number().conversion(NUMBER2ENUM).notNull().map("userAction").add();
+            Column keyAccessorType = table.column("KEYACCESSORTYPE").number().notNull().add();
+            table.setJournalTableName("DTC_KEYACCTYPE_USRACTNJRNL");
+            table.addAuditColumns();
+            table.foreignKey("FK_DTC_KEYACCTYPE_USRACTN")
+                    .on(keyAccessorType)
+                    .references(DTC_KEYACCESSORTYPE.name())
+                    .reverseMap("userActionRecords")
+                    .composition()
+                    .map("keyAccessorType")
+                    .add();
+            table.primaryKey("PK_DTC_KEYACCTYPEUSRACTN").on(useraction, keyAccessorType).add();
         }
     },
 
@@ -645,7 +666,7 @@ public enum TableSpecs {
     DTC_SECURITYPROPSETUSERACTION {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<SecurityPropertySetImpl.UserActionRecord> table = dataModel.addTable(name(), SecurityPropertySetImpl.UserActionRecord.class);
+            Table<SecurityPropertySetImpl.UserActionRecord> table = dataModel.addTable(name(), SecurityPropertySetImpl.UserActionRecord.class).upTo(version(10, 3));
             table.map(SecurityPropertySetImpl.UserActionRecord.class);
             Column useraction = table.column("USERACTION").number().conversion(NUMBER2ENUM).notNull().map("userAction").add();
             Column securitypropertyset = table.column("SECURITYPROPERTYSET").number().notNull().add();

@@ -35,6 +35,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
@@ -188,6 +189,7 @@ public class SecurityPropertySetImplCrudIT {
                     new PubSubModule(),
                     new TransactionModule(false),
                     new UtilModule(),
+                    new PkiModule(),
                     new NlsModule(),
                     new DomainUtilModule(),
                     new PartyModule(),
@@ -316,7 +318,6 @@ public class SecurityPropertySetImplCrudIT {
         assertThat(reloaded.getName()).isEqualTo("Name");
         assertThat(reloaded.getAuthenticationDeviceAccessLevel()).isEqualTo(authLevel);
         assertThat(reloaded.getEncryptionDeviceAccessLevel()).isEqualTo(encLevel);
-        assertThat(reloaded.getUserActions()).isEqualTo(EnumSet.of(EDITDEVICESECURITYPROPERTIES1, EDITDEVICESECURITYPROPERTIES2));
 
     }
 
@@ -399,9 +400,6 @@ public class SecurityPropertySetImplCrudIT {
         assertThat(reloaded.getName()).isEqualTo("Name");
         assertThat(reloaded.getAuthenticationDeviceAccessLevel()).isEqualTo(authLevel2);
         assertThat(reloaded.getEncryptionDeviceAccessLevel()).isEqualTo(encLevel);
-        assertThat(reloaded.getUserActions()).isEqualTo(EnumSet.of(EDITDEVICESECURITYPROPERTIES2, VIEWDEVICESECURITYPROPERTIES4));
-
-
     }
 
     @Test

@@ -34,6 +34,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
@@ -201,6 +202,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 new ThreadSecurityModule(principal),
                 new EventsModule(),
                 new PubSubModule(),
+                new PkiModule(),
                 new TransactionModule(showSqlLogging),
                 new UtilModule(),
                 new NlsModule(),
