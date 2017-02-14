@@ -4,7 +4,6 @@ import com.elster.jupiter.issue.rest.response.IssueAssigneeInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 
-import java.time.Instant;
 import java.util.List;
 
 public class DeviceAlarmInfo {
@@ -35,7 +34,7 @@ public class DeviceAlarmInfo {
         this.workGroupAssignee = (deviceAlarm.getAssignee() != null ? new IssueAssigneeInfo("WORKGROUP", deviceAlarm.getAssignee()) : null);
         this.userAssignee = (deviceAlarm.getAssignee() != null ? new IssueAssigneeInfo("USER", deviceAlarm.getAssignee()) : null);
         this.title = deviceAlarm.getTitle();
-        this.creationDate = deviceAlarm.getCreatedDateTime().toEpochMilli();
+        this.creationDate = deviceAlarm.getCreateDateTime().toEpochMilli();
         this.version = deviceAlarm.getVersion();
         this.clearedStatus = deviceAlarm.isStatusCleared();
         this.priority = new PriorityInfo(deviceAlarm.getPriority());

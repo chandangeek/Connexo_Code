@@ -247,6 +247,7 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
         when(alarm.getDevice()).thenReturn(meter);
         when(alarm.getAssignee()).thenReturn(assingee);
         when(alarm.getCreateTime()).thenReturn(Instant.EPOCH);
+        when(alarm.getCreateDateTime()).thenReturn(Instant.EPOCH);
         when(alarm.getModTime()).thenReturn(Instant.EPOCH);
         when(alarm.getVersion()).thenReturn(1L);
         when(alarm.getDeviceAlarmRelatedEvents()).thenReturn(events);
