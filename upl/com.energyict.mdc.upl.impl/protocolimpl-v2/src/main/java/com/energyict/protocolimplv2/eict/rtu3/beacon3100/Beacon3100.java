@@ -106,9 +106,13 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
      * Unless of course the whole session is done with the public client, then there's no need to read out the FC.
      */
     protected void handleFrameCounter(ComChannel comChannel) {
+        if (!frameCounterReadoutRequired()){
+            getLogger().info("Skipping FC handling due to lower security level.");
+            return; // there is no need to read-out the frame-counter
+        }
+
         int clientMacAddress = getDlmsSessionProperties().getClientMacAddress();
         if (clientMacAddress != ClientConfiguration.PUBLIC.clientId) {
-
             boolean weHaveValidCachedFrameCounter = false;
             if (getDlmsSessionProperties().useCachedFrameCounter()) {
                 weHaveValidCachedFrameCounter = getCachedFrameCounter(comChannel, clientMacAddress);
@@ -119,6 +123,14 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                 readFrameCounter(comChannel);
             }
         }
+    }
+
+    private boolean frameCounterReadoutRequired() {
+        if (getDlmsSessionProperties().getAuthenticationSecurityLevel() < 5){
+            return false;
+        }
+
+        return true;
     }
 
     @Override

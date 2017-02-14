@@ -283,14 +283,11 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     @Override
     @SuppressWarnings("rawtypes")
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
-        if (propertySpec.getName().equals(DeviceMessageConstants.broadcastEncryptionKeyAttributeName)
-                || propertySpec.getName().equals(DeviceMessageConstants.passwordAttributeName)
-                || propertySpec.getName().equals(DeviceMessageConstants.broadcastAuthenticationKeyAttributeName)
-                || propertySpec.getName().equals(DeviceMessageConstants.newAuthenticationKeyAttributeName)
-                || propertySpec.getName().equals(DeviceMessageConstants.newPasswordAttributeName)
-                || propertySpec.getName().equals(DeviceMessageConstants.newEncryptionKeyAttributeName)) {
+        if (propertySpec.getDomain().getValueType().equals(Password.class)){
             return ((Password) messageAttribute).getValue();
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.broadcastDevicesGroupAttributeName)) {
+        }
+
+        if (propertySpec.getName().equals(DeviceMessageConstants.broadcastDevicesGroupAttributeName)) {
             return DeviceInfoSerializer.serializeDeviceInfo(messageAttribute);
         } else if (propertySpec.getName().equals(DeviceMessageConstants.broadcastInitialTimeBetweenBlocksAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.timeout)) {
