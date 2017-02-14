@@ -50,6 +50,7 @@ public class SiemensSCTM {
     private String nodeId=null;
     private int iEchoCancelling;
     private HalfDuplexController halfDuplexController=null;
+    private boolean wakeUp;
     
     private int DBN;
     
@@ -114,7 +115,7 @@ public class SiemensSCTM {
     								  (byte)0x31,(byte)0x30,(byte)0x31,(byte)0x37,(byte)0x31,(byte)0x02,(byte)0x30,(byte)0x38,(byte)0x31,
     								  (byte)0x31,(byte)0x30,(byte)0x39,(byte)0x20,(byte)0x37,(byte)0x31,(byte)0x35,(byte)0x34,(byte)0x36,
     								  (byte)0x31,(byte)0x31,(byte)0x03,(byte)0x13};
-			SiemensSCTM sSctm = new SiemensSCTM(null, null,20,5,"","",1,1);
+			SiemensSCTM sSctm = new SiemensSCTM(null, null,20,5,"","",1,1, false);
 			
 			System.out.println(sSctm.isChecksumDump(data));
 			System.out.println(sSctm.isChecksumDump(data2));
@@ -138,8 +139,8 @@ public class SiemensSCTM {
                        int iMaxRetries,
                        String strPass,
                        String nodeId,
-                       int iEchoCancelling, int forcedDelay) throws SiemensSCTMException {
-        this(inputStream, outputStream, iTimeout, iMaxRetries, strPass, nodeId, iEchoCancelling, null, forcedDelay);
+                       int iEchoCancelling, int forcedDelay, boolean wakeUp) throws SiemensSCTMException {
+        this(inputStream, outputStream, iTimeout, iMaxRetries, strPass, nodeId, iEchoCancelling, null, forcedDelay, wakeUp);
     } // public SiemensSCTM(...) 
     
     public SiemensSCTM(InputStream inputStream,
@@ -150,7 +151,8 @@ public class SiemensSCTM {
                        String nodeId,
                        int iEchoCancelling,
                        HalfDuplexController halfDuplexController,
-                       int forcedDelay) throws SiemensSCTMException {
+                       int forcedDelay,
+                       boolean wakeUp) throws SiemensSCTMException {
         this.strPass = strPass;
         this.nodeId = nodeId;
         //setOffsetandLengths(strPass);
@@ -165,6 +167,7 @@ public class SiemensSCTM {
         lastSCTMFrame = new SiemensSCTMFrameDecoder(this);
         this.halfDuplexController=halfDuplexController;
         this.forcedDelay = forcedDelay;
+        this.wakeUp = wakeUp;
     }
     
     private void setOffsetandLengths(String str) {
@@ -677,6 +680,10 @@ public class SiemensSCTM {
         
         while(true) {
             try {
+                if(wakeUp){
+                    String wakeUpCall = "7F7F7F7F";
+                    sendRawData(wakeUpCall.getBytes());
+                }
                 String str="/?"+nodeId+"!\r\n";
                 sendRawData(str.getBytes());
                 receiveIdent(strIdent);

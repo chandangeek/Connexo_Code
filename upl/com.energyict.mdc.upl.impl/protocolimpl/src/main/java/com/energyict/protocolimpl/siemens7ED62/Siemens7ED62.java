@@ -17,22 +17,11 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.iec1107.Software7E1InputStream;
 import com.energyict.protocolimpl.iec1107.Software7E1OutputStream;
 import com.energyict.protocolimpl.sctm.base.GenericRegisters;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -40,13 +29,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 // KV 06092005 WVEM
@@ -94,6 +77,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
     private long roundTripTime;
     private int DEBUG = 0;
     private boolean software7E1;
+    private boolean wakeupMeter;
 
     /**
      * Creates a new instance of Siemens7ED62
@@ -420,7 +404,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
     }
 
     public String getProtocolVersion() {
-        return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
+        return "$Date: 2017-02-14 10:08:17 +0200 (Tue, 14 Feb 2017)$";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -452,6 +436,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
         result.add("ChannelMap");
         result.add("TimeSetMethod");
         result.add("Software7E1");
+        result.add("SendWakeUp");
         return result;
     }
 
@@ -488,6 +473,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
             nrOfChannels = Integer.parseInt(properties.getProperty("ChannelMap", "6"));
             timeSetMethod = Integer.parseInt(properties.getProperty("TimeSetMethod", "0").trim());
             software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
+            wakeupMeter = !properties.getProperty("SendWakeUp", "0").equalsIgnoreCase("0");
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, " + e.getMessage());
         }
@@ -511,7 +497,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
         try {
             siemensSCTM = new SiemensSCTM((software7E1 ? new Software7E1InputStream(inputStream) : inputStream),
                     (software7E1 ? new Software7E1OutputStream(outputStream) : outputStream),
-                    iSCTMTimeoutProperty, iProtocolRetriesProperty, null, nodeId, iEchoCancelling, forcedDelay);
+                    iSCTMTimeoutProperty, iProtocolRetriesProperty, null, nodeId, iEchoCancelling, forcedDelay, wakeupMeter);
             genericRegisters = new GenericRegisters(siemensSCTM); // KV 06092005 WVEM
             setMeterReadingRegisters();
 

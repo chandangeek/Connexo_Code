@@ -11,36 +11,17 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.protocol.HalfDuplexEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.iec1107.Software7E1InputStream;
 import com.energyict.protocolimpl.iec1107.Software7E1OutputStream;
-import com.energyict.protocolimpl.siemens7ED62.SCTMDumpData;
-import com.energyict.protocolimpl.siemens7ED62.SCTMRegister;
-import com.energyict.protocolimpl.siemens7ED62.SCTMTimeData;
-import com.energyict.protocolimpl.siemens7ED62.SiemensSCTM;
-import com.energyict.protocolimpl.siemens7ED62.SiemensSCTMException;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimpl.siemens7ED62.*;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -579,7 +560,8 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
                     nodeId,
                     iEchoCancelling,
                     halfDuplex != 0 ? halfDuplexController : null,
-                    forcedDelay
+                    forcedDelay,
+                    false
             );
         } catch (SiemensSCTMException e) {
             logger.severe("SiemensSCTM: init(...), " + e.getMessage());
