@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dxp.view.tasks.EventTypeWindow', {
     extend: 'Ext.window.Window',
     alias: 'widget.event-type-window',
@@ -295,7 +299,7 @@ Ext.define('Dxp.view.tasks.EventTypeWindow', {
             ) &&
             this.isFieldValid(fieldId,
                 store.findExact('eventFilterCode', me.getEventType()) === -1,
-                Uni.I18n.translate('export.eventType.alreadyAssigned', 'DES', 'Event type is already assigned to data export task')
+                Uni.I18n.translate('export.eventType.typeIsAlreadyAssigned', 'DES', 'Event type is already assigned to export task')
             );
     },
 

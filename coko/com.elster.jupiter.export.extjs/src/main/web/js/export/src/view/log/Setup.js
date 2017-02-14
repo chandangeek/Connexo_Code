@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dxp.view.log.Setup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.export-log-setup',
@@ -9,31 +13,37 @@ Ext.define('Dxp.view.log.Setup', {
     ],
     task: null,
     runStartedOn: null,
+    fromWorkspace: false,
     router: null,
     initComponent: function () {
         var me = this;
 
-        me.side = [
-            {
-                xtype: 'panel',
-                ui: 'medium',
-                items: [
-                    {
-                        xtype: 'dxp-log-menu',
-                        itemId: 'log-view-menu',
-                        router: me.router
-                    }
-                ]
-            }
-        ];
+        if(!me.fromWorkspace){
+            me.side = [
+                {
+                    xtype: 'panel',
+                    ui: 'medium',
+                    items: [
+                        {
+                            xtype: 'dxp-log-menu',
+                            itemId: 'log-view-menu',
+                            router: me.router
+                        }
+                    ]
+                }
+            ];
+        }
+
         me.content = {
             xtype: 'panel',
+            itemId: 'main-panel',
             ui: 'large',
             title: Uni.I18n.translate('general.log', 'DES', 'Log'),
             items: [
                 {
                     xtype: 'dxp-log-preview',
                     router: me.router,
+                    taskId: me.task.get('id'),
                     margin: '10 0 20 0'
                 },
                 {

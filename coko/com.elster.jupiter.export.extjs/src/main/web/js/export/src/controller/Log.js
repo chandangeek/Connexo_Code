@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dxp.controller.Log', {
     extend: 'Ext.app.Controller',
     views: [
@@ -22,41 +26,47 @@ Ext.define('Dxp.controller.Log', {
         this.callParent(arguments);
     },
 
-    showLog: function (taskId, occurrenceId) {
+    showLogWorkspace: function (occurrenceId) {
+        this.showLog(null, occurrenceId, true);
+    },
+
+    showLog: function (taskId, occurrenceId, fromWorkspace) {
         var me = this,
-            taskModel = me.getModel('Dxp.model.DataExportTask'),
+            taskModel = me.getModel('Dxp.model.DataExportTaskHistory'),
             logsStore = me.getStore('Dxp.store.Logs'),
-            historyStore = me.getStore('Dxp.store.DataExportTasksHistory'),
             router = me.getController('Uni.controller.history.Router'),
             view,
             runStartedOnFormatted,
-            taskLink,
-            occurrenceTask;
+            taskLink;
 
-        historyStore.getProxy().setUrl(router.arguments);
+
         logsStore.getProxy().setUrl(router.arguments);
-        taskModel.load(taskId, {
-            success: function (record) {
-                historyStore.load(function(records) {
-                    records.map(function(r){
-                        r.set(Ext.apply({}, r.raw, record.raw));
-                    });
-                    occurrenceTask = this.getById(parseInt(occurrenceId));
+        taskModel.load(occurrenceId, {
+            success: function (occurrenceTask) {
+                var task = occurrenceTask.getTask();
                     runStartedOnFormatted = occurrenceTask.data.startedOn_formatted;
                     view = Ext.widget('export-log-setup', {
                         router: router,
-                        task: record,
-                        runStartedOn: runStartedOnFormatted
+                        task: task,
+                        runStartedOn: runStartedOnFormatted,
+                        fromWorkspace: fromWorkspace
                     });
+                Ext.suspendLayouts();
+                if(!fromWorkspace){
                     taskLink = view.down('#log-view-menu #tasks-view-link');
-                    taskLink.setText(record.get('name'));
-                    me.getApplication().fireEvent('dataexporttaskload', record);
-                    view.down('#log-preview-form').loadRecord(occurrenceTask);
-                    view.down('#reason-field').setVisible(occurrenceTask.get('status')==='Failed');
-                    view.down('#run-started-on').setValue(runStartedOnFormatted);
-                    view.down('#des-log-preview').updateSummary(occurrenceTask.get('summary'));
-                    me.getApplication().fireEvent('changecontentevent', view);
-                });
+                    taskLink.setText(task.get('name'));
+                    me.getApplication().fireEvent('dataexporttaskload', task);
+                } else {
+                    view.down('#main-panel').setTitle(
+                        Uni.I18n.translate('exportTask.log.of.occurence', 'DES', "Log '{0}'", occurrenceTask.get('startedOn_formatted'), false)
+                    );
+                }
+                view.down('#log-preview-form').loadRecord(occurrenceTask);
+                view.down('#reason-field').setVisible(occurrenceTask.get('status') === 'Failed');
+                view.down('#run-started-on').setValue(runStartedOnFormatted);
+                view.down('#des-log-preview').updateSummary(occurrenceTask.get('summary'));
+                me.getApplication().fireEvent('changecontentevent', view);
+                Ext.resumeLayouts(true);
             }
         });
     }

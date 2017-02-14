@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dxp.view.tasks.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.dxp-tasks-grid',
@@ -58,13 +62,13 @@ Ext.define('Dxp.view.tasks.Grid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('dataExportTasks.pagingtoolbartop.displayMsg', 'DES', '{0} - {1} of {2} data export tasks'),
-                displayMoreMsg: Uni.I18n.translate('dataExportTasks.pagingtoolbartop.displayMoreMsg', 'DES', '{0} - {1} of more than {2} data export tasks'),
-                emptyMsg: Uni.I18n.translate('dataExportTasks.pagingtoolbartop.emptyMsg', 'DES', 'There are no data export tasks to display'),
+                displayMsg: Uni.I18n.translate('exportTasks.pagingtoolbartop.displayMsg', 'DES', '{0} - {1} of {2} export tasks'),
+                displayMoreMsg: Uni.I18n.translate('exportTasks.pagingtoolbartop.displayMoreMsg', 'DES', '{0} - {1} of more than {2} export tasks'),
+                emptyMsg: Uni.I18n.translate('exportTasks.pagingtoolbartop.emptyMsg', 'DES', 'There are no export tasks to display'),
                 items: [
                     {
                         xtype: 'button',
-                        text: Uni.I18n.translate('general.addDataExportTask', 'DES', 'Add data export task'),
+                        text: Uni.I18n.translate('general.addExportTask', 'DES', 'Add export task'),
                         privileges: Dxp.privileges.DataExport.admin,
                         href: '#/administration/dataexporttasks/add'
                     }
@@ -73,7 +77,7 @@ Ext.define('Dxp.view.tasks.Grid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('dataExportTasks.pagingtoolbarbottom.itemsPerPage', 'DES', 'Data export tasks per page'),
+                itemsPerPageMsg: Uni.I18n.translate('exportTasks.pagingtoolbarbottom.itemsPerPage', 'DES', 'Export tasks per page'),
                 dock: 'bottom'
             }
         ];

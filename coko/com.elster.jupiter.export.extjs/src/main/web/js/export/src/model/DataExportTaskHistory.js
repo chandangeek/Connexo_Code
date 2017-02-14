@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dxp.model.DataExportTaskHistory', {
     extend: 'Ext.data.Model',
     requires: [
@@ -92,7 +96,13 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
                 return data.task.name;
             }
         },
-
+        {
+            name: 'taskId',
+            persist:false,
+            mapping:  function (data) {
+                return data.task.id;
+            }
+        },
         {
             name: 'logLevel',
             persist:false,
@@ -273,6 +283,14 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             name: 'task',
             getterName: 'getTask'
         }
-    ]
+    ],
+
+    proxy: {
+        type: 'rest',
+        url: '/api/export/dataexporttask/history',
+        reader: {
+            type: 'json'
+        }
+    }
 
 });

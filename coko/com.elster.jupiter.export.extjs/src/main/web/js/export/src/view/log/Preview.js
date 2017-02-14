@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dxp.view.log.Preview', {
     extend: 'Ext.panel.Panel',
     frame: true,
@@ -16,11 +20,15 @@ Ext.define('Dxp.view.log.Preview', {
             },
             items: [
                 {
-                    fieldLabel: Uni.I18n.translate('general.name', 'DES', 'Name'),
+                    fieldLabel: Uni.I18n.translate('general.exportTask', 'DES', 'Export task'),
                     name: 'name',
                     renderer: function (value) {
-                        var url = me.router.getRoute('administration/dataexporttasks/dataexporttask').buildUrl();
-                        return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
+                        var url = me.router.getRoute('administration/dataexporttasks/dataexporttask').buildUrl({
+                            taskId: me.taskId
+                        });
+                        return Dxp.privileges.DataExport.canView()
+                            ? '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>'
+                            : Ext.String.htmlEncode(value);
                     }
                 },
                 {

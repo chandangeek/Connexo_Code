@@ -1,15 +1,20 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dxp.view.tasks.HistoryGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.dxp-tasks-history-grid',
     store: 'Dxp.store.DataExportTasksHistory',
     router: null,
+    showExportTask: true,
+    fromWorkspace: false,
 
     requires: [
         'Uni.grid.column.Action',
         'Uni.grid.column.Duration',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Dxp.view.tasks.HistoryActionMenu',
         'Uni.DateTime'
     ],
 
@@ -22,9 +27,24 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
                 dataIndex: 'startedOn',
                 flex: 2,
                 renderer: function (value, metaData, record) {
-                    var url = me.router.getRoute('administration/dataexporttasks/dataexporttask/history/occurrence').buildUrl({occurrenceId: record.get('id')}),
+
+                    var url = me.fromWorkspace ?
+                            me.router.getRoute('workspace/exporthistory/occurrence').buildUrl({occurrenceId: record.get('id')}) :
+                            me.router.getRoute('administration/dataexporttasks/dataexporttask/history/occurrence')
+                                .buildUrl({taskId: record.get("taskId"), occurrenceId: record.get('id')}),
                         date = value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
                     return '<a href="' + url + '">' + date + '</a>';
+                }
+            },
+            {
+                header: Uni.I18n.translate('general.exportTask', 'DES', 'Export task'),
+                hidden: me.showExportTask,
+                dataIndex: 'name',
+                renderer: function (value, metaData, record) {
+                    var url = me.router.getRoute('administration/dataexporttasks/dataexporttask').buildUrl({taskId: record.get("taskId")});
+                    return Dxp.privileges.DataExport.canView()
+                        ? '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>'
+                        : Ext.String.htmlEncode(value);
                 }
             },
             {
@@ -46,13 +66,6 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
                 dataIndex: 'exportPeriod_range',
                 textAlign: 'center',
                 flex: 3
-            },
-            {
-                xtype: 'uni-actioncolumn',
-                width: 100,
-                menu: {
-                    xtype: 'tasks-history-action-menu'
-                }
             }
         ];
 

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dxp.view.tasks.HistoryPreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.dxp-tasks-history-preview-form',
@@ -19,7 +23,7 @@ Ext.define('Dxp.view.tasks.HistoryPreviewForm', {
         me.items = [
             {
                 xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.name', 'DES', 'Name'),
+                fieldLabel: Uni.I18n.translate('general.exportTask', 'DES', 'Export task'),
                 name: 'name',
                 labelWidth: 250
             },

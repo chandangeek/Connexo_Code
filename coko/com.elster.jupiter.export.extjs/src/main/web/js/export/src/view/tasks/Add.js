@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dxp.view.tasks.Add', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.data-export-tasks-add',
@@ -37,7 +41,7 @@ Ext.define('Dxp.view.tasks.Add', {
         me.content = [
             {
                 xtype: 'form',
-                title: Uni.I18n.translate('general.addDataExportTask', 'DES', 'Add data export task'),
+                title: Uni.I18n.translate('general.addExportTask', 'DES', 'Add export task'),
                 itemId: 'add-data-export-task-form',
                 ui: 'large',
                 width: '100%',
