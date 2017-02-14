@@ -7,8 +7,10 @@ Ext.define('Fim.view.history.Menu', {
     alias: 'widget.fim-history-menu',
 
     router: null,
-    title: '',
     showImportService: false,
+
+    title: Uni.I18n.translate('general.importService', 'FIM', 'Import service'),
+    objectType: Uni.I18n.translate('general.importService', 'FIM', 'Import service'),
 
     initComponent: function () {
         var me = this;

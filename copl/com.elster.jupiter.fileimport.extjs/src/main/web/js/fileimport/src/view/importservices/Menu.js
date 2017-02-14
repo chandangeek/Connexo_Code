@@ -8,7 +8,8 @@ Ext.define('Fim.view.importservices.Menu', {
 
     router: null,
     importServiceId: null,
-    title: Uni.I18n.translate('general.importServices', 'FIM', 'Import services'),
+    title: Uni.I18n.translate('general.importService', 'FIM', 'Import service'),
+    objectType: Uni.I18n.translate('general.importService', 'FIM', 'Import service'),
 
     initComponent: function () {
         var me = this;
