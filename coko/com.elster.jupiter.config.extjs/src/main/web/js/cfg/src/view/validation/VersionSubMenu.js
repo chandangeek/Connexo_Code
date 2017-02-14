@@ -10,6 +10,7 @@ Ext.define('Cfg.view.validation.VersionSubMenu', {
     versionId: null,
 
     title: Uni.I18n.translate('validation.validationRuleSetVersion', 'CFG', 'Validation rule set version'),
+    objectType: Uni.I18n.translate('validation.validationRuleSetVersion', 'CFG', 'Validation rule set version'),
 
     initComponent: function () {
         var me = this;

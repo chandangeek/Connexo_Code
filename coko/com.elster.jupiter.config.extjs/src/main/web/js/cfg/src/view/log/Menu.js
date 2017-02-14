@@ -7,6 +7,7 @@ Ext.define('Cfg.view.log.Menu', {
     alias: 'widget.log-menu',
     router: null,
     title: Uni.I18n.translate('validationTasks.general.validationTask', 'CFG', 'Validation task'),
+    objectType: Uni.I18n.translate('validationTasks.general.validationTask', 'CFG', 'Validation task'),
 
     initComponent: function () {
         var me = this;

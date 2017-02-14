@@ -9,6 +9,7 @@ Ext.define('Cfg.view.validation.RuleSetSubMenu', {
     ruleSetId: null,
 
     title: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'),
+    objectType: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'),
 
     initComponent: function () {
         var me = this;

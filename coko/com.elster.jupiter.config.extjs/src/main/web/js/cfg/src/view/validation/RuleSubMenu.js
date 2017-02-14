@@ -11,6 +11,7 @@ Ext.define('Cfg.view.validation.RuleSubMenu', {
     ruleId: null,
 
     title: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule'),
+    objectType: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule'),
 
     initComponent: function () {
         var me = this;
