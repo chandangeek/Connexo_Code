@@ -16,10 +16,6 @@
     <dependencies>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdw</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
             <artifactId>mdc.upl</artifactId>
         </dependency>
         <dependency>
@@ -46,6 +42,13 @@
             <groupId>com.elster</groupId>
             <artifactId>elsterutils</artifactId>
             <version>1.4.2</version>
+            <exclusions>
+                <!--TODO this is temporary, remove the dependency from elsterutils to mdw and replace it by UPL stuff-->
+                <exclusion>
+                    <groupId>com.energyict</groupId>
+                    <artifactId>mdw</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>

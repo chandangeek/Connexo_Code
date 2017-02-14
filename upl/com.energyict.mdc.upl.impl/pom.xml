@@ -28,6 +28,7 @@
 		<eiserver.version>${project.version}</eiserver.version>
 		<comserver.version>${project.version}</comserver.version>
 		<protocol-api.version>${project.version}</protocol-api.version>
+		<protocols.version>${project.version}</protocols.version>
 		<universal-protocol.version>1.0.0-SNAPSHOT</universal-protocol.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<proguard.maven.version>2.0.11</proguard.maven.version>
@@ -55,6 +56,7 @@
 			<dependency>
 				<groupId>com.energyict</groupId>
 				<artifactId>protocolimpl</artifactId>
+				<version>${protocols.version}</version>
             </dependency>
 			<dependency>
 				<groupId>com.energyict</groupId>
@@ -87,24 +89,6 @@
                 <version>2.2pre2</version>
             </dependency>
 
-			<dependency>
-				<groupId>com.energyict</groupId>
-				<artifactId>mdwimpl</artifactId>
-				<version>${eiserver.version}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.energyict</groupId>
-				<artifactId>mdwutil</artifactId>
-				<version>${eiserver.version}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.energyict</groupId>
-				<artifactId>mdwdevtools</artifactId>
-				<version>${eiserver.version}</version>
-				<scope>test</scope>
-			</dependency>
 			<dependency>
 				<groupId>commons-logging</groupId>
 				<artifactId>commons-logging</artifactId>

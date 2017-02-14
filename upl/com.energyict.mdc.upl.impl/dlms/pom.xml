@@ -15,14 +15,6 @@
     <dependencies>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdw</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdwimpl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
             <artifactId>mdc.upl</artifactId>
         </dependency>
         <dependency>

@@ -14,20 +14,6 @@
 
     <dependencies>
         <!-- EIServer dependencies -->
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdw</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdwimpl</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.energyict.comserver</groupId>
-            <artifactId>comserver-core-impl</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>commons-logging</groupId>

@@ -13,22 +13,6 @@
     </parent>
 
     <dependencies>
-        <!-- EIServer dependencies -->
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdw</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdwimpl</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdwutil</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.upl</artifactId>
@@ -93,7 +77,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>protocolimpl</artifactId>
-            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -124,11 +107,6 @@
         </dependency>
 
         <!-- Testing -->
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdwdevtools</artifactId>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>org.powermock</groupId>
