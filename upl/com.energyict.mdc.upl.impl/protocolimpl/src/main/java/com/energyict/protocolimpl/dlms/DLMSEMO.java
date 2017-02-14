@@ -52,7 +52,7 @@ public class DLMSEMO extends DLMSSN {
     private static final long EV_POWER_DOWN=            0x00000080;
     private static final long EV_CAPTURED_EVENTS=       0x000000A9; // Add new events...
 
-    DLMSEMO(PropertySpecService propertySpecService) {
+    public DLMSEMO(PropertySpecService propertySpecService) {
         super(propertySpecService);
     }
 
