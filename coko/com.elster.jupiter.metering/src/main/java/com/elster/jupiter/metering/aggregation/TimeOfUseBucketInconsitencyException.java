@@ -7,6 +7,7 @@ package com.elster.jupiter.metering.aggregation;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 
@@ -23,8 +24,8 @@ import java.time.Instant;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-03-24 (11:53)
  */
-public class MetrologyContractDoesNotApplyToUsagePointException extends LocalizedException {
-    public MetrologyContractDoesNotApplyToUsagePointException(Thesaurus thesaurus, MetrologyContract contract, UsagePoint usagePoint, Range<Instant> period) {
-        super(thesaurus, MessageSeeds.CONTRACT_NOT_ACTIVE, contract.getMetrologyPurpose().getName(), usagePoint.getName(), period.toString());
+public class TimeOfUseBucketInconsitencyException extends LocalizedException {
+    public TimeOfUseBucketInconsitencyException(Thesaurus thesaurus, int requestedBucket, int providedBucket, ReadingTypeDeliverable deliverable, UsagePoint usagePoint, Range<Instant> period) {
+        super(thesaurus, MessageSeeds.TIME_OF_USE_BUCKET_INCONSISTENCY, requestedBucket, providedBucket, deliverable.getName(), usagePoint.getMRID(), period.toString());
     }
 }

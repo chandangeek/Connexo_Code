@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
@@ -30,6 +31,7 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.impl.ServerUsagePoint;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
 import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
@@ -87,7 +89,7 @@ public class DataAggregationServiceImplCalculateTest {
     @Mock
     private VirtualFactory virtualFactory;
     @Mock
-    private UsagePoint usagePoint;
+    private ServerUsagePoint usagePoint;
     @Mock
     private UsagePointMetrologyConfiguration configuration;
     @Mock
@@ -104,6 +106,8 @@ public class DataAggregationServiceImplCalculateTest {
     private QueryExecutor<EffectiveMetrologyConfigurationOnUsagePoint> queryExecutor;
     @Mock
     private EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration;
+    @Mock
+    private CalendarService calendarService;
     @Mock
     private CustomPropertySetService customPropertySetService;
     @Mock
@@ -356,7 +360,7 @@ public class DataAggregationServiceImplCalculateTest {
         // Setup configuration deliverables
         ReadingTypeDeliverable netConsumption = mock(ReadingTypeDeliverable.class);
         when(netConsumption.getName()).thenReturn("consumption");
-        ReadingType netConsumptionReadingType = this.mock15minReadingType("13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
+        ReadingType netConsumptionReadingType = this.mockMonhtlyReadingType("13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
         when(netConsumption.getReadingType()).thenReturn(netConsumptionReadingType);
         ServerFormulaBuilder formulaBuilder = this.newFormulaBuilder();
         ExpressionNode node = formulaBuilder.plus(
@@ -609,8 +613,20 @@ public class DataAggregationServiceImplCalculateTest {
         return readingType;
     }
 
+    private ReadingType mockMonhtlyReadingType(String mRID) {
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn(mRID);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.MONTHLY);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ENERGY);
+        return readingType;
+    }
+
     private DataAggregationServiceImpl testInstance() {
         return new DataAggregationServiceImpl(
+                this.calendarService,
                 this.customPropertySetService,
                 this.meteringService,
                 new InstantTruncaterFactory(this.meteringService),

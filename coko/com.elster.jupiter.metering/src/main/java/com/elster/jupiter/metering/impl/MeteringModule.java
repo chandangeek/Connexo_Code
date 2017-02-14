@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.calendar.Category;
+import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
@@ -24,6 +26,7 @@ import com.elster.jupiter.metering.impl.aggregation.SqlBuilderFactoryImpl;
 import com.elster.jupiter.metering.impl.aggregation.VirtualFactory;
 import com.elster.jupiter.metering.impl.aggregation.VirtualFactoryImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -120,6 +123,20 @@ public class MeteringModule extends AbstractModule {
         }
     }
 
+    private static class ThesaurusProvider implements Provider<Thesaurus> {
+        private final MeteringDataModelService meteringDataModelService;
+
+        @Inject
+        private ThesaurusProvider(MeteringDataModelService meteringDataModelService) {
+            this.meteringDataModelService = meteringDataModelService;
+        }
+
+        @Override
+        public Thesaurus get() {
+            return this.meteringDataModelService.getThesaurus();
+        }
+    }
+
     private static class MeteringTranslationServiceProvider implements Provider<MeteringTranslationService> {
         private final MeteringDataModelService meteringDataModelService;
 
@@ -170,12 +187,12 @@ public class MeteringModule extends AbstractModule {
         }
 
         @Override
-        public List<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Range<Instant> period) {
+        public List<MeterActivationSet> getMeterActivationSets(ServerUsagePoint usagePoint, Range<Instant> period) {
             return Collections.emptyList();
         }
 
         @Override
-        public List<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Instant when) {
+        public List<MeterActivationSet> getMeterActivationSets(ServerUsagePoint usagePoint, Instant when) {
             return Collections.emptyList();
         }
 
@@ -187,6 +204,33 @@ public class MeteringModule extends AbstractModule {
         @Override
         public MetrologyContractCalculationIntrospector introspect(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
             return dataAggregationService.introspect(usagePoint, contract, period);
+        }
+
+        @Override
+        public Category getTimeOfUseCategory() {
+            return new TimeOfUse();
+        }
+    }
+
+    private static class TimeOfUse implements Category {
+        @Override
+        public void save() {
+            // No implementation required
+        }
+
+        @Override
+        public String getDisplayName() {
+            return OutOfTheBoxCategory.TOU.getDefaultDisplayName();
+        }
+
+        @Override
+        public long getId() {
+            return 0;
+        }
+
+        @Override
+        public String getName() {
+            return getDisplayName();
         }
     }
 

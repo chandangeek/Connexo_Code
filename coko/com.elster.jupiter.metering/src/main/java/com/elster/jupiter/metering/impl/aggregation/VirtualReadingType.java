@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import static java.lang.Math.max;
 import static java.math.BigDecimal.ONE;
 
 /**
@@ -45,18 +46,23 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
     private final ReadingTypeUnit unit;
     private final Accumulation accumulation;
     private final Commodity commodity;
+    private final int timeOfUseBucket;
     private final Marker marker;
 
     static VirtualReadingType from(ReadingType readingType) {
-        return from(IntervalLength.from(readingType), readingType.getMultiplier(), readingType.getUnit(), readingType.getAccumulation(), readingType.getCommodity());
+        return from(IntervalLength.from(readingType), readingType.getMultiplier(), readingType.getUnit(), readingType.getAccumulation(), readingType.getCommodity(), readingType.getTou());
     }
 
     static VirtualReadingType from(IntervalLength intervalLength, MetricMultiplier unitMultiplier, ReadingTypeUnit unit, Accumulation accumulation, Commodity commodity) {
-        return new VirtualReadingType(intervalLength, unitMultiplier, unit, accumulation, commodity, null);
+        return new VirtualReadingType(intervalLength, unitMultiplier, unit, accumulation, commodity, 0, null);
+    }
+
+    static VirtualReadingType from(IntervalLength intervalLength, MetricMultiplier unitMultiplier, ReadingTypeUnit unit, Accumulation accumulation, Commodity commodity, int timeOfUse) {
+        return new VirtualReadingType(intervalLength, unitMultiplier, unit, accumulation, commodity, timeOfUse, null);
     }
 
     static VirtualReadingType from(IntervalLength intervalLength, Dimension dimension, Accumulation accumulation, Commodity commodity) {
-        return from(intervalLength, MetricMultiplier.ZERO, readingTypeUnitFrom(dimension, commodity), accumulation, commodity);
+        return from(intervalLength, MetricMultiplier.ZERO, readingTypeUnitFrom(dimension, commodity), accumulation, commodity, 0);
     }
 
     private static ReadingTypeUnit readingTypeUnitFrom(Dimension dimension, Commodity commodity) {
@@ -94,19 +100,20 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
     }
 
     static VirtualReadingType notSupported() {
-        return new VirtualReadingType(IntervalLength.NOT_SUPPORTED, MetricMultiplier.ZERO, ReadingTypeUnit.NOTAPPLICABLE, null, null, Marker.UNSUPPORTED);
+        return new VirtualReadingType(IntervalLength.NOT_SUPPORTED, MetricMultiplier.ZERO, ReadingTypeUnit.NOTAPPLICABLE, null, null, 0, Marker.UNSUPPORTED);
     }
 
     static VirtualReadingType dontCare() {
-        return new VirtualReadingType(IntervalLength.NOT_SUPPORTED, MetricMultiplier.ZERO, ReadingTypeUnit.NOTAPPLICABLE, null, null, Marker.DONTCARE);
+        return new VirtualReadingType(IntervalLength.NOT_SUPPORTED, MetricMultiplier.ZERO, ReadingTypeUnit.NOTAPPLICABLE, null, null, 0, Marker.DONTCARE);
     }
 
-    private VirtualReadingType(IntervalLength intervalLength, MetricMultiplier unitMultiplier, ReadingTypeUnit unit, Accumulation accumulation, Commodity commodity, Marker marker) {
+    private VirtualReadingType(IntervalLength intervalLength, MetricMultiplier unitMultiplier, ReadingTypeUnit unit, Accumulation accumulation, Commodity commodity, int timeOfUseBucket, Marker marker) {
         this.intervalLength = intervalLength;
         this.unitMultiplier = unitMultiplier;
         this.unit = unit;
         this.accumulation = accumulation;
         this.commodity = commodity;
+        this.timeOfUseBucket = timeOfUseBucket;
         this.marker = marker;
     }
 
@@ -173,7 +180,7 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
     }
 
     VirtualReadingType withIntervalLength(IntervalLength intervalLength) {
-        return new VirtualReadingType(intervalLength, this.unitMultiplier, this.unit, this.accumulation, this.commodity, this.marker);
+        return new VirtualReadingType(intervalLength, this.unitMultiplier, this.unit, this.accumulation, this.commodity, this.timeOfUseBucket, this.marker);
     }
 
     MetricMultiplier getUnitMultiplier() {
@@ -181,11 +188,7 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
     }
 
     VirtualReadingType withMetricMultiplier(MetricMultiplier unitMultiplier) {
-        return new VirtualReadingType(this.intervalLength, unitMultiplier, this.unit, this.accumulation, this.commodity, this.marker);
-    }
-
-    Dimension getDimension() {
-        return this.getUnit().getUnit().getDimension();
+        return new VirtualReadingType(this.intervalLength, unitMultiplier, this.unit, this.accumulation, this.commodity, this.timeOfUseBucket, this.marker);
     }
 
     ReadingTypeUnit getUnit() {
@@ -193,7 +196,7 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
     }
 
     VirtualReadingType withUnit(ReadingTypeUnit unit) {
-        return new VirtualReadingType(this.intervalLength, this.unitMultiplier, unit, this.accumulation, this.commodity, this.marker);
+        return new VirtualReadingType(this.intervalLength, this.unitMultiplier, unit, this.accumulation, this.commodity, this.timeOfUseBucket, this.marker);
     }
 
     Accumulation getAccumulation() {
@@ -205,11 +208,23 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
     }
 
     VirtualReadingType withCommondity(Commodity commondity) {
-        return new VirtualReadingType(this.intervalLength, this.unitMultiplier, this.unit, this.accumulation, commondity, this.marker);
+        return new VirtualReadingType(this.intervalLength, this.unitMultiplier, this.unit, this.accumulation, commondity, this.timeOfUseBucket, this.marker);
+    }
+
+    Dimension getDimension() {
+        return this.getUnit().getUnit().getDimension();
     }
 
     VirtualReadingType withDimension(Dimension dimension) {
         return this.withUnit(readingTypeUnitFrom(dimension, this.commodity));
+    }
+
+    int getTimeOfUseBucket() {
+        return timeOfUseBucket;
+    }
+
+    VirtualReadingType withTimeOfUseBucketIfNotNull(int timeOfUseBucket) {
+        return new VirtualReadingType(this.intervalLength, this.unitMultiplier, this.unit, this.accumulation, this.commodity, max(this.timeOfUseBucket, timeOfUseBucket), this.marker);
     }
 
     /**
@@ -362,6 +377,7 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
                     .add("unitMultiplier", unitMultiplier)
                     .add("unit", unit)
                     .add("commodity", commodity)
+                    .add("tou", timeOfUseBucket)
                     .toString();
         }
     }

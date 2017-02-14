@@ -12,6 +12,11 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.impl.MeteringDataModelService;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.common.collect.Range;
 
@@ -25,6 +30,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -43,16 +50,25 @@ public class VirtualFactoryImplTest {
     private ReadingTypeDeliverable deliverable;
     @Mock
     private MeterActivationSet meterActivationSet;
+    @Mock
+    private Thesaurus thesaurus;
+    @Mock
+    private MeteringDataModelService dataModelService;
 
     private Range<Instant> aggregationPeriod;
 
     @Before
     public void initializeMocks() {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+        when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
+        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
         Instant jan1st2016 = Instant.ofEpochMilli(1451602800000L);
         when(this.meterActivationSet.getRange()).thenReturn(Range.atLeast(jan1st2016));
         this.aggregationPeriod = Range.atLeast(jan1st2016);
         ReadingType daily_kWh = this.mockDailyReadingType();
         when(this.deliverable.getReadingType()).thenReturn(daily_kWh);
+        when(this.dataModelService.getThesaurus()).thenReturn(this.thesaurus);
     }
 
     @Test(expected = IllegalStateException.class)
@@ -185,7 +201,7 @@ public class VirtualFactoryImplTest {
     }
 
     private VirtualFactoryImpl testInstance() {
-        return new VirtualFactoryImpl();
+        return new VirtualFactoryImpl(this.dataModelService);
     }
 
     private VirtualReadingType hourlyVirtualReadingType() {

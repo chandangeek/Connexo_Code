@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
@@ -32,6 +33,7 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.impl.ServerUsagePoint;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
 import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
@@ -80,7 +82,7 @@ import static org.mockito.Mockito.when;
 public class DataAggregationServiceImplIntrospectionTest {
 
     @Mock
-    private UsagePoint usagePoint;
+    private ServerUsagePoint usagePoint;
     @Mock
     private UsagePointMetrologyConfiguration configuration;
     @Mock
@@ -99,6 +101,8 @@ public class DataAggregationServiceImplIntrospectionTest {
     private EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration;
     @Mock
     private CustomPropertySetService customPropertySetService;
+    @Mock
+    private CalendarService calendarService;
     @Mock
     private ServerMeteringService meteringService;
     @Mock
@@ -130,6 +134,7 @@ public class DataAggregationServiceImplIntrospectionTest {
         when(this.effectiveMetrologyConfiguration.getRange()).thenReturn(year2016());
         when(this.effectiveMetrologyConfiguration.getInterval()).thenReturn(Interval.of(year2016()));
         when(this.usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
+        when(this.meteringDataModelService.getThesaurus()).thenReturn(this.thesaurus);
     }
 
     /**
@@ -643,22 +648,15 @@ public class DataAggregationServiceImplIntrospectionTest {
         return readingType;
     }
 
-    private ReadingType mockDailyReadingType(String mRID) {
-        ReadingType readingType = mock(ReadingType.class);
-        when(readingType.getMRID()).thenReturn(mRID);
-        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
-        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
-        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
-        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
-        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ENERGY);
-        return readingType;
-    }
-
     private DataAggregationServiceImpl testInstance() {
         return new DataAggregationServiceImpl(
+                this.calendarService,
+                this.customPropertySetService,
                 this.meteringService,
                 new InstantTruncaterFactory(this.meteringService),
-                this.customPropertySetService);
+                SqlBuilderFactoryImpl::new,
+                () -> new VirtualFactoryImpl(meteringDataModelService),
+                () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(this.meteringService));
     }
 
     private ServerFormulaBuilder newFormulaBuilder() {

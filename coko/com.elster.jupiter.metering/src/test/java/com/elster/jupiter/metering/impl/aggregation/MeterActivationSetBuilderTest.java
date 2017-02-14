@@ -5,10 +5,10 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.ServerUsagePoint;
 
 import com.google.common.collect.Range;
 
@@ -42,7 +42,7 @@ public class MeterActivationSetBuilderTest {
     private static final Instant AUG_1ST_2016 = Instant.ofEpochMilli(1470002400000L);
 
     @Mock
-    private UsagePoint usagePoint;
+    private ServerUsagePoint usagePoint;
     @Mock
     private MeterRole main;
     @Mock

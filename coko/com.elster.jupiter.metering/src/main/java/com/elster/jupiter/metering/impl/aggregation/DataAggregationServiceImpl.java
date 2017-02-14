@@ -4,6 +4,9 @@
 
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.Category;
+import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
@@ -26,7 +29,9 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.impl.ServerUsagePoint;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -61,6 +66,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  */
 public class DataAggregationServiceImpl implements ServerDataAggregationService {
 
+    private volatile CalendarService calendarService;
     private volatile ServerMeteringService meteringService;
     private volatile InstantTruncaterFactory truncaterFactory;
     private SqlBuilderFactory sqlBuilderFactory;
@@ -68,24 +74,25 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
     private CustomPropertySetService customPropertySetService;
     private ReadingTypeDeliverableForMeterActivationFactory readingTypeDeliverableForMeterActivationFactory;
 
-    public DataAggregationServiceImpl(ServerMeteringService meteringService, InstantTruncaterFactory truncaterFactory, CustomPropertySetService customPropertySetService) {
-        this(SqlBuilderFactoryImpl::new, VirtualFactoryImpl::new, () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringService));
-        this.meteringService = meteringService;
+    public DataAggregationServiceImpl(MeteringDataModelService meteringDataModelService, InstantTruncaterFactory truncaterFactory) {
+        this(meteringDataModelService.getCalendarService(), SqlBuilderFactoryImpl::new, () -> new VirtualFactoryImpl(meteringDataModelService), () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringDataModelService.getMeteringService()));
+        this.meteringService = meteringDataModelService.getMeteringService();
         this.truncaterFactory = truncaterFactory;
-        this.customPropertySetService = customPropertySetService;
+        this.customPropertySetService = meteringDataModelService.getCustomPropertySetService();
     }
 
     // For testing purposes only
     @Inject
-    public DataAggregationServiceImpl(CustomPropertySetService customPropertySetService, ServerMeteringService meteringService, InstantTruncaterFactory truncaterFactory, Provider<SqlBuilderFactory> sqlBuilderFactoryProvider, Provider<VirtualFactory> virtualFactoryProvider, Provider<ReadingTypeDeliverableForMeterActivationFactory> readingTypeDeliverableForMeterActivationFactoryProvider) {
-        this(sqlBuilderFactoryProvider, virtualFactoryProvider, readingTypeDeliverableForMeterActivationFactoryProvider);
+    public DataAggregationServiceImpl(CalendarService calendarService, CustomPropertySetService customPropertySetService, ServerMeteringService meteringService, InstantTruncaterFactory truncaterFactory, Provider<SqlBuilderFactory> sqlBuilderFactoryProvider, Provider<VirtualFactory> virtualFactoryProvider, Provider<ReadingTypeDeliverableForMeterActivationFactory> readingTypeDeliverableForMeterActivationFactoryProvider) {
+        this(calendarService, sqlBuilderFactoryProvider, virtualFactoryProvider, readingTypeDeliverableForMeterActivationFactoryProvider);
         this.meteringService = meteringService;
         this.truncaterFactory = truncaterFactory;
         this.customPropertySetService = customPropertySetService;
     }
 
-    private DataAggregationServiceImpl(Provider<SqlBuilderFactory> sqlBuilderFactoryProvider, Provider<VirtualFactory> virtualFactoryProvider, Provider<ReadingTypeDeliverableForMeterActivationFactory> readingTypeDeliverableForMeterActivationFactoryProvider) {
+    private DataAggregationServiceImpl(CalendarService calendarService, Provider<SqlBuilderFactory> sqlBuilderFactoryProvider, Provider<VirtualFactory> virtualFactoryProvider, Provider<ReadingTypeDeliverableForMeterActivationFactory> readingTypeDeliverableForMeterActivationFactoryProvider) {
         super();
+        this.calendarService = calendarService;
         this.sqlBuilderFactory = sqlBuilderFactoryProvider.get();
         this.virtualFactoryProvider = virtualFactoryProvider;
         this.readingTypeDeliverableForMeterActivationFactory = readingTypeDeliverableForMeterActivationFactoryProvider.get();
@@ -93,6 +100,10 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
 
     @Override
     public CalculatedMetrologyContractData calculate(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
+        return this.calculate((ServerUsagePoint) usagePoint, contract, period);
+    }
+
+    private CalculatedMetrologyContractData calculate(ServerUsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
         VirtualFactory virtualFactory = this.virtualFactoryProvider.get();
         Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation =
                 this.prepareCalculation(
@@ -120,6 +131,10 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
 
     @Override
     public MetrologyContractCalculationIntrospector introspect(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
+        return this.introspect((ServerUsagePoint) usagePoint, contract, period);
+    }
+
+    private MetrologyContractCalculationIntrospector introspect(ServerUsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
         VirtualFactory virtualFactory = this.virtualFactoryProvider.get();
         Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation =
                 this.prepareCalculation(
@@ -129,7 +144,7 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
         return new MetrologyContractCalculationIntrospectorImpl(usagePoint, contract, deliverablesPerMeterActivation);
     }
 
-    private Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> prepareCalculation(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period, Supplier<String> startLoggingSupplier, VirtualFactory virtualFactory) {
+    private Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> prepareCalculation(ServerUsagePoint usagePoint, MetrologyContract contract, Range<Instant> period, Supplier<String> startLoggingSupplier, VirtualFactory virtualFactory) {
         Loggers.ANALYSIS.debug(startLoggingSupplier);
         List<EffectiveMetrologyConfigurationOnUsagePoint> effectivities = this.getEffectiveMetrologyConfigurationForUsagePointInPeriod(usagePoint, period);
         this.validateContractAppliesToUsagePoint(effectivities, usagePoint, contract, period);
@@ -142,7 +157,7 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
                  * if all formulas of the contract are using only constants
                  * or expressions that behave as a constant (e.g. custom properties). */
                 if (this.onlyConstantLikeExpressions(contract)) {
-                    MeterActivationSetImpl meterActivationSet = new MeterActivationSetImpl((UsagePointMetrologyConfiguration) contract.getMetrologyConfiguration(), 1, clippedPeriod, clippedPeriod.lowerEndpoint());
+                    MeterActivationSetImpl meterActivationSet = new MeterActivationSetImpl(usagePoint, null, (UsagePointMetrologyConfiguration) contract.getMetrologyConfiguration(), 1, clippedPeriod, clippedPeriod.lowerEndpoint());
                     this.prepare(usagePoint, meterActivationSet, contract, clippedPeriod, virtualFactory, deliverablesPerMeterActivation);
                 } else {
                     throw new VirtualUsagePointsOnlySupportConstantLikeExpressionsException(this.getThesaurus());
@@ -203,12 +218,12 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
     }
 
     @Override
-    public List<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Range<Instant> period) {
+    public List<MeterActivationSet> getMeterActivationSets(ServerUsagePoint usagePoint, Range<Instant> period) {
         return new MeterActivationSetBuilder(usagePoint, period).build();
     }
 
     @Override
-    public List<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Instant when) {
+    public List<MeterActivationSet> getMeterActivationSets(ServerUsagePoint usagePoint, Instant when) {
         return new MeterActivationSetBuilder(usagePoint, when).build();
     }
 
@@ -347,6 +362,13 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
         try (ResultSet resultSet = statement.executeQuery()) {
             return this.getDataModel().getInstance(CalculatedReadingRecordFactory.class).consume(resultSet, deliverablesPerMeterActivation);
         }
+    }
+
+    @Override
+    public Category getTimeOfUseCategory() {
+        return this.calendarService
+                    .findCategoryByName(OutOfTheBoxCategory.TOU.getDefaultDisplayName())
+                    .orElseThrow(() -> new IllegalStateException("Calendar service installer failure, time of use category is missing"));
     }
 
     private static class ReadingTypeDeliverablePerMeterActivationSetProviderImpl implements ReadingTypeDeliverableForMeterActivationSetProvider {

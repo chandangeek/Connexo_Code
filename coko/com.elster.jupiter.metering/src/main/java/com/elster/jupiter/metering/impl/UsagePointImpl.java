@@ -112,7 +112,7 @@ import static com.elster.jupiter.util.streams.Currying.test;
 @UniqueMRID(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_USAGE_POINT_MRID + "}")
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_USAGE_POINT_NAME + "}")
 @AllRequiredCustomPropertySetsHaveValues(groups = {Save.Update.class})
-public class UsagePointImpl implements UsagePoint {
+public class UsagePointImpl implements ServerUsagePoint {
     // persistent fields
     @SuppressWarnings("unused")
     private long id;
@@ -144,6 +144,7 @@ public class UsagePointImpl implements UsagePoint {
     private String serviceDeliveryRemark;
     private TemporalReference<UsagePointConnectionState> connectionState = Temporals.absent();
     private TemporalReference<UsagePointStateTemporalImpl> state = Temporals.absent();
+    private List<ServerCalendarUsage> calendarUsages = new ArrayList<>();
 
     @SuppressWarnings("unused")
     private long version;
@@ -393,7 +394,6 @@ public class UsagePointImpl implements UsagePoint {
     /**
      * This method will not work if there are meter activations, channel containers and channels linked
      * We keep this method for physical deletion in the future.
-     *
      **/
     @Override
     public void delete() {
@@ -401,6 +401,7 @@ public class UsagePointImpl implements UsagePoint {
         this.removeMetrologyConfigurations();
         this.removeServiceCategoryCustomPropertySetValues();
         this.removeDetail();
+        this.calendarUsages.clear();
         dataModel.remove(this);
     }
 
@@ -416,7 +417,6 @@ public class UsagePointImpl implements UsagePoint {
     private void removeDetail() {
         this.getDetail(Range.all()).forEach(detail::remove);
     }
-
 
     private void removeMetrologyConfigurationCustomPropertySetValues() {
         this.removeCustomPropertySetValues(
@@ -644,9 +644,7 @@ public class UsagePointImpl implements UsagePoint {
                 throw new OverlapsOnMetrologyConfigurationVersionStart(thesaurus);
             }
         } else if (each.getStart().isAfter(start)) {
-            if (end == null) {
-                throw new OverlapsOnMetrologyConfigurationVersionEnd(thesaurus);
-            } else if (each.isEffectiveAt(end)) {
+            if (end == null || each.isEffectiveAt(end)) {
                 throw new OverlapsOnMetrologyConfigurationVersionEnd(thesaurus);
             }
         }
@@ -1289,11 +1287,36 @@ public class UsagePointImpl implements UsagePoint {
         this.dataModel.update(this, "obsoleteTime");
         this.getEffectiveMetrologyConfiguration(this.obsoleteTime)
                 .ifPresent(efmc -> efmc.close(this.obsoleteTime));
+        this.calendarUsages.clear();
         eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
     }
 
     @Override
     public Optional<Instant> getObsoleteTime() {
         return Optional.ofNullable(this.obsoleteTime);
+    }
+
+    @Override
+    public UsedCalendars getUsedCalendars() {
+        return new UsedCalendarsImpl(this.dataModel, this);
+    }
+
+    @Override
+    public void add(ServerCalendarUsage calendarUsage) {
+        this.calendarUsages.add(calendarUsage);
+    }
+
+    @Override
+    public List<ServerCalendarUsage> getCalendarUsages() {
+        return this.calendarUsages;
+    }
+
+    @Override
+    public List<ServerCalendarUsage> getTimeOfUseCalendarUsages() {
+        return this.getUsedCalendars()
+                .getCalendars(this.dataAggregationService.getTimeOfUseCategory())
+                .stream()
+                .map(ServerCalendarUsage.class::cast)
+                .collect(Collectors.toList());
     }
 }

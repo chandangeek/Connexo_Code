@@ -4,10 +4,12 @@
 
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 
 import com.google.common.collect.Range;
@@ -29,6 +31,10 @@ import java.util.Optional;
  * @since 2016-06-09 (13:01)
  */
 public interface MeterActivationSet {
+
+    UsagePoint getUsagePoint();
+
+    Calendar getCalendar();
 
     void add(MeterActivation meterActivation);
 

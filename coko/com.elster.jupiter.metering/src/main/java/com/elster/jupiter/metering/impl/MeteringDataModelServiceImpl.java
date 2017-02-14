@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cbo.I18N;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.QueryService;
@@ -121,6 +122,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     private volatile TimeService timeService;
     private volatile Publisher publisher;
     private volatile UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
+    private volatile CalendarService calendarService;
 
     private List<HeadEndInterface> headEndInterfaces = new CopyOnWriteArrayList<>();
     private List<CustomUsagePointMeterActivationValidator> customValidators = new CopyOnWriteArrayList<>();
@@ -151,7 +153,8 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                                         MessageService messageService, JsonService jsonService, FiniteStateMachineService finiteStateMachineService,
                                         CustomPropertySetService customPropertySetService, SearchService searchService, PropertySpecService propertySpecService,
                                         LicenseService licenseService, UpgradeService upgradeService, OrmService ormService, TimeService timeService, Publisher publisher,
-                                        UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
+                                        UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
+                                        CalendarService calendarService) {
         setIdsService(idsService);
         setQueryService(queryService);
         setPartyService(partyService);
@@ -171,6 +174,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         setOrmService(ormService);
         setPublisher(publisher);
         setUsagePointLifeCycleConfigurationService(usagePointLifeCycleConfigurationService);
+        setCalendarService(calendarService);
 
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes.split(";");
@@ -207,7 +211,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         this.meteringTranslationService = new MeteringTranslationServiceImpl(this.thesaurus);
         this.truncaterFactory = new InstantTruncaterFactory(this.meteringService);
         if (this.dataAggregationService == null) { // It is possible that service was already set to mocked instance.
-            this.dataAggregationService = new DataAggregationServiceImpl(this.meteringService, this.truncaterFactory, this.customPropertySetService);
+            this.dataAggregationService = new DataAggregationServiceImpl(this, this.truncaterFactory);
         }
         this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.dataModel, this.thesaurus);
         this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this.meteringService, this.meteringTranslationService, this.metrologyConfigurationService, this.clock, this.licenseService);
@@ -249,6 +253,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 bind(UsagePointLifeCycleConfigurationService.class).toInstance(usagePointLifeCycleConfigurationService);
                 bind(TimeService.class).toInstance(timeService);
                 bind(Publisher.class).toInstance(publisher);
+                bind(CalendarService.class).toInstance(calendarService);
             }
         });
     }
@@ -429,6 +434,11 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         this.finiteStateMachineService = service;
     }
 
+    @Override
+    public CustomPropertySetService getCustomPropertySetService() {
+        return customPropertySetService;
+    }
+
     @Reference
     public final void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
         this.customPropertySetService = customPropertySetService;
@@ -503,6 +513,16 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     @Reference
     public void setUsagePointLifeCycleConfigurationService(UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
         this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
+    }
+
+    @Override
+    public CalendarService getCalendarService() {
+        return calendarService;
+    }
+
+    @Reference
+    public void setCalendarService(CalendarService calendarService) {
+        this.calendarService = calendarService;
     }
 
     @Override

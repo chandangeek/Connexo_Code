@@ -6,6 +6,8 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.DataVaultService;
@@ -37,12 +39,15 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -63,6 +68,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigu
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.DayMonthTime;
 
@@ -88,7 +94,6 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -130,10 +135,11 @@ public class DataAggregationServiceImplCalculateGasIT {
     private static Instant feb1st2016 = Instant.ofEpochMilli(1454281200000L);
     private static SqlBuilderFactory sqlBuilderFactory = mock(SqlBuilderFactory.class);
     private static ClauseAwareSqlBuilder clauseAwareSqlBuilder = mock(ClauseAwareSqlBuilder.class);
+    private static MeteringDataModelService dataModelService;
+    private static Thesaurus thesaurus;
 
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(injector.getInstance(TransactionService.class));
-
     private MetrologyContract contract;
     private UsagePoint usagePoint;
     private UsagePointMetrologyConfiguration configuration;
@@ -143,10 +149,8 @@ public class DataAggregationServiceImplCalculateGasIT {
     private SqlBuilder consumptionDeliverableWithClauseBuilder;
     private SqlBuilder selectClauseBuilder;
     private SqlBuilder completeSqlBuilder;
-    private Meter meter;
 
-    @Mock
-    private Thesaurus thesaurus;
+    private Meter meter;
 
     private static class MockModule extends AbstractModule {
         @Override
@@ -163,12 +167,23 @@ public class DataAggregationServiceImplCalculateGasIT {
     @BeforeClass
     public static void setUp() {
         setupBundleContext();
+        dataModelService = mock(MeteringDataModelService.class);
+        setupThesaurus();
         setupServices();
         setupReadingTypes();
         setupMetrologyPurpose();
         GAS = getMeteringService().getServiceCategory(ServiceKind.GAS).get();
         setupGasDayOptions();
         setupDefaultUsagePointLifeCycle();
+    }
+
+    private static void setupThesaurus() {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+        thesaurus = mock(Thesaurus.class);
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
+        when(dataModelService.getThesaurus()).thenReturn(thesaurus);
     }
 
     private static void setupBundleContext() {
@@ -208,6 +223,7 @@ public class DataAggregationServiceImplCalculateGasIT {
                     new BpmModule(),
                     new FiniteStateMachineModule(),
                     new NlsModule(),
+                    new CalendarModule(),
                     new CustomPropertySetsModule(),
                     new UsagePointLifeCycleConfigurationModule()
             );
@@ -241,11 +257,12 @@ public class DataAggregationServiceImplCalculateGasIT {
     private static DataAggregationService getDataAggregationService() {
         ServerMeteringService meteringService = injector.getInstance(ServerMeteringService.class);
         return new DataAggregationServiceImpl(
+                mock(CalendarService.class),
                 mock(CustomPropertySetService.class),
                 meteringService,
                 new InstantTruncaterFactory(meteringService),
                 DataAggregationServiceImplCalculateGasIT::getSqlBuilderFactory,
-                VirtualFactoryImpl::new,
+                () -> new VirtualFactoryImpl(dataModelService),
                 () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringService));
     }
 

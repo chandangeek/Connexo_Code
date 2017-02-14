@@ -6,6 +6,8 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.DataVaultService;
@@ -39,13 +41,16 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -65,6 +70,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigu
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.Range;
@@ -123,13 +129,15 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
     private static Instant jan1st2016 = Instant.ofEpochMilli(1451602800000L);
     private static SqlBuilderFactory sqlBuilderFactory = mock(SqlBuilderFactory.class);
     private static ClauseAwareSqlBuilder clauseAwareSqlBuilder = mock(ClauseAwareSqlBuilder.class);
+    private static MeteringDataModelService dataModelService;
+    private static Thesaurus thesaurus;
     private long productionRequirementId;
     private long consumptionRequirementId;
+
     private long netConsumptionDeliverableId;
 
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(injector.getInstance(TransactionService.class));
-
     @Mock
     private UsagePointMetrologyConfiguration configuration;
     @Mock
@@ -146,10 +154,8 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
     private Channel production15MinChannel;
     private Channel production60MinChannel;
     private Channel consumption15MinChannel;
-    private UsagePoint usagePoint;
 
-    @Mock
-    private Thesaurus thesaurus;
+    private UsagePoint usagePoint;
 
     private static class MockModule extends AbstractModule {
         @Override
@@ -165,10 +171,21 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
 
     @BeforeClass
     public static void setUp() {
+        dataModelService = mock(MeteringDataModelService.class);
+        setupThesaurus();
         setupServices();
         setupReadingTypes();
         setupMetrologyPurposeAndRole();
         setupDefaultUsagePointLifeCycle();
+    }
+
+    private static void setupThesaurus() {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+        thesaurus = mock(Thesaurus.class);
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
+        when(dataModelService.getThesaurus()).thenReturn(thesaurus);
     }
 
     private static void setupServices() {
@@ -200,6 +217,7 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
                     new BpmModule(),
                     new FiniteStateMachineModule(),
                     new NlsModule(),
+                    new CalendarModule(),
                     new CustomPropertySetsModule(),
                     new BasicPropertiesModule(),
                     new UsagePointLifeCycleConfigurationModule()
@@ -225,11 +243,12 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
     private static DataAggregationService getDataAggregationService() {
         ServerMeteringService meteringService = injector.getInstance(ServerMeteringService.class);
         return new DataAggregationServiceImpl(
+                mock(CalendarService.class),
                 mock(CustomPropertySetService.class),
                 meteringService,
                 new InstantTruncaterFactory(meteringService),
                 DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT::getSqlBuilderFactory,
-                VirtualFactoryImpl::new,
+                () -> new VirtualFactoryImpl(dataModelService),
                 () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringService));
     }
 
