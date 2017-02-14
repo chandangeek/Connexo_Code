@@ -33,17 +33,6 @@ Ext.define('Fim.view.history.HistoryFilterForm', {
                 },
                 items: [
                     {
-                        xtype: 'uni-filter-combo',
-                        itemId: 'cbo-import-service',
-                        name: 'importService',
-                        fieldLabel: Uni.I18n.translate('general.importService', 'FIM', 'Import service'),
-                        displayField: 'name',
-                        valueField: 'id',
-                        labelAlign: 'top',
-                        store: 'Fim.store.ImportServicesFilter',
-                        hidden: !me.showImportService
-                    },
-                    {
                         xtype: 'fieldset',
                         style: {
                             border: 'none',
@@ -120,6 +109,17 @@ Ext.define('Fim.view.history.HistoryFilterForm', {
                                 fieldLabel: Uni.I18n.translate('importService.history.to', 'FIM', 'To')
                             }
                         ]
+                    },
+                    {
+                        xtype: 'uni-filter-combo',
+                        itemId: 'cbo-import-service',
+                        name: 'importService',
+                        fieldLabel: Uni.I18n.translate('general.importService', 'FIM', 'Import service'),
+                        displayField: 'name',
+                        valueField: 'id',
+                        labelAlign: 'top',
+                        store: 'Fim.store.ImportServicesFilter',
+                        hidden: !me.showImportService
                     },
                     {
                         xtype: 'uni-filter-combo',
