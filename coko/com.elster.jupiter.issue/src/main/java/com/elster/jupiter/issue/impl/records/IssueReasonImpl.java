@@ -72,7 +72,7 @@ public final class IssueReasonImpl extends EntityImpl implements IssueReason {
 
     String getDescriptionFor(String deviceMrid) {
         if (this.key.equals(this.translationKey)) {
-            return this.translationKey.concat(" on ").concat(deviceMrid);
+            return this.translationKey.concat(" - ").concat(deviceMrid);
         } else {
             return this.thesaurus.getFormat(new SimpleTranslationKey(this.descrTranslationKey, this.descrTranslationKey)).format(deviceMrid);
         }
