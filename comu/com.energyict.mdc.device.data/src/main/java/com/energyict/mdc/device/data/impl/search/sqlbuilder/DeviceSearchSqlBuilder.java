@@ -2,6 +2,8 @@ package com.energyict.mdc.device.data.impl.search.sqlbuilder;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.search.SearchablePropertyCondition;
+import com.elster.jupiter.util.conditions.Comparison;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.device.data.Device;
@@ -40,9 +42,8 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
     private void appendJoinClauses() {
         this.conditions
                 .stream()
-                .map(SearchablePropertyCondition::getProperty)
-                .map(SearchableDeviceProperty.class::cast)
-                .forEach(p -> p.appendJoinClauses(this));
+                .map(JoinClauseAppender::new)
+                .forEach(JoinClauseAppender::appendJoinClauses);
         this.joins.forEach(each -> each.appendTo(this.underConstruction));
     }
 
@@ -174,6 +175,22 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
 
         private SqlFragment build() {
             return this.property.toSqlFragment(this.spec.getCondition(), effectiveDate);
+        }
+    }
+
+    private class JoinClauseAppender{
+
+        private SearchablePropertyCondition searchablePropertyCondition;
+
+        JoinClauseAppender(SearchablePropertyCondition searchableDevicePropertyCondition){
+             this.searchablePropertyCondition = searchableDevicePropertyCondition;
+        }
+
+        public void appendJoinClauses(){
+            if (searchablePropertyCondition.getCondition().getClass().isAssignableFrom(Comparison.class))
+                ((SearchableDeviceProperty) searchablePropertyCondition.getProperty()).appendJoinClauses(DeviceSearchSqlBuilder.this, (Comparison) searchablePropertyCondition.getCondition() );
+            else
+                ((SearchableDeviceProperty) searchablePropertyCondition.getProperty()).appendJoinClauses(DeviceSearchSqlBuilder.this);
         }
     }
 }

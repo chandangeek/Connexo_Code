@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.sql.SqlFragment;
 
 import java.time.Instant;
@@ -34,5 +36,9 @@ public interface SearchableDeviceProperty extends SearchableProperty {
      * @return The SqlFragment
      */
     SqlFragment toSqlFragment(Condition condition, Instant now);
+
+    default void appendJoinClauses(JoinClauseBuilder builder, Comparison comparison){
+        this.appendJoinClauses(builder);
+    }
 
 }
