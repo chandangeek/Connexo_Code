@@ -176,12 +176,10 @@ public abstract class AbstractDlmsSlaveProtocol implements DeviceProtocol {
 
     @Override
     public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
-        throw CodingException.unsupportedMethod(this.getClass(), "addDeviceProtocolDialectProperties");
     }
 
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        throw CodingException.unsupportedMethod(this.getClass(), "setSecurityPropertySet");
     }
 
     @Override

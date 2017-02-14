@@ -216,7 +216,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     RTU_PLUS_G3(186, "com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer", FamilyRule.G3_LINKY_DLMS, FamilyRule.G3_PLC),
     AM100(188, "com.energyict.protocolimplv2.nta.elster.AM100", FamilyRule.ELSTER_AM100),
     MTU155(189, "com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155"),
-    WEB_RTU_WAVENIS_GATEWAY(190, "com.energyict.protocolimplv2.coronis.muc.WebRTUWavenisGateway", FamilyRule.CORONIS),
+    WEB_RTU_WAVENIS_GATEWAY(190, "test.com.energyict.protocolimplv2.coronis.muc.WebRTUWavenisGateway", FamilyRule.CORONIS),
     ACE4000_OUTBOUND(191, "com.energyict.protocolimplv2.ace4000.ACE4000Outbound", FamilyRule.ACTARIS),
     ACE4000_MBUS(192, "com.energyict.protocolimplv2.ace4000.ACE4000MBus", FamilyRule.ACTARIS),
     SDK_DEVICE_PROTOCOL(193, "test.com.energyict.protocolimplv2.sdksample.SDKDeviceProtocol", FamilyRule.TEST),
