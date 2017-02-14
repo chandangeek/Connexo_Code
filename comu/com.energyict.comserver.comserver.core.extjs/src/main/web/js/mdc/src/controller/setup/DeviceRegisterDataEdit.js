@@ -73,8 +73,9 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
 
     addRegisterDataRecord: function (values, cfg) {
         var me = this,
-            registerType = me.getDeviceregisterreportedit().registerType,
-            record = me.getReadingModelInstanceByType(registerType);
+         //   registerType = me.getDeviceregisterreportedit().registerType,
+            registerSubType = me.getDeviceregisterreportedit().subType,
+            record = me.getReadingModelInstanceByType(registerSubType);
         me.updateRecord(record, values, Ext.apply({
             successMessage: Uni.I18n.translate('device.registerData.created', 'MDC', 'Register data saved')
         }, cfg));
@@ -141,7 +142,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             modelClass = me.getReadingModelClassByType(type),
             record = Ext.create(modelClass);
 
-        record.set("type", type);
+        record.set("type", type==='billing'?'numerical':type);
 
         return record;
     },
@@ -180,10 +181,14 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             record.data.value = values.value;
         }
         record.set("timeStamp", values.timeStamp);
-
         record.get('isConfirmed') && record.set('isConfirmed', false);
-        if (record.get("type") == 'billing') {
+        if (record.get("type") == 'billing' || record.get("type") == 'numerical') {
             record.set("interval", {start: values['interval.start'], end: values['interval.end']});
+        } else {
+            delete record.data.interval;
+        }
+        if(!values['interval.start'] && !values['interval.end']){
+            delete record.data.interval;
         }
         if (record.get("type") == 'text') {
             delete record.data.deltaValue;
@@ -196,8 +201,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             grid = me.getDeviceregisterreportgrid(),
             lastSelected = grid.getView().getSelectionModel().getLastSelected(),
             router = me.getController('Uni.controller.history.Router');
-
-        router.getRoute('devices/device/registers/registerdata/edit').forward({timestamp: lastSelected.getData().timeStamp});
+        router.getRoute('devices/device/registers/registerdata/edit').forward({registerId:registerBeingViewed.get('id'), timestamp: lastSelected.getData().timeStamp});
     },
 
     showDeviceRegisterConfigurationDataEditView: function (deviceId, registerId, timestamp) {
@@ -218,14 +222,22 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                         model.load(timestamp, {
                             success: function (reading) {
                                 var type = register.get('type');
-                                var widget = Ext.widget('deviceregisterreportedit-' + type, {
+                                var subType = type;
+                                if(type === 'numerical' && register.get('isBilling')){
+                                    subType = 'billing';
+                                } else {
+                                    subType = type;
+                                }
+                                var widget = Ext.widget('deviceregisterreportedit-' + subType, {
                                     edit: true,
                                     returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({
                                         deviceId: encodeURIComponent(deviceId),
                                         registerId: registerId
                                     }) + (me.getController('Uni.controller.history.EventBus').getPreviousQueryString() !== null ? '?' + me.getController('Uni.controller.history.EventBus').getPreviousQueryString() : ''),
                                     registerType: type,
-                                    router: router
+                                    subType: subType,
+                                    router: router,
+                                    hasEvent: register.get('hasEvent')
                                 });
                                 me.getApplication().fireEvent('loadRegisterConfiguration', register);
                                 if (reading.get('calculatedValue')) {
@@ -268,13 +280,21 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                 model.load(registerId, {
                     success: function (register) {
                         var type = register.get('type');
-                        var widget = Ext.widget('deviceregisterreportedit-' + type, {
+                        var subType = type;
+                        if(type === 'numerical' && register.get('isBilling')){
+                            subType = 'billing';
+                        } else {
+                            subType = type;
+                        }
+                        var widget = Ext.widget('deviceregisterreportedit-' + subType, {
                             edit: false,
                             returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({deviceId: encodeURIComponent(deviceId), registerId: registerId}),
                             registerType: type,
+                            subType: subType,
                             deviceId: deviceId,
                             registerId: registerId,
-                            router: router
+                            router: router,
+                            hasEvent: register.get('hasEvent')
                         });
                         widget.setValues(register);
                         me.getApplication().fireEvent('loadRegisterConfiguration', register);

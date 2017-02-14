@@ -911,7 +911,6 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
     },
 
     loadRegisterReadingDetails: function (rowmodel, record) {
-        debugger;
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
             previewContainer = me.getRegisterReadingsView().down('#mdc-registers-overview-previewContainer'),

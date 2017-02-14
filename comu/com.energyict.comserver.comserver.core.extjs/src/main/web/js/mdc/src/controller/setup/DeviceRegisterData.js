@@ -148,7 +148,6 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
     },
 
     onDataStoreLoad: function(store, records) {
-        debugger;
         var me = this,
             type = registerBeingViewed.get('type'),
             collectedReadingType = registerBeingViewed.get('readingType'),

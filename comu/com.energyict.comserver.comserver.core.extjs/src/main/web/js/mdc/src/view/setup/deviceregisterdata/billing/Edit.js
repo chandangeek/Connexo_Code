@@ -60,7 +60,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Edit', {
                     {
                         xtype: 'displayfield',
                         name: 'timeStamp',
-                        fieldLabel: Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
+                        fieldLabel: this.hasEvent?Uni.I18n.translate('device.registerData.eventTime', 'MDC', 'Event time'):Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
                         itemId: 'timeStampDisplayField',
                         renderer: function (value) {
                             if(!Ext.isEmpty(value)) {

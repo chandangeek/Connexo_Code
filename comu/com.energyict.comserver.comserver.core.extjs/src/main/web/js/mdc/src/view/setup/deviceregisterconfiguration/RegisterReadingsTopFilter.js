@@ -22,7 +22,6 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsTopFilter
         registerGroupsStore.getProxy().setUrl(me.deviceId);
         registerStore.getProxy().setUrl(me.deviceId);
         registerStore.on('load', function (store, records) {
-            debugger;
             Ext.Array.forEach(records, function (record) {
                 me.containsBillingRegisters = me.containsBillingRegisters || record.get('isBilling');
                 me.containsCumulativeRegisters = me.containsCumulativeRegisters || record.get('isCumulative');
@@ -147,7 +146,6 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsTopFilter
 
     customizeGrid: function(billing,cumulative,event,multiplier){
         // Also show/hide the corresponding columns in the grid
-        debugger;
         var correspondinGrid = this.up('deviceRegisterReadingsView').down('deviceRegisterReadingsGrid');
         if (correspondinGrid) {
             correspondinGrid.customizeColumns(billing,cumulative,event,multiplier);

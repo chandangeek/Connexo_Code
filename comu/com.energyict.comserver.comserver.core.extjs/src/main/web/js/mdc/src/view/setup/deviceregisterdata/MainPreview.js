@@ -149,7 +149,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
 
 
     updateContent: function (registerRecord, registerBeingViewed) {
-        debugger;
         var me = this,
             measurementDate = new Date(registerRecord.get('timeStamp')),
             title = Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
@@ -173,7 +172,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
 
         if (calculatedValueField) {
             calculatedValueField.setVisible(hasCalculatedValue);
-            debugger;
  //           calculatedValueField.setValue(registerRecord.get('calculatedValue'));
         }
         if (deltaValueField) {

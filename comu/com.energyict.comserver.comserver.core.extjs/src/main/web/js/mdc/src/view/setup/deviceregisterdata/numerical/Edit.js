@@ -78,7 +78,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Edit', {
                         xtype: 'fieldcontainer',
                         itemId: 'timeStampContainer',
                         required: true,
-                        fieldLabel: Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
+                        fieldLabel: this.hasEvent?Uni.I18n.translate('device.registerData.eventTime', 'MDC', 'Event time'):Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
                         defaults: {
                             width: '100%'
                         },
@@ -148,5 +148,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Edit', {
         me.callParent(arguments);
         me.setEdit(me.isEdit(), me.returnLink);
     }
+
 });
 

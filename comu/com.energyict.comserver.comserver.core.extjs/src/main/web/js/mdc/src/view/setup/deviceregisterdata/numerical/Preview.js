@@ -99,7 +99,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                 fieldLabel: Uni.I18n.translate('device.registerData.deltaValue', 'MDC', 'Delta value'),
                 name: 'deltaValue',
                 renderer: function (value) {
-                    debugger;
                     var record = this.up('form').getRecord();
                     if (record && value) {
                         var me = this.up('form').up('#deviceregisterreportpreview'),
