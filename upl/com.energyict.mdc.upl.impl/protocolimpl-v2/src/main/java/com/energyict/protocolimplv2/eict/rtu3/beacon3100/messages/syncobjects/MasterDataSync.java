@@ -384,7 +384,7 @@ public class MasterDataSync {
     public CollectedMessage syncAllDeviceData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         Beacon3100MeterDetails[] meterDetails;
         try {
-            final String serializedMasterData = pendingMessage.getPreparedContext();    //This context field contains the serialized version of the master data.
+            final String serializedMasterData = new MasterDataSerializer().serializeMeterDetails(pendingMessage.getDeviceId());
             final JSONArray jsonObject = new JSONArray(serializedMasterData);
             meterDetails = ObjectMapperFactory.getObjectMapper().readValue(new StringReader(jsonObject.toString()), Beacon3100MeterDetails[].class);
         } catch (JSONException | IOException e) {
@@ -412,9 +412,10 @@ public class MasterDataSync {
     }
 
     public CollectedMessage syncOneDeviceData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        int deviceId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.deviceId).getDeviceMessageAttributeValue());
         Beacon3100MeterDetails[] meterDetails;
         try {
-            final String serializedMasterData = pendingMessage.getPreparedContext();    //This context field contains the serialized version of the master data.
+            final String serializedMasterData = new MasterDataSerializer().serializeMeterDetails(deviceId);   //This context field contains the serialized version of the master data.  //This context field contains the serialized version of the master data.
             final JSONArray jsonObject = new JSONArray(serializedMasterData);
             meterDetails = ObjectMapperFactory.getObjectMapper().readValue(new StringReader(jsonObject.toString()), Beacon3100MeterDetails[].class);
         } catch (JSONException | IOException e) {
@@ -435,10 +436,10 @@ public class MasterDataSync {
         long configurationId = Long.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.configurationId).getDeviceMessageAttributeValue());
         String startTime = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.startDate).getDeviceMessageAttributeValue();
         String endTime = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.endDate).getDeviceMessageAttributeValue();
-
+        int deviceId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.deviceId).getDeviceMessageAttributeValue());
         Beacon3100MeterDetails[] meterDetails;
         try {
-            final String serializedMasterData = pendingMessage.getPreparedContext();    //This context field contains the serialized version of the master data.
+            final String serializedMasterData = new MasterDataSerializer().serializeMeterDetails(deviceId);   //This context field contains the serialized version of the master data.  //This context field contains the serialized version of the master data.
             final JSONArray jsonObject = new JSONArray(serializedMasterData);
             meterDetails = ObjectMapperFactory.getObjectMapper().readValue(new StringReader(jsonObject.toString()), Beacon3100MeterDetails[].class);
         } catch (JSONException | IOException e) {
