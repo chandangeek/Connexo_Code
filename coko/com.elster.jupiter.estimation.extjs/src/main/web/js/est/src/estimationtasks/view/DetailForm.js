@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Est.estimationtasks.view.DetailForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.estimationtasks-detail-form',
@@ -39,6 +43,11 @@ Ext.define('Est.estimationtasks.view.DetailForm', {
                     {
                         fieldLabel: Uni.I18n.translate('estimationtasks.general.usagePointGroup', 'EST', 'Usage point group'),
                         name: 'usagePointGroup_name',
+                        hidden: typeof(MdmApp) == 'undefined'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('estimationtasks.general.metrologyPurpose', 'EST', 'Purpose'),
+                        name: 'metrologyPurpose_name',
                         hidden: typeof(MdmApp) == 'undefined'
                     }
                 ]

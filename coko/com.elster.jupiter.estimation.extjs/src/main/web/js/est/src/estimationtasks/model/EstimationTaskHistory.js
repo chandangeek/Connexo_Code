@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Est.estimationtasks.model.EstimationTaskHistory', {
     extend: 'Ext.data.Model',
     requires: [],
@@ -31,6 +35,19 @@ Ext.define('Est.estimationtasks.model.EstimationTaskHistory', {
 
                 if (data.task.usagePointGroup && data.task.usagePointGroup.displayValue) {
                     return data.task.usagePointGroup.displayValue;
+                } else {
+                    return '-';
+                }
+
+            }
+        },
+        {
+            name: 'metrologyPurpose',
+            persist: false,
+            mapping: function (data) {
+
+                if (data.task.metrologyPurpose && data.task.metrologyPurpose.displayValue) {
+                    return data.task.metrologyPurpose.displayValue;
                 } else {
                     return '-';
                 }

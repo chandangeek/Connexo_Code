@@ -1,8 +1,4 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
-Ext.define('Est.estimationtasks.model.UsagePointGroup', {
+Ext.define('Est.estimationtasks.model.MetrologyPurpose', {
     extend: 'Ext.data.Model',
     proxy: 'memory',
     fields: [
