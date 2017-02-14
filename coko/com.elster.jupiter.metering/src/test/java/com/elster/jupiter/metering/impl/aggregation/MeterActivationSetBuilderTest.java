@@ -379,14 +379,12 @@ public class MeterActivationSetBuilderTest {
         ServerCalendarUsage calendar1Usage = mock(ServerCalendarUsage.class);
         when(calendar1Usage.getCalendar()).thenReturn(this.calendar);
         when(calendar1Usage.overlaps(this.period)).thenReturn(true);
-        when(calendar1Usage.overlaps(Range.closedOpen(MAY_2ND_2016, JUNE_1ST_2016))).thenReturn(true);
         when(calendar1Usage.getRange()).thenReturn(Range.closedOpen(MAY_1ST_2016, JUNE_1ST_2016));
         Calendar calendar2 = mock(Calendar.class);
         this.initializeCalendar(calendar2, CALENDAR2_ID, 2);
         ServerCalendarUsage calendar2Usage = mock(ServerCalendarUsage.class);
         when(calendar2Usage.getCalendar()).thenReturn(calendar2);
         when(calendar2Usage.overlaps(this.period)).thenReturn(true);
-        when(calendar2Usage.overlaps(Range.atLeast(JUNE_1ST_2016))).thenReturn(true);
         when(calendar2Usage.getRange()).thenReturn(Range.atLeast(JUNE_1ST_2016));
         when(this.usagePoint.getTimeOfUseCalendarUsages()).thenReturn(Arrays.asList(calendar1Usage, calendar2Usage));
         MeterActivationSetBuilder builder = this.getTestInstance();
