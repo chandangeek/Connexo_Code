@@ -25,6 +25,7 @@ import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.core.DeviceOfflineFlags;
 import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
@@ -245,7 +246,7 @@ public class G3GatewayPSKProvider {
         DlmsSession dlmsSession = getDlmsSession(gatewayProtocol);
         G3NetworkManagement g3NetworkManagement;
         try {
-            g3NetworkManagement = dlmsSession.getCosemObjectFactory().getG3NetworkManagement();
+            g3NetworkManagement = getG3NetworkManagement(gatewayProtocol, dlmsSession);
         } catch (ProtocolException e) {
             throw ConnectionCommunicationException.unExpectedProtocolError(e);
         }
@@ -297,6 +298,10 @@ public class G3GatewayPSKProvider {
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, dlmsSession.getProperties().getRetries());
         }
+    }
+
+    protected G3NetworkManagement getG3NetworkManagement(DeviceProtocol gatewayProtocol, DlmsSession dlmsSession) throws NotInObjectListException {
+        return dlmsSession.getCosemObjectFactory().getG3NetworkManagement();
     }
 
     protected Structure createMacAndKeyPair(OctetString macAddressOctetString, OctetString wrappedPSKKey, DeviceIdentifier slaveDeviceIdentifier) {

@@ -120,7 +120,7 @@ public class Beacon3100PLCConfigurationDeviceMessageExecutor extends PLCConfigur
         return collectedMessage;
     }
 
-    private G3NetworkManagement getG3NetworkManagement() throws NotInObjectListException {
+    protected G3NetworkManagement getG3NetworkManagement() throws NotInObjectListException {
         if(readOldObisCodes) {
             return this.session.getCosemObjectFactory().getG3NetworkManagement();
         }else{

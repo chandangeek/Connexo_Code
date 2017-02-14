@@ -15,6 +15,7 @@ import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
@@ -343,7 +344,7 @@ public class PLCConfigurationDeviceMessageExecutor {
 
     private PathRequestFeedback pathRequest(OfflineDeviceMessage pendingMessage) throws IOException {
         String macAddressesString = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
-        final G3NetworkManagement topologyManagement = this.session.getCosemObjectFactory().getG3NetworkManagement();
+        final G3NetworkManagement topologyManagement = getG3NetworkManagement();
         List<String> macAddresses = Arrays.asList(macAddressesString.split(";"));
 
         StringBuilder pingFailed = new StringBuilder();
@@ -484,56 +485,60 @@ public class PLCConfigurationDeviceMessageExecutor {
         boolean routeRequestEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.routeRequestEnabled).getDeviceMessageAttributeValue());
         boolean pathRequestEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.pathRequestEnabled).getDeviceMessageAttributeValue());
 
-        this.session.getCosemObjectFactory().getG3NetworkManagement().setAutomaticRouteManagement(pingEnabled, routeRequestEnabled, pathRequestEnabled);
+        getG3NetworkManagement().setAutomaticRouteManagement(pingEnabled, routeRequestEnabled, pathRequestEnabled);
     }
 
     private void enableSNR(OfflineDeviceMessage pendingMessage) throws IOException {
-        this.session.getCosemObjectFactory().getG3NetworkManagement().enableSNR(getSingleBooleanAttribute(pendingMessage));
+        getG3NetworkManagement().enableSNR(getSingleBooleanAttribute(pendingMessage));
     }
 
     private void setSNRPacketInterval(OfflineDeviceMessage pendingMessage) throws IOException {
-        this.session.getCosemObjectFactory().getG3NetworkManagement().setSNRPacketInterval(getSingleIntegerAttribute(pendingMessage));
+        getG3NetworkManagement().setSNRPacketInterval(getSingleIntegerAttribute(pendingMessage));
     }
 
     private void setSNRQuietTime(OfflineDeviceMessage pendingMessage) throws IOException {
-        this.session.getCosemObjectFactory().getG3NetworkManagement().setSNRQuietTime(getSingleIntegerAttribute(pendingMessage));
+        getG3NetworkManagement().setSNRQuietTime(getSingleIntegerAttribute(pendingMessage));
     }
 
     private void setSNRPayload(OfflineDeviceMessage pendingMessage) throws IOException {
         byte[] payLoad = ProtocolTools.getBytesFromHexString(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue(), "");
-        this.session.getCosemObjectFactory().getG3NetworkManagement().setSNRPayload(payLoad);
+        getG3NetworkManagement().setSNRPayload(payLoad);
     }
 
     private void enableKeepAlive(OfflineDeviceMessage pendingMessage) throws IOException {
-        this.session.getCosemObjectFactory().getG3NetworkManagement().enableKeepAlive(getSingleBooleanAttribute(pendingMessage));
+        getG3NetworkManagement().enableKeepAlive(getSingleBooleanAttribute(pendingMessage));
     }
 
     private void setKeepAliveScheduleInterval(OfflineDeviceMessage pendingMessage) throws IOException {
-        this.session.getCosemObjectFactory().getG3NetworkManagement().setKeepAliveScheduleInterval(getSingleIntegerAttribute(pendingMessage));
+        getG3NetworkManagement().setKeepAliveScheduleInterval(getSingleIntegerAttribute(pendingMessage));
     }
 
     private void setKeepAliveBucketSize(OfflineDeviceMessage pendingMessage) throws IOException {
-        this.session.getCosemObjectFactory().getG3NetworkManagement().setKeepAliveBucketSize(getSingleIntegerAttribute(pendingMessage));
+        getG3NetworkManagement().setKeepAliveBucketSize(getSingleIntegerAttribute(pendingMessage));
     }
 
     private void setMinInactiveMeterTime(OfflineDeviceMessage pendingMessage) throws IOException {
-        this.session.getCosemObjectFactory().getG3NetworkManagement().setMinInactiveMeterTime(getSingleIntegerAttribute(pendingMessage));
+        getG3NetworkManagement().setMinInactiveMeterTime(getSingleIntegerAttribute(pendingMessage));
     }
 
     private void setMaxInactiveMeterTime(OfflineDeviceMessage pendingMessage) throws IOException {
-        this.session.getCosemObjectFactory().getG3NetworkManagement().setMaxInactiveMeterTime(getSingleIntegerAttribute(pendingMessage));
+        getG3NetworkManagement().setMaxInactiveMeterTime(getSingleIntegerAttribute(pendingMessage));
+    }
+
+    protected G3NetworkManagement getG3NetworkManagement() throws NotInObjectListException {
+        return this.session.getCosemObjectFactory().getG3NetworkManagement();
     }
 
     private void setKeepAliveRetries(OfflineDeviceMessage pendingMessage) throws IOException {
-        this.session.getCosemObjectFactory().getG3NetworkManagement().setKeepAliveRetries(getSingleIntegerAttribute(pendingMessage));
+        getG3NetworkManagement().setKeepAliveRetries(getSingleIntegerAttribute(pendingMessage));
     }
 
     private void setKeepAliveTimeout(OfflineDeviceMessage pendingMessage) throws IOException {
-        this.session.getCosemObjectFactory().getG3NetworkManagement().setKeepAliveTimeout(getSingleIntegerAttribute(pendingMessage));
+        getG3NetworkManagement().setKeepAliveTimeout(getSingleIntegerAttribute(pendingMessage));
     }
 
     private void enableG3PLCInterface(OfflineDeviceMessage pendingMessage) throws IOException {
-        this.session.getCosemObjectFactory().getG3NetworkManagement().enableG3Interface(getSingleBooleanAttribute(pendingMessage));
+        getG3NetworkManagement().enableG3Interface(getSingleBooleanAttribute(pendingMessage));
     }
 
     private void writePlcG3Timeout(OfflineDeviceMessage pendingMessage) throws IOException {

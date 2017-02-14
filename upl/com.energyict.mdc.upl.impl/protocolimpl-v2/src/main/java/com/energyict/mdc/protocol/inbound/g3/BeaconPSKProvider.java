@@ -3,14 +3,16 @@ package com.energyict.mdc.protocol.inbound.g3;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.cosem.G3NetworkManagement;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
-import com.energyict.protocol.exceptions.DataEncryptionException;
+import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
 
 import javax.crypto.Cipher;
@@ -75,5 +77,13 @@ public class BeaconPSKProvider extends G3GatewayPSKProvider {
         }
 
         return macAndKeyPair;
+    }
+
+    protected G3NetworkManagement getG3NetworkManagement(DeviceProtocol gatewayProtocol, DlmsSession dlmsSession) throws NotInObjectListException {
+        if(((Beacon3100)gatewayProtocol).getDlmsSessionProperties().getReadOldObisCodes()) {
+            return dlmsSession.getCosemObjectFactory().getG3NetworkManagement();
+        }else{
+            return dlmsSession.getCosemObjectFactory().getG3NetworkManagement(Beacon3100Messaging.G3_NETWORK_MANAGEMENT_NEW_OBISCODE);
+        }
     }
 }
