@@ -674,8 +674,6 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
 
         when(dataExportService.findDataExportOccurrence(anyLong())).thenReturn(Optional.of(occurrence));
         when(occurrence.getLogsFinder()).thenReturn(logEntryFinder);
-        when(logEntryFinder.setStart(anyInt())).thenReturn(logEntryFinder);
-        when(logEntryFinder.setLimit(anyInt())).thenReturn(logEntryFinder);
         when(logEntryFinder.find()).thenReturn(Collections.emptyList());
 
         Response response = target("/dataexporttask/history/" + occurrenceId + "/logs").request().get();
@@ -683,8 +681,6 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(dataExportService).findDataExportOccurrence(anyLong());
         verify(occurrence).getLogsFinder();
-        verify(logEntryFinder).setStart(anyInt());
-        verify(logEntryFinder).setLimit(anyInt());
     }
 
     @Test
