@@ -51,8 +51,7 @@ Ext.define('Dxp.controller.Log', {
                         task: record,
                         runStartedOn: runStartedOnFormatted
                     });
-                    taskLink = view.down('#log-view-menu #tasks-view-link');
-                    taskLink.setText(record.get('name'));
+                    view.down('#log-view-menu').setHeader(record.get('name'));
                     me.getApplication().fireEvent('dataexporttaskload', record);
                     view.down('#log-preview-form').loadRecord(occurrenceTask);
                     view.down('#reason-field').setVisible(occurrenceTask.get('status')==='Failed');

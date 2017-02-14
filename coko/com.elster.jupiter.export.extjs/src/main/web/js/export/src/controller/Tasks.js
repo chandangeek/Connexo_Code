@@ -305,7 +305,7 @@ Ext.define('Dxp.controller.Tasks', {
 
                 actionsMenu.record = record;
                 Ext.suspendLayouts();
-                view.down('#tasks-view-menu #tasks-view-link').setText(record.get('name'));
+                view.down('#tasks-view-menu').setHeader(record.get('name'));
                 me.getApplication().fireEvent('dataexporttaskload', record);
                 detailsForm.loadRecord(record);
                 if (record.get('status') !== 'Busy') {
@@ -401,13 +401,13 @@ Ext.define('Dxp.controller.Tasks', {
             taskId: currentTaskId
         });
 
-        me.getApplication().fireEvent('changecontentevent', view);
         Ext.getStore('Dxp.store.DataExportTasksHistory').load();
 
         taskModel.load(currentTaskId, {
             success: function (record) {
+                me.getApplication().fireEvent('changecontentevent', view);
                 me.getApplication().fireEvent('dataexporttaskload', record);
-                view.down('#tasks-view-menu  #tasks-view-link').setText(record.get('name'));
+                view.down('#tasks-view-menu').setHeader(record.get('name'));
                 if (record.get('dataSelector').selectorType === 'CUSTOM') {
                     view.down('#export-period-column').hide();
                 } else {
@@ -2472,11 +2472,12 @@ Ext.define('Dxp.controller.Tasks', {
             router: router,
             taskId: currentTaskId
         });
-        me.getApplication().fireEvent('changecontentevent', view);
+
         taskModel.load(currentTaskId, {
             success: function (record) {
                 me.getApplication().fireEvent('dataexporttaskload', record);
-                view.down('#tasks-view-menu  #tasks-view-link').setText(record.get('name'));
+                me.getApplication().fireEvent('changecontentevent', view);
+                view.down('#tasks-view-menu').setHeader(record.get('name'));
             }
         });
     },
