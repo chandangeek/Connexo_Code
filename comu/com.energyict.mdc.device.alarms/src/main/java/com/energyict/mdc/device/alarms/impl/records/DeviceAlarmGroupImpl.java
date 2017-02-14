@@ -5,7 +5,6 @@
 package com.energyict.mdc.device.alarms.impl.records;
 
 import com.elster.jupiter.issue.share.entity.IssueGroup;
-import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 
 public class DeviceAlarmGroupImpl implements IssueGroup {
@@ -34,10 +33,7 @@ public class DeviceAlarmGroupImpl implements IssueGroup {
     }
 
     public String getGroupName() {
-        if (groupName != null) {
-            return thesaurus.getFormat(new SimpleTranslationKey(groupName, groupName)).format();
-        }
-        return null;
+        return groupName;
     }
 
     public Object getGroupKey() {

@@ -228,6 +228,7 @@ public class DeviceAlarmImpl implements DeviceAlarm {
 
     public void save() {
         if (getBaseIssue() != null) {
+            getBaseIssue().update();
             this.setId(getBaseIssue().getId());
         }
         Save.CREATE.save(dataModel, this);
