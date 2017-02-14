@@ -22,11 +22,11 @@ public class OpenVsCloseImpl extends DeviceAlarmGroupOperation {
         builder.append(" (SELECT TRUNC ( " + getFilter().getTo() + "- 86400*1000*(ROWNUM )) startDT, TRUNC (" + getFilter().getTo() + " - 86400*1000*(ROWNUM -1)) endDT");
         builder.append(" FROM DUAL CONNECT BY ROWNUM <= 32) DT");
         builder.append(" left join (");
-        builder.append(" select 'open' alarmStatus, DAL_ALARM_OPEN.CREATETIME, DAL_ALARM_OPEN.ID from DAL_ALARM_OPEN");
+        builder.append(" select 'open' alarmStatus, ISU.CREATEDATETIME CREATETIME, DAL_ALARM_OPEN.ID from DAL_ALARM_OPEN");
         builder.append(" JOIN ISU_ISSUE_ALL ISU ON DAL_ALARM_OPEN.ID = ISU.ID ");
         builder.append(getReasonCondition());
         builder.append(" UNION");
-        builder.append(" select 'closed' alarmStatus, DAL_ALARM_HISTORY.CREATETIME, DAL_ALARM_HISTORY.ID from DAL_ALARM_HISTORY");
+        builder.append(" select 'closed' alarmStatus, ISU.CREATEDATETIME CREATETIME, DAL_ALARM_HISTORY.ID from DAL_ALARM_HISTORY");
         builder.append(" JOIN ISU_ISSUE_ALL ISU ON DAL_ALARM_HISTORY.ID = ISU.ID ");
         builder.append(getReasonCondition());
         builder.append(" ) DAL on (DAL.CREATETIME >= DT.startDT and DAL.CREATETIME< DT.endDT)");

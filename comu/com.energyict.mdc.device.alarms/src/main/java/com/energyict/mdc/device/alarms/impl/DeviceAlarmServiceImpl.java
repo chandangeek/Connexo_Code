@@ -347,10 +347,10 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         }
         //filter by create time
         if (filter.getStartCreateTime() != null) {
-            condition = condition.and(where("baseIssue.createdDateTime").isGreaterThanOrEqual(filter.getStartCreateTime()));
+            condition = condition.and(where("baseIssue.createDateTime").isGreaterThanOrEqual(filter.getStartCreateTime()));
         }
         if (filter.getEndCreateTime() != null) {
-            condition = condition.and(where("baseIssue.createdDateTime").isLessThanOrEqual(filter.getEndCreateTime()));
+            condition = condition.and(where("baseIssue.createDateTime").isLessThanOrEqual(filter.getEndCreateTime()));
         }
         return condition;
     }
