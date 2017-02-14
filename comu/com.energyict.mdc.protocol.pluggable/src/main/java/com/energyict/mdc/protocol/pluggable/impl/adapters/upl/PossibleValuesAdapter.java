@@ -11,7 +11,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-12-09 (11:44)
  */
-class PossibleValuesAdapter implements PropertySpecPossibleValues {
+public class PossibleValuesAdapter implements PropertySpecPossibleValues {
     private final com.elster.jupiter.properties.PropertySpecPossibleValues actual;
 
     PossibleValuesAdapter(com.elster.jupiter.properties.PropertySpecPossibleValues actual) {

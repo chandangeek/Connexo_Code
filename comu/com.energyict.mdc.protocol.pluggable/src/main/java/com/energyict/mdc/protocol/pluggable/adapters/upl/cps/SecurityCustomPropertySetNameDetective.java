@@ -1,5 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.adapters.upl.cps;
 
+import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -18,9 +20,11 @@ public class SecurityCustomPropertySetNameDetective {
     public static final String MAPPING_PROPERTIES_FILE_NAME = "/security-custom-property-set-mapping.properties";
     private static final Logger LOGGER = Logger.getLogger(SecurityCustomPropertySetNameDetective.class.getName());
     private final Map<String, String> customPropertySetClassNameMap = new ConcurrentHashMap<>();
+    private final CustomPropertySetInstantiatorService customPropertySetInstantiatorService;
 
-    public SecurityCustomPropertySetNameDetective() {
+    public SecurityCustomPropertySetNameDetective(CustomPropertySetInstantiatorService customPropertySetInstantiatorService) {
         super();
+        this.customPropertySetInstantiatorService = customPropertySetInstantiatorService;
         this.loadCustomPropertySetNameMapping();
     }
 
@@ -55,7 +59,7 @@ public class SecurityCustomPropertySetNameDetective {
 
     private String customPropertySetClassNameForSuperclass(Class deviceProtocolClass) {
         Class superclass = deviceProtocolClass.getSuperclass();
-        if (superclass != null) {
+        if (superclass != null && !superclass.equals(Object.class)) {
             String customPropertyClassName = this.securityCustomPropertySetClassNameFor(superclass);
             // Cache the class name at this level of the class hierarchy
             this.customPropertySetClassNameMap.put(deviceProtocolClass.getName(), customPropertyClassName);
@@ -67,7 +71,7 @@ public class SecurityCustomPropertySetNameDetective {
 
     private String customPropertySetClassNameForReferencedClass(Class deviceProtocolClass, String referencedClassName) {
         try {
-            Class<?> referencedClass = Class.forName(referencedClassName);
+            Class<?> referencedClass = customPropertySetInstantiatorService.forName(referencedClassName);
             String customPropertyClassName = this.securityCustomPropertySetClassNameFor(referencedClass);
             // Cache the class name for the class that references another
             this.customPropertySetClassNameMap.put(deviceProtocolClass.getName(), customPropertyClassName);

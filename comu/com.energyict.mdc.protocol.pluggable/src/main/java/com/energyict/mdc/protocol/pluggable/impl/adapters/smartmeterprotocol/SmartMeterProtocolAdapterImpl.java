@@ -39,6 +39,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapt
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLOfflineDeviceAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLProtocolAdapter;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.messages.DeviceMessage;
@@ -62,7 +63,6 @@ import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 
@@ -208,7 +208,7 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
             this.deviceMessageSupport = (DeviceMessageSupport) this.meterProtocol;
         }
 
-        if (!DeviceSecuritySupport.class.isAssignableFrom(getProtocolClass())) {
+        if (!com.energyict.mdc.upl.security.DeviceSecuritySupport.class.isAssignableFrom(getProtocolClass())) {
             // we only instantiate the adapter if the protocol needs it
             this.smartMeterProtocolSecuritySupportAdapter =
                     new SmartMeterProtocolSecuritySupportAdapter(
@@ -223,7 +223,11 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     }
 
     protected Class getProtocolClass() {
-        return this.meterProtocol.getClass();
+        if (meterProtocol instanceof UPLProtocolAdapter) {
+            return ((UPLProtocolAdapter) meterProtocol).getActualClass();
+        } else {
+            return meterProtocol.getClass();
+        }
     }
 
     @Override
@@ -625,7 +629,7 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
 
     @Override
     public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
-        return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList());
+        return new ArrayList<>(getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList()));
     }
 
     @Override

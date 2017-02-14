@@ -5,13 +5,10 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
+import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.cps.DialectCustomPropertySetNameDetective;
-import com.energyict.mdc.protocol.pluggable.adapters.upl.cps.UnableToCreateCustomPropertySet;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.cps.UnableToLoadCustomPropertySetClass;
 import com.energyict.mdc.upl.properties.PropertySpec;
-import com.google.inject.ConfigurationException;
-import com.google.inject.Injector;
-import com.google.inject.ProvisionException;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,46 +23,33 @@ public class UPLDeviceProtocolDialectAdapter implements DeviceProtocolDialect {
 
     private static DialectCustomPropertySetNameDetective dialectCustomPropertySetNameDetective;
 
-    private final Injector injector;
     private final com.energyict.mdc.upl.DeviceProtocolDialect uplDeviceProtocolDialect;
+    private final CustomPropertySetInstantiatorService customPropertySetInstantiatorService;
 
-    public UPLDeviceProtocolDialectAdapter(com.energyict.mdc.upl.DeviceProtocolDialect uplDeviceProtocolDialect, Injector injector) {
+    public UPLDeviceProtocolDialectAdapter(com.energyict.mdc.upl.DeviceProtocolDialect uplDeviceProtocolDialect, CustomPropertySetInstantiatorService customPropertySetInstantiatorService) {
         this.uplDeviceProtocolDialect = uplDeviceProtocolDialect;
-        this.injector = injector;
+        this.customPropertySetInstantiatorService = customPropertySetInstantiatorService;
     }
 
     @Override
     public Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet() {
         this.ensureDialectCustomPropertySetNameMappingLoaded();
-        return Optional
-                .ofNullable(dialectCustomPropertySetNameDetective.customPropertySetClassNameFor(this.uplDeviceProtocolDialect.getClass()))
-                .flatMap(this::loadClass)
-                .map(this::toCustomPropertySet);
+        String cpsJavaClassName = dialectCustomPropertySetNameDetective.customPropertySetClassNameFor(this.uplDeviceProtocolDialect.getClass());
+
+        if (Checks.is(cpsJavaClassName).emptyOrOnlyWhiteSpace()) {
+            return Optional.empty();
+        } else {
+            try {
+                return Optional.of(customPropertySetInstantiatorService.createCustomPropertySet(cpsJavaClassName));
+            } catch (ClassNotFoundException e) {
+                throw new UnableToLoadCustomPropertySetClass(e, cpsJavaClassName, DialectCustomPropertySetNameDetective.MAPPING_PROPERTIES_FILE_NAME);
+            }
+        }
     }
 
     private void ensureDialectCustomPropertySetNameMappingLoaded() {
         if (dialectCustomPropertySetNameDetective == null) {
             dialectCustomPropertySetNameDetective = new DialectCustomPropertySetNameDetective();
-        }
-    }
-
-    private Optional<Class> loadClass(String className) {
-        if (Checks.is(className).emptyOrOnlyWhiteSpace()) {
-            return Optional.empty();
-        } else {
-            try {
-                return Optional.of(this.getClass().getClassLoader().loadClass(className));
-            } catch (ClassNotFoundException e) {
-                throw new UnableToLoadCustomPropertySetClass(e, className, DialectCustomPropertySetNameDetective.MAPPING_PROPERTIES_FILE_NAME);
-            }
-        }
-    }
-
-    private CustomPropertySet toCustomPropertySet(Class cpsClass) {
-        try {
-            return (CustomPropertySet) this.injector.getInstance(cpsClass);
-        } catch (ConfigurationException | ProvisionException e) {
-            throw new UnableToCreateCustomPropertySet(e, cpsClass, DialectCustomPropertySetNameDetective.MAPPING_PROPERTIES_FILE_NAME);
         }
     }
 

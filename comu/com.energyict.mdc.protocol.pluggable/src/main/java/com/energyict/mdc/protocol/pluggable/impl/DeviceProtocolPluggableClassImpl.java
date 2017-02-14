@@ -22,6 +22,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolNotAllowedByLicenseException;
@@ -33,6 +34,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterPro
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapterImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLDeviceProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLMeterProtocolAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLSmartMeterProtocolAdapter;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.Device;
@@ -58,6 +60,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
 
     private final CustomPropertySetService customPropertySetService;
     private final PropertySpecService propertySpecService;
+    private final CustomPropertySetInstantiatorService customPropertySetInstantiatorService;
     private final ProtocolPluggableService protocolPluggableService;
     private final SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
     private final CapabilityAdapterMappingFactory capabilityAdapterMappingFactory;
@@ -70,7 +73,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     @Inject
-    public DeviceProtocolPluggableClassImpl(EventService eventService, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel, Thesaurus thesaurus, CustomPropertySetService customPropertySetService, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, IdentificationService identificationService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
+    public DeviceProtocolPluggableClassImpl(EventService eventService, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel, Thesaurus thesaurus, CustomPropertySetService customPropertySetService, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, IdentificationService identificationService, DeviceMessageSpecificationService deviceMessageSpecificationService, CustomPropertySetInstantiatorService customPropertySetInstantiatorService) {
         super(eventService, thesaurus);
         this.propertySpecService = propertySpecService;
         this.protocolPluggableService = protocolPluggableService;
@@ -84,6 +87,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
         this.meteringService = meteringService;
         this.identificationService = identificationService;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+        this.customPropertySetInstantiatorService = customPropertySetInstantiatorService;
     }
 
     static DeviceProtocolPluggableClassImpl from(DataModel dataModel, PluggableClass pluggableClass) {
@@ -114,15 +118,15 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
             deviceProtocol = (DeviceProtocol) protocol;
         } else if (protocol instanceof com.energyict.mdc.upl.DeviceProtocol) {
             //Adapt it from UPL to CXO DeviceProtocol if necessary
-            deviceProtocol = UPLDeviceProtocolAdapter.adapt((com.energyict.mdc.upl.DeviceProtocol) protocol).with(getThesaurus(), propertySpecService);
+            deviceProtocol = UPLDeviceProtocolAdapter.adapt((com.energyict.mdc.upl.DeviceProtocol) protocol).with(customPropertySetInstantiatorService);
         } else {
+            // Must be a lecagy pluggable class
             if (protocol instanceof com.energyict.mdc.upl.MeterProtocol) {
                 protocol = new UPLMeterProtocolAdapter((com.energyict.mdc.upl.MeterProtocol) protocol);
             } else if (protocol instanceof com.energyict.mdc.upl.SmartMeterProtocol) {
                 protocol = new UPLSmartMeterProtocolAdapter((com.energyict.mdc.upl.SmartMeterProtocol) protocol);
             }
 
-            // Must be a lecagy pluggable class
             deviceProtocol = this.checkForProtocolWrappers(protocol);
         }
         return deviceProtocol;
@@ -144,7 +148,13 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
         } else if (protocol instanceof MeterProtocol) {
             return new MeterProtocolAdapterImpl((MeterProtocol) protocol, this.propertySpecService, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.capabilityAdapterMappingFactory, messageAdapterMappingFactory, this.dataModel, issueService, collectedDataFactory, identificationService, this.getThesaurus(), deviceMessageSpecificationService);
         } else {
-            throw new ProtocolCreationException(MessageSeeds.UNSUPPORTED_LEGACY_PROTOCOL_TYPE, protocol.getClass());
+            Class<?> aClass;
+            if (protocol instanceof UPLProtocolAdapter) {
+                aClass = ((UPLProtocolAdapter) protocol).getActualClass();
+            } else {
+                aClass = protocol.getClass();
+            }
+            throw new ProtocolCreationException(MessageSeeds.UNSUPPORTED_LEGACY_PROTOCOL_TYPE, aClass);
         }
     }
 
@@ -232,7 +242,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     @Override
     public DeviceProtocol getDeviceProtocol() {
         DeviceProtocol deviceProtocol = this.newInstance();
-        deviceProtocol.addDeviceProtocolDialectProperties(this.getProperties(deviceProtocol.getPropertySpecs()));
+        deviceProtocol.copyProperties(this.getProperties(deviceProtocol.getPropertySpecs()));
         return deviceProtocol;
     }
 

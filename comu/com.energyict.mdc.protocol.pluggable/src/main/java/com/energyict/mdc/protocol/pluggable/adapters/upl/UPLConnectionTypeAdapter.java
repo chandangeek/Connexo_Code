@@ -8,16 +8,13 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationException;
+import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.cps.ConnectionTypeCustomPropertySetNameDetective;
-import com.energyict.mdc.protocol.pluggable.adapters.upl.cps.UnableToCreateCustomPropertySet;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.cps.UnableToLoadCustomPropertySetClass;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocol.exceptions.ConnectionException;
-import com.google.inject.ConfigurationException;
-import com.google.inject.Injector;
-import com.google.inject.ProvisionException;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,22 +32,38 @@ public class UPLConnectionTypeAdapter implements com.energyict.mdc.protocol.api.
 
     private static ConnectionTypeCustomPropertySetNameDetective connectionTypeCustomPropertySetNameDetective;
 
-    private final Injector injector;
     private final com.energyict.mdc.upl.io.ConnectionType uplConnectionType;
+    private final CustomPropertySetInstantiatorService customPropertySetInstantiatorService;
 
-    public UPLConnectionTypeAdapter(com.energyict.mdc.upl.io.ConnectionType uplConnectionType, Injector injector) {
+    public UPLConnectionTypeAdapter(com.energyict.mdc.upl.io.ConnectionType uplConnectionType, CustomPropertySetInstantiatorService customPropertySetInstantiatorService) {
         this.uplConnectionType = uplConnectionType;
-        this.injector = injector;
+        this.customPropertySetInstantiatorService = customPropertySetInstantiatorService;
+    }
+
+    public ConnectionType getUplConnectionType() {
+        return uplConnectionType;
     }
 
     @Override
     public Optional<CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>>> getCustomPropertySet() {
         this.ensureConnectionTypeCustomPropertySetNameMappingLoaded();
+        String cpsJavaClassName = connectionTypeCustomPropertySetNameDetective.customPropertySetClassNameFor(this.uplConnectionType.getClass());
 
-        return Optional
-                .ofNullable(connectionTypeCustomPropertySetNameDetective.customPropertySetClassNameFor(this.uplConnectionType.getClass()))
-                .flatMap(this::loadClass)
-                .map(this::toCustomPropertySet);
+        if (Checks.is(cpsJavaClassName).emptyOrOnlyWhiteSpace()) {
+            return Optional.empty();
+        } else {
+            try {
+                return Optional.of(customPropertySetInstantiatorService.createCustomPropertySet(cpsJavaClassName));
+            } catch (ClassNotFoundException e) {
+                throw new UnableToLoadCustomPropertySetClass(e, cpsJavaClassName, ConnectionTypeCustomPropertySetNameDetective.MAPPING_PROPERTIES_FILE_NAME);
+            }
+        }
+    }
+
+    private void ensureConnectionTypeCustomPropertySetNameMappingLoaded() {
+        if (connectionTypeCustomPropertySetNameDetective == null) {
+            connectionTypeCustomPropertySetNameDetective = new ConnectionTypeCustomPropertySetNameDetective();
+        }
     }
 
     @Override
@@ -65,32 +78,6 @@ public class UPLConnectionTypeAdapter implements com.energyict.mdc.protocol.api.
         copyProperties(typedProperties);
 
         return this.connect();
-    }
-
-    private void ensureConnectionTypeCustomPropertySetNameMappingLoaded() {
-        if (connectionTypeCustomPropertySetNameDetective == null) {
-            connectionTypeCustomPropertySetNameDetective = new ConnectionTypeCustomPropertySetNameDetective();
-        }
-    }
-
-    private Optional<Class> loadClass(String className) {
-        if (Checks.is(className).emptyOrOnlyWhiteSpace()) {
-            return Optional.empty();
-        } else {
-            try {
-                return Optional.of(this.getClass().getClassLoader().loadClass(className));
-            } catch (ClassNotFoundException e) {
-                throw new UnableToLoadCustomPropertySetClass(e, className, ConnectionTypeCustomPropertySetNameDetective.MAPPING_PROPERTIES_FILE_NAME);
-            }
-        }
-    }
-
-    private CustomPropertySet toCustomPropertySet(Class cpsClass) {
-        try {
-            return (CustomPropertySet) this.injector.getInstance(cpsClass);
-        } catch (ConfigurationException | ProvisionException e) {
-            throw new UnableToCreateCustomPropertySet(e, cpsClass, ConnectionTypeCustomPropertySetNameDetective.MAPPING_PROPERTIES_FILE_NAME);
-        }
     }
 
     @Override

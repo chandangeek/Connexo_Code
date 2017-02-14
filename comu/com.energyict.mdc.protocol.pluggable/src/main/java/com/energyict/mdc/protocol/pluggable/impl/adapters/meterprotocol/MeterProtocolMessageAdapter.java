@@ -9,6 +9,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AbstractDeviceMessageConverterAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.NonExistingMessageConverter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLProtocolAdapter;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 
 /**
@@ -24,7 +25,15 @@ public class MeterProtocolMessageAdapter extends AbstractDeviceMessageConverterA
         super(messageAdapterMappingFactory, protocolPluggableService, issueService, collectedDataFactory, deviceMessageSpecificationService);
         if (MessageProtocol.class.isAssignableFrom(meterProtocol.getClass())) {
             setMessageProtocol((MessageProtocol) meterProtocol);
-            Object messageConverter = createNewMessageConverterInstance(getDeviceMessageConverterMappingFor(meterProtocol.getClass().getName()));
+
+            String javaClassName;
+            if (meterProtocol instanceof UPLProtocolAdapter) {
+                javaClassName = ((UPLProtocolAdapter) meterProtocol).getActualClass().getName();
+            } else {
+                javaClassName = meterProtocol.getClass().getName();
+            }
+
+            Object messageConverter = createNewMessageConverterInstance(getDeviceMessageConverterMappingFor(javaClassName));
             if (LegacyMessageConverter.class.isAssignableFrom(messageConverter.getClass())) {
                 final LegacyMessageConverter legacyMessageConverter = (LegacyMessageConverter) messageConverter;
                 legacyMessageConverter.setMessagingProtocol((MessageProtocol) meterProtocol);

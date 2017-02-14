@@ -2,20 +2,18 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationException;
+import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLConnectionTypeAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.cps.SecurityCustomPropertySetNameDetective;
-import com.energyict.mdc.protocol.pluggable.adapters.upl.cps.UnableToCreateCustomPropertySet;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.cps.UnableToLoadCustomPropertySetClass;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
@@ -41,13 +39,8 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-import com.google.inject.AbstractModule;
-import com.google.inject.ConfigurationException;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Module;
-import com.google.inject.ProvisionException;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -61,7 +54,7 @@ import java.util.stream.Collectors;
  * @author khe
  * @since 23/11/2016 - 16:56
  */
-public class UPLDeviceProtocolAdapter implements DeviceProtocol {
+public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdapter {
 
     private static SecurityCustomPropertySetNameDetective securityCustomPropertySetNameDetective;
 
@@ -70,29 +63,20 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol {
      * so it is compliant with the Connexo DeviceProtocol interface: {@link DeviceProtocol}
      */
     private final com.energyict.mdc.upl.DeviceProtocol deviceProtocol;
-    private final Thesaurus thesaurus;
-    private final PropertySpecService mdcPropertySpecService;
-    private final Injector injector;
+    private final CustomPropertySetInstantiatorService customPropertySetInstantiatorService;
 
-    private UPLDeviceProtocolAdapter(com.energyict.mdc.upl.DeviceProtocol deviceProtocol, Thesaurus thesaurus, PropertySpecService mdcPropertySpecService) {
+    private UPLDeviceProtocolAdapter(com.energyict.mdc.upl.DeviceProtocol deviceProtocol, CustomPropertySetInstantiatorService customPropertySetInstantiatorService) {
         this.deviceProtocol = deviceProtocol;
-        this.thesaurus = thesaurus;
-        this.mdcPropertySpecService = mdcPropertySpecService;
-        this.injector = Guice.createInjector(this.getModule());
+        this.customPropertySetInstantiatorService = customPropertySetInstantiatorService;
     }
 
     public static Services adapt(com.energyict.mdc.upl.DeviceProtocol deviceProtocol) {
         return new Services(deviceProtocol);
     }
 
-    private Module getModule() {
-        return new AbstractModule() {
-            @Override
-            public void configure() {
-                this.bind(PropertySpecService.class).toInstance(mdcPropertySpecService);
-                this.bind(Thesaurus.class).toInstance(thesaurus);
-            }
-        };
+    @Override
+    public Class getActualClass() {
+        return deviceProtocol.getClass();
     }
 
     @Override
@@ -132,7 +116,10 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol {
 
     @Override
     public List<? extends ConnectionType> getSupportedConnectionTypes() {
-        return deviceProtocol.getSupportedConnectionTypes().stream().map(connectionType -> new UPLConnectionTypeAdapter(connectionType, injector)).collect(Collectors.toList());
+        return deviceProtocol.getSupportedConnectionTypes()
+                .stream()
+                .map(connectionType -> new UPLConnectionTypeAdapter(connectionType, customPropertySetInstantiatorService))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -237,7 +224,7 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return deviceProtocol.getDeviceProtocolDialects().stream().map(dialect -> new UPLDeviceProtocolDialectAdapter(dialect, injector)).collect(Collectors.toList());
+        return deviceProtocol.getDeviceProtocolDialects().stream().map(dialect -> new UPLDeviceProtocolDialectAdapter(dialect, customPropertySetInstantiatorService)).collect(Collectors.toList());
     }
 
     @Override
@@ -253,35 +240,22 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol {
     @Override
     public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
         this.ensureSecurityCustomPropertySetNameMappingLoaded();
-        return Optional
-                .ofNullable(securityCustomPropertySetNameDetective.securityCustomPropertySetClassNameFor(this.deviceProtocol.getClass()))
-                .flatMap(this::loadClass)
-                .map(this::toCustomPropertySet);
-    }
+        String cpsJavaClassName = securityCustomPropertySetNameDetective.securityCustomPropertySetClassNameFor(this.deviceProtocol.getClass());
 
-    private CustomPropertySet toCustomPropertySet(Class cpsClass) {
-        try {
-            return (CustomPropertySet) this.injector.getInstance(cpsClass);
-        } catch (ConfigurationException | ProvisionException e) {
-            throw new UnableToCreateCustomPropertySet(e, cpsClass, SecurityCustomPropertySetNameDetective.MAPPING_PROPERTIES_FILE_NAME);
-        }
-    }
-
-    private Optional<Class> loadClass(String className) {
-        if (Checks.is(className).emptyOrOnlyWhiteSpace()) {
+        if (Checks.is(cpsJavaClassName).emptyOrOnlyWhiteSpace()) {
             return Optional.empty();
         } else {
             try {
-                return Optional.of(this.getClass().getClassLoader().loadClass(className));
+                return Optional.of(customPropertySetInstantiatorService.createCustomPropertySet(cpsJavaClassName));
             } catch (ClassNotFoundException e) {
-                throw new UnableToLoadCustomPropertySetClass(e, className, SecurityCustomPropertySetNameDetective.MAPPING_PROPERTIES_FILE_NAME);
+                throw new UnableToLoadCustomPropertySetClass(e, cpsJavaClassName, SecurityCustomPropertySetNameDetective.MAPPING_PROPERTIES_FILE_NAME);
             }
         }
     }
 
     private void ensureSecurityCustomPropertySetNameMappingLoaded() {
         if (securityCustomPropertySetNameDetective == null) {
-            securityCustomPropertySetNameDetective = new SecurityCustomPropertySetNameDetective();
+            securityCustomPropertySetNameDetective = new SecurityCustomPropertySetNameDetective(customPropertySetInstantiatorService);
         }
     }
 
@@ -326,12 +300,12 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return this.deviceProtocol.getUPLPropertySpecs().stream().map(UPLToConnexoPropertySpecAdapter::new).collect(Collectors.toList());
+        return new ArrayList<>(this.deviceProtocol.getUPLPropertySpecs().stream().map(UPLToConnexoPropertySpecAdapter::new).collect(Collectors.toList()));
     }
 
     @Override
     public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
-        return this.deviceProtocol.getUPLPropertySpecs();
+        return new ArrayList<>(this.deviceProtocol.getUPLPropertySpecs());
     }
 
     @Override
@@ -352,9 +326,8 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol {
         }
 
         public UPLDeviceProtocolAdapter with(
-                Thesaurus thesaurus,
-                com.energyict.mdc.dynamic.PropertySpecService mdcPropertySpecService) {
-            return new UPLDeviceProtocolAdapter(this.deviceProtocol, thesaurus, mdcPropertySpecService);
+                CustomPropertySetInstantiatorService customPropertySetInstantiatorService) {
+            return new UPLDeviceProtocolAdapter(this.deviceProtocol, customPropertySetInstantiatorService);
         }
     }
 }

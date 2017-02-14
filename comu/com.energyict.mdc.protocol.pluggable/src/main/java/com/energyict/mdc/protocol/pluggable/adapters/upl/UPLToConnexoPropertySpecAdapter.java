@@ -18,8 +18,8 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
  * then please cast it and return the actual UPL PropertySpec instead of adapting an adapter.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2016-12-12 (13:27)
  * @see ConnexoToUPLPropertSpecAdapter#getConnexoPropertySpec()
+ * @since 2016-12-12 (13:27)
  */
 public class UPLToConnexoPropertySpecAdapter implements PropertySpec {
     private final com.energyict.mdc.upl.properties.PropertySpec actual;
@@ -70,7 +70,7 @@ public class UPLToConnexoPropertySpecAdapter implements PropertySpec {
         } catch (MissingPropertyException e) {
             throw new ValueRequiredException(this.getName());
         } catch (PropertyValidationException e) {
-            throw new InvalidValueException("XisNotValidValueForAttributeY", "The value \\\"{1}\\\" is not valid for the attribute specification {0}." , this.getName(), value);
+            throw new InvalidValueException("XisNotValidValueForAttributeY", "The value \\\"{1}\\\" is not valid for the attribute specification {0}.", this.getName(), value);
         }
     }
 
@@ -86,7 +86,12 @@ public class UPLToConnexoPropertySpecAdapter implements PropertySpec {
 
     @Override
     public PropertySpecPossibleValues getPossibleValues() {
-        return new UPLToConnexoPropetySpecPossibleValuesAdapter(this.actual.getPossibleValues());
+        com.energyict.mdc.upl.properties.PropertySpecPossibleValues possibleValues = this.actual.getPossibleValues();
+        if (possibleValues == null) {
+            return null;
+        } else {
+            return new UPLToConnexoPropetySpecPossibleValuesAdapter(this.actual.getPossibleValues());
+        }
     }
 
 }

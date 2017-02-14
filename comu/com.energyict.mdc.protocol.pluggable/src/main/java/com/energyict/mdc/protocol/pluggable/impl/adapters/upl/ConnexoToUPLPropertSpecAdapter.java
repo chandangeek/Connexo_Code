@@ -68,7 +68,8 @@ public class ConnexoToUPLPropertSpecAdapter implements PropertySpec {
 
     @Override
     public PropertySpecPossibleValues getPossibleValues() {
-        return new PossibleValuesAdapter(this.actual.getPossibleValues());
+        com.elster.jupiter.properties.PropertySpecPossibleValues possibleValues = this.actual.getPossibleValues();
+        return possibleValues == null ? null : new PossibleValuesAdapter(possibleValues);
     }
 
     @Override

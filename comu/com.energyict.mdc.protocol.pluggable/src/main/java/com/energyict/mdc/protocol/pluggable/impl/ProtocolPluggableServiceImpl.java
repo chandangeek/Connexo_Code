@@ -45,6 +45,7 @@ import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingException;
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
@@ -151,6 +152,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     private volatile IdentificationService identificationService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile CustomPropertySetService customPropertySetService;
+    private volatile CustomPropertySetInstantiatorService customPropertySetInstantiatorService;
     private volatile List<DeviceProtocolService> deviceProtocolServices = new CopyOnWriteArrayList<>();
     private volatile List<InboundDeviceProtocolService> inboundDeviceProtocolServices = new CopyOnWriteArrayList<>();
     private volatile List<ConnectionTypeService> connectionTypeServices = new CopyOnWriteArrayList<>();
@@ -189,6 +191,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
             PluggableService pluggableService,
             IdentificationService identificationService,
             DeviceMessageSpecificationService deviceMessageSpecificationService,
+            CustomPropertySetInstantiatorService customPropertySetInstantiatorService,
             CustomPropertySetService customPropertySetService,
             LicenseService licenseService,
             DataVaultService dataVaultService,
@@ -205,6 +208,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         setPropertySpecService(propertySpecService);
         setIdentificationService(identificationService);
         setDeviceMessageSpecificationService(deviceMessageSpecificationService);
+        setCustomPropertySetInstantiatorService(customPropertySetInstantiatorService);
         setCustomPropertySetService(customPropertySetService);
         setPluggableService(pluggableService);
         setUserService(userService);
@@ -731,6 +735,11 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     }
 
     @Reference
+    public void setCustomPropertySetInstantiatorService(CustomPropertySetInstantiatorService customPropertySetInstantiatorService) {
+        this.customPropertySetInstantiatorService = customPropertySetInstantiatorService;
+    }
+
+    @Reference
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
         this.customPropertySetService = customPropertySetService;
     }
@@ -892,6 +901,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
                 bind(PluggableService.class).toInstance(pluggableService);
                 bind(IdentificationService.class).toInstance(identificationService);
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
+                bind(CustomPropertySetInstantiatorService.class).toInstance(customPropertySetInstantiatorService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(IssueService.class).toInstance(issueService);
                 bind(LicenseService.class).toInstance(licenseService);

@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -30,7 +31,7 @@ import java.util.stream.Collectors;
  * @author khe
  * @since 10/02/2017 - 16:08
  */
-public class UPLSmartMeterProtocolAdapter implements SmartMeterProtocol {
+public class UPLSmartMeterProtocolAdapter implements SmartMeterProtocol, UPLProtocolAdapter {
 
     //TODO implement/adapt all methods
     private final com.energyict.mdc.upl.SmartMeterProtocol uplSmartMeterProtocol;
@@ -40,21 +41,26 @@ public class UPLSmartMeterProtocolAdapter implements SmartMeterProtocol {
     }
 
     @Override
+    public Class getActualClass() {
+        return uplSmartMeterProtocol.getClass();
+    }
+
+    @Override
     public List<PropertySpec> getRequiredProperties() {
-        return uplSmartMeterProtocol.getUPLPropertySpecs()
+        return new ArrayList<>(uplSmartMeterProtocol.getUPLPropertySpecs()
                 .stream()
                 .filter(com.energyict.mdc.upl.properties.PropertySpec::isRequired)
                 .map(UPLToConnexoPropertySpecAdapter::new)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return uplSmartMeterProtocol.getUPLPropertySpecs()
+        return new ArrayList<>(uplSmartMeterProtocol.getUPLPropertySpecs()
                 .stream()
                 .filter((propertySpec) -> !propertySpec.isRequired())
                 .map(UPLToConnexoPropertySpecAdapter::new)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
 
     @Override

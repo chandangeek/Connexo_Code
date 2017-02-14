@@ -6,6 +6,9 @@ import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.mdc.upl.properties.FirmwareVersion;
 import com.energyict.mdc.upl.properties.HexString;
+import com.energyict.mdc.upl.properties.LinePoint;
+import com.energyict.mdc.upl.properties.Lis200Address;
+import com.energyict.mdc.upl.properties.ProtocolChannelMap;
 import com.energyict.obis.ObisCode;
 
 import java.math.BigDecimal;
@@ -28,6 +31,9 @@ enum ValueType {
     BOOLEAN("java.lang.boolean", boolean.class, Types.INTEGER),
     BOXED_BOOLEAN("java.lang.Boolean", Boolean.class, Types.INTEGER),
     STRING("java.lang.String", String.class, Types.VARCHAR),
+    CHANNELMAP("com.energyict.mdc.upl.properties.ProtocolChannelMap", ProtocolChannelMap.class, Types.VARCHAR),
+    LIS200_ADDRESS("com.energyict.mdc.upl.properties.Lis200Address", Lis200Address.class, Types.VARCHAR),
+    LINE_POINT("com.energyict.mdc.upl.properties.LinePoint", LinePoint.class, Types.VARCHAR),
     HEX_STRING("com.energyict.mdc.upl.properties.HexString", HexString.class, Types.VARCHAR),
     INTEGER("java.lang.int", int.class, Types.NUMERIC),
     LONG("java.lang.long", long.class, Types.NUMERIC),
@@ -83,10 +89,10 @@ enum ValueType {
 
     static ValueType fromClassName(String className) {
         return Stream
-                    .of(values())
-                    .filter(each -> each.className.equals(className))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("Value type " + className + " is not (yet) supported by " + UPLToConnexoValueFactoryAdapter.class.getName()));
+                .of(values())
+                .filter(each -> each.className.equals(className))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Value type " + className + " is not (yet) supported by " + UPLToConnexoValueFactoryAdapter.class.getName()));
     }
 
     Class getConnexoClass() {

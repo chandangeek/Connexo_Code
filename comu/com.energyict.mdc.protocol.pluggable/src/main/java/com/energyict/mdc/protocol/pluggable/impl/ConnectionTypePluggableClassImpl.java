@@ -16,6 +16,7 @@ import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLConnectionTypeAdapter;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -141,7 +142,14 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
 
     @Override
     public boolean isInstance(ConnectionType connectionType) {
-        return this.getJavaClassName().equals(connectionType.getClass().getName());
+        String javaClassName;
+        if (connectionType instanceof UPLConnectionTypeAdapter) {
+            javaClassName = ((UPLConnectionTypeAdapter) connectionType).getUplConnectionType().getClass().getName();
+        } else {
+            javaClassName = connectionType.getClass().getName();
+        }
+
+        return this.getJavaClassName().equals(javaClassName);
     }
 
     @Override

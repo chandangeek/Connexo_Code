@@ -43,6 +43,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapt
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLOfflineDeviceAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLProtocolAdapter;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.messages.DeviceMessage;
@@ -68,7 +69,6 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.tasks.support.DeviceClockSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 
@@ -516,7 +516,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
 
     @Override
     public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
-        return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList());
+        return new ArrayList<>(getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList()));
     }
 
     @Override
@@ -598,7 +598,11 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
 
     @Override
     protected Class getProtocolClass() {
-        return meterProtocol.getClass();
+        if (meterProtocol instanceof UPLProtocolAdapter) {
+            return ((UPLProtocolAdapter) meterProtocol).getActualClass();
+        } else {
+            return meterProtocol.getClass();
+        }
     }
 
     public MeterProtocol getMeterProtocol() {

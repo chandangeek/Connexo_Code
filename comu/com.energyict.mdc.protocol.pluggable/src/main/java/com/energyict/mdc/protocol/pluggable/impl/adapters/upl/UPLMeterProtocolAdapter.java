@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -27,13 +28,18 @@ import java.util.stream.Collectors;
  * @author khe
  * @since 10/02/2017 - 16:08
  */
-public class UPLMeterProtocolAdapter implements MeterProtocol {
+public class UPLMeterProtocolAdapter implements MeterProtocol, UPLProtocolAdapter {
 
     //TODO implement/adapt all methods
     private final com.energyict.mdc.upl.MeterProtocol uplMeterProtocol;
 
     public UPLMeterProtocolAdapter(com.energyict.mdc.upl.MeterProtocol uplMeterProtocol) {
         this.uplMeterProtocol = uplMeterProtocol;
+    }
+
+    @Override
+    public Class getActualClass() {
+        return uplMeterProtocol.getClass();
     }
 
     @Override
@@ -163,20 +169,20 @@ public class UPLMeterProtocolAdapter implements MeterProtocol {
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return uplMeterProtocol.getUPLPropertySpecs()
+        return new ArrayList<>(uplMeterProtocol.getUPLPropertySpecs()
                 .stream()
                 .filter(com.energyict.mdc.upl.properties.PropertySpec::isRequired)
                 .map(UPLToConnexoPropertySpecAdapter::new)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return uplMeterProtocol.getUPLPropertySpecs()
+        return new ArrayList<>(uplMeterProtocol.getUPLPropertySpecs()
                 .stream()
                 .filter((propertySpec) -> !propertySpec.isRequired())
                 .map(UPLToConnexoPropertySpecAdapter::new)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
 
     @Override
@@ -186,7 +192,7 @@ public class UPLMeterProtocolAdapter implements MeterProtocol {
 
     @Override
     public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
-        return uplMeterProtocol.getUPLPropertySpecs();
+        return new ArrayList<>(uplMeterProtocol.getUPLPropertySpecs());
     }
 
     @Override
