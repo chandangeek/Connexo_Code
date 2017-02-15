@@ -13,7 +13,6 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.LoadProfileReader;
 
@@ -44,7 +43,9 @@ public class ReadLoadProfileDataCommandImpl extends SimpleComCommand implements 
 
         List<CollectedData> collectedDatas = new ArrayList<>();
         collectedDatas.addAll(collectedLoadProfileList);
+
         removeUnwantedChannels(loadProfileReaders, collectedDatas);
+        addReadingTypesToChannelInfos(collectedDatas, loadProfileReaders);
 
         this.loadProfileCommand.addListOfCollectedDataItems(collectedLoadProfileList);
     }

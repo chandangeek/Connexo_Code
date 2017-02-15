@@ -45,7 +45,10 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImpl extends SimpleComComma
         lastLogBookDate = getLastLogbookDate((MeterProtocolAdapter) deviceProtocol);
         loadProfileLogBooksData = ((MeterProtocolAdapter) deviceProtocol).getLoadProfileLogBooksData(legacyLoadProfileLogBooksCommand.getLoadProfileReaders(),
                 legacyLoadProfileLogBooksCommand.getLogBookReaders());
+
         removeUnwantedChannels(legacyLoadProfileLogBooksCommand.getLoadProfileReaders(), loadProfileLogBooksData);
+        addReadingTypesToChannelInfos(loadProfileLogBooksData, legacyLoadProfileLogBooksCommand.getLoadProfileReaders());
+
         this.legacyLoadProfileLogBooksCommand.addListOfCollectedDataItems(loadProfileLogBooksData);
     }
 

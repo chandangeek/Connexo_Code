@@ -31,7 +31,6 @@ import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.issue.Warning;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileReader;
@@ -375,6 +374,30 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
                             }
                             break;
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Fill in the proper readingTypeMRID on the collected channel infos.
+     */
+    protected void addReadingTypesToChannelInfos(List<CollectedData> collectedDatas, List<LoadProfileReader> loadProfileReaders) {
+        for (CollectedData collectedData : collectedDatas) {
+            if (collectedData instanceof CollectedLoadProfile) {
+                CollectedLoadProfile collectedLoadProfile = (CollectedLoadProfile) collectedData;
+                for (LoadProfileReader loadProfileReader : loadProfileReaders) {
+                    if (collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode().equalsIgnoreBChannel(loadProfileReader.getProfileObisCode())) {
+
+                        collectedLoadProfile.getChannelInfo().forEach(collectedChannelInfo -> collectedChannelInfo.setReadingTypeMRID(
+                                loadProfileReader.getChannelInfos()
+                                        .stream()
+                                        .filter(configuredChannelInfo -> configuredChannelInfo.equalsIgnoreReadingType(collectedChannelInfo))
+                                        .findAny()
+                                        .get()
+                                        .getReadingTypeMRID()
+                        ));
                     }
                 }
             }
