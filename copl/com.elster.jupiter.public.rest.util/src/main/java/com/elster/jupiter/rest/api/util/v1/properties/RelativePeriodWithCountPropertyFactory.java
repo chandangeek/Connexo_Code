@@ -1,4 +1,4 @@
 package com.elster.jupiter.rest.api.util.v1.properties;
 
-public interface RelativePeriodWithCountFactory {
+public interface RelativePeriodWithCountPropertyFactory {
 }
