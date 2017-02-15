@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.interval.Temporals;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
@@ -26,7 +27,6 @@ import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.protocol.LoadProfileReader;
 
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -141,7 +141,7 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
      */
     public int findLoadProfileIntervalForLoadProfileReader(final LoadProfileReader loadProfileReader) {
         if (getLoadProfileReaderMap().containsKey(loadProfileReader)) {
-            return (int) getLoadProfileReaderMap().get(loadProfileReader).interval().get(ChronoUnit.SECONDS);
+            return Temporals.toTimeDuration(getLoadProfileReaderMap().get(loadProfileReader).interval()).getSeconds();
         }
         return LoadProfileCommand.INVALID_LOAD_PROFILE_INTERVAL;
     }

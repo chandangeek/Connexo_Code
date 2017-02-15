@@ -213,9 +213,9 @@ public class OfflineDeviceImpl implements OfflineDevice {
             if (context.needsTouCalendar()) {
                 this.touCalendarAllowed = serviceProvider.deviceConfigurationService().findTimeOfUseOptions(device.getDeviceType()).isPresent();
             }
-            setDeviceCache(serviceProvider);
-            this.setCalendars();
         }
+        setDeviceCache(serviceProvider);
+        this.setCalendars();
     }
 
     private List<Device> getPhysicalConnectedDevices(Device device) {

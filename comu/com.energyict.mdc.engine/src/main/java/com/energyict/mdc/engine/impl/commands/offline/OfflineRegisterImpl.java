@@ -97,7 +97,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
      * Note that this may cause recursive calls to other objects that can go offline.
      */
     private void goOffline() {
-        this.registerId = (int) this.register.getRegisterSpec().getId();
+        this.registerId = (int) this.register.getRegisterSpecId();
         this.deviceRegisterObisCode = this.register.getDeviceObisCode();
         this.amrRegisterObisCode = this.register.getRegisterSpec().getObisCode();
         this.registerUnit = this.register.getRegisterSpec().getRegisterType().getUnit();
