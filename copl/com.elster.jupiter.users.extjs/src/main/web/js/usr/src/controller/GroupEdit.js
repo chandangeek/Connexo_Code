@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Usr.controller.GroupEdit', {
     extend: 'Ext.app.Controller',
 
@@ -353,7 +357,9 @@ Ext.define('Usr.controller.GroupEdit', {
                     if (checked) {
                         var menu = item.up('menu');
                         for (var i = 1; i < menu.items.length; i++) {
-                            menu.items.items[i].setChecked(false);
+                            if (!menu.items.items[i].disabled) {
+                                menu.items.items[i].setChecked(false);
+                            }
                         }
                     }
                 }
@@ -374,7 +380,7 @@ Ext.define('Usr.controller.GroupEdit', {
                         var menu = item.up('menu');
                         menu.items.items[0].setChecked(false);
                         for (var i = 1; i < menu.items.length - 1; i++) {
-                            if(menu.items.items[i].canGrant) {
+                            if (!menu.items.items[i].disabled) {
                                 menu.items.items[i].setChecked(true);
                             }
                         }

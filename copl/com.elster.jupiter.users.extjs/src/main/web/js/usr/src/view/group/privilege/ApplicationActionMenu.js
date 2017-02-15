@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Usr.view.group.privilege.ApplicationActionMenu', {
     extend: 'Ext.menu.Menu',
     alias: 'widget.application-action-menu',
