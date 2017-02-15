@@ -40,10 +40,10 @@ public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet
         return this;
     }
 
-    public SecurityPropertySetBuilder withUserActions(List<DeviceSecurityUserAction> userActions){
-        this.userActions = userActions;
-        return this;
-    }
+//    public SecurityPropertySetBuilder withUserActions(List<DeviceSecurityUserAction> userActions){
+//        this.userActions = userActions;
+//        return this;
+//    }
 
     private void check(){
         if (this.deviceConfiguration == null) {
@@ -60,11 +60,6 @@ public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet
     @Override
     public SecurityPropertySet create() {
         SecurityPropertySet securityPropertySet = deviceConfiguration.createSecurityPropertySet(getName()).authenticationLevel(authLevel).encryptionLevel(encLevel).build();
-        if (userActions != null) {
-            for (DeviceSecurityUserAction userAction : userActions) {
-                securityPropertySet.addUserAction(userAction);
-            }
-        }
         securityPropertySet.update();
         return securityPropertySet;
     }

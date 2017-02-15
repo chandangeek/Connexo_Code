@@ -165,9 +165,6 @@ public class CreateA3DeviceCommand {
                 .addProperty("portNumber", new BigDecimal(1153))
                 .asDefault(true).build();
         SecurityPropertySet securityPropertySet = configuration.createSecurityPropertySet(SECURITY_PROPERTY_NAME).authenticationLevel(2).encryptionLevel(2).build();
-        for (DeviceSecurityUserAction action : DeviceSecurityUserAction.values()) {
-            securityPropertySet.addUserAction(action);
-        }
         securityPropertySet.update();
         addComTasksToDeviceConfiguration(configuration,
                 ComTaskTpl.READ_LOAD_PROFILE_DATA,

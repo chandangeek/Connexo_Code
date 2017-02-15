@@ -190,10 +190,6 @@ public class CreateG3SlaveCommand {
              configuration.createSecurityPropertySet(SECURITY_SET_NAME)
                      .authenticationLevel(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_MD5.getValue())
                      .encryptionLevel(DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue())
-                     .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1)
-                     .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2)
-                     .addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1)
-                     .addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2)
                      .build();
         }
     }
