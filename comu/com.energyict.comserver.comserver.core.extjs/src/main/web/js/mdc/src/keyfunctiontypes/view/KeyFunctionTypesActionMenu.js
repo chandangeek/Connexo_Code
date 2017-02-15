@@ -8,6 +8,12 @@ Ext.define('Mdc.keyfunctiontypes.view.KeyFunctionTypesActionMenu', {
     initComponent: function () {
         this.items = [
             {
+                text: Uni.I18n.translate('general.changePrivileges', 'MDC', 'Change privileges'),
+                privileges: Mdc.privileges.DeviceType.canAdministrate(),
+                action: 'changePrivileges',
+                section: this.SECTION_EDIT
+            },
+            {
                 text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
                 privileges: Mdc.privileges.DeviceType.canAdministrate(),
                 action: 'edit',
