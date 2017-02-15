@@ -16,7 +16,7 @@ Export-Package: com.energyict.mdc.upl,\
                 com.energyict.mdc.upl.security,\
                 com.energyict.mdc.upl.tasks,\
                 com.energyict.mdc.upl.tasks.support,\
-                com.energyict.mdc.channels,\
+                com.energyict.mdc.channel,\
                 com.energyict.mdc.channel.serial,\
                 com.energyict.mdc.channel.serial.direct.rxtx,\
                 com.energyict.mdc.channel.serial.direct.serialio,\
