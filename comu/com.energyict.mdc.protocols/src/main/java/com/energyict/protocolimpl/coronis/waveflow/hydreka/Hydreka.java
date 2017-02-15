@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.waveflow.hydreka;
 
 import com.energyict.mdc.common.ObisCode;
@@ -22,11 +26,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 12/04/12
- * Time: 17:19
- */
 public class Hydreka extends WaveFlow implements MessageProtocol {
 
     @Override

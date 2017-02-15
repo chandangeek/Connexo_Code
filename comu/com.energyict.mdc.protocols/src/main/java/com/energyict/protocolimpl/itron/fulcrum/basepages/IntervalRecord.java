@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * IntervalRecord.java
  *
  * Created on 19 september 2006, 11:57

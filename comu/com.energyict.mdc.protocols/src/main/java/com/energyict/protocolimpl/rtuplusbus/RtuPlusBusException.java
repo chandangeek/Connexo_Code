@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * RtuPlusBusException.java
  *
  * Created on 12 februari 2003, 16:52

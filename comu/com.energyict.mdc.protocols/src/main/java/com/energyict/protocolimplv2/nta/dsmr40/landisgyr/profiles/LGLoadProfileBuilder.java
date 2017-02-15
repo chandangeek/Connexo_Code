@@ -1,6 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles;
 
-import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
@@ -14,9 +17,11 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfigurat
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
+
+import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.DSMRProfileIntervalStatusBits;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles.LGDLMSProfileIntervals;
@@ -27,12 +32,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 19/12/2014 - 9:28
- */
 public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
 
     /**

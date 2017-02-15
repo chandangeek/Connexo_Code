@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.ace4000;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
@@ -13,7 +18,6 @@ import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
-import com.elster.jupiter.metering.MeteringService;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
 
 import javax.inject.Inject;
@@ -22,12 +26,6 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 16/10/12
- * Time: 10:22
- * Author: khe
- */
 public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtocol {
 
     private final MdcReadingTypeUtilService readingTypeUtilService;

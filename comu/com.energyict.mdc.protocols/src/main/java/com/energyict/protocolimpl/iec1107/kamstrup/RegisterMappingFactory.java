@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * RegisterMappingFactory.java
  *
  * Created on 15 september 2006, 14:59

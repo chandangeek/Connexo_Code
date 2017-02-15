@@ -1,4 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40;
+
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.device.data.Register;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -13,11 +23,6 @@ import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.attributes.AssociationLNAttributes;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
 import com.energyict.protocolimpl.generic.EncryptionStatus;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.Register;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23RegisterFactory;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.customdlms.cosem.attributes.DSMR4_MbusClientAttributes;
@@ -29,11 +34,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 31-aug-2011
- * Time: 16:44:24
- */
 public class DSMR40RegisterFactory extends Dsmr23RegisterFactory {
 
     public static final ObisCode MbusEncryptionStatus_New = ObisCode.fromString("0.x.24.1.0.13");   // ObisCode from MbusSetup object with AttributeNr. as F-field

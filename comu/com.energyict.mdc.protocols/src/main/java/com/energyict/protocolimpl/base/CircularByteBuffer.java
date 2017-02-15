@@ -1,14 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.base;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-/**
- * Copyrights EnergyICT
- * Date: 14-jul-2010
- * Time: 14:45:16
- */
 
 /**
  * Implements a Circular Buffer.

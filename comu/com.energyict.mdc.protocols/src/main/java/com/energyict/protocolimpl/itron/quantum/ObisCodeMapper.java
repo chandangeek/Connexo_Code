@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ObisCodeMapper.java
  *
  * Created on 15 september 2006, 13:30
@@ -13,6 +17,7 @@ package com.energyict.protocolimpl.itron.quantum;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
 import com.energyict.protocolimpl.itron.quantum.basepages.BasePagesFactory;
 import com.energyict.protocolimpl.itron.quantum.basepages.Register;
 import com.energyict.protocolimpl.itron.quantum.basepages.RegisterBasePage;

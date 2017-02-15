@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * SDKSampleProtocol.java
  *
  * Created on 13 juni 2007, 11:30

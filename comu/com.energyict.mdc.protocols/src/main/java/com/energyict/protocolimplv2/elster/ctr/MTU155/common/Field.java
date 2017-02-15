@@ -1,12 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.common;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
 
-/**
- * Copyrights EnergyICT
- * Date: 9-aug-2010
- * Time: 14:48:46
- */
 public interface Field<T extends Field> {
 
     byte[] getBytes();

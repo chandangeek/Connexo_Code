@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.request.register;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
 import com.energyict.protocolimpl.din19244.poreg2.core.DinTimeParser;
@@ -13,13 +18,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Class to read out the events table.
- * Can generate a proper list of meter events based on the received data.
- * Copyrights EnergyICT
- * Date: 20-apr-2011
- * Time: 14:10:28
- */
 public class Events extends AbstractRegister {
 
     private List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();

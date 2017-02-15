@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * VariableNameFactory.java
  *
  * Created on 22 februari 2007, 11:08
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.edf.trimaranplus.core;
 
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimpl.edf.trimarandlms.common.VariableName;
 
 import java.io.IOException;

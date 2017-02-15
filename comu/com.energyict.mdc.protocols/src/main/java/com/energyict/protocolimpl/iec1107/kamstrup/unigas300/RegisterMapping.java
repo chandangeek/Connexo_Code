@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * RegisterMapping.java
  *
  * Created on 15 september 2006, 13:38
@@ -12,11 +16,6 @@ package com.energyict.protocolimpl.iec1107.kamstrup.unigas300;
 
 import com.energyict.mdc.common.ObisCode;
 
-/**
- * Copyrights EnergyICT
- * Date: 6-dec-2010
- * Time: 9:28:03
- */
 public class RegisterMapping {
 
     private final String registerCode;

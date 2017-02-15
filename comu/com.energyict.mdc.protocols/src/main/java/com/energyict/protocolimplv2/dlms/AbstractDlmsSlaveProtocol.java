@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -49,12 +53,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 15/01/2015 - 10:18
- */
 public abstract class AbstractDlmsSlaveProtocol implements DeviceProtocol {
 
     private final Thesaurus thesaurus;

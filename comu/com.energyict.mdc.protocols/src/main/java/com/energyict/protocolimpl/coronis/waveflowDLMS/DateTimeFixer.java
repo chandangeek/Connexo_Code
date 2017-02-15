@@ -1,20 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
+
+import com.energyict.protocols.util.ProtocolUtils;
 
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.protocols.util.ProtocolUtils;
 
 import java.util.Date;
 import java.util.TimeZone;
 
-/**
- * Copyrights EnergyICT
- * Date: 7/03/12
- * Time: 14:19
- * <p/>
- * See JIRA ticket COMMUNICATION-738 for more info
- * This class solves a problem with the datetime format of the old AS253/1253 WaveFlow modules.
- */
 public class DateTimeFixer {
 
     /**

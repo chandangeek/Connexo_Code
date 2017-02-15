@@ -1,19 +1,19 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.valuefactory;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.ProRegister;
 
 import java.io.IOException;
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * Date: 19/05/11
- * Time: 16:44
- */
 public class EnergyValueFactory extends AbstractValueFactory {
 
     private ProRegister[] registerArray;

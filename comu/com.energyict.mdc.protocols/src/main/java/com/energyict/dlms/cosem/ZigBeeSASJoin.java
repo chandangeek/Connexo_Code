@@ -1,18 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.attributes.ZigBeeSASJoinAttribute;
-import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 28/09/11
- * Time: 16:01
- */
 public class ZigBeeSASJoin extends AbstractCosemObject {
 
     public static final ObisCode DEFAULT_OBIS = ObisCode.fromString("0.0.35.1.1.255");

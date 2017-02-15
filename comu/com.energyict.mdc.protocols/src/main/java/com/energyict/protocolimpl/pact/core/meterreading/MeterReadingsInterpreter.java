@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * MeterReadingBlocks.java
  *
  * Created on 11 maart 2004, 11:07
@@ -11,6 +15,7 @@ import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
 import com.energyict.protocolimpl.pact.core.common.ProtocolLink;
 import com.energyict.protocolimpl.pact.core.survey.LoadSurveyInterpreter;

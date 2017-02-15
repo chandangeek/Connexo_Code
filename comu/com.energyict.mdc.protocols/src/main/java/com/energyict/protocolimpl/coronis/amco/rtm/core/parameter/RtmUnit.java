@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
 import com.energyict.mdc.common.Unit;
@@ -8,11 +12,6 @@ import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 12-apr-2011
- * Time: 9:12:14
- */
 public class RtmUnit extends AbstractParameter {
 
     protected Unit unit = Unit.get("");

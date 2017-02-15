@@ -1,23 +1,23 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.prime;
 
-import com.energyict.dlms.DLMSReference;
-import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
+
+import com.energyict.dlms.DLMSReference;
+import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-/**
- * Copyrights EnergyICT
- * Date: 21/02/12
- * Time: 14:47
- */
 public class PrimeProperties extends DlmsProtocolProperties {
 
     /**

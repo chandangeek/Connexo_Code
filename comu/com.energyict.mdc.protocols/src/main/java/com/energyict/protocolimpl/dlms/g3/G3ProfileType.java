@@ -1,12 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.g3;
 
 import com.energyict.mdc.common.ObisCode;
 
-/**
- * Copyrights EnergyICT
- * Date: 26/03/12
- * Time: 9:11
- */
 public enum G3ProfileType {
 
     IMPORT_ACTIVE_POWER_PROFILE(1, ObisCode.fromString("1.1.99.1.0.255")),

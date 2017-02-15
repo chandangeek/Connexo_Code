@@ -1,4 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.prime;
+
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
@@ -6,16 +13,9 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.GenericRead;
-import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 22/02/12
- * Time: 15:20
- */
 public class PrimeMeterInfo {
 
     public static final ObisCode PRIME_FW_OBIS = ObisCode.fromString("0.0.28.7.0.255");

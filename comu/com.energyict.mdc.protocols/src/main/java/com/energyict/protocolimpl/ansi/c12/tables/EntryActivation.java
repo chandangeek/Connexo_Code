@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * EntryActivation.java
  *
  * Created on 26 oktober 2005, 10:57
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.ansi.c12.tables;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
 import java.io.IOException;

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * StoredValues.java
  *
  * Created on 13 oktober 2004, 15:29

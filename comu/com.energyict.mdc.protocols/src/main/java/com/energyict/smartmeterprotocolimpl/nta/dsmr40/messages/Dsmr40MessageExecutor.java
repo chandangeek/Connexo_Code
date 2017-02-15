@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages;
 
 import com.elster.jupiter.calendar.Calendar;
@@ -39,11 +43,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * Date: 5-sep-2011
- * Time: 8:40:01
- */
 public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
     private static final ObisCode OBISCODE_CONFIGURATION_OBJECT = ObisCode.fromString("0.1.94.31.3.255");

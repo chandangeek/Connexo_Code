@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging;
 
 import com.elster.jupiter.calendar.CalendarService;
@@ -32,12 +36,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 23/04/12
- * Time: 11:59
- */
 public class Messages extends ProtocolMessages {
 
     public static String ENABLE_DST = "EnableDST";

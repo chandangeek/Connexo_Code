@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * Type48Parser.java
  *
  * Created on 5 april 2006, 17:33

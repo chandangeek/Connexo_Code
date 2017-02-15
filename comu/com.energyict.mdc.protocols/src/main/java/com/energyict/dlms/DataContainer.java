@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * DataContainer.java
  *
  * Created on 3 april 2003, 17:16
@@ -6,10 +10,11 @@
 
 package com.energyict.dlms;
 
-import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.dlms.axrdencoding.AxdrType;
 
 import java.io.IOException;
 import java.io.Serializable;

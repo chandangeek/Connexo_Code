@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.idis.am130.properties;
 
 import com.energyict.mdc.common.TypedProperties;
@@ -5,13 +9,6 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.protocolimpl.dlms.g3.G3RespondingFrameCounterHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
 
-/**
- * Extension of the normal NTA security provider, adding a limitation to the framecounter.
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 12/02/2015 - 10:14
- */
 public class IDISSecurityProvider extends NTASecurityProvider {
 
     /**

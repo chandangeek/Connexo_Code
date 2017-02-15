@@ -1,15 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
 
-/**
- * Class for the data field in a frame
- * Copyrights EnergyICT
- * Date: 29-sep-2010
- * Time: 17:23:46
- */
 public class Data<T extends Data> extends AbstractField<T> {
 
     private byte[] data;

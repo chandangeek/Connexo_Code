@@ -1,4 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.Integer16;
@@ -6,18 +12,9 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.attributes.PrimePlcMacFunctionalParametersAttributes;
-import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 
-/**
- * The attributes of this DLMS interface class belong to the functional behaviour of MAC. They provide
- * information on specific aspects.
- * <p/>
- * Copyrights EnergyICT
- * Date: 6/6/12
- * Time: 11:46 AM
- */
 public class PrimePlcMacFunctionalParameters extends AbstractCosemObject {
 
     public static final ObisCode DEFAULT_OBIS_CODE = ObisCode.fromString("0.0.28.3.0.255");

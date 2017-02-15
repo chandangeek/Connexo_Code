@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.util;
 
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
-
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
 import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Data;
@@ -16,7 +21,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.NackStructure;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.ReferenceDate;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.WriteDataBlock;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
@@ -25,11 +29,6 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 14-okt-2010
- * Time: 16:31:45
- */
 public class MeterInfo extends AbstractUtilObject {
 
     private static final Unit METER_CALIBER_UNIT = Unit.get("m3/h");

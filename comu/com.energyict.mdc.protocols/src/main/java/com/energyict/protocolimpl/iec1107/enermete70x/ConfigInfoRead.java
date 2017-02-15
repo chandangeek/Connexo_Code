@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ConfigInfoRead.java
  *
  * Created on 14 september 2005, 13:21

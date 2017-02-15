@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem.attributeobjects;
 
 import com.energyict.dlms.axrdencoding.Float32;
@@ -6,11 +10,6 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 20-aug-2010
- * Time: 11:45:31
- */
 public class FrequencyGroup extends Structure {
 
     public static final int FS_INDEX = 0;

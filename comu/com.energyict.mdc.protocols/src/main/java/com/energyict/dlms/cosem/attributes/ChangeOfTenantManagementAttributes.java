@@ -1,14 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem.attributes;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.mdc.common.ObisCode;
 
-/**
- * Copyrights EnergyICT
- * Date: 16-aug-2011
- * Time: 13:11:21
- */
 public enum ChangeOfTenantManagementAttributes implements DLMSClassAttributes {
 
     LOGICAL_NAME(1, 0x00),

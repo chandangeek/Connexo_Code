@@ -1,16 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.common.composedobjects;
 
 import com.energyict.dlms.DLMSAttribute;
 
-/**
- * The ComposedProfileConfig object is just a ValueObject that holds the {@link com.energyict.dlms.DLMSAttribute} for the ProfileGeneric his interval and capturedObjects
- *
- * <pre>
- * Copyrights EnergyICT
- * Date: 4-mrt-2011
- * Time: 9:23:49
- * </pre>
- */
 public class ComposedProfileConfig {
 
     private final DLMSAttribute loadProfileInterval;

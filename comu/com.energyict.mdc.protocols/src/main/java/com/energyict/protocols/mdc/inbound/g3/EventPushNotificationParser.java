@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.inbound.g3;
 
 
@@ -53,12 +57,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 9/09/2014 - 9:19
- */
 public class EventPushNotificationParser extends DataPushNotificationParser {
 
     /**

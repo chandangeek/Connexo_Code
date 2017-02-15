@@ -1,14 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
 
-/**
- * Class for the Segment field in a CTR Structure Object - used in firmware upgrade process
- * Copyrights EnergyICT
- * Date: 8-okt-2010
- * Time: 16:39:27
- */
 public class Segment extends AbstractField<Segment> {
 
     private int segment;

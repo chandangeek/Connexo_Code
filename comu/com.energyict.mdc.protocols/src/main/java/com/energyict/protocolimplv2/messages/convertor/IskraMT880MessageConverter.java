@@ -1,8 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.DemandResetMessageEntry;
 
 import java.util.HashMap;

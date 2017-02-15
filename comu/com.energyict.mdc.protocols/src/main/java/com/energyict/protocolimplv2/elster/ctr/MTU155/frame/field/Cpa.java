@@ -1,14 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.encryption.AesCMac128;
 
-/**
- * Class for the cpa field in a frame
- * Copyrights EnergyICT
- * Date: 29-sep-2010
- * Time: 17:23:46
- */
 public class Cpa extends AbstractField<Cpa> {
 
     public static final int LENGTH = 4;

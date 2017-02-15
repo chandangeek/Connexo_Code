@@ -1,17 +1,22 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.core;
 
+import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
-import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.inbound.MeterType;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+import com.energyict.protocols.mdc.inbound.general.MeterTypeImpl;
+
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocols.mdc.inbound.general.MeterTypeImpl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -19,13 +24,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 
-/**
- * Used to send / receive requests, or to dis/connect to the device.
- *
- * Copyrights EnergyICT
- * Date: 19-apr-2011
- * Time: 15:08:41
- */
 public class PoregConnection implements ProtocolConnection {
 
     private static final int MAX_FRAME_LENGTH = 0xFD + 5; //Max user data length is 252. Header = 4 + 2 - 1 (1 is the first byte char that is always read)

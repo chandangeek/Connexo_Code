@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages;
 
 import com.elster.jupiter.calendar.CalendarService;
@@ -7,12 +11,6 @@ import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNt
 
 import java.time.Clock;
 
-/**
- * Copyrights EnergyICT
- * Date: 10/04/13
- * Time: 16:14
- * Author: khe
- */
 public class KaifaDsmr40MessageExecutor extends Dsmr40MessageExecutor {
 
     public KaifaDsmr40MessageExecutor(AbstractSmartNtaProtocol protocol, Clock clock, TopologyService topologyService, CalendarService calendarService) {

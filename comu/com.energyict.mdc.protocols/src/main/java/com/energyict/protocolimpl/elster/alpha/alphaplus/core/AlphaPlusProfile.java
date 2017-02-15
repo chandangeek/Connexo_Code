@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * AlphaPlusProfile.java
  *
  * Created on 26 juli 2005, 15:00
@@ -14,6 +18,7 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.elster.alpha.alphaplus.AlphaPlus;
 import com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes.Class14LoadProfileConfiguration;

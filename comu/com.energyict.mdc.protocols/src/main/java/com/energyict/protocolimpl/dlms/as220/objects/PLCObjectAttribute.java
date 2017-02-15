@@ -1,16 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.as220.objects;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
-import com.energyict.mdc.common.ObisCode;
 
 
-/**
- * Copyrights EnergyICT
- * Date: 31-mei-2010
- * Time: 14:56:35
- */
 public enum PLCObjectAttribute implements DLMSClassAttributes {
 
 	LOGICAL_NAME(1, 0x00),

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.prime;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -5,14 +9,6 @@ import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 
 import javax.inject.Inject;
 
-/**
- * Class for the PRIME meter ZIV 5CTM - E2C
- *
- * Copyrights EnergyICT
- * Date: 29/08/12
- * Time: 16:43
- * Author: khe
- */
 public class ZIV extends AbstractPrimeMeter {
 
     @Override

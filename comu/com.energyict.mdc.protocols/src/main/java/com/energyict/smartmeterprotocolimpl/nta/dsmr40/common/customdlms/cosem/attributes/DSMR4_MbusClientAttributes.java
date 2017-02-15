@@ -1,15 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.customdlms.cosem.attributes;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
-import com.energyict.mdc.common.ObisCode;
 
-/**
- * Copyrights EnergyICT
- * Date: 31-aug-2011
- * Time: 14:45:52
- */
 public enum DSMR4_MbusClientAttributes implements DLMSClassAttributes {
 
     LOGICAL_NAME(1, 0x00),

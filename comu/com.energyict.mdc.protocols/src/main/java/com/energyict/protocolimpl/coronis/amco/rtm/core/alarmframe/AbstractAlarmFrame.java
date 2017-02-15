@@ -1,19 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.amco.rtm.core.alarmframe;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Parent class containing methods used by all alarm frames instances.
- *
- * Copyrights EnergyICT
- * Date: 11-apr-2011
- * Time: 13:48:39
- */
 abstract public class AbstractAlarmFrame {
 
     protected int status;

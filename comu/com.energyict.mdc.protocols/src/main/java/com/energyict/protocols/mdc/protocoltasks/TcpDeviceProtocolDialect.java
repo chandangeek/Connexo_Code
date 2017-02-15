@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.protocoltasks;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -10,7 +14,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.protocolimplv2.DeviceProtocolDialectName;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 
 /**

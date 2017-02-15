@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * InitiateResponse.java
  *
  * Created on 4 december 2006, 15:39

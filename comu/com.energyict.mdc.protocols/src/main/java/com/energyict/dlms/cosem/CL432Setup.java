@@ -1,25 +1,19 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.attributes.CL432SetupAttributes;
 import com.energyict.dlms.cosem.methods.CL432SetupMethods;
-import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 
-/**
- * An instance of the IEC 61334-4-32 LLC SSCS (Service Specific Convergence Sublayer, 4-32 CL) setup
- * interface class holds addresses that are provided by the base node during the opening of the
- * convergence layer, as a response to the establish request of the service node, or during the join
- * service issued by the base node. They allow the service node to be part of the network managed by
- * the base node.
- * <p/>
- * Copyrights EnergyICT
- * Date: 6/5/12
- * Time: 4:01 PM
- */
 public class CL432Setup extends AbstractCosemObject {
 
     /**

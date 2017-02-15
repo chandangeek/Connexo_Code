@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.rawobjects;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -7,11 +11,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects.CodeObject;
 
 import java.util.Arrays;
 
-/**
- * Copyrights EnergyICT
- * Date: 12/04/11
- * Time: 16:33
- */
 public class RawBandsDescriptor extends AbstractField<RawBandsDescriptor> {
 
     private static final int NUMBER_OF_SEASONS = 2;

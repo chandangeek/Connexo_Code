@@ -1,23 +1,19 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.inbound.general;
 
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.protocol.api.dialer.serialserviceprovider.SerialPort;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.ComChannelInputStreamAdapter;
 import com.energyict.mdc.io.ComChannelOutputStreamAdapter;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.dialer.serialserviceprovider.SerialPort;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-/**
- * Serves as an implementation of a SerialCommunicationChannel wrapped around a
- * {@link ComChannel}
- *
- * Copyrights EnergyICT
- * Date: 14/05/13
- * Time: 9:38
- */
 public class SerialCommunicationChannelImpl implements SerialCommunicationChannel {
 
     private ComChannel comChannel;

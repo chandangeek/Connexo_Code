@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * S200EventsFactory.java
  *
  * Created on 1 augustus 2006, 11:07

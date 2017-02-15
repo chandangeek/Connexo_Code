@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.util;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
@@ -7,11 +11,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.AbstractCTRObject;
 
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 24/02/11
- * Time: 9:54
- */
 public class DstSettings extends AbstractUtilObject {
 
     private static final String GAS_DAY_TIME_OBJ_ID = "8.1.3";

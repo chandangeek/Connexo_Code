@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.elgama;
 
 import com.energyict.mdc.common.ObisCode;
@@ -47,11 +51,6 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 6-dec-2010
- * Time: 15:29:28
- */
 public class G3B extends AbstractDLMSProtocol {
 
     @Override

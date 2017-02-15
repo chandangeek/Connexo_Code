@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.factory;
 
 
@@ -18,13 +22,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-/**
- * Factory able to execute general requests, like reading the firmware version or setting the clock.
- *
- * Copyrights EnergyICT
- * Date: 20-apr-2011
- * Time: 14:09:45
- */
 public class RequestFactory {
 
     Poreg poreg;

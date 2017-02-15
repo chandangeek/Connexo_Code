@@ -1,4 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23;
+
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.Register;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSCOSEMGlobals;
@@ -19,14 +32,6 @@ import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.Register;
-import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.generic.EncryptionStatus;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedRegister;
@@ -41,11 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * Date: 14-jul-2011
- * Time: 13:12:35
- */
 public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
 
     private static final String[] possibleConnectStates = {"Disconnected", "Connected", "Ready for Reconnection"};

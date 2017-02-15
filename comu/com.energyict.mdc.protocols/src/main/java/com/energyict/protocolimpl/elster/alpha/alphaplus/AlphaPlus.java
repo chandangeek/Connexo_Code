@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * AlphaPlus.java
  *
  * Created on 5 juli 2005, 10:54

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.protocolimplv2;
 
 import com.energyict.mdc.io.ComChannel;
@@ -30,14 +34,6 @@ import java.security.cert.X509Certificate;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-/**
- * V2 version of the DlmsSession object, using a comChannel instead of input/output streams.
- * For usage with DeviceProtocols (not MeterProtocol or SmartMeterProtocol)
- * <p/>
- * Copyrights EnergyICT
- * Date: 11/02/11
- * Time: 18:18
- */
 public class DlmsSession implements ProtocolLink {
 
     private final ComChannel comChannel;

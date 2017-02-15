@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.nta.dsmr40.messages;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 
 import java.io.IOException;

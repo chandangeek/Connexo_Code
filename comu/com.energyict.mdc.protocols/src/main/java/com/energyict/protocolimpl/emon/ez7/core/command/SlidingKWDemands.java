@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * SlidingKWDemands.java
  *
  * Created on 18 mei 2005, 16:01
@@ -6,9 +10,10 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
 
 import java.io.IOException;

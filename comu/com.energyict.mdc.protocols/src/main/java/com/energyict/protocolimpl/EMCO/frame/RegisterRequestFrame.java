@@ -1,15 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.EMCO.frame;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.UnsupportedEncodingException;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 23/02/12
- * Time: 9:02
- */
 public class RegisterRequestFrame implements RequestFrame {
 
     private int unitNumber;

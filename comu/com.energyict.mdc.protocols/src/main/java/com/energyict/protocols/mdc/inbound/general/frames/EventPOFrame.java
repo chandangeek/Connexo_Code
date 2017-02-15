@@ -1,5 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.inbound.general.frames;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
@@ -13,9 +19,6 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,12 +27,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 
-/**
- * Copyrights EnergyICT
- * Date: 25/06/12
- * Time: 11:08
- * Author: khe
- */
 public class EventPOFrame extends AbstractInboundFrame {
 
     private static final int UNKNOWN = 0;

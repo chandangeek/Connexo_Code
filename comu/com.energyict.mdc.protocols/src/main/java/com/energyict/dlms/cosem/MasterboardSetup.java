@@ -1,18 +1,21 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
 
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.attributes.MasterboardSetupAttributes;
 import com.energyict.mdc.common.ObisCode;
 
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.NullData;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.attributes.MasterboardSetupAttributes;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 9/27/12
- * Time: 10:51 AM
- */
 public class MasterboardSetup extends AbstractCosemObject {
 
     public static final ObisCode OBIS_CODE = ObisCode.fromString("0.0.128.0.6.255");

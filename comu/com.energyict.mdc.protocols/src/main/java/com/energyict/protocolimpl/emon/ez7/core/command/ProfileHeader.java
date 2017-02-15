@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ProfileHeader.java
  *
  * Created on 18 mei 2005, 16:19
@@ -7,8 +11,9 @@
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
 import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
 
 import java.io.IOException;
 import java.util.Calendar;

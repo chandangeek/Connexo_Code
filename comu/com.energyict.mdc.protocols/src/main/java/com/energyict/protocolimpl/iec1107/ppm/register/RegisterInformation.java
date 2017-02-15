@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.iec1107.ppm.register;
 
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
+
 import com.energyict.protocolimpl.iec1107.ppm.MetaRegister;
 import com.energyict.protocolimpl.iec1107.ppm.ObisCodeMapper;
 import com.energyict.protocolimpl.iec1107.ppm.RegisterFactory;

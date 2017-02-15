@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.EMCO;
 
 import com.energyict.mdc.common.ObisCode;
@@ -33,12 +37,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 17/01/12
- * Time: 15:22
- */
 public class FP93 extends AbstractProtocol implements MessageProtocol{
 
     @Override

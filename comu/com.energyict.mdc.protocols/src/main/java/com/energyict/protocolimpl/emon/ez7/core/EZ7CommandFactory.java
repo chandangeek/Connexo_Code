@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * EZ7CommandFactory.java
  *
  * Created on 13 mei 2005, 13:57
@@ -7,6 +11,7 @@
 package com.energyict.protocolimpl.emon.ez7.core;
 
 import com.energyict.mdc.protocol.api.ConnectionException;
+
 import com.energyict.protocolimpl.emon.ez7.EZ7;
 import com.energyict.protocolimpl.emon.ez7.core.command.AllEnergy;
 import com.energyict.protocolimpl.emon.ez7.core.command.AllMaximumDemand;

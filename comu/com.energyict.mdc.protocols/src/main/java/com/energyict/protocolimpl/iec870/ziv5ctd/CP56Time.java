@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * CP40Time.java
  *
  * Created on 28 March 2006, 10:02

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.ibm;
 
 import com.elster.jupiter.calendar.CalendarService;
@@ -21,12 +25,6 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.time.Clock;
 
-/**
- * Copyrights EnergyICT
- * Date: 11/03/13
- * Time: 16:17
- * Author: khe
- */
 public class Kaifa extends E350 {
 
     private Dsmr40Messaging messageProtocol = null;

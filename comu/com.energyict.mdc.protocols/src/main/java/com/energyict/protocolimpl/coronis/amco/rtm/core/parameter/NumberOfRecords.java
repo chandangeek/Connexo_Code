@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
 import com.energyict.mdc.protocol.api.UnsupportedException;
@@ -9,11 +13,6 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 15-apr-2011
- * Time: 9:23:34
- */
 public class NumberOfRecords extends AbstractParameter {
 
     NumberOfRecords(RTM rtm) {

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * InformationObject8.java
  *
  * Created on 7 april 2006, 9:49
@@ -8,9 +12,9 @@
 package com.energyict.protocolimpl.iec870.ziv5ctd;
 
 import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.common.interval.IntervalStateBits;
 
 import java.util.Date;
 

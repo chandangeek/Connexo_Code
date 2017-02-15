@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * DataControlTable.java
  *
  * Created on 26 oktober 2005, 16:00

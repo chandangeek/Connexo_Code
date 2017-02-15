@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * DSDU.java
  *
  * Created on 13 februari 2007, 17:28

@@ -1,12 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.as220;
 
+import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.protocol.api.HHUEnabler;
-import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.mdc.protocol.api.inbound.MeterType;
+import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 
 import java.io.IOException;

@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.g3.events;
 
-import com.energyict.dlms.DlmsSession;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
+import com.energyict.dlms.DlmsSession;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,11 +16,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * Date: 26/03/12
- * Time: 8:02
- */
 public class G3Events {
 
     public static final ObisCode MAIN_LOG = ObisCode.fromString("0.0.99.98.1.255");

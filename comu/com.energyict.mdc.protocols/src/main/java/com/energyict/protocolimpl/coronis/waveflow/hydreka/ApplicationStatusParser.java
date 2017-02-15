@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.waveflow.hydreka;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.protocolimpl.coronis.waveflow.core.EventStatusAndDescription;
 import com.energyict.protocolimpl.coronis.waveflow.hydreka.parameter.ApplicationStatus;
 
@@ -9,12 +14,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 18/12/12
- * Time: 11:02
- * Author: khe
- */
 public class ApplicationStatusParser {
 
     private static final String ORIGIN_BBU = " [origin BBU]";

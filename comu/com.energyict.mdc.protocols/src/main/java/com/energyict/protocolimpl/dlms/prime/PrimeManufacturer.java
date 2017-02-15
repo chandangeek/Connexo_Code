@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.prime;
 
-/**
- * Copyrights EnergyICT
- * Date: 8/30/12
- * Time: 9:39 AM
- */
 public enum PrimeManufacturer {
 
     ZIV("ZIV"),

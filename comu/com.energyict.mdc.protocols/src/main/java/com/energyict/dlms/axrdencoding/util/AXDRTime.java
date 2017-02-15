@@ -1,7 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.axrdencoding.util;
 
-import com.energyict.dlms.axrdencoding.*;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.dlms.axrdencoding.OctetString;
 
 import java.io.IOException;
 import java.math.BigDecimal;

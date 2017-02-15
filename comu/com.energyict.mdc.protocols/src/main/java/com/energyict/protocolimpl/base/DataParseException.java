@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * DataParseException.java
  *
  * Created on 29 oktober 2004, 9:25

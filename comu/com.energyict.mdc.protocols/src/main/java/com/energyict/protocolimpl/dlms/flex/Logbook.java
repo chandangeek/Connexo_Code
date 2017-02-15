@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * Logbook.java
  *
  * Created on 22 januari 2008
@@ -6,8 +10,9 @@
 
 package com.energyict.protocolimpl.dlms.flex;
 
-import com.energyict.dlms.DataContainer;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
+import com.energyict.dlms.DataContainer;
 
 import java.util.ArrayList;
 import java.util.Date;

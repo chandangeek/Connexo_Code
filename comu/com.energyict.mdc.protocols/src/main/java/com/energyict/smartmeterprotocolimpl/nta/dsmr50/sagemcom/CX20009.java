@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom;
 
 import com.elster.jupiter.calendar.CalendarService;
@@ -14,12 +18,6 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.messages.SagemCo
 import javax.inject.Inject;
 import java.time.Clock;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 16/09/2014 - 9:49
- */
 public class CX20009 extends AM540 {
 
     @Override

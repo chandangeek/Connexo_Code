@@ -1,12 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.base;
 
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * Date: 5-jan-2011
- * Time: 15:00:03
- */
 public class CachedMeterTime {
 
     private long meterTime;

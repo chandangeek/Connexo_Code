@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * NewMain.java
  *
  * Created on 21 juni 2006, 14:12

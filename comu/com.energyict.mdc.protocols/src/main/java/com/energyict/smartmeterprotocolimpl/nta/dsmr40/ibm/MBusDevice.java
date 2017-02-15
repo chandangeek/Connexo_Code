@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.ibm;
 
 import com.elster.jupiter.calendar.CalendarService;
@@ -10,12 +14,6 @@ import com.energyict.protocols.mdc.services.impl.OrmClient;
 import javax.inject.Inject;
 import java.time.Clock;
 
-/**
- * Copyrights EnergyICT
- * Date: 11/03/13
- * Time: 16:18
- * Author: khe
- */
 public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.MBusDevice {
 
     @Override

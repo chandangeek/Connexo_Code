@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -13,14 +17,6 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Creates XML: <tag attributeName1="value1" attributeName2="value2" attributeName3="value3"> </tag>
- * <p/>
- * Copyrights EnergyICT
- * Date: 24/10/13
- * Time: 9:48
- * Author: khe
- */
 public class MultipleAttributeMessageEntry implements MessageEntryCreator {
 
     private final List<String> attributeTags;

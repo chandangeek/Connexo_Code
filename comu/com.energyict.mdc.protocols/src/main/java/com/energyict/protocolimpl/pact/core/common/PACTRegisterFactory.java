@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * PACTRegisterFactory.java
  *
  * Created on 26 maart 2004, 17:15
@@ -6,8 +10,9 @@
 
 package com.energyict.protocolimpl.pact.core.common;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+
 import com.energyict.protocolimpl.pact.core.meterreading.MeterReadingsInterpreter;
 
 import java.io.IOException;

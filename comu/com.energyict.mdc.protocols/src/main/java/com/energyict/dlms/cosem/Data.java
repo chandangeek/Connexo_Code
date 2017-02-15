@@ -1,4 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
+
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
@@ -7,26 +17,10 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 import java.util.Date;
 
-/**
- * This class represents the dlms Data object (class_id: 1, version: 0)
- * This object allows modelling various data, such as configuration data and parameters.
- * <p/>
- * Copyrights EnergyICT
- * User: jme
- * Date: 06/01/2012
- * Time: 11:35
- *
- * @author Koen
- */
 public class Data extends AbstractCosemObject implements CosemObject {
 
     /**

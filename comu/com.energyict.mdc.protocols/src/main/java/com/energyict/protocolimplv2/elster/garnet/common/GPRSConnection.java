@@ -1,8 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.garnet.common;
 
 import com.energyict.mdc.common.ComServerExecutionException;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.protocols.exception.ProtocolEncryptionException;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.garnet.GarnetProperties;
 import com.energyict.protocolimplv2.elster.garnet.exception.CipheringException;
@@ -18,8 +25,6 @@ import com.energyict.protocolimplv2.elster.garnet.frame.field.Crc;
 import com.energyict.protocolimplv2.elster.garnet.frame.field.FunctionCode;
 import com.energyict.protocolimplv2.elster.garnet.structure.NotExecutedErrorResponseStructure;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.NotExecutedError;
-import com.energyict.protocols.exception.ProtocolEncryptionException;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.ByteArrayOutputStream;
 import java.time.Clock;

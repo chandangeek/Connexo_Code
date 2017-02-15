@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.idis.am130.messages;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -11,12 +15,6 @@ import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 6/01/2015 - 15:34
- */
 public class AM130Messaging extends IDISMessaging {
 
     public AM130Messaging(AbstractDlmsProtocol protocol) {

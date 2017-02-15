@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.idis.am130.registers;
 
 import com.energyict.mdc.common.ObisCode;
@@ -7,11 +11,6 @@ import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * Date: 19/03/12
- * Time: 16:33
- */
 public class AlarmBitsRegister2 {
 
     private ObisCode obisCode;

@@ -1,4 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.prime.messaging.tariff.xml;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
@@ -12,7 +18,6 @@ import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.SpecialDaysTable;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -21,12 +26,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-/**
- * Copyrights EnergyICT
- * Date: 7/09/12
- * Time: 12:58
- * Author: khe
- */
 public class ActivityCalendarSerializer {
 
     private static final ObisCode CONTRACT_THRESHOLDS = ObisCode.fromString("0.1.94.34.0.255");

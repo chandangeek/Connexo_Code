@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.idis.am500.profiledata;
 
 import com.energyict.mdc.common.BaseUnit;
@@ -48,15 +52,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * <p>
- * Supports both the e-meter and MBus meter load profiles
- * Note that in EIServer, they should be configured on the proper master and slave devices.
- *
- * @author khe
- * @since 6/01/2015 - 10:35
- */
 public class IDISProfileDataReader {
 
     private static final ObisCode QUARTER_HOURLY_LOAD_PROFILE_OBISCODE = ObisCode.fromString("1.0.99.1.0.255");

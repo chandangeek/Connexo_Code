@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.events;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * Date: 4/05/11
- * Time: 9:27
- */
 public enum EventMapping {
 
     GENERIC(0x30, MeterEvent.OTHER, "Generic"),

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.ace4000.objects;
 
 import com.energyict.protocolimplv2.ace4000.xml.XMLTags;
@@ -7,11 +11,6 @@ import org.w3c.dom.Element;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 10/08/11
- * Time: 13:18
- */
 public class ConsumptionLimitationConfiguration extends AbstractActarisObject {
 
     public ConsumptionLimitationConfiguration(ObjectFactory of) {

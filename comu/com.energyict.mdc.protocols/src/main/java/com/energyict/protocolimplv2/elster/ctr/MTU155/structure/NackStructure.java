@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.structure;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -7,11 +11,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.FunctionCode;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.NackAdditionalData;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.NackReason;
 
-/**
- * Copyrights EnergyICT
- * Date: 6-okt-2010
- * Time: 15:47:10
- */
 public class NackStructure extends Data<NackStructure> {
 
     private NackReason reason;

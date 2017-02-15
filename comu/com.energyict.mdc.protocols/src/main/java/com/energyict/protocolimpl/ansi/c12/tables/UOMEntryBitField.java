@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * UOMEntryBitField.java
  *
  * Created on 28 november 2005, 14:54
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.ansi.c12.tables;
 
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
 import java.io.IOException;

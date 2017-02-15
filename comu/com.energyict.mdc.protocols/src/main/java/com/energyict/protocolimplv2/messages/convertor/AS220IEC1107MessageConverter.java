@@ -1,8 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.ArmLoadMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.ClearDisplayMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.ConnectLoadMessageEntry;
@@ -21,13 +25,6 @@ import java.util.Map;
 
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.DisplayMessageAttributeName;
 
-/**
- * Represents a MessageConverter for the legacy WebRTUKP protocol.
- * <p/>
- * Copyrights EnergyICT
- * Date: 8/03/13
- * Time: 16:26
- */
 public class AS220IEC1107MessageConverter extends AbstractMessageConverter {
 
     /**

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * IntervalSet.java
  *
  * Created on 8 november 2005, 14:04
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.ansi.c12.tables;
 
 import com.energyict.mdc.common.interval.IntervalStateBits;
+
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
 import java.io.IOException;

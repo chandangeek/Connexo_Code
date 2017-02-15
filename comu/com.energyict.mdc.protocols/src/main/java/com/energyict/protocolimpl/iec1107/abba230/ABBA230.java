@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ABBA230.java
  *
  * <B>Description :</B><BR>
@@ -38,7 +42,6 @@ import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
-import com.energyict.protocols.util.TempFileLoader;
 import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
@@ -55,6 +58,7 @@ import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
 import com.energyict.protocols.util.CacheMechanism;
 import com.energyict.protocols.util.EventMapper;
 import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.protocols.util.TempFileLoader;
 
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.protocolimpl.base.ContactorController;

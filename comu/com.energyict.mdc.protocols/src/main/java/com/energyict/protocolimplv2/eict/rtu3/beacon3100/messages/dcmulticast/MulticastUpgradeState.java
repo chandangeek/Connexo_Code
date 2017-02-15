@@ -1,11 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 1/04/2016 - 14:22
- */
 public enum MulticastUpgradeState {
 
     NotStarted(0, "The multicast upgrade has not started"),

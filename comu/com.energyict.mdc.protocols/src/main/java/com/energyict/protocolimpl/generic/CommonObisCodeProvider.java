@@ -1,17 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.generic;
 
 
 import com.energyict.mdc.common.ObisCode;
 
-/**
- * Common getters for ObisCodes
- *
- * <pre>
- * Copyrights EnergyICT
- * Date: 23-nov-2010
- * Time: 16:30:45
- * </pre>
- */
 public interface CommonObisCodeProvider {
 
     /**

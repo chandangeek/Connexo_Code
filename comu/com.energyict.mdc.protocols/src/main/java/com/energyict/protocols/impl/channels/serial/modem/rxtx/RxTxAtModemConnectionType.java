@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.impl.channels.serial.modem.rxtx;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -6,7 +10,6 @@ import com.energyict.mdc.io.ModemComponent;
 import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.protocols.impl.ConnectionTypeServiceImpl;
 import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxSerialConnectionType;
@@ -15,14 +18,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
 
-/**
- * Provides an implementation for the {@link ConnectionType}
- * interface for Serial AT-Modem communication, using the RxTx library.
- * <p>
- * Copyrights EnergyICT
- * Date: 20/11/12
- * Time: 16:22
- */
 public class RxTxAtModemConnectionType extends RxTxSerialConnectionType {
 
     private ModemComponent atModemComponent;

@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.events;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.LogBookReader;
@@ -9,7 +14,6 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
-import com.elster.jupiter.metering.MeteringService;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
@@ -26,12 +30,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 11/06/2014 - 16:29
- */
 public class G3GatewayEvents {
 
     public static final ObisCode OBIS_CODE = ObisCode.fromString("0.0.99.98.0.255");

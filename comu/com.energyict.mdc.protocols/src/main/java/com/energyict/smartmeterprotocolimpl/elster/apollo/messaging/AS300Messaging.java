@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -17,11 +21,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 8-aug-2011
- * Time: 14:32:04
- */
 public class AS300Messaging extends GenericMessaging implements MessageProtocol {
 
     private final AS300MessageExecutor messageExecutor;

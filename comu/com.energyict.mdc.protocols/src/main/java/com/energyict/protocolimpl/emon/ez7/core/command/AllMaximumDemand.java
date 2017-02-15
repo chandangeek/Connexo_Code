@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * AllMaximumDemand.java
  *
  * Created on 17 mei 2005, 11:38
@@ -6,9 +10,10 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
 
 import java.io.IOException;

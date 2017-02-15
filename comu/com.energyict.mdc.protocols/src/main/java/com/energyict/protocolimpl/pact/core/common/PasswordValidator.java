@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * PasswordValidator.java
  *
  * Created on 6 april 2004, 15:27

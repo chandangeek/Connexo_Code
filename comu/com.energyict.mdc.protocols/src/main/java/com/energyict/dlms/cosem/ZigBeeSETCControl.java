@@ -1,4 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.BooleanObject;
@@ -8,17 +14,9 @@ import com.energyict.dlms.cosem.attributeobjects.RegisterZigbeeDeviceData;
 import com.energyict.dlms.cosem.attributeobjects.ZigBeeIEEEAddress;
 import com.energyict.dlms.cosem.attributes.ZigbeeSETCControlAttributes;
 import com.energyict.dlms.cosem.methods.ZigbeeSETCControlMethods;
-import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 
-/**
- * SE T C = SEcurity Trust Center
- *
- * Copyrights EnergyICT
- * Date: 4/08/11
- * Time: 7:31
- */
 public class ZigBeeSETCControl extends AbstractCosemObject {
 
     public static final ObisCode LN = ObisCode.fromString("0.0.35.2.0.255");

@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.g3.events;
 
-/**
- * Copyrights EnergyICT
- * Date: 28/03/12
- * Time: 15:02
- */
 public class EventDescription {
 
     private final int meterEventCode;

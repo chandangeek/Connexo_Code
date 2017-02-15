@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * RCCommand.java
  *
  * Created on 10 augustus 2005, 16:53
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 
 import java.io.BufferedReader;

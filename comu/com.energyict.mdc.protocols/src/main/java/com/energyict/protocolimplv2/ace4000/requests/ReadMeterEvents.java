@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.ace4000.requests;
 
 import com.energyict.mdc.issues.IssueService;
@@ -11,12 +15,6 @@ import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 12/11/12
- * Time: 14:00
- * Author: khe
- */
 public class ReadMeterEvents extends AbstractRequest<LogBookIdentifier, List<CollectedLogBook>> {
 
     public ReadMeterEvents(ACE4000Outbound ace4000, IssueService issueService) {

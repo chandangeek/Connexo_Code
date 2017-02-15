@@ -1,4 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.prime.messaging;
+
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.Array;
@@ -6,20 +15,11 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * Date: 27/02/12
- * Time: 14:32
- */
 public class DisconnectControl extends PrimeMessageExecutor {
 
     private static final ObisCode TIMED_CONNECTOR_ACTION_OBISCODE = ObisCode.fromString("0.0.15.0.1.255");

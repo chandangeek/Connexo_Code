@@ -1,6 +1,8 @@
-package com.energyict.dlms;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.common.NestedIOException;
+package com.energyict.dlms;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,11 +10,6 @@ import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 5/17/12
- * Time: 9:53 AM
- */
 public class IF2LinkLayer {
 
     /**

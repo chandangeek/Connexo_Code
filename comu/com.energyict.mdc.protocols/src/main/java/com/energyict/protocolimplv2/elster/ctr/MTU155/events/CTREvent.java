@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.events;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -7,11 +11,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-/**
- * Copyrights EnergyICT
- * Date: 25/03/11
- * Time: 11:54
- */
 public class CTREvent implements Comparable<CTREvent> {
 
     private static final int NUMBER_OF_VALUES = 11;

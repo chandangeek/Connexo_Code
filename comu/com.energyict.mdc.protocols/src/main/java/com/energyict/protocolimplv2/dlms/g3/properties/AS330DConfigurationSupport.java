@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.g3.properties;
 
 
@@ -7,12 +11,6 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 
 import com.energyict.protocolimplv2.g3.common.G3Properties;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 10/06/2015 - 10:52
- */
 public class AS330DConfigurationSupport extends G3Properties {
 
     public static final String READCACHE_PROPERTY = "ReadCache";

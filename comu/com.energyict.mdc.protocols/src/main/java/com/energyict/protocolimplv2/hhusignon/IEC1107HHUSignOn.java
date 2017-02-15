@@ -1,7 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.hhusignon;
 
-import com.energyict.dialer.connection.Connection;
-import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
 import com.energyict.mdc.io.BaudrateValue;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.io.NrOfDataBits;
@@ -12,25 +14,16 @@ import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOnV2;
 import com.energyict.mdc.protocol.api.inbound.MeterType;
-import com.energyict.protocols.mdc.inbound.general.*;
 import com.energyict.protocols.mdc.inbound.general.MeterTypeImpl;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.ProtocolUtils;
 
+import com.energyict.dialer.connection.Connection;
+import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 
-/**
- * Implements the IEC1107 HHU sign on. This does the baud rate switching procedure.
- * Use this for all protocolimplV2 protocols.
- * <p/>
- * Only the sign on is currently implemented, feel free to complete this class :)
- * <p/>
- * Copyrights EnergyICT
- * Date: 8/11/13
- * Time: 12:27
- * Author: khe
- */
 public class IEC1107HHUSignOn implements HHUSignOnV2 {
 
     private final SerialComChannel comChannel;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.waveflow.hydreka.radiocommand;
 
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
@@ -8,12 +12,6 @@ import com.energyict.protocolimpl.coronis.waveflow.hydreka.GenericHeader;
 import java.io.IOException;
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * Date: 19/12/12
- * Time: 14:33
- * Author: khe
- */
 public class DailyHydrekaDataReading extends AbstractRadioCommand {
 
     private Date leakageDetectionDate;

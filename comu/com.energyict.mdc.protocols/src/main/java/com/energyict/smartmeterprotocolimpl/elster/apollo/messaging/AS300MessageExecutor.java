@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
 import com.elster.jupiter.calendar.CalendarService;
@@ -57,11 +61,6 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 8-aug-2011
- * Time: 15:02:14
- */
 @StoresConfigurationInformationInSystemGlobalFile
 public class AS300MessageExecutor extends MessageParser {
 

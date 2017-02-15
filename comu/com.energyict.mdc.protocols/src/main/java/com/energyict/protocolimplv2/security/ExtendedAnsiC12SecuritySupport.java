@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.security;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -18,14 +22,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Provides general security <b>capabilities</b> for an Ansi C12 protocol with
- * <i>extended security functionality</i>
- * <p/>
- * Copyrights EnergyICT
- * Date: 28/01/13
- * Time: 11:30
- */
 public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
 
     private final Thesaurus thesaurus;

@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
 import com.energyict.mdc.common.interval.IntervalStateBits;
+
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 24/01/12
- * Time: 9:09
- */
 public class IskraMx372ProfileIntervalStatusBits implements ProfileIntervalStatusBits {
 
     static final int DEVICE_ERROR = 0x01;   // PROFILE_STATUS_DEVICE_DISTURBANCE

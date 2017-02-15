@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms;
 
 import com.energyict.mdc.common.NestedIOException;
@@ -10,11 +14,6 @@ import com.energyict.protocols.mdc.inbound.general.MeterTypeImpl;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 5/22/12
- * Time: 2:47 PM
- */
 public class IF2HHUSignon implements HHUSignOn {
 
     /**

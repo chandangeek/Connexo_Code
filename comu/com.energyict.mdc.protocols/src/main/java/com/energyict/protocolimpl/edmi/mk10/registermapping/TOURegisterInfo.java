@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ObisCodeInfo.java
  *
  * Created on 24 maart 2006, 11:17

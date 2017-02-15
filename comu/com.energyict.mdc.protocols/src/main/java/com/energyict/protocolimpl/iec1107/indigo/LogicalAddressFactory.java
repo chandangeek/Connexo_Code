@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * LogicalAddressFactory.java
  *
  * Created on 6 juli 2004, 19:07
@@ -7,6 +11,7 @@
 package com.energyict.protocolimpl.iec1107.indigo;
 
 import com.energyict.mdc.protocol.api.MeterExceptionInfo;
+
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 import java.io.IOException;

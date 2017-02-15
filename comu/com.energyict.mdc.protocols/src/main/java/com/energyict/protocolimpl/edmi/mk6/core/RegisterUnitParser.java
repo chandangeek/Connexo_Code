@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * RegisterUnitParser.java
  *
  * Created on 22 maart 2006, 11:29

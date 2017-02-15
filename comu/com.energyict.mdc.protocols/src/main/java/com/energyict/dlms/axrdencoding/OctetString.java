@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * OctetString.java
  * Created on 16 oktober 2007, 11:35
  * To change this template, choose Tools | Options and locate the template under
@@ -8,11 +12,12 @@
 
 package com.energyict.dlms.axrdencoding;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.ProtocolException;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 import java.math.BigDecimal;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common;
 
 import com.elster.jupiter.calendar.CalendarService;
@@ -25,11 +29,6 @@ import java.time.Clock;
 import java.util.Date;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * Date: 18/07/11
- * Time: 13:57
- */
 @Deprecated //Never released, technical class
 public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
 

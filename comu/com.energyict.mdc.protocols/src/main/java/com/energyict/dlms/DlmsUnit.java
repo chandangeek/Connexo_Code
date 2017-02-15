@@ -1,19 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms;
 
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Unit;
 
-/**
- * This enum contains the mapping between DLMS unit codes and the EIServer event codes.
- * Most values map 1v1 but there are some exceptions. This class can be used safely to translate
- * from DLMS to EIServer without worrying about these exceptions. It also simplifies the mapping
- * if there are new units added to the blue book or EIServer (single point of changes).
- * <p/>
- * Copyrights EnergyICT
- * Date: 27/12/11
- * Time: 10:23
- */
 public enum DlmsUnit {
 
     YEAR(1, BaseUnit.YEAR),

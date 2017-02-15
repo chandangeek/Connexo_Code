@@ -1,17 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.valuefactory;
 
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.ProRegister;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 20/05/11
- * Time: 14:41
- */
 public class FloatValueFactory extends AbstractSingleValueFactory {
 
     public FloatValueFactory(String obisCode, CewePrometer proMeter, ProRegister register) {

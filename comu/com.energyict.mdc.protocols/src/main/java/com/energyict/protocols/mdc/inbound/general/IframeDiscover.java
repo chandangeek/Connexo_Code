@@ -1,5 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.inbound.general;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.issues.IssueService;
@@ -7,9 +13,6 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
 import com.energyict.mdc.protocol.api.inbound.IdentificationFactory;
-
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.ProtocolInstantiator;
@@ -17,15 +20,6 @@ import com.energyict.protocols.util.ProtocolInstantiator;
 import javax.inject.Inject;
 import java.time.Clock;
 
-/**
- * In the case of IDiscover, a meter opens an inbound connection to the comserver but it doesn't send any frames.
- * We send a request (I frame) for identification to know which Device and schedule has to be executed.
- * Extra requests are sent in the normal protocol session to fetch meter data.
- * <p/>
- * Copyrights EnergyICT
- * Date: 21/06/12
- * Time: 14:50
- */
 public class IframeDiscover extends AbstractDiscover {
 
     private final Clock clock;

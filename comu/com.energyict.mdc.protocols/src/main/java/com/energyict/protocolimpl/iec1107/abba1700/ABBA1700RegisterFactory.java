@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ABBA1700RegisterFactory.java
  *
  * Created on 17 juni 2003, 10:27
@@ -11,8 +15,9 @@ package com.energyict.protocolimpl.iec1107.abba1700;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.MeterExceptionInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 

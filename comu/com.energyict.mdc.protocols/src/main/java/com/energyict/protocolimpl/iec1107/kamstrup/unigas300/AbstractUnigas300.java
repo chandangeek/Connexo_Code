@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.iec1107.kamstrup.unigas300;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -28,11 +32,6 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 6-dec-2010
- * Time: 9:28:03
- */
 public abstract class AbstractUnigas300 extends PluggableMeterProtocol implements ProtocolLink, RegisterProtocol {
 
     private Logger logger;

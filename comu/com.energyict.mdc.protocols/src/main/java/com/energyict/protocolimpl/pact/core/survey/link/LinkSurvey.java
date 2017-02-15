@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * LinkSurvey.java
  *
  * Created on 11 maart 2004, 14:00

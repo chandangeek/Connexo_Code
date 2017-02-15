@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.object;
 
 import com.energyict.mdc.common.BaseUnit;
@@ -16,12 +20,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.primitive.CTRPrimitiveConv
 import java.math.BigDecimal;
 import java.util.Arrays;
 
-/**
- * Parent class for all CTR Objects.
- * Copyrights EnergyICT
- * Date: 21-sep-2010
- * Time: 10:51:36
- */
 public abstract class AbstractCTRObject<T extends AbstractCTRObject> {
 
     protected static final BigDecimal DEFAULT_OVERFLOW = BigDecimal.ZERO;

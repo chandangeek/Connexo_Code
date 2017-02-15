@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.messaging.examples;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimpl.messaging.AnnotatedMessage;
 import com.energyict.protocolimpl.messaging.RtuMessageAttribute;
 import com.energyict.protocolimpl.messaging.RtuMessageDescription;
@@ -10,11 +15,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.TimeZone;
 
-/**
- * Copyrights EnergyICT
- * Date: 6/6/12
- * Time: 11:16 PM
- */
 @RtuMessageDescription(category = "Test messages", tag = "TestMessage", description = "Test message 1", advanced = true)
 public interface TestMessage extends AnnotatedMessage {
 

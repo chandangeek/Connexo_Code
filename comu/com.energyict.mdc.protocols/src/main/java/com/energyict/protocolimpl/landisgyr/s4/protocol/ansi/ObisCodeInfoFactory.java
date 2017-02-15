@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ObisCodeInfoFactory.java
  *
  * Created on July 2006
@@ -13,9 +17,10 @@ package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
 import com.energyict.protocolimpl.ansi.c12.tables.ActualRegisterTable;
 import com.energyict.protocolimpl.ansi.c12.tables.DataBlock;
 import com.energyict.protocolimpl.ansi.c12.tables.RegisterData;

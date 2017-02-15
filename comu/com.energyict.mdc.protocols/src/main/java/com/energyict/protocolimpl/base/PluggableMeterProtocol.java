@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.base;
 
 import com.energyict.mdc.common.TypedProperties;
@@ -5,16 +9,7 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.legacy.dynamic.Pluggable;
 
-/**
- * Abstract Class to map certain <i>new</i> functionality for existing protocols.
- * Introduced after we made MeterProtocol {@link Pluggable}.
- *
- * Copyrights EnergyICT
- * Date: 3/07/12
- * Time: 13:32
- */
 public abstract class PluggableMeterProtocol implements MeterProtocol {
 
     private final PropertySpecService propertySpecService;

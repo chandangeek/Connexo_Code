@@ -1,19 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.iec1107.abba230;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.TimeZone;
-
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 3/01/12
- * Time: 15:34
- */
 
 public class ABBA230InstrumentationProfileEntry implements ABBA230ProfileEntry {
 

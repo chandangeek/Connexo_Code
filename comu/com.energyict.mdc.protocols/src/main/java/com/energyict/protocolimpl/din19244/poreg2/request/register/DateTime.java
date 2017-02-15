@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.request.register;
 
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
@@ -10,13 +14,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Class to read the device clock
- *
- * Copyrights EnergyICT
- * Date: 20-apr-2011
- * Time: 14:10:28
- */
 public class DateTime extends AbstractRegister {
 
 

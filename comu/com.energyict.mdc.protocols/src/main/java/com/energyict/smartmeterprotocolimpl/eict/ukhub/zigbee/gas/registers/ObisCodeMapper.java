@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.registers;
 
 import com.energyict.mdc.common.ObisCode;
@@ -12,11 +16,6 @@ import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ObisCodeProvid
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Copyrights EnergyICT
- * Date: 25/07/11
- * Time: 9:50
- */
 public class ObisCodeMapper {
 
     public static final Map<ObisCode, DLMSAttribute> ABSTRACT_REGISTER = new HashMap<ObisCode, DLMSAttribute>();

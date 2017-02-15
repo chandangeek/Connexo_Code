@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.common.topology;
 
-/**
- * Copyrights EnergyICT
- * Date: 28-apr-2010
- * Time: 15:49:10
- */
 public class DeviceMapping {
 
     private final String serialNumber;

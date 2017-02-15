@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling.groups;
 
 import com.energyict.dlms.DataContainer;
@@ -5,13 +9,6 @@ import com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling.Abstrac
 
 import java.util.TimeZone;
 
-/**
- * Contains all events related to voltage variations, e.g. changes of voltage under or over a threshold of Vn for non finished events
- * <br/>
- * Copyrights EnergyICT<br/>
- * Date: 6-dec-2010<br/>
- * Time: 15:15:20<br/>
- */
 public class PowerQualityNotFinishedEvents extends AbstractEvent {
 
     private static final int PowerQualityNotFinishedGroup = 3;

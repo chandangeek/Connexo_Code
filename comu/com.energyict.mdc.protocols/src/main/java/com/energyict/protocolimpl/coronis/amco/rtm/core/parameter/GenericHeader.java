@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
 import com.energyict.mdc.common.Unit;
@@ -10,11 +14,6 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 24/08/11
- * Time: 14:54
- */
 public class GenericHeader {
 
     private static final int INITIAL_BATTERY_LIFE_COUNT_SRTM_AND_EVOHOP = 0xF7F490;

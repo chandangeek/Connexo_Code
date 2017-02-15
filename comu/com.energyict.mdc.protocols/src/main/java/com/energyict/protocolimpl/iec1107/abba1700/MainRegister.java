@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * MainRegister.java
  *
  * Created on 14 juni 2004, 13:05

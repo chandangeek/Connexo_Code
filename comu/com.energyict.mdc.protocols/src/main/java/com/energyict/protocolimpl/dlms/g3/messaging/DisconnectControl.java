@@ -1,16 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.g3.messaging;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 6/29/12
- * Time: 4:09 PM
- */
 public class DisconnectControl {
 
     public static final ObisCode DISCONNECT_OBIS = ObisCode.fromString("0.0.96.3.10.255");

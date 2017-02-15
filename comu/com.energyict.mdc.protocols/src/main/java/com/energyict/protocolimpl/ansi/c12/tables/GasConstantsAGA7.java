@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * GasConstantsAGA7.java
  *
  * Created on 27 oktober 2005, 10:43

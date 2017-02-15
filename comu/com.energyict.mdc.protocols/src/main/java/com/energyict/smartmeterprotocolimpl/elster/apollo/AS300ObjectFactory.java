@@ -1,4 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
+
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.cosem.AbstractCosemObject;
@@ -15,19 +22,10 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SpecialDaysTable;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * The ObjectFactory provides and serves all objects required for the protocol.
- * <p/>
- * Copyrights EnergyICT
- * Date: 26-nov-2010
- * Time: 11:28:56
- */
 public class AS300ObjectFactory {
 
     /**

@@ -1,19 +1,22 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
 
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.attributes.UplinkPingConfigurationAttributes;
-import com.energyict.dlms.cosem.methods.UplinkPingConfigurationMethods;
 import com.energyict.mdc.common.ObisCode;
 
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.NullData;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.cosem.attributes.UplinkPingConfigurationAttributes;
+import com.energyict.dlms.cosem.methods.UplinkPingConfigurationMethods;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 9/27/12
- * Time: 10:51 AM
- */
 public class UplinkPingConfiguration extends AbstractCosemObject {
 
     public static final ObisCode OBIS_CODE = ObisCode.fromString("0.0.128.0.7.255");

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.impl.channels.ip.datagrams;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -9,7 +13,6 @@ import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
-import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionProperties;
 import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionType;
@@ -21,13 +24,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-/**
- * Provides an implementation for the {@link ConnectionType} interface for UDP.
- * <p>
- * Copyrights EnergyICT
- * Date: 9/11/12
- * Time: 11:20
- */
 public class OutboundUdpConnectionType extends OutboundIpConnectionType {
 
     private final SocketService socketService;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.g3.registers;
 
 import com.energyict.mdc.common.ObisCode;
@@ -16,12 +20,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-/**
- * Copyrights EnergyICT
- * Date: 28/03/13
- * Time: 15:04
- * Author: khe
- */
 public class G3StoredValues extends DLMSStoredValues {
 
     private final TimeZone timeZone;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.security;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -23,13 +27,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Provides general security <b>capabilities</b> for an Ansi C12 protocol
- * <p/>
- * Copyrights EnergyICT
- * Date: 21/01/13
- * Time: 12:02
- */
 public class AnsiC12SecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";

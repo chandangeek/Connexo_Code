@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * CommandDescriptor.java
  *
  * Created on 27 juli 2006, 10:31

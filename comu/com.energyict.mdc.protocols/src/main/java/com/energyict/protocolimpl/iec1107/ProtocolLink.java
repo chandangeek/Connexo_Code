@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ProtocolLink.java
  *
  * Created on 25 april 2003, 9:27
@@ -7,6 +11,7 @@
 package com.energyict.protocolimpl.iec1107;
 
 import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 
 import java.io.IOException;

@@ -1,13 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.core;
 
-/**
- * Enum containing all common data types.
- * They all have a length, an ID and a signed indicator (boolean).
- *
- * Copyrights EnergyICT
- * Date: 21-apr-2011
- * Time: 14:45:09
- */
 public enum DataType {
 
     Invalid(0, 0, false),

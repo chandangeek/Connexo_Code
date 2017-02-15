@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.structure;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -9,11 +13,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRAbstractVa
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.NumberOfObjects;
 
-/**
- * Copyrights EnergyICT
- * Date: 8-okt-2010
- * Time: 16:26:00
- */
 public class RegisterQueryRequestStructure extends Data<RegisterQueryRequestStructure> {
 
     private CTRAbstractValue<String> pssw;

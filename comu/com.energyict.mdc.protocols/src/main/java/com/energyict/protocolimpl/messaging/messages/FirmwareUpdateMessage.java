@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.messaging.messages;
 
 import com.energyict.protocolimpl.messaging.AnnotatedMessage;
 import com.energyict.protocolimpl.messaging.RtuMessageAttribute;
 import com.energyict.protocolimpl.messaging.RtuMessageDescription;
 
-/**
- * Copyrights EnergyICT
- * Date: 6/29/12
- * Time: 2:49 PM
- */
 @RtuMessageDescription(
         category = "Miscellaneous",
         description = "Firmware update",

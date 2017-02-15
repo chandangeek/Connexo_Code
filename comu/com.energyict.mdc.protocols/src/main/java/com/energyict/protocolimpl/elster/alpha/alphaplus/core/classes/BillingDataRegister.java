@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * BillingDataRegister.java
  *
  * Created on 20 juli 2005, 9:24

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * AuthenticationReqAPSE.java
  *
  * Created on 15 februari 2007, 11:59
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.edf.trimarandlms.dlmscore;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu.InitiateResponse;
 
 import java.io.ByteArrayOutputStream;

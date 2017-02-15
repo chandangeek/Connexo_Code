@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
 import com.elster.jupiter.calendar.Calendar;
@@ -16,11 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-/**
- * Copyrights EnergyICT
- * Date: 4/04/11
- * Time: 14:34
- */
 public class CodeCalendarObject implements Serializable {
 
     private long codeId;

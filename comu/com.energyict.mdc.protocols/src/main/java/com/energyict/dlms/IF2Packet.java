@@ -1,13 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 5/16/12
- * Time: 11:08 AM
- */
 class IF2Packet {
 
     public static int ST = 0x0F0;

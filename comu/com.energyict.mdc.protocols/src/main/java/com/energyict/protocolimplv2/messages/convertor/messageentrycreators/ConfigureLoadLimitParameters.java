@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -12,11 +16,6 @@ import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 
-/**
- * Copyrights EnergyICT
- * Date: 3/04/13
- * Time: 11:24
- */
 public class ConfigureLoadLimitParameters implements MessageEntryCreator {
 
     private final String normalThresholdAttributeName;

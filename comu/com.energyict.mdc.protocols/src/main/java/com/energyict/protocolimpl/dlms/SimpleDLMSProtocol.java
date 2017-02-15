@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -62,13 +66,6 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * <p>
- * Copyrights EnergyICT
- * Date: 2-jul-2010
- * Time: 11:09:10
- * </p>
- */
 public class SimpleDLMSProtocol extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, CacheMechanism {
 
     @Override

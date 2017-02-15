@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.elgama;
 
 import com.energyict.mdc.common.NestedIOException;
@@ -5,18 +9,14 @@ import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.inbound.MeterType;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocols.mdc.inbound.general.MeterTypeImpl;
+
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-/**
- * Copyrights EnergyICT
- * Date: 21-dec-2010
- * Time: 12:04:28
- */
 public class OpticalHHUConnection implements HHUSignOn {
 
     public static final int[] BAUDRATES = {300, 600, 1200, 2400, 4800, 9600, 19200};

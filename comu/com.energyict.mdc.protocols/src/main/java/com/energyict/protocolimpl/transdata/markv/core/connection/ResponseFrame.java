@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ResponseFrame.java
  *
  * Created on 9 augustus 2005, 16:47

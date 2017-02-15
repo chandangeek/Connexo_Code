@@ -1,8 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.api.crypto.MD5Seed;
-
+import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.security.MessageDigest;

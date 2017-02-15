@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * LogicalID.java
  *
  * Created on 3 november 2006, 16:47

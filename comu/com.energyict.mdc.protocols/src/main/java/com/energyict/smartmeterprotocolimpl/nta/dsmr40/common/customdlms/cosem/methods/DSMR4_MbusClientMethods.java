@@ -1,13 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.customdlms.cosem.methods;
 
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.methods.DLMSClassMethods;
 
-/**
- * Copyrights EnergyICT
- * Date: 31-aug-2011
- * Time: 14:50:30
- */
 public enum DSMR4_MbusClientMethods implements DLMSClassMethods {
 
     SLAVE_INSTALL(1, 0x78),

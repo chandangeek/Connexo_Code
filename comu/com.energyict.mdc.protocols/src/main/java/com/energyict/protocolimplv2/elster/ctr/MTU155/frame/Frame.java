@@ -1,13 +1,19 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.frame;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.Field;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.*;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Address;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Channel;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Cpa;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Crc;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Data;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.FunctionCode;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Profi;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.StructureCode;
 
-/**
- * Copyrights EnergyICT
- * Date: 27-sep-2010
- * Time: 8:32:29
- */
 public interface Frame<T extends Frame> extends Field<T> {
 
     Address getAddress();

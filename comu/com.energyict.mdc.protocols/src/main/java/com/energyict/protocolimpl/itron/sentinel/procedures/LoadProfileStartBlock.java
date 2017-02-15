@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * LoadProfileStartBlock.java
  *
  * Created on 9 december 2005, 21:04
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.itron.sentinel.procedures;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.ansi.c12.procedures.AbstractProcedure;
 import com.energyict.protocolimpl.ansi.c12.procedures.ProcedureFactory;
 import com.energyict.protocolimpl.ansi.c12.procedures.ProcedureIdentification;

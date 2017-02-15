@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.abnt.common;
 
 import com.elster.jupiter.cbo.MessageSeeds;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.io.CommunicationException;
@@ -9,11 +14,10 @@ import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
 
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 import com.energyict.protocolimplv2.abnt.common.field.AbstractField;
 import com.energyict.protocolimplv2.abnt.common.field.BcdEncodedField;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.security;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -10,17 +14,6 @@ import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * If a protocol has this access level in its list of supported access levels,
- * it means that it's a slave device and it can inherit the security properties of its master device.
- * <p/>
- * Note that there's a copy of this class in comserver-core-impl, so it can be used by the adapters
- * <p/>
- * Copyrights EnergyICT
- * Date: 16/05/14
- * Time: 15:44
- * Author: khe
- */
 public class InheritedAuthenticationDeviceAccessLevel implements AuthenticationDeviceAccessLevel {
 
     private final Thesaurus thesaurus;

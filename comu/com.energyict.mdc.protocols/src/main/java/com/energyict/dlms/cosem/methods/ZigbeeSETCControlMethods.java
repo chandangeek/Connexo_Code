@@ -1,20 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem.methods;
 
 import com.energyict.dlms.cosem.DLMSClassId;
 
-/**
- * Contains functionality to access methods of the Zigbee CETS control object (independent whether or not shortName or logicalNames are used)
- * <br/>
- *
- * <p><b>
- * TODO the SN method numbering is purely based on logical sequence numbering. This object is not defined in the BlueBook yet, <br>
- * TODO so additional methods may be added in the future
- *</b></p>
- *
- * Copyrights EnergyICT<br/>
- * Date: 22-jul-2011<br/>
- * Time: 15:27:10<br/>
- */
 public enum ZigbeeSETCControlMethods implements DLMSClassMethods {
 
     REGISTER_DEVICE(1, 0x18),

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology;
 
 import com.energyict.mdc.common.ObisCode;
@@ -24,11 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * Date: 14-jul-2011
- * Time: 16:56:32
- */
 public class MeterTopology implements MasterMeter {
 
     protected static final ObisCode MBUS_CLIENT_OBIS_CODE = ObisCode.fromString("0.0.24.1.0.255");

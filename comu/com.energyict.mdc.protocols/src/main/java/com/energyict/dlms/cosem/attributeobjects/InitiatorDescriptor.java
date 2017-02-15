@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem.attributeobjects;
+
+import com.energyict.protocols.util.ProtocolUtils;
 
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 

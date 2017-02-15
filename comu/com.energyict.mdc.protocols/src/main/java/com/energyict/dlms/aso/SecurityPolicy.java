@@ -1,11 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.aso;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 5/02/2016 - 14:38
- */
 public class SecurityPolicy {
 
     //The suite 0 policies

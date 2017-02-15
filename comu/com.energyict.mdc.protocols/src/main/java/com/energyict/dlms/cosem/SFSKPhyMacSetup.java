@@ -1,4 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
+
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.RegisterReadable;
@@ -14,8 +21,6 @@ import com.energyict.dlms.cosem.attributeobjects.MacAddress;
 import com.energyict.dlms.cosem.attributeobjects.MacAddressList;
 import com.energyict.dlms.cosem.attributeobjects.Repeater;
 import com.energyict.dlms.cosem.attributes.SFSKPhyMacSetupAttribute;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import java.io.IOException;
 

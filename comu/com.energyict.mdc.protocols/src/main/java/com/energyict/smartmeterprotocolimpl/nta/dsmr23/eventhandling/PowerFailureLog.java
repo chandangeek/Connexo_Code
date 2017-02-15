@@ -1,13 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling;
+
+import com.energyict.mdc.protocol.api.ProtocolException;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
-import com.energyict.mdc.protocol.api.ProtocolException;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;

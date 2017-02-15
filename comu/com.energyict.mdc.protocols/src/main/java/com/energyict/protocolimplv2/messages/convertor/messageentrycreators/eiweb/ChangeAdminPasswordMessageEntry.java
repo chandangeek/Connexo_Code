@@ -1,20 +1,19 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagWriter;
 
-/**
- * Copyrights EnergyICT
- * Date: 12/03/13
- * Time: 14:59
- */
 public class ChangeAdminPasswordMessageEntry extends AbstractEIWebMessageEntry {
 
     private static final String LEGACY_ADMINOLD_TAG = "AdminOld";

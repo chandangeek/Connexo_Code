@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.idis.am130.registers;
 
 import com.energyict.mdc.common.BaseUnit;
@@ -59,12 +63,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 5/01/2015 - 11:13
- */
 public class AM130RegisterFactory implements DeviceRegisterSupport {
 
     protected static final int BULK_REQUEST_ATTRIBUTE_LIMIT = 16;  //The number of attributes in a bulk request should be smaller than 16.

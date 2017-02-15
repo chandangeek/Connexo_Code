@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * RegisterMap.java
  *
  * Created on 9 januari 2007, 17:11

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * SEVCIEC1107ConnectionException.java
  *
  * Created on 27 september 2002, 15:26

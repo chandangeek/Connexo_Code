@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages;
 
 import com.elster.jupiter.calendar.CalendarService;
@@ -22,15 +26,6 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * <p/>
- * This class is a combination of the G3 PLC message functionality (using the annotated framework) and the
- * DSMR4.0 messages (using the old XML framework).
- *
- * @author khe
- * @since 5/06/2014 - 14:38
- */
 public class AM540Messaging extends G3Messaging {
 
     /**

@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.modbus.enerdis.enerium200.profile;
 
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.ProtocolException;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.TimeDateParser;
 

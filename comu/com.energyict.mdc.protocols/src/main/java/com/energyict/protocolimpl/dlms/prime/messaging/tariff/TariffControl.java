@@ -1,4 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.prime.messaging.tariff;
+
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -6,11 +16,6 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 import com.energyict.protocolimpl.dlms.prime.messaging.PrimeMessageExecutor;
 import com.energyict.protocolimpl.dlms.prime.messaging.tariff.xml.B04;
 import com.energyict.protocolimpl.dlms.prime.messaging.tariff.xml.Contract;
@@ -22,11 +27,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * Date: 27/02/12
- * Time: 14:32
- */
 public class TariffControl extends PrimeMessageExecutor {
 
     private static final String WRITE_CONTRACTS = "WriteContracts";

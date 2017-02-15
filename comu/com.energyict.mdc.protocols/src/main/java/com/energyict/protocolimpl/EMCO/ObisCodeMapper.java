@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.EMCO;
 
 import com.energyict.mdc.common.BaseUnit;
@@ -25,16 +29,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
 
-/**
- * ObisCodeMapper
- * Provides a mapping between all the device registers and their obiscode.
- *
- * Copyrights EnergyICT
- * User: sva
- * Date: 21/02/12
- * Time: 9:22
- *
- */
 public class ObisCodeMapper {
 
     private List<RegisterMapping> registerMapping = new ArrayList<>();

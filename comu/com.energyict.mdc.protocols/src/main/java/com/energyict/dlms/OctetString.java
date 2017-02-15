@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * OctetString.java
  *
  * Created on 3 april 2003, 17:23
@@ -6,9 +10,10 @@
 
 package com.energyict.dlms;
 
-import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 
 import java.io.Serializable;
 import java.util.Calendar;

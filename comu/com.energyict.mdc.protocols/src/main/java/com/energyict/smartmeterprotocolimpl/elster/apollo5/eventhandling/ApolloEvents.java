@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
@@ -6,13 +10,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Straightforward summary fo the available ApolloEvents.
- * (actually this list comes from the <i>Apollo 5 Documentation.xls</i>)
- * <p/>
- * <br/>
- * Copyrights EnergyICT<br/>
- */
 public enum ApolloEvents {
 
     /**

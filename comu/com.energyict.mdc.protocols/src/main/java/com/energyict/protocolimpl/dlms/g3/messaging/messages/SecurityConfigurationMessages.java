@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.g3.messaging.messages;
 
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
@@ -5,11 +9,6 @@ import com.energyict.protocolimpl.messaging.AnnotatedMessage;
 import com.energyict.protocolimpl.messaging.RtuMessageAttribute;
 import com.energyict.protocolimpl.messaging.RtuMessageDescription;
 
-/**
- * Copyrights EnergyICT
- * Date: 7/13/12
- * Time: 11:02 AM
- */
 public interface SecurityConfigurationMessages {
 
     String SECURITY_CONFIGURATION = "Security configuration";

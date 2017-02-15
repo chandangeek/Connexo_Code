@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.g3;
 
 import com.elster.jupiter.calendar.CalendarService;
@@ -39,11 +43,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * Date: 21/03/12
- * Time: 10:32
- */
 public class AS330D extends AbstractDlmsSessionProtocol implements DeviceBasicSupport {
 
     private static final String TIMEOUT = "timeout";

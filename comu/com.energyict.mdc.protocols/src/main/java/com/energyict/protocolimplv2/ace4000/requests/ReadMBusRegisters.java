@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.ace4000.requests;
 
 import com.energyict.mdc.common.ComServerExecutionException;
@@ -14,12 +18,6 @@ import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCode
 
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 12/11/12
- * Time: 14:00
- * Author: khe
- */
 public class ReadMBusRegisters extends AbstractRequest<List<OfflineRegister>, List<CollectedRegister>> {
 
     private final CollectedDataFactory collectedDataFactory;

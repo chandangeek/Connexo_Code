@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * S4Profile.java
  *
  * Created on 6 juni 2006, 15:11
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom;
 
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
+
 import com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command.LoadProfileDataCommand;
 
 import java.io.IOException;

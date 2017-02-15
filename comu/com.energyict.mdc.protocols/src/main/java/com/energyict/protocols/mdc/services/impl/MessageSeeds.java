@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.services.impl;
 
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -5,11 +9,6 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * Date: 16/05/14
- * Time: 09:12
- */
 public enum MessageSeeds implements MessageSeed {
 
     PROTOCOL_IO_PARSE_ERROR(206, "dataParseException.protocolIOError", "Protocol parse error: {0}.", Level.SEVERE),

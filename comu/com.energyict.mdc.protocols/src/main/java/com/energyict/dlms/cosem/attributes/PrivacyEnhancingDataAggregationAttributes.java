@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem.attributes;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.mdc.common.ObisCode;
 
 public enum PrivacyEnhancingDataAggregationAttributes implements DLMSClassAttributes {
 

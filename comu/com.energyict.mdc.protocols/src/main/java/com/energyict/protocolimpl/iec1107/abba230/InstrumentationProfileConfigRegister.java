@@ -1,19 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.iec1107.abba230;
 
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 3/01/12
- * Time: 15:41
- */
 
 public class InstrumentationProfileConfigRegister implements ProfileConfigRegister {
 

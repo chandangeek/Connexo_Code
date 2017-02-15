@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
 import com.energyict.mdc.issues.IssueService;
@@ -20,12 +24,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.WriteDataB
 
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 3/07/12
- * Time: 10:25
- */
 public class IPSetupMessage extends AbstractMTU155Message {
 
     private static final CTRObjectID OBJECT_ID = new CTRObjectID("E.3.2");

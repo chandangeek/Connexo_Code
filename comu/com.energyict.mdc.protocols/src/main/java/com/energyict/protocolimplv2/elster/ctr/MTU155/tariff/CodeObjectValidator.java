@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects.CodeCalendarObject;
@@ -11,11 +15,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects.SeasonTrans
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 11/04/11
- * Time: 10:12
- */
 public class CodeObjectValidator {
 
     private static final String[] SEASON_NAMES = new String[]{

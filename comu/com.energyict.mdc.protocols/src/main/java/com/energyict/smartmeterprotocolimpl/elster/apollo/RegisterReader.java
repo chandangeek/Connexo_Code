@@ -1,4 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
+
+import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.Register;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSCOSEMGlobals;
@@ -14,14 +27,6 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.PrivacyEnhancingDataAggregation;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
-import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.Register;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedRegister;
 
@@ -33,11 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * Date: 26-nov-2010
- * Time: 9:53:09
- */
 public class RegisterReader {
 
     public static final ObisCode ActivityCalendarNameObisCode = ObisCode.fromString("0.0.13.0.1.255");

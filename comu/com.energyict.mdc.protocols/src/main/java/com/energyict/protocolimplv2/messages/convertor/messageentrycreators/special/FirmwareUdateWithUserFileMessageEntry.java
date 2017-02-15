@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -6,22 +10,12 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribu
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
+
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagWriter;
 
-/**
- * Creates a MessageEntry for the protocols that implement the FirmwareUpdateMessaging interface.
- * The content of the message is the path to the temp file, representing the FirmwareVersion bytes.
- * The message is parsed by the FirmwareUpdateMessageBuilder.
- * <p>
- * E.g.: <FirmwareUpdate><IncludedFile>path</IncludedFile></FirmwareUpdate>
- * <p>
- * Copyrights EnergyICT
- * Date: 12/03/13
- * Time: 16:54
- */
 public class FirmwareUdateWithUserFileMessageEntry implements MessageEntryCreator {
 
     private final String userFileBytesAttributeName;

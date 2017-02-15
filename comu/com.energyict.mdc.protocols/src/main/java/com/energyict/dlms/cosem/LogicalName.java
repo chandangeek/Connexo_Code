@@ -1,12 +1,18 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * LogicalName.java
  *
  * Created on 18 augustus 2004, 17:24
  */
 
 package com.energyict.dlms.cosem;
-import com.energyict.dlms.OctetString;
+
 import com.energyict.mdc.common.ObisCode;
+
+import com.energyict.dlms.OctetString;
 
 /**
  *

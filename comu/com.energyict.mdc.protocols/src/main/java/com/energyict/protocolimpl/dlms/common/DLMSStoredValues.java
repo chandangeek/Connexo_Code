@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.common;
 
 import com.energyict.mdc.common.ObisCode;
@@ -22,12 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 23/04/12
- * Time: 9:12
- */
 public class DLMSStoredValues implements StoredValues {
 
     public static final ObisCode CLOCK_OBIS = ObisCode.fromString("0.0.1.0.0.255");

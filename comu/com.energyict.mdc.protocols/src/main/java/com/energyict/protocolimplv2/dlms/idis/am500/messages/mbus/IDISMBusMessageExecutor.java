@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus;
 
 
@@ -29,12 +33,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 6/01/2015 - 15:31
- */
 public class IDISMBusMessageExecutor extends AbstractMessageExecutor {
 
     protected static final ObisCode DISCONNECTOR_SCRIPT_MBUS_OBISCODE = ObisCode.fromString("0.1.10.0.106.255");

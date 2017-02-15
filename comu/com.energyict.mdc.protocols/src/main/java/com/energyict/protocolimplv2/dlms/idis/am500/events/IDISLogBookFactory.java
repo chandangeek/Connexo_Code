@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.idis.am500.events;
 
 
@@ -34,15 +38,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * <p/>
- * Supports both the e-meter and MBus meter logbooks.
- * Note that in EIServer, they should be configured on the proper master and slave devices.
- *
- * @author khe
- * @since 6/01/2015 - 9:42
- */
 public class IDISLogBookFactory implements DeviceLogBookSupport {
 
     protected static ObisCode DISCONNECTOR_CONTROL_LOG = ObisCode.fromString("0.0.99.98.2.255");

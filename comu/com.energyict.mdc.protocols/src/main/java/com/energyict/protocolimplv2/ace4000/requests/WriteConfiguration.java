@@ -1,17 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.ace4000.requests;
 
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
+
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
 
-/**
- * Copyrights EnergyICT
- * Date: 12/11/12
- * Time: 14:00
- * Author: khe
- */
 public class WriteConfiguration extends AbstractRequest<MessageEntry, MessageResult> {
 
     private int trackingId = -1;

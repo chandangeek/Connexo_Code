@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * AbstractReplyError.java
  *
  * Created on 4 december 2006, 13:58

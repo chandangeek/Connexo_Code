@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * Class8FirmwareConfiguration.java
  *
  * Created on 12 juli 2005, 13:53
@@ -12,6 +16,7 @@ package com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes;
 
 import com.energyict.mdc.common.Unit;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 
 import java.io.IOException;

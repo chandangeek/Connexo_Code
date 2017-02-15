@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.iec1107.ppmi1;
 
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
+
 import com.energyict.protocolimpl.iec1107.ppmi1.opus.OpusProfile;
 import com.energyict.protocolimpl.iec1107.ppmi1.parser.ProfileParser;
 import com.energyict.protocolimpl.iec1107.ppmi1.parser.ProfileReverseParser;

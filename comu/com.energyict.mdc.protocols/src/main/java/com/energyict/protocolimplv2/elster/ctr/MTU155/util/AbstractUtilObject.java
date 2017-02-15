@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.util;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
 
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 14-okt-2010
- * Time: 16:27:51
- */
 public abstract class AbstractUtilObject {
 
     private final RequestFactory requestFactory;

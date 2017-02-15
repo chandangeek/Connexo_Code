@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 
 import java.math.BigDecimal;
 
-/**
- * Copyrights EnergyICT
- * Date: 4-jan-2011
- * Time: 8:34:59
- */
 public class DataAccessResultType extends AbstractDataType {
 
     private final DataAccessResultCode dataAccessResultCode;

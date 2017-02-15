@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.structure;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -12,11 +16,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Identifica
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 6-okt-2010
- * Time: 15:47:10
- */
 public class IdentificationResponseStructure extends AbstractTableQueryResponseStructure<IdentificationResponseStructure> {
 
     private static final List<String> CAPTURED_OBJECTS;

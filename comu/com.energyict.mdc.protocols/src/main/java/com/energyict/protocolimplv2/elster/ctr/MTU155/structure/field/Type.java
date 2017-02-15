@@ -1,15 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
 
-/**
- * Class for the Type field in a CTR Structure Object
- * Copyrights EnergyICT
- * Date: 8-okt-2010
- * Time: 16:39:27
- * Contains the used format in the data array. E.g.: qlf (1 byte), val (128 bytes)
- */
 public class Type extends AbstractField<Type> {
 
     private int type;

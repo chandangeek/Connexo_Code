@@ -1,15 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
 import com.energyict.mdc.common.Quantity;
+
 import com.energyict.protocolimplv2.elster.ctr.MTU155.info.MeterType;
 
 import java.math.BigDecimal;
 
-/**
- * Copyrights EnergyICT
- * Date: 18/02/11
- * Time: 11:01
- */
 public class DigitsCalculator {
 
     private static final int DEF_METER_NUMBER_OF_DIGITS = 8;

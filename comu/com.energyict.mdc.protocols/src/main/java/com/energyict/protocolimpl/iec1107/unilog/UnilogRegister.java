@@ -1,14 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.iec1107.unilog;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimpl.iec1107.vdew.VDEWRegister;
 
-/**
- * Copyrights EnergyICT
- * Date: 8-dec-2010
- * Time: 10:21:47
- */
 public class UnilogRegister {
 
     private final String name;

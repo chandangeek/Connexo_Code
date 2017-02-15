@@ -1,21 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  *
  */
 package com.energyict.dlms.cosem.attributes;
 
 
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.mdc.common.ObisCode;
 
-/**
- * /**
- * Copyrights EnergyICT
- * Date: 19/03/12
- * Time: 16:59
- *
- * @author jme
- */
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.cosem.DLMSClassId;
+
 public enum PLCOFDMType2MACSetupAttribute implements DLMSClassAttributes {
 
     LOGICAL_NAME(1, 0x0000),

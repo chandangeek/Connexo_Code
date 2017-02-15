@@ -1,15 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
 import com.elster.jupiter.calendar.CalendarService;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.ParseUtils;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.*;
-import com.energyict.dlms.xmlparsing.GenericDataToWrite;
-import com.energyict.dlms.xmlparsing.XmlToDlms;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
@@ -53,7 +48,6 @@ import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
 import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ObisCodeProvider;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ZigbeeGas;
@@ -73,11 +67,6 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * Date: 10-aug-2011
- * Time: 15:02:34
- */
 @StoresConfigurationInformationInSystemGlobalFile
 public class ZigbeeMessageExecutor extends MessageParser {
 

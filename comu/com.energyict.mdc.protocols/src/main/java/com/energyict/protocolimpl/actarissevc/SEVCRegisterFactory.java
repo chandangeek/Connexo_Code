@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * SEVCRegisterFactory.java
  *
  * Created on 17 juni 2003, 11:33

@@ -1,13 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.common;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
 
-/**
- * AttributeType indicates the fields (Id, Qlf, Val, Access or Def) in a CTR object.
- * Copyrights EnergyICT
- * Date: 1-okt-2010
- * Time: 14:39:39
- */
 public class AttributeType extends AbstractField<AttributeType> {
 
     private static final int QUALIFIER_BIT = 0;

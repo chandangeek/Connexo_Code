@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
 import com.energyict.mdc.common.ObisCode;
@@ -54,12 +58,6 @@ import java.util.Optional;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 19/01/12
- * Time: 16:21
- */
 public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLink, MessageProtocol, WakeUpProtocolSupport {
 
     @Override

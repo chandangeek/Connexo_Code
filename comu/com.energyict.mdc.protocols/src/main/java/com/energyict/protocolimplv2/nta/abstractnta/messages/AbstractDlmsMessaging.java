@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.nta.abstractnta.messages;
 
 import com.elster.jupiter.calendar.Calendar;
@@ -9,12 +13,6 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-/**
- * Copyrights EnergyICT
- * Date: 22/11/13
- * Time: 14:16
- * Author: khe
- */
 public class AbstractDlmsMessaging {
 
     private final AbstractDlmsProtocol protocol;

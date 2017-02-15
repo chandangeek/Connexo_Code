@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.inbound.general;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -29,14 +33,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Abstract super class containing common elements (properties, connection,...) for the 3 discover protocols.
- * <p/>
- * Copyrights EnergyICT
- * Date: 22/06/12
- * Time: 16:50
- * Author: khe
- */
 public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
 
     private static final int TIMEOUT_DEFAULT = 10000;          //TODO are these defaults OK ?

@@ -1,13 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2;
 
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.IntervalValue;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.protocolimpl.din19244.poreg2.core.ExtendedValue;
 import com.energyict.protocolimpl.din19244.poreg2.request.ProfileDataEntry;
 import com.energyict.protocolimpl.din19244.poreg2.request.register.ProfileDescription;
@@ -20,11 +25,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 26-apr-2011
- * Time: 12:01:28
- */
 public class ProfileDataReader {
 
     private Poreg poreg;

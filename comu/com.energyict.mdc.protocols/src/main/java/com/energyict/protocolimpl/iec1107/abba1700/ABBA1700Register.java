@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ABBA1700Register.java
  *
  * Created on 24 april 2003, 17:29
@@ -7,6 +11,7 @@
 package com.energyict.protocolimpl.iec1107.abba1700;
 
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * DataBlock.java
  *
  * Created on 28 oktober 2005, 9:39

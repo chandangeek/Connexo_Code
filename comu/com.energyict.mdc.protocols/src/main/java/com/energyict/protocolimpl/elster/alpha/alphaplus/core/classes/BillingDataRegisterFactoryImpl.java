@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * BillingDataQuantities.java
  *
  * Created on 19 juli 2005, 14:13
@@ -13,6 +17,7 @@ package com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
 import com.energyict.protocolimpl.elster.alpha.core.classes.BillingDataRegisterFactory;
 
 import java.io.IOException;

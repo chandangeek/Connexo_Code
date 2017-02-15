@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.messaging;
 
 import com.energyict.protocols.util.TempFileLoader;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 

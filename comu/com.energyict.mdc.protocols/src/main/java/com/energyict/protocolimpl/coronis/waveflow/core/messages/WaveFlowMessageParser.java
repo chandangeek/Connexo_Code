@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.waveflow.core.messages;
 
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -12,6 +16,7 @@ import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
+
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 import com.energyict.protocolimpl.coronis.waveflow.hydreka.parameter.ParameterFactoryHydreka;
@@ -19,14 +24,6 @@ import com.energyict.protocolimpl.coronis.waveflow.hydreka.parameter.ParameterFa
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Class that parses and executes the messages for the WaveFlow V1, V2 and V210 protocol.
- * Only the implementation of getMessageCategories() is different for each protocol.
- * <p/>
- * Copyrights EnergyICT
- * Date: 18-mei-2011
- * Time: 15:38:34
- */
 public abstract class WaveFlowMessageParser implements MessageProtocol {
 
     WaveFlow waveFlow;

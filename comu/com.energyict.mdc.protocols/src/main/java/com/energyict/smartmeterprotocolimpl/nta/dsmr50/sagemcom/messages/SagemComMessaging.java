@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.messages;
 
 import com.elster.jupiter.calendar.CalendarService;
@@ -9,12 +13,6 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages.Dsm
 
 import java.time.Clock;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 3/10/2014 - 9:17
- */
 public class SagemComMessaging extends AM540Messaging {
 
     public SagemComMessaging(AM540 protocol, Clock clock, TopologyService topologyService, CalendarService calendarService) {

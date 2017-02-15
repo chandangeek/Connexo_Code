@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * Alpha.java
  *
  * Created on 27 september 2005, 13:20
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.elster.alpha.core;
 
 import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.elster.alpha.core.classes.BillingDataRegisterFactory;
 import com.energyict.protocolimpl.elster.alpha.core.connection.AlphaConnection;

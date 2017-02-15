@@ -1,16 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.object;
 
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 
 import java.math.BigDecimal;
 
-/**
- * Copyrights EnergyICT
- * Date: 15-okt-2010
- * Time: 9:42:46
- */
 public class CommercialParametersCategory extends AbstractUnsignedBINObject {
 
     public CommercialParametersCategory(CTRObjectID id) {

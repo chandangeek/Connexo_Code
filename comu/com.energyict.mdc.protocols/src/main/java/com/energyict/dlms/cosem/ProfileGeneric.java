@@ -1,10 +1,18 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ProfileGeneric.java
  *
  * Created on 17 augustus 2004, 17:17
  */
 
 package com.energyict.dlms.cosem;
+
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
@@ -15,9 +23,6 @@ import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 import java.util.ArrayList;

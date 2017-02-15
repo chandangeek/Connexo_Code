@@ -1,39 +1,22 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
+
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.attributes.Ipv6SetupAttributes;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 
-/**
- * <p>
- * Straightforward implementation of the IPv6 Setup class defined according to BlueBook 12
- * </p>
- * <p>
- * Information from BlueBook:
- * <p>
- * The IPv6 setup IC allows modelling the setup of the IPv6 layer, handling all information
- * related to the IPv6 address settings associated to a given device and to a lower layer
- * connection on which these settings are used.
- * <br/><br/>
- * There shall be an instance of this IC in a device for each different network interface
- * implemented. For example, if a device has two interfaces (using the UDP/IP and/or TCP/IP
- * profile on both of them), there shall be two instances of the IPv6 setup IC in that device: one
- * for each of these interfaces.
- * </p>
- * <p>
- * Copyrights EnergyICT
- * Date: 1/6/15
- * Time: 8:46 AM
- */
 public class IPv6Setup extends AbstractCosemObject {
 
     /**

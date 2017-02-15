@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.utils;
 
 
@@ -5,11 +9,6 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * Date: 4/05/11
- * Time: 10:00
- */
 public class MeterEventUtils {
 
     public static MeterEvent changeEventDate(MeterEvent event, Date newEventDate) {

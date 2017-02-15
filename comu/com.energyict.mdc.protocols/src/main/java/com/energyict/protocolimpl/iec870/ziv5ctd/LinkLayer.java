@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.iec870.ziv5ctd;
 
-import com.energyict.dialer.connection.Connection;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+
+import com.energyict.dialer.connection.Connection;
 
 import java.io.IOException;
 import java.io.InputStream;

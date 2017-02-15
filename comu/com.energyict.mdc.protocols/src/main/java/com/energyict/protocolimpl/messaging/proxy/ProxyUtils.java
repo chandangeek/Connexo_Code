@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.messaging.proxy;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.math.BigDecimal;
@@ -10,11 +15,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-/**
- * Copyrights EnergyICT
- * Date: 7/2/12
- * Time: 8:28 AM
- */
 public class ProxyUtils {
 
     private ProxyUtils() {

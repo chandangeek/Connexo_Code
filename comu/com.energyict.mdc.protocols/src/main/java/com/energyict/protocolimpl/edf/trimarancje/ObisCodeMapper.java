@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ObisCodeMapper.java
  *
  * Created on 19 juni 2006, 16:15
@@ -11,9 +15,10 @@
 package com.energyict.protocolimpl.edf.trimarancje;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
 import com.energyict.protocolimpl.edf.trimarancje.registermapping.Register;
 import com.energyict.protocolimpl.edf.trimarancje.registermapping.RegisterNameFactory;
 

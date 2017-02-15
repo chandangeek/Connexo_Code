@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * EZ7Connection.java
  *
  * Created on 9 mei 2005, 9:57
@@ -6,17 +10,18 @@
 
 package com.energyict.protocolimpl.emon.ez7.core;
 
-import com.energyict.dialer.connection.Connection;
+import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.inbound.MeterType;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.dialer.connection.Connection;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.base.SecurityLevelException;
-import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

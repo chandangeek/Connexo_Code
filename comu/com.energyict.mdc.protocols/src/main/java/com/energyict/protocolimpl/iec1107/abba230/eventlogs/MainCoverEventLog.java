@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.iec1107.abba230.eventlogs;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;

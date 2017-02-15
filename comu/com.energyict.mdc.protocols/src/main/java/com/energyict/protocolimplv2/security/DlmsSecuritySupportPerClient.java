@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.security;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -24,14 +28,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Provides general security <b>capabilities</b> for a DLMS protocol, which
- * has a SecurityObject for each possible client.
- * <p>
- * Copyrights EnergyICT
- * Date: 18/06/13
- * Time: 15:02
- */
 public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";

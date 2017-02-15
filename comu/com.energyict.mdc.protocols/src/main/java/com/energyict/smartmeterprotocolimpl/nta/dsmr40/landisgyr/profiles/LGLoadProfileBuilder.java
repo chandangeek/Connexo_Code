@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles;
 
 import com.energyict.mdc.common.ObisCode;
@@ -10,7 +14,6 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.DSMRProfileIntervalStatusBits;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder;
 
 import java.io.IOException;
@@ -21,15 +24,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Level;
 
-/**
- * The L&G E350 uses a custom {@link LoadProfileBuilder} because their interpretation of the deviation in the dateTime is different then the default.
- * <p/>
- * <pre>
- * Copyrights EnergyICT
- * Date: 13-okt-2011
- * Time: 11:55:59
- * </pre>
- */
 public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
 
     /**

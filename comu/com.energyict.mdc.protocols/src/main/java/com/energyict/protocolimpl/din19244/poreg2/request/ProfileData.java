@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.request;
 
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
@@ -14,13 +18,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Class to read out a number of profile data entries.
- *
- * Copyrights EnergyICT
- * Date: 5-mei-2011
- * Time: 11:58:02
- */
 public class ProfileData extends AbstractRequest {
 
     private int gid;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling.groups;
 
 import com.energyict.dlms.DataContainer;
@@ -5,14 +9,6 @@ import com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling.Abstrac
 
 import java.util.TimeZone;
 
-/**
- * Contains all events related to firmware changes
- * <br/>
- * TODO change the implementation of the buffer
- * Copyrights EnergyICT<br/>
- * Date: 6-dec-2010<br/
- * Time: 15:56:50<br/
- */
 public class FirmwareEvents extends AbstractEvent {
 
     public static final int FirmwareEventGroup = 1;

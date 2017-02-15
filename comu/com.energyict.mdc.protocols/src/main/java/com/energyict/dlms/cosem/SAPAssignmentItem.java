@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
 
 import com.energyict.mdc.common.NestedIOException;
@@ -12,11 +16,6 @@ import com.energyict.dlms.axrdencoding.Unsigned16;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 6/03/12
- * Time: 16:23
- */
 public class SAPAssignmentItem {
 
     private final int sap;

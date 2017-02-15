@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -11,13 +15,6 @@ import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 
-/**
- * Creates a MessageEntry based on the "StartOfDST" xml tag with 4 attributes
- * <p/>
- * Copyrights EnergyICT
- * Date: 12/03/13
- * Time: 14:59
- */
 public class SetStartOfDSTMessageEntry implements MessageEntryCreator {
 
     private final String monthAttributeName;

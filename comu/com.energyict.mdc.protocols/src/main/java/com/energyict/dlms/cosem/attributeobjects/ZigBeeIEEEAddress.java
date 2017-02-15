@@ -1,12 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem.attributeobjects;
 
 import com.energyict.dlms.axrdencoding.OctetString;
 
-/**
- * Copyrights EnergyICT
- * Date: 4/08/11
- * Time: 8:46
- */
 public class ZigBeeIEEEAddress extends OctetString {
 
     public ZigBeeIEEEAddress(byte[] address) {

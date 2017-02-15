@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -16,11 +20,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 20/07/11
- * Time: 16:55
- */
 public class ZigbeeGasMessaging extends GenericMessaging {
 
     private static final String SET_PRICE_PER_UNIT = "SetPricePerUnit";

@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
 
-/**
- * Copyrights EnergyICT
- * Date: 10/10/12
- * Time: 11:06 AM
- */
 public enum ServiceError {
 
     APP_REFERENCE_OTHER(0, 0, "Application-reference", "Other"),

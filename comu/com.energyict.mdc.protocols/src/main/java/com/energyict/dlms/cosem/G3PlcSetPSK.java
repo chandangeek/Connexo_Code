@@ -1,19 +1,19 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
+
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.methods.G3PlcSetPSKMethods;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 3/7/13
- * Time: 3:00 PM
- */
 public class G3PlcSetPSK extends AbstractCosemObject {
 
     private static final ObisCode DEFAULT_OBISCODE = ObisCode.fromString("0.128.0.0.1.255");

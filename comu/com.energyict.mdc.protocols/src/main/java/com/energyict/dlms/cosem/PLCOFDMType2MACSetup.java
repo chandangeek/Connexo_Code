@@ -1,4 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -6,19 +12,9 @@ import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.attributes.PLCOFDMType2MACSetupAttribute;
-import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 
-/**
- * An instance of this interface class holds the necessary parameters to set up the PLC OFDM Type 2 MAC IEEE 802.15.4 sub-layer.
- * These attributes influence the functional behaviour of an implementation. Implementations may allow changes to the attributes
- * during normal running, i.e. even after the device start-up sequence has been executed.
- * <p/>
- * Copyrights EnergyICT
- * Date: 20/03/12
- * Time: 7:57
- */
 public class PLCOFDMType2MACSetup extends AbstractCosemObject {
 
     /**

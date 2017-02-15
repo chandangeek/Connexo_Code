@@ -1,12 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  *
  */
 package com.energyict.protocolimpl.dlms.as220.gmeter;
 
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocolimpl.base.AbstractMbusInstallController;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
 

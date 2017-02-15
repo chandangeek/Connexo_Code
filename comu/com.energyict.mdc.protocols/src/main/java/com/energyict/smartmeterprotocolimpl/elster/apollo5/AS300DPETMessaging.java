@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.elster.apollo5;
 
 import com.energyict.mdc.common.ObisCode;
@@ -7,16 +11,12 @@ import com.energyict.mdc.protocol.api.messaging.MessageSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
+
 import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300MessageExecutor;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300Messaging;
 
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 28/11/11
- * Time: 15:59
- */
 public class AS300DPETMessaging extends AS300Messaging {
 
     public static final String GENERATE_NEW_PUBLIC_KEY = "GenerateNewPublicKey";

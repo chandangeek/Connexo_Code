@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.security;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -22,14 +26,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Provides general security <b>capabilities</b> for DeviceProtocols
- * that use a single password to do authentication/encryption
- * <p/>
- * Copyrights EnergyICT
- * Date: 11/01/13
- * Time: 14:47
- */
 public class SimplePasswordSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     private static final int AUTH_DEVICE_ACCESS_LEVEL = 0;

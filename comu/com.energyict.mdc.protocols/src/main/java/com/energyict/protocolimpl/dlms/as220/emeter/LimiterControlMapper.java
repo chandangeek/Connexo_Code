@@ -1,20 +1,20 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
-import com.energyict.dlms.cosem.Limiter;
-import com.energyict.dlms.cosem.attributes.LimiterAttributes;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
+import com.energyict.dlms.cosem.Limiter;
+import com.energyict.dlms.cosem.attributes.LimiterAttributes;
 import com.energyict.protocolimpl.base.AbstractDLMSAttributeMapper;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 14-dec-2010
- * Time: 15:44:26
- */
 public class LimiterControlMapper extends AbstractDLMSAttributeMapper {
 
     private final AS220 as220;

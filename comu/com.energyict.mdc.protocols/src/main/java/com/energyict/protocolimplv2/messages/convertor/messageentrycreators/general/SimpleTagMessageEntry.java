@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -8,14 +12,6 @@ import com.energyict.mdc.protocol.api.messaging.Messaging;
 
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 
-/**
- * Creates XML: <tag> </tag>
- * <p/>
- * Copyrights EnergyICT
- * Date: 24/10/13
- * Time: 10:23
- * Author: khe
- */
 public class SimpleTagMessageEntry implements MessageEntryCreator {
 
     private final String tag;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -12,16 +16,6 @@ import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 
-/**
- * Creates a MessageEntry based on the
- * {@link com.energyict.protocolimpl.messages.RtuMessageConstant#CONNECT_LOAD}
- * xml tag with an additional
- * {@link RtuMessageConstant#DISCONNECT_CONTROL_ACTIVATE_DATE} attribute.
- * <p/>
- * Copyrights EnergyICT
- * Date: 12/03/13
- * Time: 14:43
- */
 public class ConnectLoadWithActivationDateMessageEntry implements MessageEntryCreator {
 
     private final String activationDateAttributeName;

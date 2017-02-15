@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * CommandFactory.java
  *
  * Created on 22 mei 2006, 15:48
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.S4;
 
 import java.io.IOException;

@@ -1,10 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages;
 
-import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 import com.energyict.mdc.protocol.api.messaging.MessageSpec;
+
+import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
 import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
@@ -17,11 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Copyrights EnergyICT
- * Date: 5-sep-2011
- * Time: 8:38:03
- */
 public class Dsmr40Messaging extends Dsmr23Messaging {
 
     private final Dsmr40MessageExecutor messageExecutor;

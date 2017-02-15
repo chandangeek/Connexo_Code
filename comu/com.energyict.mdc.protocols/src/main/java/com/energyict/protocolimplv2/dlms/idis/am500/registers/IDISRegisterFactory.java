@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.idis.am500.registers;
 
 import com.energyict.mdc.common.ObisCode;
@@ -42,12 +46,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 5/01/2015 - 11:13
- */
 public class IDISRegisterFactory implements DeviceRegisterSupport {
 
     public static final ObisCode SFSK_PHY_MAC_SETUP = ObisCode.fromString("0.0.26.0.0.255");

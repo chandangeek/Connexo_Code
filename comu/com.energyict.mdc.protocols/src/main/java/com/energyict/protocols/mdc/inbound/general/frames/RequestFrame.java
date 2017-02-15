@@ -1,15 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.inbound.general.frames;
 
 import com.energyict.mdc.issues.IssueService;
-
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
-/**
- * Copyrights EnergyICT
- * Date: 25/06/12
- * Time: 11:08
- * Author: khe
- */
 public class RequestFrame extends AbstractInboundFrame {
 
     @Override

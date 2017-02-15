@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.g3;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 6/27/12
- * Time: 3:00 PM
- */
 public class SerialNumber {
 
     private static int LENGTH = 16;

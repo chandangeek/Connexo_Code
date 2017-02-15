@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.EMCO.frame;
 
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
@@ -5,12 +9,6 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.util.HashMap;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 23/02/12
- * Time: 14:01
- */
 public class ErrorResponseFrame implements ResponseFrame {
 
     public static HashMap<String, String> errorMessages = new HashMap<String, String>(6);

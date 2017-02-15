@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.inbound.g3;
 
 
@@ -22,12 +26,6 @@ import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 23/11/2015 - 9:39
- */
 public class BeaconPSKProviderFactory {
 
     private static BeaconPSKProviderFactory instance;

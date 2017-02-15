@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * DLMSCaptureObject.java
  *
  * Created on 7 april 2003, 10:55

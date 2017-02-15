@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict;
 
 import com.elster.jupiter.calendar.CalendarService;
@@ -24,11 +28,6 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.time.Clock;
 
-/**
- * Copyrights EnergyICT
- * Date: 15-jul-2011
- * Time: 11:58:33
- */
 @Deprecated //Please use V2 protcool (com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP)
 public class WebRTUKP extends AbstractSmartNtaProtocol implements HHUEnabler {
 

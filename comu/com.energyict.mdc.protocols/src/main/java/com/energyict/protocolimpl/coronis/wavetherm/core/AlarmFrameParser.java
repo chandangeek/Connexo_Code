@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.wavetherm.core;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.coronis.wavetherm.WaveTherm;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -10,11 +15,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 25-mrt-2011
- * Time: 16:27:08
- */
 public class AlarmFrameParser {
 
     private WaveTherm waveTherm;

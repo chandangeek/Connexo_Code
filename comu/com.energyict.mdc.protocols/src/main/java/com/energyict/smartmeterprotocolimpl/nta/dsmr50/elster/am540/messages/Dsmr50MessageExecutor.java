@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages;
 
 import com.elster.jupiter.calendar.Calendar;
@@ -29,16 +33,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-/**
- * Mostly reuses the DSMR4.0 functionality, but changes a few things.
- * Important: for DSMR5.0, the new keys (message to change AK and/or EK) are used immediately, instead of only at the start of the next message!
- * Also, when changing the encryption key, the framecounter is restarted.
- * <p/>
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 12/06/2014 - 15:20
- */
 public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
 
     private static final String RESUME = "resume";

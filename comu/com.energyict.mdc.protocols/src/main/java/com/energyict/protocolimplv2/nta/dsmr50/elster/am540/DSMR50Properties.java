@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
 
@@ -17,14 +21,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Extension of the standard DLMS properties, adding DSMR50 stuff.
- * <p>
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 17/12/2014 - 17:27
- */
 public class DSMR50Properties extends G3Properties {
 
     public static final String AARQ_TIMEOUT_PROPERTY = "AARQTimeout";

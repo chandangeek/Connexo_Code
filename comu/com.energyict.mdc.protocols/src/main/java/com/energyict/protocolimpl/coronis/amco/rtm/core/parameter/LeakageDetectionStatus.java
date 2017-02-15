@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
 import com.energyict.mdc.protocol.api.UnsupportedException;
@@ -13,11 +17,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 7-apr-2011
- * Time: 16:15:01
- */
 public class LeakageDetectionStatus extends AbstractParameter {
 
     LeakageDetectionStatus(RTM rtm) {

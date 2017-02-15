@@ -1,14 +1,19 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict;
+
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
@@ -19,18 +24,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * The WebRTU is misusing the registers in the LoadProfile. They don' use the ones that
- * are defined by DSMR, but created others to get more precision in the data.
- * By doing this, we actually need to create a different LoadProfileType in EIServer.
- * But they want to prevent this so we make a hack in our protocol.
- * If we have CapturedObject definitions with a B-field set to <i>128</i>,
- * then we map it to 0
- * <p/>
- * Copyrights EnergyICT
- * Date: 30/11/12
- * Time: 12:08
- */
 public class WebRTUKPLoadProfileBuilder extends LoadProfileBuilder {
 
     public WebRTUKPLoadProfileBuilder(AbstractSmartNtaProtocol meterProtocol, MdcReadingTypeUtilService readingTypeUtilService) {

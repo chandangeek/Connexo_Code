@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ChannelDefinitionRegister.java
  *
  * Created on 19 maart 2004, 15:14
@@ -7,6 +11,7 @@
 package com.energyict.protocolimpl.pact.core.meterreading;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
 
 import java.math.BigDecimal;

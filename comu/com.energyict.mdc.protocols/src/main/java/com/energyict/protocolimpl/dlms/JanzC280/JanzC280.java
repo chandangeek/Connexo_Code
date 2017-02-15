@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.JanzC280;
 
 import com.energyict.mdc.common.ObisCode;
@@ -50,12 +54,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 14/11/11
- * Time: 17:07
- */
 public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
 
     @Override

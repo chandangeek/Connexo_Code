@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * TotalRegisters.java
  *
  * Created on 7 juli 2004, 11:24

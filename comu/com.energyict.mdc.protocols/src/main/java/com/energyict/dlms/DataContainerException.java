@@ -1,13 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms;
 
 import java.io.IOException;
-
-/**
- * <p>Copyright: Copyright (c) 2005</p>
- * <p>Company: EnergyICT</p>
- * @author Koenraad Vanderschaeve
- * @version 1.0
- */
 
 public class DataContainerException extends IOException {
 

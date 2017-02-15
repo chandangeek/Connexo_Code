@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.elster.apollo.eventhandling;
 
-import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.EventUtils;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300ObisCodeProvider;
@@ -12,12 +17,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Logger;
 
-/**
- * Provides functionality to collect the events from the device and return them as a list of {@link com.energyict.protocol.MeterEvent}
- * Copyrights EnergyICT
- * Date: 2-dec-2010
- * Time: 13:01:44
- */
 public class ApolloEventProfiles {
 
     private final AS300 meterProtocol;

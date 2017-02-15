@@ -1,15 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field;
 
 import com.elster.jupiter.time.TimeDuration;
+
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
 
-/**
- * Class for the PeriodTrace_C field in a CTR Structure Object
- * Copyrights EnergyICT
- * Date: 8-okt-2010
- * Time: 16:39:27
- */
 public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
 
     public static final int HOURLY = 1;

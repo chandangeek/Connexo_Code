@@ -1,4 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
+
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DataContainer;
@@ -13,19 +21,10 @@ import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 
 import java.io.IOException;
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 14/12/11
- * Time: 9:30
- */
 public class StoredValuesImpl implements StoredValues {
 
     ProtocolLink protocolLink;

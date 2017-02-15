@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
@@ -5,11 +9,6 @@ import com.energyict.protocolimpl.coronis.amco.rtm.RTMFactory;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 7-apr-2011
- * Time: 16:45:00
- */
 public class DriveByOrWalkByWakeUpChannel extends AbstractParameter {
 
     DriveByOrWalkByWakeUpChannel(RTM rtm) {

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -16,11 +20,6 @@ import com.energyict.smartmeterprotocolimpl.eict.ukhub.ObisCodeProvider;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 7/12/11
- * Time: 17:10
- */
 public class ZigBeeStatus {
 
     private final CosemObjectFactory cof;

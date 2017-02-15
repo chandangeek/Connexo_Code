@@ -1,21 +1,19 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.attributes.PLCOFDMType2PHYAndMACCountersAttribute;
 import com.energyict.dlms.cosem.methods.PLCOFDMType2PHYAndMACCountersMethods;
-import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 19/03/12
- * Time: 16:59
- *
- * @author jme
- */
 public class PLCOFDMType2PHYAndMACCounters extends AbstractCosemObject {
 
     /**

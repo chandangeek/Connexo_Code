@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.inbound.g3;
 
 
@@ -30,12 +34,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 12/03/2015 - 10:27
- */
 public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     private static final int METER_JOIN_ATTEMPT = 0xC5;

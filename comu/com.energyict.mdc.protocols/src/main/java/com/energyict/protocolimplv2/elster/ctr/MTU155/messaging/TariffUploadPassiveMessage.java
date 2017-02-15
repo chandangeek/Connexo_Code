@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
 import com.energyict.mdc.issues.IssueService;
@@ -20,11 +24,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.rawobjects.RawTarif
 import java.io.IOException;
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * Date: 28/03/11
- * Time: 16:43
- */
 public class TariffUploadPassiveMessage extends AbstractMTU155Message {
 
     private static final String OBJECT_ID = "11.0.B";

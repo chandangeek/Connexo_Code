@@ -1,13 +1,19 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.edmi.mk10.streamfilters;
 
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocolimpl.edmi.mk10.packets.PushPacket;
+
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.CircularByteBuffer;
+import com.energyict.protocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

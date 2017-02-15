@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -12,13 +16,6 @@ import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 
-/**
- * Creates a MessageEntry consisting of a tag with a path to a temp file, as is used for the IEC1107 ABBA230 protocol
- * <p/>
- * Copyrights EnergyICT
- * Date: 12/03/13
- * Time: 16:54
- */
 public class ABBA230UserFileMessageEntry implements MessageEntryCreator {
 
     private final String tag;

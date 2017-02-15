@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.ace4000;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -10,11 +14,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 29-sep-2010
- * Time: 15:58:56
- */
 public class ACE4000Properties {
 
     public static final String TIMEOUT = "Timeout";

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -56,12 +60,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 17/06/2014 - 15:00
- */
 public class RtuPlusServerMessages implements DeviceMessageSupport {
 
     private final DlmsSession session;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.nta.dsmr23.topology;
 
 import com.energyict.mdc.common.ObisCode;
@@ -26,11 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * Date: 14-jul-2011
- * Time: 16:56:32
- */
 public class MeterTopology extends AbstractMeterTopology {
 
     private static final ObisCode dailyObisCode = ObisCode.fromString("1.0.99.2.0.255");

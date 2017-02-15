@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.waveflow.hydreka.parameter;
 
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
@@ -7,12 +11,6 @@ import com.energyict.protocolimpl.coronis.waveflow.core.parameter.AbstractParame
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 17/12/12
- * Time: 11:50
- * Author: khe
- */
 public class ReadingHourHistogram extends AbstractParameter {
 
     private int hour;

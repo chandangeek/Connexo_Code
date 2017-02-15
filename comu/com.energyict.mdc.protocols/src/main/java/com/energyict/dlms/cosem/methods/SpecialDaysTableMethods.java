@@ -1,14 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem.methods;
 
 import com.energyict.dlms.cosem.DLMSClassId;
 
-/**
- * Contains functionality to access methods of the SpecialDay table (independent whether or not shortName or logicalNames are used)
- * <br/>
- * Copyrights EnergyICT<br/>
- * Date: 17-dec-2010<br/>
- * Time: 9:48:44<br/>
- */
 public enum SpecialDaysTableMethods implements DLMSClassMethods {
 
     INSERT(1, 0x10),

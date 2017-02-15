@@ -1,15 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles;
 
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.Register;
 
-/**
- * Copyrights EnergyICT
- * Date: 20/07/11
- * Time: 11:15
- */
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.cosem.DLMSClassId;
+
 public class CapturedRegisterObject extends Register {
 
     private final DLMSAttribute dlmsAttribute;

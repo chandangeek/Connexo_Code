@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
-import com.energyict.dlms.ScalerUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
+
+import com.energyict.dlms.ScalerUnit;
 
 import java.math.BigDecimal;
 import java.util.Date;

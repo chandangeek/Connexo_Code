@@ -1,21 +1,20 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.edp.logbooks;
 
 import com.elster.jupiter.metering.MeteringService;
-import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.protocolimplv2.edp.CX20009;
 import com.energyict.protocolimplv2.edp.registers.DisconnectControlState;
 
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Copyrights EnergyICT
- * Date: 11/02/14
- * Time: 10:01
- * Author: khe
- */
 public class DisconnectorLogbookParser extends AbstractLogbookParser {
 
     private static final ObisCode DISCONNECT_CONTROL_LOGBOOK = ObisCode.fromString("0.0.99.98.2.255");

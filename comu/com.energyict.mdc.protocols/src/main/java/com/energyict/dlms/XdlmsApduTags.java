@@ -1,16 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms;
 
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Enumerates the specific APDU tags. Depending on the used ciphering, a different tag is applied.
- *
- * Copyrights EnergyICT
- * Date: 26-apr-2010
- * Time: 11:53:49
- *
- */
 public enum XdlmsApduTags {
 
     /** Different values */

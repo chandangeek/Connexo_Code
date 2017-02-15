@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
 import com.elster.jupiter.calendar.CalendarService;
@@ -24,12 +28,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 24/01/12
- * Time: 16:27
- */
 public class MbusDevice extends AbstractNtaMbusDevice {
 
     @Override

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * EICTTestProtocol.java
  *
  * Created on 20 may 2010, 14:34

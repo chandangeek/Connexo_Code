@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.protocoltasks;
 
 import com.elster.jupiter.cps.PersistenceSupport;
@@ -15,11 +19,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-/**
- * Copyrights EnergyICT
- * Date: 17/10/16
- * Time: 14:47
- */
 public class MirrorTcpDeviceProtocolDialectPropertyPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, MirrorTcpDeviceProtocolDialectProperties> {
     @Override
     public String componentName() {

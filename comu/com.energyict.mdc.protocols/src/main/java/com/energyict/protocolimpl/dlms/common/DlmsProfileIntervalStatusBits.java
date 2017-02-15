@@ -1,13 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.common;
 
 import com.energyict.mdc.common.interval.IntervalStateBits;
+
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 
-/**
- * Copyrights EnergyICT
- * Date: 8-dec-2010
- * Time: 9:34:57
- */
 public class DlmsProfileIntervalStatusBits implements ProfileIntervalStatusBits {
 
     /**

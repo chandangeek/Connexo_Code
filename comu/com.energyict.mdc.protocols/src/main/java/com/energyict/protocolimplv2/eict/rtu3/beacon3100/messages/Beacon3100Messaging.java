@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -20,11 +24,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Copyrights EnergyICT
- * Date: 06/10/16
- * Time: 14:00
- */
 public class Beacon3100Messaging extends AbstractMessageExecutor implements DeviceMessageSupport {
 
     private static final ObisCode MULTICAST_FIRMWARE_UPGRADE_OBISCODE = ObisCode.fromString("0.0.44.0.128.255");

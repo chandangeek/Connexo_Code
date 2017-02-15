@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.eiweb;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
@@ -24,12 +29,11 @@ import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-
-import com.elster.jupiter.metering.MeteringService;
-import com.energyict.protocolimplv2.identifiers.PrimeRegisterForChannelIdentifier;
-import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.LittleEndianInputStream;
+
+import com.energyict.protocolimplv2.identifiers.PrimeRegisterForChannelIdentifier;
+import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;

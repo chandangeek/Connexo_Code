@@ -1,4 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.common;
+
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
 
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ParseUtils;
@@ -7,13 +18,6 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
-import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.protocolimpl.dlms.DLMSDefaultProfileIntervalStatusBits;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 
 import java.io.IOException;
@@ -24,16 +28,6 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-/**
- * Class containing functionality to create the channelInfos for a load profile and cache it.
- * This is used for the Prime and the G3 protocol.
- * It also contains the common method to fetch and parse intervals from a LP buffer.
- * <p/>
- * Copyrights EnergyICT
- * Date: 16/08/12
- * Time: 10:39
- * Author: khe
- */
 public class DLMSProfileHelper {
 
     private DlmsSession session;

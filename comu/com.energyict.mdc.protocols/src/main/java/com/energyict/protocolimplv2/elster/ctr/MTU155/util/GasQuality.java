@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.util;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
@@ -8,12 +12,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 
 import java.util.List;
 import java.util.logging.Logger;
-
-/**
- * Copyrights EnergyICT
- * Date: 24/02/11
- * Time: 9:54
- */
 
 /**
  * @deprecated  Previous this object was used to launch a 'query for multiple registers'.

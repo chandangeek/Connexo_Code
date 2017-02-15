@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.nta.dsmr23.eict;
 
 import com.elster.jupiter.metering.MeteringService;
@@ -69,18 +73,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-/**
- * General error handling principle:
- * A DataAccessResultException, a ProtocolException or an ExceptionResponseException indicate we received an error from the meter.
- * E.g. the requested object does not exist, or it is not allowed to be read/written, etc.
- * These exceptions need to be caught and handled first! They all extend from IOException.
- * After that, all remaining IOExceptions are related to communication problems (e.g. timeout, connection broken,...).
- * <p>
- * Copyrights EnergyICT
- * Date: 18/10/13
- * Time: 11:40
- * Author: khe
- */
 public class WebRTUKP extends AbstractDlmsProtocol {
 
     @Inject

@@ -1,17 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.util;
 
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AttributeType;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.AbstractCTRObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.CTRObjectFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 
-/**
- * Copyrights EnergyICT
- * Date: 20-okt-2010
- * Time: 17:23:00
- */
 public final class CTRObjectInfo {
 
     /**

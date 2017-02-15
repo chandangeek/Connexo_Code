@@ -1,21 +1,20 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom;
+
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ModemWatchdogConfiguration;
 import com.energyict.dlms.cosem.UplinkPingConfiguration;
 import com.energyict.dlms.cosem.attributes.ModemWatchdogConfigurationAttributes;
 import com.energyict.dlms.cosem.attributes.UplinkPingConfigurationAttributes;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 15/05/14
- * Time: 15:38
- * Author: khe
- */
 public class UplinkPingSetupCustomRegisterMapping extends CustomRegisterMapping {
 
     private final ObisCode obisCode = UplinkPingConfiguration.getDefaultObisCode();

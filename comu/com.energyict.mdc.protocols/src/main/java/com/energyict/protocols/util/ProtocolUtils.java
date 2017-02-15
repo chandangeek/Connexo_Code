@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ProtocolUtils.java
  *
  * Created on 17 januari 2003, 15:15

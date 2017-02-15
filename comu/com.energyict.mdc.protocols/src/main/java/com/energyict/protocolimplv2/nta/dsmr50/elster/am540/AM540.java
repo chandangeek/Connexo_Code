@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
 import com.elster.jupiter.metering.MeteringService;
@@ -83,14 +87,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * V2 version of the AM540 protocol.
- * This version adds breaker & relais support and other IDIS features.
- *
- * @author khe
- * @since 17/12/2014 - 14:30
- */
 public class AM540 extends AbstractDlmsProtocol {
 
     private AbstractMeterTopology g3Topology;

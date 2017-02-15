@@ -1,15 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.idis;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.mdc.common.ObisCode;
 
-/**
- * Copyrights EnergyICT
- * Date: 21/05/13
- * Time: 12:04
- * Author: khe
- */
 public class IDISObjectList {
 
     /**

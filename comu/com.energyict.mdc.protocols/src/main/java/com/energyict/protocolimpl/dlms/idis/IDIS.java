@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.idis;
 
 import com.elster.jupiter.calendar.CalendarService;
@@ -47,11 +51,6 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * Date: 5/09/11
- * Time: 9:37
- */
 public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, CacheMechanism {
 
     @Override

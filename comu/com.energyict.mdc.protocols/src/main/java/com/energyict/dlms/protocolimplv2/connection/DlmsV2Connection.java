@@ -1,15 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.protocolimplv2.connection;
 
-/**
- * All V2 DLMS Connections should implement this interface.
- * This has the same methods as {@link DlmsConnection} except for:
- * There's no exception in the signatures, because all implementations throw the proper ComServer runtime exception when some error occurs.
- * <p/>
- * Copyrights EnergyICT
- * Date: 20/11/13
- * Time: 14:19
- * Author: khe
- */
 public interface DlmsV2Connection extends DlmsConnection {
 
     /**

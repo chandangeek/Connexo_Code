@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
 
 import com.energyict.mdc.common.ObisCode;
@@ -10,11 +14,6 @@ import com.energyict.dlms.cosem.methods.WebPortalPasswordMethods;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 9/27/12
- * Time: 10:51 AM
- */
 public class WebPortalPasswordConfig extends AbstractCosemObject {
 
     public static final ObisCode OBIS_CODE = ObisCode.fromString("0.0.128.0.13.255");

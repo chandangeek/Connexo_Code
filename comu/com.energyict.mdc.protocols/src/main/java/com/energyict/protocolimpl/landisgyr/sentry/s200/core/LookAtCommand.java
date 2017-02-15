@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * LookAtCommand.java
  *
  * Created on 27 juli 2006, 15:05

@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.elster.a1800.tables;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
 import com.energyict.protocolimpl.ansi.c12.tables.TableFactory;
 import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
@@ -12,11 +17,6 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 18-jan-2011
- * Time: 17:05:58
- */
 public class PowerQualityMonitorLog extends AbstractTable {
 
     /**

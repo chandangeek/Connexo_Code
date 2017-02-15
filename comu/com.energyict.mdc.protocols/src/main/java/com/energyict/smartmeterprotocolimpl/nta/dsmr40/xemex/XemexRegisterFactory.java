@@ -1,11 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex;
 
-import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RegisterFactory;
@@ -14,11 +19,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * Date: 31-aug-2011
- * Time: 16:44:24
- */
 public class XemexRegisterFactory extends DSMR40RegisterFactory {
 
     public static final ObisCode ERROR_REGISTER = ObisCode.fromString("0.0.97.97.0.255");

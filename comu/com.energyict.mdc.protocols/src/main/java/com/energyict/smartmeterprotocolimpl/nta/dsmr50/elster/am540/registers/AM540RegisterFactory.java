@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.registers;
 
 import com.energyict.mdc.common.ObisCode;
@@ -14,12 +18,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 5/06/2014 - 15:16
- */
 public class AM540RegisterFactory extends DSMR40RegisterFactory {
 
     private AM540PLCRegisterMapper plcRegisterMapper;

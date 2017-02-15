@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * CourbeCharge.java
  *
  * Created on 2 maart 2007, 9:44

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -16,11 +20,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
-/**
- * Copyrights EnergyICT
- * Date: 29-sep-2010
- * Time: 15:58:55
- */
 public class MTU155Properties extends BasicDynamicPropertySupport{
 
     public static final String LEGACY_TIMEZONE_PROPERTY_NAME = "LegacyTimeZone";

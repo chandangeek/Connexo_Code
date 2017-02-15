@@ -1,4 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.idis;
+
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -11,11 +21,6 @@ import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.Register;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.protocolimpl.base.DLMSAttributeMapper;
 import com.energyict.protocolimpl.dlms.idis.registers.AlarmBitsRegister;
 import com.energyict.protocolimpl.dlms.idis.registers.SFSKActiveInitiatorMapper;
@@ -28,13 +33,6 @@ import com.energyict.protocolimpl.dlms.idis.registers.SFSKSyncTimeoutsMapper;
 import java.io.IOException;
 import java.math.BigDecimal;
 
-/**
- * Class that takes an obiscode, reads out the proper value and unit from the meter and returns the register.
- * <p/>
- * Copyrights EnergyICT
- * Date: 19/03/12
- * Time: 17:04
- */
 public class ObisCodeMapper {
 
     private IDIS idis;

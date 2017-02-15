@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * IskraEmecoRegister.java
  *
  * Created on 16 juni 2003, 16:35
@@ -7,6 +11,7 @@
 package com.energyict.protocolimpl.iec1107.iskraemeco;
 
 import com.energyict.mdc.protocol.api.MeterExceptionInfo;
+
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;

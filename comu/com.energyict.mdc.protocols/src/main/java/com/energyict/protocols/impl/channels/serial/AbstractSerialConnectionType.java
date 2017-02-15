@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.impl.channels.serial;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -25,11 +29,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-/**
- * Copyrights EnergyICT
- * Date: 17/08/12
- * Time: 11:39
- */
 public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
 
     private final String serialComponentServiceId;

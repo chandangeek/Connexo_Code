@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.wavetherm.core.radiocommand;
 
 import com.energyict.protocolimpl.coronis.wavetherm.WaveTherm;
@@ -5,11 +9,6 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 28-mrt-2011
- * Time: 9:39:09
- */
 public class SensorInitialization extends AbstractRadioCommand {
 
     protected SensorInitialization(WaveTherm waveTherm) {

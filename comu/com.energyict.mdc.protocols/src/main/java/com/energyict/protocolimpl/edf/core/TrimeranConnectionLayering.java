@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * TrimeranConnection.java
  *
  * Created on 19 juni 2006, 16:06
@@ -10,12 +14,13 @@
 
 package com.energyict.protocolimpl.edf.core;
 
-import com.energyict.dialer.connection.ConnectionV25;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.inbound.MeterType;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+
+import com.energyict.dialer.connection.ConnectionV25;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 

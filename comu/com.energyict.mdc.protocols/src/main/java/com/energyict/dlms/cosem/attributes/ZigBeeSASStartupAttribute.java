@@ -1,20 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem.attributes;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.mdc.common.ObisCode;
 
-/**
- * Contains functionality to access attributes of the ZigBee SAS Startup object (independent whether or not shortName or logicalNames are used)
- * <br/>
- * <p><b>
- * TODO the SN attribute numbering is purely based on logical sequence numbering. This object is not defined in the BlueBook yet, <br>
- * TODO so additional attributes may be added in the future
- * </b></p>
- * Copyrights EnergyICT
- * Date: 8-aug-2011
- * Time: 13:26:17
- */
 public enum ZigBeeSASStartupAttribute implements DLMSClassAttributes {
 
     LOGICAL_NAME(1, 0x00),

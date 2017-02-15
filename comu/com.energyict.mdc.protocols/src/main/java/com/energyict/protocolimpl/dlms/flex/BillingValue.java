@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * BillingValue.java
  *
  * Created on 10 januari
@@ -6,10 +10,11 @@
 
 package com.energyict.protocolimpl.dlms.flex;
 
-import com.energyict.dlms.ScalerUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
+import com.energyict.dlms.ScalerUnit;
 
 import java.math.BigDecimal;
 import java.util.Date;

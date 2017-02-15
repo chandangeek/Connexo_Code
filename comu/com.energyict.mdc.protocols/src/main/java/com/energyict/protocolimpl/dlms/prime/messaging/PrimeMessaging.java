@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.prime.messaging;
 
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
@@ -13,11 +17,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 27/02/12
- * Time: 13:57
- */
 public class PrimeMessaging {
 
     private final DlmsSession session;

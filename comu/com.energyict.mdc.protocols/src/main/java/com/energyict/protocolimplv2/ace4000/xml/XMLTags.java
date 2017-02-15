@@ -1,11 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.ace4000.xml;
 
-/**
- * Copyrights EnergyICT
- * Date: 31/10/12
- * Time: 10:24
- * Author: khe
- */
 public class XMLTags {
 
     /**

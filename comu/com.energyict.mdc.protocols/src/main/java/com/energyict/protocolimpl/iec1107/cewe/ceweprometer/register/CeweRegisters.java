@@ -1,13 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register;
 
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-/**
- * Copyrights EnergyICT
- * Date: 12/05/11
- * Time: 7:52
- */
 public class CeweRegisters {
 
     /**

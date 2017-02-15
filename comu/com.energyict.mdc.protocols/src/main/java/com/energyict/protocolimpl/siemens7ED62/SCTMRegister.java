@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * SCTMRegister.java
  *
  * Created on 21 februari 2003, 11:30

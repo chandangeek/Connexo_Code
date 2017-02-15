@@ -1,12 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2;
 
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
 import com.energyict.protocolimpl.din19244.poreg2.request.register.DstSettings;
 import com.energyict.protocolimpl.din19244.poreg2.request.register.ProfileParameters;
 
@@ -15,14 +20,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Class for reading out registers.
- * Unsupported registers throw an exception.
- * <p/>
- * Copyrights EnergyICT
- * Date: 2-mei-2011
- * Time: 13:26:34
- */
 public class ObisCodeMapper {
 
     static Map<ObisCode, String> registerMaps = new HashMap<ObisCode, String>();

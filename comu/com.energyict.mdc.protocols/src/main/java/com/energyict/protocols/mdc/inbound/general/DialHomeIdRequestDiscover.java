@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.inbound.general;
 
 import com.elster.jupiter.metering.MeteringService;
@@ -15,14 +19,6 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.util.List;
 
-/**
- * In the case of DialHomeIdRequestDiscover, a meter starts an inbound session and pushes its unique Call Home ID and additional meter data.
- * There are no extra requests sent by the comserver.
- * <p/>
- * Copyrights EnergyICT
- * Date: 21/06/12
- * Time: 14:50
- */
 public class DialHomeIdRequestDiscover extends RequestDiscover {
 
     @Inject

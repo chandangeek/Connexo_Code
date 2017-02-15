@@ -1,4 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.g3.events;
+
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
@@ -10,8 +17,6 @@ import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -22,11 +27,6 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 12/3/12
- * Time: 9:46 AM
- */
 public class G3LqiEventLog implements EventLog {
 
     /**

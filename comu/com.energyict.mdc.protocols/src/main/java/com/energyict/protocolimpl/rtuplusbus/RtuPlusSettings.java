@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * RtuPlusSettings.java
  *
  * Created on 19 februari 2004, 15:08

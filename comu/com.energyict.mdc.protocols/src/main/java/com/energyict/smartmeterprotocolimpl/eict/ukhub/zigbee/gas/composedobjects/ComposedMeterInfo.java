@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.composedobjects;
 
 import com.energyict.dlms.DLMSAttribute;
@@ -10,11 +14,6 @@ import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ObisCodeProvid
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 20/07/11
- * Time: 17:20
- */
 public class ComposedMeterInfo extends ComposedCosemObject {
 
     public static final DLMSAttribute FIRMWARE_VERSION_MONOLITIC = new DLMSAttribute(ObisCodeProvider.OperationalFirmwareMonlicitic, DataAttributes.VALUE);

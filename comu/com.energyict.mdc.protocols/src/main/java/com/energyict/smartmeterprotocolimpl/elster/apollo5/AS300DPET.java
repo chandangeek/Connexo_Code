@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.elster.apollo5;
 
 import com.elster.jupiter.calendar.CalendarService;
@@ -24,11 +28,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 28/11/11
- * Time: 14:48
- */
 public class AS300DPET extends AS300 {
 
     @Override

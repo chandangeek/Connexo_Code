@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100;
 
 import com.elster.jupiter.metering.MeteringService;
@@ -76,11 +80,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * Date: 06/10/16
- * Time: 13:32
- */
 public class Beacon3100 extends AbstractDlmsProtocol {
 
     // https://confluence.eict.vpdc/display/G3IntBeacon3100/DLMS+management

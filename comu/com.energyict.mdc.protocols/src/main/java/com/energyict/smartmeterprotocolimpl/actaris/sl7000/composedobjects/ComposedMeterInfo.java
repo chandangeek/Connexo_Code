@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000.composedobjects;
 
 import com.energyict.dlms.DLMSAttribute;
@@ -9,10 +13,6 @@ import com.energyict.dlms.cosem.ComposedCosemObject;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * @author  sva
- */
 public class ComposedMeterInfo extends ComposedCosemObject {
 
     public static final DLMSAttribute FIRMWARE_VERSION = DLMSAttribute.fromString("1:0.0.142.1.1.255:2");

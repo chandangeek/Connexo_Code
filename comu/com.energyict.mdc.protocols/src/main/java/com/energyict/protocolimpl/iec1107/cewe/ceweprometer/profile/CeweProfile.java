@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.profile;
 
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
+
 import com.energyict.protocolimpl.base.FirmwareVersion;
 import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CeweDateFormats;
@@ -16,11 +21,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-/**
- * Copyrights EnergyICT
- * Date: 11/05/11
- * Time: 10:16
- */
 public class CeweProfile {
 
     public static final FirmwareVersion FW_2_1_0 = new FirmwareVersion("2.1.0");

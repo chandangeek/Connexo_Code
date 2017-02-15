@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.waveflowDLMS.a1800;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.protocolimpl.coronis.waveflow.core.EventStatusAndDescription;
 import com.energyict.protocolimpl.coronis.waveflowDLMS.AbstractDLMS;
 import com.energyict.protocolimpl.coronis.waveflowDLMS.MeterEventInfo;
@@ -14,12 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Copyrights EnergyICT
- * Date: 16/05/13
- * Time: 11:50
- * Author: khe
- */
 public class WarningRegisterParser {
 
     private static final ObisCode warningByte1 = ObisCode.fromString("0.0.97.97.3.255");

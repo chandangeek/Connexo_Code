@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.messages.codetableparsing;
 
 import com.elster.jupiter.calendar.Calendar;
@@ -24,11 +28,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-/**
- * Parser object to convert the structure of a CodeTable to an XML format
- * <p/>
- * Copyrights EnergyICT
- */
 public class CodeTableXmlParsing {
 
     // RTUMessageTag

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
 import com.energyict.mdc.issues.IssueService;
@@ -6,11 +10,6 @@ import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 
-/**
- * Copyrights EnergyICT
- * Date: 2/03/11
- * Time: 16:40
- */
 public abstract class AbstractChangeKeyMessage extends AbstractMTU155Message {
 
     public AbstractChangeKeyMessage(Messaging messaging, IssueService issueService, CollectedDataFactory collectedDataFactory) {

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.impl.channels.ip;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -7,13 +11,6 @@ import com.energyict.protocols.impl.channels.ConnectionTypeImpl;
 
 import java.math.BigDecimal;
 
-/**
- * Groups common behavior for outbound IP related connectionTypes.
- * <p>
- * Copyrights EnergyICT
- *
- * @since 9/11/12 (11:28)
- */
 public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
 
     static final TimeDuration DEFAULT_CONNECTION_TIMEOUT = TimeDuration.seconds(10);

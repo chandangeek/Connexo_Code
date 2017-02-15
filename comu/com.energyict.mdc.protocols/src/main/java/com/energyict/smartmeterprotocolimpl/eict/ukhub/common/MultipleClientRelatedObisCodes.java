@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.common;
 
 import com.energyict.mdc.common.ObisCode;
+
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300ObisCodeProvider;
 
 /**

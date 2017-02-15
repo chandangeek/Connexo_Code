@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.g3.messaging;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.attributeobjects.SeasonProfiles;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXml;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -15,12 +20,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
-/**
- * Copyrights EnergyICT
- * Date: 21/08/12
- * Time: 14:00
- * Author: khe
- */
 public class G3ActivityCalendarController extends DLMSActivityCalendarController {
 
     public G3ActivityCalendarController(CosemObjectFactory cosemObjectFactory, TimeZone timeZone) {

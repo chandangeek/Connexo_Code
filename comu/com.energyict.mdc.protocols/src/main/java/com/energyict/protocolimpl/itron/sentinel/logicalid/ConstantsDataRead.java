@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ConstantsDataRead.java
  *
  * Created on 2 november 2006, 16:26
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.itron.sentinel.logicalid;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
 import java.io.IOException;

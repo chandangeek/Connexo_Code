@@ -1,17 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.g3.events;
 
-import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 12/3/12
- * Time: 9:34 AM
- */
 public interface EventLog {
 
     /**

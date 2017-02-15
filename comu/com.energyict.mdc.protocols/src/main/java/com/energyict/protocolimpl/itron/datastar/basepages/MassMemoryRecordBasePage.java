@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * MassMemoryRecordBasePage.java
  *
  * Created on 12 september 2006, 16:47
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.itron.datastar.basepages;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;

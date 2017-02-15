@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.amco.rtm.core.alarmframe;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
@@ -15,11 +19,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-/**
- * Copyrights EnergyICT
- * Date: 25-mrt-2011
- * Time: 16:27:08
- */
 public class AlarmFrameParser {
 
     private RTM rtm;

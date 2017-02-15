@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * WriteMultipleRegisters.java
  *
  * Created on 21 september 2005, 11:58
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.modbus.core.functioncode;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.modbus.core.connection.RequestData;
 import com.energyict.protocolimpl.modbus.core.connection.ResponseData;

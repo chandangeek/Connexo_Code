@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * Connection.java
  *
  * Created on 1 juli 2003, 17:03
@@ -9,6 +13,7 @@ package com.energyict.dialer.connection;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+
 import serialio.xmodemapi.XGet;
 
 import java.io.ByteArrayInputStream;

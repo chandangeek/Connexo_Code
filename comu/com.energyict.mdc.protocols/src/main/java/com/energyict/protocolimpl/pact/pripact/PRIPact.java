@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * PRIPremier.java
  *
  * Created on 24 maart 2004, 17:36

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -50,14 +54,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-/**
- * Basic implementation of the EIWeb DeviceProtocol.
- * The basic implementation will not do much, mainly serve as a placeholder so the DeviceType can be created.
- *
- * Copyrights EnergyICT
- * Date: 9/10/13
- * Time: 12:02 PM
- */
 public class EIWeb implements DeviceProtocol {
 
     private final Clock clock;

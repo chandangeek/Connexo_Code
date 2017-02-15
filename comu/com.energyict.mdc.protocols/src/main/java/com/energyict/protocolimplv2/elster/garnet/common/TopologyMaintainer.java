@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.garnet.common;
 
 import com.energyict.mdc.issues.IssueService;
@@ -9,6 +13,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceTopologySupport;
+
 import com.energyict.protocolimplv2.elster.garnet.GarnetConcentrator;
 import com.energyict.protocolimplv2.elster.garnet.GarnetProperties;
 import com.energyict.protocolimplv2.elster.garnet.RequestFactory;
