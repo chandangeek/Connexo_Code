@@ -1,6 +1,6 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.channels.serial.FlowControl;
+import com.energyict.mdc.channel.serial.FlowControl;
 import com.energyict.mdc.rest.impl.comserver.ComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.FlowControlInfo;
 import com.energyict.mdc.rest.impl.comserver.InboundComPortInfo;

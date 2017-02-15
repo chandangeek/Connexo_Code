@@ -1,7 +1,7 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 
-import com.energyict.mdc.channels.serial.Parities;
+import com.energyict.mdc.channel.serial.Parities;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 

@@ -1,8 +1,8 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.elster.jupiter.nls.TranslationKey;
-import com.energyict.mdc.channels.serial.FlowControl;
-import com.energyict.mdc.channels.serial.Parities;
+import com.energyict.mdc.channel.serial.FlowControl;
+import com.energyict.mdc.channel.serial.Parities;
 import com.energyict.mdc.ports.ComPortType;
 
 public enum ComServerFieldTranslationKeys implements TranslationKey {
