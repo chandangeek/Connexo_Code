@@ -19,6 +19,9 @@ Ext.define('Isu.view.creationrules.EditForm', {
         validateOnChange: false,
         validateOnBlur: false
     },
+
+    newReasonId: '12222e48-9afb-4c76-a41e-d3c40f16ac76',
+
     initComponent: function () {
         var me = this;
 
@@ -340,6 +343,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
             typeCombo = me.down('[name=issueType]'),
             actionsGrid = me.down('issues-creation-rules-actions-list'),
             labelPriority = me.down('#priority-label'),
+            comboReason = me.down('#issueReason'),
             dueIn = record.get('dueIn'),
             priority = record.get('priority'),
             actions = record.actions(),
@@ -347,6 +351,14 @@ Ext.define('Isu.view.creationrules.EditForm', {
 
         typeCombo.suspendEvent('change');
         templateCombo.suspendEvent('change');
+        if(record.get('reason_id') === me.newReasonId && record.get('reason_name') != '' &&
+            comboReason.getStore().findRecord('id', me.newReasonId) == null){
+            var rec = {
+                id: me.newReasonId,
+                name: record.get('reason_name')
+            };
+            comboReason.store.add(rec);
+        }
         me.callParent(arguments);
         me.down('property-form').loadRecord(record);
 
@@ -414,7 +426,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
 
         if(reason === -1 && reasonEditedValue.trim() != ''){
             var rec = {
-                id: '12222e48-9afb-4c76-a41e-d3c40f16ac76',
+                id: me.newReasonId,
                 name: reasonEditedValue.trim()
             };
             comboReason.store.add(rec);
@@ -423,6 +435,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
 
         record = me.getRecord();
         record.beginEdit();
+        record.set('reason_name', reasonEditedValue.trim());
         record.associations.each(function (association) {
             var combo,
                 value = null;
