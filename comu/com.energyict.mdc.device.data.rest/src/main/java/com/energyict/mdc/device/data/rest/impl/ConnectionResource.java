@@ -11,7 +11,6 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTask;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo;
 import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -110,12 +109,7 @@ public class ConnectionResource {
             if (!dialectConfigurationProperties.isPresent()){
                 throw exceptionFactory.newException(MessageSeeds.NO_SUCH_PROTOCOL_PROPERTIES, connectionTaskInfo.protocolDialect);
             }
-            if (task instanceof ServerConnectionTask) {
-                ((ServerConnectionTask) task).setProtocolDialectConfigurationProperties(dialectConfigurationProperties.get());
-                task.save();
-            } else {
-                throw exceptionFactory.newException(MessageSeeds.UPDATE_DIALECT_PROPERTIES_NOT_ALLOWED);
-            }
+            resourceHelper.updateConnectionTask(task, dialectConfigurationProperties.get());
         }
         return Response.status(Response.Status.OK).build();
     }
