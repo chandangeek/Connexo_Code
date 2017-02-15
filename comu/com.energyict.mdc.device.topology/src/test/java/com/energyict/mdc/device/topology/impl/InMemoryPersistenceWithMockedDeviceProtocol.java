@@ -32,6 +32,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
@@ -161,6 +162,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new ThreadSecurityModule(this.principal),
                 new EventsModule(),
                 new PubSubModule(),
+                new PkiModule(),
                 new TransactionModule(showSqlLogging),
                 new NlsModule(),
                 new DomainUtilModule(),
