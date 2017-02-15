@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
@@ -8,7 +12,6 @@ import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
-import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
@@ -45,11 +48,6 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
-/**
- * Copyrights EnergyICT
- * Date: 28/05/15
- * Time: 10:44
- */
 public class ValidationInfoFactory {
 
     private final MeteringTranslationService meteringTranslationService;
@@ -300,10 +298,16 @@ public class ValidationInfoFactory {
                 .findFirst()
                 .orElse(null);
         // Estimation
-        veeReadingInfo.estimatedByRule = readingQualities.stream()
+        Optional<ReadingQualityType> estimationReadingQualityType = readingQualities.stream()
                 .map(ReadingQuality::getType)
-                .anyMatch(ReadingQualityType::hasEstimatedCategory);
+                .filter(ReadingQualityType::hasEstimatedCategory)
+                .findAny();
+        veeReadingInfo.estimatedByRule = estimationReadingQualityType.isPresent();
         // Editing
+        if(veeReadingInfo.estimatedByRule) {
+            veeReadingInfo.editedInApp = estimationRuleInfoFactory.getEstimationApplicationInfo(estimationReadingQualityType.get());
+        }
+        //hier
         Pair<ReadingModificationFlag, QualityCodeSystem> modificationFlag = ReadingModificationFlag.getModificationFlag(reading, readingQualities);
         if (modificationFlag != null) {
             veeReadingInfo.valueModificationFlag = modificationFlag.getFirst();

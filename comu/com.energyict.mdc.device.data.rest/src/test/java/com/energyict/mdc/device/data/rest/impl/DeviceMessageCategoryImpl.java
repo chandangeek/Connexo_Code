@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -8,11 +12,6 @@ import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageCategori
 
 import java.util.List;
 
-/**
-* Copyrights EnergyICT
-* Date: 3/10/15
-* Time: 1:59 PM
-*/
 class DeviceMessageCategoryImpl implements DeviceMessageCategory {
     private final DeviceMessageCategories category;
     private final int deviceMessageCategoryId;
