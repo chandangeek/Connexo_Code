@@ -1405,13 +1405,6 @@ Ext.define('Mdc.controller.history.Setup', {
                                                                 privileges: Mdc.privileges.DeviceType.admin,
                                                                 controller: 'Mdc.controller.setup.SecuritySettings',
                                                                 action: 'showSecuritySettingsEditView'
-                                                            },
-                                                            executionLevels: {
-                                                                title: Uni.I18n.translate('executionlevels.addExecutionLevels', 'MDC', 'Add privileges'),
-                                                                route: '{securitySettingId}/privileges/add',
-                                                                privileges: Mdc.privileges.DeviceType.admin,
-                                                                controller: 'Mdc.controller.setup.SecuritySettings',
-                                                                action: 'showAddExecutionLevelsView'
                                                             }
                                                         }
                                                     },
