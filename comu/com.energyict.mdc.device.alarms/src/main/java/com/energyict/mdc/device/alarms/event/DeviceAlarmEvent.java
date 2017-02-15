@@ -16,6 +16,7 @@ import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
@@ -25,7 +26,6 @@ import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.impl.ModuleConstants;
 import com.energyict.mdc.device.alarms.impl.event.EventDescription;
 import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
-import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
@@ -121,28 +121,35 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         getEventTimestamp(rawEvent);
     }
 
-    public int computeOccurenceCount(int ruleId, String relativePeriodId, String raiseEventProps, String triggeringEndDeviceEventTypes, String clearingEndDeviceEventTypes) {
-        Optional<RelativePeriod> relativePeriod = timeService.findRelativePeriod(Long.parseLong(relativePeriodId));
-        if (!relativePeriod.isPresent()) {
-            return -1;
+    public boolean checkOccurrenceConditions(int ruleId, String relativePeriodWithCount, String raiseEventProps, String triggeringEndDeviceEventTypes, String clearingEndDeviceEventTypes) {
+        List<String> relativePeriodWithCountValues = Arrays.asList(relativePeriodWithCount.split(SEPARATOR));
+        if (relativePeriodWithCountValues.size() != 2) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUIMENTS, "Relative period with occurrence count for device alarms");
+        }
+
+        int eventCountThreshold = Integer.parseInt(relativePeriodWithCountValues.get(0));
+        Optional<RelativePeriod> relativePeriod = timeService.findRelativePeriodByName(relativePeriodWithCountValues.get(1));
+
+        if (relativePeriod == null) {
+            return false;
         }
 
         List<String> inputTriggeringEventTypeList = getEndDeviceEventTypes(triggeringEndDeviceEventTypes);
         if (isAllEventTypesList(inputTriggeringEventTypeList)) {
-            return getLoggedEvents(relativePeriod.get()).size();
+            return getLoggedEvents(relativePeriod.get()).size() > eventCountThreshold;
         } else if (eventTypeMridContainedInListCount(inputTriggeringEventTypeList, Collections.singletonList(this.getEventTypeMrid())) == 0) {
-            return -1;
+            return false;
         }
         if (getEndDeviceEventTypes(clearingEndDeviceEventTypes).contains(this.getEventTypeMrid())) {
-            if (raiseEventProps != null && !raiseEventProps.isEmpty() && Integer.parseInt(Arrays.asList(raiseEventProps.split("-")).get(0)) == 1 &&
+            if (raiseEventProps != null && !raiseEventProps.isEmpty() && Integer.parseInt(Arrays.asList(raiseEventProps.split(SEPARATOR)).get(0)) == 1 &&
                     // issueService.getIssueCreationService().findCreationRuleById(Long.parseLong(ruleId)).isPresent() &&
                     issueService.findOpenIssuesForDevice(getDevice().getName()).find().stream().filter(issue -> issue.getRule().getId() == ruleId).findAny().isPresent()) {
-                return Integer.MAX_VALUE;
+                return true;
             } else {
-                return -1;
+                return false;
             }
         }
-        return getOccurenceCount(getLoggedEvents(relativePeriod.get()), getEndDeviceEventTypes(triggeringEndDeviceEventTypes), getDeviceCodes(triggeringEndDeviceEventTypes));
+        return getOccurenceCount(getLoggedEvents(relativePeriod.get()), getEndDeviceEventTypes(triggeringEndDeviceEventTypes), getDeviceCodes(triggeringEndDeviceEventTypes)) > eventCountThreshold;
     }
 
 
@@ -151,11 +158,11 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     }
 
     private List<String> getEndDeviceEventTypes(String endDeviceEventTypes) {
-        return parseCommaSeparatedStringToList(endDeviceEventTypes).stream().map(type -> type.substring(0,type.indexOf(SEPARATOR))).collect(Collectors.toList());
+        return parseCommaSeparatedStringToList(endDeviceEventTypes).stream().map(type -> type.substring(0, type.indexOf(SEPARATOR))).collect(Collectors.toList());
     }
 
     private List<String> getDeviceCodes(String endDeviceEventTypes) {
-        return parseCommaSeparatedStringToList(endDeviceEventTypes).stream().map(type -> type.substring(type.indexOf(SEPARATOR)+1)).filter(code -> !code.equals(ANY)).collect(Collectors.toList());
+        return parseCommaSeparatedStringToList(endDeviceEventTypes).stream().map(type -> type.substring(type.indexOf(SEPARATOR) + 1)).filter(code -> !code.equals(ANY)).collect(Collectors.toList());
     }
 
     private List<EndDeviceEventRecord> getLoggedEvents(RelativePeriod relativePeriod) {
