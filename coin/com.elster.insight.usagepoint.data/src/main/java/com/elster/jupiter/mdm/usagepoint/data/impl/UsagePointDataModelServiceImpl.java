@@ -1,10 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.data.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
-import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummaryFlag;
+import com.elster.jupiter.mdm.usagepoint.data.ChannelDataCompletionSummaryFlag;
+import com.elster.jupiter.mdm.usagepoint.data.ChannelDataCompletionSummaryType;
+import com.elster.jupiter.mdm.usagepoint.data.ChannelDataModificationSummaryFlags;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
+import com.elster.jupiter.mdm.usagepoint.data.ValidChannelDataSummaryFlags;
 import com.elster.jupiter.mdm.usagepoint.data.exceptions.MessageSeeds;
 import com.elster.jupiter.mdm.usagepoint.data.favorites.FavoritesService;
 import com.elster.jupiter.mdm.usagepoint.data.impl.favorites.FavoritesServiceImpl;
@@ -227,7 +234,10 @@ public class UsagePointDataModelServiceImpl implements UsagePointDataModelServic
     @Override
     public List<TranslationKey> getKeys() {
         return Stream.of(
-                Arrays.stream(ChannelDataValidationSummaryFlag.values()),
+                Arrays.stream(ChannelDataCompletionSummaryFlag.values()),
+                Arrays.stream(ChannelDataCompletionSummaryType.values()),
+                Arrays.stream(ChannelDataModificationSummaryFlags.values()),
+                Arrays.stream(ValidChannelDataSummaryFlags.values()),
                 Arrays.stream(Subscribers.values()),
                 Arrays.stream(Privileges.values()))
                 .flatMap(Function.identity())
