@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Bpm.processes.view.ProcessActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.bpm-process-action-menu',

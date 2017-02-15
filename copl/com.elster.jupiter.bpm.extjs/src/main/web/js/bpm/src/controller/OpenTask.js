@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Bpm.controller.OpenTask', {
     extend: 'Ext.app.Controller',
     stores: [
