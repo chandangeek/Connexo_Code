@@ -24,7 +24,7 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.DeviceLifeCycleInDeviceTypePropertyFactory;
 import com.elster.jupiter.properties.rest.EndDeviceEventTypePropertyFactory;
 import com.elster.jupiter.properties.rest.RaiseEventPropertyFactory;
-import com.elster.jupiter.properties.rest.RelativePeriodWithCountFactory;
+import com.elster.jupiter.properties.rest.RelativePeriodWithCountPropertyFactory;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -220,7 +220,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 .markMultiValued(",")
                 .finish());
         builder.add(propertySpecService
-                .specForValuesOf(new DeviceLifeCycleInDeviceTypeInfoFactory())
+                .specForValuesOf(new DeviceLifeCycleInDeviceTypeInfoValueFactory())
                 .named(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, TranslationKeys.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
@@ -236,7 +236,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 .setDefaultValue(new RaiseEventPropsInfo(RAISE_EVENT_PROPS_DEFAULT_VALUE))
                 .finish());
         builder.add(propertySpecService
-                .specForValuesOf(new RelativePeriodWithCountInfoValueFactory())
+                .specForValuesOf(new RelativePeriodWithCountInfoValuePropertyFactory())
                 .named(THRESHOLD, TranslationKeys.EVENT_TEMPORAL_THRESHOLD)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
@@ -298,7 +298,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
 
         @Override
         public String toStringValue(HasIdAndName object) {
-            return String.valueOf(object.getName());
+            return String.valueOf(object.getId());
         }
 
         @Override
@@ -405,7 +405,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     }
 
 
-    private class DeviceLifeCycleInDeviceTypeInfoFactory implements ValueFactory<HasIdAndName>, DeviceLifeCycleInDeviceTypePropertyFactory {
+    private class DeviceLifeCycleInDeviceTypeInfoValueFactory implements ValueFactory<HasIdAndName>, DeviceLifeCycleInDeviceTypePropertyFactory {
         @Override
         public HasIdAndName fromStringValue(String stringValue) {
             List<String> values = Arrays.asList(stringValue.split(SEPARATOR));
@@ -619,7 +619,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     }
 
 
-    private class RelativePeriodWithCountInfoValueFactory implements ValueFactory<HasIdAndName>, RelativePeriodWithCountFactory {
+    private class RelativePeriodWithCountInfoValuePropertyFactory implements ValueFactory<HasIdAndName>, RelativePeriodWithCountPropertyFactory {
         @Override
         public HasIdAndName fromStringValue(String stringValue) {
             List<String> values = Arrays.asList(stringValue.split(SEPARATOR));
