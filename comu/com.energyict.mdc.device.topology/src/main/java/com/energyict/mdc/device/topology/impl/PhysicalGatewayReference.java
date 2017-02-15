@@ -1,17 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.topology.impl;
 
-import com.energyict.mdc.device.data.Device;
-
 import com.elster.jupiter.orm.associations.Effectivity;
+import com.energyict.mdc.device.data.Device;
 
 import java.time.Instant;
 
-/**
- * models the link between a slave device (origin) is linked to a master device (gateway)
- * Copyrights EnergyICT
- * Date: 12/03/14
- * Time: 11:16
- */
 public interface PhysicalGatewayReference extends Effectivity {
 
     enum PhysicalGatewayReferenceDiscriminator {
