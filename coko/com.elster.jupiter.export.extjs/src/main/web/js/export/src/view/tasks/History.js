@@ -45,7 +45,9 @@ Ext.define('Dxp.view.tasks.History', {
         me.content = {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('general.history', 'DES', 'History'),
+            title: me.showExportTask
+                ? Uni.I18n.translate('general.history', 'DES', 'History')
+                : Uni.I18n.translate('general.exportHistoryx', 'DES', 'Export history'),
             items: [
                 {
                     xtype: 'filter-toolbar',

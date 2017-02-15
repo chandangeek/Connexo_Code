@@ -84,7 +84,7 @@ Ext.define('Dxp.controller.history.Export', {
                                     }
                                 },
                                 history: {
-                                    title: Uni.I18n.translate('general.exportTaskHistory', 'DES', 'Export task history'),
+                                    title: Uni.I18n.translate('general.history', 'DES', 'History'),
                                     route: 'history',
                                     controller: 'Dxp.controller.Tasks',
                                     action: 'showDataExportTaskHistory',
@@ -92,7 +92,7 @@ Ext.define('Dxp.controller.history.Export', {
                                     privileges: Dxp.privileges.DataExport.view,
                                     items: {
                                         occurrence: {
-                                            title: Uni.I18n.translate('general.exportTaskLog', 'DES', 'Export task log'),
+                                            title: Uni.I18n.translate('general.log', 'DES', 'Log'),
                                             route: '{occurrenceId}',
                                             controller: 'Dxp.controller.Log',
                                             privileges: Dxp.privileges.DataExport.view,
@@ -112,7 +112,7 @@ Ext.define('Dxp.controller.history.Export', {
                     }
                 },
                 exporthistory: {
-                    title: Uni.I18n.translate('general.exportTasksHistory', 'DES', 'Export tasks history'),
+                    title: Uni.I18n.translate('general.exportHistory', 'DES', 'Export history'),
                     route: 'exporthistory',
                     controller: 'Dxp.controller.Tasks',
                     action: 'showDataExportTaskHistory',
@@ -127,7 +127,7 @@ Ext.define('Dxp.controller.history.Export', {
             disabled: true,
             items: {
                 exporthistory: {
-                    title: Uni.I18n.translate('general.exportHistory', 'DES', 'Export history'),
+                    title: Uni.I18n.translate('general.exportHistoryx', 'DES', 'Export history'),
                     route: 'exporthistory',
                     controller: 'Dxp.controller.Tasks',
                     action: 'showDataExportTaskHistory',
@@ -136,14 +136,22 @@ Ext.define('Dxp.controller.history.Export', {
                         fromWorkspace: true
                     },
                     filter: 'Dxp.model.HistoryFilter',
-                    privileges: Dxp.privileges.DataExport.view,
+                    privileges: Dxp.privileges.DataExport.viewHistory,
                     items: {
                         occurrence: {
                             title: Uni.I18n.translate('general.log', 'DES', 'Log'),
                             route: '{occurrenceId}',
                             controller: 'Dxp.controller.Log',
-                            privileges: Dxp.privileges.DataExport.view,
-                            action: 'showLogWorkspace'
+                            privileges: Dxp.privileges.DataExport.viewHistory,
+                            action: 'showLogWorkspace',
+                            callback: function (route) {
+                                this.getApplication().on('exporthistorylogload', function (record) {
+                                    route.setTitle(Uni.I18n.translate('general.logx', 'DES', "Log '{0}'", [record.get('startedOn_formatted')], false));
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            }
                         }
                     }
                 }
