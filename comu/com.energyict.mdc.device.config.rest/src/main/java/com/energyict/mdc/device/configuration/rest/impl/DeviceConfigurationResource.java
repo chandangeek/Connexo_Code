@@ -297,6 +297,9 @@ public class DeviceConfigurationResource {
         if (deviceConfigurationInfo.dataloggerEnabled != null) {
             deviceConfigurationBuilder.dataloggerEnabled(deviceConfigurationInfo.dataloggerEnabled);
         }
+        if(deviceConfigurationInfo.validateOnStore != null){
+            deviceConfigurationBuilder.validateOnStore(deviceConfigurationInfo.validateOnStore);
+        }
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
         return new DeviceConfigurationInfo(deviceConfiguration);
     }
