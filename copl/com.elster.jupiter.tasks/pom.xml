@@ -12,7 +12,7 @@
         <relativePath>../com.elster.jupiter.platform/pom.xml</relativePath>
     </parent>
     <artifactId>tasks</artifactId>
-    <version>3.0.0${revision}</version>
+    <version>2.2.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.tasks</name>
 

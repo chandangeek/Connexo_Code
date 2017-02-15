@@ -4,8 +4,11 @@
 
 package com.elster.jupiter.tasks;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.logging.Handler;
 
+@ProviderType
 public interface TaskLogHandler {
 
     Handler asHandler();
