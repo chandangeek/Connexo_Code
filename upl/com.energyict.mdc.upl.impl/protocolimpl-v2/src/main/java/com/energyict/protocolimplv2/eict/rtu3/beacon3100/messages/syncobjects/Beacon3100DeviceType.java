@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
 import com.energyict.dlms.axrdencoding.*;
+import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -22,24 +23,26 @@ public class Beacon3100DeviceType {
     private List<Beacon3100Schedulable> schedulables;
     private Beacon3100ClockSyncConfiguration clockSyncConfiguration;
     private Beacon3100MeterSerialConfiguration meterSerialConfiguration;
+    boolean readOldObisCodes;
 
     /**
      * Note that the ID is actually the one of the device type configuration, since every new config is considered as a unique new device type in the Beacon model.
      */
-    public Beacon3100DeviceType(long id, String name, Beacon3100MeterSerialConfiguration meterSerialConfiguration, Beacon3100ProtocolConfiguration protocolConfiguration, List<Beacon3100Schedulable> schedulables, Beacon3100ClockSyncConfiguration clockSyncConfiguration) {
+    public Beacon3100DeviceType(long id, String name, Beacon3100MeterSerialConfiguration meterSerialConfiguration, Beacon3100ProtocolConfiguration protocolConfiguration, List<Beacon3100Schedulable> schedulables, Beacon3100ClockSyncConfiguration clockSyncConfiguration, boolean readOldObisCodes) {
         this.id = id;
         this.name = name;
         this.meterSerialConfiguration = meterSerialConfiguration;
         this.protocolConfiguration = protocolConfiguration;
         this.schedulables = schedulables;
         this.clockSyncConfiguration = clockSyncConfiguration;
+        this.readOldObisCodes = readOldObisCodes;
     }
 
     public boolean equals(AbstractDataType anotherClientTypeStructure){
 
         try {
             byte[] otherByteArray = anotherClientTypeStructure.getBEREncodedByteArray();
-            byte[] thisByteArray = toStructure().getBEREncodedByteArray();
+            byte[] thisByteArray = toStructure(readOldObisCodes).getBEREncodedByteArray();
 
             return Arrays.equals(thisByteArray, otherByteArray);
 
@@ -49,7 +52,7 @@ public class Beacon3100DeviceType {
     }
 
     public boolean equals(Beacon3100ClientType anotherClientType) {
-        return this.equals(anotherClientType.toStructure());
+        return this.equals(toStructure(readOldObisCodes));
     }
 
         //JSon constructor
@@ -57,6 +60,10 @@ public class Beacon3100DeviceType {
     }
 
     public Structure toStructure() {
+       return toStructure(true);
+    }
+
+    public Structure toStructure(boolean oldFirmware) {
         final Structure structure = new Structure();
         structure.addDataType(new Unsigned32(getId()));
         structure.addDataType(OctetString.fromString(getName()));
@@ -65,13 +72,21 @@ public class Beacon3100DeviceType {
 
         final Array schedulableArray = new Array();
         for (Beacon3100Schedulable beacon3100Schedulable : getSchedulables()) {
-            schedulableArray.addDataType(beacon3100Schedulable.toStructure());
+            schedulableArray.addDataType(toStructure(beacon3100Schedulable, oldFirmware));
         }
         structure.addDataType(schedulableArray);
 
         structure.addDataType(getClockSyncConfiguration().toStructure());
 
         return structure;
+    }
+
+    private Structure toStructure(Beacon3100Schedulable beacon3100Schedulable, boolean oldFirmware) {
+        if(oldFirmware) {
+            return beacon3100Schedulable.toStructure();
+        }else{
+            return beacon3100Schedulable.toStructureForNewFirmware();
+        }
     }
 
     @XmlAttribute
@@ -102,5 +117,50 @@ public class Beacon3100DeviceType {
     @XmlAttribute
     public Beacon3100ClockSyncConfiguration getClockSyncConfiguration() {
         return clockSyncConfiguration;
+    }
+
+    public boolean updateBufferSizeForRegister(ObisCode obisCode, int bufferSize) {
+        for(Beacon3100Schedulable schedulable: schedulables){
+            if(schedulable.updateBufferSizeForRegister(obisCode, bufferSize))
+                return true;
+        }
+        return false;
+    }
+
+    public boolean updateBufferSizeForAllRegisters(int bufferSize) {
+        for(Beacon3100Schedulable schedulable: schedulables){
+           schedulable.updateBufferSizeForAllRegisters(bufferSize);
+        }
+        return false;
+    }
+
+    public boolean updateBufferSizeForLoadProfiles(ObisCode obisCode, int bufferSize) {
+        for(Beacon3100Schedulable schedulable: schedulables){
+            if(schedulable.updateBufferSizeForLoadProfile(obisCode, bufferSize))
+                return true;
+        }
+        return false;
+    }
+
+    public boolean updateBufferSizeForAllLoadProfiles(int bufferSize) {
+        for(Beacon3100Schedulable schedulable: schedulables){
+            schedulable.updateBufferSizeForAllLoadProfiles(bufferSize);
+        }
+        return false;
+    }
+
+    public boolean updateBufferSizeForEventLogs(ObisCode obisCode, int bufferSize) {
+        for(Beacon3100Schedulable schedulable: schedulables){
+            if(schedulable.updateBufferSizeForEventLogs(obisCode, bufferSize))
+                return true;
+        }
+        return false;
+    }
+
+    public boolean updateBufferSizeForAllEventLogs(int bufferSize) {
+        for(Beacon3100Schedulable schedulable: schedulables){
+            schedulable.updateBufferSizeForAllEventLogs(bufferSize);
+        }
+        return false;
     }
 }
