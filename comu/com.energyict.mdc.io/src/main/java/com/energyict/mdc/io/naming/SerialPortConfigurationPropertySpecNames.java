@@ -1,8 +1,10 @@
 package com.energyict.mdc.io.naming;
 
+import com.energyict.mdc.channel.serial.SerialPortConfiguration;
+
 /**
  * Defines name of {@link com.elster.jupiter.properties.PropertySpec}s
- * that relate to {@link com.energyict.mdc.channels.serial.SerialPortConfiguration}.
+ * that relate to {@link SerialPortConfiguration}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-12-04 (12:03)
