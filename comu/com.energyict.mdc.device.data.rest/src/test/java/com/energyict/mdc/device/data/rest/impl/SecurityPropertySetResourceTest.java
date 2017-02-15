@@ -300,9 +300,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getId()).thenReturn(id);
         when(securityPropertySet.getName()).thenReturn(name);
-        when(securityPropertySet.getUserActions()).thenReturn(EnumSet.of(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1));
-        when(securityPropertySet.currentUserIsAllowedToViewDeviceProperties()).thenReturn(canView.bool);
-        when(securityPropertySet.currentUserIsAllowedToEditDeviceProperties()).thenReturn(canEdit.bool);
+//        when(securityPropertySet.getUserActions()).thenReturn(EnumSet.of(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1));
         when(securityPropertySet.getAuthenticationDeviceAccessLevel()).thenReturn(authenticationDeviceAccessLevel);
         when(securityPropertySet.getEncryptionDeviceAccessLevel()).thenReturn(encryptionDeviceAccessLevel);
 

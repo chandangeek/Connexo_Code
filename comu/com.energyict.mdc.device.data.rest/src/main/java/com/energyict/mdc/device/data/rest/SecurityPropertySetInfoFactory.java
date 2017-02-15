@@ -71,8 +71,8 @@ public class SecurityPropertySetInfoFactory {
         info.authenticationLevel = SecurityLevelInfo.from(securityPropertySet.getAuthenticationDeviceAccessLevel());
         info.encryptionLevel = SecurityLevelInfo.from(securityPropertySet.getEncryptionDeviceAccessLevel());
 
-        info.userHasViewPrivilege = securityPropertySet.currentUserIsAllowedToViewDeviceProperties();
-        info.userHasEditPrivilege = securityPropertySet.currentUserIsAllowedToEditDeviceProperties();
+//        info.userHasViewPrivilege = securityPropertySet.currentUserIsAllowedToViewDeviceProperties();
+//        info.userHasEditPrivilege = securityPropertySet.currentUserIsAllowedToEditDeviceProperties();
 
         List<SecurityProperty> securityProperties = device.getSecurityProperties(securityPropertySet);
         TypedProperties typedProperties = this.toTypedProperties(securityProperties);
@@ -85,12 +85,12 @@ public class SecurityPropertySetInfoFactory {
         CompletionState status = getStatus(device, securityPropertySet);
         info.status.id = status;
         info.status.name = status.getTranslation(this.thesaurus);
-        if (!info.userHasViewPrivilege) {
-            info.properties.stream().forEach(p -> p.propertyValueInfo = new PropertyValueInfo<>(p.propertyValueInfo.propertyHasValue));
-            if (!info.userHasEditPrivilege) {
-                info.properties.stream().forEach(p -> p.propertyTypeInfo = new PropertyTypeInfo());
-            }
-        }
+//        if (!info.userHasViewPrivilege) {
+//            info.properties.stream().forEach(p -> p.propertyValueInfo = new PropertyValueInfo<>(p.propertyValueInfo.propertyHasValue));
+//            if (!info.userHasEditPrivilege) {
+//                info.properties.stream().forEach(p -> p.propertyTypeInfo = new PropertyTypeInfo());
+//            }
+//        }
         info.version = securityPropertySet.getVersion();
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         return info;
