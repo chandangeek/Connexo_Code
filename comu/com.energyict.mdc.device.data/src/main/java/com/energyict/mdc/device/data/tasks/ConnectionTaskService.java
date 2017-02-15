@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data.tasks;
 
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
@@ -178,6 +179,15 @@ public interface ConnectionTaskService {
      * @param connectionTask The ConnectionTask
      */
     void unlockConnectionTask(ConnectionTask connectionTask);
+
+    /**
+     * Update the given connectionTask with given ProtocolDialectConfigurationProperties
+     *
+     * @param connectionTask ConnectionTask to update
+     * @param properties to update the ConnectionTask with
+     * @return the updated ConnectionTask
+     */
+     ConnectionTask updateProtocolDialectConfigurationProperties(ConnectionTask connectionTask, ProtocolDialectConfigurationProperties properties);
 
     /**
      * Cleans up any marker flags on {@link ConnectionTask}s that were not properly
