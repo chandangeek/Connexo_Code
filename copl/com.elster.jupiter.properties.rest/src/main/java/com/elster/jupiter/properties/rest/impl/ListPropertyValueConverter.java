@@ -13,9 +13,8 @@ import com.elster.jupiter.properties.rest.DeviceConfigurationPropertyFactory;
 import com.elster.jupiter.properties.rest.DeviceLifeCycleInDeviceTypePropertyFactory;
 import com.elster.jupiter.properties.rest.EndDeviceEventTypePropertyFactory;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
-import com.elster.jupiter.properties.rest.RelativePeriodWithCountFactory;
+import com.elster.jupiter.properties.rest.RelativePeriodWithCountPropertyFactory;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
-import com.elster.jupiter.util.HasName;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,7 +46,7 @@ public class ListPropertyValueConverter implements PropertyValueConverter {
         if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof EndDeviceEventTypePropertyFactory) {
             return SimplePropertyType.ENDDEVICEEVENTTYPE;
         }
-        if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof RelativePeriodWithCountFactory) {
+        if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof RelativePeriodWithCountPropertyFactory) {
             return SimplePropertyType.RELATIVEPERIODWITHCOUNT;
         }
         return SimplePropertyType.LISTVALUE;
