@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.modbus.squared.pm750;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
@@ -28,8 +29,8 @@ public class PM750 extends Modbus  {
 
 	private MultiplierFactory multiplierFactory = null;
 
-	public PM750(PropertySpecService propertySpecService) {
-		super(propertySpecService);
+	public PM750(PropertySpecService propertySpecService, NlsService nlsService) {
+		super(propertySpecService, nlsService);
 	}
 
 	@Override

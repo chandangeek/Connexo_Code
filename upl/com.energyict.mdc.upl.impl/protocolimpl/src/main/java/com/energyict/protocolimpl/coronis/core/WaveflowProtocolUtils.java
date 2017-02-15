@@ -92,8 +92,8 @@ public final class WaveflowProtocolUtils {
 		return array;
 	}
 
-	public static PropertySpec propertySpec(String name, boolean required) {
-        return new WaveflowPropertySpec(name, required);
+	public static PropertySpec propertySpec(String name, boolean required, String displayName, String description) {
+        return new WaveflowPropertySpec(name, required, displayName, description);
     }
 
 	// Hide utility class constructor
@@ -102,10 +102,14 @@ public final class WaveflowProtocolUtils {
     private static class WaveflowPropertySpec implements PropertySpec {
         private final String name;
         private final boolean required;
+        private final String displayName;
+        private final String description;
 
-        private WaveflowPropertySpec(String name, boolean required) {
+        private WaveflowPropertySpec(String name, boolean required, String displayName, String description) {
             this.name = name;
             this.required = required;
+            this.displayName = displayName;
+            this.description = description;
         }
 
         @Override
@@ -115,12 +119,12 @@ public final class WaveflowProtocolUtils {
 
         @Override
         public String getDisplayName() {
-            return this.getName();
+            return this.displayName;
         }
 
         @Override
         public String getDescription() {
-            return this.getDisplayName();
+            return this.description;
         }
 
         @Override

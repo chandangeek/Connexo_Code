@@ -1,11 +1,13 @@
 package com.energyict.protocolimplv2.abnt.common;
 
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
@@ -158,11 +160,11 @@ public class AbntProperties implements HasDynamicProperties {
     }
 
     private PropertySpec readerSerialNumberPropertySpec() {
-        return this.bigDecimalSpec(READER_SERIAL_NUMBER_PROPERTY, false, DEFAULT_READER_SERIAL_NUMBER);
+        return this.bigDecimalSpec(READER_SERIAL_NUMBER_PROPERTY, false, DEFAULT_READER_SERIAL_NUMBER, PropertyTranslationKeys.V2_ABNT_READER_SERIAL_NUMBER);
     }
 
-    private PropertySpec bigDecimalSpec(String name, boolean required, BigDecimal defaultValue) {
-        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, this.propertySpecService::bigDecimalSpec);
+    private PropertySpec bigDecimalSpec(String name, boolean required, BigDecimal defaultValue, TranslationKey translationKey) {
+        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, this.propertySpecService::bigDecimalSpec);
         specBuilder.setDefaultValue(defaultValue);
         return specBuilder.finish();
     }

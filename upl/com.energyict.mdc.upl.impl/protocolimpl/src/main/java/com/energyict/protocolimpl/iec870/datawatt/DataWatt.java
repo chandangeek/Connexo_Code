@@ -10,6 +10,7 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -21,6 +22,7 @@ import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.iec870.IEC870Connection;
 import com.energyict.protocolimpl.iec870.IEC870ConnectionException;
 import com.energyict.protocolimpl.iec870.IEC870ProtocolLink;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
@@ -209,29 +211,29 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.stringSpec(ADDRESS.getName()),
-                this.stringSpec(PASSWORD.getName()),
-                this.integerSpec(TIMEOUT.getName()),
-                this.integerSpec(RETRIES.getName()),
-                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
-                this.stringSpec(PROFILEINTERVAL.getName()),
-                this.stringSpec("ChannelMap"),
-                this.integerSpec("MeterType"),
-                this.stringSpec(SERIALNUMBER.getName()),
-                this.stringSpec(PASSWORD.getName()),
-                this.integerSpec(CORRECTTIME.getName()));
+                this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.IEC870_ADDRESS),
+                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.IEC870_PASSWORD),
+                this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.IEC870_TIMEOUT),
+                this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.IEC870_RETRIES),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.IEC870_ROUNDTRIPCORRECTION),
+                this.stringSpec(PROFILEINTERVAL.getName(), PropertyTranslationKeys.IEC870_PROFILEINTERVAL),
+                this.stringSpec("ChannelMap", PropertyTranslationKeys.IEC870_CHANNEL_MAP),
+                this.integerSpec("MeterType", PropertyTranslationKeys.IEC870_METER_TYPE),
+                this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.IEC870_SERIALNUMBER),
+                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.IEC870_PASSWORD),
+                this.integerSpec(CORRECTTIME.getName(), PropertyTranslationKeys.IEC870_CORRECTTIME));
     }
 
-    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, optionsSupplier).finish();
     }
 
-    private PropertySpec stringSpec(String name) {
-        return this.spec(name, this.propertySpecService::stringSpec);
+    private PropertySpec stringSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::stringSpec);
     }
 
-    private PropertySpec integerSpec(String name) {
-        return this.spec(name, this.propertySpecService::integerSpec);
+    private PropertySpec integerSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::integerSpec);
     }
 
     @Override

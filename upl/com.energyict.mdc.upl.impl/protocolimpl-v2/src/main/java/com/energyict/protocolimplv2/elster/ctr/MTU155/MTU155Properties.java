@@ -4,6 +4,7 @@ import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
+import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -83,37 +84,37 @@ public class MTU155Properties {
 
     private PropertySpec timeZonePropertySpec(PropertySpecService propertySpecService) {
         return UPLPropertySpecFactory
-                    .specBuilder(TIMEZONE_PROPERTY_NAME, true, propertySpecService::timeZoneSpec)
+                    .specBuilder(TIMEZONE_PROPERTY_NAME, true, PropertyTranslationKeys.V2_ELSTER_TIMEZONE, propertySpecService::timeZoneSpec)
                     .finish();
     }
 
     private PropertySpec debugPropertySpec(PropertySpecService propertySpecService) {
         return UPLPropertySpecFactory
-                    .specBuilder(DEBUG_PROPERTY_NAME, false, propertySpecService::booleanSpec)
+                    .specBuilder(DEBUG_PROPERTY_NAME, false, PropertyTranslationKeys.V2_ELSTER_DEBUG, propertySpecService::booleanSpec)
                     .finish();
     }
 
     private PropertySpec channelBacklogPropertySpec(PropertySpecService propertySpecService) {
         return UPLPropertySpecFactory
-                    .specBuilder(CHANNEL_BACKLOG_PROPERTY_NAME, false, propertySpecService::bigDecimalSpec)
+                    .specBuilder(CHANNEL_BACKLOG_PROPERTY_NAME, false, PropertyTranslationKeys.V2_ELSTER_CHANNEL_BACKLOG, propertySpecService::bigDecimalSpec)
                     .finish();
     }
 
     private PropertySpec extractInstallationDatePropertySpec(PropertySpecService propertySpecService) {
         return UPLPropertySpecFactory
-                    .specBuilder(EXTRACT_INSTALLATION_DATE_PROPERTY_NAME, false, propertySpecService::bigDecimalSpec)
+                    .specBuilder(EXTRACT_INSTALLATION_DATE_PROPERTY_NAME, false, PropertyTranslationKeys.V2_ELSTER_EXTRACT_INSTALLATION_DATE, propertySpecService::bigDecimalSpec)
                     .finish();
     }
 
     private PropertySpec removeDayProfileOffsetPropertySpec(PropertySpecService propertySpecService) {
         return UPLPropertySpecFactory
-                    .specBuilder(REMOVE_DAY_PROFILE_OFFSET_PROPERTY_NAME, false, propertySpecService::bigDecimalSpec)
+                    .specBuilder(REMOVE_DAY_PROFILE_OFFSET_PROPERTY_NAME, false, PropertyTranslationKeys.V2_ELSTER_REMOVE_DAY_PROFILE_OFFSET, propertySpecService::bigDecimalSpec)
                     .finish();
     }
 
     protected PropertySpec callHomeIdPropertySpec(PropertySpecService propertySpecService) {
         return UPLPropertySpecFactory
-                    .specBuilder(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, false, propertySpecService::stringSpec)
+                    .specBuilder(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, false, PropertyTranslationKeys.V2_ELSTER_CALL_HOME_ID, propertySpecService::stringSpec)
                     .finish();
     }
 

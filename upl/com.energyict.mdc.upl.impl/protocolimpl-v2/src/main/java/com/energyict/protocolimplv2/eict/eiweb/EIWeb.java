@@ -36,6 +36,7 @@ import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
+import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.support.SerialNumberSupport;
@@ -102,7 +103,7 @@ public class EIWeb implements DeviceProtocol, SerialNumberSupport {
     }
 
     private PropertySpec getPhoneNumberPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(PHONE_NUMBER, false, this.propertySpecService::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(PHONE_NUMBER, false, PropertyTranslationKeys.V2_EICT_PHONE_NUMBER, this.propertySpecService::stringSpec).finish();
     }
 
     @Override

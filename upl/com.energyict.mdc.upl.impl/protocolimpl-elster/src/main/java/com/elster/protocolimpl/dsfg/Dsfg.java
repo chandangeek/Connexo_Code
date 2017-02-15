@@ -1,6 +1,8 @@
 package com.elster.protocolimpl.dsfg;
 
+import com.elster.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.*;
 
 import com.elster.protocolimpl.dsfg.connection.DsfgConnection;
@@ -17,6 +19,7 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.properties.CharPropertySpec;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -104,9 +107,11 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
      */
     private ArchiveRecordConfig archiveStructure = null;
     private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
 
-    public Dsfg(PropertySpecService propertySpecService) {
+    public Dsfg(PropertySpecService propertySpecService, NlsService nlsService) {
         this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
     }
 
     @Override
@@ -125,13 +130,13 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.specBuilder(PASSWORD.getName(), false, this.propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(TIMEOUT.getName(), false, this.propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(RETRIES.getName(), false, this.propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(PROFILEINTERVAL.getName(), false, this.propertySpecService::integerSpec).finish(),
-                new CharPropertySpec("RegistrationInstance", true, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ[^"),
-                new CharPropertySpec("ArchiveInstance", true, "abcdefghijklmnopqrstuvwxyz"),
-                UPLPropertySpecFactory.specBuilder("ChannelMap", true, this.propertySpecService::stringSpec).finish());
+                UPLPropertySpecFactory.specBuilder(PASSWORD.getName(), false, PropertyTranslationKeys.DSFG_PASSWORD, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(TIMEOUT.getName(), false, PropertyTranslationKeys.DSFG_TIMEOUT, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(RETRIES.getName(), false, PropertyTranslationKeys.DSFG_RETRIES, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PROFILEINTERVAL.getName(), false, PropertyTranslationKeys.DSFG_PROFILE_INTERVAL, this.propertySpecService::integerSpec).finish(),
+                new CharPropertySpec("RegistrationInstance", true, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ[^", this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DSFG_REGISTRATION_INSTANCE).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DSFG_REGISTRATION_INSTANCE_DESCRIPTION).format()),
+                new CharPropertySpec("ArchiveInstance", true, "abcdefghijklmnopqrstuvwxyz", this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DSFG_REGISTRATION_INSTANCE).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DSFG_REGISTRATION_INSTANCE_DESCRIPTION).format()),
+                UPLPropertySpecFactory.specBuilder("ChannelMap", true, PropertyTranslationKeys.DSFG_CHANNEL_MAP, this.propertySpecService::stringSpec).finish());
     }
 
     @Override

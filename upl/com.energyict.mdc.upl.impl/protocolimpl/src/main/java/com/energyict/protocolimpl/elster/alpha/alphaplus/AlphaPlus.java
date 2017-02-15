@@ -13,6 +13,7 @@ package com.energyict.protocolimpl.elster.alpha.alphaplus;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -40,6 +41,7 @@ import com.energyict.protocolimpl.elster.alpha.core.classes.BillingDataRegisterF
 import com.energyict.protocolimpl.elster.alpha.core.connection.AlphaConnection;
 import com.energyict.protocolimpl.elster.alpha.core.connection.CommandFactory;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
@@ -76,8 +78,8 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
     private SerialCommunicationChannel commChannel;
     private int totalRegisterRate;
 
-    public AlphaPlus(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public AlphaPlus(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override
@@ -124,9 +126,9 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.integerSpec("WhoAreYouTimeout", false));
-        propertySpecs.add(this.integerSpec("TotalRegisterRate", false));
-        propertySpecs.add(this.integerSpec("OpticalHandshakeOverModemport", false));
+        propertySpecs.add(this.integerSpec("WhoAreYouTimeout", PropertyTranslationKeys.ELSTER_WHO_ARE_YOU_TIMEOUT, false));
+        propertySpecs.add(this.integerSpec("TotalRegisterRate", PropertyTranslationKeys.ELSTER_TOTAL_REGISTER_RATE, false));
+        propertySpecs.add(this.integerSpec("OpticalHandshakeOverModemport", PropertyTranslationKeys.ELSTER_OPTICAL_HANDSHAKE_OVER_MODEM_PORT, false));
         return propertySpecs;
     }
 

@@ -23,6 +23,7 @@ import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -33,6 +34,7 @@ import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -134,8 +136,8 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     private int iskraWrapper = 1;
     private boolean incrementFrameCounterForRetries;
 
-    public AbstractDLMSProtocol(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public AbstractDLMSProtocol(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override
@@ -331,28 +333,28 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         Stream<PropertySpec> propertySpecs = super.getUPLPropertySpecs().stream().filter(propertySpec -> !propertySpec.getName().equals(SECURITYLEVEL.getName()));
         PropertySpecService propertySpecService = this.getPropertySpecService();
         List<PropertySpec> myPropertySpecs = new ArrayList<>();
-        myPropertySpecs.add(this.stringSpec(SECURITYLEVEL.getName(), true));
-        myPropertySpecs.add(this.integerSpec(PROPNAME_CONNECTION, false));
-        myPropertySpecs.add(this.integerSpec(PROPNAME_CLIENT_MAC_ADDRESS, false));
-        myPropertySpecs.add(this.integerSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, false));
-        myPropertySpecs.add(this.integerSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, false));
-        myPropertySpecs.add(this.integerSpec(PROPNAME_ADDRESSING_MODE, false));
-        myPropertySpecs.add(this.stringSpec(PROPNAME_MANUFACTURER, false));
-        myPropertySpecs.add(this.integerSpec(PROPNAME_INFORMATION_FIELD_SIZE, false));
-        myPropertySpecs.add(this.integerSpec(PROPNAME_IIAP_INVOKE_ID, false));
-        myPropertySpecs.add(this.integerSpec(PROPNAME_IIAP_PRIORITY, false));
-        myPropertySpecs.add(this.integerSpec(PROPNAME_IIAP_SERVICE_CLASS, false));
+        myPropertySpecs.add(this.stringSpec(SECURITYLEVEL.getName(), PropertyTranslationKeys.DLMS_SECURITYLEVEL, true));
+        myPropertySpecs.add(this.integerSpec(PROPNAME_CONNECTION, PropertyTranslationKeys.DLMS_CONNECTION, false));
+        myPropertySpecs.add(this.integerSpec(PROPNAME_CLIENT_MAC_ADDRESS, PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS, false));
+        myPropertySpecs.add(this.integerSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS, false));
+        myPropertySpecs.add(this.integerSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS, false));
+        myPropertySpecs.add(this.integerSpec(PROPNAME_ADDRESSING_MODE, PropertyTranslationKeys.DLMS_ADDRESSING_MODE, false));
+        myPropertySpecs.add(this.stringSpec(PROPNAME_MANUFACTURER, PropertyTranslationKeys.DLMS_MANUFACTURER, false));
+        myPropertySpecs.add(this.integerSpec(PROPNAME_INFORMATION_FIELD_SIZE, PropertyTranslationKeys.DLMS_MANUFACTURER, false));
+        myPropertySpecs.add(this.integerSpec(PROPNAME_IIAP_INVOKE_ID, PropertyTranslationKeys.DLMS_IIAP_INVOKE_ID, false));
+        myPropertySpecs.add(this.integerSpec(PROPNAME_IIAP_PRIORITY, PropertyTranslationKeys.DLMS_IIAP_PRIORITY, false));
+        myPropertySpecs.add(this.integerSpec(PROPNAME_IIAP_SERVICE_CLASS, PropertyTranslationKeys.DLMS_SERVICE_CLASS, false));
         myPropertySpecs.add(
                 UPLPropertySpecFactory
-                        .specBuilder(PROPNAME_CIPHERING_TYPE, false, propertySpecService::integerSpec)
+                        .specBuilder(PROPNAME_CIPHERING_TYPE, false, PropertyTranslationKeys.DLMS_CIPHERING_TYPE, propertySpecService::integerSpec)
                         .addValues(CipheringType.GLOBAL.getType(), CipheringType.DEDICATED.getType())
                         .markExhaustive()
                         .finish());
-        myPropertySpecs.add(this.integerSpec(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES, false));
-        myPropertySpecs.add(this.integerSpec(PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD, false));
-        myPropertySpecs.add(this.integerSpec(MAX_REC_PDU_SIZE, false));
-        myPropertySpecs.add(this.integerSpec(ISKRA_WRAPPER, false));
-        myPropertySpecs.add(this.stringSpec(INCREMENT_FRAMECOUNTER_FOR_RETRIES, false));
+        myPropertySpecs.add(this.integerSpec(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES, PropertyTranslationKeys.DLMS_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES, false));
+        myPropertySpecs.add(this.integerSpec(PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD, PropertyTranslationKeys.DLMS_CLOCKSET_ROUDTRIP_CORRECTION_TRESHOLD, false));
+        myPropertySpecs.add(this.integerSpec(MAX_REC_PDU_SIZE, PropertyTranslationKeys.DLMS_MAX_REC_PDU_SIZE, false));
+        myPropertySpecs.add(this.integerSpec(ISKRA_WRAPPER, PropertyTranslationKeys.DLMS_ISKRA_WRAPPER, false));
+        myPropertySpecs.add(this.stringSpec(INCREMENT_FRAMECOUNTER_FOR_RETRIES, PropertyTranslationKeys.DLMS_INCREMENT_FRAMECOUNTER_FOR_RETRIES, false));
         propertySpecs.forEach(myPropertySpecs::add);
         return myPropertySpecs;
     }

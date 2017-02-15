@@ -1,10 +1,12 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.properties;
 
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
@@ -81,95 +83,95 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
     }
 
     private PropertySpec frameCounterRecoveryRetries() {
-        return this.bigDecimalSpec(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_RETRIES, false, BigDecimal.valueOf(100));
+        return this.bigDecimalSpec(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_RETRIES, false, PropertyTranslationKeys.V2_DLMS_FRAME_COUNTER_RECOVERY_RETRIES,BigDecimal.valueOf(100));
     }
 
     private PropertySpec frameCounterRecoveryStep() {
-        return this.bigDecimalSpec(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_STEP, false, BigDecimal.ONE);
+        return this.bigDecimalSpec(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_STEP, false, PropertyTranslationKeys.V2_DLMS_FRAME_COUNTER_RECOVERY_STEP, BigDecimal.ONE);
     }
 
     private PropertySpec validateCachedFrameCounter() {
-        return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.VALIDATE_CACHED_FRAMECOUNTER, false, getPropertySpecService()::booleanSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.VALIDATE_CACHED_FRAMECOUNTER, false, PropertyTranslationKeys.V2_DLMS_VALIDATE_CACHED_FRAMECOUNTER, getPropertySpecService()::booleanSpec).finish();
     }
 
     private PropertySpec useCachedFrameCounter() {
-        return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER, false, getPropertySpecService()::booleanSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER, false, PropertyTranslationKeys.V2_DLMS_USE_CACHED_FRAMECOUNTER, getPropertySpecService()::booleanSpec).finish();
     }
 
     private PropertySpec requestAuthenticatedFrameCounter() {
-        return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER, false, getPropertySpecService()::booleanSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER, false, PropertyTranslationKeys.V2_DLMS_REQUEST_AUTHENTICATE_FRAME_COUNTER, getPropertySpecService()::booleanSpec).finish();
     }
 
     private PropertySpec lastSeenDatePropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(G3Properties.PROP_LASTSEENDATE, false, getPropertySpecService()::bigDecimalSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(G3Properties.PROP_LASTSEENDATE, false, PropertyTranslationKeys.V2_DLMS_LAST_SENDDATE, getPropertySpecService()::bigDecimalSpec).finish();
     }
 
     private PropertySpec pollingDelayPropertySpec() {
-        return this.durationSpec(POLLING_DELAY, false, Duration.ofSeconds(0));
+        return this.durationSpec(POLLING_DELAY, false, Duration.ofSeconds(0), PropertyTranslationKeys.V2_DLMS_POLLING_DELAY);
     }
 
     private PropertySpec pskPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(G3Properties.PSK, false, this.getPropertySpecService()::hexStringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(G3Properties.PSK, false, PropertyTranslationKeys.V2_DLMS_PSK, this.getPropertySpecService()::hexStringSpec).finish();
     }
 
     private PropertySpec nodeAddressPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), false, this.getPropertySpecService()::bigDecimalSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), false, PropertyTranslationKeys.V2_DLMS_NODEID, this.getPropertySpecService()::bigDecimalSpec).finish();
     }
 
     private PropertySpec serverLowerMacAddressPropertySpec() {
-        return this.bigDecimalSpec(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, false, DEFAULT_SERVER_LOWER_MAC_ADDRESS);
+        return this.bigDecimalSpec(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, false, PropertyTranslationKeys.V2_DLMS_SERVER_LOWER_MAC_ADDRESS, DEFAULT_SERVER_LOWER_MAC_ADDRESS);
     }
 
     private PropertySpec mirrorLogicalDeviceIdPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID, false, this.getPropertySpecService()::bigDecimalSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID, false, PropertyTranslationKeys.V2_DLMS_MIRROR_LOGICAL_DEVICE_ID, this.getPropertySpecService()::bigDecimalSpec).finish();
     }
 
     private PropertySpec actualLogicalDeviceIdPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID, false, this.getPropertySpecService()::bigDecimalSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID, false, PropertyTranslationKeys.V2_DLMS_GATEWAY_LOGICAL_DEVICE_ID, this.getPropertySpecService()::bigDecimalSpec).finish();
     }
 
     private PropertySpec useEquipmentIdentifierAsSerialNumberPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, false, this.getPropertySpecService()::booleanSpec)
+        return UPLPropertySpecFactory.specBuilder(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, false, PropertyTranslationKeys.V2_DLMS_USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, this.getPropertySpecService()::booleanSpec)
                 .setDefaultValue(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE)
                 .finish();
     }
 
     private PropertySpec aarqTimeoutPropertySpec() {
-        return this.durationSpec(AARQ_TIMEOUT_PROPERTY, false, DEFAULT_NOT_USED_AARQ_TIMEOUT);
+        return this.durationSpec(AARQ_TIMEOUT_PROPERTY, false, DEFAULT_NOT_USED_AARQ_TIMEOUT, PropertyTranslationKeys.V2_DLMS_AARQ_TIMEOUT);
     }
 
     private PropertySpec aarqRetriesPropertySpec() {
-        return this.bigDecimalSpec(AARQ_RETRIES_PROPERTY, false, BigDecimal.valueOf(2));
+        return this.bigDecimalSpec(AARQ_RETRIES_PROPERTY, false, PropertyTranslationKeys.V2_DLMS_AARQ_RETRIES, BigDecimal.valueOf(2));
     }
 
     private PropertySpec initialFrameCounter() {
-        return UPLPropertySpecFactory.specBuilder(INITIAL_FRAME_COUNTER, false, this.getPropertySpecService()::positiveBigDecimalSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(INITIAL_FRAME_COUNTER, false, PropertyTranslationKeys.V2_DLMS_INITIAL_FRAME_COUNTER, this.getPropertySpecService()::positiveBigDecimalSpec).finish();
     }
 
     private PropertySpec useMeterInTransparentMode() {
-        return UPLPropertySpecFactory.specBuilder(USE_METER_IN_TRANSPARENT_MODE, false, this.getPropertySpecService()::booleanSpec)
+        return UPLPropertySpecFactory.specBuilder(USE_METER_IN_TRANSPARENT_MODE, false, PropertyTranslationKeys.V2_DLMS_USE_METER_IN_TRANSPARENT_MODE, this.getPropertySpecService()::booleanSpec)
                 .setDefaultValue(false)
                 .finish();
     }
 
     private PropertySpec transparentConnectTime() {
-        return this.bigDecimalSpec(TRANSP_CONNECT_TIME, false, BigDecimal.valueOf(10));
+        return this.bigDecimalSpec(TRANSP_CONNECT_TIME, false, PropertyTranslationKeys.V2_DLMS_TRANSP_CONNECT_TIME, BigDecimal.valueOf(10));
     }
 
     private PropertySpec transparentPassword() {
-        return UPLPropertySpecFactory.specBuilder(PASSWORD, false, this.getPropertySpecService()::stringSpec)
+        return UPLPropertySpecFactory.specBuilder(PASSWORD, false, PropertyTranslationKeys.V2_DLMS_PASSWORD, this.getPropertySpecService()::stringSpec)
                 .setDefaultValue(DEFAULT_TRANSPARENT_PASSWORD)
                 .finish();
     }
 
     private PropertySpec transparentSecurityLevel() {
-        return UPLPropertySpecFactory.specBuilder(METER_SECURITY_LEVEL, false, this.getPropertySpecService()::stringSpec)
+        return UPLPropertySpecFactory.specBuilder(METER_SECURITY_LEVEL, false, PropertyTranslationKeys.V2_DLMS_METER_SECURITY_LEVEL, this.getPropertySpecService()::stringSpec)
                 .setDefaultValue(DEFAULT_TRANSPARENT_SECURITY_LEVEL)
                 .finish();
     }
 
-    private PropertySpec bigDecimalSpec(String name, boolean required, BigDecimal defaultValue, BigDecimal... validValues) {
-        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, getPropertySpecService()::bigDecimalSpec);
+    private PropertySpec bigDecimalSpec(String name, boolean required, TranslationKey translationKey, BigDecimal defaultValue, BigDecimal... validValues) {
+        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, getPropertySpecService()::bigDecimalSpec);
         specBuilder.setDefaultValue(defaultValue);
         specBuilder.addValues(validValues);
         if (validValues.length > 0) {
@@ -178,8 +180,8 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
         return specBuilder.finish();
     }
 
-    private PropertySpec durationSpec(String name, boolean required, Duration defaultValue) {
-        PropertySpecBuilder<Duration> durationPropertySpecBuilder = UPLPropertySpecFactory.specBuilder(name, required, this.getPropertySpecService()::durationSpec);
+    private PropertySpec durationSpec(String name, boolean required, Duration defaultValue, TranslationKey translationKey) {
+        PropertySpecBuilder<Duration> durationPropertySpecBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, this.getPropertySpecService()::durationSpec);
         durationPropertySpecBuilder.setDefaultValue(defaultValue);
         return durationPropertySpecBuilder.finish();
     }

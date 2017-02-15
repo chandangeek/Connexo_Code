@@ -1,5 +1,6 @@
 package com.energyict.mdc.channels.serial.direct.rxtx;
 
+import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
 import com.energyict.mdc.channels.serial.FlowControl;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.common.AbstractSerialConnectionType;
@@ -52,7 +53,7 @@ public class RxTxSerialConnectionType extends AbstractSerialConnectionType {
      * @return the property spec fo the RxTx flowControl property
      */
     protected PropertySpec flowControlPropertySpec() {
-        return this.stringSpec(SerialPortConfiguration.FLOW_CONTROL_NAME, false,
+        return this.stringSpec(SerialPortConfiguration.FLOW_CONTROL_NAME, PropertyTranslationKeys.SERIAL_FLOWCONTROL, false,
                 FlowControl.NONE.getFlowControl(),
                 FlowControl.RTSCTS.getFlowControl(), FlowControl.XONXOFF.getFlowControl());
     }

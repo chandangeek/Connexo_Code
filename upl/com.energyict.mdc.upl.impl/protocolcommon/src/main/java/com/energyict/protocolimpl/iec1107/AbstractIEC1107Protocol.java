@@ -13,6 +13,8 @@ import com.energyict.dialer.connections.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -32,7 +34,9 @@ import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -95,23 +99,25 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
     protected boolean software7E1;
     protected Encryptor encryptor;
     private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
 
-    public AbstractIEC1107Protocol(PropertySpecService propertySpecService) {
-        this(false, propertySpecService);
+    public AbstractIEC1107Protocol(PropertySpecService propertySpecService, NlsService nlsService) {
+        this(false, propertySpecService, nlsService);
     }
 
-    public AbstractIEC1107Protocol(boolean requestDataReadout, PropertySpecService propertySpecService) {
-        this(requestDataReadout, null, propertySpecService);
+    public AbstractIEC1107Protocol(boolean requestDataReadout, PropertySpecService propertySpecService, NlsService nlsService) {
+        this(requestDataReadout, null, propertySpecService, nlsService);
     }
 
-    public AbstractIEC1107Protocol(Encryptor encryptor, PropertySpecService propertySpecService) {
-        this(false, encryptor, propertySpecService);
+    public AbstractIEC1107Protocol(Encryptor encryptor, PropertySpecService propertySpecService, NlsService nlsService) {
+        this(false, encryptor, propertySpecService, nlsService);
     }
 
-    public AbstractIEC1107Protocol(boolean requestDataReadout, Encryptor encryptor, PropertySpecService propertySpecService) {
+    public AbstractIEC1107Protocol(boolean requestDataReadout, Encryptor encryptor, PropertySpecService propertySpecService, NlsService nlsService) {
         this.requestDataReadout = requestDataReadout;
         this.encryptor = encryptor;
         this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
     }
 
     protected PropertySpecService getPropertySpecService() {
@@ -171,35 +177,35 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.stringSpec(ADDRESS.getName()),
-                this.stringSpec(PASSWORD.getName()),
-                this.integerSpec(TIMEOUT.getName()),
-                this.integerSpec(RETRIES.getName()),
-                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
-                this.integerSpec(SECURITYLEVEL.getName()),
-                this.stringSpec(NODEID.getName()),
-                this.integerSpec("EchoCancelling"),
-                this.integerSpec("IEC1107Compatible"),
-                this.integerSpec("ExtendedLogging"),
-                this.stringSpec(SERIALNUMBER.getName()),
-                ProtocolChannelMap.propertySpec("ChannelMap", false),
-                this.integerSpec(PROFILEINTERVAL.getName()),
-                this.integerSpec("RequestHeader"),
-                this.integerSpec("Scaler"),
-                this.integerSpec("ForcedDelay"),
-                this.stringSpec("Software7E1"));
+                this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.IEC1107_ADDRESS),
+                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.IEC1107_PASSWORD),
+                this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.IEC1107_TIMEOUT),
+                this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.IEC1107_RETRIES),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.IEC1107_ROUNDTRIPCORRECTION),
+                this.integerSpec(SECURITYLEVEL.getName(), PropertyTranslationKeys.IEC1107_SECURITYLEVEL),
+                this.stringSpec(NODEID.getName(), PropertyTranslationKeys.IEC1107_NODEID),
+                this.integerSpec("EchoCancelling", PropertyTranslationKeys.IEC1107_ECHO_CANCELLING),
+                this.integerSpec("IEC1107Compatible", PropertyTranslationKeys.IEC1107_COMPATIBLE),
+                this.integerSpec("ExtendedLogging", PropertyTranslationKeys.IEC1107_EXTENDEDLOGGING),
+                this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.IEC1107_SERIALNUMBER),
+                ProtocolChannelMap.propertySpec("ChannelMap", false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.BASE_CHANNEL_MAP).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.BASE_CHANNEL_MAP_DESCRIPTION).format()),
+                this.integerSpec(PROFILEINTERVAL.getName(), PropertyTranslationKeys.IEC1107_PROFILEINTERVAL),
+                this.integerSpec("RequestHeader", PropertyTranslationKeys.IEC1107_REQUESTHEADER),
+                this.integerSpec("Scaler", PropertyTranslationKeys.IEC1107_SCALER),
+                this.integerSpec("ForcedDelay", PropertyTranslationKeys.IEC1107_FORCEDDELAY),
+                this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE7E1));
     }
 
-    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, optionsSupplier).finish();
     }
 
-    protected PropertySpec stringSpec(String name) {
-        return this.spec(name, this.propertySpecService::stringSpec);
+    protected PropertySpec stringSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::stringSpec);
     }
 
-    protected PropertySpec integerSpec(String name) {
-        return this.spec(name, this.propertySpecService::integerSpec);
+    protected PropertySpec integerSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::integerSpec);
     }
 
     @Override
@@ -412,4 +418,7 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
         this.logger = logger;
     }
 
+    protected NlsService getNlsService() {
+        return nlsService;
+    }
 }

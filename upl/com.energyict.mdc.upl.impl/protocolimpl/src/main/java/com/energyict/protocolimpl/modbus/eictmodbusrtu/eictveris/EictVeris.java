@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.modbus.eictmodbusrtu.eictveris;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
@@ -28,8 +29,8 @@ public class EictVeris extends Modbus {
 
     private MultiplierFactory multiplierFactory = null;
 
-    public EictVeris(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public EictVeris(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override

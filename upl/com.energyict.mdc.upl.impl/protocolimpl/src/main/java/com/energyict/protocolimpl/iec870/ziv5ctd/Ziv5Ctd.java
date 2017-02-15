@@ -4,6 +4,7 @@ import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -21,6 +22,7 @@ import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
@@ -124,30 +126,30 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.stringSpec(ADDRESS.getName()),
-                this.stringSpec(NODEID.getName()),
-                this.stringSpec(SERIALNUMBER.getName()),
-                this.stringSpec(PASSWORD.getName()),
-                this.integerSpec(PROFILEINTERVAL.getName()),
-                this.integerSpec(PK_TIMEOUT),
-                this.integerSpec(PK_RETRIES),
-                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
-                this.integerSpec(CORRECTTIME.getName()),
-                this.stringSpec(PK_EXTENDED_LOGGING),
-                this.stringSpec(PK_FETCH_PROGRAM_PROFILE),
-                this.stringSpec(PK_CUMULATIVE_PROFILE));
+                this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.IEC870_ADDRESS),
+                this.stringSpec(NODEID.getName(), PropertyTranslationKeys.IEC870_NODEID),
+                this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.IEC870_SERIALNUMBER),
+                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.IEC870_PASSWORD),
+                this.integerSpec(PROFILEINTERVAL.getName(), PropertyTranslationKeys.IEC870_PROFILEINTERVAL),
+                this.integerSpec(PK_TIMEOUT, PropertyTranslationKeys.IEC870_TIMEOUT),
+                this.integerSpec(PK_RETRIES, PropertyTranslationKeys.IEC870_RETRIES),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.IEC870_ROUNDTRIPCORRECTION),
+                this.integerSpec(CORRECTTIME.getName(), PropertyTranslationKeys.IEC870_CORRECTTIME),
+                this.stringSpec(PK_EXTENDED_LOGGING, PropertyTranslationKeys.IEC870_EXTENDED_LOGGING),
+                this.stringSpec(PK_FETCH_PROGRAM_PROFILE, PropertyTranslationKeys.IEC870_FETCH_PROGRAM_PROFILE),
+                this.stringSpec(PK_CUMULATIVE_PROFILE, PropertyTranslationKeys.IEC870_CUMULATIVE_PROFILE));
     }
 
-    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, optionsSupplier).finish();
     }
 
-    private PropertySpec stringSpec(String name) {
-        return this.spec(name, this.propertySpecService::stringSpec);
+    private PropertySpec stringSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::stringSpec);
     }
 
-    private PropertySpec integerSpec(String name) {
-        return this.spec(name, this.propertySpecService::integerSpec);
+    private PropertySpec integerSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::integerSpec);
     }
 
     @Override

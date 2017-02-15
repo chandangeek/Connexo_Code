@@ -1,9 +1,12 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties;
 
 import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.nls.PropertyTranslationKeys;
+import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
@@ -44,7 +47,7 @@ public class G3GatewayConfigurationSupport {
     }
 
     private PropertySpec serverUpperMacAddressPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, false, this.propertySpecService::bigDecimalSpec)
+        return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, false, PropertyTranslationKeys.V2_EICT_SERVER_UPPER_MAC_ADDRESS, this.propertySpecService::bigDecimalSpec)
                 .setDefaultValue(BigDecimal.ONE)
                 .finish();
     }
@@ -58,11 +61,11 @@ public class G3GatewayConfigurationSupport {
     }
 
     private PropertySpec validateInvokeIdPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(VALIDATE_INVOKE_ID, true, propertySpecService::booleanSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(VALIDATE_INVOKE_ID, true, PropertyTranslationKeys.V2_EICT_VALIDATE_INVOKE_ID, propertySpecService::booleanSpec).finish();
     }
 
     private PropertySpec aarqTimeoutPropertySpec() {
-        return this.durationPropertySpecBuilder(G3GatewayProperties.AARQ_TIMEOUT)
+        return this.durationPropertySpecBuilder(G3GatewayProperties.AARQ_TIMEOUT, PropertyTranslationKeys.V2_EICT_AARQ_TIMEOUT)
                 .setDefaultValue(G3GatewayProperties.AARQ_TIMEOUT_DEFAULT)
                 .finish();
     }
@@ -72,7 +75,7 @@ public class G3GatewayConfigurationSupport {
     }
 
     private PropertySpec forcedDelayPropertySpec() {
-        return this.durationPropertySpecBuilder(FORCED_DELAY)
+        return this.durationPropertySpecBuilder(FORCED_DELAY, PropertyTranslationKeys.V2_EICT_FORCED_DELAY)
                 .setDefaultValue(DEFAULT_FORCED_DELAY)
                 .finish();
     }
@@ -83,11 +86,11 @@ public class G3GatewayConfigurationSupport {
                 .finish();
     }
 
-    private PropertySpecBuilder<Duration> durationPropertySpecBuilder(String name) {
+    private PropertySpecBuilder<Duration> durationPropertySpecBuilder(String name, TranslationKey translationKey) {
         return this.propertySpecService
                 .durationSpec()
-                .named(name, name)
-                .describedAs("Description for " + name);
+                .named(name, translationKey)
+                .describedAs(new DescriptionTranslationKey(translationKey));
     }
 
 }

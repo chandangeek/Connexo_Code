@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -41,6 +42,7 @@ import com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.procedures.Manufact
 import com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables.ManufacturerTableFactory;
 import com.energyict.protocolimpl.meteridentification.AbstractManufacturer;
 import com.energyict.protocolimpl.meteridentification.S4Fam;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -77,8 +79,8 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink, SerialNumbe
     // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
     SerialCommunicationChannel commChannel;
 
-    public S4(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public S4(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override
@@ -133,8 +135,8 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink, SerialNumbe
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.stringSpec("C12User", false));
-        propertySpecs.add(this.integerSpec("C12UserId", false));
+        propertySpecs.add(this.stringSpec("C12User", PropertyTranslationKeys.S4_C12User, false));
+        propertySpecs.add(this.integerSpec("C12UserId", PropertyTranslationKeys.S4_C12UserId, false));
         return propertySpecs;
     }
 

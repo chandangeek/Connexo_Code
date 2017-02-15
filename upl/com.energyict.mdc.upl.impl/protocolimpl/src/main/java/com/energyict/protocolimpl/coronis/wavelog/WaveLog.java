@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -27,6 +28,7 @@ import com.energyict.protocolimpl.coronis.wavelog.core.AlarmFrameParser;
 import com.energyict.protocolimpl.coronis.wavelog.core.ObisCodeMapper;
 import com.energyict.protocolimpl.coronis.wavelog.core.parameter.ParameterFactory;
 import com.energyict.protocolimpl.coronis.wavelog.core.radiocommand.RadioCommandFactory;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
@@ -53,8 +55,8 @@ public class WaveLog extends AbstractProtocol implements MessageProtocol, Protoc
     private ProfileDataReader profileDataReader;
     private static final int CHANNELS = 8;
 
-    public WaveLog(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public WaveLog(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     public ObisCodeMapper getObisCodeMapper() {
@@ -128,7 +130,7 @@ public class WaveLog extends AbstractProtocol implements MessageProtocol, Protoc
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.integerSpec(CORRECTTIME.getName(), false));
+        propertySpecs.add(this.integerSpec(CORRECTTIME.getName(), PropertyTranslationKeys.WAVELOG_CORRECTTIME, false));
         return propertySpecs;
     }
 

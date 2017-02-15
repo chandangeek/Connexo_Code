@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.instromet.core;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dialer.core.HalfDuplexController;
@@ -16,8 +17,8 @@ public abstract class InstrometProtocol extends AbstractProtocol {
 
 	private InstrometConnection instrometConnection=null;
 
-    public InstrometProtocol(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public InstrometProtocol(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     protected abstract void doTheInit() throws IOException ;

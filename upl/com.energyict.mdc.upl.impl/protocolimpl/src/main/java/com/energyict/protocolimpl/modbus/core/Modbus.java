@@ -23,6 +23,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -38,6 +39,7 @@ import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusTCPConnection;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -68,8 +70,8 @@ public abstract class Modbus extends AbstractProtocol implements MessageProtocol
     protected static final String PK_FIRST_TIME_DELAY = "FirstTimeDelay";
     public static final String PK_METER_FIRMWARE_VERSION = "MeterFirmwareVersion";
 
-    public Modbus(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public Modbus(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     protected abstract void doTheConnect() throws IOException;
@@ -133,17 +135,17 @@ public abstract class Modbus extends AbstractProtocol implements MessageProtocol
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.integerSpec(PK_INTERFRAME_TIMEOUT, false));
-        propertySpecs.add(this.stringSpec("NetworkId", false));
-        propertySpecs.add(this.integerSpec("VirtualLoadProfile", false));
-        propertySpecs.add(this.integerSpec(PK_PHYSICAL_LAYER, false));
-        propertySpecs.add(this.integerSpec(PK_RESPONSE_TIMEOUT, false));
-        propertySpecs.add(this.integerSpec("RegisterOrderFixedPoint", false));
-        propertySpecs.add(this.integerSpec("RegisterOrderFloatingPoint", false));
-        propertySpecs.add(this.integerSpec(PK_FIRST_TIME_DELAY, false));
-        propertySpecs.add(this.stringSpec(PK_METER_FIRMWARE_VERSION, false));
-        propertySpecs.add(this.integerSpec("Connection", false));
-        propertySpecs.add(this.integerSpec("NodeAddress", false));
+        propertySpecs.add(this.integerSpec(PK_INTERFRAME_TIMEOUT, PropertyTranslationKeys.MODBUS_INTERFRAME_TIMEOUT, false));
+        propertySpecs.add(this.stringSpec("NetworkId", PropertyTranslationKeys.MODBUS_NETWORK_ID, false));
+        propertySpecs.add(this.integerSpec("VirtualLoadProfile", PropertyTranslationKeys.MODBUS_VIRTUAL_LOADPROFILE, false));
+        propertySpecs.add(this.integerSpec(PK_PHYSICAL_LAYER, PropertyTranslationKeys.MODBUS_PHYSICAL_LAYER, false));
+        propertySpecs.add(this.integerSpec(PK_RESPONSE_TIMEOUT, PropertyTranslationKeys.MODBUS_RESPONSE_TIMEOUT, false));
+        propertySpecs.add(this.integerSpec("RegisterOrderFixedPoint", PropertyTranslationKeys.MODBUS_REGISTER_ORDER_FIXED_POINT, false));
+        propertySpecs.add(this.integerSpec("RegisterOrderFloatingPoint", PropertyTranslationKeys.MODBUS_REGISTER_ORDER_FLOATING_POINT, false));
+        propertySpecs.add(this.integerSpec(PK_FIRST_TIME_DELAY, PropertyTranslationKeys.MODBUS_FIRST_TIME_DELAY, false));
+        propertySpecs.add(this.stringSpec(PK_METER_FIRMWARE_VERSION, PropertyTranslationKeys.MODBUS_METER_FIRMWARE_VERSION, false));
+        propertySpecs.add(this.integerSpec("Connection", PropertyTranslationKeys.MODBUS_CONNECTION, false));
+        propertySpecs.add(this.integerSpec("NodeAddress", PropertyTranslationKeys.MODBUS_NODE_ADDRESS, false));
         return propertySpecs;
     }
 

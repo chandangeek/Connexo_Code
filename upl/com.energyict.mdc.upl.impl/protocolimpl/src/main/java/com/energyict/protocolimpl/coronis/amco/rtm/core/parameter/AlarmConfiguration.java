@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
@@ -10,12 +11,12 @@ public class AlarmConfiguration extends AbstractParameter {
 
     private int config;
 
-    public AlarmConfiguration(PropertySpecService propertySpecService, RTM rtm) {
-        super(propertySpecService, rtm);
+    public AlarmConfiguration(PropertySpecService propertySpecService, RTM rtm, NlsService nlsService) {
+        super(propertySpecService, rtm, nlsService);
     }
 
-    public AlarmConfiguration(PropertySpecService propertySpecService, RTM rtm, int status) {
-        super(propertySpecService, rtm);
+    public AlarmConfiguration(PropertySpecService propertySpecService, RTM rtm, int status, NlsService nlsService) {
+        super(propertySpecService, rtm, nlsService);
         this.config = status;
     }
 

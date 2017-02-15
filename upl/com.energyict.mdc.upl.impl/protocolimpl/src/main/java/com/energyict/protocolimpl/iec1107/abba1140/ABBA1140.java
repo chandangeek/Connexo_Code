@@ -16,6 +16,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -44,6 +45,7 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
@@ -213,35 +215,35 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.stringSpec(ADDRESS.getName()),
-                this.stringSpec(NODEID.getName()),
-                this.stringSpec(SERIALNUMBER.getName()),
-                this.stringSpec(PASSWORD.getName()),
-                this.integerSpec(PK_TIMEOUT),
-                this.integerSpec(PK_RETRIES),
-                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
-                this.integerSpec(CORRECTTIME.getName()),
-                this.integerSpec(PK_EXTENDED_LOGGING),
-                this.integerSpec(PK_DELAY_BEFORE_CONNECT),
-                this.integerSpec(PK_SECURITY_LEVEL),
-                this.integerSpec(PK_ECHO_CANCELING),
-                this.integerSpec(PK_IEC1107_COMPATIBLE),
-                this.stringSpec("Software7E1"),
-                this.stringSpec("DisableLogOffCommand"),
-                this.stringSpec("ExtendedProfileStatus"),
-                this.stringSpec("UseSelectiveAccessByFromAndToDate"));
+                this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.IEC1107_ADDRESS),
+                this.stringSpec(NODEID.getName(), PropertyTranslationKeys.IEC1107_NODEID),
+                this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.IEC1107_SERIALNUMBER),
+                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.IEC1107_PASSWORD),
+                this.integerSpec(PK_TIMEOUT, PropertyTranslationKeys.IEC1107_TIMEOUT),
+                this.integerSpec(PK_RETRIES, PropertyTranslationKeys.IEC1107_RETRIES),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.IEC1107_ROUNDTRIPCORRECTION),
+                this.integerSpec(CORRECTTIME.getName(), PropertyTranslationKeys.IEC1107_CORRECTTIME),
+                this.integerSpec(PK_EXTENDED_LOGGING, PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
+                this.integerSpec(PK_DELAY_BEFORE_CONNECT, PropertyTranslationKeys.IEC1107_DELAY_BEFORE_CONNECT),
+                this.integerSpec(PK_SECURITY_LEVEL, PropertyTranslationKeys.IEC1107_SECURITYLEVEL),
+                this.integerSpec(PK_ECHO_CANCELING, PropertyTranslationKeys.IEC1107_ECHOCANCELLING),
+                this.integerSpec(PK_IEC1107_COMPATIBLE, PropertyTranslationKeys.IEC1107_COMPATIBLE),
+                this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
+                this.stringSpec("DisableLogOffCommand", PropertyTranslationKeys.IEC1107_DISABLE_LOG_OFF_COMMAND),
+                this.stringSpec("ExtendedProfileStatus", PropertyTranslationKeys.IEC1107_EXTENDED_PROFILE_STATUS),
+                this.stringSpec("UseSelectiveAccessByFromAndToDate", PropertyTranslationKeys.IEC1107_USE_SELECTIVE_ACCESS_BY_FROM_AND_TO_DATE));
     }
 
-    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, optionsSupplier).finish();
     }
 
-    private PropertySpec stringSpec(String name) {
-        return this.spec(name, this.propertySpecService::stringSpec);
+    private PropertySpec stringSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::stringSpec);
     }
 
-    private PropertySpec integerSpec(String name) {
-        return this.spec(name, this.propertySpecService::integerSpec);
+    private PropertySpec integerSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::integerSpec);
     }
 
     @Override

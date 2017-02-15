@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.enermet.e120;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -15,6 +16,8 @@ import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -92,8 +95,8 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
 
     private int pRetries;
 
-    public E120(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public E120(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override
@@ -156,8 +159,8 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.stringSpec(PK_USER_ID, true));
-        propertySpecs.add(ProtocolChannelMap.propertySpec(PK_CHANNEL_MAP, true));
+        propertySpecs.add(this.stringSpec(PK_USER_ID, PropertyTranslationKeys.USE120_USER_ID , true));
+        propertySpecs.add(ProtocolChannelMap.propertySpec(PK_CHANNEL_MAP, true, getNlsService().getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.E120_CHANNEL_MAP).format(), getNlsService().getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.E120_CHANNEL_MAP_DESCRIPTION).format()));
         return propertySpecs;
     }
 

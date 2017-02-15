@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.modbus.veris.hawkeye;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
@@ -26,8 +27,8 @@ import java.util.Date;
  */
 public class Hawkeye extends Modbus  {
 
-    public Hawkeye(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public Hawkeye(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override

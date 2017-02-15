@@ -1,17 +1,19 @@
 package com.energyict.mdc.channels.ip.socket;
 
 import com.energyict.mdc.channels.nls.MessageSeeds;
-import com.energyict.mdc.channels.nls.Thesaurus;
+import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.crypto.KeyStoreService;
 import com.energyict.mdc.upl.crypto.X509Service;
 import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 import sun.security.util.DerInputStream;
 import sun.security.x509.AuthorityKeyIdentifierExtension;
 import sun.security.x509.GeneralName;
@@ -79,21 +81,21 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
      * Defaults to TLSv1.2
      */
     private PropertySpec tlsVersionPropertySpec() {
-        return this.stringWithDefault(TLS_VERSION_PROPERTY_NAME, TLS_DEFAULT_VERSION);
+        return this.stringWithDefault(TLS_VERSION_PROPERTY_NAME, PropertyTranslationKeys.TLS_VERSION ,TLS_DEFAULT_VERSION);
     }
 
     /**
      * A comma-separated list of cipher suites that are preferred by the client (ComServer)
      */
     private PropertySpec preferredCipheringSuitesPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(PREFERRED_CIPHER_SUITES_PROPERTY_NAME, false, getPropertySpecService()::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(PREFERRED_CIPHER_SUITES_PROPERTY_NAME, false, PropertyTranslationKeys.TLS_PREFERRED_CIPHER_SUITES, getPropertySpecService()::stringSpec).finish();
     }
 
     /**
      * The alias of the TLS private key.
      */
     private PropertySpec tlsAliasPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(CLIENT_TLS_ALIAS, false, getPropertySpecService()::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(CLIENT_TLS_ALIAS, false, PropertyTranslationKeys.TLS_CLIENT_TLS_ALIAS, getPropertySpecService()::stringSpec).finish();
     }
 
     @Override
@@ -371,8 +373,8 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         return new UnsupportedOperationException(MessageSeeds.NotSupportedOnClient.getDefaultFormat());
     }
 
-    private PropertySpec stringWithDefault(String name, String defaultValue) {
-        PropertySpecBuilder<String> specBuilder = UPLPropertySpecFactory.specBuilder(name, false, getPropertySpecService()::stringSpec);
+    private PropertySpec stringWithDefault(String name, TranslationKey translationKey, String defaultValue) {
+        PropertySpecBuilder<String> specBuilder = UPLPropertySpecFactory.specBuilder(name, false, translationKey, getPropertySpecService()::stringSpec);
         specBuilder.setDefaultValue(defaultValue);
         return specBuilder.finish();
     }

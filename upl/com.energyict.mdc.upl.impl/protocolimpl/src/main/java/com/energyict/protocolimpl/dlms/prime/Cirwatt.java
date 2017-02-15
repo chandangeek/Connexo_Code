@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.dlms.prime;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.support.SerialNumberSupport;
 
@@ -16,8 +17,8 @@ import java.io.IOException;
  */
 public class Cirwatt extends AbstractPrimeMeter implements SerialNumberSupport {
 
-    public Cirwatt(PropertySpecService propertySpecService, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
-        super(propertySpecService, deviceMessageFileFinder, deviceMessageFileExtractor);
+    public Cirwatt(PropertySpecService propertySpecService, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor, NlsService nlsService) {
+        super(propertySpecService, deviceMessageFileFinder, deviceMessageFileExtractor, nlsService);
     }
 
     @Override

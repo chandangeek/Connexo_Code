@@ -1,9 +1,11 @@
 package com.energyict.mdc.tasks;
 
 import com.energyict.mdc.upl.DeviceProtocol;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
@@ -49,15 +51,15 @@ public class ACE4000DeviceProtocolDialect extends AbstractDeviceProtocolDialect 
     }
 
     private PropertySpec timeoutPropertySpec() {
-        return this.bigDecimalSpec(TIMEOUT_PROPERTY_NAME, false, DEFAULT_TIMEOUT);
+        return this.bigDecimalSpec(TIMEOUT_PROPERTY_NAME, false, DEFAULT_TIMEOUT, PropertyTranslationKeys.V2_TASKS_TIMEOUT);
     }
 
     private PropertySpec retriesPropertySpec() {
-        return this.bigDecimalSpec(RETRIES_PROPERTY_NAME, false, DEFAULT_RETRIES);
+        return this.bigDecimalSpec(RETRIES_PROPERTY_NAME, false, DEFAULT_RETRIES, PropertyTranslationKeys.V2_TASKS_RETRIES);
     }
 
-    protected PropertySpec bigDecimalSpec(String name, boolean required, BigDecimal defaultValue) {
-        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, this.propertySpecService::bigDecimalSpec);
+    protected PropertySpec bigDecimalSpec(String name, boolean required, BigDecimal defaultValue, TranslationKey translationKey) {
+        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, this.propertySpecService::bigDecimalSpec);
         specBuilder.setDefaultValue(defaultValue);
         return specBuilder.finish();
     }

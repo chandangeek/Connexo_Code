@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.modbus.socomec.a40;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -23,6 +24,7 @@ import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -43,8 +45,8 @@ public class A40 extends Modbus implements SerialNumberSupport {
     private static final String PR_LIMIT_MAX_NR_OF_DAYS = "LimitMaxNrOfDays";
     private int limitMaxNrOfDays;
 
-    public A40(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public A40(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override
@@ -81,8 +83,8 @@ public class A40 extends Modbus implements SerialNumberSupport {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.stringSpec("SocomecType", false));
-        propertySpecs.add(this.integerSpec(PR_LIMIT_MAX_NR_OF_DAYS, false));
+        propertySpecs.add(this.stringSpec("SocomecType", PropertyTranslationKeys.ENERDIS_SOCOMEC_TYPE, false));
+        propertySpecs.add(this.integerSpec(PR_LIMIT_MAX_NR_OF_DAYS, PropertyTranslationKeys.ENERDIS_LIMIT_MAX_NR_OF_DAYS, false));
         return propertySpecs;
     }
 

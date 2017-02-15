@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.channels.serial.common;
 
 import com.energyict.mdc.channels.serial.BaudrateValue;
@@ -12,6 +11,8 @@ import com.energyict.mdc.channels.serial.Parities;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
+import com.energyict.mdc.upl.nls.TranslationKey;
+import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -50,23 +51,23 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
     }
 
     protected PropertySpec flowControlPropertySpec() {
-        return this.stringWithDefaultSpec(SerialPortConfiguration.FLOW_CONTROL_NAME, false, FlowControl.NONE.getFlowControl(), FlowControl.getTypedValues());
+        return this.stringWithDefaultSpec(SerialPortConfiguration.FLOW_CONTROL_NAME, PropertyTranslationKeys.SERIAL_FLOWCONTROL, false, FlowControl.NONE.getFlowControl(), FlowControl.getTypedValues());
     }
 
     protected PropertySpec nrOfDataBitsPropertySpec() {
-        return this.bigDecimalSpec(SerialPortConfiguration.NR_OF_DATA_BITS_NAME, true, NrOfDataBits.EIGHT.getNrOfDataBits(), NrOfDataBits.getTypedValues());
+        return this.bigDecimalSpec(SerialPortConfiguration.NR_OF_DATA_BITS_NAME, PropertyTranslationKeys.SERIAL_NUMBEROFDATABITS, true, NrOfDataBits.EIGHT.getNrOfDataBits(), NrOfDataBits.getTypedValues());
     }
 
     protected PropertySpec nrOfStopBitsPropertySpec() {
-        return this.bigDecimalSpec(SerialPortConfiguration.NR_OF_STOP_BITS_NAME, true, NrOfStopBits.ONE.getNrOfStopBits(), NrOfStopBits.getTypedValues());
+        return this.bigDecimalSpec(SerialPortConfiguration.NR_OF_STOP_BITS_NAME, PropertyTranslationKeys.SERIAL_NUMBEROFSTOPBITS, true, NrOfStopBits.ONE.getNrOfStopBits(), NrOfStopBits.getTypedValues());
     }
 
     protected PropertySpec parityPropertySpec() {
-        return this.stringWithDefaultSpec(SerialPortConfiguration.PARITY_NAME, true, Parities.NONE.getParity(), Parities.getTypedValues());
+        return this.stringWithDefaultSpec(SerialPortConfiguration.PARITY_NAME, PropertyTranslationKeys.SERIAL_PARITY, true, Parities.NONE.getParity(), Parities.getTypedValues());
     }
 
     protected PropertySpec baudRatePropertySpec() {
-        return this.bigDecimalSpec(SerialPortConfiguration.BAUDRATE_NAME, true, BaudrateValue.BAUDRATE_57600.getBaudrate(), BaudrateValue.getTypedValues());
+        return this.bigDecimalSpec(SerialPortConfiguration.BAUDRATE_NAME, PropertyTranslationKeys.SERIAL_BAUDRATE, true, BaudrateValue.BAUDRATE_57600.getBaudrate(), BaudrateValue.getTypedValues());
     }
 
     protected Parities getParityValue() {
@@ -134,8 +135,8 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
         return propertySpecService;
     }
 
-    protected PropertySpec stringWithDefaultSpec(String name, boolean required, String defaultValue, String... validValues) {
-        PropertySpecBuilder<String> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, getPropertySpecService()::stringSpec);
+    protected PropertySpec stringWithDefaultSpec(String name, TranslationKey translationKey, boolean required, String defaultValue, String... validValues) {
+        PropertySpecBuilder<String> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, getPropertySpecService()::stringSpec);
         specBuilder.setDefaultValue(defaultValue);
         specBuilder.addValues(validValues);
         if (validValues.length > 0) {
@@ -144,8 +145,8 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
         return specBuilder.finish();
     }
 
-    protected PropertySpec stringSpec(String name, boolean required, String... validValues) {
-        PropertySpecBuilder<String> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, getPropertySpecService()::stringSpec);
+    protected PropertySpec stringSpec(String name, TranslationKey translationKey, boolean required, String... validValues) {
+        PropertySpecBuilder<String> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, getPropertySpecService()::stringSpec);
         specBuilder.addValues(validValues);
         if (validValues.length > 0) {
             specBuilder.markExhaustive();
@@ -153,8 +154,8 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
         return specBuilder.finish();
     }
 
-    protected PropertySpec bigDecimalSpec(String name, boolean required, BigDecimal defaultValue, BigDecimal... validValues) {
-        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, getPropertySpecService()::bigDecimalSpec);
+    protected PropertySpec bigDecimalSpec(String name, TranslationKey translationKey, boolean required, BigDecimal defaultValue, BigDecimal... validValues) {
+        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, getPropertySpecService()::bigDecimalSpec);
         specBuilder.setDefaultValue(defaultValue);
         specBuilder.addValues(validValues);
         if (validValues.length > 0) {

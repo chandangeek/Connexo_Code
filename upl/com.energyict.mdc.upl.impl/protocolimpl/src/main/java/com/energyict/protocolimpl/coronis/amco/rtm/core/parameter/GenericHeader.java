@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.cbo.Unit;
@@ -29,21 +30,25 @@ public class GenericHeader {
     private ProfileType profileType = null;
     private RTM rtm;
     private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
 
-    public GenericHeader(RTM rtm, PropertySpecService propertySpecService) {
+    public GenericHeader(RTM rtm, PropertySpecService propertySpecService, NlsService nlsService) {
         this.rtm = rtm;
         this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
     }
 
-    public GenericHeader(byte[] radioAddress, PropertySpecService propertySpecService) {
+    public GenericHeader(byte[] radioAddress, PropertySpecService propertySpecService, NlsService nlsService) {
         this.radioAddress = radioAddress;
         this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
     }
 
-    public GenericHeader(RTM rtm, byte[] radioAddress, PropertySpecService propertySpecService) {
+    public GenericHeader(RTM rtm, byte[] radioAddress, PropertySpecService propertySpecService, NlsService nlsService) {
         this.rtm = rtm;
         this.radioAddress = radioAddress;
         this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
     }
 
     public ProfileType getProfileType() {
@@ -153,36 +158,36 @@ public class GenericHeader {
     }
 
     public void parse(byte[] data) throws IOException {
-        operationMode = new OperatingMode(this.propertySpecService, new RTM(this.propertySpecService), ProtocolTools.getIntFromBytes(data, 1, 2));
+        operationMode = new OperatingMode(this.propertySpecService, new RTM(this.propertySpecService, this.nlsService), ProtocolTools.getIntFromBytes(data, 1, 2), this.nlsService);
         rtm.getParameterFactory().setOperatingMode(operationMode);
 
-        applicationStatus = new ApplicationStatus(this.propertySpecService, new RTM(this.propertySpecService), data[3] & 0xFF);
+        applicationStatus = new ApplicationStatus(this.propertySpecService, new RTM(this.propertySpecService, this.nlsService), data[3] & 0xFF, this.nlsService);
         rtm.getParameterFactory().setApplicationStatus(applicationStatus);
 
         qos = ProtocolTools.getUnsignedIntFromBytes(data, 12, 1);
-        rtm.getRadioCommandFactory().setRSSILevel(new RSSILevel(this.propertySpecService, rtm, (int) qos));
+        rtm.getRadioCommandFactory().setRSSILevel(new RSSILevel(this.propertySpecService, rtm, (int) qos, this.nlsService));
 
         shortLifeCounter = ProtocolTools.getUnsignedIntFromBytes(data, 13, 2) << 8;
 
-        BatteryLifeDurationCounter batteryLifeDurationCounter = new BatteryLifeDurationCounter(this.propertySpecService, rtm, (int) shortLifeCounter, radioAddress);
+        BatteryLifeDurationCounter batteryLifeDurationCounter = new BatteryLifeDurationCounter(this.propertySpecService, rtm, (int) shortLifeCounter, radioAddress, this.nlsService);
         rtm.getParameterFactory().setBatteryLifeDurationCounter(batteryLifeDurationCounter);
 
         byte[] meterEncoderData = ProtocolTools.getSubArray(data, 15, 23);
-        profileType = new ProfileType(this.propertySpecService, new RTM(this.propertySpecService));
+        profileType = new ProfileType(this.propertySpecService, new RTM(this.propertySpecService, this.nlsService), this.nlsService);
         profileType.parse(data);
         rtm.getParameterFactory().setProfileType(profileType);
 
         if (profileType.isPulse()) {
             PulseWeight pulseWeight;
             for (int port = 0; port < 4; port++) {
-                pulseWeight = new PulseWeight(this.propertySpecService, new RTM(this.propertySpecService), port + 1);
+                pulseWeight = new PulseWeight(this.propertySpecService, new RTM(this.propertySpecService, this.nlsService), port + 1, this.nlsService);
                 pulseWeight.parse(new byte[]{meterEncoderData[port]});
                 units[port] = pulseWeight;
             }
         } else if (profileType.isEncoder()) {
             EncoderUnit encoderUnit;
             for (int port = 0; port < 2; port++) {
-                encoderUnit = new EncoderUnit(this.propertySpecService, new RTM(this.propertySpecService), port + 1);
+                encoderUnit = new EncoderUnit(this.propertySpecService, new RTM(this.propertySpecService, this.nlsService), port + 1, this.nlsService);
                 encoderUnit.parse(new byte[]{meterEncoderData[(2 * port) + 1], meterEncoderData[(2 * port)]});
                 units[port] = encoderUnit;
             }
@@ -191,7 +196,7 @@ public class GenericHeader {
 
     public RtmUnit getRtmUnit(int port) {
         if (units[port] == null) {
-            return new RtmUnit(this.propertySpecService, new RTM(this.propertySpecService));
+            return new RtmUnit(this.propertySpecService, new RTM(this.propertySpecService, this.nlsService), this.nlsService);
         }
         return units[port];
     }

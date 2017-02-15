@@ -17,8 +17,8 @@ public class PasswordPropertySpec extends AbstractPropertySpec {
 
     private final int length;
 
-    protected PasswordPropertySpec(String name, boolean required, int length) {
-        super(name, required);
+    protected PasswordPropertySpec(String name, boolean required, int length, String displayName, String description) {
+        super(name, required, displayName, description);
         this.length = length;
     }
 

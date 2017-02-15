@@ -1,7 +1,9 @@
 package com.energyict.mdc.tasks;
 
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
@@ -42,42 +44,42 @@ public class CTRDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     }
 
     private PropertySpec timeoutPropertySpec() {
-        return this.bigDecimalSpec(TIMEOUT_PROPERTY_NAME);
+        return this.bigDecimalSpec(TIMEOUT_PROPERTY_NAME, PropertyTranslationKeys.V2_TASKS_TIMEOUT);
     }
 
     private PropertySpec retriesPropertySpec() {
-        return this.bigDecimalSpec(RETRIES_PROPERTY_NAME);
+        return this.bigDecimalSpec(RETRIES_PROPERTY_NAME, PropertyTranslationKeys.V2_TASKS_RETRIES);
     }
 
     private PropertySpec delayAfterErrorPropertySpec() {
-        return this.bigDecimalSpec(DELAY_AFTER_ERROR_PROPERTY_NAME);
+        return this.bigDecimalSpec(DELAY_AFTER_ERROR_PROPERTY_NAME, PropertyTranslationKeys.V2_TASKS_DELAY_AFTER_ERROR);
     }
 
     private PropertySpec forcedDelayPropertySpec() {
-        return this.bigDecimalSpec(FORCED_DELAY_PROPERTY_NAME);
+        return this.bigDecimalSpec(FORCED_DELAY_PROPERTY_NAME, PropertyTranslationKeys.V2_TASKS_FORCED_DELAY);
     }
 
     private PropertySpec addressPropertySpec() {
-        return this.bigDecimalSpec(ADDRESS_PROPERTY_NAME);
+        return this.bigDecimalSpec(ADDRESS_PROPERTY_NAME, PropertyTranslationKeys.V2_TASKS_ADDRESS);
     }
 
     private PropertySpec sendEndOfSessionPropertySpec() {
-        return this.booleanSpec(SEND_END_OF_SESSION_PROPERTY_NAME);
+        return this.booleanSpec(SEND_END_OF_SESSION_PROPERTY_NAME, PropertyTranslationKeys.V2_TASKS_SEND_END_OF_SESSION);
     }
 
     private PropertySpec maxAllowedInvalidProfileResponsesPropertySpec() {
-        return this.bigDecimalSpec(MAX_ALLOWED_INVALID_PROFILE_RESPONSES_PROPERTY_NAME);
+        return this.bigDecimalSpec(MAX_ALLOWED_INVALID_PROFILE_RESPONSES_PROPERTY_NAME, PropertyTranslationKeys.V2_TASKS_MAX_ALLOWED_INVALID_PROFILE_RESPONSES);
     }
 
-    private PropertySpec bigDecimalSpec (String name) {
+    private PropertySpec bigDecimalSpec (String name, TranslationKey translationKey) {
         return UPLPropertySpecFactory
-                    .specBuilder(name, false, this.propertySpecService::bigDecimalSpec)
+                    .specBuilder(name, false, translationKey, this.propertySpecService::bigDecimalSpec)
                     .finish();
     }
 
-    private PropertySpec booleanSpec (String name) {
+    private PropertySpec booleanSpec (String name, TranslationKey translationKey) {
         return UPLPropertySpecFactory
-                    .specBuilder(name, false, this.propertySpecService::booleanSpec)
+                    .specBuilder(name, false, translationKey, this.propertySpecService::booleanSpec)
                     .finish();
     }
 

@@ -2,6 +2,7 @@ package test.com.energyict.protocolimplv2.sdksample;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
@@ -41,10 +42,10 @@ public class SDKTopologyTaskProtocolDialectProperties extends AbstractDeviceProt
     }
 
     private PropertySpec getSlaveOneSerialNumber() {
-        return UPLPropertySpecFactory.specBuilder(slaveOneSerialNumberPropertyName, false, propertySpecService::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(slaveOneSerialNumberPropertyName, false, PropertyTranslationKeys.SDKSAMPLE_SLAVE_ONE_SERIAL_NUMBER, propertySpecService::stringSpec).finish();
     }
 
     public PropertySpec getSlaveTwoSerialNumber() {
-        return UPLPropertySpecFactory.specBuilder(slaveTwoSerialNumberPropertyName, false, propertySpecService::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(slaveTwoSerialNumberPropertyName, false, PropertyTranslationKeys.SDKSAMPLE_SLAVE_TWO_SERIAL_NUMBER, propertySpecService::stringSpec).finish();
     }
 }

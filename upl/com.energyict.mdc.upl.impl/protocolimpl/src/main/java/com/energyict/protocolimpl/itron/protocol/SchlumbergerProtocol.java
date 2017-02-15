@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.itron.protocol;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -22,6 +23,7 @@ import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.itron.protocol.schlumberger.CommandFactory;
 import com.energyict.protocolimpl.itron.protocol.schlumberger.IdentifyCommand;
 import com.energyict.protocolimpl.itron.protocol.schlumberger.SchlumbergerConnection;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,8 +54,8 @@ public abstract class SchlumbergerProtocol extends AbstractProtocol implements P
     private static final String SECURITY_LEVEL_MASTER = "SecurityLevelMaster";
     private static final String PASSWORD_MASTER = "PasswordMaster";
 
-    public SchlumbergerProtocol(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public SchlumbergerProtocol(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     protected abstract void doTheInit();
@@ -167,16 +169,16 @@ public abstract class SchlumbergerProtocol extends AbstractProtocol implements P
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.stringSpec(UNIT_TYPE, false));
-        propertySpecs.add(this.stringSpec(UNIT_ID, false));
-        propertySpecs.add(this.stringSpec(NODE_ADDRESS, false));
-        propertySpecs.add(this.integerSpec(DELAY_AFTER_CONNECT, false));
-        propertySpecs.add(this.integerSpec(BLOCK_SIZE, false));
-        propertySpecs.add(this.integerSpec(DAISY_CHAIN, false));
-        propertySpecs.add(this.integerSpec(ALLOW_CLOCK_SET, false));
-        propertySpecs.add(this.stringSpec(UNIT_ID_MASTER, false));
-        propertySpecs.add(this.integerSpec(SECURITY_LEVEL_MASTER, false));
-        propertySpecs.add(this.stringSpec(PASSWORD_MASTER, false));
+        propertySpecs.add(this.stringSpec(UNIT_TYPE, PropertyTranslationKeys.ITRON_UNIT_TYPE, false));
+        propertySpecs.add(this.stringSpec(UNIT_ID, PropertyTranslationKeys.ITRON_UNIT_ID, false));
+        propertySpecs.add(this.stringSpec(NODE_ADDRESS, PropertyTranslationKeys.ITRON_NODE_ADDRESS, false));
+        propertySpecs.add(this.integerSpec(DELAY_AFTER_CONNECT, PropertyTranslationKeys.ITRON_DELAY_AFTER_CONNECT, false));
+        propertySpecs.add(this.integerSpec(BLOCK_SIZE, PropertyTranslationKeys.ITRON_BLOCK_SIZE, false));
+        propertySpecs.add(this.integerSpec(DAISY_CHAIN, PropertyTranslationKeys.ITRON_DAISY_CHAIN, false));
+        propertySpecs.add(this.integerSpec(ALLOW_CLOCK_SET, PropertyTranslationKeys.ITRON_ALLOW_CLOCK_SET, false));
+        propertySpecs.add(this.stringSpec(UNIT_ID_MASTER, PropertyTranslationKeys.ITRON_UNIT_ID_MASTER, false));
+        propertySpecs.add(this.integerSpec(SECURITY_LEVEL_MASTER, PropertyTranslationKeys.ITRON_SECURITY_LEVEL_MASTER, false));
+        propertySpecs.add(this.stringSpec(PASSWORD_MASTER, PropertyTranslationKeys.ITRON_PASSWORD_MASTER, false));
         return propertySpecs;
     }
 

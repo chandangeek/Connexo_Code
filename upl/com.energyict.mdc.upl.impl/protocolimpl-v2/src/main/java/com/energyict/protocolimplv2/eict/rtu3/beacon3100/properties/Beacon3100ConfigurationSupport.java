@@ -4,12 +4,14 @@ import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.GeneralCipheringKeyType;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.CertificateAlias;
 import com.energyict.mdc.upl.security.PrivateKeyAlias;
+import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
@@ -64,15 +66,15 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
     }
 
     private PropertySpec requestAuthenticatedFrameCounter() {
-        return UPLPropertySpecFactory.specBuilder(REQUEST_AUTHENTICATED_FRAME_COUNTER, false, this.getPropertySpecService()::booleanSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(REQUEST_AUTHENTICATED_FRAME_COUNTER, false, PropertyTranslationKeys.V2_EICT_REQUEST_AUTHENTCATED_FRAME_COUNTER, this.getPropertySpecService()::booleanSpec).finish();
     }
 
     private PropertySpec pollingDelayPropertySpec() {
-        return this.durationSpec(POLLING_DELAY, false, Duration.ZERO);
+        return this.durationSpec(POLLING_DELAY, false, Duration.ZERO, PropertyTranslationKeys.V2_EICT_POLLING_DELAY);
     }
 
     private PropertySpec callingAPTitlePropertySpec() {
-        return this.stringSpecOfExactLength(IDIS.CALLING_AP_TITLE, false, 8);
+        return this.stringSpecOfExactLength(IDIS.CALLING_AP_TITLE, false, 8, PropertyTranslationKeys.V2_EICT_CALLING_AP_TITLE);
     }
 
     /**
@@ -109,6 +111,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         return this.stringWithDefaultSpec(
                 DlmsProtocolProperties.CIPHERING_TYPE,
                 false,
+                PropertyTranslationKeys.V2_EICT_CIPHERING_TYPE,
                 CipheringType.GLOBAL.getDescription(),      //Default
                 CipheringType.GLOBAL.getDescription(),
                 CipheringType.DEDICATED.getDescription(),
@@ -122,6 +125,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         return this.stringSpec(
                 DlmsSessionProperties.GENERAL_CIPHERING_KEY_TYPE,
                 false,
+                PropertyTranslationKeys.V2_EICT_GENERAL_CIPHERING_KEY_TYPE,
                 GeneralCipheringKeyType.IDENTIFIED_KEY.getDescription(),
                 GeneralCipheringKeyType.WRAPPED_KEY.getDescription(),
                 GeneralCipheringKeyType.AGREED_KEY.getDescription()
@@ -132,11 +136,11 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
      * The KEK of the Beacon. Use this to wrap the AK/EK of the Beacon device itself
      */
     private PropertySpec dlmsWANKEKPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(DLMS_WAN_KEK, false, this.getPropertySpecService()::encryptedStringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(DLMS_WAN_KEK, false, PropertyTranslationKeys.V2_EICT_DLMS_WAN_KEK, this.getPropertySpecService()::encryptedStringSpec).finish();
     }
 
     private PropertySpec readCachePropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(READCACHE_PROPERTY, false, this.getPropertySpecService()::booleanSpec)
+        return UPLPropertySpecFactory.specBuilder(READCACHE_PROPERTY, false, PropertyTranslationKeys.V2_EICT_READCACHE, this.getPropertySpecService()::booleanSpec)
                 .setDefaultValue(false)
                 .finish();
     }
@@ -145,32 +149,32 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
      * A key used to encrypt DLMS keys of slave meters (aka a key encryption key, KEK)
      */
     private PropertySpec dlmsKEKPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(DLMS_METER_KEK, false, this.getPropertySpecService()::encryptedStringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(DLMS_METER_KEK, false, PropertyTranslationKeys.V2_EICT_DLMS_METER_KEK, this.getPropertySpecService()::encryptedStringSpec).finish();
     }
 
     /**
      * Key used to wrap PSK keys before sending them to the Beacon device.
      */
     private PropertySpec pskEncryptionKeyPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(PSK_ENCRYPTION_KEY, false, this.getPropertySpecService()::encryptedStringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(PSK_ENCRYPTION_KEY, false, PropertyTranslationKeys.V2_EICT_PSK_ENCRYPTION_KEY, this.getPropertySpecService()::encryptedStringSpec).finish();
     }
 
-    private PropertySpec durationSpec(String name, boolean required, Duration defaultValue) {
-        PropertySpecBuilder<Duration> durationPropertySpecBuilder = UPLPropertySpecFactory.specBuilder(name, required, this.getPropertySpecService()::durationSpec);
+    private PropertySpec durationSpec(String name, boolean required, Duration defaultValue, TranslationKey translationKey) {
+        PropertySpecBuilder<Duration> durationPropertySpecBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, this.getPropertySpecService()::durationSpec);
         durationPropertySpecBuilder.setDefaultValue(defaultValue);
         return durationPropertySpecBuilder.finish();
     }
 
-    private <T> PropertySpec spec(String name, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, required, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, boolean required, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, required, translationKey, optionsSupplier).finish();
     }
 
-    private PropertySpec stringSpecOfExactLength(String name, boolean required, int length) {
-        return this.spec(name, required, () -> this.getPropertySpecService().stringSpecOfExactLength(length));
+    private PropertySpec stringSpecOfExactLength(String name, boolean required, int length, TranslationKey translationKey) {
+        return this.spec(name, required, translationKey, () -> this.getPropertySpecService().stringSpecOfExactLength(length));
     }
 
-    private PropertySpec stringSpec(String name, boolean required, String... validValues) {
-        PropertySpecBuilder<String> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, getPropertySpecService()::stringSpec);
+    private PropertySpec stringSpec(String name, boolean required, TranslationKey translationKey, String... validValues) {
+        PropertySpecBuilder<String> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, getPropertySpecService()::stringSpec);
         specBuilder.addValues(validValues);
         if (validValues.length > 0) {
             specBuilder.markExhaustive();

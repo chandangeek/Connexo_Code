@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.edp;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 /**
@@ -10,8 +11,8 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
  */
 public class JanzB280 extends CX20009 {
 
-    public JanzB280(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public JanzB280(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override

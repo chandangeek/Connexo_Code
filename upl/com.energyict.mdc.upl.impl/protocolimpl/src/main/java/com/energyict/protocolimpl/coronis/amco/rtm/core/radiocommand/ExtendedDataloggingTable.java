@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
@@ -43,30 +44,30 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
         return profileInterval;
     }
 
-    public ExtendedDataloggingTable(PropertySpecService propertySpecService, RTM rtm) {
-        super(propertySpecService, rtm);
+    public ExtendedDataloggingTable(PropertySpecService propertySpecService, RTM rtm, NlsService nlsService) {
+        super(propertySpecService, rtm, nlsService);
     }
 
     public List<List<Integer[]>> getProfileDataForAllPorts() {
         return profileDataForAllPorts;
     }
 
-    protected ExtendedDataloggingTable(PropertySpecService propertySpecService, RTM rtm, int port, int numberOfRequestedReadings, int offset) {
-        super(propertySpecService, rtm);
+    protected ExtendedDataloggingTable(PropertySpecService propertySpecService, RTM rtm, int port, int numberOfRequestedReadings, int offset, NlsService nlsService) {
+        super(propertySpecService, rtm, nlsService);
         this.portMask = (int) Math.pow(2, port - 1);
         this.numberOfRequestedReadings = numberOfRequestedReadings;
         this.offset = offset;
     }
 
-    protected ExtendedDataloggingTable(PropertySpecService propertySpecService, RTM rtm, int port, int numberOfRequestedReadings, Date toDate) {
-        super(propertySpecService, rtm);
+    protected ExtendedDataloggingTable(PropertySpecService propertySpecService, RTM rtm, int port, int numberOfRequestedReadings, Date toDate, NlsService nlsService) {
+        super(propertySpecService, rtm, nlsService);
         this.portMask = (int) Math.pow(2, port - 1);
         this.numberOfRequestedReadings = numberOfRequestedReadings;
         this.toDate = toDate;
     }
 
-    protected ExtendedDataloggingTable(PropertySpecService propertySpecService, RTM rtm, int portMask, int numberOfReadings) {
-        super(propertySpecService, rtm);
+    protected ExtendedDataloggingTable(PropertySpecService propertySpecService, RTM rtm, int portMask, int numberOfReadings, NlsService nlsService) {
+        super(propertySpecService, rtm, nlsService);
         this.portMask = portMask;
         this.numberOfRequestedReadings = numberOfReadings;
         this.offset = 0;
@@ -142,7 +143,7 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
         OperatingMode operatingMode = getGenericHeader().getOperationMode();
         int offset = 23;    //Skip the rest of the generic header
 
-        SamplingPeriod period = new SamplingPeriod(getPropertySpecService(), getRTM());
+        SamplingPeriod period = new SamplingPeriod(getPropertySpecService(), getRTM(), getNlsService());
         period.parse(ProtocolTools.getSubArray(data, offset, offset + 1));
         int multiplier = data[offset + 2] & 0xFF;
         profileInterval = period.getSamplingPeriodInSeconds() * multiplier;

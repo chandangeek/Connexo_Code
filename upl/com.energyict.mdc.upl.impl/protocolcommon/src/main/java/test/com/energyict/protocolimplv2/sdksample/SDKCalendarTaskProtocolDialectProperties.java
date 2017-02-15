@@ -1,6 +1,7 @@
 package test.com.energyict.protocolimplv2.sdksample;
 
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
@@ -35,8 +36,8 @@ public class SDKCalendarTaskProtocolDialectProperties extends AbstractDeviceProt
     @Override
     public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.specBuilder(activeCalendarName, false, propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(passiveCalendarName, false, propertySpecService::stringSpec).finish()
+                UPLPropertySpecFactory.specBuilder(activeCalendarName, false, PropertyTranslationKeys.SDKSAMPLE_ACTIVE_CALENDAR_NAME, propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(passiveCalendarName, false, PropertyTranslationKeys.SDKSAMPLE_PASSIVE_CALENDAR_NAME, propertySpecService::stringSpec).finish()
         );
     }
 }

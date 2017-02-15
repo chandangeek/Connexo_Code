@@ -6,6 +6,7 @@
 
 package com.energyict.protocolimpl.iec1107.enermete70x;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dialer.core.HalfDuplexController;
@@ -35,8 +36,8 @@ public class EnermetE70X extends EnermetBase {
 
     private RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
 
-    public EnermetE70X(PropertySpecService propertySpecService) {
-    	super(propertySpecService);
+    public EnermetE70X(PropertySpecService propertySpecService, NlsService nlsService) {
+    	super(propertySpecService, nlsService);
         setTestE70xConnection(true);
     }
 

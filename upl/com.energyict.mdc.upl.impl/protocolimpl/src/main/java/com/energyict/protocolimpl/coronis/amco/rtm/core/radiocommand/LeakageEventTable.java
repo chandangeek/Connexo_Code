@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
@@ -16,8 +17,8 @@ public class LeakageEventTable extends AbstractRadioCommand {
 
     LeakageEvent[] leakageEvents = new LeakageEvent[5];
 
-    LeakageEventTable(PropertySpecService propertySpecService, RTM rtm) {
-        super(propertySpecService, rtm);
+    LeakageEventTable(PropertySpecService propertySpecService, RTM rtm, NlsService nlsService) {
+        super(propertySpecService, rtm, nlsService);
     }
 
     public final LeakageEvent[] getLeakageEvents() {

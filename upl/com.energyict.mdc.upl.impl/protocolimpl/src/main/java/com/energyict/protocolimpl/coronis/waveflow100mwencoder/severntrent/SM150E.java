@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.severntrent;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.obis.ObisCode;
@@ -31,8 +32,8 @@ public class SM150E extends WaveFlow100mW {
 	protected void doTheDisConnect() throws IOException {
 	}
 
-	public SM150E(PropertySpecService propertySpecService) {
-		super(propertySpecService);
+	public SM150E(PropertySpecService propertySpecService, NlsService nlsService) {
+		super(propertySpecService, nlsService);
 	}
 
 	@Override

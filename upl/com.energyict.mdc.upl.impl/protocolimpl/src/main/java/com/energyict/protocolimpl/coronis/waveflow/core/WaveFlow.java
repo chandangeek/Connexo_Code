@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.waveflow.core;
 
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -25,7 +26,9 @@ import com.energyict.protocolimpl.coronis.waveflow.core.parameter.PulseWeight;
 import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.RadioCommandFactory;
 import com.energyict.protocolimpl.coronis.waveflow.waveflowV2.WaveFlowV2;
 import com.energyict.protocolimpl.dlms.common.ObisCodePropertySpec;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,8 +62,8 @@ public abstract class WaveFlow extends AbstractProtocol implements ProtocolLink,
     public static final String LEGACY_WAVECELL_CONNECTION = "1";
     private static final String CONNECTION_PROPERTY = "Connection";
 
-    public WaveFlow(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public WaveFlow(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     protected abstract void doTheInit() throws IOException;
@@ -224,23 +227,23 @@ public abstract class WaveFlow extends AbstractProtocol implements ProtocolLink,
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(new ObisCodePropertySpec("LoadProfileObisCode", false));
-        propertySpecs.add(this.integerSpec(CORRECTTIME.getName(), false));
-        propertySpecs.add(this.integerSpec("EnableMultiFrameMode", false));
-        propertySpecs.add(this.integerSpec("verifyProfileInterval", false));
-        propertySpecs.add(this.stringSpec("WavenisBubbleUpInfo", false));
-        propertySpecs.add(this.integerSpec("ApplicationStatusVariant", false));
-        propertySpecs.add(this.integerSpec("RoundDownToNearestInterval", false));
-        propertySpecs.add(this.integerSpec("InitialRFCommand", false));
-        propertySpecs.add(this.integerSpec(CONNECTION_PROPERTY, false));
-        propertySpecs.add(this.integerSpec(PROP_SCALE_A, false));
-        propertySpecs.add(this.integerSpec(PROP_SCALE_B, false));
-        propertySpecs.add(this.integerSpec(PROP_SCALE_C, false));
-        propertySpecs.add(this.integerSpec(PROP_SCALE_D, false));
-        propertySpecs.add(this.integerSpec(PROP_MULTIPLIER_A, false));
-        propertySpecs.add(this.integerSpec(PROP_MULTIPLIER_B, false));
-        propertySpecs.add(this.integerSpec(PROP_MULTIPLIER_C, false));
-        propertySpecs.add(this.integerSpec(PROP_MULTIPLIER_D, false));
+        propertySpecs.add(new ObisCodePropertySpec("LoadProfileObisCode", false, getNlsService().getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.WAVEFLOW_LOADPROFILE_OBISCODE).format(), getNlsService().getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.WAVEFLOW_LOADPROFILE_OBISCODE_DESCRIPTION).format()));
+        propertySpecs.add(this.integerSpec(CORRECTTIME.getName(), PropertyTranslationKeys.WAVEFLOW_CORRECTTIME, false));
+        propertySpecs.add(this.integerSpec("EnableMultiFrameMode", PropertyTranslationKeys.WAVEFLOW_ENABLE_MULTIFRAME_MODE, false));
+        propertySpecs.add(this.integerSpec("verifyProfileInterval", PropertyTranslationKeys.WAVEFLOW_VERIFY_PROFILE_INTERVAL, false));
+        propertySpecs.add(this.stringSpec("WavenisBubbleUpInfo", PropertyTranslationKeys.WAVEFLOW_WAVENIS_BUBBLE_UP_INFO, false));
+        propertySpecs.add(this.integerSpec("ApplicationStatusVariant", PropertyTranslationKeys.WAVEFLOW_APPLICATION_STATUS_VARIANT, false));
+        propertySpecs.add(this.integerSpec("RoundDownToNearestInterval", PropertyTranslationKeys.WAVEFLOW_ROUND_DOWN_TO_NEAREST_INTERVAL, false));
+        propertySpecs.add(this.integerSpec("InitialRFCommand", PropertyTranslationKeys.WAVEFLOW_INITIAL_RF_COMMAND, false));
+        propertySpecs.add(this.integerSpec(CONNECTION_PROPERTY, PropertyTranslationKeys.WAVEFLOW_CONNECTION, false));
+        propertySpecs.add(this.integerSpec(PROP_SCALE_A, PropertyTranslationKeys.WAVEFLOW_SCALE_A, false));
+        propertySpecs.add(this.integerSpec(PROP_SCALE_B, PropertyTranslationKeys.WAVEFLOW_SCALE_B, false));
+        propertySpecs.add(this.integerSpec(PROP_SCALE_C, PropertyTranslationKeys.WAVEFLOW_SCALE_C, false));
+        propertySpecs.add(this.integerSpec(PROP_SCALE_D, PropertyTranslationKeys.WAVEFLOW_SCALE_D, false));
+        propertySpecs.add(this.integerSpec(PROP_MULTIPLIER_A, PropertyTranslationKeys.WAVEFLOW_MULTIPLIER_A, false));
+        propertySpecs.add(this.integerSpec(PROP_MULTIPLIER_B, PropertyTranslationKeys.WAVEFLOW_MULTIPLIER_B, false));
+        propertySpecs.add(this.integerSpec(PROP_MULTIPLIER_C, PropertyTranslationKeys.WAVEFLOW_MULTIPLIER_C, false));
+        propertySpecs.add(this.integerSpec(PROP_MULTIPLIER_D, PropertyTranslationKeys.WAVEFLOW_MULTIPLIER_D, false));
         return propertySpecs;
     }
 
@@ -307,7 +310,7 @@ public abstract class WaveFlow extends AbstractProtocol implements ProtocolLink,
         if (multiplier == null) {
             return null;
         }
-        return new PulseWeight(new WaveFlowV2(this.getPropertySpecService()), scale, multiplier, port);
+        return new PulseWeight(new WaveFlowV2(this.getPropertySpecService(), this.getNlsService()), scale, multiplier, port);
     }
 
     /**

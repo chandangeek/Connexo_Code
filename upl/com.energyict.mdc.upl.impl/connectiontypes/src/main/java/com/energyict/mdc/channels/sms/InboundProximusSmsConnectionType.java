@@ -1,5 +1,6 @@
 package com.energyict.mdc.channels.sms;
 
+import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -30,11 +31,11 @@ public class InboundProximusSmsConnectionType extends AbstractInboundSmsConnecti
 
 
     private PropertySpec phoneNumberPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(DEVICE_PHONE_NUMBER_PROPERTY_NAME, true, this.propertySpecService::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(DEVICE_PHONE_NUMBER_PROPERTY_NAME, true, PropertyTranslationKeys.INBOUND_PROXIMUS_PHONE_NUMBER, this.propertySpecService::stringSpec).finish();
     }
 
     private PropertySpec callHomeIdPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, true, this.propertySpecService::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, true, PropertyTranslationKeys.INBOUND_PROXIMUS_CALL_HOME_ID, this.propertySpecService::stringSpec).finish();
     }
 
     @Override

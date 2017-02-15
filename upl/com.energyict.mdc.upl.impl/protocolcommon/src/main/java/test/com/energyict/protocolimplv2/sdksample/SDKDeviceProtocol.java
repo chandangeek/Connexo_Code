@@ -39,6 +39,7 @@ import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -141,7 +142,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
-        return Collections.singletonList(UPLPropertySpecFactory.specBuilder(DEFAULT_OPTIONAL_PROPERTY_NAME, false, this.propertySpecService::booleanSpec).finish());
+        return Collections.singletonList(UPLPropertySpecFactory.specBuilder(DEFAULT_OPTIONAL_PROPERTY_NAME, false, PropertyTranslationKeys.SDKSAMPLE_DEFAULT_OPTIONAL_PROPERTY, this.propertySpecService::booleanSpec).finish());
     }
 
     @Override

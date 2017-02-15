@@ -7,6 +7,7 @@
 package com.energyict.protocolimpl.iec1107.enermete70x;
 
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -21,6 +22,7 @@ import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 import com.energyict.protocolimpl.iec1107.IEC1107Connection;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
@@ -50,8 +52,8 @@ public abstract class EnermetBase extends AbstractProtocol{
 
     protected abstract RegisterConfig getRegs();
 
-    protected EnermetBase(PropertySpecService propertySpecService) {
-        super(false, propertySpecService); // true for datareadout;
+    protected EnermetBase(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(false, propertySpecService, nlsService); // true for datareadout;
     }
 
     @Override
@@ -140,7 +142,7 @@ public abstract class EnermetBase extends AbstractProtocol{
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.stringSpec("Software7E1", false));
+        propertySpecs.add(this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1, false));
         return propertySpecs;
     }
 

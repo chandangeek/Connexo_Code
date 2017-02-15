@@ -1,5 +1,6 @@
 package com.elster.us.protocolimplv2.mercury.minimax;
 
+import com.elster.us.nls.PropertyTranslationKeys;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -107,12 +108,12 @@ public class MiniMaxProperties {
 
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                    UPLPropertySpecFactory.specBuilder(DEVICE_ID, true, this.propertySpecService::stringSpec).finish(),
-                    UPLPropertySpecFactory.specBuilder(TIMEZONE, true, this.propertySpecService::stringSpec).finish(),
-                    UPLPropertySpecFactory.specBuilder(TIMEOUT, true, this.propertySpecService::bigDecimalSpec).finish(),
-                    UPLPropertySpecFactory.specBuilder(RETRIES, true, this.propertySpecService::bigDecimalSpec).finish(),
-                    UPLPropertySpecFactory.specBuilder(DEVICE_PWD, true, this.propertySpecService::stringSpec).finish(),
-                    UPLPropertySpecFactory.specBuilder(DEVICE_TIMEZONE, true, this.propertySpecService::stringSpec).finish());
+                    UPLPropertySpecFactory.specBuilder(DEVICE_ID, true, PropertyTranslationKeys.MERCURY_DEVICE_ID, this.propertySpecService::stringSpec).finish(),
+                    UPLPropertySpecFactory.specBuilder(TIMEZONE, true, PropertyTranslationKeys.MERCURY_TIMEZONE, this.propertySpecService::stringSpec).finish(),
+                    UPLPropertySpecFactory.specBuilder(TIMEOUT, true, PropertyTranslationKeys.MERCURY_TIMEOUT, this.propertySpecService::bigDecimalSpec).finish(),
+                    UPLPropertySpecFactory.specBuilder(RETRIES, true, PropertyTranslationKeys.MERCURY_RETRIES, this.propertySpecService::bigDecimalSpec).finish(),
+                    UPLPropertySpecFactory.specBuilder(DEVICE_PWD, true, PropertyTranslationKeys.MERCURY_DEVICE_PWD, this.propertySpecService::stringSpec).finish(),
+                    UPLPropertySpecFactory.specBuilder(DEVICE_TIMEZONE, true, PropertyTranslationKeys.MERCURY_DEVICE_TIMEZONE, this.propertySpecService::stringSpec).finish());
     }
 
 }

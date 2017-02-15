@@ -40,6 +40,7 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
+import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -258,7 +259,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
         propertySpecs.add(
                 UPLPropertySpecFactory
-                    .specBuilder(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, false, this.getPropertySpecService()::stringSpec)
+                    .specBuilder(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, false, PropertyTranslationKeys.V2_ACE4000_CALL_HOME_ID, this.getPropertySpecService()::stringSpec)
                     .finish());
         return propertySpecs;
     }

@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.edmi.mk6;
 
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -27,6 +28,7 @@ import com.energyict.protocolimpl.edmi.mk6.command.TimeInfo;
 import com.energyict.protocolimpl.edmi.mk6.registermapping.ObisCodeFactory;
 import com.energyict.protocolimpl.edmi.mk6.registermapping.ObisCodeMapper;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
@@ -64,8 +66,8 @@ public class MK6 extends AbstractProtocol implements Serializable {
 	private TimeZone timeZone;
 	private boolean useOldProfileFromDate;
 
-	public MK6(PropertySpecService propertySpecService) {
-		super(propertySpecService);
+	public MK6(PropertySpecService propertySpecService, NlsService nlsService) {
+		super(propertySpecService, nlsService);
 	}
 
 	@Override
@@ -86,11 +88,11 @@ public class MK6 extends AbstractProtocol implements Serializable {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = super.getUPLPropertySpecs();
-        propertySpecs.add(this.stringSpec("EventLogName", false));
-        propertySpecs.add(this.stringSpec("LoadSurveyName", false));
-        propertySpecs.add(this.integerSpec("StatusFlagChannel", false));
-        propertySpecs.add(this.integerSpec("DisableLogOff", false));
-        propertySpecs.add(this.stringSpec("UseOldProfileFromDate", false));
+        propertySpecs.add(this.stringSpec("EventLogName", PropertyTranslationKeys.EDMI_EVENT_LOG_NAME, false));
+        propertySpecs.add(this.stringSpec("LoadSurveyName", PropertyTranslationKeys.EDMI_LOAD_SURVEY_NAME, false));
+        propertySpecs.add(this.integerSpec("StatusFlagChannel", PropertyTranslationKeys.EDMI_STATUS_FLAG_CHANNEL, false));
+        propertySpecs.add(this.integerSpec("DisableLogOff", PropertyTranslationKeys.EDMI_DISABLE_LOG_OFF, false));
+        propertySpecs.add(this.stringSpec("UseOldProfileFromDate", PropertyTranslationKeys.EDMI_USE_OLD_PROFILE_FROM_DATE, false));
         return propertySpecs;
     }
 

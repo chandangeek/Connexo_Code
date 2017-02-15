@@ -10,11 +10,13 @@
 
 package com.energyict.protocolimpl.mbus.core;
 
-import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
@@ -25,6 +27,7 @@ import com.energyict.protocolimpl.mbus.core.connection.MBusConnection;
 import com.energyict.protocolimpl.mbus.core.connection.MBusException;
 import com.energyict.protocolimpl.mbus.core.connection.iec870.IEC870ConnectionException;
 import com.energyict.protocolimpl.mbus.core.discover.SecondaryAddressDiscover;
+import com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,8 +44,8 @@ public abstract class MBus extends AbstractProtocol {
 
     final int DEBUG=1;
 
-    public MBus(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public MBus(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     protected abstract void doTheConnect() throws IOException;
@@ -88,12 +91,12 @@ public abstract class MBus extends AbstractProtocol {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = super.getUPLPropertySpecs();
-        propertySpecs.add(this.integerSpec("SecondaryAddressing", false));
-        propertySpecs.add(this.integerSpec("VirtualLoadProfile", false));
-        propertySpecs.add(this.integerSpec("DataQuantitiesAreZeroBased", false));
-        propertySpecs.add(this.stringSpec("HeaderManufacturerCode", false));
-        propertySpecs.add(this.integerSpec("HeaderMedium", false));
-        propertySpecs.add(this.integerSpec("HeaderVersion", false));
+        propertySpecs.add(this.integerSpec("SecondaryAddressing", PropertyTranslationKeys.MBUS_SECONDARY_ADDRESSING, false));
+        propertySpecs.add(this.integerSpec("VirtualLoadProfile", PropertyTranslationKeys.MBUS_VIRTUAL_LOAD_PROFILE, false));
+        propertySpecs.add(this.integerSpec("DataQuantitiesAreZeroBased", PropertyTranslationKeys.MBUS_DATA_QUANTITIES_ARE_ZERO_BASED, false));
+        propertySpecs.add(this.stringSpec("HeaderManufacturerCode", PropertyTranslationKeys.MBUS_HEADER_MANUFACTURER_CODE, false));
+        propertySpecs.add(this.integerSpec("HeaderMedium", PropertyTranslationKeys.MBUS_HEADER_MEDIUM, false));
+        propertySpecs.add(this.integerSpec("HeaderVersion", PropertyTranslationKeys.MBUS_HEADER_VERSION, false));
         return propertySpecs;
     }
 

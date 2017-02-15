@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.iec1107.indigo.pxar;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
@@ -40,8 +41,8 @@ import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 @Deprecated
 public class IndigoPXAR extends AbstractIEC1107Protocol {
 
-	public IndigoPXAR(PropertySpecService propertySpecService) {
-		super(propertySpecService);
+	public IndigoPXAR(PropertySpecService propertySpecService, NlsService nlsService) {
+		super(propertySpecService, nlsService);
 	}
 
 	@Override

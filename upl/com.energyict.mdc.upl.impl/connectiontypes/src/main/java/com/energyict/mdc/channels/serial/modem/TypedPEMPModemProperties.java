@@ -1,5 +1,7 @@
 package com.energyict.mdc.channels.serial.modem;
 
+import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.channels.serial.modemproperties.AbstractPEMPModemProperties;
 import com.energyict.mdc.channels.serial.modemproperties.AtModemComponent;
 import com.energyict.mdc.channels.serial.modemproperties.PEMPModemConfiguration;
@@ -143,59 +145,59 @@ public class TypedPEMPModemProperties extends AbstractPEMPModemProperties implem
     }
 
     public PropertySpec atModemInitStringSpec() {
-        return this.stringWithDefaultSpec(MODEM_INIT_STRINGS, false, DEFAULT_MODEM_INIT_STRINGS);
+        return this.stringWithDefaultSpec(MODEM_INIT_STRINGS, PropertyTranslationKeys.SERIAL_MODEM_INIT_STRINGS, false, DEFAULT_MODEM_INIT_STRINGS);
     }
 
     public PropertySpec atCommandTriesSpec() {
-        return this.bigDecimalSpec(COMMAND_TRIES, false, DEFAULT_COMMAND_TRIES);
+        return this.bigDecimalSpec(COMMAND_TRIES, PropertyTranslationKeys.SERIAL_MODEM_COMMAND_TRIES, false, DEFAULT_COMMAND_TRIES);
     }
 
     public PropertySpec atCommandTimeoutSpec() {
-        return this.durationSpec(COMMAND_TIMEOUT, false, DEFAULT_COMMAND_TIMEOUT);
+        return this.durationSpec(COMMAND_TIMEOUT, PropertyTranslationKeys.SERIAL_MODEM_COMMAND_TIMEOUT, false, DEFAULT_COMMAND_TIMEOUT);
     }
 
     public PropertySpec delayBeforeSendSpec() {
-        return this.durationSpec(DELAY_BEFORE_SEND, false, DEFAULT_DELAY_BEFORE_SEND);
+        return this.durationSpec(DELAY_BEFORE_SEND, PropertyTranslationKeys.SERIAL_MODEM_DELAY_BEFORE_SEND, false, DEFAULT_DELAY_BEFORE_SEND);
     }
 
     public PropertySpec delayAfterConnectSpec() {
-        return this.durationSpec(DELAY_AFTER_CONNECT, false, DEFAULT_DELAY_AFTER_CONNECT);
+        return this.durationSpec(DELAY_AFTER_CONNECT, PropertyTranslationKeys.SERIAL_MODEM_DELAY_AFTER_CONNECT, false, DEFAULT_DELAY_AFTER_CONNECT);
     }
 
     public PropertySpec atConnectTimeoutSpec() {
-        return this.durationSpec(CONNECT_TIMEOUT, false, DEFAULT_CONNECT_TIMEOUT);
+        return this.durationSpec(CONNECT_TIMEOUT, PropertyTranslationKeys.SERIAL_MODEM_CONNECT_TIMEOUT, false, DEFAULT_CONNECT_TIMEOUT);
     }
 
     public PropertySpec atCommandPrefixSpec() {
-        return this.stringWithDefaultSpec(MODEM_DIAL_PREFIX, false, DEFAULT_MODEM_DIAL_PREFIX);
+        return this.stringWithDefaultSpec(MODEM_DIAL_PREFIX, PropertyTranslationKeys.SERIAL_MODEM_DIAL_PREFIX, false, DEFAULT_MODEM_DIAL_PREFIX);
     }
 
     public PropertySpec dtrToggleDelaySpec() {
-        return this.durationSpec(DTR_TOGGLE_DELAY, false, DEFAULT_DTR_TOGGLE_DELAY);
+        return this.durationSpec(DTR_TOGGLE_DELAY, PropertyTranslationKeys.SERIAL_MODEM_DTR_TOGGLE_DELAY, false, DEFAULT_DTR_TOGGLE_DELAY);
     }
 
     public PropertySpec modemConfigurationKeySpec() {
-        return this.stringSpec(MODEM_CONFIGURATION_KEY, true, Stream.of(PEMPModemConfiguration.values()).map(PEMPModemConfiguration::getKey).toArray(String[]::new));
+        return this.stringSpec(MODEM_CONFIGURATION_KEY, PropertyTranslationKeys.SERIAL_MODEM_PEMP_CONFIGURATION_KEY, true, Stream.of(PEMPModemConfiguration.values()).map(PEMPModemConfiguration::getKey).toArray(String[]::new));
     }
 
     public PropertySpec phoneNumberSpec() {
-        return UPLPropertySpecFactory.specBuilder(PHONE_NUMBER_PROPERTY_NAME, true, this.propertySpecService::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(PHONE_NUMBER_PROPERTY_NAME, true, PropertyTranslationKeys.SERIAL_MODEM_PHONE_NUMBER_PROPERTY, this.propertySpecService::stringSpec).finish();
     }
 
-    private PropertySpec durationSpec(String name, boolean required, Duration defaultValue) {
-        PropertySpecBuilder<Duration> durationPropertySpecBuilder = UPLPropertySpecFactory.specBuilder(name, required, this.propertySpecService::durationSpec);
+    private PropertySpec durationSpec(String name, TranslationKey translationKey, boolean required, Duration defaultValue) {
+        PropertySpecBuilder<Duration> durationPropertySpecBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, this.propertySpecService::durationSpec);
         durationPropertySpecBuilder.setDefaultValue(defaultValue);
         return durationPropertySpecBuilder.finish();
     }
 
-    private PropertySpec bigDecimalSpec(String name, boolean required, BigDecimal defaultValue) {
-        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, this.propertySpecService::bigDecimalSpec);
+    private PropertySpec bigDecimalSpec(String name, TranslationKey translationKey, boolean required, BigDecimal defaultValue) {
+        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, this.propertySpecService::bigDecimalSpec);
         specBuilder.setDefaultValue(defaultValue);
         return specBuilder.finish();
     }
 
-    private PropertySpec stringWithDefaultSpec(String name, boolean required, String defaultValue, String... validValues) {
-        PropertySpecBuilder<String> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, this.propertySpecService::stringSpec);
+    private PropertySpec stringWithDefaultSpec(String name, TranslationKey translationKey, boolean required, String defaultValue, String... validValues) {
+        PropertySpecBuilder<String> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, this.propertySpecService::stringSpec);
         specBuilder.setDefaultValue(defaultValue);
         specBuilder.addValues(validValues);
         if (validValues.length > 0) {
@@ -204,8 +206,8 @@ public class TypedPEMPModemProperties extends AbstractPEMPModemProperties implem
         return specBuilder.finish();
     }
 
-    private PropertySpec stringSpec(String name, boolean required, String... validValues) {
-        PropertySpecBuilder<String> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, this.propertySpecService::stringSpec);
+    private PropertySpec stringSpec(String name, TranslationKey translationKey, boolean required, String... validValues) {
+        PropertySpecBuilder<String> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, this.propertySpecService::stringSpec);
         specBuilder.addValues(validValues);
         if (validValues.length > 0) {
             specBuilder.markExhaustive();

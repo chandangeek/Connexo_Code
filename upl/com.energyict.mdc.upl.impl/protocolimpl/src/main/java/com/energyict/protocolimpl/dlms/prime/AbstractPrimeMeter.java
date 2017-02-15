@@ -9,6 +9,7 @@ import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
@@ -47,10 +48,10 @@ abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol implements
     private ProfileCacheImpl cache = new ProfileCacheImpl();
     private final PrimeProperties properties;
 
-    protected AbstractPrimeMeter(PropertySpecService propertySpecService, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
+    protected AbstractPrimeMeter(PropertySpecService propertySpecService, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor, NlsService nlsService) {
         this.deviceMessageFileFinder = deviceMessageFileFinder;
         this.deviceMessageFileExtractor = deviceMessageFileExtractor;
-        this.properties = new PrimeProperties(propertySpecService);
+        this.properties = new PrimeProperties(propertySpecService, nlsService);
     }
 
     @Override

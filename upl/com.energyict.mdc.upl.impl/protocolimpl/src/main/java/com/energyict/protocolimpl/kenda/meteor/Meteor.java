@@ -2,6 +2,8 @@ package com.energyict.protocolimpl.kenda.meteor;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -16,8 +18,10 @@ import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -86,10 +90,12 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
     // byte: 8 bit, word 16 bit signed integer, long 32 bit signed integer
 
     private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
 
-    public Meteor(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;// blank constructor for testing purposes only
-        byte[] blank = {0, 0};
+    public Meteor(PropertySpecService propertySpecService, NlsService nlsService) {
+        this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
+        byte[] blank = {0, 0};    // blank constructor for testing purposes only
         sourceCode = blank;        // Defines central equipment of origin
         sourceCodeExt = 0;        // Defines peripheral equipment of origin
         destinationCode = blank;    // Defines central equipment of final destination
@@ -101,12 +107,14 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
             byte sourceCodeExt,
             byte[] destinationCode,
             byte destinationCodeExt,
-            PropertySpecService propertySpecService) {
+            PropertySpecService propertySpecService,
+                    NlsService nlsService) {
         this.sourceCode = sourceCode;
         this.sourceCodeExt = sourceCodeExt;
         this.destinationCode = destinationCode;
         this.destinationCodeExt = destinationCodeExt;
         this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
     }
 
     @Override
@@ -352,19 +360,19 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.integerSpec(NODEID.getName()),
-                this.integerSpec(TIMEOUT.getName()),
-                this.integerSpec("Retry"),
-                this.integerSpec("DelayAfterConnect"),
-                ProtocolChannelMap.propertySpec("ChannelMap", false));
+                this.integerSpec(NODEID.getName(), PropertyTranslationKeys.KENDA_NODEID),
+                this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.KENDA_TIMEOUT),
+                this.integerSpec("Retry", PropertyTranslationKeys.KENDA_RETRY),
+                this.integerSpec("DelayAfterConnect", PropertyTranslationKeys.KENDA_DELAY_AFTER_CONNECT),
+                ProtocolChannelMap.propertySpec("ChannelMap", false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.KENDA_CHANNEL_MAP).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.KENDA_CHANNEL_MAP_DESCRIPTION).format()));
     }
 
-    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, optionsSupplier).finish();
     }
 
-    private PropertySpec integerSpec(String name) {
-        return this.spec(name, this.propertySpecService::integerSpec);
+    private PropertySpec integerSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::integerSpec);
     }
 
     @Override

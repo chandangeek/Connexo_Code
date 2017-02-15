@@ -2,8 +2,10 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
 import com.energyict.mdc.protocol.inbound.general.AbstractDiscover;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.GprsRequestFactory;
@@ -98,7 +100,7 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(
                 UPLPropertySpecFactory
-                        .specBuilder(DEVICE_TYPE_KEY, true, this.getPropertySpecService()::stringSpec)
+                        .specBuilder(DEVICE_TYPE_KEY, true, PropertyTranslationKeys.V2_ELSTER_DEVICE_TYPE, this.getPropertySpecService()::stringSpec)
                         .setDefaultValue(MTU155_DEVICE_TYPE)
                         .addValues(MTU155_DEVICE_TYPE, EK155_DEVICE_TYPE)
                         .markExhaustive()

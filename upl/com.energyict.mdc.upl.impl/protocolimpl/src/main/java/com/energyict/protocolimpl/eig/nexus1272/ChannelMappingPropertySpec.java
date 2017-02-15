@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
  */
 class ChannelMappingPropertySpec extends AbstractPropertySpec {
 
-    protected ChannelMappingPropertySpec(String name, boolean required) {
-        super(name, required);
+    protected ChannelMappingPropertySpec(String name, boolean required, String displayName, String description) {
+        super(name, required, displayName, description);
     }
 
     @Override

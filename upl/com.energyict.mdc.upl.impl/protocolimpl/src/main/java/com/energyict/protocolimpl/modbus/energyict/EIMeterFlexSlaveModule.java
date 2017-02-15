@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.modbus.energyict;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
@@ -29,8 +30,8 @@ public class EIMeterFlexSlaveModule extends Modbus {
     /** The name of the register that contains the meter model. */
     private static final String METERMODEL_REGISTER_NAME = "MeterModel";
 
-    public EIMeterFlexSlaveModule(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public EIMeterFlexSlaveModule(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override

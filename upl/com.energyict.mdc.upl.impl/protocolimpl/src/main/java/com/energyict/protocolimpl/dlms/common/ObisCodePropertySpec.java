@@ -3,7 +3,6 @@ package com.energyict.protocolimpl.dlms.common;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
-
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.properties.AbstractPropertySpec;
 
@@ -15,12 +14,12 @@ import com.energyict.protocolimpl.properties.AbstractPropertySpec;
  */
 public class ObisCodePropertySpec extends AbstractPropertySpec {
 
-    public ObisCodePropertySpec(String name) {
-        super(name, false);
+    public ObisCodePropertySpec(String name, String translatedName, String description) {
+        super(name, false, translatedName, description);
     }
 
-    public ObisCodePropertySpec(String name, boolean required) {
-        super(name, required);
+    public ObisCodePropertySpec(String name, boolean required, String translatedName, String description) {
+        super(name, required, translatedName, description);
     }
 
     @Override

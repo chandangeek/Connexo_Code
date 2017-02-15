@@ -1,9 +1,11 @@
 package com.energyict.mdc.channels;
 
+import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.NumberLookup;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -13,6 +15,7 @@ import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.HexStringPropertySpec;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -23,9 +26,11 @@ import java.util.Set;
 public class TestOfRequiredPropertiesConnectionType extends ConnectionTypeImpl {
 
     private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
 
-    public TestOfRequiredPropertiesConnectionType(PropertySpecService propertySpecService) {
+    public TestOfRequiredPropertiesConnectionType(PropertySpecService propertySpecService, NlsService nlsService) {
         this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
     }
 
     @Override
@@ -66,7 +71,7 @@ public class TestOfRequiredPropertiesConnectionType extends ConnectionTypeImpl {
                 UPLPropertySpecFactory
                         .specBuilder("EncryptedString", true, this.propertySpecService::encryptedStringSpec)
                         .finish(),
-                new HexStringPropertySpec("HexString", true),
+                new HexStringPropertySpec("HexString", true, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.CTR_INBOUND_DIAL_HOME_ID).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.CTR_INBOUND_DIAL_HOME_ID_DESCRIPTION).format()),
                 UPLPropertySpecFactory
                         .specBuilder("ObisCode", false, this.propertySpecService::obisCodeSpec)
                         .finish(),

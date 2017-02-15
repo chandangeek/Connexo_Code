@@ -1,5 +1,16 @@
 package com.elster.protocolimpl.lis200;
 
+import com.elster.protocolimpl.nls.PropertyTranslationKeys;
+import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.TranslationKey;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.elster.protocolimpl.dlms.util.ElsterProtocolIOExceptionHandler;
 import com.elster.protocolimpl.lis200.commands.AbstractCommand;
 import com.elster.protocolimpl.lis200.objects.AbstractObject;
@@ -40,6 +51,7 @@ import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 import com.google.common.collect.Range;
 
 import java.io.IOException;
@@ -170,32 +182,32 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
      */
     private boolean suppressWakeupSequence = false;
 
-    public LIS200(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public LIS200(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.integerSpec(PROFILE_REQUEST_BLOCK_SIZE));
-        propertySpecs.add(this.integerSpec(DISABLE_AUTO_LOGOFF));
-        propertySpecs.add(this.integerSpec(SUPPRESS_WAKEUP_SEQUENCE));
-        propertySpecs.add(this.stringSpec(USE_LOCK));
-        propertySpecs.add(this.integerRangeSpec(METER_INDEX, false, Range.closed(1, this.maxMeterIndex)));
-        propertySpecs.add(this.integerRangeSpec(ARCHIVE_TO_READOUT, false));
-        propertySpecs.add(this.integerRangeSpec(ARCHIVE_STRUCTURE, false));
-        propertySpecs.add(LIS200Utils.propertySpec(ARCHIVE_INTERVAL_ADDRESS, false));
-        propertySpecs.add(this.integerSpec(DELAY_AFTER_CHECK));
+        propertySpecs.add(this.integerSpec(PROFILE_REQUEST_BLOCK_SIZE, PropertyTranslationKeys.LIS200_PROFILE_REQUEST_BLOCK_SIZE));
+        propertySpecs.add(this.integerSpec(DISABLE_AUTO_LOGOFF, PropertyTranslationKeys.LIS200_DISABLE_AUTO_LOGOFF));
+        propertySpecs.add(this.integerSpec(SUPPRESS_WAKEUP_SEQUENCE, PropertyTranslationKeys.LIS200_SUPPRESS_WAKEUP_SEQUENCE));
+        propertySpecs.add(this.stringSpec(USE_LOCK, PropertyTranslationKeys.LIS200_USE_LOCK));
+        propertySpecs.add(this.integerRangeSpec(METER_INDEX, false, Range.closed(1, this.maxMeterIndex), PropertyTranslationKeys.LIS200_METER_INDEX));
+        propertySpecs.add(this.integerRangeSpec(ARCHIVE_TO_READOUT, false, PropertyTranslationKeys.LIS200_ARCHIVE_TO_READOUT));
+        propertySpecs.add(this.integerRangeSpec(ARCHIVE_STRUCTURE, false, PropertyTranslationKeys.LIS200_ARCHIVE_STRUCTURE));
+        propertySpecs.add(LIS200Utils.propertySpec(ARCHIVE_INTERVAL_ADDRESS, false, this.getNlsService().getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.LIS200_ARCHIVE_INTERVAL_ADDRESS).format(), this.getNlsService().getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.LIS200_ARCHIVE_INTERVAL_ADDRESS_DESCRIPTION).format()));
+        propertySpecs.add(this.integerSpec(DELAY_AFTER_CHECK, PropertyTranslationKeys.LIS200_DELAY_AFTER_CHECK));
         return propertySpecs;
     }
 
-    private PropertySpec integerRangeSpec(String name, boolean required) {
-        PropertySpecBuilder<Integer> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, this.getPropertySpecService()::integerSpec);
+    private PropertySpec integerRangeSpec(String name, boolean required, TranslationKey translationKey) {
+        PropertySpecBuilder<Integer> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, this.getPropertySpecService()::integerSpec);
         return specBuilder.finish();
     }
 
-    private PropertySpec integerRangeSpec(String name, boolean required, Range<Integer> range) {
-        PropertySpecBuilder<Integer> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, this.getPropertySpecService()::integerSpec);
+    private PropertySpec integerRangeSpec(String name, boolean required, Range<Integer> range, TranslationKey translationKey) {
+        PropertySpecBuilder<Integer> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, this.getPropertySpecService()::integerSpec);
         UPLPropertySpecFactory.addIntegerValues(specBuilder, range);
         return specBuilder.finish();
     }

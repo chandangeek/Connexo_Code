@@ -4,7 +4,6 @@ import com.energyict.mdc.channels.ip.datagrams.DatagramComChannel;
 import com.energyict.mdc.channels.ip.datagrams.OutboundUdpSession;
 import com.energyict.mdc.channels.ip.socket.SocketComChannel;
 import com.energyict.mdc.channels.nls.MessageSeeds;
-import com.energyict.mdc.channels.nls.Thesaurus;
 import com.energyict.mdc.channels.serial.OpticalDriver;
 import com.energyict.mdc.channels.serial.SerialComChannelImpl;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
@@ -19,6 +18,7 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;

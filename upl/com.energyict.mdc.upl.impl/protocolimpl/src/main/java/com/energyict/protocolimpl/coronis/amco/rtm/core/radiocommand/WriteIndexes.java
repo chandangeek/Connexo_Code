@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
@@ -10,8 +11,8 @@ import java.io.IOException;
 
 public class WriteIndexes extends AbstractRadioCommand {
 
-    WriteIndexes(RTM rtm, int input, PropertySpecService propertySpecService) {
-        super(propertySpecService, rtm);
+    WriteIndexes(RTM rtm, int input, PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, rtm, nlsService);
         writingType = (int) Math.pow(2, input - 1);             //A = 1, B = 2, C = 4, D = 8
     }
 

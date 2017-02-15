@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.nta.dsmr50;
 
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
@@ -10,6 +11,7 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
@@ -91,129 +93,129 @@ public class Dsmr50ConfigurationSupport implements HasDynamicProperties {
     }
 
     private PropertySpec pollingDelayPropertySpec() {
-        return this.spec(POLLING_DELAY, this.propertySpecService::durationSpec);
+        return this.spec(POLLING_DELAY, PropertyTranslationKeys.V2_ELSTER_POLLING_DELAY, this.propertySpecService::durationSpec);
     }
 
     private PropertySpec mirrorLogicalDeviceIdPropertySpec() {
-        return this.spec(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID, this.propertySpecService::bigDecimalSpec);
+        return this.spec(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID, PropertyTranslationKeys.V2_ELSTER_MIRROR_LOGICAL_DEVICE_ID, this.propertySpecService::bigDecimalSpec);
     }
 
     private PropertySpec actualLogicalDeviceIdPropertySpec() {
-        return this.spec(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID, this.propertySpecService::bigDecimalSpec);
+        return this.spec(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID, PropertyTranslationKeys.V2_ELSTER_GATEWAY_LOGICAL_DEVICE_ID, this.propertySpecService::bigDecimalSpec);
     }
 
     private PropertySpec lastSeenDatePropertySpec() {
-        return this.spec(G3Properties.PROP_LASTSEENDATE, this.propertySpecService::bigDecimalSpec);
+        return this.spec(G3Properties.PROP_LASTSEENDATE, PropertyTranslationKeys.V2_ELSTER_LAST_SEND_DATE, this.propertySpecService::bigDecimalSpec);
     }
 
     private PropertySpec serverLowerMacAddressPropertySpec() {
         return this
-                .specBuilder(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, this.propertySpecService::bigDecimalSpec)
+                .specBuilder(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, PropertyTranslationKeys.V2_NTA_SERVER_LOWER_MAC_ADDRESS, this.propertySpecService::bigDecimalSpec)
                 .setDefaultValue(BigDecimal.ZERO)
                 .finish();
     }
 
     protected PropertySpec nodeAddressPropertySpec() {
-        return this.spec(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), this.propertySpecService::bigDecimalSpec);
+        return this.spec(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), PropertyTranslationKeys.V2_NTA_NODEID, this.propertySpecService::bigDecimalSpec);
     }
 
     protected PropertySpec callHomeIdPropertySpec() {
-        return this.spec(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, this.propertySpecService::stringSpec);
+        return this.spec(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, PropertyTranslationKeys.V2_ELSTER_CALL_HOME_ID, this.propertySpecService::stringSpec);
     }
 
     private PropertySpec checkNumberOfBlocksDuringFirmwareResumePropertySpec() {
         return this
-                .specBuilder(CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME, this.propertySpecService::booleanSpec)
+                .specBuilder(CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME, PropertyTranslationKeys.V2_NTA_CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME, this.propertySpecService::booleanSpec)
                 .setDefaultValue(DEFAULT_CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME)
                 .finish();
     }
 
     protected PropertySpec timeZonePropertySpec() {
-        return this.spec(TIMEZONE, this.propertySpecService::timeZoneSpec);
+        return this.spec(TIMEZONE, PropertyTranslationKeys.V2_NTA_TIMEZONE, this.propertySpecService::timeZoneSpec);
     }
 
     protected PropertySpec validateInvokeIdPropertySpec() {
         return this
-                .specBuilder(VALIDATE_INVOKE_ID, this.propertySpecService::booleanSpec)
+                .specBuilder(VALIDATE_INVOKE_ID, PropertyTranslationKeys.V2_NTA_VALIDATE_INVOKE_ID, this.propertySpecService::booleanSpec)
                 .setDefaultValue(DEFAULT_VALIDATE_INVOKE_ID)
                 .finish();
     }
 
     protected PropertySpec cumulativeCaptureTimeChannelPropertySpec() {
         return this
-                .specBuilder(Dsmr50Properties.CumulativeCaptureTimeChannel, this.propertySpecService::booleanSpec)
+                .specBuilder(Dsmr50Properties.CumulativeCaptureTimeChannel, PropertyTranslationKeys.V2_NTA_CUMULATIVE_CAPTURE_TIME_CHANNEL, this.propertySpecService::booleanSpec)
                 .setDefaultValue(false)
                 .finish();
     }
 
     protected PropertySpec readCachePropertySpec() {
         return this
-                .specBuilder(Dsmr50Properties.READCACHE_PROPERTY, this.propertySpecService::booleanSpec)
+                .specBuilder(Dsmr50Properties.READCACHE_PROPERTY, PropertyTranslationKeys.V2_NTA_READCACHE, this.propertySpecService::booleanSpec)
                 .setDefaultValue(false)
                 .finish();
     }
 
     protected PropertySpec pskPropertySpec() {
-        return this.spec(G3Properties.PSK, this.propertySpecService::hexStringSpec);
+        return this.spec(G3Properties.PSK, PropertyTranslationKeys.V2_NTA_PSK, this.propertySpecService::hexStringSpec);
     }
 
     protected PropertySpec aarqTimeoutPropertySpec() {
         return this
-                .specBuilder(Dsmr50Properties.AARQ_TIMEOUT_PROPERTY, this.propertySpecService::bigDecimalSpec)
+                .specBuilder(Dsmr50Properties.AARQ_TIMEOUT_PROPERTY, PropertyTranslationKeys.V2_NTA_AARQ_TIMEOUT, this.propertySpecService::bigDecimalSpec)
                 .setDefaultValue(BigDecimal.ZERO)
                 .finish();
     }
 
     protected PropertySpec aarqRetriesPropertySpec() {
         return this
-                .specBuilder(Dsmr50Properties.AARQ_RETRIES_PROPERTY, this.propertySpecService::bigDecimalSpec)
+                .specBuilder(Dsmr50Properties.AARQ_RETRIES_PROPERTY, PropertyTranslationKeys.V2_NTA_AARQ_RETRIES, this.propertySpecService::bigDecimalSpec)
                 .setDefaultValue(BigDecimal.valueOf(2))
                 .finish();
     }
 
     protected PropertySpec requestTimeZonePropertySpec() {
-        return this.spec(REQUEST_TIMEZONE, this.propertySpecService::booleanSpec);
+        return this.spec(REQUEST_TIMEZONE, PropertyTranslationKeys.V2_NTA_REQUEST_TIMEZONE, this.propertySpecService::booleanSpec);
     }
 
     protected PropertySpec forcedDelayPropertySpec() {
         return this
-                .specBuilder(FORCED_DELAY, this.propertySpecService::durationSpec)
+                .specBuilder(FORCED_DELAY, PropertyTranslationKeys.V2_NTA_FORCED_DELAY, this.propertySpecService::durationSpec)
                 .setDefaultValue(DEFAULT_FORCED_DELAY)
                 .finish();
     }
 
     protected PropertySpec maxRecPduSizePropertySpec() {
         return this
-                .specBuilder(MAX_REC_PDU_SIZE, this.propertySpecService::bigDecimalSpec)
+                .specBuilder(MAX_REC_PDU_SIZE, PropertyTranslationKeys.V2_NTA_MAX_REC_PDU_SIZE, this.propertySpecService::bigDecimalSpec)
                 .setDefaultValue(DEFAULT_MAX_REC_PDU_SIZE)
                 .finish();
     }
 
     protected PropertySpec bulkRequestPropertySpec() {
-        return this.spec(BULK_REQUEST, this.propertySpecService::booleanSpec);
+        return this.spec(BULK_REQUEST, PropertyTranslationKeys.V2_NTA_BULK_REQUEST, this.propertySpecService::booleanSpec);
     }
 
     protected PropertySpec ntaSimulationToolPropertySpec() {
-        return this.spec(NTA_SIMULATION_TOOL, this.propertySpecService::booleanSpec);
+        return this.spec(NTA_SIMULATION_TOOL, PropertyTranslationKeys.V2_NTA_NTA_SIMULATION_TOOL, this.propertySpecService::booleanSpec);
     }
 
     protected PropertySpec ignoreDstStatusCode() {
-        return this.spec(PROPERTY_IGNORE_DST_STATUS_CODE, this.propertySpecService::booleanSpec);
+        return this.spec(PROPERTY_IGNORE_DST_STATUS_CODE, PropertyTranslationKeys.V2_NTA_IGNORE_DST_STATUS_CODE, this.propertySpecService::booleanSpec);
     }
 
     private PropertySpec useEquipmentIdentifierAsSerialNumberPropertySpec() {
         return this
-                .specBuilder(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, this.propertySpecService::booleanSpec)
+                .specBuilder(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, PropertyTranslationKeys.V2_NTA_USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, this.propertySpecService::booleanSpec)
                 .setDefaultValue(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE)
                 .finish();
     }
 
-    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return this.specBuilder(name, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return this.specBuilder(name, translationKey, optionsSupplier).finish();
     }
 
-    private <T> PropertySpecBuilder<T> specBuilder(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier);
+    private <T> PropertySpecBuilder<T> specBuilder(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, optionsSupplier);
     }
 
 }

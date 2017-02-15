@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -27,6 +28,7 @@ import com.energyict.protocolimpl.coronis.wavesense.core.AlarmFrameParser;
 import com.energyict.protocolimpl.coronis.wavesense.core.ObisCodeMapper;
 import com.energyict.protocolimpl.coronis.wavesense.core.parameter.ParameterFactory;
 import com.energyict.protocolimpl.coronis.wavesense.core.radiocommand.RadioCommandFactory;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
@@ -57,8 +59,8 @@ public class WaveSense extends AbstractProtocol implements MessageProtocol, Prot
 
     private static final int WAVESENSE_NUMBER_OF_CHANNELS = 1;
 
-    public WaveSense(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public WaveSense(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     final boolean isVerifyProfileInterval() {
@@ -112,8 +114,8 @@ public class WaveSense extends AbstractProtocol implements MessageProtocol, Prot
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.integerSpec("verifyProfileInterval", false));
-        propertySpecs.add(this.stringSpec("LoadProfileObisCode", false));
+        propertySpecs.add(this.integerSpec("verifyProfileInterval", PropertyTranslationKeys.WAVESENSE_VERIFY_PROFILE_INTERVAL, false));
+        propertySpecs.add(this.stringSpec("LoadProfileObisCode", PropertyTranslationKeys.WAVESENSE_LOADPROFILE_OBISCODE, false));
         return propertySpecs;
     }
 

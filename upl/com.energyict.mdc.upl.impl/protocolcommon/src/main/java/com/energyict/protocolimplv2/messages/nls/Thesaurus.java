@@ -11,7 +11,7 @@ public enum Thesaurus {
     ID {
         @Override
         public String toString() {
-            return "DMC";
+            return "PR1";
         }
     };
 }

@@ -1,9 +1,11 @@
 package com.energyict.protocolimpl.dlms.edp;
 
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.util.Arrays;
@@ -48,17 +50,17 @@ class EDPProperties {
 
     protected List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                this.stringSpec(DlmsProtocolProperties.CLIENT_MAC_ADDRESS),
-                this.stringSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS),
-                this.stringSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS),
-                this.stringSpec(DlmsProtocolProperties.CONNECTION),
-                this.stringSpec(DlmsProtocolProperties.PK_TIMEOUT),
-                this.stringSpec(DlmsProtocolProperties.PK_RETRIES),
-                this.stringSpec(READCACHE_PROPERTY));
+                this.stringSpec(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS),
+                this.stringSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS),
+                this.stringSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS),
+                this.stringSpec(DlmsProtocolProperties.CONNECTION, PropertyTranslationKeys.DLMS_CONNECTION),
+                this.stringSpec(DlmsProtocolProperties.PK_TIMEOUT, PropertyTranslationKeys.DLMS_TIMEOUT),
+                this.stringSpec(DlmsProtocolProperties.PK_RETRIES, PropertyTranslationKeys.DLMS_RETRIES),
+                this.stringSpec(READCACHE_PROPERTY, PropertyTranslationKeys.DLMS_READ_CACHE));
     }
 
-    private PropertySpec stringSpec(String name) {
-        return UPLPropertySpecFactory.specBuilder(name, false, this.propertySpecService::stringSpec).finish();
+    private PropertySpec stringSpec(String name, TranslationKey translationKey) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, this.propertySpecService::stringSpec).finish();
     }
 
     boolean isFirmwareClient() {

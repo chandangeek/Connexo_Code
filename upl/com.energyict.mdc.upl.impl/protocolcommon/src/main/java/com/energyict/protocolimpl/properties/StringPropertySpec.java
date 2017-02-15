@@ -25,13 +25,13 @@ class StringPropertySpec extends AbstractPropertySpec {
     private Constraint constraint;
     private Optional<String> defaultValue = Optional.empty();
 
-    StringPropertySpec(String name, boolean required) {
-        super(name, required);
+    StringPropertySpec(String name, boolean required, String displayName, String description) {
+        super(name, required, displayName, description);
         this.constraint = new NoConstraint();
     }
 
-    StringPropertySpec(String name, boolean required, String... possibleValues) {
-        super(name, required);
+    StringPropertySpec(String name, boolean required, String displayName, String description, String... possibleValues) {
+        super(name, required, displayName, description);
         this.constraint = new PossibleValues(possibleValues);
     }
 

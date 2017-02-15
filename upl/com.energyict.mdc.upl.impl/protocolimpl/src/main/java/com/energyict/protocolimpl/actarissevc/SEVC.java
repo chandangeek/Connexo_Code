@@ -10,6 +10,7 @@ import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -24,6 +25,7 @@ import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
@@ -295,26 +297,26 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.stringSpec(ADDRESS.getName()),
-                this.stringSpec(PASSWORD.getName()),
-                this.integerSpec(TIMEOUT.getName()),
-                this.integerSpec(RETRIES.getName()),
-                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
-                this.stringSpec(NODEID.getName()),
-                this.stringSpec(SERIALNUMBER.getName()),
-                this.integerSpec("ForcedDelay"));
+                this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.SEVC_ADDRESS),
+                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.SEVC_PASSWORD),
+                this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.SEVC_TIMEOUT),
+                this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.SEVC_RETRIES),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.SEVC_ROUNDTRIPCORRECTION),
+                this.stringSpec(NODEID.getName(), PropertyTranslationKeys.SEVC_NODEID),
+                this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.SEVC_SERIALNUMBER),
+                this.integerSpec("ForcedDelay", PropertyTranslationKeys.SEVC_FORCED_DELAY));
     }
 
-    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey , optionsSupplier).finish();
     }
 
-    private PropertySpec stringSpec(String name) {
-        return this.spec(name, this.propertySpecService::stringSpec);
+    private PropertySpec stringSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::stringSpec);
     }
 
-    private PropertySpec integerSpec(String name) {
-        return this.spec(name, this.propertySpecService::integerSpec);
+    private PropertySpec integerSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::integerSpec);
     }
 
     @Override

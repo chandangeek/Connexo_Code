@@ -14,6 +14,8 @@ import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -45,9 +47,11 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 import com.google.common.collect.Range;
 
 import java.io.ByteArrayOutputStream;
@@ -96,6 +100,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     private static final String DEFAULT_DATE_FORMAT = "yy/mm/dd";
     private static final String USE_EQUIPMENT_IDENTIFIER_AS_SERIAL = "UseEquipmentIdentifierAsSerialNumber";
     private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
 
     private String strID;
     private String strPassword;
@@ -148,8 +153,9 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     private String billingDateFormat = null;
     private boolean useEquipmentIdentifierAsSerial;
 
-    public AS220(PropertySpecService propertySpecService) {
+    public AS220(PropertySpecService propertySpecService, NlsService nlsService) {
         this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
     }
 
     @Override
@@ -243,49 +249,49 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.stringSpec(ADDRESS.getName()),
-                this.stringSpec(PASSWORD.getName()),
-                this.stringSpec(SERIALNUMBER.getName()),
-                this.integerSpec(TIMEOUT.getName()),
-                this.integerSpec(RETRIES.getName()),
-                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
-                this.integerSpec(SECURITYLEVEL.getName()),
-                this.stringSpec(NODEID.getName()),
-                this.integerSpec("EchoCancelling"),
-                this.integerSpec("ForceDelay"),
-                this.integerSpec(PROFILEINTERVAL.getName()),
-                ProtocolChannelMap.propertySpec("ChannelMap", false),
-                this.integerSpec("RequestHeader"),
-                this.integerSpec("Scaler"),
-                this.stringSpec(PROPERTY_DATE_FORMAT),
-                this.stringSpec(PROPERTY_BILLING_DATE_FORMAT),
-                this.integerSpec("DataReadout", Range.closed(0, 2)),
-                this.integerSpec("ExtendedLogging"),
-                this.integerSpec("VDEWCompatible"),
-                this.integerSpec("LoadProfileNumber", Range.closed(MIN_LOADPROFILE, MAX_LOADPROFILE)),
-                this.stringSpec("Software7E1"),
-                this.stringSpec("FailOnUnitMismatch"),
-                this.stringSpec("HalfDuplex"),
-                this.integerSpec("RS485RtuPlusServer"),
-                this.integerSpec(PR_LIMIT_MAX_NR_OF_DAYS),
-                this.stringSpec(INVERT_BILLING_ORDER),
-                this.stringSpec(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL));
+                this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.IEC1107_ADDRESS),
+                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.IEC1107_PASSWORD),
+                this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.IEC1107_SERIALNUMBER),
+                this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.IEC1107_TIMEOUT),
+                this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.IEC1107_RETRIES),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.IEC1107_ROUNDTRIPCORRECTION),
+                this.integerSpec(SECURITYLEVEL.getName(), PropertyTranslationKeys.IEC1107_SECURITYLEVEL),
+                this.stringSpec(NODEID.getName(), PropertyTranslationKeys.IEC1107_NODEID),
+                this.integerSpec("EchoCancelling", PropertyTranslationKeys.IEC1107_ECHOCANCELLING),
+                this.integerSpec("ForceDelay", PropertyTranslationKeys.IEC1107_FORCEDELAY),
+                this.integerSpec(PROFILEINTERVAL.getName(), PropertyTranslationKeys.IEC1107_PROFILEINTERVAL),
+                ProtocolChannelMap.propertySpec("ChannelMap", false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.IEC1107_CHANNEL_MAP).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.IEC1107_CHANNEL_MAP_DESCRIPTION).format()),
+                this.integerSpec("RequestHeader", PropertyTranslationKeys.IEC1107_REQUESTHEADER),
+                this.integerSpec("Scaler", PropertyTranslationKeys.IEC1107_SCALER),
+                this.stringSpec(PROPERTY_DATE_FORMAT, PropertyTranslationKeys.IEC1107_DATE_FORMAT),
+                this.stringSpec(PROPERTY_BILLING_DATE_FORMAT, PropertyTranslationKeys.IEC1107_BILLING_DATE_FORMAT),
+                this.integerSpec("DataReadout", PropertyTranslationKeys.IEC1107_DATAREADOUT, Range.closed(0, 2)),
+                this.integerSpec("ExtendedLogging", PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
+                this.integerSpec("VDEWCompatible", PropertyTranslationKeys.IEC1107_VDEWCOMPATIBLE),
+                this.integerSpec("LoadProfileNumber", PropertyTranslationKeys.IEC1107_LOADPROFILE_NUMBER, Range.closed(MIN_LOADPROFILE, MAX_LOADPROFILE)),
+                this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
+                this.stringSpec("FailOnUnitMismatch", PropertyTranslationKeys.IEC1107_FAIL_ON_UNIT_MISMATCH),
+                this.stringSpec("HalfDuplex", PropertyTranslationKeys.IEC1107_HALF_DUPLEX),
+                this.integerSpec("RS485RtuPlusServer", PropertyTranslationKeys.IEC1107_RS485RTU_PLUS_SERVER),
+                this.integerSpec(PR_LIMIT_MAX_NR_OF_DAYS, PropertyTranslationKeys.IEC1107_LIMIT_MAX_NR_OF_DAYS),
+                this.stringSpec(INVERT_BILLING_ORDER, PropertyTranslationKeys.IEC1107_INVERT_BILLING_ORDER),
+                this.stringSpec(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, PropertyTranslationKeys.IEC1107_USE_EQUIPMENT_IDENTIFIER_AS_SERIAL));
     }
 
-    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, optionsSupplier).finish();
     }
 
-    private PropertySpec stringSpec(String name) {
-        return this.spec(name, this.propertySpecService::stringSpec);
+    private PropertySpec stringSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::stringSpec);
     }
 
-    private PropertySpec integerSpec(String name) {
-        return this.spec(name, this.propertySpecService::integerSpec);
+    private PropertySpec integerSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::integerSpec);
     }
 
-    private PropertySpec integerSpec(String name, Range<Integer> validValues) {
-        PropertySpecBuilder<Integer> specBuilder = UPLPropertySpecFactory.specBuilder(name, false, this.propertySpecService::integerSpec);
+    private PropertySpec integerSpec(String name, TranslationKey translationKey, Range<Integer> validValues) {
+        PropertySpecBuilder<Integer> specBuilder = UPLPropertySpecFactory.specBuilder(name, false, translationKey, this.propertySpecService::integerSpec);
         UPLPropertySpecFactory.addIntegerValues(specBuilder, validValues);
         return specBuilder.finish();
     }

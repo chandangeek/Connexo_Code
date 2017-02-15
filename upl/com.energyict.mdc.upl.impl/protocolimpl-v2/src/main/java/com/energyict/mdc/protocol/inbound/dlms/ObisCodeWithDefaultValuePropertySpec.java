@@ -16,8 +16,8 @@ class ObisCodeWithDefaultValuePropertySpec extends ObisCodePropertySpec {
 
     private final ObisCode defaultValue;
 
-    ObisCodeWithDefaultValuePropertySpec(String name, ObisCode defaultValue) {
-        super(name, false);
+    ObisCodeWithDefaultValuePropertySpec(String name, ObisCode defaultValue, String displayName, String description) {
+        super(name, false, displayName, description);
         this.defaultValue = defaultValue;
     }
 

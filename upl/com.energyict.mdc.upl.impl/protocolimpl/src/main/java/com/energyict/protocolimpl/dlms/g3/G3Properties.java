@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.g3;
 
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -7,6 +8,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -75,36 +77,36 @@ public class G3Properties extends DlmsProtocolProperties {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.integerSpec(SECURITY_LEVEL),
-                this.integerSpec(CLIENT_MAC_ADDRESS),
-                this.stringSpec(SERVER_MAC_ADDRESS),
-                this.integerSpec(CONNECTION),
-                this.stringSpec(HLS_SECRET),
-                this.stringSpec(DSMR_40_HEX_PASSWORD),
-                this.integerSpec(PROFILE_TYPE),
-                this.stringSpec(PROP_LASTSEENDATE),
-                this.integerSpec(AARQ_RETRIES),
-                this.integerSpec(AARQ_TIMEOUT),
-                this.integerSpec(VALIDATE_INVOKE_ID),
-                this.stringSpec(PSK),
-                this.hexStringSpec(DATATRANSPORT_AUTHENTICATIONKEY),
-                this.hexStringSpec(DATATRANSPORT_ENCRYPTIONKEY));
+                this.integerSpec(SECURITY_LEVEL, PropertyTranslationKeys.DLMS_SECURITYLEVEL),
+                this.integerSpec(CLIENT_MAC_ADDRESS, PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS),
+                this.stringSpec(SERVER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_MAC_ADDRESS),
+                this.integerSpec(CONNECTION, PropertyTranslationKeys.DLMS_CONNECTION),
+                this.stringSpec(HLS_SECRET, PropertyTranslationKeys.DLMS_HLS_SECRET),
+                this.stringSpec(DSMR_40_HEX_PASSWORD, PropertyTranslationKeys.DLMS_DSMR_40_HEX_PASSWORD),
+                this.integerSpec(PROFILE_TYPE, PropertyTranslationKeys.DLMS_PROFILE_TYPE),
+                this.stringSpec(PROP_LASTSEENDATE, PropertyTranslationKeys.DLMS_LAST_SEEN_DATE),
+                this.integerSpec(AARQ_RETRIES, PropertyTranslationKeys.DLMS_AARQ_RETRIES),
+                this.integerSpec(AARQ_TIMEOUT, PropertyTranslationKeys.DLMS_AARQ_TIMEOUT),
+                this.integerSpec(VALIDATE_INVOKE_ID, PropertyTranslationKeys.DLMS_VALIDATE_INVOKE_ID),
+                this.stringSpec(PSK, PropertyTranslationKeys.DLMS_PSK),
+                this.hexStringSpec(DATATRANSPORT_AUTHENTICATIONKEY, PropertyTranslationKeys.DLMS_DATATRANSPORT_AUTHENTICATIONKEY),
+                this.hexStringSpec(DATATRANSPORT_ENCRYPTIONKEY, PropertyTranslationKeys.DLMS_DATATRANSPORT_ENCRYPTIONKEY));
     }
 
-    protected <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    protected <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, optionsSupplier).finish();
     }
 
-    protected PropertySpec stringSpec(String name) {
-        return this.spec(name, this.propertySpecService::stringSpec);
+    protected PropertySpec stringSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::stringSpec);
     }
 
-    protected PropertySpec hexStringSpec(String name) {
-        return this.spec(name, this.propertySpecService::hexStringSpec);
+    protected PropertySpec hexStringSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::hexStringSpec);
     }
 
-    protected PropertySpec integerSpec(String name) {
-        return this.spec(name, this.propertySpecService::integerSpec);
+    protected PropertySpec integerSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::integerSpec);
     }
 
     @Override

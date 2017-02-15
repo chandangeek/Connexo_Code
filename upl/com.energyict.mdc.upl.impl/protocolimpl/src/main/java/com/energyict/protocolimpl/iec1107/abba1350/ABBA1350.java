@@ -13,6 +13,8 @@ import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -41,8 +43,10 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 import com.google.common.collect.Range;
 
 import java.io.ByteArrayOutputStream;
@@ -93,6 +97,7 @@ public class ABBA1350
     private static final int MIN_LOADPROFILE = 1;
     private static final int MAX_LOADPROFILE = 2;
     private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
 
     private String strID;
     private String strPassword;
@@ -133,8 +138,9 @@ public class ABBA1350
 
     private boolean software7E1;
 
-    public ABBA1350(PropertySpecService propertySpecService) {
+    public ABBA1350(PropertySpecService propertySpecService, NlsService nlsService) {
         this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
     }
 
     @Override
@@ -208,41 +214,41 @@ public class ABBA1350
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.stringSpec(ADDRESS.getName()),
-                this.stringSpec(PASSWORD.getName()),
-                this.stringSpec(SERIALNUMBER.getName()),
-                this.integerSpec(TIMEOUT.getName()),
-                this.integerSpec(RETRIES.getName()),
-                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
-                this.integerSpec(SECURITYLEVEL.getName()),
-                this.stringSpec(NODEID.getName()),
-                this.integerSpec("EchoCancelling"),
-                this.integerSpec("ForceDelay"),
-                this.integerSpec(PROFILEINTERVAL.getName()),
-                ProtocolChannelMap.propertySpec("ChannelMap", false),
-                this.integerSpec("RequestHeader"),
-                this.integerSpec("Scaler"),
-                this.integerSpec("DataReadout"),
-                this.integerSpec("ExtendedLogging"),
-                this.integerSpec("VDEWCompatible"),
-                this.integerSpec("LoadProfileNumber", false, Range.closed(MIN_LOADPROFILE, MAX_LOADPROFILE)),
-                this.stringSpec("Software7E1"));
+                this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.IEC1107_ADDRESS),
+                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.IEC1107_PASSWORD),
+                this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.IEC1107_SERIALNUMBER),
+                this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.IEC1107_TIMEOUT),
+                this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.IEC1107_RETRIES),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.IEC1107_ROUNDTRIPCORRECTION),
+                this.integerSpec(SECURITYLEVEL.getName(), PropertyTranslationKeys.IEC1107_SECURITYLEVEL),
+                this.stringSpec(NODEID.getName(), PropertyTranslationKeys.IEC1107_NODEID),
+                this.integerSpec("EchoCancelling", PropertyTranslationKeys.IEC1107_ECHOCANCELLING),
+                this.integerSpec("ForceDelay", PropertyTranslationKeys.IEC1107_FORCEDELAY),
+                this.integerSpec(PROFILEINTERVAL.getName(), PropertyTranslationKeys.IEC1107_PROFILEINTERVAL),
+                ProtocolChannelMap.propertySpec("ChannelMap", false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_CHANNEL_MAP).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_CHANNEL_MAP_DESCRIPTION).format()),
+                this.integerSpec("RequestHeader", PropertyTranslationKeys.IEC1107_REQUESTHEADER),
+                this.integerSpec("Scaler", PropertyTranslationKeys.IEC1107_SCALER),
+                this.integerSpec("DataReadout", PropertyTranslationKeys.IEC1107_DATAREADOUT),
+                this.integerSpec("ExtendedLogging", PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
+                this.integerSpec("VDEWCompatible", PropertyTranslationKeys.IEC1107_VDEWCOMPATIBLE),
+                this.integerSpec("LoadProfileNumber", false, PropertyTranslationKeys.IEC1107_LOADPROFILE_NUMBER, Range.closed(MIN_LOADPROFILE, MAX_LOADPROFILE)),
+                this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1));
     }
 
-    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, optionsSupplier).finish();
     }
 
-    private PropertySpec stringSpec(String name) {
-        return this.spec(name, this.propertySpecService::stringSpec);
+    private PropertySpec stringSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::stringSpec);
     }
 
-    private PropertySpec integerSpec(String name) {
-        return this.spec(name, this.propertySpecService::integerSpec);
+    private PropertySpec integerSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::integerSpec);
     }
 
-    private PropertySpec integerSpec(String name, boolean required, Range<Integer> validValues) {
-        PropertySpecBuilder<Integer> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, this.propertySpecService::integerSpec);
+    private PropertySpec integerSpec(String name, boolean required, TranslationKey translationKey, Range<Integer> validValues) {
+        PropertySpecBuilder<Integer> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, this.propertySpecService::integerSpec);
         UPLPropertySpecFactory.addIntegerValues(specBuilder, validValues);
         return specBuilder.finish();
     }

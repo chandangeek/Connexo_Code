@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
@@ -44,8 +45,8 @@ public class Enerium200 extends Modbus implements SerialNumberSupport {
 	private MeterInfo meterInfo 	= null;
 	private Profile profile 		= null;
 
-	public Enerium200(PropertySpecService propertySpecService) {
-		super(propertySpecService);
+	public Enerium200(PropertySpecService propertySpecService, NlsService nlsService) {
+		super(propertySpecService, nlsService);
 	}
 
 	@Override

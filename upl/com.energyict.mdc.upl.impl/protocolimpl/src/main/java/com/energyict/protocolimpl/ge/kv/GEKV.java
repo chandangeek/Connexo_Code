@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.ge.kv;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -40,6 +41,7 @@ import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.ge.kv.tables.ManufacturerTableFactory;
 import com.energyict.protocolimpl.meteridentification.AbstractManufacturer;
 import com.energyict.protocolimpl.meteridentification.KV;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,8 +80,8 @@ public class GEKV extends AbstractProtocol implements C12ProtocolLink, SerialNum
     // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
     SerialCommunicationChannel commChannel;
 
-    public GEKV(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public GEKV(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override
@@ -132,8 +134,8 @@ public class GEKV extends AbstractProtocol implements C12ProtocolLink, SerialNum
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.stringSpec("C12User", false));
-        propertySpecs.add(this.integerSpec("C12UserId", false));
+        propertySpecs.add(this.stringSpec("C12User", PropertyTranslationKeys.GE_C12_USER, false));
+        propertySpecs.add(this.integerSpec("C12UserId", PropertyTranslationKeys.GE_C12_USERID, false));
         return propertySpecs;
     }
 

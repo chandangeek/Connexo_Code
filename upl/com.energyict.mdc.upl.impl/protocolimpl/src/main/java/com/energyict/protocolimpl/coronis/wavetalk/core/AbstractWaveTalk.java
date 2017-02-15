@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.wavetalk.core;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -13,6 +14,7 @@ import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.coronis.core.ProtocolLink;
 import com.energyict.protocolimpl.coronis.core.WaveFlowConnect;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,8 +28,8 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME;
 
 public abstract class AbstractWaveTalk extends AbstractProtocol implements ProtocolLink {
 
-	public AbstractWaveTalk(PropertySpecService propertySpecService) {
-		super(propertySpecService);
+	public AbstractWaveTalk(PropertySpecService propertySpecService, NlsService nlsService) {
+		super(propertySpecService, nlsService);
 	}
 
 	protected abstract void doTheConnect() throws IOException;
@@ -94,7 +96,7 @@ public abstract class AbstractWaveTalk extends AbstractProtocol implements Proto
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.integerSpec(CORRECTTIME.getName(), false));
+        propertySpecs.add(this.integerSpec(CORRECTTIME.getName(), PropertyTranslationKeys.WAVETALK_CORRECTTIME, false));
         return propertySpecs;
     }
 

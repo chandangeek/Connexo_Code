@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.modbus.enerdis.recdigitcct;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -23,6 +24,7 @@ import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -85,8 +87,8 @@ public class RecDigitCct extends Modbus {
     private int nrChannels = -1;
     private int limitMaxNrOfDays;
 
-	public RecDigitCct(PropertySpecService propertySpecService) {
-		super(propertySpecService);
+	public RecDigitCct(PropertySpecService propertySpecService, NlsService nlsService) {
+		super(propertySpecService, nlsService);
 	}
 
 	@Override
@@ -98,8 +100,8 @@ public class RecDigitCct extends Modbus {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.stringSpec(PK_CHANNEL_MAP, false));
-        propertySpecs.add(this.integerSpec(PR_LIMIT_MAX_NR_OF_DAYS, false));
+        propertySpecs.add(this.stringSpec(PK_CHANNEL_MAP, PropertyTranslationKeys.MODBUS_CHANNEL_MAP, false));
+        propertySpecs.add(this.integerSpec(PR_LIMIT_MAX_NR_OF_DAYS, PropertyTranslationKeys.MODBUS_LIMIT_MAX_NR_OF_DAYS, false));
         return propertySpecs;
     }
 

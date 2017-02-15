@@ -1,8 +1,10 @@
 package com.energyict.protocolimplv2.edp;
 
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.*;
 
 import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
@@ -43,27 +45,27 @@ public class EDPDlmsConfigurationSupport implements HasDynamicProperties {
     }
 
     private PropertySpec serverUpperMacAddressPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, false, propertySpecService::bigDecimalSpec)
+        return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, false, PropertyTranslationKeys.V2_EDP_SERVER_UPPER_MAC_ADDRESS, propertySpecService::bigDecimalSpec)
                 .setDefaultValue(BigDecimal.ONE)
                 .finish();
     }
 
     private PropertySpec serverLowerMacAddressPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, false, propertySpecService::bigDecimalSpec)
+        return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, false, PropertyTranslationKeys.V2_EDP_SERVER_LOWER_MAC_ADDRESS, propertySpecService::bigDecimalSpec)
                 .setDefaultValue(BigDecimal.valueOf(16))
                 .finish();
     }
 
     private PropertySpec readCachePropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.READCACHE_PROPERTY, false, propertySpecService::booleanSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.READCACHE_PROPERTY, false, PropertyTranslationKeys.V2_EDP_READCACHE, propertySpecService::booleanSpec).finish();
     }
 
     private PropertySpec forcedDelayPropertySpec() {
-        return this.durationSpec(FORCED_DELAY, false, DEFAULT_FORCED_DELAY);
+        return this.durationSpec(FORCED_DELAY, false, DEFAULT_FORCED_DELAY, PropertyTranslationKeys.V2_EDP_FORCED_DELAY);
     }
 
     private PropertySpec maxRecPduSizePropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(MAX_REC_PDU_SIZE, false, propertySpecService::bigDecimalSpec)
+        return UPLPropertySpecFactory.specBuilder(MAX_REC_PDU_SIZE, false, PropertyTranslationKeys.V2_EDP_MAX_REC_PDU_SIZE, propertySpecService::bigDecimalSpec)
                 .setDefaultValue(DEFAULT_MAX_REC_PDU_SIZE)
                 .finish();
     }
@@ -84,8 +86,8 @@ public class EDPDlmsConfigurationSupport implements HasDynamicProperties {
         // currently nothing to set
     }
 
-    private PropertySpec durationSpec(String name, boolean required, Duration defaultValue) {
-        PropertySpecBuilder<Duration> durationPropertySpecBuilder = UPLPropertySpecFactory.specBuilder(name, required, propertySpecService::durationSpec);
+    private PropertySpec durationSpec(String name, boolean required, Duration defaultValue, TranslationKey translationKey) {
+        PropertySpecBuilder<Duration> durationPropertySpecBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, propertySpecService::durationSpec);
         durationPropertySpecBuilder.setDefaultValue(defaultValue);
         return durationPropertySpecBuilder.finish();
     }

@@ -26,6 +26,7 @@ import com.elster.protocolimpl.dlms.profile.ILogProcessor;
 import com.elster.protocolimpl.dlms.util.A1Defs;
 import com.elster.protocolimpl.dlms.util.A1Utils;
 import com.elster.protocolimpl.dlms.util.DlmsUtils;
+import com.elster.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -34,6 +35,7 @@ import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -95,8 +97,8 @@ public class A1 extends Dlms {
     private String globalScaler = null;
     private BillingProfileReader billingProfileReader = null;
 
-    public A1(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, PropertySpecService propertySpecService, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
-        super(calendarFinder, calendarExtractor, propertySpecService, deviceMessageFileFinder, deviceMessageFileExtractor);
+    public A1(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, PropertySpecService propertySpecService, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor, NlsService nlsService) {
+        super(calendarFinder, calendarExtractor, propertySpecService, deviceMessageFileFinder, deviceMessageFileExtractor, nlsService);
         objectPool = new A1ObjectPool();
         ocIntervalProfile = OBISCODE_60MPROFILE;
         ocLogProfile = LOG_OC;
@@ -122,7 +124,7 @@ public class A1 extends Dlms {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.specBuilder(PROP_SCALERVALUE, false, getPropertySpecService()::stringSpec).finish());
+        propertySpecs.add(UPLPropertySpecFactory.specBuilder(PROP_SCALERVALUE, false, PropertyTranslationKeys.DLMS_SCALERVALUE, getPropertySpecService()::stringSpec).finish());
         return propertySpecs;
     }
 

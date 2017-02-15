@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.dlms.idis.am130.properties;
 
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -9,6 +10,7 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.Dsmr50Properties;
@@ -70,20 +72,20 @@ public class AM130ConfigurationSupport implements HasDynamicProperties {
     }
 
     protected PropertySpec serverUpperMacAddressPropertySpec() {
-        return this.bigDecimalSpec(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
+        return this.bigDecimalSpec(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE, PropertyTranslationKeys.V2_DLMS_SERVER_UPPER_MAC_ADDRESS);
     }
 
     protected PropertySpec useGeneralBlockTransferPropertySpec() {
-        return this.booleanSpec(USE_GBT, USE_GBT_DEFAULT_VALUE);
+        return this.booleanSpec(USE_GBT, USE_GBT_DEFAULT_VALUE, PropertyTranslationKeys.V2_DLMS_USE_GBT);
     }
 
     protected PropertySpec generalBlockTransferWindowSizePropertySpec() {
-        return this.bigDecimalSpec(GBT_WINDOW_SIZE, DEFAULT_GBT_WINDOW_SIZE);
+        return this.bigDecimalSpec(GBT_WINDOW_SIZE, DEFAULT_GBT_WINDOW_SIZE, PropertyTranslationKeys.V2_DLMS_GBT_WINDOW_SIZE);
     }
 
     protected PropertySpec cipheringTypePropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(DlmsProtocolProperties.CIPHERING_TYPE, false, this.propertySpecService::stringSpec)
+                .specBuilder(DlmsProtocolProperties.CIPHERING_TYPE, false, PropertyTranslationKeys.V2_DLMS_CIPHERING_TYPE, this.propertySpecService::stringSpec)
                 .setDefaultValue(DEFAULT_CIPHERING_TYPE.getDescription())
                 .addValues(
                     CipheringType.GLOBAL.getDescription(),
@@ -96,60 +98,60 @@ public class AM130ConfigurationSupport implements HasDynamicProperties {
 
     public PropertySpec callingAPTitlePropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(IDIS.CALLING_AP_TITLE, false, this.propertySpecService::stringSpec)
+                .specBuilder(IDIS.CALLING_AP_TITLE, false, PropertyTranslationKeys.V2_DLMS_IDIS_CALLING_AP_TITLE, this.propertySpecService::stringSpec)
                 .setDefaultValue(IDIS.CALLING_AP_TITLE_DEFAULT)
                 .finish();
     }
 
     protected PropertySpec limitMaxNrOfDaysPropertySpec() {
-        return this.bigDecimalSpec(LIMIT_MAX_NR_OF_DAYS_PROPERTY, BigDecimal.ZERO);
+        return this.bigDecimalSpec(LIMIT_MAX_NR_OF_DAYS_PROPERTY, BigDecimal.ZERO, PropertyTranslationKeys.V2_DLMS_LIMIT_MAX_NR_OF_DAYS);
     }
 
     protected PropertySpec timeZonePropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(TIMEZONE, false, this.propertySpecService::timeZoneSpec)
+                .specBuilder(TIMEZONE, false, PropertyTranslationKeys.V2_DLMS_TIMEZONE, this.propertySpecService::timeZoneSpec)
                 .finish();
     }
 
     protected PropertySpec validateInvokeIdPropertySpec() {
-        return this.booleanSpec(VALIDATE_INVOKE_ID, DEFAULT_VALIDATE_INVOKE_ID);
+        return this.booleanSpec(VALIDATE_INVOKE_ID, DEFAULT_VALIDATE_INVOKE_ID, PropertyTranslationKeys.V2_DLMS_VALIDATE_INVOKE_ID);
     }
 
     protected PropertySpec readCachePropertySpec() {
-        return this.booleanSpec(Dsmr50Properties.READCACHE_PROPERTY, false);
+        return this.booleanSpec(Dsmr50Properties.READCACHE_PROPERTY, false, PropertyTranslationKeys.V2_DLMS_READCACHE);
     }
 
     protected PropertySpec forcedDelayPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(FORCED_DELAY, false, this.propertySpecService::durationSpec)
+                .specBuilder(FORCED_DELAY, false, PropertyTranslationKeys.V2_DLMS_FORCED_DELAY, this.propertySpecService::durationSpec)
                 .setDefaultValue(DEFAULT_FORCED_DELAY)
                 .finish();
     }
 
     protected PropertySpec maxRecPduSizePropertySpec() {
-        return this.bigDecimalSpec(MAX_REC_PDU_SIZE, DEFAULT_MAX_REC_PDU_SIZE);
+        return this.bigDecimalSpec(MAX_REC_PDU_SIZE, DEFAULT_MAX_REC_PDU_SIZE, PropertyTranslationKeys.V2_DLMS_MAX_REC_PDU_SIZE);
     }
 
     protected PropertySpec callHomeIdPropertySpec() {
-        return this.stringSpec(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
+        return this.stringSpec(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, PropertyTranslationKeys.V2_DLMS_CALL_HOME_ID);
     }
 
-    private PropertySpec stringSpec (String name) {
+    private PropertySpec stringSpec (String name, TranslationKey translationKey) {
         return UPLPropertySpecFactory
-                .specBuilder(name, false, this.propertySpecService::stringSpec)
+                .specBuilder(name, false, translationKey, this.propertySpecService::stringSpec)
                 .finish();
     }
 
-    private PropertySpec booleanSpec (String name, boolean defaultValue) {
+    private PropertySpec booleanSpec (String name, boolean defaultValue, TranslationKey translationKey) {
         return UPLPropertySpecFactory
-                .specBuilder(name, false, this.propertySpecService::booleanSpec)
+                .specBuilder(name, false, translationKey, this.propertySpecService::booleanSpec)
                 .setDefaultValue(defaultValue)
                 .finish();
     }
 
-    private PropertySpec bigDecimalSpec (String name, BigDecimal defaultValue) {
+    private PropertySpec bigDecimalSpec (String name, BigDecimal defaultValue, TranslationKey translationKey) {
         return UPLPropertySpecFactory
-                .specBuilder(name, false, this.propertySpecService::bigDecimalSpec)
+                .specBuilder(name, false, translationKey, this.propertySpecService::bigDecimalSpec)
                 .setDefaultValue(defaultValue)
                 .finish();
     }

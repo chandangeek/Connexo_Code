@@ -26,6 +26,7 @@ import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
@@ -42,6 +43,7 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.CapturedObjects;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
@@ -144,39 +146,39 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.stringSpecOfMaxLength(ADDRESS.getName(), MAX_ADDRESS_LENGTH),
-                this.stringSpec(NODEID.getName()),
-                this.stringSpec(SERIALNUMBER.getName()),
-                this.integerSpec("ExtendedLogging"),
-                this.integerSpec("AddressingMode"),
-                this.integerSpec("Connection"),
-                this.stringSpec(PASSWORD.getName()),
-                this.integerSpec(TIMEOUT.getName()),
-                this.integerSpec(RETRIES.getName()),
-                this.integerSpec("DelayAfterfail"),
-                this.integerSpec("RequestTimeZone"),
-                this.integerSpec("RequestClockObject"),
-                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
-                this.integerSpec(SECURITYLEVEL.getName()),
-                this.integerSpec("ClientMacAddress"),
-                this.integerSpec("ServerUpperMacAddress"),
-                this.integerSpec("ServerLowerMacAddress"));
+                this.stringSpecOfMaxLength(ADDRESS.getName(), MAX_ADDRESS_LENGTH, PropertyTranslationKeys.DLMS_ADDRESS),
+                this.stringSpec(NODEID.getName(), PropertyTranslationKeys.DLMS_NODEID),
+                this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.DLMS_SERIALNUMBER),
+                this.integerSpec("ExtendedLogging", PropertyTranslationKeys.DLMS_EXTENDED_LOGGING),
+                this.integerSpec("AddressingMode", PropertyTranslationKeys.DLMS_ADDRESSING_MODE),
+                this.integerSpec("Connection", PropertyTranslationKeys.DLMS_CONNECTION),
+                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.DLMS_PASSWORD),
+                this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.DLMS_TIMEOUT),
+                this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.DLMS_RETRIES),
+                this.integerSpec("DelayAfterfail", PropertyTranslationKeys.DLMS_DELAY_AFTERFAIL),
+                this.integerSpec("RequestTimeZone", PropertyTranslationKeys.DLMS_REQUEST_TIME_ZONE),
+                this.integerSpec("RequestClockObject", PropertyTranslationKeys.DLMS_REQUEST_CLOCK_OBJECT),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.DLMS_ROUNDTRIPCORRECTION),
+                this.integerSpec(SECURITYLEVEL.getName(), PropertyTranslationKeys.DLMS_SECURITYLEVEL),
+                this.integerSpec("ClientMacAddress", PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS),
+                this.integerSpec("ServerUpperMacAddress", PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS),
+                this.integerSpec("ServerLowerMacAddress", PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS));
     }
 
-    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey,optionsSupplier).finish();
     }
 
-    private PropertySpec stringSpec(String name) {
-        return this.spec(name, this.propertySpecService::stringSpec);
+    private PropertySpec stringSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::stringSpec);
     }
 
-    private PropertySpec stringSpecOfMaxLength(String name, int length) {
-        return this.spec(name, () -> this.propertySpecService.stringSpecOfMaximumLength(length));
+    private PropertySpec stringSpecOfMaxLength(String name, int length, TranslationKey translationKey) {
+        return this.spec(name, translationKey, () -> this.propertySpecService.stringSpecOfMaximumLength(length));
     }
 
-    private PropertySpec integerSpec(String name) {
-        return this.spec(name, this.propertySpecService::integerSpec);
+    private PropertySpec integerSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::integerSpec);
     }
 
     @Override

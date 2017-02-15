@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.GenericHeader;
@@ -67,18 +68,20 @@ public abstract class AbstractRadioCommand {
     }
 
     private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
     protected GenericHeader genericHeader = null;
     private RTM rtm;
     protected int operationMode = 0;
 
-    protected AbstractRadioCommand(PropertySpecService propertySpecService, RTM rtm) {
+    protected AbstractRadioCommand(PropertySpecService propertySpecService, RTM rtm, NlsService nlsService) {
         this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
         this.rtm = rtm;
     }
 
     public GenericHeader getGenericHeader() {
         if (genericHeader == null) {
-            genericHeader = new GenericHeader(getRTM(), this.propertySpecService);
+            genericHeader = new GenericHeader(getRTM(), this.propertySpecService, this.nlsService);
         }
         return genericHeader;
     }
@@ -115,6 +118,10 @@ public abstract class AbstractRadioCommand {
 
     protected PropertySpecService getPropertySpecService() {
         return propertySpecService;
+    }
+
+    public NlsService getNlsService() {
+        return nlsService;
     }
 
     protected abstract void parse(byte[] data) throws IOException;

@@ -29,6 +29,7 @@ import com.elster.protocolimpl.dlms.registers.DlmsSimpleRegisterDefinition;
 import com.elster.protocolimpl.dlms.registers.RegisterMap;
 import com.elster.protocolimpl.dlms.util.ElsterProtocolIOExceptionHandler;
 import com.elster.protocolimpl.dlms.util.ProtocolLink;
+import com.elster.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.cbo.Quantity;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
@@ -40,6 +41,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -56,6 +58,7 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -181,14 +184,16 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
     private final PropertySpecService propertySpecService;
     private final DeviceMessageFileFinder deviceMessageFileFinder;
     private final DeviceMessageFileExtractor deviceMessageFileExtractor;
+    private final NlsService nlsService;
 
-    public Dlms(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, PropertySpecService propertySpecService, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
+    public Dlms(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, PropertySpecService propertySpecService, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor, NlsService nlsService) {
         super();
         this.calendarFinder = calendarFinder;
         this.calendarExtractor = calendarExtractor;
         this.propertySpecService = propertySpecService;
         this.deviceMessageFileFinder = deviceMessageFileFinder;
         this.deviceMessageFileExtractor = deviceMessageFileExtractor;
+        this.nlsService = nlsService;
     }
 
     @Override
@@ -208,22 +213,22 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.specBuilder(PASSWORD.getName(), false, this.propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(RETRIES.getName(), false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(SERIALNUMBER.getName(), false, this.propertySpecService::stringSpec).finish(),
-                new VariableBaseIntegerPropertySpec(CLIENTID, true),
-                new VariableBaseIntegerPropertySpec(SERVERADDRESS, false),
-                new VariableBaseIntegerPropertySpec(LOGICALDEVICE, false),
-                new VariableBaseIntegerPropertySpec(TIMEOUT.getName(), false),
-                new SecurityLevelPropertySpec(DLMSSECURITYLEVEL, true),
-                UPLPropertySpecFactory.specBuilder(ENCRYPTIONKEY, false, this.propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(AUTHENTICATIONKEY, false, this.propertySpecService::stringSpec).finish(),
-                new VariableBaseIntegerPropertySpec(USEMODEE, false),
-                new VariableBaseIntegerPropertySpec(RETRIEVEOFFSET, false),
-                UPLPropertySpecFactory.specBuilder(ARCHIVESTRUCTURE, false, this.propertySpecService::stringSpec).finish(),
-                new ObisCodePropertySpec(LOGSTRUCTURE, false),
-                new ObisCodePropertySpec(OC_INTERVALPROFILE, false),
-                new VariableBaseIntegerPropertySpec(MAXPDUSIZE, false));
+                UPLPropertySpecFactory.specBuilder(PASSWORD.getName(), false, PropertyTranslationKeys.DLMS_PASSWORD, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(RETRIES.getName(), false, PropertyTranslationKeys.DLMS_RETRIES, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(SERIALNUMBER.getName(), false, PropertyTranslationKeys.DLMS_SERIALNUMBER, this.propertySpecService::stringSpec).finish(),
+                new VariableBaseIntegerPropertySpec(CLIENTID, true, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_CLIENT_ID).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_CLIENT_ID_DESCRIPTION).format()),
+                new VariableBaseIntegerPropertySpec(SERVERADDRESS, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_SERVER_ADDRESS).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_SERVER_ADDRESS_DESCRIPTION).format()),
+                new VariableBaseIntegerPropertySpec(LOGICALDEVICE, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_LOGICAL_DEVICE).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_LOGICAL_DEVICE_DESCRIPTION).format()),
+                new VariableBaseIntegerPropertySpec(TIMEOUT.getName(), false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_TIMEOUT).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_TIMEOUT_DESCRIPTION).format()),
+                new SecurityLevelPropertySpec(DLMSSECURITYLEVEL, true, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_SECURITYLEVEL).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_SECURITYLEVEL_DESCRIPTION).format()),
+                UPLPropertySpecFactory.specBuilder(ENCRYPTIONKEY, false, PropertyTranslationKeys.DLMS_ENCRYPTIONKEY, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(AUTHENTICATIONKEY, false, PropertyTranslationKeys.DLMS_AUTHENTICATIONKEY, this.propertySpecService::stringSpec).finish(),
+                new VariableBaseIntegerPropertySpec(USEMODEE, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_USEMODEE).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_USEMODEE_DESCRIPTION).format()),
+                new VariableBaseIntegerPropertySpec(RETRIEVEOFFSET, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_RETRIEVEOFFSET).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_RETRIEVEOFFSET_DESCRIPTION).format()),
+                UPLPropertySpecFactory.specBuilder(ARCHIVESTRUCTURE, false, PropertyTranslationKeys.DLMS_ARCHIVESTRUCTURE, this.propertySpecService::stringSpec).finish(),
+                new ObisCodePropertySpec(LOGSTRUCTURE, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_LOGSTRUCTURE).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_LOGSTRUCTURE_DESCRIPTION).format()),
+                new ObisCodePropertySpec(OC_INTERVALPROFILE, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_OC_INTERVALPROFILE).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_OC_INTERVALPROFILE_DESCRIPTION).format()),
+                new VariableBaseIntegerPropertySpec(MAXPDUSIZE, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_MAX_PDU_SIZE).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_MAX_PDU_SIZE_DESCRIPTION).format()));
     }
 
     @Override

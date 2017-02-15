@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.modbus.enerdis.cdt;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
@@ -28,8 +29,8 @@ public abstract class RecDigitCdt extends Modbus {
     private BigDecimal ctRatio;
     private BigDecimal ptRatio;
 
-    public RecDigitCdt(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public RecDigitCdt(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override

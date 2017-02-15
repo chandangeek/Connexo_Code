@@ -4,6 +4,7 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -25,6 +26,7 @@ import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.profile.EventParser;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.CeweRegisters;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.ObisCodeMapper;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.ProRegister;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -174,8 +176,8 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
     private CeweDateFormats dateFormats = null;
     private CeweRegisters registers = null;
 
-    public CewePrometer(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public CewePrometer(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override
@@ -239,7 +241,7 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.stringSpec("Software7E1", false));
+        propertySpecs.add(this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1, false));
         return propertySpecs;
     }
 

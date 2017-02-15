@@ -5,6 +5,7 @@ package com.energyict.protocolimpl.edf.trimaran2p;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -25,6 +26,7 @@ import com.energyict.protocolimpl.edf.trimarandlms.protocol.APSEParameters;
 import com.energyict.protocolimpl.edf.trimarandlms.protocol.Connection62056;
 import com.energyict.protocolimpl.edf.trimarandlms.protocol.ProtocolLink;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
@@ -59,8 +61,8 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink, Serial
 
     private String meterVersion;
 
-	public Trimaran2P(PropertySpecService propertySpecService) {
-		super(propertySpecService);
+	public Trimaran2P(PropertySpecService propertySpecService, NlsService nlsService) {
+		super(propertySpecService, nlsService);
 	}
 
 	@Override
@@ -122,13 +124,13 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink, Serial
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.integerSpec("T1Timeout", false));
-        propertySpecs.add(this.integerSpec("STSAP", false));
-        propertySpecs.add(this.integerSpec("DTSAP", false));
-        propertySpecs.add(this.integerSpec("ClientType", false));
-        propertySpecs.add(this.stringSpec("CallingPhysicalAddress", false));
-        propertySpecs.add(this.integerSpec("ProposedAppCtxName", false));
-        propertySpecs.add(this.integerSpec("DelayAfterConnect", false));
+        propertySpecs.add(this.integerSpec("T1Timeout", PropertyTranslationKeys.EDF_T1TIMEOUT, false));
+        propertySpecs.add(this.integerSpec("STSAP", PropertyTranslationKeys.EDF_STSAP, false));
+        propertySpecs.add(this.integerSpec("DTSAP", PropertyTranslationKeys.EDF_DTSAP, false));
+        propertySpecs.add(this.integerSpec("ClientType", PropertyTranslationKeys.EDF_CLIENT_TYPE, false));
+        propertySpecs.add(this.stringSpec("CallingPhysicalAddress", PropertyTranslationKeys.EDF_CALLING_PHYSICAL_ADDRESS, false));
+        propertySpecs.add(this.integerSpec("ProposedAppCtxName", PropertyTranslationKeys.EDF_PROPOSED_APP_CTX_NAME, false));
+        propertySpecs.add(this.integerSpec("DelayAfterConnect", PropertyTranslationKeys.EDF_DELAY_AFTER_CONNECT, false));
         return propertySpecs;
     }
 

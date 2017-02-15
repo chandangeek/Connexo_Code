@@ -14,6 +14,8 @@ import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
@@ -31,7 +33,9 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.SerialNumber;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -178,23 +182,25 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
 
     private int dtrBehaviour; // 0=force low, 1 force high, 2 don't force anything
     private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
 
-    public AbstractProtocol(PropertySpecService propertySpecService) {
-        this(false, propertySpecService);
+    public AbstractProtocol(PropertySpecService propertySpecService, NlsService nlsService) {
+        this(false, propertySpecService, nlsService);
     }
 
-    public AbstractProtocol(boolean requestDataReadout, PropertySpecService propertySpecService) {
-        this(requestDataReadout, null, propertySpecService);
+    public AbstractProtocol(boolean requestDataReadout, PropertySpecService propertySpecService, NlsService nlsService) {
+        this(requestDataReadout, null, propertySpecService, nlsService);
     }
 
-    public AbstractProtocol(Encryptor encryptor, PropertySpecService propertySpecService) {
-        this(false, encryptor, propertySpecService);
+    public AbstractProtocol(Encryptor encryptor, PropertySpecService propertySpecService, NlsService nlsService) {
+        this(false, encryptor, propertySpecService, nlsService);
     }
 
-    public AbstractProtocol(boolean requestDataReadout, Encryptor encryptor, PropertySpecService propertySpecService) {
+    public AbstractProtocol(boolean requestDataReadout, Encryptor encryptor, PropertySpecService propertySpecService, NlsService nlsService) {
         this.requestDataReadout = requestDataReadout;
         this.encryptor = encryptor;
         this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
     }
 
     @Override
@@ -236,26 +242,26 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return new ArrayList<>(Arrays.asList(
-                this.stringSpec(ADDRESS.getName(), false),
-                this.stringSpec(PASSWORD.getName(), this.passwordIsRequired()),
-                this.stringSpec(PROP_TIMEOUT, false),
-                this.integerSpec(PROP_RETRIES, false),
-                this.integerSpec(ROUNDTRIPCORRECTION.getName(), false),
-                this.integerSpec(PROP_SECURITY_LEVEL, false),
-                this.stringSpec(NODEID.getName(), false),
-                this.integerSpec(PROP_ECHO_CANCELING, false),
-                this.integerSpec(PROP_PROTOCOL_COMPATIBLE, false),
-                this.integerSpec(PROP_EXTENDED_LOGGING, false),
-                this.stringSpec(SERIALNUMBER.getName(), this.serialNumberIsRequired()),
-                ProtocolChannelMap.propertySpec(PROP_CHANNEL_MAP, false),
-                this.integerSpec(PROFILEINTERVAL.getName(), false),
-                this.integerSpec(PROP_REQUEST_HEADER, false),
-                this.integerSpec(PROP_SCALER, false),
-                this.integerSpec(PROP_FORCED_DELAY, false),
-                this.integerSpec(PROP_HALF_DUPLEX, false),
-                this.integerSpec(PROP_DTR_BEHAVIOUR, false),
-                this.spec(PROP_ADJUST_CHANNEL_MULTIPLIER, false, this.propertySpecService::bigDecimalSpec),
-                this.spec(PROP_ADJUST_REGISTER_MULTIPLIER, false, this.propertySpecService::bigDecimalSpec)));
+                this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.BASE_ADDRESS, false),
+                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.BASE_PASSWORD, this.passwordIsRequired()),
+                this.stringSpec(PROP_TIMEOUT, PropertyTranslationKeys.BASE_TIMEOUT, false),
+                this.integerSpec(PROP_RETRIES, PropertyTranslationKeys.BASE_RETRIES, false),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.BASE_ROUNDTRIPCORRECTION, false),
+                this.integerSpec(PROP_SECURITY_LEVEL, PropertyTranslationKeys.BASE_SECURITY_LEVEL, false),
+                this.stringSpec(NODEID.getName(), PropertyTranslationKeys.BASE_NODEID, false),
+                this.integerSpec(PROP_ECHO_CANCELING, PropertyTranslationKeys.BASE_ECHO_CANCELLING, false),
+                this.integerSpec(PROP_PROTOCOL_COMPATIBLE, PropertyTranslationKeys.BASE_PROTOCOL_COMPATABLE, false),
+                this.integerSpec(PROP_EXTENDED_LOGGING, PropertyTranslationKeys.BASE_EXTENDED_LOGGING, false),
+                this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.BASE_SERIALNUMBER, this.serialNumberIsRequired()),
+                ProtocolChannelMap.propertySpec(PROP_CHANNEL_MAP, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.BASE_CHANNEL_MAP).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.BASE_CHANNEL_MAP_DESCRIPTION).format()),
+                this.integerSpec(PROFILEINTERVAL.getName(), PropertyTranslationKeys.BASE_PROFILE_INTERVAL, false),
+                this.integerSpec(PROP_REQUEST_HEADER, PropertyTranslationKeys.BASE_REQUEST_HEADER, false),
+                this.integerSpec(PROP_SCALER, PropertyTranslationKeys.BASE_SCALER, false),
+                this.integerSpec(PROP_FORCED_DELAY, PropertyTranslationKeys.BASE_FORCED_DELAY, false),
+                this.integerSpec(PROP_HALF_DUPLEX, PropertyTranslationKeys.BASE_HALF_DUPLEX, false),
+                this.integerSpec(PROP_DTR_BEHAVIOUR, PropertyTranslationKeys.BASE_DTR_BEHAVIOUR, false),
+                this.spec(PROP_ADJUST_CHANNEL_MULTIPLIER, PropertyTranslationKeys.BASE_ADJUST_CHANNEL_MULTIPLIER, false, this.propertySpecService::bigDecimalSpec),
+                this.spec(PROP_ADJUST_REGISTER_MULTIPLIER, PropertyTranslationKeys.BASE_ADJUST_REGISTER_MULTIPLIER, false, this.propertySpecService::bigDecimalSpec)));
     }
 
     protected PropertySpecService getPropertySpecService() {
@@ -266,16 +272,16 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
         return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
     }
 
-    protected <T> PropertySpec spec(String name, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, required, optionsSupplier).finish();
+    protected <T> PropertySpec spec(String name, TranslationKey translationKey, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, required, translationKey, optionsSupplier).finish();
     }
 
-    protected PropertySpec stringSpec(String name, boolean required) {
-        return this.spec(name, required, this.propertySpecService::stringSpec);
+    protected PropertySpec stringSpec(String name, TranslationKey translationKey, boolean required) {
+        return this.spec(name, translationKey, required, this.propertySpecService::stringSpec);
     }
 
-    protected PropertySpec integerSpec(String name, boolean required) {
-        return this.spec(name, required, this.propertySpecService::integerSpec);
+    protected PropertySpec integerSpec(String name, TranslationKey translationKey, boolean required) {
+        return this.spec(name, translationKey, required, this.propertySpecService::integerSpec);
     }
 
     protected boolean passwordIsRequired() {
@@ -662,4 +668,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
         this.logger = logger;
     }
 
+    protected NlsService getNlsService() {
+        return nlsService;
+    }
 }

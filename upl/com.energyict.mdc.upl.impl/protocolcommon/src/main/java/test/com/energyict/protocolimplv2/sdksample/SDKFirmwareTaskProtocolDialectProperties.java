@@ -1,6 +1,7 @@
 package test.com.energyict.protocolimplv2.sdksample;
 
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
@@ -37,10 +38,10 @@ public class SDKFirmwareTaskProtocolDialectProperties extends AbstractDeviceProt
     @Override
     public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.specBuilder(activeMeterFirmwareVersion, false, propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(passiveMeterFirmwareVersion, false, propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(activeCommunicationFirmwareVersion, false, propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(passiveCommunicationFirmwareVersion, false, propertySpecService::stringSpec).finish()
+                UPLPropertySpecFactory.specBuilder(activeMeterFirmwareVersion, false, PropertyTranslationKeys.SDKSAMPLE_ACTIVE_METER_FIRMWARE_VERSION, propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(passiveMeterFirmwareVersion, false, PropertyTranslationKeys.SDKSAMPLE_PASSIVE_METER_FIRMWARE_VERSION,propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(activeCommunicationFirmwareVersion, false, PropertyTranslationKeys.SDKSAMPLE_ACTIVE_COMMUNICATION_FIRMWARE_VERSION, propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(passiveCommunicationFirmwareVersion, false, PropertyTranslationKeys.SDKSAMPLE_PASSIVE_COMMUNICATION_FIRMWARE_VERSION, propertySpecService::stringSpec).finish()
         );
     }
 }

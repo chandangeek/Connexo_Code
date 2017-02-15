@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -11,6 +12,7 @@ import com.energyict.dlms.aso.LocalSecurityProvider;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
@@ -56,31 +58,31 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.spec(PK_RETRIES, this.propertySpecService::integerSpec),
-                this.spec(PK_TIMEOUT, this.propertySpecService::integerSpec),
-                this.spec(SECURITY_LEVEL, this.propertySpecService::integerSpec),
-                this.spec(CLIENT_MAC_ADDRESS, this.propertySpecService::integerSpec),
-                this.spec(SERVER_MAC_ADDRESS, this.propertySpecService::stringSpec),
-                this.spec(ADDRESSING_MODE, this.propertySpecService::integerSpec),
-                this.spec(CONNECTION, this.propertySpecService::integerSpec),
-                this.spec("RequestTimeZone", this.propertySpecService::integerSpec),
-                this.spec("FirmwareVersion", this.propertySpecService::stringSpec),
-                this.spec("ExtendedLogging", this.propertySpecService::integerSpec),
-                this.spec("Connection", this.propertySpecService::integerSpec),
-                this.spec("DeviceType", this.propertySpecService::stringSpec),
-                this.spec("TestLogging", this.propertySpecService::integerSpec),
-                this.spec("FolderExtName", this.propertySpecService::stringSpec),
-                this.spec("CsdCall", this.propertySpecService::integerSpec),          // enable the csd call functionality
-                this.spec("IpPortNumber", this.propertySpecService::integerSpec),     // portnumber for iskra meter (default 2048)
-                this.spec("PollTimeOut", this.propertySpecService::integerSpec),      // timeout for polling the radius database
-                this.spec("CsdCallTimeOut", this.propertySpecService::integerSpec),   // timeout between triggering the csd schedule and actually doing the schedule
-                this.spec("CsdPollFrequency", this.propertySpecService::stringSpec), // seconds between 2 request to the radius server
-                this.spec("FixedIpAddress", this.propertySpecService::stringSpec),   // use the filled in ip address for csd calls
-                this.spec(NEW_LLS_SECRET, this.propertySpecService::stringSpec));
+                this.spec(PK_RETRIES, PropertyTranslationKeys.PRENTA_RETRIES, this.propertySpecService::integerSpec),
+                this.spec(PK_TIMEOUT, PropertyTranslationKeys.PRENTA_TIMEOUT, this.propertySpecService::integerSpec),
+                this.spec(SECURITY_LEVEL, PropertyTranslationKeys.PRENTA_SECURITY_LEVEL, this.propertySpecService::integerSpec),
+                this.spec(CLIENT_MAC_ADDRESS, PropertyTranslationKeys.PRENTA_CLIENT_MAC_ADDRESS, this.propertySpecService::integerSpec),
+                this.spec(SERVER_MAC_ADDRESS, PropertyTranslationKeys.PRENTA_SERVER_MAC_ADDRESS, this.propertySpecService::stringSpec),
+                this.spec(ADDRESSING_MODE, PropertyTranslationKeys.PRENTA_ADDRESSING_MODE, this.propertySpecService::integerSpec),
+                this.spec(CONNECTION, PropertyTranslationKeys.PRENTA_CONNECTION, this.propertySpecService::integerSpec),
+                this.spec("RequestTimeZone", PropertyTranslationKeys.PRENTA_REQUEST_TIME_ZONE, this.propertySpecService::integerSpec),
+                this.spec("FirmwareVersion", PropertyTranslationKeys.PRENTA_FIRMWARE_VERION, this.propertySpecService::stringSpec),
+                this.spec("ExtendedLogging", PropertyTranslationKeys.PRENTA_EXTENDED_LOGGING, this.propertySpecService::integerSpec),
+                this.spec("Connection", PropertyTranslationKeys.PRENTA_CONNECTION, this.propertySpecService::integerSpec),
+                this.spec("DeviceType", PropertyTranslationKeys.PRENTA_DEVICETYPE, this.propertySpecService::stringSpec),
+                this.spec("TestLogging", PropertyTranslationKeys.PRENTA_TEST_LOGGING, this.propertySpecService::integerSpec),
+                this.spec("FolderExtName", PropertyTranslationKeys.PRENTA_FOLDER_EXTERNAL_NAME, this.propertySpecService::stringSpec),
+                this.spec("CsdCall", PropertyTranslationKeys.PRENTA_CSD_CALL, this.propertySpecService::integerSpec),          // enable the csd call functionality
+                this.spec("IpPortNumber", PropertyTranslationKeys.PRENTA_IP_PORTNUMBER, this.propertySpecService::integerSpec),     // portnumber for iskra meter (default 2048)
+                this.spec("PollTimeOut", PropertyTranslationKeys.PRENTA_POLL_TIMEOUT, this.propertySpecService::integerSpec),      // timeout for polling the radius database
+                this.spec("CsdCallTimeOut", PropertyTranslationKeys.PRENTA_CSD_CALL_TIMEOUT, this.propertySpecService::integerSpec),   // timeout between triggering the csd schedule and actually doing the schedule
+                this.spec("CsdPollFrequency", PropertyTranslationKeys.PRENTA_CSD_POLL_FREQUENCY, this.propertySpecService::stringSpec), // seconds between 2 request to the radius server
+                this.spec("FixedIpAddress", PropertyTranslationKeys.PRENTA_FIXED_IP_ADDRES, this.propertySpecService::stringSpec),   // use the filled in ip address for csd calls
+                this.spec(NEW_LLS_SECRET, PropertyTranslationKeys.PRENTA_NEW_LLS_SECRET, this.propertySpecService::stringSpec));
     }
 
-    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, optionsSupplier).finish();
     }
 
     @ProtocolProperty

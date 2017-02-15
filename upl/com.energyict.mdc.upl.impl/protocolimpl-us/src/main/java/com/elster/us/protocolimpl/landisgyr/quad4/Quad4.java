@@ -1,9 +1,11 @@
 package com.elster.us.protocolimpl.landisgyr.quad4;
 
+import com.elster.us.nls.PropertyTranslationKeys;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -166,28 +168,28 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.specBuilder(SERIALNUMBER.getName(), false, this.propertySpecService::stringSpec).finish(),
-                this.stringSpecOfExactLength(NODEID.getName(), 7),
-                UPLPropertySpecFactory.specBuilder(PROFILEINTERVAL.getName(), false, this.propertySpecService::stringSpec).finish(),
-                this.stringSpecOfExactLength(PASSWORD.getName(), 4),
-                UPLPropertySpecFactory.specBuilder(PK_NODE_PREFIX, false, this.propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(PK_TIMEOUT, false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(PK_RETRIES, false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(ROUNDTRIPCORRECTION.getName(), false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(CORRECTTIME.getName(), false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(PK_FORCE_DELAY, false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(PK_EXTENDED_LOGGING, false, this.propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(PK_SHOULD_DISCONNECT, false, this.propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(PK_READ_UNIT1_SERIALNUMBER, false, this.propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE, false, this.propertySpecService::stringSpec).finish());
+                UPLPropertySpecFactory.specBuilder(SERIALNUMBER.getName(), false, PropertyTranslationKeys.QUAD4_SERIALNUMBER, this.propertySpecService::stringSpec).finish(),
+                this.stringSpecOfExactLength(NODEID.getName(), 7, PropertyTranslationKeys.QUAD4_NODEID),
+                UPLPropertySpecFactory.specBuilder(PROFILEINTERVAL.getName(), false, PropertyTranslationKeys.QUAD4_PROFILEINTERVAL, this.propertySpecService::stringSpec).finish(),
+                this.stringSpecOfExactLength(PASSWORD.getName(), 4, PropertyTranslationKeys.QUAD4_PASSWORD),
+                UPLPropertySpecFactory.specBuilder(PK_NODE_PREFIX, false, PropertyTranslationKeys.QUAD4_NODE_PREFIX, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_TIMEOUT, false, PropertyTranslationKeys.QUAD4_TIMEOUT, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_RETRIES, false, PropertyTranslationKeys.QUAD4_RETRIES, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(ROUNDTRIPCORRECTION.getName(), false, PropertyTranslationKeys.QUAD4_ROUNDTRIPCORRECTION, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(CORRECTTIME.getName(), false, PropertyTranslationKeys.QUAD4_CORRECTTIME, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_FORCE_DELAY, false, PropertyTranslationKeys.QUAD4_FORCE_DELAY, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_EXTENDED_LOGGING, false, PropertyTranslationKeys.QUAD4_EXTENDED_LOGGING, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_SHOULD_DISCONNECT, false, PropertyTranslationKeys.QUAD4_SHOULD_DISCONNECT, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_READ_UNIT1_SERIALNUMBER, false, PropertyTranslationKeys.QUAD4_READ_UNIT1_SERIALNUMBER, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE, false, PropertyTranslationKeys.QUAD4_READ_PROFILE_DATA_BEFORE_CONFIG_CHANGE, this.propertySpecService::stringSpec).finish());
     }
 
-    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, optionsSupplier).finish();
     }
 
-    private PropertySpec stringSpecOfExactLength(String name, int length) {
-        return this.spec(name, () -> this.propertySpecService.stringSpecOfExactLength(length));
+    private PropertySpec stringSpecOfExactLength(String name, int length, TranslationKey translationKey) {
+        return this.spec(name, translationKey, () -> this.propertySpecService.stringSpecOfExactLength(length));
     }
 
     @Override

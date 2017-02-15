@@ -63,6 +63,7 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
@@ -217,23 +218,23 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.specBuilder(ADDRESS.getName(), false, this.propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(NODEID.getName(), false, this.propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(SERIALNUMBER.getName(), false, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(ADDRESS.getName(), false, PropertyTranslationKeys.IEC1107_ADDRESS, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(NODEID.getName(), false, PropertyTranslationKeys.IEC1107_NODEID, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(SERIALNUMBER.getName(), false, PropertyTranslationKeys.IEC1107_SERIALNUMBER, this.propertySpecService::stringSpec).finish(),
                 passwordPropertySpec(false),
-                UPLPropertySpecFactory.specBuilder(PK_TIMEOUT, false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(PK_RETRIES, false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(ROUNDTRIPCORRECTION.getName(), false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(CORRECTTIME.getName(), false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(PK_EXTENDED_LOGGING, false, this.propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(PK_SECURITYLEVEL, false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(PK_ECHO_CANCELING, false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(PK_SCRIPTING_ENABLED, false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(PK_FORCED_DELAY, false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(PK_IEC1107_COMPATIBLE, false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder("Software7E1", false, propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder("DisableLogOffCommand", false, propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(INSTRUMENTATION_PROFILE_MODE, false, propertySpecService::stringSpec).finish());
+                UPLPropertySpecFactory.specBuilder(PK_TIMEOUT, false, PropertyTranslationKeys.IEC1107_TIMEOUT, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_RETRIES, false, PropertyTranslationKeys.IEC1107_RETRIES, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(ROUNDTRIPCORRECTION.getName(), false, PropertyTranslationKeys.IEC1107_ROUNDTRIPCORRECTION, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(CORRECTTIME.getName(), false, PropertyTranslationKeys.IEC1107_CORRECTTIME, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_EXTENDED_LOGGING, false, PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_SECURITYLEVEL, false, PropertyTranslationKeys.IEC1107_SECURITYLEVEL, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_ECHO_CANCELING, false, PropertyTranslationKeys.IEC1107_ECHOCANCELLING, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_SCRIPTING_ENABLED, false, PropertyTranslationKeys.IEC1107_SCRIPTING_ENABLED, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_FORCED_DELAY, false, PropertyTranslationKeys.IEC1107_FORCED_DELAY, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_IEC1107_COMPATIBLE, false, PropertyTranslationKeys.IEC1107_COMPATIBLE, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("Software7E1", false, PropertyTranslationKeys.IEC1107_SOFTWARE_7E1, propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("DisableLogOffCommand", false, PropertyTranslationKeys.IEC1107_DISABLE_LOG_OFF_COMMAND, propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(INSTRUMENTATION_PROFILE_MODE, false, PropertyTranslationKeys.IEC1107_INSTRUMENTATION_PROFILE_MODE, propertySpecService::stringSpec).finish());
     }
 
     private PropertySpec passwordPropertySpec(boolean required) {

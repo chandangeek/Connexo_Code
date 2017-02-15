@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.din19244.poreg2;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dialer.core.HalfDuplexController;
@@ -26,8 +27,8 @@ import java.util.Date;
  */
 public class Poreg2P extends Poreg {
 
-    public Poreg2P(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public Poreg2P(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override

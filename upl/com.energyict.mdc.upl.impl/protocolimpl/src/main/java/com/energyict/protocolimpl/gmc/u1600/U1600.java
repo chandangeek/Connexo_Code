@@ -8,6 +8,7 @@ package com.energyict.protocolimpl.gmc.u1600;
 
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dialer.core.HalfDuplexController;
@@ -49,8 +50,8 @@ public class U1600 extends AbstractProtocol {
     private U1600Profile u1600Profile = null;
     private EclConnection eclConnection = null;
 
-    public U1600(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public U1600(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override

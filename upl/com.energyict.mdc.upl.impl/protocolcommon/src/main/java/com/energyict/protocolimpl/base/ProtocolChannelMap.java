@@ -58,8 +58,8 @@ public class ProtocolChannelMap implements com.energyict.mdc.upl.properties.Prot
         this.protocolChannels = protocolChannels;
     }
 
-    public static com.energyict.mdc.upl.properties.PropertySpec propertySpec(String name, boolean required) {
-        return new PropertySpec(name, required);
+    public static com.energyict.mdc.upl.properties.PropertySpec propertySpec(String name, boolean required, String displayName, String description) {
+        return new PropertySpec(name, required, displayName, description);
     }
 
     public String toString() {
@@ -263,8 +263,8 @@ public class ProtocolChannelMap implements com.energyict.mdc.upl.properties.Prot
     }
 
     private static class PropertySpec extends AbstractPropertySpec {
-        protected PropertySpec(String name, boolean required) {
-            super(name, required);
+        protected PropertySpec(String name, boolean required, String displayName, String description) {
+            super(name, required, displayName, description);
         }
 
         @Override

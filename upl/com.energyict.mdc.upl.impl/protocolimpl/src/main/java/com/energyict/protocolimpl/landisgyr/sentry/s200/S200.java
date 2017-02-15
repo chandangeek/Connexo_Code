@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.landisgyr.sentry.s200;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -24,6 +25,7 @@ import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.landisgyr.sentry.s200.core.CommandFactory;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,8 +50,8 @@ public class S200 extends AbstractProtocol {
     private int crnInitialValue;
     private int modeOfOperation;
 
-    public S200(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public S200(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override
@@ -70,8 +72,8 @@ public class S200 extends AbstractProtocol {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = super.getUPLPropertySpecs();
-        propertySpecs.add(this.integerSpec("CRNInitialValue", false));
-        propertySpecs.add(this.integerSpec("ModeOfOperation", false));
+        propertySpecs.add(this.integerSpec("CRNInitialValue", PropertyTranslationKeys.LANDISGYR_CRN_INITIAL_VALUE, false));
+        propertySpecs.add(this.integerSpec("ModeOfOperation", PropertyTranslationKeys.LANDISGYR_MODE_OF_OPERATION, false));
         return propertySpecs;
     }
 

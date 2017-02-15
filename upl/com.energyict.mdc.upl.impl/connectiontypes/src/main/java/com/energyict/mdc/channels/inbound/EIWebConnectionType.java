@@ -1,5 +1,6 @@
 package com.energyict.mdc.channels.inbound;
 
+import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.io.ConnectionType;
@@ -39,7 +40,7 @@ public class EIWebConnectionType implements ConnectionType {
     }
 
     private PropertySpec ipAddressPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(IP_ADDRESS_PROPERTY_NAME, false, this.propertySpecService::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(IP_ADDRESS_PROPERTY_NAME, false, PropertyTranslationKeys.EIWEB_IP_ADDRESS, this.propertySpecService::stringSpec).finish();
     }
 
     private PropertySpec macAddressPropertySpec() {

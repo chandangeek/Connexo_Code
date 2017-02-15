@@ -10,6 +10,8 @@ import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
@@ -24,8 +26,10 @@ import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -110,9 +114,11 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
     private static final String PK_SOFTWARE_7E1 = "Software7E1";
 
     private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
 
-    public Unilog(PropertySpecService propertySpecService) {
+    public Unilog(PropertySpecService propertySpecService, NlsService nlsService) {
         this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
     }
 
     public List<String> getOptionalKeys() {
@@ -128,31 +134,31 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.stringSpec(ADDRESS.getName()),
-                this.stringSpec(NODEID.getName()),
-                this.stringSpec(SERIALNUMBER.getName()),
-                this.stringSpec(PASSWORD.getName()),
-                this.integerSpec(PROFILEINTERVAL.getName()),
-                this.integerSpec(PK_TIMEOUT),
-                this.integerSpec(PK_RETRIES),
-                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
-                this.integerSpec(PK_FORCE_DELAY),
-                this.integerSpec(PK_ECHO_CANCELLING),
-                this.integerSpec(PK_IEC1107_COMPATIBLE),
-                this.stringSpec(PK_SOFTWARE_7E1),
-                ProtocolChannelMap.propertySpec(PK_CHANNEL_MAP, false));
+                this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.IEC1107_ADDRESS),
+                this.stringSpec(NODEID.getName(), PropertyTranslationKeys.IEC1107_NODEID),
+                this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.IEC1107_SERIALNUMBER),
+                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.IEC1107_PASSWORD),
+                this.integerSpec(PROFILEINTERVAL.getName(), PropertyTranslationKeys.IEC1107_PROFILEINTERVAL),
+                this.integerSpec(PK_TIMEOUT, PropertyTranslationKeys.IEC1107_TIMEOUT),
+                this.integerSpec(PK_RETRIES, PropertyTranslationKeys.IEC1107_RETRIES),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.IEC1107_ROUNDTRIPCORRECTION),
+                this.integerSpec(PK_FORCE_DELAY, PropertyTranslationKeys.IEC1107_FORCEDELAY),
+                this.integerSpec(PK_ECHO_CANCELLING, PropertyTranslationKeys.IEC1107_ECHOCANCELLING),
+                this.integerSpec(PK_IEC1107_COMPATIBLE, PropertyTranslationKeys.IEC1107_COMPATIBLE),
+                this.stringSpec(PK_SOFTWARE_7E1, PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
+                ProtocolChannelMap.propertySpec(PK_CHANNEL_MAP, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.IEC1107_CHANNEL_MAP).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.IEC1107_CHANNEL_MAP_DESCRIPTION).format()));
     }
 
-    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, optionsSupplier).finish();
     }
 
-    private PropertySpec stringSpec(String name) {
-        return this.spec(name, this.propertySpecService::stringSpec);
+    private PropertySpec stringSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::stringSpec);
     }
 
-    private PropertySpec integerSpec(String name) {
-        return this.spec(name, this.propertySpecService::integerSpec);
+    private PropertySpec integerSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::integerSpec);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.modbus.generic;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -15,6 +16,7 @@ import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.modbus.core.functioncode.ReadStatuses;
 import com.energyict.protocolimpl.modbus.core.functioncode.ReportSlaveId;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -50,8 +52,8 @@ public class Generic extends Modbus {
     private boolean startRegistersZeroBased;
     private Map<Integer, Integer> customStartRegisterMap = new HashMap<>();
 
-    public Generic(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public Generic(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override
@@ -65,8 +67,8 @@ public class Generic extends Modbus {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.stringSpec(START_REGISTERS, false));
-        propertySpecs.add(this.stringSpec(START_REGISTERS_ZERO_BASED, false));
+        propertySpecs.add(this.stringSpec(START_REGISTERS, PropertyTranslationKeys.MODBUS_START_REGISTERS, false));
+        propertySpecs.add(this.stringSpec(START_REGISTERS_ZERO_BASED, PropertyTranslationKeys.MODBUS_START_REGISTERS_ZERO_BASED, false));
         return propertySpecs;
     }
 

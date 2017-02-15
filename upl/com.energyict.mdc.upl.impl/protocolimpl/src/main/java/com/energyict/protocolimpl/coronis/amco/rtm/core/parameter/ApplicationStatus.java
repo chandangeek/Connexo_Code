@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
@@ -10,12 +11,12 @@ public class ApplicationStatus extends AbstractParameter {
 
     private int status;
 
-    public ApplicationStatus(PropertySpecService propertySpecService, RTM rtm) {
-        super(propertySpecService, rtm);
+    public ApplicationStatus(PropertySpecService propertySpecService, RTM rtm, NlsService nlsService) {
+        super(propertySpecService, rtm, nlsService);
     }
 
-    public ApplicationStatus(PropertySpecService propertySpecService, RTM rtm, int status) {
-        super(propertySpecService, rtm);
+    public ApplicationStatus(PropertySpecService propertySpecService, RTM rtm, int status, NlsService nlsService) {
+        super(propertySpecService, rtm, nlsService);
         this.status = status;
     }
 

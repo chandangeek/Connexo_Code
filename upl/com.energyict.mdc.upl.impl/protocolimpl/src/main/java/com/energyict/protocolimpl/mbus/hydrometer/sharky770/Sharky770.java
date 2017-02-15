@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.mbus.hydrometer.sharky770;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.mbus.core.MBus;
@@ -23,8 +24,8 @@ import java.util.Date;
  */
 public class Sharky770 extends MBus {
 
-    public Sharky770(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public Sharky770(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override

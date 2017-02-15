@@ -1,7 +1,9 @@
 package com.energyict.mdc.tasks;
 
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
@@ -55,16 +57,16 @@ public class EiWebPlusDialect extends AbstractDeviceProtocolDialect {
     }
 
     protected PropertySpec serverLogLevelPropertySpec() {
-        return this.stringSpec(SERVER_LOG_LEVER_PROPERTY, DEFAULT_LOG_LEVEL, getPossibleLogValues());
+        return this.stringSpec(SERVER_LOG_LEVER_PROPERTY, DEFAULT_LOG_LEVEL, PropertyTranslationKeys.V2_TASKS_SERVER_LOG_LEVEL, getPossibleLogValues());
     }
 
     protected PropertySpec portLogLevelPropertySpec() {
-        return this.stringSpec(PORT_LOG_LEVEL_PROPERTY, DEFAULT_LOG_LEVEL, getPossibleLogValues());
+        return this.stringSpec(PORT_LOG_LEVEL_PROPERTY, DEFAULT_LOG_LEVEL, PropertyTranslationKeys.V2_TASKS_PORT_LOG_LEVEL, getPossibleLogValues());
     }
 
-    private PropertySpec stringSpec(String name, String defaultValue, String... otherValues) {
+    private PropertySpec stringSpec(String name, String defaultValue, TranslationKey translationKey, String... otherValues) {
         return UPLPropertySpecFactory
-                .specBuilder(name, false, this.propertySpecService::stringSpec)
+                .specBuilder(name, false, translationKey, this.propertySpecService::stringSpec)
                 .setDefaultValue(defaultValue)
                 .addValues(otherValues)
                 .markExhaustive()

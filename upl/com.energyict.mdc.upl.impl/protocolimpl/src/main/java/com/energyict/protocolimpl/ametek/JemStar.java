@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.ametek;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.cbo.BaseUnit;
@@ -33,8 +34,8 @@ import java.util.Map;
  */
 public class JemStar extends Jem implements MessageProtocol  {
 
-    public JemStar(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public JemStar(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override

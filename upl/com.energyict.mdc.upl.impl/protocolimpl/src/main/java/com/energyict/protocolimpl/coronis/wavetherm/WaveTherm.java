@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -29,7 +30,9 @@ import com.energyict.protocolimpl.coronis.wavetherm.core.ObisCodeMapper;
 import com.energyict.protocolimpl.coronis.wavetherm.core.parameter.ParameterFactory;
 import com.energyict.protocolimpl.coronis.wavetherm.core.radiocommand.RadioCommandFactory;
 import com.energyict.protocolimpl.dlms.common.ObisCodePropertySpec;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,8 +59,8 @@ public class WaveTherm extends AbstractProtocol implements MessageProtocol, Prot
     private ProfileDataReader profileDataReader;
     private int numberOfChannels = -1;
 
-    public WaveTherm(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public WaveTherm(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     private boolean isVerifyProfileInterval() {
@@ -113,9 +116,9 @@ public class WaveTherm extends AbstractProtocol implements MessageProtocol, Prot
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(new ObisCodePropertySpec("LoadProfileObisCode", false));
-        propertySpecs.add(this.integerSpec(CORRECTTIME.getName(), false));
-        propertySpecs.add(this.integerSpec("verifyProfileInterval", false));
+        propertySpecs.add(new ObisCodePropertySpec("LoadProfileObisCode", false, getNlsService().getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.WAVETHERM_LOADPROFILE_OBISCODE).format(), getNlsService().getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.WAVETHERM_LOADPROFILE_OBISCODE_DESCRIPTION).format()));
+        propertySpecs.add(this.integerSpec(CORRECTTIME.getName(), PropertyTranslationKeys.WAVETHERM_CORRECTTIME, false));
+        propertySpecs.add(this.integerSpec("verifyProfileInterval", PropertyTranslationKeys.WAVETHERM_VERIFY_PROFILE_INTERVAL, false));
         return propertySpecs;
     }
 

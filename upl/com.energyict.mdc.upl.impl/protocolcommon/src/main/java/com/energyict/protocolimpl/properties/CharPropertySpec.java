@@ -15,13 +15,13 @@ public class CharPropertySpec extends AbstractPropertySpec {
 
     private final Constraint constraint;
 
-    public CharPropertySpec(String name, boolean required) {
-        super(name, required);
+    public CharPropertySpec(String name, boolean required, String displayName, String description) {
+        super(name, required, displayName, description);
         this.constraint = new NoConstraint();
     }
 
-    public CharPropertySpec(String name, boolean required, String possibleValues) {
-        super(name, required);
+    public CharPropertySpec(String name, boolean required, String possibleValues, String displayName, String description) {
+        super(name, required, displayName, description);
         this.constraint = new Set(possibleValues);
     }
 

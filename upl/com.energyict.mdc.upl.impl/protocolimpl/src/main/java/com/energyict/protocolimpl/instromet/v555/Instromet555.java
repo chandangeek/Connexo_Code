@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.instromet.v555;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.obis.ObisCode;
@@ -33,8 +34,8 @@ public class Instromet555 extends InstrometProtocol implements SerialNumberSuppo
     private List<BigDecimal> wrapValues = new ArrayList<>();
     private int iRoundtripCorrection;
 
-	public Instromet555(PropertySpecService propertySpecService) {
-		super(propertySpecService);
+	public Instromet555(PropertySpecService propertySpecService, NlsService nlsService) {
+		super(propertySpecService, nlsService);
 	}
 
 	@Override

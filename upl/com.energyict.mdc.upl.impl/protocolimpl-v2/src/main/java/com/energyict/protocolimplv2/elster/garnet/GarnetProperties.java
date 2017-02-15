@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -176,7 +177,7 @@ public class GarnetProperties implements HasDynamicProperties {
     }
 
     private PropertySpec deviceIdPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(DEVICE_ID, true, this.propertySpecService::bigDecimalSpec)
+        return UPLPropertySpecFactory.specBuilder(DEVICE_ID, true, PropertyTranslationKeys.V2_ELSTER_DEVICE_ID, this.propertySpecService::bigDecimalSpec)
                 .setDefaultValue(DEFAULT_DEVICE_ID)
                 .finish();
     }

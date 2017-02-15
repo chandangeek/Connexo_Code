@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
@@ -15,6 +16,7 @@ public class ParameterFactory {
 
     private final RTM rtm;
     private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
 
     //Cached
     private ApplicationStatus applicationStatus = null;
@@ -33,19 +35,20 @@ public class ParameterFactory {
     private static final int WEEKLY_LOGGING = 2;
     private static final int MONTHLY_LOGGING = 3;
 
-    public ParameterFactory(final RTM rtm, PropertySpecService propertySpecService) {
+    public ParameterFactory(final RTM rtm, PropertySpecService propertySpecService, NlsService nlsService) {
         this.rtm = rtm;
         this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
     }
 
     public Date readTimeDateRTC() throws IOException {
-        TimeDateRTC timeDateRTC = new TimeDateRTC(this.propertySpecService, rtm);
+        TimeDateRTC timeDateRTC = new TimeDateRTC(this.propertySpecService, rtm, this.nlsService);
         timeDateRTC.read();
         return timeDateRTC.getCalendar().getTime();
     }
 
     public void writeTimeDateRTC(Date date) throws IOException {
-        TimeDateRTC timeDateRTC = new TimeDateRTC(this.propertySpecService, rtm);
+        TimeDateRTC timeDateRTC = new TimeDateRTC(this.propertySpecService, rtm, this.nlsService);
         Calendar calendar = Calendar.getInstance(rtm.getTimeZone());
         calendar.setTime(date);
         timeDateRTC.setCalendar(calendar);
@@ -92,19 +95,19 @@ public class ParameterFactory {
     }
 
     public void writeTimeOfMeasurement(int time) throws IOException {
-        HourOfMeasurement hourOfMeasurement = new HourOfMeasurement(this.propertySpecService, rtm);
+        HourOfMeasurement hourOfMeasurement = new HourOfMeasurement(this.propertySpecService, rtm, this.nlsService);
         hourOfMeasurement.setStartHour(time);
         hourOfMeasurement.write();
     }
 
     public int readTimeOfMeasurement() throws IOException {
-        HourOfMeasurement hourOfMeasurement = new HourOfMeasurement(this.propertySpecService, rtm);
+        HourOfMeasurement hourOfMeasurement = new HourOfMeasurement(this.propertySpecService, rtm, this.nlsService);
         hourOfMeasurement.read();
         return hourOfMeasurement.getStartHour();
     }
 
     final public void writeSamplingActivationType(final int startHour) throws IOException {
-        SamplingActivationType samplingActivationType = new SamplingActivationType(this.propertySpecService, rtm);
+        SamplingActivationType samplingActivationType = new SamplingActivationType(this.propertySpecService, rtm, this.nlsService);
         samplingActivationType.setStartHour(startHour);
         samplingActivationType.write();
     }
@@ -123,13 +126,13 @@ public class ParameterFactory {
     }
 
     public void writeDayOfWeek(int day) throws IOException {
-        DayOfWeekOrMonth dayOfWeek = new DayOfWeekOrMonth(this.propertySpecService, rtm);
+        DayOfWeekOrMonth dayOfWeek = new DayOfWeekOrMonth(this.propertySpecService, rtm, this.nlsService);
         dayOfWeek.setDay(day);
         dayOfWeek.write();
     }
 
     public int readDayOfWeek() throws IOException {
-        DayOfWeekOrMonth dayOfWeek = new DayOfWeekOrMonth(this.propertySpecService, rtm);
+        DayOfWeekOrMonth dayOfWeek = new DayOfWeekOrMonth(this.propertySpecService, rtm, this.nlsService);
         dayOfWeek.read();
         return dayOfWeek.getDay();
     }
@@ -149,7 +152,7 @@ public class ParameterFactory {
 
     public void writeSamplingIntervalMultiplier(int multiplier) throws IOException {
         if ((samplingIntervalMultiplier == null) || (samplingIntervalMultiplier.getMultiplier() != multiplier)) {
-            samplingIntervalMultiplier = new MeasurementPeriodMultiplier(this.propertySpecService, rtm);
+            samplingIntervalMultiplier = new MeasurementPeriodMultiplier(this.propertySpecService, rtm, this.nlsService);
             samplingIntervalMultiplier.setMultiplier(multiplier);
             samplingIntervalMultiplier.write();
         }
@@ -157,7 +160,7 @@ public class ParameterFactory {
 
     public int readSamplingIntervalMultiplier() throws IOException {
         if (samplingIntervalMultiplier == null) {
-            samplingIntervalMultiplier = new MeasurementPeriodMultiplier(this.propertySpecService, rtm);
+            samplingIntervalMultiplier = new MeasurementPeriodMultiplier(this.propertySpecService, rtm, this.nlsService);
             samplingIntervalMultiplier.read();
         }
         return samplingIntervalMultiplier.getMultiplier();
@@ -165,7 +168,7 @@ public class ParameterFactory {
 
     public BatteryLifeDurationCounter readBatteryLifeDurationCounter() throws IOException {
         if (batteryLifeDurationCounter == null) {
-            batteryLifeDurationCounter = new BatteryLifeDurationCounter(this.propertySpecService, rtm);
+            batteryLifeDurationCounter = new BatteryLifeDurationCounter(this.propertySpecService, rtm, this.nlsService);
             batteryLifeDurationCounter.read();
     }
         return batteryLifeDurationCounter;
@@ -176,13 +179,13 @@ public class ParameterFactory {
     }
 
     public BackflowDetectionFlags readSimpleBackflowDetectionFlags(int portId) throws IOException {
-        BackflowDetectionFlags backflowDetectionFlags = new BackflowDetectionFlags(this.propertySpecService, rtm, portId);
+        BackflowDetectionFlags backflowDetectionFlags = new BackflowDetectionFlags(this.propertySpecService, rtm, portId, this.nlsService);
         backflowDetectionFlags.read();
         return backflowDetectionFlags;
     }
 
     public Date readTamperDetectionDate(int port) throws IOException {
-        TamperDetectionDate detectionDate = new TamperDetectionDate(this.propertySpecService, rtm);
+        TamperDetectionDate detectionDate = new TamperDetectionDate(this.propertySpecService, rtm, this.nlsService);
         detectionDate.setPort(port);
         detectionDate.read();
         return detectionDate.getDate();
@@ -190,14 +193,14 @@ public class ParameterFactory {
 
     final public ApplicationStatus readApplicationStatus() throws IOException {
         if (applicationStatus == null) {
-            applicationStatus = new ApplicationStatus(this.propertySpecService, rtm);
+            applicationStatus = new ApplicationStatus(this.propertySpecService, rtm, this.nlsService);
             applicationStatus.read();
         }
         return applicationStatus;
     }
 
     final public void writeApplicationStatus(final int status) throws IOException {
-        applicationStatus = new ApplicationStatus(this.propertySpecService, rtm);
+        applicationStatus = new ApplicationStatus(this.propertySpecService, rtm, this.nlsService);
         applicationStatus.setStatus(status);
         applicationStatus.write();
     }
@@ -208,7 +211,7 @@ public class ParameterFactory {
 
     public OperatingMode readOperatingMode() throws IOException {
         if (operatingMode == null) {
-            operatingMode = new OperatingMode(this.propertySpecService, rtm);
+            operatingMode = new OperatingMode(this.propertySpecService, rtm, this.nlsService);
             operatingMode.read();
         }
         return operatingMode;
@@ -241,7 +244,7 @@ public class ParameterFactory {
 
     private int readSamplingIntervalInSeconds() throws IOException {
         if (samplingPeriod == null) {
-            samplingPeriod = new SamplingPeriod(this.propertySpecService, rtm);
+            samplingPeriod = new SamplingPeriod(this.propertySpecService, rtm, this.nlsService);
             samplingPeriod.read();
             rtm.getLogger().info("Received profile data interval: [" + samplingPeriod.getSamplingPeriodInSeconds() + " seconds] ");
             writeSamplingIntervalMultiplier(1);
@@ -250,45 +253,45 @@ public class ParameterFactory {
     }
 
     public void writeSamplingIntervalInSeconds(int seconds) throws IOException {
-        samplingPeriod = new SamplingPeriod(this.propertySpecService, rtm);
+        samplingPeriod = new SamplingPeriod(this.propertySpecService, rtm, this.nlsService);
         samplingPeriod.setSamplingPeriodInSeconds(seconds);
         samplingPeriod.write();
         writeSamplingIntervalMultiplier(1);     //So the sampling interval is equal to the profile data interval
     }
 
     public void setLeakageDetectionPeriod(int residualOrExtreme, int inputChannel, int period) throws IOException {
-        LeakageDetectionPeriod leakageDetectionPeriod = new LeakageDetectionPeriod(this.propertySpecService, rtm, residualOrExtreme, inputChannel);
+        LeakageDetectionPeriod leakageDetectionPeriod = new LeakageDetectionPeriod(this.propertySpecService, rtm, residualOrExtreme, inputChannel, this.nlsService);
         leakageDetectionPeriod.setDetectionPeriod(period);
         leakageDetectionPeriod.write();
     }
 
     public void setLeakageThreshold(int residualOrExtreme, int inputChannel, int threshold) throws IOException {
-        LeakageFlowThreshold leakageFlowThreshold = new LeakageFlowThreshold(this.propertySpecService, rtm, residualOrExtreme, inputChannel);
+        LeakageFlowThreshold leakageFlowThreshold = new LeakageFlowThreshold(this.propertySpecService, rtm, residualOrExtreme, inputChannel, this.nlsService);
         leakageFlowThreshold.setThresholdValue(threshold);
         leakageFlowThreshold.write();
     }
 
     public void writeBackflowThreshold(int threshold, int inputChannel) throws IOException {
-        BackflowThreshold backflowThreshold = new BackflowThreshold(this.propertySpecService, rtm, inputChannel);
+        BackflowThreshold backflowThreshold = new BackflowThreshold(this.propertySpecService, rtm, inputChannel, this.nlsService);
         backflowThreshold.setThreshold(threshold);
         backflowThreshold.write();
     }
 
     public void writeBackflowDetectionPeriod(int period, int inputChannel) throws IOException {
-        BackflowDetectionPeriod detectionPeriod = new BackflowDetectionPeriod(this.propertySpecService, rtm, inputChannel);
+        BackflowDetectionPeriod detectionPeriod = new BackflowDetectionPeriod(this.propertySpecService, rtm, inputChannel, this.nlsService);
         detectionPeriod.setDetectionPeriod(period);
         detectionPeriod.write();
     }
 
     public void writeNumberOfBackflowsBeforeIndication(int number, int inputChannel) throws IOException {
-        BackflowBeforeIndication backflowBeforeIndication = new BackflowBeforeIndication(this.propertySpecService, rtm, inputChannel);
+        BackflowBeforeIndication backflowBeforeIndication = new BackflowBeforeIndication(this.propertySpecService, rtm, inputChannel, this.nlsService);
         backflowBeforeIndication.setNumber(number);
         backflowBeforeIndication.write();
     }
 
     public ProfileType readProfileType() throws IOException {
         if (profileType == null) {
-            profileType = new ProfileType(this.propertySpecService, rtm);
+            profileType = new ProfileType(this.propertySpecService, rtm, this.nlsService);
             profileType.read();
         }
         return profileType;
@@ -299,13 +302,13 @@ public class ParameterFactory {
     }
 
     public AlarmConfiguration readAlarmConfiguration() throws IOException {
-        AlarmConfiguration configuration = new AlarmConfiguration(this.propertySpecService, rtm);
+        AlarmConfiguration configuration = new AlarmConfiguration(this.propertySpecService, rtm, this.nlsService);
         configuration.read();
         return configuration;
     }
 
     public void writeAlarmConfiguration(int value) throws IOException {
-        AlarmConfiguration configuration = new AlarmConfiguration(this.propertySpecService, rtm);
+        AlarmConfiguration configuration = new AlarmConfiguration(this.propertySpecService, rtm, this.nlsService);
         configuration.setConfig(value);
         configuration.write();
     }
@@ -379,19 +382,19 @@ public class ParameterFactory {
     }
 
     public PulseWeight readPulseWeight(int port) throws IOException {
-        PulseWeight weight = new PulseWeight(this.propertySpecService, rtm, port);
+        PulseWeight weight = new PulseWeight(this.propertySpecService, rtm, port, this.nlsService);
         weight.read();
         return weight;
     }
 
     public EncoderUnit readEncoderUnit(int port) throws IOException {
-        EncoderUnit unit = new EncoderUnit(this.propertySpecService, rtm, port);
+        EncoderUnit unit = new EncoderUnit(this.propertySpecService, rtm, port, this.nlsService);
         unit.read();
         return unit;
     }
 
     public LeakageDetectionStatus readLeakageDetectionStatus() throws IOException {
-        LeakageDetectionStatus status = new LeakageDetectionStatus(this.propertySpecService, rtm);
+        LeakageDetectionStatus status = new LeakageDetectionStatus(this.propertySpecService, rtm, this.nlsService);
         status.read();
         return status;
     }
@@ -412,20 +415,20 @@ public class ParameterFactory {
             } else if (readProfileType().isEncoder()) {
                 rtmUnits[port - 1] = readEncoderUnit(port);
             } else {
-                rtmUnits[port - 1] = new RtmUnit(this.propertySpecService, rtm);    //Unitless
+                rtmUnits[port - 1] = new RtmUnit(this.propertySpecService, rtm, this.nlsService);    //Unitless
             }
         }
         return rtmUnits[port - 1];
     }
 
     public void writeWakeUpChannel(int value) throws IOException {
-        DriveByOrWalkByWakeUpChannel wakeUpChannel = new DriveByOrWalkByWakeUpChannel(this.propertySpecService, rtm);
+        DriveByOrWalkByWakeUpChannel wakeUpChannel = new DriveByOrWalkByWakeUpChannel(this.propertySpecService, rtm, this.nlsService);
         wakeUpChannel.setChannel(value);
         wakeUpChannel.write();
     }
 
     public void setInterAnswerDelay(int hour, int minute, int second) throws IOException {
-        DriveByInterAnswerDelay interAnswerDelay = new DriveByInterAnswerDelay(this.propertySpecService, rtm);
+        DriveByInterAnswerDelay interAnswerDelay = new DriveByInterAnswerDelay(this.propertySpecService, rtm, this.nlsService);
         interAnswerDelay.setHours(hour);
         interAnswerDelay.setMinutes(minute);
         interAnswerDelay.setSeconds(second);
@@ -434,7 +437,7 @@ public class ParameterFactory {
 
     public void writePulseWeight(int port, int scale, int multiplier, int unit) throws IOException {
         if (readProfileType().isPulse()) {
-            PulseWeight pulseWeight = new PulseWeight(this.propertySpecService, rtm, port);
+            PulseWeight pulseWeight = new PulseWeight(this.propertySpecService, rtm, port, this.nlsService);
             pulseWeight.setMultiplier(multiplier);
             pulseWeight.setScale(scale);
             pulseWeight.setUnitNumber(unit);
@@ -444,7 +447,7 @@ public class ParameterFactory {
 
     public void setMeterModel(int value, int port) throws IOException {
         if (readProfileType().isPulse()) {
-            MeterModelParameter meterModel = new MeterModelParameter(this.propertySpecService, rtm);
+            MeterModelParameter meterModel = new MeterModelParameter(this.propertySpecService, rtm, this.nlsService);
             meterModel.setPort(port);
             meterModel.setMeterModel(value);
             meterModel.write();
@@ -452,21 +455,21 @@ public class ParameterFactory {
     }
 
     public void writeEncoderUnit(int port, int numberOfDecimals, int unitNumber) throws IOException {
-        EncoderUnit encoderUnit = new EncoderUnit(this.propertySpecService, rtm, port);
+        EncoderUnit encoderUnit = new EncoderUnit(this.propertySpecService, rtm, port, this.nlsService);
         encoderUnit.setScale(numberOfDecimals - 6);
         encoderUnit.setUnitNumber(unitNumber);
         encoderUnit.write();
     }
 
     public void writeTOUBucketStartHour(int length, int[] startHours) throws IOException {
-        TouBuckets touBuckets = new TouBuckets(this.propertySpecService, rtm);
+        TouBuckets touBuckets = new TouBuckets(this.propertySpecService, rtm, this.nlsService);
         touBuckets.setNumberOfTouBuckets(length);
         touBuckets.setStartHours(startHours);
         touBuckets.write();
     }
 
     public void writeStartOfPushFrameMechanism(int hour, int minute, int second) throws IOException {
-        PseudoBubbleUpMechanismStartHour startHour = new PseudoBubbleUpMechanismStartHour(this.propertySpecService, rtm);
+        PseudoBubbleUpMechanismStartHour startHour = new PseudoBubbleUpMechanismStartHour(this.propertySpecService, rtm, this.nlsService);
         startHour.setHour(hour);
         startHour.setMinute(minute);
         startHour.setSecond(second);
@@ -474,31 +477,31 @@ public class ParameterFactory {
     }
 
     public String readStartOfPushFrameMechanism() throws IOException {
-        PseudoBubbleUpMechanismStartHour startHour = new PseudoBubbleUpMechanismStartHour(this.propertySpecService, rtm);
+        PseudoBubbleUpMechanismStartHour startHour = new PseudoBubbleUpMechanismStartHour(this.propertySpecService, rtm, this.nlsService);
         startHour.read();
         return startHour.getHour() + ":" + startHour.getMinute() + ":" + startHour.getSecond();
     }
 
     public void writeEndOfPushFrameMechanism(int hour) throws IOException {
-        PseudoBubbleUpPeriodEndHour end = new PseudoBubbleUpPeriodEndHour(this.propertySpecService, rtm);
+        PseudoBubbleUpPeriodEndHour end = new PseudoBubbleUpPeriodEndHour(this.propertySpecService, rtm, this.nlsService);
         end.setHour(hour);
         end.write();
     }
 
     public void writeTransmissionPeriod(int minutes) throws IOException {
-        PseudoBubbleUpTransmissionPeriod period = new PseudoBubbleUpTransmissionPeriod(this.propertySpecService, rtm);
+        PseudoBubbleUpTransmissionPeriod period = new PseudoBubbleUpTransmissionPeriod(this.propertySpecService, rtm, this.nlsService);
         period.setTransmissionPeriodInMinutes(minutes);
         period.write();
     }
 
     public PseudoBubbleUpCommandBuffer readPushCommandBuffer() throws IOException {
-        PseudoBubbleUpCommandBuffer commandBuffer = new PseudoBubbleUpCommandBuffer(this.propertySpecService, rtm);
+        PseudoBubbleUpCommandBuffer commandBuffer = new PseudoBubbleUpCommandBuffer(this.propertySpecService, rtm, this.nlsService);
         commandBuffer.read();
         return commandBuffer;
     }
 
     public void writeMaxCancelTimeout(int value) throws IOException {
-        PseudoBubbleUpMaxCancellationTimeout timeout = new PseudoBubbleUpMaxCancellationTimeout(this.propertySpecService, rtm);
+        PseudoBubbleUpMaxCancellationTimeout timeout = new PseudoBubbleUpMaxCancellationTimeout(this.propertySpecService, rtm, this.nlsService);
         timeout.setSeconds(value);
         timeout.write();
     }
@@ -510,54 +513,54 @@ public class ParameterFactory {
     }
 
     public void writeBubbleUpConfiguration(int command, int portMask, int numberOfReadings, int offset, int transmissionPeriod) throws IOException {
-        PseudoBubbleUpCommandBuffer config = new PseudoBubbleUpCommandBuffer(this.propertySpecService, rtm);
+        PseudoBubbleUpCommandBuffer config = new PseudoBubbleUpCommandBuffer(this.propertySpecService, rtm, this.nlsService);
         config.writeBubbleUpConfiguration(command, portMask, numberOfReadings, offset, transmissionPeriod);            //A special command that writes all parameters
     }
 
     public void clearCommandBuffer() throws IOException {
-        PseudoBubbleUpCommandBuffer commandBuffer = new PseudoBubbleUpCommandBuffer(this.propertySpecService, rtm);
+        PseudoBubbleUpCommandBuffer commandBuffer = new PseudoBubbleUpCommandBuffer(this.propertySpecService, rtm, this.nlsService);
         commandBuffer.clearBuffer();
         commandBuffer.write();
     }
 
     public Date readBackflowDate(int port) throws IOException {
-        BackflowDetectionDate detectionDate = new BackflowDetectionDate(this.propertySpecService, rtm);
+        BackflowDetectionDate detectionDate = new BackflowDetectionDate(this.propertySpecService, rtm, this.nlsService);
         detectionDate.setPort(port);
         detectionDate.read();
         return detectionDate.getDate();
     }
 
     public Date readEncoderCommFaultDate(int port) throws IOException {
-        CommunicationErrorDetectionDate detectionDate = new CommunicationErrorDetectionDate(this.propertySpecService, rtm, port);
+        CommunicationErrorDetectionDate detectionDate = new CommunicationErrorDetectionDate(this.propertySpecService, rtm, port, this.nlsService);
         detectionDate.read();
         return detectionDate.getDate();
     }
 
     public Date readEncoderReadingErrorDate(int port) throws IOException {
-        ReadingErrorDetectionDate detectionDate = new ReadingErrorDetectionDate(this.propertySpecService, rtm, port);
+        ReadingErrorDetectionDate detectionDate = new ReadingErrorDetectionDate(this.propertySpecService, rtm, port, this.nlsService);
         detectionDate.read();
         return detectionDate.getDate();
     }
 
     public Date readValveErrorDetectionDate() throws IOException {
-        ValveCommunicationErrorDetectionDate detectionDate = new ValveCommunicationErrorDetectionDate(this.propertySpecService, rtm);
+        ValveCommunicationErrorDetectionDate detectionDate = new ValveCommunicationErrorDetectionDate(this.propertySpecService, rtm, this.nlsService);
         detectionDate.read();
         return detectionDate.getDate();
     }
 
     public Date readLowBatteryDetectionDate() throws IOException {
-        BatteryLowDetectionDate detectionDate = new BatteryLowDetectionDate(this.propertySpecService, rtm);
+        BatteryLowDetectionDate detectionDate = new BatteryLowDetectionDate(this.propertySpecService, rtm, this.nlsService);
         detectionDate.read();
         return detectionDate.getDate();
     }
 
     public void setAlarmWindowConfiguration(int duration, boolean activation, int granularity) throws IOException {
-        AlarmWindowConfiguration configuration = new AlarmWindowConfiguration(this.propertySpecService, rtm, duration, activation, granularity);
+        AlarmWindowConfiguration configuration = new AlarmWindowConfiguration(this.propertySpecService, rtm, duration, activation, granularity, this.nlsService);
         configuration.write();
     }
 
     public int autoConfigAlarmRoute() throws IOException {
-        RouteConfiguration configuration = new RouteConfiguration(this.propertySpecService, rtm);
+        RouteConfiguration configuration = new RouteConfiguration(this.propertySpecService, rtm, this.nlsService);
         configuration.set();
         return configuration.getResponse();
     }
@@ -573,31 +576,31 @@ public class ParameterFactory {
     }
 
     public int readNumberOfLoggedEntries() throws IOException {
-        NumberOfRecords numberOfRecords = new NumberOfRecords(this.propertySpecService, rtm);
+        NumberOfRecords numberOfRecords = new NumberOfRecords(this.propertySpecService, rtm, this.nlsService);
         numberOfRecords.read();
         return numberOfRecords.getNumber();
     }
 
     public void writeNumberOfRepeaters(int number) throws IOException {
-        NumberOfRepeaters numberOfRepeaters = new NumberOfRepeaters(this.propertySpecService, rtm);
+        NumberOfRepeaters numberOfRepeaters = new NumberOfRepeaters(this.propertySpecService, rtm, this.nlsService);
         numberOfRepeaters.setNumber(number);
         numberOfRepeaters.write();
     }
 
     public void writeRepeaterAddress(String address, int id) throws IOException {
-        RepeaterAddress repeaterAddress = new RepeaterAddress(this.propertySpecService, rtm, id);
+        RepeaterAddress repeaterAddress = new RepeaterAddress(this.propertySpecService, rtm, id, this.nlsService);
         repeaterAddress.setAddress(address);
         repeaterAddress.write();
     }
 
     public void writeRecipientAddress(String address) throws IOException {
-        RecipientAddress recipientAddress = new RecipientAddress(this.propertySpecService, rtm);
+        RecipientAddress recipientAddress = new RecipientAddress(this.propertySpecService, rtm, this.nlsService);
         recipientAddress.setAddress(address);
         recipientAddress.write();
     }
 
     public OperatingMode getNewOperationMode() {
-        operatingMode = new OperatingMode(this.propertySpecService, rtm, 0);
+        operatingMode = new OperatingMode(this.propertySpecService, rtm, 0, this.nlsService);
         return operatingMode;
     }
 

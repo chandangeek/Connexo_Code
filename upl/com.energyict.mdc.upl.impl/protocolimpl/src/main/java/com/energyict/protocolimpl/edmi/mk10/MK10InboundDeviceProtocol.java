@@ -12,6 +12,7 @@ import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.InboundFrameException;
 import com.energyict.protocol.exception.ProtocolRuntimeException;
 import com.energyict.protocolimpl.edmi.mk10.packets.PushPacket;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
@@ -176,11 +177,11 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 UPLPropertySpecFactory
-                        .specBuilder(TIMEOUT_KEY, false, this.propertySpecService::durationSpec)
+                        .specBuilder(TIMEOUT_KEY, false, PropertyTranslationKeys.EDMI_TIMEOUT_KEY, this.propertySpecService::durationSpec)
                         .setDefaultValue(TIMEOUT_DEFAULT)
                         .finish(),
                 UPLPropertySpecFactory
-                        .specBuilder(RETRIES_KEY, false, this.propertySpecService::bigDecimalSpec)
+                        .specBuilder(RETRIES_KEY, false, PropertyTranslationKeys.EDMI_RETRIES_KEY, this.propertySpecService::bigDecimalSpec)
                         .setDefaultValue(RETRIES_DEFAULT)
                         .finish());
     }

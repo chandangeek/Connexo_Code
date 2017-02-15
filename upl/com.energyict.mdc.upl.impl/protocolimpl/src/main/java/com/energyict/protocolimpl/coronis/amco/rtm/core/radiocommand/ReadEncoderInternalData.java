@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
@@ -16,8 +17,8 @@ import java.io.IOException;
  */
 public class ReadEncoderInternalData extends AbstractRadioCommand {
 
-    protected ReadEncoderInternalData(PropertySpecService propertySpecService, RTM rtm) {
-        super(propertySpecService, rtm);
+    protected ReadEncoderInternalData(PropertySpecService propertySpecService, RTM rtm, NlsService nlsService) {
+        super(propertySpecService, rtm, nlsService);
     }
 
     private EncoderModel encoderModelOnPortA;
@@ -125,11 +126,11 @@ public class ReadEncoderInternalData extends AbstractRadioCommand {
     @Override
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
-        encoderModelOnPortA = new EncoderModel(getPropertySpecService(), getRTM());
+        encoderModelOnPortA = new EncoderModel(getPropertySpecService(), getRTM(), getNlsService());
         encoderModelOnPortA.parse(ProtocolTools.getSubArray(data, offset, offset + 2));
         offset += 2;
 
-        encoderModelOnPortB = new EncoderModel(getPropertySpecService(), getRTM());
+        encoderModelOnPortB = new EncoderModel(getPropertySpecService(), getRTM(), getNlsService());
         encoderModelOnPortB.parse(ProtocolTools.getSubArray(data, offset, offset + 2));
         offset += 2;
 
@@ -142,7 +143,7 @@ public class ReadEncoderInternalData extends AbstractRadioCommand {
             offset += 6;
             serialNumberA = new String(ProtocolTools.getSubArray(data, offset, offset + 10));
             offset += 10;
-            unitA = new EncoderUnit(getPropertySpecService(), getRTM());
+            unitA = new EncoderUnit(getPropertySpecService(), getRTM(), getNlsService());
             unitA.parse(ProtocolTools.getSubArray(data, offset, offset + 2));
             offset += 2;
             encodedWheelDigitsA = data[offset++] & 0xFF;
@@ -163,7 +164,7 @@ public class ReadEncoderInternalData extends AbstractRadioCommand {
             offset += 6;
             serialNumberB = new String(ProtocolTools.getSubArray(data, offset, offset + 10));
             offset += 10;
-            unitB = new EncoderUnit(getPropertySpecService(), getRTM());
+            unitB = new EncoderUnit(getPropertySpecService(), getRTM(), getNlsService());
             unitB.parse(ProtocolTools.getSubArray(data, offset, offset + 2));
             offset += 2;
             encodedWheelDigitsB = data[offset++] & 0xFF;

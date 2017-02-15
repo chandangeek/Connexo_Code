@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.modbus.spiraxsarco;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -16,6 +17,7 @@ import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.modbus.core.functioncode.ReadStatuses;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -32,8 +34,8 @@ public class VLM20 extends Modbus{
     private static final String START_REGISTERS_ZERO_BASED = "StartRegistersZeroBased";
     private boolean startRegistersZeroBased;
 
-    public VLM20(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public VLM20(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override
@@ -47,7 +49,7 @@ public class VLM20 extends Modbus{
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.stringSpec(START_REGISTERS_ZERO_BASED, false));
+        propertySpecs.add(this.stringSpec(START_REGISTERS_ZERO_BASED, PropertyTranslationKeys.MODBUS_START_REGISTERS_ZERO_BASED, false));
         return propertySpecs;
     }
 

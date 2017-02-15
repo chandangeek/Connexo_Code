@@ -30,6 +30,7 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
 import com.energyict.mdc.upl.cache.CachingProtocol;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -39,6 +40,7 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -421,54 +423,53 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.stringSpec(NODEID.getName()),
-                this.stringSpec(SERIALNUMBER.getName()),
-                this.integerSpec(PR_EXTENDED_LOGGING),
-                this.integerSpec(PR_ADDRESSING_MODE),
-                this.integerSpec(PR_CONNECTION),
-                this.stringSpecOfMaxLength(ADDRESS.getName(), MAX_ADDRESS_LENGTH),
-                this.stringSpec(PASSWORD.getName()),
-                this.integerSpec(PR_TIMEOUT),
-                this.integerSpec(PR_FORCED_DELAY),
-                this.integerSpec(PR_RETRIES),
-                this.integerSpec(PR_REQUEST_TIME_ZONE),
-                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
-                this.stringSpec(SECURITYLEVEL.getName()),
-                this.integerSpec(PR_CLIENT_MAC_ADDRESS),
-                this.integerSpec(PR_CLIENT_MAC_ADDRESS),
-                this.integerSpec(PR_SRV_UP_MACADDR),
-                this.integerSpec(PR_SRV_LOW_MACADDR),
-                this.integerSpec(PR_TRANSP_CONNECT_TIME),
-                this.integerSpec(PR_TRANSP_BAUDRATE),
-                this.integerSpec(PR_TRANSP_DATABITS),
-                this.integerSpec(PR_TRANSP_STOPBITS),
-                this.integerSpec(PR_TRANSP_PARITY),
-                this.integerSpec(PR_PROFILE_TYPE),
-                this.integerSpec(PR_OPTICAL_BAUDRATE),
-                this.integerSpec(PR_CIPHERING_TYPE, CipheringType.GLOBAL.getType(), CipheringType.DEDICATED.getType()),
-                this.integerSpec(PR_LIMIT_MAX_NR_OF_DAYS),
-                this.stringSpec(PR_READ_PLC_LOG));
+                this.stringSpec(NODEID.getName(), PropertyTranslationKeys.DLMS_NODEID),
+                this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.DLMS_SERIALNUMBER),
+                this.integerSpec(PR_EXTENDED_LOGGING, PropertyTranslationKeys.DLMS_EXTENDED_LOGGING),
+                this.integerSpec(PR_ADDRESSING_MODE, PropertyTranslationKeys.DLMS_ADDRESSING_MODE),
+                this.integerSpec(PR_CONNECTION, PropertyTranslationKeys.DLMS_CONNECTION),
+                this.stringSpecOfMaxLength(ADDRESS.getName(), PropertyTranslationKeys.DLMS_ADDRESS, MAX_ADDRESS_LENGTH),
+                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.DLMS_PASSWORD),
+                this.integerSpec(PR_TIMEOUT, PropertyTranslationKeys.DLMS_TIMEOUT),
+                this.integerSpec(PR_FORCED_DELAY, PropertyTranslationKeys.DLMS_FORCED_DELAY),
+                this.integerSpec(PR_RETRIES, PropertyTranslationKeys.DLMS_RETRIES),
+                this.integerSpec(PR_REQUEST_TIME_ZONE, PropertyTranslationKeys.DLMS_REQUEST_TIME_ZONE),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.DLMS_ROUNDTRIPCORRECTION),
+                this.stringSpec(SECURITYLEVEL.getName(), PropertyTranslationKeys.DLMS_SECURITYLEVEL),
+                this.integerSpec(PR_CLIENT_MAC_ADDRESS, PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS),
+                this.integerSpec(PR_SRV_UP_MACADDR, PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS),
+                this.integerSpec(PR_SRV_LOW_MACADDR, PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS),
+                this.integerSpec(PR_TRANSP_CONNECT_TIME, PropertyTranslationKeys.DLMS_TRANSP_CONNECT_TIME),
+                this.integerSpec(PR_TRANSP_BAUDRATE, PropertyTranslationKeys.DLMS_TRANSP_BAUDRATE),
+                this.integerSpec(PR_TRANSP_DATABITS, PropertyTranslationKeys.DLMS_TRANSP_DATABITS),
+                this.integerSpec(PR_TRANSP_STOPBITS, PropertyTranslationKeys.DLMS_TRANSP_STOPBITS),
+                this.integerSpec(PR_TRANSP_PARITY, PropertyTranslationKeys.DLMS_TRANSP_PARITY),
+                this.integerSpec(PR_PROFILE_TYPE, PropertyTranslationKeys.DLMS_PROFILE_TYPE),
+                this.integerSpec(PR_OPTICAL_BAUDRATE, PropertyTranslationKeys.DLMS_OPTICAL_BAUDRATE),
+                this.integerSpec(PR_CIPHERING_TYPE, PropertyTranslationKeys.DLMS_CIPHERING_TYPE, CipheringType.GLOBAL.getType(), CipheringType.DEDICATED.getType()),
+                this.integerSpec(PR_LIMIT_MAX_NR_OF_DAYS, PropertyTranslationKeys.DLMS_LIMIT_MAX_NR_OF_DAYS),
+                this.stringSpec(PR_READ_PLC_LOG, PropertyTranslationKeys.DLMS_READ_PLC_LOG));
     }
 
-    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, optionsSupplier).finish();
     }
 
-    private PropertySpec stringSpec(String name) {
-        return this.spec(name, this.propertySpecService::stringSpec);
+    private PropertySpec stringSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::stringSpec);
     }
 
-    private PropertySpec stringSpecOfMaxLength(String name, int length) {
-        return this.spec(name, () -> this.propertySpecService.stringSpecOfMaximumLength(length));
+    private PropertySpec stringSpecOfMaxLength(String name, TranslationKey translationKey, int length) {
+        return this.spec(name, translationKey, () -> this.propertySpecService.stringSpecOfMaximumLength(length));
     }
 
-    private PropertySpec integerSpec(String name) {
-        return this.spec(name, this.propertySpecService::integerSpec);
+    private PropertySpec integerSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::integerSpec);
     }
 
-    private PropertySpec integerSpec(String name, Integer... validValues) {
+    private PropertySpec integerSpec(String name, TranslationKey translationKey, Integer... validValues) {
         return UPLPropertySpecFactory
-                .specBuilder(name, false, this.propertySpecService::integerSpec)
+                .specBuilder(name, false, translationKey, this.propertySpecService::integerSpec)
                 .addValues(validValues)
                 .markExhaustive()
                 .finish();

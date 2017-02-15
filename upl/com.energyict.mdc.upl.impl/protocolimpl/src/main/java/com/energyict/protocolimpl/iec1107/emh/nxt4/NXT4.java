@@ -13,6 +13,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -71,9 +72,11 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
     }
 
     private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
 
-    public NXT4(PropertySpecService propertySpecService) {
+    public NXT4(PropertySpecService propertySpecService, NlsService nlsService) {
         this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
     }
 
     @Override
@@ -387,7 +390,7 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
 
     public NXT4Properties getProperties() {
         if (this.properties == null) {
-            this.properties = new NXT4Properties(this, this.propertySpecService);
+            this.properties = new NXT4Properties(this, this.propertySpecService, this.nlsService);
         }
         return properties;
     }

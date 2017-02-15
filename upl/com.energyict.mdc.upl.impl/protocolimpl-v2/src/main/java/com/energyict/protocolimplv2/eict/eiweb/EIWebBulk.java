@@ -10,6 +10,7 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.energyict.nls.PropertyTranslationKeys;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -67,7 +68,7 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
     public List<PropertySpec> getUPLPropertySpecs() {
         return Collections.singletonList(
                 UPLPropertySpecFactory
-                        .specBuilder(MAX_IDLE_TIME, false, this.propertySpecService::bigDecimalSpec)
+                        .specBuilder(MAX_IDLE_TIME, false, PropertyTranslationKeys.V2_EICT_MAX_IDLE_TIME, this.propertySpecService::bigDecimalSpec)
                         .setDefaultValue(MAX_IDLE_TIME_DEFAULT_VALUE)
                         .finish());
     }

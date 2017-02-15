@@ -9,6 +9,12 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.energyict.mdc.upl.DeviceProtocol;
+import com.energyict.mdc.upl.nls.TranslationKey;
+import com.energyict.nls.PropertyTranslationKeys;
+import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -78,72 +84,72 @@ public class DlmsConfigurationSupport implements HasDynamicProperties{
     }
 
     protected PropertySpec serverUpperMacAddressPropertySpec() {
-        return this.bigDecimalSpec(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, false, BigDecimal.ONE);
+        return this.bigDecimalSpec(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, false, PropertyTranslationKeys.V2_ELSTER_SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
     }
 
     protected PropertySpec serverLowerMacAddressPropertySpec() {
-        return this.bigDecimalSpec(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, false, BigDecimal.ZERO);
+        return this.bigDecimalSpec(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, false, PropertyTranslationKeys.V2_ELSTER_SERVER_LOWER_MAC_ADDRESS, BigDecimal.ZERO);
     }
 
     protected PropertySpec timeZonePropertySpec() {
-        return this.propertySpecService.timeZoneSpec().named(TIMEZONE, TIMEZONE).describedAs("Description for " + TIMEOUT).finish();
+        return this.propertySpecService.timeZoneSpec().named(TIMEZONE, PropertyTranslationKeys.V2_ELSTER_TIMEZONE).describedAs(PropertyTranslationKeys.V2_ELSTER_TIMEZONE_DESCRIPTION).finish();
     }
 
     protected PropertySpec validateInvokeIdPropertySpec() {
-        return this.booleanSpecBuilder(VALIDATE_INVOKE_ID)
+        return this.booleanSpecBuilder(VALIDATE_INVOKE_ID, PropertyTranslationKeys.V2_ELSTER_VALIDATE_INVOKE_ID)
                 .setDefaultValue(DEFAULT_VALIDATE_INVOKE_ID)
                 .finish();
     }
 
-    private PropertySpecBuilder<Boolean> booleanSpecBuilder(String name) {
+    private PropertySpecBuilder<Boolean> booleanSpecBuilder(String name, TranslationKey translationKey) {
         return this.propertySpecService
                 .booleanSpec()
-                .named(name, name).describedAs("Description for " + name);
+                .named(name, translationKey).describedAs(new DescriptionTranslationKey(translationKey));
     }
 
     protected PropertySpec deviceId() {
-        return this.stringWithDefaultSpec(DEVICE_ID, false, DEFAULT_DEVICE_ID);
+        return this.stringWithDefaultSpec(DEVICE_ID, false, PropertyTranslationKeys.V2_ELSTER_DEVICE_ID, DEFAULT_DEVICE_ID);
     }
 
     protected PropertySpec requestTimeZonePropertySpec() {
-        return this.booleanSpecBuilder(REQUEST_TIMEZONE).finish();
+        return this.booleanSpecBuilder(REQUEST_TIMEZONE, PropertyTranslationKeys.V2_ELSTER_REQUEST_TIMEZONE).finish();
     }
 
     protected PropertySpec forcedDelayPropertySpec() {
         return this.propertySpecService
                 .durationSpec()
-                .named(FORCED_DELAY, FORCED_DELAY)
-                .describedAs("Description for " + FORCED_DELAY)
+                .named(FORCED_DELAY, PropertyTranslationKeys.V2_ELSTER_FORCED_DELAY)
+                .describedAs(PropertyTranslationKeys.V2_ELSTER_FORCED_DELAY_DESCRIPTION)
                 .setDefaultValue(DEFAULT_FORCED_DELAY)
                 .finish();
     }
 
     protected PropertySpec conformanceBlockValuePropertySpec() {
-        return this.bigDecimalSpec(CONFORMANCE_BLOCK_VALUE, false, BigDecimal.valueOf(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK));
+        return this.bigDecimalSpec(CONFORMANCE_BLOCK_VALUE, false, PropertyTranslationKeys.V2_ELSTER_CONFORMANCE_BLOCK_VALUE, BigDecimal.valueOf(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK));
     }
 
     protected PropertySpec manufacturerPropertySpec() {
-        return this.stringWithDefaultSpec(MANUFACTURER, false, DEFAULT_MANUFACTURER, "WKP", "ISK", "LGZ", "SLB", "ActarisPLCC", "SLB::SL7000");
+        return this.stringWithDefaultSpec(MANUFACTURER, false, PropertyTranslationKeys.V2_ELSTER_MANUFACTURER, DEFAULT_MANUFACTURER, "WKP", "ISK", "LGZ", "SLB", "ActarisPLCC", "SLB::SL7000");
     }
 
     protected PropertySpec maxRecPduSizePropertySpec() {
-        return this.bigDecimalSpec(MAX_REC_PDU_SIZE, false, DEFAULT_MAX_REC_PDU_SIZE);
+        return this.bigDecimalSpec(MAX_REC_PDU_SIZE, false, PropertyTranslationKeys.V2_ELSTER_MAX_REC_PDU_SIZE, DEFAULT_MAX_REC_PDU_SIZE);
     }
 
     protected PropertySpec bulkRequestPropertySpec() {
-        return this.booleanSpecBuilder(BULK_REQUEST).finish();
+        return this.booleanSpecBuilder(BULK_REQUEST, PropertyTranslationKeys.V2_ELSTER_BULK_REQUEST).finish();
     }
 
     protected PropertySpec cipheringTypePropertySpec() {
-        return this.bigDecimalSpec(CIPHERING_TYPE, false, DEFAULT_CIPHERING_TYPE);
+        return this.bigDecimalSpec(CIPHERING_TYPE, false, PropertyTranslationKeys.V2_ELSTER_CIPHERING_TYPE, DEFAULT_CIPHERING_TYPE);
     }
 
     protected PropertySpec ntaSimulationToolPropertySpec() {
-        return this.booleanSpecBuilder(NTA_SIMULATION_TOOL).finish();
+        return this.booleanSpecBuilder(NTA_SIMULATION_TOOL, PropertyTranslationKeys.V2_ELSTER_NTA_SIMULATION_TOOL).finish();
     }
 
     protected PropertySpec fixMbusHexShortIdPropertySpec() {
-        return this.booleanSpecBuilder(FIX_MBUS_HEX_SHORT_ID).finish();
+        return this.booleanSpecBuilder(FIX_MBUS_HEX_SHORT_ID, PropertyTranslationKeys.V2_ELSTER_FIX_MBUS_HEX_SHORT_ID).finish();
     }
 
     /**
@@ -152,15 +158,15 @@ public class DlmsConfigurationSupport implements HasDynamicProperties{
      * @return	The property specification.
      */
     protected final PropertySpec publicClientPreEstablishedPropertySpec() {
-        return this.booleanSpecBuilder(com.energyict.dlms.protocolimplv2.DlmsSessionProperties.PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED).finish();
+        return this.booleanSpecBuilder(com.energyict.dlms.protocolimplv2.DlmsSessionProperties.PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED, PropertyTranslationKeys.V2_ELSTER_PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED).finish();
     }
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
     }
 
-    protected PropertySpec bigDecimalSpec(String name, boolean required, BigDecimal defaultValue, BigDecimal... validValues) {
-        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, getPropertySpecService()::bigDecimalSpec);
+    protected PropertySpec bigDecimalSpec(String name, boolean required, TranslationKey translationKey, BigDecimal defaultValue, BigDecimal... validValues) {
+        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, getPropertySpecService()::bigDecimalSpec);
         specBuilder.setDefaultValue(defaultValue);
         specBuilder.addValues(validValues);
         if (validValues.length > 0) {
@@ -169,8 +175,8 @@ public class DlmsConfigurationSupport implements HasDynamicProperties{
         return specBuilder.finish();
     }
 
-    protected PropertySpec stringWithDefaultSpec(String name, boolean required, String defaultValue, String... validValues) {
-        PropertySpecBuilder<String> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, getPropertySpecService()::stringSpec);
+    protected PropertySpec stringWithDefaultSpec(String name, boolean required, TranslationKey translationKey, String defaultValue, String... validValues) {
+        PropertySpecBuilder<String> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, getPropertySpecService()::stringSpec);
         specBuilder.setDefaultValue(defaultValue);
         specBuilder.addValues(validValues);
         if (validValues.length > 0) {

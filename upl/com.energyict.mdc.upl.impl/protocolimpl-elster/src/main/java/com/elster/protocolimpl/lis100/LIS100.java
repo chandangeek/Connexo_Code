@@ -1,6 +1,8 @@
 package com.elster.protocolimpl.lis100;
 
+import com.elster.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -101,21 +103,21 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.stringSpec(SERIALNUMBER.getName()),
-                this.stringSpec(PASSWORD.getName()),
-                this.integerSpec(RETRIES.getName()));
+                this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.LIS100_SERIALNUMBER),
+                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.LIS100_PASSWORD),
+                this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.LIS100_RETRIES));
     }
 
-    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, optionsSupplier).finish();
     }
 
-    private PropertySpec stringSpec(String name) {
-        return this.spec(name, this.propertySpecService::stringSpec);
+    private PropertySpec stringSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::stringSpec);
     }
 
-    private PropertySpec integerSpec(String name) {
-        return this.spec(name, this.propertySpecService::integerSpec);
+    private PropertySpec integerSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::integerSpec);
     }
 
     @Override

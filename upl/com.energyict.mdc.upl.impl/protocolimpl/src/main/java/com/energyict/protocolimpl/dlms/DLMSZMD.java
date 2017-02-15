@@ -21,6 +21,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -39,6 +40,7 @@ import com.energyict.protocolimpl.dlms.siemenszmd.LogBookReader;
 import com.energyict.protocolimpl.dlms.siemenszmd.ObisCodeMapper;
 import com.energyict.protocolimpl.dlms.siemenszmd.ZMDSecurityProvider;
 import com.energyict.protocolimpl.dlms.siemenszmd.ZmdMessages;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
@@ -96,8 +98,8 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, MessageProtocol
     private final MessageProtocol messageProtocol;
     private int eventIdIndex;
 
-    public DLMSZMD(PropertySpecService propertySpecService, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
-        super(propertySpecService);
+    public DLMSZMD(PropertySpecService propertySpecService, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor, NlsService nlsService) {
+        super(propertySpecService, nlsService);
         this.messageProtocol = new ZmdMessages(this, messageFileFinder, deviceMessageFileExtractor);
     }
 
@@ -367,7 +369,7 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, MessageProtocol
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.integerSpec(PROPNAME_EVENT_ID_INDEX));
+        propertySpecs.add(this.integerSpec(PROPNAME_EVENT_ID_INDEX, PropertyTranslationKeys.DLMS_EVENT_ID_INDEX));
         return propertySpecs;
     }
 

@@ -15,9 +15,13 @@ public abstract class AbstractPropertySpec implements PropertySpec {
 
     private final String name;
     private final boolean required;
+    private final String description;
+    private final String displayName;
 
-    protected AbstractPropertySpec(String name, boolean required) {
+    protected AbstractPropertySpec(String name, boolean required, String displayName, String description) {
         this.name = name;
+        this.description = description;
+        this.displayName = displayName;
         this.required = required;
     }
 
@@ -28,12 +32,12 @@ public abstract class AbstractPropertySpec implements PropertySpec {
 
     @Override
     public String getDisplayName() {
-        return this.getName();
+        return this.displayName;
     }
 
     @Override
     public String getDescription() {
-        return null;
+        return this.description;
     }
 
     @Override

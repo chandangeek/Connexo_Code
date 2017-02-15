@@ -15,13 +15,16 @@ import com.energyict.mdc.protocol.inbound.general.InboundConnection;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
 import com.energyict.protocolimplv2.comchannels.ComChannelOutputStreamAdapter;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -54,11 +57,13 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
     private SimpleApplicationServiceObject aso;
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
+    private final NlsService nlsService;
 
-    public DlmsSerialNumberDiscover(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public DlmsSerialNumberDiscover(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService) {
         super(propertySpecService);
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
+        this.nlsService = nlsService;
     }
 
     @Override
@@ -190,15 +195,15 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
         PropertySpecService propertySpecService = this.getPropertySpecService();
         propertySpecs.add(
                 UPLPropertySpecFactory
-                        .specBuilder(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, false, propertySpecService::bigDecimalSpec)
+                        .specBuilder(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, false, PropertyTranslationKeys.V2_DLMS_CLIENT_MAC_ADDRESS, propertySpecService::bigDecimalSpec)
                         .setDefaultValue(DEFAULT_PUBLIC_CLIENT_MAC_ADDRESS)
                         .finish());
         propertySpecs.add(
                 UPLPropertySpecFactory
-                        .specBuilder(DlmsProtocolProperties.SERVER_MAC_ADDRESS, false, propertySpecService::bigDecimalSpec)
+                        .specBuilder(DlmsProtocolProperties.SERVER_MAC_ADDRESS, false, PropertyTranslationKeys.V2_DLMS_SERVER_MAC_ADDRESS, propertySpecService::bigDecimalSpec)
                         .setDefaultValue(DEFAULT_SERVER_ADDRESS)
                         .finish());
-        PropertySpec obisCodePropertySpec = new ObisCodeWithDefaultValuePropertySpec(DEVICE_ID_OBISCODE_KEY, DEFAULT_DEVICE_ID_OBISCODE);
+        PropertySpec obisCodePropertySpec = new ObisCodeWithDefaultValuePropertySpec(DEVICE_ID_OBISCODE_KEY, DEFAULT_DEVICE_ID_OBISCODE, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.V2_DLMS_DEVICE_ID_OBISCCODE).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.V2_DLMS_DEVICE_ID_OBISCCODE_DESCRIPTION).format());
         propertySpecs.add(obisCodePropertySpec);
         return propertySpecs;
     }

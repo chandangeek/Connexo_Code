@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.mbus.nzr.pn16;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.mbus.core.MBus;
@@ -22,8 +23,8 @@ import java.io.IOException;
  */
 public class PN16 extends MBus {
 
-    public PN16(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public PN16(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override

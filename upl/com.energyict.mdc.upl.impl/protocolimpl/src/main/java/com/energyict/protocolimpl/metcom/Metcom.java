@@ -11,6 +11,7 @@ import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
@@ -22,6 +23,7 @@ import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.iec1107.Software7E1InputStream;
 import com.energyict.protocolimpl.iec1107.Software7E1OutputStream;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.siemens7ED62.SCTMDumpData;
 import com.energyict.protocolimpl.siemens7ED62.SCTMRegister;
@@ -487,37 +489,37 @@ public abstract class Metcom extends PluggableMeterProtocol implements HalfDuple
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.stringSpec(ADDRESS.getName()),
-                this.stringSpec(PASSWORD.getName()),
-                this.stringSpec(NODEID.getName()),
-                this.integerSpec(TIMEOUT.getName()),
-                this.integerSpec(RETRIES.getName()),
-                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
-                this.integerSpec(PROFILEINTERVAL.getName()),
-                this.integerSpec("EchoCancelling"),
-                this.stringSpec("MeterClass"),
-                this.integerSpec("HalfDuplex"),
-                this.integerSpec("RemovePowerOutageIntervals"),
-                this.integerSpec("ForcedDelay"),
-                this.integerSpec("IntervalStatusBehaviour"),
-                this.stringSpec("ChannelMap"),
-                this.integerSpec("ExtendedLogging"),
-                this.stringSpec("LogBookReadCommand"),
-                this.integerSpec("AutoBillingPointNrOfDigits"),
-                this.integerSpec("TimeSetMethod"),
-                this.stringSpec("Software7E1"));
+                this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.METCOM_ADDRESS),
+                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.METCOM_PASSWORD),
+                this.stringSpec(NODEID.getName(), PropertyTranslationKeys.METCOM_NODEID),
+                this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.METCOM_TIMEOUT),
+                this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.METCOM_RETRIES),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.METCOM_ROUNDTRIPCORRECTION),
+                this.integerSpec(PROFILEINTERVAL.getName(), PropertyTranslationKeys.METCOM_PROFILEINTERVAL),
+                this.integerSpec("EchoCancelling", PropertyTranslationKeys.METCOM_ECHOCANCELLING),
+                this.stringSpec("MeterClass", PropertyTranslationKeys.METCOM_METER_CLASS),
+                this.integerSpec("HalfDuplex", PropertyTranslationKeys.METCOM_HALF_DUPLEX),
+                this.integerSpec("RemovePowerOutageIntervals", PropertyTranslationKeys.METCOM_REMOVE_POWER_OUTAGE_INTERVALS),
+                this.integerSpec("ForcedDelay", PropertyTranslationKeys.METCOM_FORCED_DELAY),
+                this.integerSpec("IntervalStatusBehaviour", PropertyTranslationKeys.METCOM_INTERVAL_STATUS_BEHAVIOUR),
+                this.stringSpec("ChannelMap", PropertyTranslationKeys.METCOM_CHANNEL_MAP),
+                this.integerSpec("ExtendedLogging", PropertyTranslationKeys.METCOM_EXTENDED_LOGGING),
+                this.stringSpec("LogBookReadCommand", PropertyTranslationKeys.METCOM_LOGBOOK_READ_COMMAND),
+                this.integerSpec("AutoBillingPointNrOfDigits", PropertyTranslationKeys.METCOM_AUTOBILLING_POINT_NR_OF_DIGITS),
+                this.integerSpec("TimeSetMethod", PropertyTranslationKeys.METCOM_TIME_SET_METHOD),
+                this.stringSpec("Software7E1", PropertyTranslationKeys.METCOM_SOFTWARE_7E1));
     }
 
-    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, optionsSupplier).finish();
     }
 
-    private PropertySpec stringSpec(String name) {
-        return this.spec(name, this.propertySpecService::stringSpec);
+    private PropertySpec stringSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::stringSpec);
     }
 
-    private PropertySpec integerSpec(String name) {
-        return this.spec(name, this.propertySpecService::integerSpec);
+    private PropertySpec integerSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::integerSpec);
     }
 
     @Override

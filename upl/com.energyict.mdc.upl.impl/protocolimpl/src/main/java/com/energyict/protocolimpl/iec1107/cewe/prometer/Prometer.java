@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.iec1107.cewe.prometer;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -27,6 +28,7 @@ import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.IEC1107Connection;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -463,8 +465,8 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
     /** Billing register reg type: Sum 2 */
     static final String REG_TYPE_SUM_2 = "S2";
 
-    public Prometer(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public Prometer(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override
@@ -524,8 +526,8 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.stringSpec("Software7E1", false));
-        propertySpecs.add(this.integerSpec(PK_LOGGER, false));
+        propertySpecs.add(this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1, false));
+        propertySpecs.add(this.integerSpec(PK_LOGGER, PropertyTranslationKeys.IEC1107_LOGGER, false));
         return propertySpecs;
     }
 

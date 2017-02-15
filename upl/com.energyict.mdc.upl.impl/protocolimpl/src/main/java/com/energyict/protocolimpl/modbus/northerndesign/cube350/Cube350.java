@@ -3,6 +3,7 @@
  */
 package com.energyict.protocolimpl.modbus.northerndesign.cube350;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.modbus.eimeter.EIMeter;
@@ -14,8 +15,8 @@ import com.energyict.protocolimpl.modbus.eimeter.EIMeter;
 @Deprecated
 public class Cube350 extends EIMeter {
 
-    public Cube350(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public Cube350(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override

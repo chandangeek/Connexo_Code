@@ -2,6 +2,7 @@ package com.energyict.mdc.tasks;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
@@ -61,21 +62,21 @@ public class MirrorTcpDeviceProtocolDialect extends AbstractDeviceProtocolDialec
      */
     protected PropertySpec retriesPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(RETRIES, false, this.propertySpecService::bigDecimalSpec)
+                .specBuilder(RETRIES, false, PropertyTranslationKeys.V2_TASKS_RETRIES, this.propertySpecService::bigDecimalSpec)
                 .setDefaultValue(BigDecimal.ZERO)
                 .finish();
     }
 
     protected PropertySpec timeoutPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(TIMEOUT, false, this.propertySpecService::durationSpec)
+                .specBuilder(TIMEOUT, false, PropertyTranslationKeys.V2_TASKS_RETRIES, this.propertySpecService::durationSpec)
                 .setDefaultValue(DEFAULT_TCP_TIMEOUT)
                 .finish();
     }
 
     protected PropertySpec roundTripCorrectionPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(ROUND_TRIP_CORRECTION, false, this.propertySpecService::bigDecimalSpec)
+                .specBuilder(ROUND_TRIP_CORRECTION, false, PropertyTranslationKeys.V2_TASKS_ROUNDTRIPCORRECTION, this.propertySpecService::bigDecimalSpec)
                 .setDefaultValue(DEFAULT_ROUND_TRIP_CORRECTION)
                 .finish();
     }

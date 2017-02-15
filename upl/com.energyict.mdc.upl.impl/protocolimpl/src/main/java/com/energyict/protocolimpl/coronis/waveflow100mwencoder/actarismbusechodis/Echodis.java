@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.coronis.waveflow100mwencoder.actarismbusechod
 
 import com.energyict.cbo.Quantity;
 import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
@@ -44,8 +45,8 @@ public class Echodis extends WaveFlow100mW {
 	protected void doTheDisConnect() throws IOException {
 	}
 
-	public Echodis(PropertySpecService propertySpecService) {
-		super(propertySpecService);
+	public Echodis(PropertySpecService propertySpecService, NlsService nlsService) {
+		super(propertySpecService, nlsService);
 	}
 
 	@Override

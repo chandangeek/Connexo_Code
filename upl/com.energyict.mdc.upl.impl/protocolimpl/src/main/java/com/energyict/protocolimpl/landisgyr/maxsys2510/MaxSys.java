@@ -4,6 +4,7 @@ import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
@@ -19,6 +20,7 @@ import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
@@ -181,35 +183,35 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.stringSpec(PK_SERIALNUMBER),
-                this.stringSpecofExactLength(PK_NODEID, 7),
-                this.stringSpec(PK_NODE_PREFIX),
-                this.stringSpecofExactLength(PK_PASSWORD, 4),
-                this.integerSpec(PK_TIMEOUT),
-                this.integerSpec(PK_RETRIES),
-                this.integerSpec(PK_ROUNDTRIPCORRECTION),
-                this.integerSpec(PK_CORRECTTIME),
-                this.integerSpec(PK_FORCE_DELAY),
-                this.stringSpec(PK_EXTENDED_LOGGING),
-                this.stringSpec(PK_SHOULD_DISCONNECT),
-                this.stringSpec(PK_READ_UNIT1_SERIALNUMBER),
-                this.stringSpec(PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE));
+                this.stringSpec(PK_SERIALNUMBER, PropertyTranslationKeys.LANDISGYR_SERIALNUMBER),
+                this.stringSpecofExactLength(PK_NODEID, 7, PropertyTranslationKeys.LANDISGYR_NODEID),
+                this.stringSpec(PK_NODE_PREFIX, PropertyTranslationKeys.LANDISGYR_NODE_PREFIX),
+                this.stringSpecofExactLength(PK_PASSWORD, 4, PropertyTranslationKeys.LANDISGYR_PASSWORD),
+                this.integerSpec(PK_TIMEOUT, PropertyTranslationKeys.LANDISGYR_TIMEOUT),
+                this.integerSpec(PK_RETRIES, PropertyTranslationKeys.LANDISGYR_RETRIES),
+                this.integerSpec(PK_ROUNDTRIPCORRECTION, PropertyTranslationKeys.LANDISGYR_ROUNDTRIPCORRECTION),
+                this.integerSpec(PK_CORRECTTIME, PropertyTranslationKeys.LANDISGYR_CORRECTTIME),
+                this.integerSpec(PK_FORCE_DELAY, PropertyTranslationKeys.LANDISGYR_FORCE_DELAY),
+                this.stringSpec(PK_EXTENDED_LOGGING, PropertyTranslationKeys.LANDISGYR_EXTENDED_LOGGING),
+                this.stringSpec(PK_SHOULD_DISCONNECT, PropertyTranslationKeys.LANDISGYR_SHOULD_DISCONNECT),
+                this.stringSpec(PK_READ_UNIT1_SERIALNUMBER, PropertyTranslationKeys.LANDISGYR_READ_UNIT1_SERIALNUMBER),
+                this.stringSpec(PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE, PropertyTranslationKeys.LANDISGYR_READ_PROFILE_DATA_BEFORE_CONFIG_CHANGE));
     }
 
-    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, optionsSupplier).finish();
     }
 
-    private PropertySpec stringSpec(String name) {
-        return this.spec(name, this.propertySpecService::stringSpec);
+    private PropertySpec stringSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::stringSpec);
     }
 
-    private PropertySpec stringSpecofExactLength(String name, int length) {
-        return this.spec(name, () -> this.propertySpecService.stringSpecOfExactLength(length));
+    private PropertySpec stringSpecofExactLength(String name, int length, TranslationKey translationKey) {
+        return this.spec(name, translationKey, () -> this.propertySpecService.stringSpecOfExactLength(length));
     }
 
-    private PropertySpec integerSpec(String name) {
-        return this.spec(name, this.propertySpecService::integerSpec);
+    private PropertySpec integerSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::integerSpec);
     }
 
     @Override

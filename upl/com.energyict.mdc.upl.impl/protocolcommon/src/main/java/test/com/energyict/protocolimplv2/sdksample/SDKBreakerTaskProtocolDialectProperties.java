@@ -1,6 +1,7 @@
 package test.com.energyict.protocolimplv2.sdksample;
 
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
@@ -39,7 +40,7 @@ public class SDKBreakerTaskProtocolDialectProperties extends AbstractDeviceProto
     public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 UPLPropertySpecFactory
-                        .specBuilder(breakerStatus, false, this.propertySpecService::stringSpec)
+                        .specBuilder(breakerStatus, false, PropertyTranslationKeys.SDKSAMPLE_BREAKER_STATUS, this.propertySpecService::stringSpec)
                         .addValues(CONNECTED, DISCONNECTED, ARMED)
                         .markExhaustive()
                         .setDefaultValue(CONNECTED)

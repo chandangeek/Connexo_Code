@@ -14,6 +14,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -59,8 +60,8 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
     private LoadProfileReader loadProfileReader;
     private EDPStoredValues storedValues;
 
-    public CX20009(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public CX20009(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override

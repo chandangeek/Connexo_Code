@@ -6,6 +6,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -19,6 +20,7 @@ import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.google.common.collect.Range;
 
@@ -149,36 +151,36 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.integerSpec("HalfDuplex"),
-                this.integerSpec("ForcedDelay"),
-                this.integerSpec(NODEID.getName(), Range.closedOpen(3, 255)),
-                this.longSpec(PASSWORD.getName(), 1L, 0x7FFFFFFFL),
-                this.integerSpec(TIMEOUT.getName()),
-                this.integerSpec(RETRIES.getName()),
-                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
-                this.integerSpec("DelayAfterFail"),
-                this.integerSpec("RtuPlusBusProtocolVersion"),
-                this.integerSpec("MaximumNumberOfRecords"),
-                this.integerSpec(PROFILEINTERVAL.getName()));
+                this.integerSpec("HalfDuplex", PropertyTranslationKeys.RTUPLUSBUS_HALF_DUPLEX),
+                this.integerSpec("ForcedDelay", PropertyTranslationKeys.RTUPLUSBUS_FORCED_DELAY),
+                this.integerSpec(NODEID.getName(), PropertyTranslationKeys.RTUPLUSBUS_NODEID, Range.closedOpen(3, 255)),
+                this.longSpec(PASSWORD.getName(),  PropertyTranslationKeys.RTUPLUSBUS_PASSWORD, 1L, 0x7FFFFFFFL),
+                this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.RTUPLUSBUS_TIMEOUT),
+                this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.RTUPLUSBUS_RETRIES),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.RTUPLUSBUS_ROUNDTRIPCORRECTION),
+                this.integerSpec("DelayAfterFail", PropertyTranslationKeys.RTUPLUSBUS_DELAY_AFTER_FAIL),
+                this.integerSpec("RtuPlusBusProtocolVersion", PropertyTranslationKeys.RTUPLUSBUS_PROTOCOL_VERSION),
+                this.integerSpec("MaximumNumberOfRecords", PropertyTranslationKeys.RTUPLUSBUS_MAXIMUM_NUMBER_OF_RECORDS),
+                this.integerSpec(PROFILEINTERVAL.getName(), PropertyTranslationKeys.RTUPLUSBUS_PROFILEINTERVAL));
     }
 
-    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, optionsSupplier).finish();
     }
 
-    private PropertySpec longSpec(String name, long min, long max) {
-        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, false, () -> this.propertySpecService.boundedBigDecimalSpec(BigDecimal.valueOf(min), BigDecimal.valueOf(max)));
+    private PropertySpec longSpec(String name, TranslationKey translationKey, long min, long max) {
+        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, false, translationKey, () -> this.propertySpecService.boundedBigDecimalSpec(BigDecimal.valueOf(min), BigDecimal.valueOf(max)));
         return specBuilder.finish();
     }
 
-    private PropertySpec integerSpec(String name, Range<Integer> validValues) {
-        PropertySpecBuilder<Integer> specBuilder = UPLPropertySpecFactory.specBuilder(name, false, this.propertySpecService::integerSpec);
+    private PropertySpec integerSpec(String name, TranslationKey translationKey, Range<Integer> validValues) {
+        PropertySpecBuilder<Integer> specBuilder = UPLPropertySpecFactory.specBuilder(name, false, translationKey, this.propertySpecService::integerSpec);
         UPLPropertySpecFactory.addIntegerValues(specBuilder, validValues);
         return specBuilder.finish();
     }
 
-    private PropertySpec integerSpec(String name) {
-        return this.spec(name, this.propertySpecService::integerSpec);
+    private PropertySpec integerSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::integerSpec);
     }
 
     @Override

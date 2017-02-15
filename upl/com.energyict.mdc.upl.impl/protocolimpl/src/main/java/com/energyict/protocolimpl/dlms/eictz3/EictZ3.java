@@ -71,6 +71,8 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -102,8 +104,10 @@ import com.energyict.protocolimpl.dlms.nta.eventhandling.MbusLog;
 import com.energyict.protocolimpl.dlms.nta.eventhandling.PowerFailureLog;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -327,6 +331,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     private final PropertySpecService propertySpecService;
     private final DeviceMessageFileFinder deviceMessageFileFinder;
     private final DeviceMessageFileExtractor deviceMessageFileExtractor;
+    private final NlsService nlsService;
     /**
      * The COSEM object factory.
      */
@@ -501,10 +506,11 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      */
     private ApplicationServiceObject aso;
 
-    public EictZ3(PropertySpecService propertySpecService, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
+    public EictZ3(PropertySpecService propertySpecService, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor, NlsService nlsService) {
         this.propertySpecService = propertySpecService;
         this.deviceMessageFileFinder = deviceMessageFileFinder;
         this.deviceMessageFileExtractor = deviceMessageFileExtractor;
+        this.nlsService = nlsService;
     }
 
     @Override
@@ -1344,49 +1350,49 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.stringSpecOfMaxLength(ADDRESS.getName(), 16),
-                this.stringSpec(PASSWORD.getName()),
-                this.integerSpec(TIMEOUT.getName()),
-                this.integerSpec(RETRIES.getName()),
-                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
-                this.stringSpec(PROPNAME_SECURITY_LEVEL),
-                this.integerSpec(PROPNAME_REQUEST_TIME_ZONE),
-                this.integerSpec(PROPNAME_CLIENT_MAC_ADDRESS),
-                this.integerSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS),
-                this.integerSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS),
-                this.stringSpec(NODEID.getName()),
-                this.stringSpec(SERIALNUMBER.getName()),
-                this.integerSpec(PROPNAME_ADDRESSING_MODE),
-                this.integerSpec(PROPNAME_CONNECTION),
-                new ObisCodePropertySpec(PROPNAME_LOAD_PROFILE_OBIS_CODE, false),
-                this.integerSpec(PROPNAME_INFORMATION_FIELD_SIZE),
-                this.integerSpec(PROPNAME_MAXIMUM_NUMBER_OF_MBUS_DEVICES),
-                this.stringSpec(PROPNAME_MAX_APDU_SIZE),
-                this.stringSpec(PROPNAME_FORCE_DELAY),
-                this.stringSpec(PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD),
-                this.stringSpec(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES),
-                this.integerSpec("CipheringType", CipheringType.GLOBAL.getType(), CipheringType.DEDICATED.getType()));
+                this.stringSpecOfMaxLength(ADDRESS.getName(), PropertyTranslationKeys.DLMS_ADDRESS, 16),
+                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.DLMS_PASSWORD),
+                this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.DLMS_TIMEOUT),
+                this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.DLMS_RETRIES),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.DLMS_ROUNDTRIPCORRECTION),
+                this.stringSpec(PROPNAME_SECURITY_LEVEL, PropertyTranslationKeys.DLMS_SECURITYLEVEL),
+                this.integerSpec(PROPNAME_REQUEST_TIME_ZONE, PropertyTranslationKeys.DLMS_REQUEST_TIME_ZONE),
+                this.integerSpec(PROPNAME_CLIENT_MAC_ADDRESS, PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS),
+                this.integerSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS),
+                this.integerSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS),
+                this.stringSpec(NODEID.getName(), PropertyTranslationKeys.DLMS_NODEID),
+                this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.DLMS_SERIALNUMBER),
+                this.integerSpec(PROPNAME_ADDRESSING_MODE, PropertyTranslationKeys.DLMS_ADDRESSING_MODE),
+                this.integerSpec(PROPNAME_CONNECTION, PropertyTranslationKeys.DLMS_CONNECTION),
+                new ObisCodePropertySpec(PROPNAME_LOAD_PROFILE_OBIS_CODE, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_LOAD_PROFILE_OBIS_CODE).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_LOAD_PROFILE_OBIS_CODE_DESCRIPTION).format()),
+                this.integerSpec(PROPNAME_INFORMATION_FIELD_SIZE, PropertyTranslationKeys.DLMS_INFORMATION_FIELD_SIZE),
+                this.integerSpec(PROPNAME_MAXIMUM_NUMBER_OF_MBUS_DEVICES, PropertyTranslationKeys.DLMS_MAXIMUM_NUMBER_OF_MBUS_DEVICES),
+                this.stringSpec(PROPNAME_MAX_APDU_SIZE, PropertyTranslationKeys.DLMS_MAX_APDU_SIZE),
+                this.stringSpec(PROPNAME_FORCE_DELAY, PropertyTranslationKeys.DLMS_FORCE_DELAY),
+                this.stringSpec(PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD, PropertyTranslationKeys.DLMS_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD),
+                this.stringSpec(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES, PropertyTranslationKeys.DLMS_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES),
+                this.integerSpec("CipheringType", PropertyTranslationKeys.DLMS_CIPHERING_TYPE, CipheringType.GLOBAL.getType(), CipheringType.DEDICATED.getType()));
     }
 
-    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, optionsSupplier).finish();
     }
 
-    private PropertySpec stringSpec(String name) {
-        return this.spec(name, this.propertySpecService::stringSpec);
+    private PropertySpec stringSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::stringSpec);
     }
 
-    private PropertySpec stringSpecOfMaxLength(String name, int length) {
-        return this.spec(name, () -> this.propertySpecService.stringSpecOfMaximumLength(length));
+    private PropertySpec stringSpecOfMaxLength(String name, TranslationKey translationKey, int length) {
+        return this.spec(name, translationKey, () -> this.propertySpecService.stringSpecOfMaximumLength(length));
     }
 
-    private PropertySpec integerSpec(String name) {
-        return this.spec(name, this.propertySpecService::integerSpec);
+    private PropertySpec integerSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::integerSpec);
     }
 
-    private PropertySpec integerSpec(String name, Integer... validValues) {
+    private PropertySpec integerSpec(String name, TranslationKey translationKey, Integer... validValues) {
         return UPLPropertySpecFactory
-                .specBuilder(name, false, this.propertySpecService::integerSpec)
+                .specBuilder(name, false, translationKey, this.propertySpecService::integerSpec)
                 .addValues(validValues)
                 .markExhaustive()
                 .finish();

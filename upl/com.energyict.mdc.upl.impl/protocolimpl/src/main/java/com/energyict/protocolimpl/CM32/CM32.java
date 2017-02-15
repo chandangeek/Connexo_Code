@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.CM32;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dialer.core.HalfDuplexController;
@@ -24,8 +25,8 @@ public class CM32 extends AbstractProtocol {
     private ObisCodeMapper obisCodeMapper = new ObisCodeMapper(this);
     private RegisterFactory registerFactory;
 
-	public CM32(PropertySpecService propertySpecService) {
-		super(propertySpecService);
+	public CM32(PropertySpecService propertySpecService, NlsService nlsService) {
+		super(propertySpecService, nlsService);
 	}
 
 	@Override

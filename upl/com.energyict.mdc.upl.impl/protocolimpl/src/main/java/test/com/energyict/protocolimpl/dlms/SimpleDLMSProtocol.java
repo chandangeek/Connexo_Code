@@ -45,6 +45,7 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
@@ -179,25 +180,25 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.specBuilder(SECURITYLEVEL.getName(), false, this.propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(NODEID.getName(), false, this.propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(ADDRESS.getName(), false, this.propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(SERIALNUMBER.getName(), false, this.propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder("Connection", false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder("ClientMacAddress", false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder("ServerUpperMacAddress", false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder("ServerLowerMacAddress", false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(TIMEOUT.getName(), false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(RETRIES.getName(), false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(ROUNDTRIPCORRECTION.getName(), false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder("ForceDelay", false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder("AddressingMode", false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder("Manufacturer", false, this.propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder("InformationFieldSize", false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder("IIAPInvokeId", false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder("IIAPPriority", false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder("IIAPServiceClass", false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder("CipheringType", false, this.propertySpecService::integerSpec)
+                UPLPropertySpecFactory.specBuilder(SECURITYLEVEL.getName(), false, PropertyTranslationKeys.DLMS_SECURITYLEVEL, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(NODEID.getName(), false, PropertyTranslationKeys.DLMS_NODEID, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(ADDRESS.getName(), false, PropertyTranslationKeys.DLMS_ADDRESS, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(SERIALNUMBER.getName(), false, PropertyTranslationKeys.DLMS_SERIALNUMBER, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("Connection", false, PropertyTranslationKeys.DLMS_CONNECTION, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("ClientMacAddress", false, PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("ServerUpperMacAddress", false, PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("ServerLowerMacAddress", false, PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(TIMEOUT.getName(), false, PropertyTranslationKeys.DLMS_TIMEOUT, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(RETRIES.getName(), false, PropertyTranslationKeys.DLMS_RETRIES, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(ROUNDTRIPCORRECTION.getName(), false, PropertyTranslationKeys.DLMS_ROUNDTRIPCORRECTION, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("ForceDelay", false, PropertyTranslationKeys.DLMS_FORCE_DELAY, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("AddressingMode", false, PropertyTranslationKeys.DLMS_ADDRESSING_MODE, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("Manufacturer", false, PropertyTranslationKeys.DLMS_MANUFACTURER, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("InformationFieldSize", false, PropertyTranslationKeys.DLMS_INFORMATION_FIELD_SIZE, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("IIAPInvokeId", false, PropertyTranslationKeys.DLMS_IIAP_INVOKE_ID, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("IIAPPriority", false, PropertyTranslationKeys.DLMS_IIAP_PRIORITY, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("IIAPServiceClass", false, PropertyTranslationKeys.DLMS_IIAP_SERVICE_CLASS, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("CipheringType", false, PropertyTranslationKeys.DLMS_CIPHERING_TYPE, this.propertySpecService::integerSpec)
                         .addValues(CipheringType.GLOBAL.getType(), CipheringType.DEDICATED.getType()).finish());
     }
 

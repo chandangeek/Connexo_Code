@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.ametek;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.cbo.BaseUnit;
@@ -30,8 +31,8 @@ import java.util.List;
 @Deprecated     //Protocol was never released, only kept as a technical class
 public abstract class Jem10 extends Jem implements MessageProtocol {
 
-    public Jem10(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public Jem10(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override

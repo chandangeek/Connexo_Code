@@ -2,7 +2,7 @@ package com.energyict.mdc.channels.serial.rf;
 
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
 import com.energyict.mdc.channels.nls.MessageSeeds;
-import com.energyict.mdc.channels.nls.Thesaurus;
+import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
 import com.energyict.mdc.channels.serial.BaudrateValue;
 import com.energyict.mdc.channels.serial.FlowControl;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
@@ -16,6 +16,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
@@ -86,12 +87,12 @@ public class WavenisSerialConnectionType extends SioSerialConnectionType {
     }
 
     protected PropertySpec rfAddressPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(RF_ADDRESS, true, this.getPropertySpecService()::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(RF_ADDRESS, true, PropertyTranslationKeys.SERIAL_RF_ADDRESS, this.getPropertySpecService()::stringSpec).finish();
     }
 
     @Override
     protected PropertySpec baudRatePropertySpec() {
-        return this.bigDecimalSpec(SerialPortConfiguration.BAUDRATE_NAME, true, BaudrateValue.BAUDRATE_57600.getBaudrate(),
+        return this.bigDecimalSpec(SerialPortConfiguration.BAUDRATE_NAME, PropertyTranslationKeys.SERIAL_BAUDRATE, true, BaudrateValue.BAUDRATE_57600.getBaudrate(),
                 BaudrateValue.BAUDRATE_9600.getBaudrate(),
                 BaudrateValue.BAUDRATE_19200.getBaudrate(),
                 BaudrateValue.BAUDRATE_38400.getBaudrate(),

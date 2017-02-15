@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.modbus.eictmodbusrtu;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.modbus.core.Modbus;
@@ -23,8 +24,8 @@ import java.io.IOException;
  */
 public class EictModbusRtu extends Modbus {
 
-    public EictModbusRtu(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public EictModbusRtu(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override

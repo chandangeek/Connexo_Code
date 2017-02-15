@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
@@ -11,12 +12,12 @@ import java.util.Date;
 
 public class BackflowDetectionDate extends AbstractParameter {
 
-    public BackflowDetectionDate(PropertySpecService propertySpecService, RTM rtm) {
-        super(propertySpecService, rtm);
+    public BackflowDetectionDate(PropertySpecService propertySpecService, RTM rtm, NlsService nlsService) {
+        super(propertySpecService, rtm, nlsService);
     }
 
-    public BackflowDetectionDate(PropertySpecService propertySpecService, RTM rtm, int input) {
-        super(propertySpecService, rtm);
+    public BackflowDetectionDate(PropertySpecService propertySpecService, RTM rtm, int input, NlsService nlsService) {
+        super(propertySpecService, rtm, nlsService);
         this.input = input;
     }
 

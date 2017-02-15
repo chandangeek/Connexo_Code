@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.instromet.v444;
 
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dialer.core.HalfDuplexController;
@@ -49,8 +50,8 @@ public class Instromet444 extends InstrometProtocol implements SerialNumberSuppo
 	private List<BigDecimal> wrapValues = new ArrayList<>();
 	private int iRoundtripCorrection;
 
-	public Instromet444(PropertySpecService propertySpecService) {
-		super(propertySpecService);
+	public Instromet444(PropertySpecService propertySpecService, NlsService nlsService) {
+		super(propertySpecService, nlsService);
 	}
 
 	@Override

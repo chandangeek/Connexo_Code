@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.kenda.medo;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import java.io.IOException;
@@ -17,18 +18,20 @@ public class MedoCommandFactory {
 	private boolean flag=false;
 	private boolean type=true;
 	private final PropertySpecService propertySpecService;
+	private final NlsService nlsService;
 
-	MedoCommandFactory(PropertySpecService propertySpecService){
+	MedoCommandFactory(PropertySpecService propertySpecService, NlsService nlsService){
         this.propertySpecService = propertySpecService;
+		this.nlsService = nlsService;
     };
 
-	MedoCommandFactory(ComStruc s, Parsers command, PropertySpecService propertySpecService) throws IOException {
-        this(propertySpecService);
+	MedoCommandFactory(ComStruc s, Parsers command, PropertySpecService propertySpecService, NlsService nlsService) throws IOException {
+        this(propertySpecService, nlsService);
         process(s,command);
 	}
 
 	private Parsers process(ComStruc s, Parsers command) throws IOException{
-		Medo medo=new Medo(propertySpecService);
+		Medo medo=new Medo(propertySpecService, nlsService);
 		type=s.isType();
 		if (type){ // SEND (is always in a vector)
 			this.command=medo.getMcf().buildCommand(s.getByteArray(), null); // returns object for the receive side

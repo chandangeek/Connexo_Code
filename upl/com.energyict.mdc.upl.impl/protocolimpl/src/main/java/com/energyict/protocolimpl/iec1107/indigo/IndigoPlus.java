@@ -6,6 +6,7 @@
 
 package com.energyict.protocolimpl.iec1107.indigo;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -20,6 +21,7 @@ import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
@@ -67,8 +69,8 @@ public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberS
     private int statusFlagChannel,readCurrentDay;
     private int emptyNodeAddress;
 
-    public IndigoPlus(PropertySpecService propertySpecService) {
-        super(false,new Encryption(), propertySpecService);
+    public IndigoPlus(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(false,new Encryption(), propertySpecService, nlsService);
     }
 
     @Override
@@ -219,9 +221,9 @@ public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberS
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.integerSpec("StatusFlagChannel"));
-        propertySpecs.add(this.integerSpec("ReadCurrentDay"));
-        propertySpecs.add(this.integerSpec("EmptyNodeAddress"));
+        propertySpecs.add(this.integerSpec("StatusFlagChannel", PropertyTranslationKeys.IEC1107_STATUS_FLAG_CHANNEL));
+        propertySpecs.add(this.integerSpec("ReadCurrentDay", PropertyTranslationKeys.IEC1107_READ_CURRENT_DAY));
+        propertySpecs.add(this.integerSpec("EmptyNodeAddress", PropertyTranslationKeys.IEC1107_EMPTY_NODE_ADDRESS));
         return propertySpecs;
     }
 

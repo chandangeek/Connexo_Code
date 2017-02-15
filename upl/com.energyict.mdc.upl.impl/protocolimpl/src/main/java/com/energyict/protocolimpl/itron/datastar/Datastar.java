@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.itron.datastar;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
@@ -43,8 +44,8 @@ public class Datastar extends SchlumbergerProtocol {
     private DatastarProfile datastarProfile = null;
     private boolean allowClockSet;
 
-    public Datastar(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public Datastar(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override

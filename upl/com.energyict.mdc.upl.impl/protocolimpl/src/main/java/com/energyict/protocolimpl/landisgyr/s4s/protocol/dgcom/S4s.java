@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -29,6 +30,7 @@ import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command.CommandFactory;
 import com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.registermappping.RegisterMapperFactory;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,8 +54,8 @@ public class S4s extends AbstractProtocol implements SerialNumberSupport {
     private String modemPassword;
     private SerialCommunicationChannel commChannel;
 
-    public S4s(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public S4s(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
@@ -107,7 +109,7 @@ public class S4s extends AbstractProtocol implements SerialNumberSupport {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.stringSpec("ModemPassword", false));
+        propertySpecs.add(this.stringSpec("ModemPassword", PropertyTranslationKeys.LANDISGYR_MODEM_PASSWORD, false));
         return propertySpecs;
     }
 

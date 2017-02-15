@@ -1,5 +1,6 @@
 package com.elster.us.protocolimplv2.sel;
 
+import com.elster.us.nls.PropertyTranslationKeys;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
@@ -93,10 +94,10 @@ public class SELProperties {
 
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                    UPLPropertySpecFactory.specBuilder(RETRIES, true, this.propertySpecService::bigDecimalSpec).finish(),
-                    UPLPropertySpecFactory.specBuilder(TIMEZONE, true, this.propertySpecService::stringSpec).finish(),
-                    UPLPropertySpecFactory.specBuilder(DEVICE_PWD, true, this.propertySpecService::stringSpec).finish(),
-                    UPLPropertySpecFactory.specBuilder(DEVICE_TIMEZONE, true, this.propertySpecService::timeZoneSpec).finish()
+                    UPLPropertySpecFactory.specBuilder(RETRIES, true, PropertyTranslationKeys.SEL_RETRIES, this.propertySpecService::bigDecimalSpec).finish(),
+                    UPLPropertySpecFactory.specBuilder(TIMEZONE, true, PropertyTranslationKeys.SEL_TIMEZONE, this.propertySpecService::stringSpec).finish(),
+                    UPLPropertySpecFactory.specBuilder(DEVICE_PWD, true, PropertyTranslationKeys.SEL_DEVICE_PWD, this.propertySpecService::stringSpec).finish(),
+                    UPLPropertySpecFactory.specBuilder(DEVICE_TIMEZONE, true, PropertyTranslationKeys.SEL_DEVICE_TIMEZONE, this.propertySpecService::timeZoneSpec).finish()
         );
     }
 }

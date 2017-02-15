@@ -3,6 +3,7 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 
@@ -25,8 +26,8 @@ class XemexProperties extends Dsmr40Properties {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.specBuilder(RTU_TYPE, false, this.getPropertySpecService()::stringSpec).finish());
-        propertySpecs.add(UPLPropertySpecFactory.specBuilder(FOLDER_EXTERNAL_NAME, false, this.getPropertySpecService()::stringSpec).finish());
+        propertySpecs.add(UPLPropertySpecFactory.specBuilder(RTU_TYPE, false, PropertyTranslationKeys.NTA_RTU_TYPE, this.getPropertySpecService()::stringSpec).finish());
+        propertySpecs.add(UPLPropertySpecFactory.specBuilder(FOLDER_EXTERNAL_NAME, false, PropertyTranslationKeys.NTA_FOLDER_EXTERNAL_NAME, this.getPropertySpecService()::stringSpec).finish());
         return propertySpecs;
     }
 

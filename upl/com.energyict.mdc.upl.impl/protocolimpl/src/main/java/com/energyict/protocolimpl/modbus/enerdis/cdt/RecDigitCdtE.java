@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.modbus.enerdis.cdt;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import java.io.IOException;
@@ -16,8 +17,8 @@ public class RecDigitCdtE extends RecDigitCdt {
         setRegisterFactory(new RegisterFactoryCdtE(this));
     }
 
-    public RecDigitCdtE(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public RecDigitCdtE(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     public int getProfileInterval() throws UnsupportedException {

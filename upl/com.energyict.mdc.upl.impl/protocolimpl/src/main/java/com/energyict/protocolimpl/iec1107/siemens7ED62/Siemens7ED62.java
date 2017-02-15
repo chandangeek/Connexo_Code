@@ -14,6 +14,7 @@ KV|06092005|VDEW changed to do channel mapping!
 
 package com.energyict.protocolimpl.iec1107.siemens7ED62;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.support.SerialNumberSupport;
@@ -34,8 +35,8 @@ public class Siemens7ED62 extends AbstractIEC1107Protocol implements SerialNumbe
     private Siemens7ED62Registry siemens7ED62Registry = null;
     private Siemens7ED62Profile siemens7ED62Profile = null;
 
-    public Siemens7ED62(PropertySpecService propertySpecService) {
-        super(true, propertySpecService);
+    public Siemens7ED62(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(true, propertySpecService, nlsService);
     }
 
     @Override

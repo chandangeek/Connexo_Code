@@ -4,6 +4,8 @@ import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -25,8 +27,10 @@ import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -100,6 +104,7 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
     private static final int PD_NODE_ID = 100;
     private static final long PD_FORCE_DELAY = 200;
     private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
 
     /**
      * Property values Required properties will have NO default value.
@@ -143,8 +148,9 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
     private IonParser parser;
     private Profile profile;
 
-    public Ion(PropertySpecService propertySpecService) {
+    public Ion(PropertySpecService propertySpecService, NlsService nlsService) {
         this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
     }
 
     @Override
@@ -173,32 +179,32 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.integerSpec(PK_NODEID),
-                this.stringSpec(PK_USER_ID),
-                this.stringSpec(PK_PASSWORD),
-                this.stringSpec(PK_SERIALNUMBER),
-                this.integerSpec(PK_PROFILEINTERVAL),
-                this.integerSpec(PK_TIMEOUT),
-                this.integerSpec(PK_RETRIES),
-                this.integerSpec(PK_ROUNDTRIPCORRECTION),
-                this.integerSpec(PK_CORRECTTIME),
-                this.stringSpec(PK_EXTENDED_LOGGING),
-                this.stringSpec(PK_DATA_RECORDER_NAME),
-                this.stringSpec(PK_DTR_BEHAVIOUR),
-                this.stringSpec(PK_FORCE_DELAY),
-                ProtocolChannelMap.propertySpec(PK_CHANNEL_MAP, false));
+                this.integerSpec(PK_NODEID, PropertyTranslationKeys.ION_NODEID),
+                this.stringSpec(PK_USER_ID, PropertyTranslationKeys.ION_USER_ID),
+                this.stringSpec(PK_PASSWORD, PropertyTranslationKeys.ION_PASSWORD),
+                this.stringSpec(PK_SERIALNUMBER, PropertyTranslationKeys.ION_SERIALNUMBER),
+                this.integerSpec(PK_PROFILEINTERVAL, PropertyTranslationKeys.ION_PROFILEINTERVAL),
+                this.integerSpec(PK_TIMEOUT, PropertyTranslationKeys.ION_TIMEOUT),
+                this.integerSpec(PK_RETRIES, PropertyTranslationKeys.ION_RETRIES),
+                this.integerSpec(PK_ROUNDTRIPCORRECTION, PropertyTranslationKeys.ION_ROUNDTRIPCORRECTION),
+                this.integerSpec(PK_CORRECTTIME, PropertyTranslationKeys.ION_CORRECTTIME),
+                this.stringSpec(PK_EXTENDED_LOGGING, PropertyTranslationKeys.ION_EXTENDED_LOGGING),
+                this.stringSpec(PK_DATA_RECORDER_NAME, PropertyTranslationKeys.ION_DATA_RECORDER_NAME),
+                this.stringSpec(PK_DTR_BEHAVIOUR, PropertyTranslationKeys.ION_DTR_BEHAVIOUR),
+                this.stringSpec(PK_FORCE_DELAY, PropertyTranslationKeys.ION_FORCE_DELAY),
+                ProtocolChannelMap.propertySpec(PK_CHANNEL_MAP, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.IEC1107_CHANNEL_MAP).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.IEC1107_CHANNEL_MAP_DESCRIPTION).format()));
     }
 
-    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, optionsSupplier).finish();
     }
 
-    private PropertySpec stringSpec(String name) {
-        return this.spec(name, this.propertySpecService::stringSpec);
+    private PropertySpec stringSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::stringSpec);
     }
 
-    private PropertySpec integerSpec(String name) {
-        return this.spec(name, this.propertySpecService::integerSpec);
+    private PropertySpec integerSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::integerSpec);
     }
 
     @Override

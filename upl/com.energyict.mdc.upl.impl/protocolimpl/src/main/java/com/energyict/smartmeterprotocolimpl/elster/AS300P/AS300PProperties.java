@@ -3,9 +3,11 @@ package com.energyict.smartmeterprotocolimpl.elster.AS300P;
 import com.energyict.dlms.ConnectionMode;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.base.ProtocolProperty;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.SmsWakeUpDlmsProtocolProperties;
 
@@ -44,20 +46,20 @@ public class AS300PProperties extends SmsWakeUpDlmsProtocolProperties {
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(this.getSmsWakeUpPropertySpecs(false));
         Stream.of(
-                this.integerSpec(SECURITY_LEVEL, true),
-                this.integerSpec(ADDRESSING_MODE, false),
-                this.integerSpec(CLIENT_MAC_ADDRESS, false),
-                this.stringSpec(SERVER_MAC_ADDRESS, false),
-                this.integerSpec(CONNECTION, false),
-                this.integerSpec(PK_FORCED_DELAY, false),
-                this.integerSpec(MAX_REC_PDU_SIZE, false),
-                this.integerSpec(PK_RETRIES, false),
-                this.integerSpec(PK_TIMEOUT, false),
-                this.integerSpec(ROUND_TRIP_CORRECTION, false),
-                this.hexStringSpec(DATATRANSPORT_AUTHENTICATIONKEY, false),
-                this.hexStringSpec(DATATRANSPORT_ENCRYPTIONKEY, false),
-                this.integerSpec(VERIFY_FIRMWARE_VERSION, false),
-                this.integerSpec(LOGBOOK_SELECTOR, false))
+                this.integerSpec(SECURITY_LEVEL, true, PropertyTranslationKeys.ELSTER_SECURITYLEVEL),
+                this.integerSpec(ADDRESSING_MODE, false, PropertyTranslationKeys.ELSTER_ADDRESSING_MODE),
+                this.integerSpec(CLIENT_MAC_ADDRESS, false, PropertyTranslationKeys.ELSTER_CLIENT_MAC_ADDRESS),
+                this.stringSpec(SERVER_MAC_ADDRESS, false, PropertyTranslationKeys.ELSTER_SERVER_MAC_ADDRESS),
+                this.integerSpec(CONNECTION, false, PropertyTranslationKeys.ELSTER_CONNECTION),
+                this.integerSpec(PK_FORCED_DELAY, false, PropertyTranslationKeys.ELSTER_FORCED_DELAY),
+                this.integerSpec(MAX_REC_PDU_SIZE, false, PropertyTranslationKeys.ELSTER_MAX_REC_PDU_SIZE),
+                this.integerSpec(PK_RETRIES, false, PropertyTranslationKeys.ELSTER_RETRIES),
+                this.integerSpec(PK_TIMEOUT, false, PropertyTranslationKeys.ELSTER_TIMEOUT),
+                this.integerSpec(ROUND_TRIP_CORRECTION, false, PropertyTranslationKeys.ELSTER_ROUND_TRIP_CORRECTION),
+                this.hexStringSpec(DATATRANSPORT_AUTHENTICATIONKEY, false, PropertyTranslationKeys.ELSTER_DATATRANSPORT_AUTHENTICATIONKEY),
+                this.hexStringSpec(DATATRANSPORT_ENCRYPTIONKEY, false, PropertyTranslationKeys.ELSTER_DATATRANSPORT_ENCRYPTIONKEY),
+                this.integerSpec(VERIFY_FIRMWARE_VERSION, false, PropertyTranslationKeys.ELSTER_VERIFY_FIRMWARE_VERSION),
+                this.integerSpec(LOGBOOK_SELECTOR, false, PropertyTranslationKeys.ELSTER_LOGBOOK_SELECTOR))
                 .forEach(propertySpecs::add);
         return propertySpecs;
     }

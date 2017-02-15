@@ -9,6 +9,7 @@ package com.energyict.protocolimpl.emon.ez7;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -47,8 +48,8 @@ public class EZ7 extends AbstractProtocol implements SerialNumberSupport {
     private EZ7Profile ez7Profile = null;
     private EZ7CommandFactory ez7CommandFactory = null;
 
-    public EZ7(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public EZ7(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override

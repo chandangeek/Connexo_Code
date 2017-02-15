@@ -53,6 +53,8 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
@@ -67,8 +69,10 @@ import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.dlms.siemenszmd.StoredValuesImpl;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -179,9 +183,11 @@ abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, Prot
     private int connectionMode;
 
     private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
 
-    DLMSSN(PropertySpecService propertySpecService) {
+    DLMSSN(PropertySpecService propertySpecService, NlsService nlsService) {
         this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
     }
 
     protected abstract String getDeviceID();
@@ -707,46 +713,46 @@ abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, Prot
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.stringSpec(NODEID.getName()),
-                this.stringSpecOfMaxLength(ADDRESS.getName(), 16),
-                this.stringSpec(PASSWORD.getName()),
-                this.stringSpec(SERIALNUMBER.getName()),
-                this.integerSpec(TIMEOUT.getName()),
-                this.integerSpec(RETRIES.getName()),
-                this.integerSpec(PROPNAME_DELAY_AFTERFAIL),
-                this.integerSpec(PROPNAME_REQUEST_TIME_ZONE),
-                this.integerSpec(PROPNAME_REQUEST_CLOCK_OBJECT),
-                this.integerSpec(PROPNAME_CLIENT_MAC_ADDRESS),
-                this.integerSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS),
-                this.integerSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS),
-                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
-                this.integerSpec(PROPNAME_EXTENDED_LOGGING),
-                this.integerSpec(PROPNAME_ADDRESSING_MODE),
-                this.integerSpec(PROPNAME_CONNECTION),
-                ProtocolChannelMap.propertySpec(PROPNAME_CHANNEL_MAP, false),
-                this.stringSpec(SECURITYLEVEL.getName()),
-                this.integerSpec(PROPNAME_IIAP_INVOKE_ID),
-                this.integerSpec(PROPNAME_IIAP_PRIORITY),
-                this.integerSpec(PROPNAME_IIAP_SERVICE_CLASS),
-                this.integerSpec(PROPNAME_CIPHERING_TYPE),
-                this.integerSpec(PROPNAME_MAX_PDU_SIZE),
-                this.integerSpec(PROPNAME_IFORCEDELAY_BEFORE_SEND));
+                this.stringSpec(NODEID.getName(), PropertyTranslationKeys.DLMS_NODEID),
+                this.stringSpecOfMaxLength(ADDRESS.getName(), PropertyTranslationKeys.DLMS_ADDRESS, 16),
+                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.DLMS_PASSWORD),
+                this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.DLMS_SERIALNUMBER),
+                this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.DLMS_TIMEOUT),
+                this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.DLMS_RETRIES),
+                this.integerSpec(PROPNAME_DELAY_AFTERFAIL, PropertyTranslationKeys.DLMS_DELAY_AFTERFAIL),
+                this.integerSpec(PROPNAME_REQUEST_TIME_ZONE, PropertyTranslationKeys.DLMS_REQUEST_TIME_ZONE),
+                this.integerSpec(PROPNAME_REQUEST_CLOCK_OBJECT, PropertyTranslationKeys.DLMS_REQUEST_CLOCK_OBJECT),
+                this.integerSpec(PROPNAME_CLIENT_MAC_ADDRESS, PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS),
+                this.integerSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS),
+                this.integerSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.DLMS_ROUNDTRIPCORRECTION),
+                this.integerSpec(PROPNAME_EXTENDED_LOGGING, PropertyTranslationKeys.DLMS_EXTENDED_LOGGING),
+                this.integerSpec(PROPNAME_ADDRESSING_MODE, PropertyTranslationKeys.DLMS_ADDRESSING_MODE),
+                this.integerSpec(PROPNAME_CONNECTION, PropertyTranslationKeys.DLMS_CONNECTION),
+                ProtocolChannelMap.propertySpec(PROPNAME_CHANNEL_MAP, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_CHANNEL_MAP).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_CHANNEL_MAP_DESCRIPTION).format()),
+                this.stringSpec(SECURITYLEVEL.getName(), PropertyTranslationKeys.DLMS_SECURITYLEVEL),
+                this.integerSpec(PROPNAME_IIAP_INVOKE_ID, PropertyTranslationKeys.DLMS_IIAP_INVOKE_ID),
+                this.integerSpec(PROPNAME_IIAP_PRIORITY, PropertyTranslationKeys.DLMS_IIAP_PRIORITY),
+                this.integerSpec(PROPNAME_IIAP_SERVICE_CLASS, PropertyTranslationKeys.DLMS_IIAP_SERVICE_CLASS),
+                this.integerSpec(PROPNAME_CIPHERING_TYPE, PropertyTranslationKeys.DLMS_CIPHERING_TYPE),
+                this.integerSpec(PROPNAME_MAX_PDU_SIZE, PropertyTranslationKeys.DLMS_MAX_PDU_SIZE),
+                this.integerSpec(PROPNAME_IFORCEDELAY_BEFORE_SEND, PropertyTranslationKeys.DLMS_IFORCEDDELAY_BEFORE_SEND));
     }
 
-    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, optionsSupplier).finish();
     }
 
-    private PropertySpec stringSpec(String name) {
-        return this.spec(name, this.propertySpecService::stringSpec);
+    private PropertySpec stringSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::stringSpec);
     }
 
-    private PropertySpec stringSpecOfMaxLength(String name, int length) {
-        return this.spec(name, () -> this.propertySpecService.stringSpecOfMaximumLength(length));
+    private PropertySpec stringSpecOfMaxLength(String name, TranslationKey translationKey, int length) {
+        return this.spec(name, translationKey, () -> this.propertySpecService.stringSpecOfMaximumLength(length));
     }
 
-    protected PropertySpec integerSpec(String name) {
-        return this.spec(name, this.propertySpecService::integerSpec);
+    protected PropertySpec integerSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::integerSpec);
     }
 
     @Override

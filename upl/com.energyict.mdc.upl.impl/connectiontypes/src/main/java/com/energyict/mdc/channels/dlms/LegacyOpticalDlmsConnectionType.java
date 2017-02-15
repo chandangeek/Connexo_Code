@@ -1,6 +1,7 @@
 package com.energyict.mdc.channels.dlms;
 
 
+import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
@@ -64,7 +65,7 @@ public class LegacyOpticalDlmsConnectionType extends DlmsConnectionType {
     }
 
     PropertySpec getConnectionPropertySpec() {
-        return this.bigDecimalSpec(PROPERTY_NAME_CONNECTION, new BigDecimal(0));
+        return this.bigDecimalSpec(PROPERTY_NAME_CONNECTION, PropertyTranslationKeys.DLMS_CONNECTION, new BigDecimal(0));
     }
 }
 

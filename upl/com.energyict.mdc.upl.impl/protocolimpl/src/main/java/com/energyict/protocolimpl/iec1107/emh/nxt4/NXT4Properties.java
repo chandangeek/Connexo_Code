@@ -1,19 +1,20 @@
 package com.energyict.protocolimpl.iec1107.emh.nxt4;
 
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 /**
  * @author sva
@@ -24,10 +25,12 @@ public class NXT4Properties {
     private final NXT4 meterProtocol;
     private Properties protocolProperties;
     private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
 
-    public NXT4Properties(NXT4 meterProtocol, PropertySpecService propertySpecService) {
+    public NXT4Properties(NXT4 meterProtocol, PropertySpecService propertySpecService, NlsService nlsService) {
         this.meterProtocol = meterProtocol;
         this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
     }
 
     public void setProperties(Properties properties) {
@@ -142,36 +145,37 @@ public class NXT4Properties {
         return meterProtocol;
     }
 
-    List<PropertySpec> getPropertySpecs() {
+  /*  List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> specs = new ArrayList<>();
         this.getIntegerPropertyNames()
                 .stream()
                 .map(this::integerSpec)
                 .forEach(specs::add);
-        specs.add(ProtocolChannelMap.propertySpec("ChannelMap", false));
+        specs.add(ProtocolChannelMap.propertySpec("ChannelMap", false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.IEC1107_CHANNEL_MAP).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.IEC1107_CHANNEL_MAP_DESCRIPTION).format()));
         return specs;
+    }*/
+
+    List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.IEC1107_TIMEOUT),
+                this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.IEC1107_RETRIES),
+                this.integerSpec(SECURITYLEVEL.getName(), PropertyTranslationKeys.IEC1107_SECURITYLEVEL),
+                this.integerSpec("EchoCancelling", PropertyTranslationKeys.IEC1107_ECHOCANCELLING),
+                this.integerSpec("IEC1107Compatible", PropertyTranslationKeys.IEC1107_COMPATIBLE),
+                this.integerSpec("ForcedDelay", PropertyTranslationKeys.IEC1107_FORCED_DELAY),
+                this.integerSpec("RequestHeader", PropertyTranslationKeys.IEC1107_REQUESTHEADER),
+                this.integerSpec("DataReadout", PropertyTranslationKeys.IEC1107_DATAREADOUT),
+                this.integerSpec("ExtendedLogging", PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
+                this.integerSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
+                this.integerSpec("DateFormat", PropertyTranslationKeys.IEC1107_DATE_FORMAT),
+                this.integerSpec("ReadUserLogBook", PropertyTranslationKeys.IEC1107_READ_USER_LOGBOOK),
+                this.integerSpec("ReconnectAfterR6Read", PropertyTranslationKeys.IEC1107_RECONNECT_AFTER_R6_READ),
+                ProtocolChannelMap.propertySpec("ChannelMap", false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.IEC1107_CHANNEL_MAP).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.IEC1107_CHANNEL_MAP_DESCRIPTION).format()));
     }
 
-    private List<String> getIntegerPropertyNames() {
-        List<String> result = new ArrayList<>();
-        result.add(TIMEOUT.getName());
-        result.add(RETRIES.getName());
-        result.add(SECURITYLEVEL.getName());
-        result.add("EchoCancelling");
-        result.add("IEC1107Compatible");
-        result.add("ForcedDelay");
-        result.add("RequestHeader");
-        result.add("DataReadout");
-        result.add("ExtendedLogging");
-        result.add("Software7E1");
-        result.add("DateFormat");
-        result.add("ReadUserLogBook");
-        result.add("ReconnectAfterR6Read");
-        return result;
-    }
 
-    private PropertySpec integerSpec(String name) {
-        return UPLPropertySpecFactory.specBuilder(name, false, this.propertySpecService::integerSpec).finish();
+    private PropertySpec integerSpec(String name, TranslationKey translationKey) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, this.propertySpecService::integerSpec).finish();
     }
 
 }

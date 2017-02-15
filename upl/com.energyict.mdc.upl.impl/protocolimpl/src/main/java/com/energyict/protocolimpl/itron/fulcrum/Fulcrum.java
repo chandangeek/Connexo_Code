@@ -15,6 +15,7 @@
 package com.energyict.protocolimpl.itron.fulcrum;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
@@ -40,8 +41,8 @@ public class Fulcrum extends SchlumbergerProtocol {
     private RegisterFactory registerFactory = null;
     private FulcrumProfile fulcrumProfile = null;
 
-    public Fulcrum(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public Fulcrum(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override

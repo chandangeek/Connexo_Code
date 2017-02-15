@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.base.ProtocolProperty;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.SmsWakeUpDlmsProtocolProperties;
 
@@ -49,28 +50,28 @@ public class InHomeDisplayProperties extends SmsWakeUpDlmsProtocolProperties {
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(this.getSmsWakeUpPropertySpecs(false));
         Stream.of(
-                this.integerSpec(SECURITY_LEVEL, true),
-                this.integerSpec(ADDRESSING_MODE, false),
-                this.integerSpec(CLIENT_MAC_ADDRESS, false),
-                this.stringSpec(SERVER_MAC_ADDRESS, false),
-                this.integerSpec(CONNECTION, false),
-                this.integerSpec(PK_FORCED_DELAY, false),
-                this.integerSpec(PK_DELAY_AFTER_ERROR, false),
-                this.integerSpec(INFORMATION_FIELD_SIZE, false),
-                this.integerSpec(MAX_REC_PDU_SIZE, false),
-                this.integerSpec(PK_RETRIES, false),
-                this.integerSpec(PK_TIMEOUT, false),
-                this.integerSpec(ROUND_TRIP_CORRECTION, false),
-                this.hexStringSpec(DATATRANSPORT_AUTHENTICATIONKEY, false),
-                this.hexStringSpec(DATATRANSPORT_ENCRYPTIONKEY, false),
-                this.hexStringSpec(NEW_DATATRANSPORT_AUTHENTICATION_KEY, false),
-                this.hexStringSpec(NEW_DATATRANSPORT_ENCRYPTION_KEY, false),
-                this.stringSpec(NEW_HLS_SECRET, false),
-                this.stringSpec(ZIGBEE_MAC, false),
-                this.stringSpec(ZIGBEE_PCLK, false),
-                this.integerSpec(NTA_SIMULATION_TOOL, false),
-                this.integerSpec(CIPHERING_TYPE, false),
-                this.integerSpec(BULK_REQUEST, false))
+                this.integerSpec(SECURITY_LEVEL, true, PropertyTranslationKeys.EICT_SECURITY_LEVEL),
+                this.integerSpec(ADDRESSING_MODE, false, PropertyTranslationKeys.EICT_ADDRESSING_MODE),
+                this.integerSpec(CLIENT_MAC_ADDRESS, false, PropertyTranslationKeys.EICT_CLIENT_MAC_ADDRESS),
+                this.stringSpec(SERVER_MAC_ADDRESS, false, PropertyTranslationKeys.EICT_SERVER_MAC_ADDRESS),
+                this.integerSpec(CONNECTION, false, PropertyTranslationKeys.EICT_CONNECTION),
+                this.integerSpec(PK_FORCED_DELAY, false, PropertyTranslationKeys.EICT_FORCED_DELAY),
+                this.integerSpec(PK_DELAY_AFTER_ERROR, false, PropertyTranslationKeys.EICT_DELAY_AFTER_ERROR),
+                this.integerSpec(INFORMATION_FIELD_SIZE, false, PropertyTranslationKeys.EICT_INFORMATION_FIELD_SIZE),
+                this.integerSpec(MAX_REC_PDU_SIZE, false, PropertyTranslationKeys.EICT_MAX_REC_PDU_SIZE),
+                this.integerSpec(PK_RETRIES, false, PropertyTranslationKeys.EICT_RETRIES),
+                this.integerSpec(PK_TIMEOUT, false, PropertyTranslationKeys.EICT_TIMEOUT),
+                this.integerSpec(ROUND_TRIP_CORRECTION, false, PropertyTranslationKeys.EICT_ROUND_TRIP_CORRECTION),
+                this.hexStringSpec(DATATRANSPORT_AUTHENTICATIONKEY, false, PropertyTranslationKeys.EICT_DATATRANSPORT_AUTHENTICATIONKEY),
+                this.hexStringSpec(DATATRANSPORT_ENCRYPTIONKEY, false, PropertyTranslationKeys.EICT_DATATRANSPORT_ENCRYPTIONKEY),
+                this.hexStringSpec(NEW_DATATRANSPORT_AUTHENTICATION_KEY, false, PropertyTranslationKeys.EICT_NEW_DATATRANSPORT_AUTHENTICATIONKEY),
+                this.hexStringSpec(NEW_DATATRANSPORT_ENCRYPTION_KEY, false, PropertyTranslationKeys.EICT_NEW_DATATRANSPORT_ENCRYPTIONKEY),
+                this.stringSpec(NEW_HLS_SECRET, false, PropertyTranslationKeys.EICT_NEW_HLS_SECRET),
+                this.stringSpec(ZIGBEE_MAC, false, PropertyTranslationKeys.EICT_ZIGBEE_MAC),
+                this.stringSpec(ZIGBEE_PCLK, false, PropertyTranslationKeys.EICT_ZIGBEE_PCLK),
+                this.integerSpec(NTA_SIMULATION_TOOL, false, PropertyTranslationKeys.EICT_NTA_SIMULATION_TOOL),
+                this.integerSpec(CIPHERING_TYPE, false, PropertyTranslationKeys.EICT_CIPHERING_TYPE),
+                this.integerSpec(BULK_REQUEST, false, PropertyTranslationKeys.EICT_BULK_REQUEST))
             .forEach(propertySpecs::add);
         return propertySpecs;
     }

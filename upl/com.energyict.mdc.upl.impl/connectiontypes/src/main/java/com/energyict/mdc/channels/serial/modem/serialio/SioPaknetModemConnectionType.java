@@ -1,7 +1,6 @@
 package com.energyict.mdc.channels.serial.modem.serialio;
 
 import com.energyict.mdc.channels.nls.MessageSeeds;
-import com.energyict.mdc.channels.nls.Thesaurus;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.channels.serial.modem.PaknetModemComponent;
 import com.energyict.mdc.channels.serial.modem.TypedPaknetModemProperties;
@@ -13,6 +12,7 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocol.exceptions.ConnectionException;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;

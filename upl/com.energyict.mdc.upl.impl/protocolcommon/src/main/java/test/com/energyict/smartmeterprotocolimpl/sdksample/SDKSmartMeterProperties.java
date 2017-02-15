@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.base.AbstractProtocolProperties;
 import com.energyict.protocolimpl.base.ProtocolProperty;
+import com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.util.Collections;
@@ -31,7 +32,7 @@ public class SDKSmartMeterProperties extends AbstractProtocolProperties {
     public List<PropertySpec> getUPLPropertySpecs() {
         return Collections.singletonList(
                 UPLPropertySpecFactory
-                        .specBuilder(SIMULATE_REAL_COMMUNICATION, false, this.propertySpecService::integerSpec)
+                        .specBuilder(SIMULATE_REAL_COMMUNICATION, false, PropertyTranslationKeys.SDKSAMPLE_SIMILATE_REAL_COMMUNICATION, this.propertySpecService::integerSpec)
                         .finish());
     }
 

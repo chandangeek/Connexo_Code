@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.cbo.Unit;
@@ -41,8 +42,8 @@ public class RtmUnit extends AbstractParameter {
         return unit;
     }
 
-    RtmUnit(PropertySpecService propertySpecService, RTM rtm) {
-        super(propertySpecService, rtm);
+    RtmUnit(PropertySpecService propertySpecService, RTM rtm, NlsService nlsService) {
+        super(propertySpecService, rtm, nlsService);
     }
 
     public int getUnitNumber() {

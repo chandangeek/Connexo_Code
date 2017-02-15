@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.base.ProtocolProperty;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.SmsWakeUpDlmsProtocolProperties;
 
@@ -54,22 +55,22 @@ public class ZigbeeGasProperties extends SmsWakeUpDlmsProtocolProperties {
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(this.getSmsWakeUpPropertySpecs(false));
         Stream.of(
-                this.integerSpec(SECURITY_LEVEL, true),
-                this.integerSpec(ADDRESSING_MODE, false),
-                this.integerSpec(CLIENT_MAC_ADDRESS, false),
-                this.stringSpec(SERVER_MAC_ADDRESS, false),
-                this.integerSpec(CONNECTION, false),
-                this.integerSpec(PK_FORCED_DELAY, false),
-                this.integerSpec(MAX_REC_PDU_SIZE, false),
-                this.integerSpec(PK_RETRIES, false),
-                this.integerSpec(PK_TIMEOUT, false),
-                this.integerSpec(ROUND_TRIP_CORRECTION, false),
-                this.hexStringSpec(DATATRANSPORT_AUTHENTICATIONKEY, false),
-                this.hexStringSpec(DATATRANSPORT_ENCRYPTIONKEY, false),
-                this.integerSpec(LOGBOOK_SELECTOR, false),
-                this.integerSpec(VERIFY_FIRMWARE_VERSION, false),
-                this.stringSpec(ZIGBEE_MAC, false),
-                this.stringSpec(ZIGBEE_PCLK, false))
+                this.integerSpec(SECURITY_LEVEL, true, PropertyTranslationKeys.EICT_SECURITY_LEVEL),
+                this.integerSpec(ADDRESSING_MODE, false, PropertyTranslationKeys.EICT_ADDRESSING_MODE),
+                this.integerSpec(CLIENT_MAC_ADDRESS, false, PropertyTranslationKeys.EICT_CLIENT_MAC_ADDRESS),
+                this.stringSpec(SERVER_MAC_ADDRESS, false, PropertyTranslationKeys.EICT_SERVER_MAC_ADDRESS),
+                this.integerSpec(CONNECTION, false, PropertyTranslationKeys.EICT_CONNECTION),
+                this.integerSpec(PK_FORCED_DELAY, false, PropertyTranslationKeys.EICT_FORCED_DELAY),
+                this.integerSpec(MAX_REC_PDU_SIZE, false, PropertyTranslationKeys.EICT_MAX_REC_PDU_SIZE),
+                this.integerSpec(PK_RETRIES, false, PropertyTranslationKeys.EICT_RETRIES),
+                this.integerSpec(PK_TIMEOUT, false, PropertyTranslationKeys.EICT_TIMEOUT),
+                this.integerSpec(ROUND_TRIP_CORRECTION, false, PropertyTranslationKeys.EICT_ROUND_TRIP_CORRECTION),
+                this.hexStringSpec(DATATRANSPORT_AUTHENTICATIONKEY, false, PropertyTranslationKeys.EICT_DATATRANSPORT_AUTHENTICATIONKEY),
+                this.hexStringSpec(DATATRANSPORT_ENCRYPTIONKEY, false, PropertyTranslationKeys.EICT_DATATRANSPORT_ENCRYPTIONKEY),
+                this.integerSpec(LOGBOOK_SELECTOR, false, PropertyTranslationKeys.EICT_LOGBOOK_SELECTOR),
+                this.integerSpec(VERIFY_FIRMWARE_VERSION, false, PropertyTranslationKeys.EICT_VERIFY_FIRMWARE_VERSION),
+                this.stringSpec(ZIGBEE_MAC, false, PropertyTranslationKeys.EICT_ZIGBEE_MAC),
+                this.stringSpec(ZIGBEE_PCLK, false, PropertyTranslationKeys.EICT_ZIGBEE_PCLK))
             .forEach(propertySpecs::add);
         return propertySpecs;
     }

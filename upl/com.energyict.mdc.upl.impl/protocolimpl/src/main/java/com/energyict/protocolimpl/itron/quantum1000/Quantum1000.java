@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.itron.quantum1000;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -32,6 +33,7 @@ import com.energyict.protocolimpl.itron.quantum1000.minidlms.ProtocolLink;
 import com.energyict.protocolimpl.itron.quantum1000.minidlms.RegisterMapFactory;
 import com.energyict.protocolimpl.itron.quantum1000.minidlms.RemoteProcedureCallFactory;
 import com.energyict.protocolimpl.itron.quantum1000.minidlms.ReplyException;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,8 +72,8 @@ public class Quantum1000 extends AbstractProtocol implements ProtocolLink, Seria
     private boolean applySelfReadRegisterMultiplier = true;
     private boolean supportsIdentifyCommand = true;
 
-    public Quantum1000(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public Quantum1000(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override
@@ -112,13 +114,12 @@ public class Quantum1000 extends AbstractProtocol implements ProtocolLink, Seria
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.stringSpec(PROPERTY_APPLY_DEMAND_REGISTER_MULTIPLIER, false));
-        propertySpecs.add(this.stringSpec(PROPERTY_APPLY_ENERGY_REGISTER_MULTIPLIER, false));
-        propertySpecs.add(this.stringSpec(PROPERTY_APPLY_SELF_READ_REGISTER_MULTIPLIER, false));
-        propertySpecs.add(this.stringSpec(PROPERTY_SUPPORTS_IDENTIFY_COMMAND, false));
-        propertySpecs.add(this.stringSpec(PROPERTY_SUPPORTS_IDENTIFY_COMMAND, false));
-        propertySpecs.add(this.integerSpec("ClientAddress", false));
-        propertySpecs.add(this.integerSpec("MassMemoryId", false));
+        propertySpecs.add(this.stringSpec(PROPERTY_APPLY_DEMAND_REGISTER_MULTIPLIER, PropertyTranslationKeys.ITRON_APPLY_DEMAND_REGISTER_MULTIPLIER, false));
+        propertySpecs.add(this.stringSpec(PROPERTY_APPLY_ENERGY_REGISTER_MULTIPLIER, PropertyTranslationKeys.ITRON_APPLY_ENERGY_REGISTER_MULTIPLIER, false));
+        propertySpecs.add(this.stringSpec(PROPERTY_APPLY_SELF_READ_REGISTER_MULTIPLIER, PropertyTranslationKeys.ITRON_APPLY_SELF_READ_REGISTER_MULTIPLIER, false));
+        propertySpecs.add(this.stringSpec(PROPERTY_SUPPORTS_IDENTIFY_COMMAND, PropertyTranslationKeys.ITRON_SUPPORTS_IDENTIFY_COMMAND, false));
+        propertySpecs.add(this.integerSpec("ClientAddress", PropertyTranslationKeys.ITRON_CLIENT_ADDRESS, false));
+        propertySpecs.add(this.integerSpec("MassMemoryId", PropertyTranslationKeys.ITRON_MASS_MEMORY_ID, false));
         return propertySpecs;
     }
 

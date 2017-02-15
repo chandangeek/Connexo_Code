@@ -25,6 +25,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -44,6 +45,8 @@ import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.dlms.common.ObisCodePropertySpec;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,8 +81,8 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
 
     private long steps;
 
-    public EICTTestProtocol(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public EICTTestProtocol(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override
@@ -532,8 +535,8 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.integerSpec(PK_TEST_PROPERTY, false));
-        propertySpecs.add(new ObisCodePropertySpec(PK_TEST_PROPERTY, false));
+        propertySpecs.add(this.integerSpec(PK_TEST_PROPERTY, PropertyTranslationKeys.TEST_TEST, false));
+        propertySpecs.add(new ObisCodePropertySpec(PK_TEST_PROPERTY, false, getNlsService().getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.TEST_TEST).format(), getNlsService().getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.TEST_TEST_DESCRIPTION).format()));
         return propertySpecs;
     }
 

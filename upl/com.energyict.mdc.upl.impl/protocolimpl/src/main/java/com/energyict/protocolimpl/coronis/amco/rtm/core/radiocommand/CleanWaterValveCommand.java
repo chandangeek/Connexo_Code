@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
@@ -15,8 +16,8 @@ public class CleanWaterValveCommand extends AbstractRadioCommand {
 
     private boolean success = false;
 
-    protected CleanWaterValveCommand(PropertySpecService propertySpecService, RTM rtm) {
-        super(propertySpecService, rtm);
+    protected CleanWaterValveCommand(PropertySpecService propertySpecService, RTM rtm, NlsService nlsService) {
+        super(propertySpecService, rtm, nlsService);
     }
 
     public boolean isSuccess() {

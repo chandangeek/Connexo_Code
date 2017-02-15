@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.itron.sentinel;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -40,6 +41,7 @@ import com.energyict.protocolimpl.itron.sentinel.procedures.ManufacturerProcedur
 import com.energyict.protocolimpl.itron.sentinel.tables.ManufacturerTableFactory;
 import com.energyict.protocolimpl.meteridentification.AbstractManufacturer;
 import com.energyict.protocolimpl.meteridentification.SentinelItron;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,8 +80,8 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
     private DataReadFactory dataReadFactory=null;
     private ObisCodeInfoFactory obisCodeInfoFactory=null;
 
-    public Sentinel(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public Sentinel(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override
@@ -149,12 +151,12 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.stringSpec("C12User", false));
-        propertySpecs.add(this.integerSpec("C12UserId", false));
-        propertySpecs.add(this.integerSpec("MaxNrPackets", false));
-        propertySpecs.add(this.stringSpec("ReadLoadProfilesChunked", false));
-        propertySpecs.add(this.integerSpec("ChunkSize", false));
-        propertySpecs.add(this.stringSpec("ConvertRegisterReadsToKiloUnits", false));
+        propertySpecs.add(this.stringSpec("C12User", PropertyTranslationKeys.ITRON_C12_USER, false));
+        propertySpecs.add(this.integerSpec("C12UserId", PropertyTranslationKeys.ITRON_C12_USERID, false));
+        propertySpecs.add(this.integerSpec("MaxNrPackets", PropertyTranslationKeys.ITRON_MAX_NR_PACKETS, false));
+        propertySpecs.add(this.stringSpec("ReadLoadProfilesChunked", PropertyTranslationKeys.ITRON_READ_LOAD_PROFILE_CHUNKED, false));
+        propertySpecs.add(this.integerSpec("ChunkSize", PropertyTranslationKeys.ITRON_CHUNK_SIZE, false));
+        propertySpecs.add(this.stringSpec("ConvertRegisterReadsToKiloUnits", PropertyTranslationKeys.ITRON_CONVERT_REGISTER_READS_TO_KILO_UNITS, false));
         return propertySpecs;
     }
 

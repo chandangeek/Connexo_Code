@@ -12,6 +12,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalData;
@@ -52,8 +53,8 @@ public abstract class Jem extends AbstractProtocol implements MessageProtocol {
     protected ProfileData pd;
     protected Map registerValues = null;
 
-    public Jem(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public Jem(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override

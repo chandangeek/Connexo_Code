@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -19,6 +20,7 @@ import com.energyict.protocolimpl.din19244.poreg2.core.PoregMessages;
 import com.energyict.protocolimpl.din19244.poreg2.factory.RegisterFactory;
 import com.energyict.protocolimpl.din19244.poreg2.factory.RequestFactory;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,8 +45,8 @@ public abstract class Poreg extends AbstractProtocol implements MessageProtocol,
     private int apparentEnergyResultLevel;
     private String systemAddress = "00000000";
 
-    public Poreg(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public Poreg(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override
@@ -115,8 +117,8 @@ public abstract class Poreg extends AbstractProtocol implements MessageProtocol,
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.integerSpec("ApparentEnergyResultLevel", false));
-        propertySpecs.add(this.stringSpec("SystemAddress", false));
+        propertySpecs.add(this.integerSpec("ApparentEnergyResultLevel", PropertyTranslationKeys.POREG_APPARENT_ENERGY_RESULT_LEVEL, false));
+        propertySpecs.add(this.stringSpec("SystemAddress", PropertyTranslationKeys.POREG_SYSTEM_ADDRESS, false));
         return propertySpecs;
     }
 

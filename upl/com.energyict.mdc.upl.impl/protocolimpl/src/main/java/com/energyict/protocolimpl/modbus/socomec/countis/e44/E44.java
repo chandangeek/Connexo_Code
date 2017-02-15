@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.modbus.socomec.countis.e44;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -15,6 +16,7 @@ import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.modbus.socomec.countis.e44.profile.ProfileBuilder;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -39,8 +41,8 @@ public class E44 extends Modbus {
 
     private ProfileBuilder profileBuilder;
 
-    public E44(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public E44(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override
@@ -54,7 +56,7 @@ public class E44 extends Modbus {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.integerSpec(APPLY_CTRATIO, false));
+        propertySpecs.add(this.integerSpec(APPLY_CTRATIO, PropertyTranslationKeys.MODBUS_APPLY_CTRATIO, false));
         return propertySpecs;
     }
 

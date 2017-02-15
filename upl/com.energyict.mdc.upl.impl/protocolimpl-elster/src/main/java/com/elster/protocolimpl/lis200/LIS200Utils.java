@@ -138,8 +138,8 @@ public class LIS200Utils {
         return Unit.getUndefined();
     }
 
-    public static PropertySpec propertySpec(String name, boolean required) {
-        return new LIS200AddressPropertySpec(name, required);
+    public static PropertySpec propertySpec(String name, boolean required, String displayName, String description) {
+        return new LIS200AddressPropertySpec(name, required, displayName, description);
     }
 
     private static class Lis200Address implements com.energyict.mdc.upl.properties.Lis200Address{
@@ -181,10 +181,14 @@ public class LIS200Utils {
     private static class LIS200AddressPropertySpec implements PropertySpec {
         private final String name;
         private final boolean required;
+        private final String displayName;
+        private final String description;
 
-        private LIS200AddressPropertySpec(String name, boolean required) {
+        private LIS200AddressPropertySpec(String name, boolean required, String displayName, String description){
             this.name = name;
             this.required = required;
+            this.displayName= displayName;
+            this.description = description;
         }
 
         @Override
@@ -194,12 +198,12 @@ public class LIS200Utils {
 
         @Override
         public String getDisplayName() {
-            return this.getName();
+            return this.displayName;
         }
 
         @Override
         public String getDescription() {
-            return this.getDisplayName();
+            return this.description;
         }
 
         @Override

@@ -1,5 +1,6 @@
 package com.energyict.mdc.channels.serial.direct.serialio;
 
+import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
 import com.energyict.mdc.channels.serial.BaudrateValue;
 import com.energyict.mdc.channels.serial.NrOfStopBits;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
@@ -59,7 +60,7 @@ public class SioSerialConnectionType extends AbstractSerialConnectionType {
      */
     @Override
     protected PropertySpec baudRatePropertySpec() {
-        return this.bigDecimalSpec(SerialPortConfiguration.BAUDRATE_NAME, true, BaudrateValue.BAUDRATE_57600.getBaudrate(),
+        return this.bigDecimalSpec(SerialPortConfiguration.BAUDRATE_NAME, PropertyTranslationKeys.SERIAL_BAUDRATE, true, BaudrateValue.BAUDRATE_57600.getBaudrate(),
                 BaudrateValue.BAUDRATE_150.getBaudrate(),
                 BaudrateValue.BAUDRATE_300.getBaudrate(),
                 BaudrateValue.BAUDRATE_600.getBaudrate(),
@@ -82,7 +83,7 @@ public class SioSerialConnectionType extends AbstractSerialConnectionType {
      */
     @Override
     protected PropertySpec nrOfStopBitsPropertySpec() {
-        return this.bigDecimalSpec(SerialPortConfiguration.NR_OF_STOP_BITS_NAME, true, NrOfStopBits.ONE.getNrOfStopBits(), NrOfStopBits.ONE.getNrOfStopBits(), NrOfStopBits.TWO.getNrOfStopBits());
+        return this.bigDecimalSpec(SerialPortConfiguration.NR_OF_STOP_BITS_NAME, PropertyTranslationKeys.SERIAL_NR_OF_STOP_BITS, true, NrOfStopBits.ONE.getNrOfStopBits(), NrOfStopBits.ONE.getNrOfStopBits(), NrOfStopBits.TWO.getNrOfStopBits());
     }
 
     @Override

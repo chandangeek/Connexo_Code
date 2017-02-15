@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -30,6 +31,7 @@ import com.energyict.protocolimpl.coronis.core.ProtocolLink;
 import com.energyict.protocolimpl.coronis.core.WaveFlowConnect;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
@@ -62,8 +64,8 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     private int initialRFCommand = 0;
     private boolean roundDownToNearestInterval = false;
 
-    public RTM(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public RTM(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     public ObisCodeMapper getObisCodeMapper() {
@@ -84,14 +86,14 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
 
     public ParameterFactory getParameterFactory() {
         if (parameterFactory == null) {
-            parameterFactory = new ParameterFactory(this, this.getPropertySpecService());
+            parameterFactory = new ParameterFactory(this, this.getPropertySpecService(), this.getNlsService());
         }
         return parameterFactory;
     }
 
     public final RadioCommandFactory getRadioCommandFactory() {
         if (radioCommandFactory == null) {
-            radioCommandFactory = new RadioCommandFactory(this, this.getPropertySpecService());
+            radioCommandFactory = new RadioCommandFactory(this, this.getPropertySpecService(), this.getNlsService());
         }
         return radioCommandFactory;
     }
@@ -173,23 +175,23 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
                                         int protocolCompatible, Encryptor encryptor,
                                         HalfDuplexController halfDuplexController) throws IOException {
 
-        radioCommandFactory = new RadioCommandFactory(this, this.getPropertySpecService());
+        radioCommandFactory = new RadioCommandFactory(this, this.getPropertySpecService(), this.getNlsService());
         rtmConnect = new WaveFlowConnect(inputStream, outputStream, timeoutProperty, getLogger(), forcedDelay, getInfoTypeProtocolRetriesProperty());
         profileDataReader = new ProfileDataReader(this);
         obisCodeMapper = new ObisCodeMapper(this);
-        parameterFactory = new ParameterFactory(this, this.getPropertySpecService());
+        parameterFactory = new ParameterFactory(this, this.getPropertySpecService(), this.getNlsService());
         return rtmConnect;
     }
 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.integerSpec(CORRECTTIME.getName(), false));
-        propertySpecs.add(this.integerSpec("verifyProfileInterval", false));
-        propertySpecs.add(this.integerSpec("EnableMultiFrameMode", false));
-        propertySpecs.add(this.stringSpec("WavenisBubbleUpInfo", false));
-        propertySpecs.add(this.integerSpec("InitialRFCommand", false));
-        propertySpecs.add(this.integerSpec("RoundDownToNearestInterval", false));
+        propertySpecs.add(this.integerSpec(CORRECTTIME.getName(), PropertyTranslationKeys.RTM_CORRECTTIME, false));
+        propertySpecs.add(this.integerSpec("verifyProfileInterval", PropertyTranslationKeys.RTM_VERIFY_PROFILE_INTERVAL, false));
+        propertySpecs.add(this.integerSpec("EnableMultiFrameMode", PropertyTranslationKeys.RTM_ENABLE_MULTI_FRAME_MODE, false));
+        propertySpecs.add(this.stringSpec("WavenisBubbleUpInfo", PropertyTranslationKeys.RTM_WAVENIS_BUBBLE_UP_INFO, false));
+        propertySpecs.add(this.integerSpec("InitialRFCommand", PropertyTranslationKeys.RTM_INITIAL_RF_COMMAND, false));
+        propertySpecs.add(this.integerSpec("RoundDownToNearestInterval", PropertyTranslationKeys.RTM_ROUND_DOWN_TO_NEAREST_INTERVAL, false));
         return propertySpecs;
     }
 
@@ -309,7 +311,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     @Override
     public List map2MeterEvent(String event) throws IOException {
         List statusAndEvents = new ArrayList();
-        AlarmFrameParser alarmFrame = new AlarmFrameParser(this, this.getPropertySpecService());
+        AlarmFrameParser alarmFrame = new AlarmFrameParser(this, this.getPropertySpecService(), this.getNlsService());
         alarmFrame.parse(ProtocolUtils.convert2ascii(event.getBytes()));
         statusAndEvents.add(alarmFrame.getResponse());
         statusAndEvents.add(alarmFrame.getMeterEvents());
@@ -318,7 +320,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
 
     @Override
     public BubbleUpObject parseBubbleUpData(byte[] data) throws IOException {
-        return BubbleUpFrameParser.parse(data, this, this.getPropertySpecService());
+        return BubbleUpFrameParser.parse(data, this, this.getPropertySpecService(), this.getNlsService());
     }
 
     @Override

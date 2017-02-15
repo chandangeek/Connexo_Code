@@ -19,12 +19,14 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
@@ -54,8 +56,8 @@ public class DLMSEICT extends DLMSSN {
     private static final long EV_LOAD_PROFILE_CLEARED = 0x00004000;
     private static final long EV_CAPTURED_EVENTS = 0x008860E5; // Add new events...
 
-    public DLMSEICT(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    DLMSEICT(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override
@@ -180,7 +182,7 @@ public class DLMSEICT extends DLMSSN {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.integerSpec(SECURITYLEVEL.getName()));
+        propertySpecs.add(this.integerSpec(SECURITYLEVEL.getName(), PropertyTranslationKeys.DLMS_SECURITYLEVEL));
         return propertySpecs;
     }
 

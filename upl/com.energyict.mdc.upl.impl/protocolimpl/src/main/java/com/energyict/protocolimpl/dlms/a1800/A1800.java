@@ -4,6 +4,7 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.cache.CachingProtocol;
 import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
@@ -39,8 +40,8 @@ public class A1800 extends AbstractDlmsSessionProtocol implements SerialNumberSu
     private ProfileCacheImpl cache = new ProfileCacheImpl();
     private RegisterReader registerReader = null;
 
-    public A1800(PropertySpecService propertySpecService) {
-        this.properties = new A1800Properties(propertySpecService);
+    public A1800(PropertySpecService propertySpecService, NlsService nlsService) {
+        this.properties = new A1800Properties(propertySpecService, nlsService);
     }
 
     @Override

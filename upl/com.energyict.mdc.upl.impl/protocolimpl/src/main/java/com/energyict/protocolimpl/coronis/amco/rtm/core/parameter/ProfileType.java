@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
@@ -20,8 +21,8 @@ public class ProfileType extends AbstractParameter {
     private static final int DIGITAL_AND_VALVE_PORTS = 0x04;
     private static final int ENCODER_AND_VALVE_PORTS  = 0x05;
 
-    public ProfileType(PropertySpecService propertySpecService, RTM rtm) {
-        super(propertySpecService, rtm);
+    public ProfileType(PropertySpecService propertySpecService, RTM rtm, NlsService nlsService) {
+        super(propertySpecService, rtm, nlsService);
     }
 
     public int getProfile() {

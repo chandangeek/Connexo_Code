@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
@@ -12,6 +13,7 @@ public class RadioCommandFactory {
 
     private final RTM rtm;
     private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
     private RSSILevel rssiLevel = null;
 
     // Cached, only needs to be read out once.
@@ -20,41 +22,42 @@ public class RadioCommandFactory {
     private ExtendedDataloggingTable cachedExtendedDataloggingTable = null;
     private CurrentRegisterReading registerReading = null;
 
-    public RadioCommandFactory(RTM rtm, PropertySpecService propertySpecService) {
+    public RadioCommandFactory(RTM rtm, PropertySpecService propertySpecService, NlsService nlsService) {
         this.rtm = rtm;
         this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
     }
 
     public final FirmwareVersion readFirmwareVersion() throws IOException {
         if (firmwareVersion == null) {
-            firmwareVersion = new FirmwareVersion(this.propertySpecService, rtm);
+            firmwareVersion = new FirmwareVersion(this.propertySpecService, rtm, this.nlsService);
             firmwareVersion.set();
         }
         return firmwareVersion;
     }
 
     public ReadTOUBuckets readTOUBuckets() throws IOException {
-        ReadTOUBuckets touBuckets = new ReadTOUBuckets(this.propertySpecService, rtm);
+        ReadTOUBuckets touBuckets = new ReadTOUBuckets(this.propertySpecService, rtm, this.nlsService);
         touBuckets.set();
         return touBuckets;
     }
 
 
     public ExtendedDataloggingTable getMostRecentRecord() throws IOException {
-        ExtendedDataloggingTable mostRecentRecord = new ExtendedDataloggingTable(this.propertySpecService, rtm, 1, 1, 0);
+        ExtendedDataloggingTable mostRecentRecord = new ExtendedDataloggingTable(this.propertySpecService, rtm, 1, 1, 0, this.nlsService);
         mostRecentRecord.set();
         return mostRecentRecord;
     }
 
     public ReadEncoderInternalData readEncoderInternalData() throws IOException {
-        ReadEncoderInternalData internalData = new ReadEncoderInternalData(this.propertySpecService, rtm);
+        ReadEncoderInternalData internalData = new ReadEncoderInternalData(this.propertySpecService, rtm, this.nlsService);
         internalData.set();
         return internalData;
     }
 
     public CurrentRegisterReading readCurrentRegister() throws IOException {
         if (registerReading == null) {
-            registerReading = new CurrentRegisterReading(this.propertySpecService, rtm);
+            registerReading = new CurrentRegisterReading(this.propertySpecService, rtm, this.nlsService);
             registerReading.set();
         }
         return registerReading;
@@ -62,20 +65,20 @@ public class RadioCommandFactory {
 
     public void writeIndex(int value, int port) throws IOException {
         if (rtm.getParameterFactory().readProfileType().isPulse()) {
-            WriteIndexes writeIndexes = new WriteIndexes(rtm, port, this.propertySpecService);
+            WriteIndexes writeIndexes = new WriteIndexes(rtm, port, this.propertySpecService, this.nlsService);
             writeIndexes.setIndex(value);
             writeIndexes.set();
         }
     }
 
     public final ExtendedDataloggingTable readExtendedDataloggingTable(int portNr, final int nrOfValues, final Date toDate) throws IOException {
-        ExtendedDataloggingTable table = new ExtendedDataloggingTable(this.propertySpecService, rtm, portNr, nrOfValues, toDate);
+        ExtendedDataloggingTable table = new ExtendedDataloggingTable(this.propertySpecService, rtm, portNr, nrOfValues, toDate, this.nlsService);
         table.set();
         return table;
     }
 
     public final ExtendedDataloggingTable readExtendedDataloggingTable(int portNr, final int nrOfValues, final int offset) throws IOException {
-        ExtendedDataloggingTable table = new ExtendedDataloggingTable(this.propertySpecService, rtm, portNr, nrOfValues, offset);
+        ExtendedDataloggingTable table = new ExtendedDataloggingTable(this.propertySpecService, rtm, portNr, nrOfValues, offset, this.nlsService);
         table.set();
         return table;
     }
@@ -89,7 +92,7 @@ public class RadioCommandFactory {
      * @throws IOException timeout errors etc
      */
     public final ExtendedDataloggingTable readExtendedDataloggingTable(int portMask, int numberOfReadings) throws IOException {
-        cachedExtendedDataloggingTable = new ExtendedDataloggingTable(this.propertySpecService, rtm, portMask, numberOfReadings);
+        cachedExtendedDataloggingTable = new ExtendedDataloggingTable(this.propertySpecService, rtm, portMask, numberOfReadings, this.nlsService);
         cachedExtendedDataloggingTable.set();
         return cachedExtendedDataloggingTable;
     }
@@ -99,19 +102,19 @@ public class RadioCommandFactory {
     }
 
     public final LeakageEventTable readLeakageEventTable() throws IOException {
-        LeakageEventTable leakageEventTable = new LeakageEventTable(this.propertySpecService, rtm);
+        LeakageEventTable leakageEventTable = new LeakageEventTable(this.propertySpecService, rtm, this.nlsService);
         leakageEventTable.set();
         return leakageEventTable;
     }
 
     public void configureRoute() throws IOException {
-        RouteConfiguration routeConfiguration = new RouteConfiguration(this.propertySpecService, rtm);
+        RouteConfiguration routeConfiguration = new RouteConfiguration(this.propertySpecService, rtm, this.nlsService);
         routeConfiguration.setAlarmConfig(rtm.getParameterFactory().readAlarmConfiguration().getConfig());
         routeConfiguration.set();
     }
 
     public final DailyConsumption readDailyConsumption() throws IOException {
-        DailyConsumption dailyConsumption = new DailyConsumption(this.propertySpecService, rtm);
+        DailyConsumption dailyConsumption = new DailyConsumption(this.propertySpecService, rtm, this.nlsService);
         dailyConsumption.set();
         return dailyConsumption;
     }
@@ -119,7 +122,7 @@ public class RadioCommandFactory {
     public boolean openWaterValve() throws IOException {
         ProfileType profileType = rtm.getParameterFactory().readProfileType();
         if (profileType.isValve()) {
-            OpenWaterValveCommand openWaterValveCommand = new OpenWaterValveCommand(rtm, this.propertySpecService);
+            OpenWaterValveCommand openWaterValveCommand = new OpenWaterValveCommand(rtm, this.propertySpecService, this.nlsService);
             openWaterValveCommand.set();
             return openWaterValveCommand.isSuccess();
         }
@@ -129,7 +132,7 @@ public class RadioCommandFactory {
     public boolean closeWaterValve() throws IOException {
         ProfileType profileType = rtm.getParameterFactory().readProfileType();
         if (profileType.isValve()) {
-            CloseWaterValveCommand closeWaterValveCommand = new CloseWaterValveCommand(rtm, this.propertySpecService);
+            CloseWaterValveCommand closeWaterValveCommand = new CloseWaterValveCommand(rtm, this.propertySpecService, this.nlsService);
             closeWaterValveCommand.set();
             return closeWaterValveCommand.isSuccess();
         }
@@ -139,7 +142,7 @@ public class RadioCommandFactory {
     public boolean cleanWaterValve() throws IOException {
         ProfileType profileType = rtm.getParameterFactory().readProfileType();
         if (profileType.isValve()) {
-            CleanWaterValveCommand cleanWaterValveCommand = new CleanWaterValveCommand(this.propertySpecService, rtm);
+            CleanWaterValveCommand cleanWaterValveCommand = new CleanWaterValveCommand(this.propertySpecService, rtm, this.nlsService);
             cleanWaterValveCommand.set();
             return cleanWaterValveCommand.isSuccess();
         }
@@ -147,14 +150,14 @@ public class RadioCommandFactory {
     }
 
     public ValveStatus readValveStatus() throws IOException {
-        ValveStatus status = new ValveStatus(rtm, this.propertySpecService);
+        ValveStatus status = new ValveStatus(rtm, this.propertySpecService, this.nlsService);
         status.set();
         return status;
     }
 
     public RSSILevel readRSSI() throws IOException {
         if (rssiLevel == null) {
-            rssiLevel = new RSSILevel(this.propertySpecService, rtm);
+            rssiLevel = new RSSILevel(this.propertySpecService, rtm, this.nlsService);
             rssiLevel.set();
         }
         return rssiLevel;
@@ -165,7 +168,7 @@ public class RadioCommandFactory {
     }
 
     public void detectEncoderModel() throws IOException {
-        encoderModel = new EncoderModelDetection(this.propertySpecService, rtm);
+        encoderModel = new EncoderModelDetection(this.propertySpecService, rtm, this.nlsService);
         encoderModel.set();
     }
 

@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.edf.trimaran;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -29,6 +30,7 @@ import com.energyict.protocolimpl.edf.trimaran.core.DataFactory;
 import com.energyict.protocolimpl.edf.trimaran.core.SPDUFactory;
 import com.energyict.protocolimpl.edf.trimaran.registermapping.Register;
 import com.energyict.protocolimpl.edf.trimaran.registermapping.RegisterFactory;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,8 +58,8 @@ public class Trimaran extends AbstractProtocol {
     private int commandTimeout;
     private int flushTimeout;
 
-    public Trimaran(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public Trimaran(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override
@@ -87,11 +89,11 @@ public class Trimaran extends AbstractProtocol {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.integerSpec("HalfDuplex", false));
-        propertySpecs.add(this.integerSpec("ACKTimeoutTL", false));
-        propertySpecs.add(this.integerSpec("InterCharTimeout", false));
-        propertySpecs.add(this.integerSpec("CommandTimeout", false));
-        propertySpecs.add(this.integerSpec("FlushTimeout", false));
+        propertySpecs.add(this.integerSpec("HalfDuplex", PropertyTranslationKeys.EDF_HALF_DUPLEX, false));
+        propertySpecs.add(this.integerSpec("ACKTimeoutTL", PropertyTranslationKeys.EDF_ACK_TIMEOUT_TL, false));
+        propertySpecs.add(this.integerSpec("InterCharTimeout", PropertyTranslationKeys.EDF_INTER_CHAR_TIMEOUT, false));
+        propertySpecs.add(this.integerSpec("CommandTimeout", PropertyTranslationKeys.EDF_COMMAND_TIMEOUT, false));
+        propertySpecs.add(this.integerSpec("FlushTimeout", PropertyTranslationKeys.EDF_FLUSH_TIMEOUT, false));
         return propertySpecs;
     }
 

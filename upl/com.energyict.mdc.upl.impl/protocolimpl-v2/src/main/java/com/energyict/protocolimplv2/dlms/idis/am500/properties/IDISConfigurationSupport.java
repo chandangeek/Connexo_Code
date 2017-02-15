@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.dlms.idis.am500.properties;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.dlms.idis.am130.properties.AM130ConfigurationSupport;
 
@@ -43,25 +44,25 @@ public class IDISConfigurationSupport extends AM130ConfigurationSupport {
     }
 
     protected PropertySpec swapServerAndClientAddress() {
-        return UPLPropertySpecFactory.specBuilder(SWAP_SERVER_AND_CLIENT_ADDRESS_PROPERTY, false, this.getPropertySpecService()::booleanSpec)
+        return UPLPropertySpecFactory.specBuilder(SWAP_SERVER_AND_CLIENT_ADDRESS_PROPERTY, false, PropertyTranslationKeys.V2_DLMS_SWAP_SERVER_AND_CLIENT_ADDRESS, this.getPropertySpecService()::booleanSpec)
                 .setDefaultValue(true)
                 .finish();
     }
 
     protected PropertySpec ignoreCallingAPTitle() {
-        return UPLPropertySpecFactory.specBuilder(IGNORE_CALLING_AP_TITLE, false, this.getPropertySpecService()::booleanSpec)
+        return UPLPropertySpecFactory.specBuilder(IGNORE_CALLING_AP_TITLE, false, PropertyTranslationKeys.V2_DLMS_IGNORE_CALLING_AP_TITLE, this.getPropertySpecService()::booleanSpec)
                 .setDefaultValue(false)
                 .finish();
     }
 
     private PropertySpec useLogicalDeviceNameAsSerialNumber() {
-        return UPLPropertySpecFactory.specBuilder(USE_LOGICAL_DEVICE_NAME_AS_SERIAL, false, this.getPropertySpecService()::booleanSpec)
+        return UPLPropertySpecFactory.specBuilder(USE_LOGICAL_DEVICE_NAME_AS_SERIAL, false, PropertyTranslationKeys.V2_DLMS_USE_LOGICAL_DEVICE_NAME_AS_SERIAL, this.getPropertySpecService()::booleanSpec)
                 .setDefaultValue(false)
                 .finish();
     }
 
     private PropertySpec useUndefinedAsTimeDeviation() {
-        return UPLPropertySpecFactory.specBuilder(USE_UNDEFINED_AS_TIME_DEVIATION, false, this.getPropertySpecService()::booleanSpec)
+        return UPLPropertySpecFactory.specBuilder(USE_UNDEFINED_AS_TIME_DEVIATION, false, PropertyTranslationKeys.V2_DLMS_USE_DEFINED_AS_TIME_DEVIATION, this.getPropertySpecService()::booleanSpec)
                 .setDefaultValue(false)
                 .finish();
     }

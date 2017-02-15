@@ -1,6 +1,7 @@
 package com.energyict.mdc.channels.dlms;
 
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -64,10 +65,10 @@ public class LegacyTCPDlmsConnectionType extends DlmsConnectionType {
     }
 
     PropertySpec getServerUpperMacAddress() {
-        return this.bigDecimalSpec(PROPERTY_NAME_SERVER_UPPER_MAC_ADDRESS, new BigDecimal(1));
+        return this.bigDecimalSpec(PROPERTY_NAME_SERVER_UPPER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS, new BigDecimal(1));
     }
 
     PropertySpec getServerLowerMacAddress() {
-        return this.bigDecimalSpec(PROPERTY_NAME_SERVER_LOWER_MAC_ADDRESS,  new BigDecimal(0));
+        return this.bigDecimalSpec(PROPERTY_NAME_SERVER_LOWER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS, new BigDecimal(0));
     }
 }

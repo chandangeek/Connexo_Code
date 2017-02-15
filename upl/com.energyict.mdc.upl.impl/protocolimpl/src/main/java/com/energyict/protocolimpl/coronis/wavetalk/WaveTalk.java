@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.wavetalk;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.obis.ObisCode;
@@ -30,8 +31,8 @@ public class WaveTalk extends AbstractWaveTalk {
 	 */
 	private ParameterFactory parameterFactory=null;
 
-	public WaveTalk(PropertySpecService propertySpecService) {
-		super(propertySpecService);
+	public WaveTalk(PropertySpecService propertySpecService, NlsService nlsService) {
+		super(propertySpecService, nlsService);
 	}
 
 	@Override

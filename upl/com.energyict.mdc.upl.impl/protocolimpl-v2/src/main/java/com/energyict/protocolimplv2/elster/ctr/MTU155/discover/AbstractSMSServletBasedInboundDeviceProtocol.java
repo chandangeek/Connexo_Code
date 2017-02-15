@@ -2,9 +2,11 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.ServletBasedInboundDeviceProtocol;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
+import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
@@ -69,7 +71,7 @@ public abstract class AbstractSMSServletBasedInboundDeviceProtocol implements Se
     }
 
     private PropertySpec sourcePropertySpec() {
-        return this.stringSpec(SOURCE_PROPERTY_NAME);
+        return this.stringSpec(SOURCE_PROPERTY_NAME, PropertyTranslationKeys.V2_ELSTER_SOURCE);
     }
 
     protected String sourcePropertyValue() {
@@ -77,7 +79,7 @@ public abstract class AbstractSMSServletBasedInboundDeviceProtocol implements Se
     }
 
     private PropertySpec authenticationPropertySpec() {
-        return this.stringSpec(AUTHENTICATION_PROPERTY_NAME);
+        return this.stringSpec(AUTHENTICATION_PROPERTY_NAME, PropertyTranslationKeys.V2_ELSTER_AUTHENTICATION);
     }
 
     protected String authenticationPropertyValue() {
@@ -88,9 +90,9 @@ public abstract class AbstractSMSServletBasedInboundDeviceProtocol implements Se
         return this.properties.getProperty(propertyName);
     }
 
-    protected PropertySpec stringSpec(String name) {
+    protected PropertySpec stringSpec(String name, TranslationKey translationKey) {
         return UPLPropertySpecFactory
-                    .specBuilder(name, true, this.propertySpecService::stringSpec)
+                    .specBuilder(name, true, translationKey, this.propertySpecService::stringSpec)
                     .finish();
     }
     @Override

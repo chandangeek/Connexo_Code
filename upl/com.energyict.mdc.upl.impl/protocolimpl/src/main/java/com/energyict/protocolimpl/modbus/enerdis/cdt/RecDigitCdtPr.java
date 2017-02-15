@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.modbus.enerdis.cdt;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -13,6 +14,7 @@ import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.ProfileLimiter;
 import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -62,8 +64,8 @@ public class RecDigitCdtPr extends RecDigitCdt {
 
 	private RegisterFactoryCdtPr rFactory;
 
-    public RecDigitCdtPr(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public RecDigitCdtPr(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override
@@ -74,7 +76,7 @@ public class RecDigitCdtPr extends RecDigitCdt {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.integerSpec(PK_LIMIT_MAX_NR_OF_DAYS, false));
+        propertySpecs.add(this.integerSpec(PK_LIMIT_MAX_NR_OF_DAYS, PropertyTranslationKeys.MODBUS_LIMIT_MAX_NR_OF_DAYS, false));
         return propertySpecs;
     }
 

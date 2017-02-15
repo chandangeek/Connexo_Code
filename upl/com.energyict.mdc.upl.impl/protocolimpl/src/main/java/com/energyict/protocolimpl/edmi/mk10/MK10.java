@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -21,6 +22,7 @@ import com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeMapper;
 import com.energyict.protocolimpl.edmi.mk10.streamfilters.MK10PushInputStream;
 import com.energyict.protocolimpl.edmi.mk10.streamfilters.MK10PushOutputStream;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
@@ -73,8 +75,8 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport {
 	private boolean logOffDisabled = true;
 	private boolean fullDebugLogging = false;
 
-	public MK10(PropertySpecService propertySpecService) {
-		super(propertySpecService);
+	public MK10(PropertySpecService propertySpecService, NlsService nlsService) {
+		super(propertySpecService, nlsService);
 	}
 
 	@Override
@@ -101,13 +103,13 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(
 		        UPLPropertySpecFactory
-                        .specBuilder("LoadSurveyNumber", true, this.getPropertySpecService()::integerSpec)
+                        .specBuilder("LoadSurveyNumber", true, PropertyTranslationKeys.EDMI_LOAD_SURVEY_NUMBER, this.getPropertySpecService()::integerSpec)
                         .addValues( 1, 2)
                         .markExhaustive()
                         .finish());
-        propertySpecs.add(this.integerSpec("DisableLogOff", false));
-        propertySpecs.add(this.stringSpec("PushProtocol", false));
-        propertySpecs.add(this.stringSpec("FullDebug", false));
+        propertySpecs.add(this.integerSpec("DisableLogOff", PropertyTranslationKeys.EDMI_DISABLE_LOG_OFF, false));
+        propertySpecs.add(this.stringSpec("PushProtocol", PropertyTranslationKeys.EDMI_PUSH_PROTOCOL, false));
+        propertySpecs.add(this.stringSpec("FullDebug", PropertyTranslationKeys.EDMI_FULL_DEBUG, false));
         return propertySpecs;
     }
 

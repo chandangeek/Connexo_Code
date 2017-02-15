@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.dlms;
 
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
@@ -26,8 +27,8 @@ public class DLMSZMD_EXT extends DLMSZMD {
 
     private int profileInterval;
 
-    public DLMSZMD_EXT(PropertySpecService propertySpecService, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
-        super(propertySpecService, messageFileFinder, deviceMessageFileExtractor);
+    public DLMSZMD_EXT(PropertySpecService propertySpecService, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor, NlsService nlsService) {
+        super(propertySpecService, messageFileFinder, deviceMessageFileExtractor, nlsService);
     }
 
     @Override

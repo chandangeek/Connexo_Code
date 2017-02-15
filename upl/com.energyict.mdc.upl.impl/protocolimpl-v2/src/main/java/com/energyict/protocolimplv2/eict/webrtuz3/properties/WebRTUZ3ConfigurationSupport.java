@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.eict.webrtuz3.properties;
 
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
@@ -7,6 +8,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
@@ -48,58 +50,58 @@ public class WebRTUZ3ConfigurationSupport implements HasDynamicProperties {
     }
 
     private PropertySpec serverUpperMacAddressPropertySpec() {
-        return this.bigDecimalSpec(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
+        return this.bigDecimalSpec(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE, PropertyTranslationKeys.V2_EICT_SERVER_UPPER_MAC_ADDRESS);
     }
 
     private PropertySpec serverLowerMacAddressPropertySpec() {
-        return this.bigDecimalSpec(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, BigDecimal.ZERO);
+        return this.bigDecimalSpec(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, BigDecimal.ZERO, PropertyTranslationKeys.V2_EICT_SERVER_LOWER_MAC_ADDRESS);
     }
 
     protected PropertySpec timeZonePropertySpec() {
-        return this.timeZoneSpec(TIMEZONE);
+        return this.timeZoneSpec(TIMEZONE, PropertyTranslationKeys.V2_EICT_TIMEZONE);
     }
 
     protected PropertySpec validateInvokeIdPropertySpec() {
-        return this.booleanSpec(VALIDATE_INVOKE_ID, DEFAULT_VALIDATE_INVOKE_ID);
+        return this.booleanSpec(VALIDATE_INVOKE_ID, DEFAULT_VALIDATE_INVOKE_ID, PropertyTranslationKeys.V2_EICT_VALIDATE_INVOKE_ID);
     }
 
     protected PropertySpec forcedDelayPropertySpec() {
-        return this.durationSpec(FORCED_DELAY, DEFAULT_FORCED_DELAY);
+        return this.durationSpec(FORCED_DELAY, DEFAULT_FORCED_DELAY, PropertyTranslationKeys.V2_EICT_FORCED_DELAY);
     }
 
     protected PropertySpec maxRecPduSizePropertySpec() {
-        return this.bigDecimalSpec(MAX_REC_PDU_SIZE, DEFAULT_MAX_REC_PDU_SIZE);
+        return this.bigDecimalSpec(MAX_REC_PDU_SIZE, DEFAULT_MAX_REC_PDU_SIZE, PropertyTranslationKeys.V2_EICT_MAX_REC_PDU_SIZE);
     }
 
     protected PropertySpec bulkRequestPropertySpec() {
-        return this.booleanSpec(BULK_REQUEST, true);
+        return this.booleanSpec(BULK_REQUEST, true, PropertyTranslationKeys.V2_EICT_BULK_REQUEST);
     }
 
-    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, optionsSupplier).finish();
     }
 
-    private PropertySpec timeZoneSpec(String name) {
-        return this.spec(name, this.propertySpecService::timeZoneSpec);
+    private PropertySpec timeZoneSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::timeZoneSpec);
     }
 
-    private PropertySpec bigDecimalSpec(String name, BigDecimal defaultValue) {
+    private PropertySpec bigDecimalSpec(String name, BigDecimal defaultValue, TranslationKey translationKey) {
         return UPLPropertySpecFactory
-                .specBuilder(name, false, this.propertySpecService::bigDecimalSpec)
+                .specBuilder(name, false, translationKey, this.propertySpecService::bigDecimalSpec)
                 .setDefaultValue(defaultValue)
                 .finish();
     }
 
-    private PropertySpec booleanSpec(String name, boolean defaultValue) {
+    private PropertySpec booleanSpec(String name, boolean defaultValue, TranslationKey translationKey) {
         return UPLPropertySpecFactory
-                .specBuilder(name, false, this.propertySpecService::booleanSpec)
+                .specBuilder(name, false, translationKey, this.propertySpecService::booleanSpec)
                 .setDefaultValue(defaultValue)
                 .finish();
     }
 
-    private PropertySpec durationSpec(String name, Duration defaultValue) {
+    private PropertySpec durationSpec(String name, Duration defaultValue, TranslationKey translationKey) {
         return UPLPropertySpecFactory
-                .specBuilder(name, false, this.propertySpecService::durationSpec)
+                .specBuilder(name, false, translationKey, this.propertySpecService::durationSpec)
                 .setDefaultValue(defaultValue)
                 .finish();
     }

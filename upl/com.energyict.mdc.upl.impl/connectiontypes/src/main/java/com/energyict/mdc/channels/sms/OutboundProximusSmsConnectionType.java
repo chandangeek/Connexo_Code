@@ -1,5 +1,6 @@
 package com.energyict.mdc.channels.sms;
 
+import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
@@ -38,7 +39,7 @@ public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
     }
 
     private PropertySpec phoneNumberPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(PHONE_NUMBER_PROPERTY_NAME, true, this.propertySpecService::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(PHONE_NUMBER_PROPERTY_NAME, true, PropertyTranslationKeys.OUTBOUND_PROXIMUS_PHONE_NUMBER, this.propertySpecService::stringSpec).finish();
     }
 
     protected String phoneNumberPropertyValue() {
@@ -46,7 +47,7 @@ public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
     }
 
     private PropertySpec connectionURLPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(CONNECTION_URL_PROPERTY_NAME, true, this.propertySpecService::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(CONNECTION_URL_PROPERTY_NAME, true, PropertyTranslationKeys.OUTBOUND_PROXIMUS_CONNECTION_URL, this.propertySpecService::stringSpec).finish();
     }
 
     protected String connectionURLPropertyValue() {
@@ -54,7 +55,7 @@ public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
     }
 
     private PropertySpec sourcePropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(SOURCE_PROPERTY_NAME, true, this.propertySpecService::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(SOURCE_PROPERTY_NAME, true, PropertyTranslationKeys.OUTBOUND_PROXIMUS_SOURCE, this.propertySpecService::stringSpec).finish();
     }
 
     protected String sourcePropertyValue() {
@@ -62,7 +63,7 @@ public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
     }
 
     private PropertySpec authenticationPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(AUTHENTICATION_PROPERTY_NAME, true, this.propertySpecService::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(AUTHENTICATION_PROPERTY_NAME, true, PropertyTranslationKeys.OUTBOUND_PROXIMUS_AUTHENTICATION, this.propertySpecService::stringSpec).finish();
     }
 
     protected String authenticationPropertyValue() {
@@ -70,7 +71,7 @@ public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
     }
 
     private PropertySpec serviceCodePropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(SERVICE_CODE_PROPERTY_NAME, true, this.propertySpecService::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(SERVICE_CODE_PROPERTY_NAME, true, PropertyTranslationKeys.OUTBOUND_PROXIMUS_SERVICE_CODE, this.propertySpecService::stringSpec).finish();
     }
 
     protected String serviceCodePropertyValue() {

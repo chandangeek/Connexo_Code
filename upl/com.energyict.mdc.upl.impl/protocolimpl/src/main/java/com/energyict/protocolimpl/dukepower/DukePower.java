@@ -20,6 +20,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -34,6 +35,7 @@ import com.energyict.protocol.SerialNumber;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
@@ -757,33 +759,33 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.stringSpecOfExactLength(ADDRESS.getName(), 7),
-                this.stringSpecOfExactLength(PASSWORD.getName(), 4),
-                this.integerSpec(TIMEOUT.getName()),
-                this.integerSpec(RETRIES.getName()),
-                this.integerSpec("DelayAfterFail"),
-                this.integerSpec(ROUNDTRIPCORRECTION.getName()));
+                this.stringSpecOfExactLength(ADDRESS.getName(), 7, PropertyTranslationKeys.DLMS_ADDRESS),
+                this.stringSpecOfExactLength(PASSWORD.getName(), 4, PropertyTranslationKeys.DLMS_PASSWORD),
+                this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.DLMS_TIMEOUT),
+                this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.DLMS_RETRIES),
+                this.integerSpec("DelayAfterFail", PropertyTranslationKeys.DLMS_DELAY_AFTERFAIL),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.DLMS_ROUNDTRIPCORRECTION));
     }
 
-    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, optionsSupplier).finish();
     }
 
-    private PropertySpec stringSpec(String name) {
-        return this.spec(name, this.propertySpecService::stringSpec);
+    private PropertySpec stringSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::stringSpec);
     }
 
-    private PropertySpec stringSpecOfExactLength(String name, int length) {
-        return this.spec(name, () -> this.propertySpecService.stringSpecOfExactLength(length));
+    private PropertySpec stringSpecOfExactLength(String name, int length, TranslationKey translationKey) {
+        return this.spec(name, translationKey, () -> this.propertySpecService.stringSpecOfExactLength(length));
     }
 
-    private PropertySpec integerSpec(String name) {
-        return this.spec(name, this.propertySpecService::integerSpec);
+    private PropertySpec integerSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::integerSpec);
     }
 
-    private PropertySpec integerSpec(String name, Integer... validValues) {
+    private PropertySpec integerSpec(String name, TranslationKey translationKey, Integer... validValues) {
         return UPLPropertySpecFactory
-                .specBuilder(name, false, this.propertySpecService::integerSpec)
+                .specBuilder(name, false, translationKey, this.propertySpecService::integerSpec)
                 .addValues(validValues)
                 .markExhaustive()
                 .finish();

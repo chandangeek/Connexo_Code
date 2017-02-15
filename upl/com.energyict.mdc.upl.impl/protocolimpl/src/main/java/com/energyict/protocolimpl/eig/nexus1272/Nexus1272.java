@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.eig.nexus1272;
 
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -27,7 +28,9 @@ import com.energyict.protocolimpl.eig.nexus1272.parse.NexusDataParser;
 import com.energyict.protocolimpl.eig.nexus1272.parse.ScaledEnergySetting;
 import com.energyict.protocolimpl.eig.nexus1272.parse.ScaledEnergySettingFactory;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -52,8 +55,8 @@ public class Nexus1272 extends AbstractProtocol implements SerialNumberSupport {
     private int intervalLength;
     private boolean isDeltaWired = false;
 
-    public Nexus1272(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public Nexus1272(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override
@@ -90,8 +93,8 @@ public class Nexus1272 extends AbstractProtocol implements SerialNumberSupport {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(new ChannelMappingPropertySpec("NexusChannelMapping", false));
-        propertySpecs.add(this.stringSpec("Delta Wired", false));
+        propertySpecs.add(new ChannelMappingPropertySpec("NexusChannelMapping", false, getNlsService().getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.EDMI_NEXUS_CHANNEL_MAPPING).format(), getNlsService().getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.EDMI_NEXUS_CHANNEL_MAPPING_DESCRIPTION).format()));
+        propertySpecs.add(this.stringSpec("Delta Wired", PropertyTranslationKeys.EDMI_DELTA_WIRED, false));
         return propertySpecs;
     }
 

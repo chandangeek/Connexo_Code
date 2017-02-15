@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.itron.quantum;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -22,6 +23,7 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.itron.protocol.SchlumbergerProtocol;
 import com.energyict.protocolimpl.itron.quantum.basepages.BasePagesFactory;
 import com.energyict.protocolimpl.itron.quantum.basepages.RegisterFactory;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,8 +42,8 @@ public class Quantum extends SchlumbergerProtocol {
     private boolean allowClockSet;
     private int loadProfileUnitScale;
 
-    public Quantum(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public Quantum(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override
@@ -78,7 +80,7 @@ public class Quantum extends SchlumbergerProtocol {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.integerSpec("LoadProfileUnitScale", false));
+        propertySpecs.add(this.integerSpec("LoadProfileUnitScale", PropertyTranslationKeys.ITRON_LOADPROFILE_UNIT_SCALE, false));
         return propertySpecs;
     }
 

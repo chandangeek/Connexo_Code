@@ -6,6 +6,7 @@ import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23Properties;
 
@@ -31,9 +32,9 @@ public class WatchTalkProperties extends Dsmr23Properties {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.specBuilder(PROPERTY_IGNORE_DST_STATUS_CODE, false, this.getPropertySpecService()::integerSpec).finish());
-        propertySpecs.add(UPLPropertySpecFactory.specBuilder(PROPERTY_FORCED_TO_READ_CACHE, false, this.getPropertySpecService()::integerSpec).finish());
-        propertySpecs.add(UPLPropertySpecFactory.specBuilder(VALIDATE_INVOKE_ID, false, this.getPropertySpecService()::integerSpec).finish());
+        propertySpecs.add(UPLPropertySpecFactory.specBuilder(PROPERTY_IGNORE_DST_STATUS_CODE, false, PropertyTranslationKeys.NTA_IGNORE_DST_STATUS_CODE, this.getPropertySpecService()::integerSpec).finish());
+        propertySpecs.add(UPLPropertySpecFactory.specBuilder(PROPERTY_FORCED_TO_READ_CACHE, false, PropertyTranslationKeys.NTA_FORCED_TO_READ_CACHE, this.getPropertySpecService()::integerSpec).finish());
+        propertySpecs.add(UPLPropertySpecFactory.specBuilder(VALIDATE_INVOKE_ID, false, PropertyTranslationKeys.NTA_VALIDATE_INVOKE_ID, this.getPropertySpecService()::integerSpec).finish());
         return propertySpecs;
     }
 

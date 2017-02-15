@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
@@ -10,8 +11,8 @@ public class PseudoBubbleUpPeriodEndHour extends AbstractParameter {
 
     private int hour;
 
-    PseudoBubbleUpPeriodEndHour(PropertySpecService propertySpecService, RTM rtm) {
-        super(propertySpecService, rtm);
+    PseudoBubbleUpPeriodEndHour(PropertySpecService propertySpecService, RTM rtm, NlsService nlsService) {
+        super(propertySpecService, rtm, nlsService);
     }
 
     final int getHour() {

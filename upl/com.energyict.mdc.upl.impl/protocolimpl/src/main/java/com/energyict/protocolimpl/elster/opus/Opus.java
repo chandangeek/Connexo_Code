@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.elster.opus;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -14,6 +15,8 @@ import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -107,12 +110,12 @@ public class Opus extends AbstractProtocol {
 
 	private TimeZone timezone;
 
-	public Opus(PropertySpecService propertySpecService){
-		super(propertySpecService);
+	public Opus(PropertySpecService propertySpecService, NlsService nlsService){
+		super(propertySpecService, nlsService);
 	}
 
-	public Opus(PropertySpecService propertySpecService, String oldPassword, String newPassword, int outstationID) {
-		this(propertySpecService);
+	public Opus(PropertySpecService propertySpecService, String oldPassword, String newPassword, int outstationID, NlsService nlsService) {
+		this(propertySpecService, nlsService);
 		this.oldPassword = oldPassword;
 		this.newPassword = newPassword;
 		this.outstationID = outstationID;
@@ -239,8 +242,8 @@ public class Opus extends AbstractProtocol {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(ProtocolChannelMap.propertySpec("ChannelMap", false));
-        propertySpecs.add(this.integerSpec("NodeAddress", true));
+        propertySpecs.add(ProtocolChannelMap.propertySpec("ChannelMap", false, getNlsService().getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.ELSTER_CHANNEL_MAP).format(), getNlsService().getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.ELSTER_CHANNEL_MAP_DESCRIPTION).format()));
+        propertySpecs.add(this.integerSpec("NodeAddress", PropertyTranslationKeys.ELSTER_NODE_ADRESS, true));
         return propertySpecs;
     }
 

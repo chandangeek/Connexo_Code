@@ -1,7 +1,9 @@
 package com.energyict.mdc.tasks;
 
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
@@ -51,27 +53,27 @@ public class GatewayTcpDeviceProtocolDialect extends AbstractDeviceProtocolDiale
     }
 
     protected PropertySpec retriesPropertySpec() {
-        return this.bigDecimalSpec(RETRIES, DEFAULT_RETRIES);
+        return this.bigDecimalSpec(RETRIES, DEFAULT_RETRIES, PropertyTranslationKeys.V2_TASKS_RETRIES);
     }
 
     protected PropertySpec timeoutPropertySpec() {
-        return this.durationSpec(TIMEOUT, Duration.ofSeconds(DEFAULT_TCP_TIMEOUT));
+        return this.durationSpec(TIMEOUT, Duration.ofSeconds(DEFAULT_TCP_TIMEOUT), PropertyTranslationKeys.V2_TASKS_TIMEOUT);
     }
 
     protected PropertySpec roundTripCorrectionPropertySpec() {
-        return this.bigDecimalSpec(ROUND_TRIP_CORRECTION, DEFAULT_ROUND_TRIP_CORRECTION);
+        return this.bigDecimalSpec(ROUND_TRIP_CORRECTION, DEFAULT_ROUND_TRIP_CORRECTION, PropertyTranslationKeys.V2_TASKS_ROUNDTRIPCORRECTION);
     }
 
-    private PropertySpec bigDecimalSpec(String name, BigDecimal defaultValue) {
+    private PropertySpec bigDecimalSpec(String name, BigDecimal defaultValue, TranslationKey translationKey) {
         return UPLPropertySpecFactory
-                .specBuilder(name, false, this.propertySpecService::bigDecimalSpec)
+                .specBuilder(name, false, translationKey, this.propertySpecService::bigDecimalSpec)
                 .setDefaultValue(defaultValue)
                 .finish();
     }
 
-    private PropertySpec durationSpec(String name, Duration defaultValue) {
+    private PropertySpec durationSpec(String name, Duration defaultValue, TranslationKey translationKey) {
         return UPLPropertySpecFactory
-                .specBuilder(name, false, this.propertySpecService::durationSpec)
+                .specBuilder(name, false, translationKey, this.propertySpecService::durationSpec)
                 .setDefaultValue(defaultValue)
                 .finish();
     }

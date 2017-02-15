@@ -3,6 +3,7 @@ package com.energyict.mdc.tasks;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
@@ -55,7 +56,7 @@ public class SerialDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
     private PropertySpec addressingModePropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(DlmsProtocolProperties.ADDRESSING_MODE, false, this.propertySpecService::bigDecimalSpec)
+                .specBuilder(DlmsProtocolProperties.ADDRESSING_MODE, false, PropertyTranslationKeys.V2_TASKS_ADDRESSING_MODE, this.propertySpecService::bigDecimalSpec)
                 .setDefaultValue(BigDecimal.valueOf(2))
                 .addValues(BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(4))
                 .markExhaustive()
@@ -64,28 +65,28 @@ public class SerialDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
     private PropertySpec informationFieldSizePropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(DlmsProtocolProperties.INFORMATION_FIELD_SIZE, false, this.propertySpecService::bigDecimalSpec)
+                .specBuilder(DlmsProtocolProperties.INFORMATION_FIELD_SIZE, false, PropertyTranslationKeys.V2_TASKS_INFORMATION_FIELD_SIZE, this.propertySpecService::bigDecimalSpec)
                 .setDefaultValue(BigDecimal.valueOf(128))
                 .finish();
     }
 
     private PropertySpec retriesPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(RETRIES, false, this.propertySpecService::bigDecimalSpec)
+                .specBuilder(RETRIES, false, PropertyTranslationKeys.V2_TASKS_RETRIES, this.propertySpecService::bigDecimalSpec)
                 .setDefaultValue(DEFAULT_RETRIES)
                 .finish();
     }
 
     private PropertySpec timeoutPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(TIMEOUT, false, this.propertySpecService::durationSpec)
+                .specBuilder(TIMEOUT, false, PropertyTranslationKeys.V2_TASKS_TIMEOUT, this.propertySpecService::durationSpec)
                 .setDefaultValue(DEFAULT_TIMEOUT)
                 .finish();
     }
 
     private PropertySpec roundTripCorrectionPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(ROUND_TRIP_CORRECTION, false, this.propertySpecService::bigDecimalSpec)
+                .specBuilder(ROUND_TRIP_CORRECTION, false, PropertyTranslationKeys.V2_TASKS_TIMEOUT, this.propertySpecService::bigDecimalSpec)
                 .setDefaultValue(DEFAULT_ROUND_TRIP_CORRECTION)
                 .finish();
     }

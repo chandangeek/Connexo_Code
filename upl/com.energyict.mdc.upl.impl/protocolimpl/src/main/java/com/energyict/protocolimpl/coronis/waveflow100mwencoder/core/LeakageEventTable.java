@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
@@ -90,22 +91,24 @@ public class LeakageEventTable extends AbstractRadioCommand {
         }
 
         public int getDeviceCode() {
-            EventStatusAndDescription eventStatus = new EventStatusAndDescription(new WaveFlowV2(propertySpecService));
+            EventStatusAndDescription eventStatus = new EventStatusAndDescription(new WaveFlowV2(propertySpecService, nlsService));
             return eventStatus.getProtocolCodeForLeakage(getStartDescription(), getTypeDescription(), getPortDescription());
         }
     }
 
     LeakEvent[] leakageEvents = new LeakEvent[5];
     private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
 
     public final LeakEvent[] getLeakageEvents() {
         return leakageEvents;
     }
 
-    LeakageEventTable(WaveFlow100mW waveFlow100mW, PropertySpecService propertySpecService) {
+    LeakageEventTable(WaveFlow100mW waveFlow100mW, PropertySpecService propertySpecService, NlsService nlsService) {
         super(waveFlow100mW);
         // TODO Auto-generated constructor stub
         this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
     }
 
     @Override

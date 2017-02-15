@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand.AbstractRadioCommand;
@@ -138,8 +139,8 @@ public abstract class AbstractParameter extends AbstractRadioCommand {
         }
     }
 
-    AbstractParameter(PropertySpecService propertySpecService, RTM rtm) {
-        super(propertySpecService, rtm);
+    AbstractParameter(PropertySpecService propertySpecService, RTM rtm, NlsService nlsService) {
+        super(propertySpecService, rtm, nlsService);
     }
 
     abstract ParameterId getParameterId() throws WaveFlowException;

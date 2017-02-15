@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -9,6 +10,8 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.coronis.waveflowDLMS.as253.ProfileDataReader;
 import com.energyict.protocolimpl.dlms.common.ObisCodePropertySpec;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,8 +34,8 @@ public class AS253 extends AbstractDLMS {
 
     private Map<ObisCode,ObjectEntry> objectEntries = null;
 
-    public AS253(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public AS253(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override
@@ -44,8 +47,8 @@ public class AS253 extends AbstractDLMS {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(new ObisCodePropertySpec("LoadProfileObisCode", false));
-        propertySpecs.add(this.stringSpec(PROPERTY_LP_MULTIPLIER, false));
+        propertySpecs.add(new ObisCodePropertySpec("LoadProfileObisCode", false, getNlsService().getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.CORONIS_LOADPROFILE_OBISCODE).format(), getNlsService().getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.CORONIS_LOADPROFILE_OBISCODE_DESCRIPTION).format()));
+        propertySpecs.add(this.stringSpec(PROPERTY_LP_MULTIPLIER, PropertyTranslationKeys.CORONIS_LP_MULTIPLIER, false));
         return propertySpecs;
     }
 

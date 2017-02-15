@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.base.ProtocolProperty;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23Properties;
 
@@ -33,9 +34,9 @@ public class Dsmr40Properties extends Dsmr23Properties {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = super.getUPLPropertySpecs();
-        propertySpecs.add(UPLPropertySpecFactory.specBuilder(DSMR_40_HEX_PASSWORD, false, this.getPropertySpecService()::stringSpec).finish());
-        propertySpecs.add(UPLPropertySpecFactory.specBuilder(PROPERTY_FORCED_TO_READ_CACHE, false, this.getPropertySpecService()::integerSpec).finish());
-        propertySpecs.add(UPLPropertySpecFactory.specBuilder(CumulativeCaptureTimeChannel, false, this.getPropertySpecService()::integerSpec).finish());
+        propertySpecs.add(UPLPropertySpecFactory.specBuilder(DSMR_40_HEX_PASSWORD, false, PropertyTranslationKeys.NTA_DSMR_40_HEX_PASSWORD, this.getPropertySpecService()::stringSpec).finish());
+        propertySpecs.add(UPLPropertySpecFactory.specBuilder(PROPERTY_FORCED_TO_READ_CACHE, false, PropertyTranslationKeys.NTA_FORCED_TO_READ_CACHE, this.getPropertySpecService()::integerSpec).finish());
+        propertySpecs.add(UPLPropertySpecFactory.specBuilder(CumulativeCaptureTimeChannel, false, PropertyTranslationKeys.NTA_CUMULATIVE_CAPTURE_TIME_CHANNEL, this.getPropertySpecService()::integerSpec).finish());
         return propertySpecs;
     }
 

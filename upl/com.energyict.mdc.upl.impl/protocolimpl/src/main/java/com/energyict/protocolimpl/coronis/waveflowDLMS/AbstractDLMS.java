@@ -9,6 +9,7 @@ import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -29,7 +30,9 @@ import com.energyict.protocolimpl.coronis.core.ProtocolLink;
 import com.energyict.protocolimpl.coronis.core.RegisterCache;
 import com.energyict.protocolimpl.coronis.core.WaveFlowConnect;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -111,8 +114,8 @@ public abstract class AbstractDLMS extends AbstractProtocol implements ProtocolL
      */
     private WaveFlowConnect waveFlowConnect;
 
-    public AbstractDLMS(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public AbstractDLMS(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     enum PairingMeterId {
@@ -310,14 +313,14 @@ public abstract class AbstractDLMS extends AbstractProtocol implements ProtocolL
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.integerSpec(CORRECTTIME.getName(), false));
-        propertySpecs.add(this.integerSpec("correctWaveflowTime", false));
-        propertySpecs.add(this.stringSpec("verifyProfileInterval", false));
-        propertySpecs.add(this.stringSpec("isOldFirmware", false));
-        propertySpecs.add(this.stringSpec("optimizeChangeContactorStatus", false));
-        propertySpecs.add(this.stringSpec("SerialNumberA", false));
-        propertySpecs.add(this.integerSpec("MaxNumberOfIntervals", false));
-        propertySpecs.add(WaveflowProtocolUtils.propertySpec("WavenisEncryptionKey", false));
+        propertySpecs.add(this.integerSpec(CORRECTTIME.getName(), PropertyTranslationKeys.CORONIS_CORRECTTIME, false));
+        propertySpecs.add(this.integerSpec("correctWaveflowTime", PropertyTranslationKeys.CORONIS_CORRECT_WAVEFLOW_TIME, false));
+        propertySpecs.add(this.stringSpec("verifyProfileInterval", PropertyTranslationKeys.CORONIS_VERIFY_PROFILE_INTERVAL, false));
+        propertySpecs.add(this.stringSpec("isOldFirmware", PropertyTranslationKeys.CORONIS_IS_OLD_FIRMWARE, false));
+        propertySpecs.add(this.stringSpec("optimizeChangeContactorStatus", PropertyTranslationKeys.CORONIS_OPTIMIZE_CHANGE_CONTACTOR_STATUS, false));
+        propertySpecs.add(this.stringSpec("SerialNumberA", PropertyTranslationKeys.CORONIS_SERIAL_NUMBER_A, false));
+        propertySpecs.add(this.integerSpec("MaxNumberOfIntervals", PropertyTranslationKeys.CORONIS_MAX_NUMBER_OF_INTERVALS, false));
+        propertySpecs.add(WaveflowProtocolUtils.propertySpec("WavenisEncryptionKey", false, getNlsService().getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_WAVENIS_ENCRYPTION_KEY).format(), getNlsService().getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_WAVENIS_ENCRYPTION_KEY_DESCRIPTION).format()));
         return propertySpecs;
     }
 

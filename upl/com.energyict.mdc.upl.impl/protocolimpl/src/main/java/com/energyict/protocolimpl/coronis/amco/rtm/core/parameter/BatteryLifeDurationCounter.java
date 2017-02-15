@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
@@ -48,15 +49,15 @@ public class BatteryLifeDurationCounter extends AbstractParameter {
         return 100 - (((getInitialCount() * 100) - (getBatteryLifeCounter() * 100)) / getInitialCount());
     }
 
-    BatteryLifeDurationCounter(PropertySpecService propertySpecService, RTM rtm) throws IOException {
-        super(propertySpecService, rtm);
+    BatteryLifeDurationCounter(PropertySpecService propertySpecService, RTM rtm, NlsService nlsService) throws IOException {
+        super(propertySpecService, rtm, nlsService);
         if (radioAddress == null) {
             radioAddress = rtm.getWaveFlowConnect().readRadioAddress();
         }
     }
 
-    public BatteryLifeDurationCounter(PropertySpecService propertySpecService, RTM rtm, int batteryLifeCounter, byte[] radioAddress) throws IOException {
-        super(propertySpecService, rtm);
+    public BatteryLifeDurationCounter(PropertySpecService propertySpecService, RTM rtm, int batteryLifeCounter, byte[] radioAddress, NlsService nlsService) throws IOException {
+        super(propertySpecService, rtm, nlsService);
         this.batteryLifeCounter = batteryLifeCounter;
         if (radioAddress == null) {
             this.radioAddress = rtm.getWaveFlowConnect().readRadioAddress();

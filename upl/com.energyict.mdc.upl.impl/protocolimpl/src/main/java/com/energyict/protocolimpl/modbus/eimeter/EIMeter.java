@@ -6,6 +6,7 @@ package com.energyict.protocolimpl.modbus.eimeter;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
@@ -28,8 +29,8 @@ import java.util.List;
  */
 public class EIMeter extends Modbus {
 
-    public EIMeter(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public EIMeter(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override

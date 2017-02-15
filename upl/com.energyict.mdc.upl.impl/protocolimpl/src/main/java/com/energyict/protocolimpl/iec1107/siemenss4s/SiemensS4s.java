@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.iec1107.siemenss4s;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -45,8 +46,8 @@ public class SiemensS4s extends AbstractIEC1107Protocol implements SerialNumberS
 	/**
 	 * Creates a new instance of the SiemesS4s protocol
 	 */
-	public SiemensS4s(PropertySpecService propertySpecService){
-		super(new SiemensS4sEncryptor(), propertySpecService);
+	public SiemensS4s(PropertySpecService propertySpecService, NlsService nlsService){
+		super(new SiemensS4sEncryptor(), propertySpecService, nlsService);
 	}
 
     @Override

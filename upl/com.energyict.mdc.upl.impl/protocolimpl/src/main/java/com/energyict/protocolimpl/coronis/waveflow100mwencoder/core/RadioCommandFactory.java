@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import java.io.IOException;
@@ -15,10 +16,12 @@ public class RadioCommandFactory {
 
     private MBusInternalLogs[] mBusInternalLogs=new MBusInternalLogs[2];
     private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
 
-    RadioCommandFactory(WaveFlow100mW waveFlow100mW, PropertySpecService propertySpecService) {
+    RadioCommandFactory(WaveFlow100mW waveFlow100mW, PropertySpecService propertySpecService, NlsService nlsService) {
         this.waveFlow100mW = waveFlow100mW;
         this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
     }
 
     final EncoderCurrentReading readEncoderCurrentReading() throws IOException {
@@ -66,7 +69,7 @@ public class RadioCommandFactory {
 
 
     public final LeakageEventTable readLeakageEventTable() throws IOException {
-        LeakageEventTable leakageEventTable = new LeakageEventTable(waveFlow100mW, this.propertySpecService);
+        LeakageEventTable leakageEventTable = new LeakageEventTable(waveFlow100mW, this.propertySpecService, this.nlsService);
         leakageEventTable.invoke();
         return leakageEventTable;
     }

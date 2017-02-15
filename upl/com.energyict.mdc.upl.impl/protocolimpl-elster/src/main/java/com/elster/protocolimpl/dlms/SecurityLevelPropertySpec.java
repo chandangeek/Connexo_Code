@@ -15,8 +15,8 @@ import com.energyict.protocolimpl.properties.AbstractPropertySpec;
  */
 public class SecurityLevelPropertySpec extends AbstractPropertySpec {
 
-    protected SecurityLevelPropertySpec(String name, boolean required) {
-        super(name, required);
+    protected SecurityLevelPropertySpec(String name, boolean required, String displayName, String description) {
+        super(name, required, displayName, description);
     }
 
     @Override

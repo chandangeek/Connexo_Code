@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
@@ -12,8 +13,8 @@ public class PseudoBubbleUpCommandBuffer extends AbstractParameter {
     byte[] buffer = ProtocolTools.getBytesFromHexString("$01$01$00$00$00$00$00", "$");
     int length = 1;
 
-    PseudoBubbleUpCommandBuffer(PropertySpecService propertySpecService, RTM rtm) {
-        super(propertySpecService, rtm);
+    PseudoBubbleUpCommandBuffer(PropertySpecService propertySpecService, RTM rtm, NlsService nlsService) {
+        super(propertySpecService, rtm, nlsService);
     }
 
     public String getBuffer() {

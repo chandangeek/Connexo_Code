@@ -21,6 +21,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -37,7 +38,9 @@ import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.common.ObisCodePropertySpec;
 import com.energyict.protocolimpl.dlms.idis.registers.IDISStoredValues;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -79,8 +82,8 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     private final TariffCalendarFinder calendarFinder;
     private final TariffCalendarExtractor extractor;
 
-    public IDIS(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor) {
-        super(propertySpecService);
+    public IDIS(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor, NlsService nlsService) {
+        super(propertySpecService, nlsService);
         this.calendarFinder = calendarFinder;
         this.extractor = extractor;
     }
@@ -242,18 +245,18 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> myPropertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        myPropertySpecs.add(this.integerSpec(READCACHE_PROPERTY, false));
-        myPropertySpecs.add(this.integerSpec(LIMITMAXNROFDAYS_PROPERTY, false));
-        myPropertySpecs.add(this.stringSpec(CALLING_AP_TITLE, false));
-        myPropertySpecs.add(new ObisCodePropertySpec(LOAD_PROFILE_OBIS_CODE_PROPERTY, false));
-        myPropertySpecs.add(this.stringSpec(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, false));
-        myPropertySpecs.add(this.stringSpec(DlmsProtocolProperties.SERVER_MAC_ADDRESS, false));
-        myPropertySpecs.add(this.stringSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, false)); // Legacy property for migration, the protocol uses SERVER_MAC_ADDRESS property!
-        myPropertySpecs.add(this.stringSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, false)); // Legacy property for migration, the protocol uses SERVER_MAC_ADDRESS property!
-        myPropertySpecs.add(this.stringSpec(DlmsProtocolProperties.CONNECTION, false));
-        myPropertySpecs.add(this.stringSpec(DlmsProtocolProperties.ADDRESSING_MODE, false));
-        myPropertySpecs.add(this.stringSpec(DlmsProtocolProperties.MAX_REC_PDU_SIZE, false));
-        myPropertySpecs.add(this.stringSpec(DlmsProtocolProperties.ISKRA_WRAPPER, false));
+        myPropertySpecs.add(this.integerSpec(READCACHE_PROPERTY, PropertyTranslationKeys.DLMS_READ_CACHE, false));
+        myPropertySpecs.add(this.integerSpec(LIMITMAXNROFDAYS_PROPERTY, PropertyTranslationKeys.DLMS_LIMIT_MAX_NR_OF_DAYS, false));
+        myPropertySpecs.add(this.stringSpec(CALLING_AP_TITLE, PropertyTranslationKeys.DLMS_CALLING_AP_TITLE, false));
+        myPropertySpecs.add(new ObisCodePropertySpec(LOAD_PROFILE_OBIS_CODE_PROPERTY, false, getNlsService().getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_LOAD_PROFILE_OBIS_CODE).format(), getNlsService().getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_LOAD_PROFILE_OBIS_CODE_DESCRIPTION).format()));
+        myPropertySpecs.add(this.stringSpec(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS, false));
+        myPropertySpecs.add(this.stringSpec(DlmsProtocolProperties.SERVER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_MAC_ADDRESS, false));
+        myPropertySpecs.add(this.stringSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS, false)); // Legacy property for migration, the protocol uses SERVER_MAC_ADDRESS property!
+        myPropertySpecs.add(this.stringSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS, false)); // Legacy property for migration, the protocol uses SERVER_MAC_ADDRESS property!
+        myPropertySpecs.add(this.stringSpec(DlmsProtocolProperties.CONNECTION, PropertyTranslationKeys.DLMS_CONNECTION, false));
+        myPropertySpecs.add(this.stringSpec(DlmsProtocolProperties.ADDRESSING_MODE, PropertyTranslationKeys.DLMS_ADDRESSING_MODE, false));
+        myPropertySpecs.add(this.stringSpec(DlmsProtocolProperties.MAX_REC_PDU_SIZE, PropertyTranslationKeys.DLMS_MAX_REC_PDU_SIZE, false));
+        myPropertySpecs.add(this.stringSpec(DlmsProtocolProperties.ISKRA_WRAPPER, PropertyTranslationKeys.DLMS_ISKRA_WRAPPER, false));
         return myPropertySpecs;
     }
 

@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.cbo.BaseUnit;
@@ -15,12 +16,12 @@ import java.io.IOException;
  */
 public class EncoderUnit extends RtmUnit {
 
-    public EncoderUnit(PropertySpecService propertySpecService, RTM rtm) {
-        super(propertySpecService, rtm);
+    public EncoderUnit(PropertySpecService propertySpecService, RTM rtm, NlsService nlsService) {
+        super(propertySpecService, rtm, nlsService);
     }
 
-    public EncoderUnit(PropertySpecService propertySpecService, RTM rtm, int port) {
-        super(propertySpecService, rtm);
+    public EncoderUnit(PropertySpecService propertySpecService, RTM rtm, int port, NlsService nlsService) {
+        super(propertySpecService, rtm, nlsService);
         this.port = port;
     }
 

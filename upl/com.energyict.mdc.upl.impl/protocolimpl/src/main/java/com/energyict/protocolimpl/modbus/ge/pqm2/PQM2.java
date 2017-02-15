@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.modbus.ge.pqm2;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocol.support.SerialNumberSupport;
@@ -25,8 +26,8 @@ import java.util.Date;
  */
 public class PQM2 extends Modbus implements SerialNumberSupport {
 
-    public PQM2(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public PQM2(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override

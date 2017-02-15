@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.alarmframe;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocol.MeterEvent;
@@ -29,10 +30,12 @@ public class AlarmFrameParser {
     private int alarmData;
     private ProfileType profileType;
     private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
 
-    public AlarmFrameParser(RTM rtm, PropertySpecService propertySpecService) {
+    public AlarmFrameParser(RTM rtm, PropertySpecService propertySpecService, NlsService nlsService) {
         this.rtm = rtm;
         this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
     }
 
     public int getStatus() {
@@ -45,7 +48,7 @@ public class AlarmFrameParser {
         alarmId = data[offset] & 0xFF;   //Received from the RTU+Server, indicates the alarm frame type!
         offset++;
 
-        GenericHeader header = new GenericHeader(rtm, this.propertySpecService);
+        GenericHeader header = new GenericHeader(rtm, this.propertySpecService, this.nlsService);
         header.parse(ProtocolTools.getSubArray(data, offset));
         profileType = header.getProfileType();
 

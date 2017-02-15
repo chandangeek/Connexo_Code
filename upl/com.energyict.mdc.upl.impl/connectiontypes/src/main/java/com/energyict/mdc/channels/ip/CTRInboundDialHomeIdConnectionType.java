@@ -1,6 +1,7 @@
 package com.energyict.mdc.channels.ip;
 
 import com.energyict.mdc.channels.VoidComChannel;
+import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
@@ -33,7 +34,7 @@ public class CTRInboundDialHomeIdConnectionType extends ConnectionTypeImpl {
     }
 
     private PropertySpec callHomeIdPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, true, this.propertySpecService::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, true, PropertyTranslationKeys.CTR_INBOUND_DIAL_HOME_ID, this.propertySpecService::stringSpec).finish();
     }
 
     protected String callHomeIdPropertyValue() {

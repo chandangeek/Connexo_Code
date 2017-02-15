@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.cm10;
 
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -12,6 +13,7 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
@@ -43,8 +45,8 @@ public class CM10 extends AbstractProtocol {
 
     private boolean isCM10Meter;
 
-    public CM10(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public CM10(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override
@@ -90,8 +92,8 @@ public class CM10 extends AbstractProtocol {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.integerSpec("DelayAfterConnect", false));
-        propertySpecs.add(this.integerSpec(IS_C10_METER, false));
+        propertySpecs.add(this.integerSpec("DelayAfterConnect", PropertyTranslationKeys.CM10_DELAY_AFTER_CONNECT, false));
+        propertySpecs.add(this.integerSpec(IS_C10_METER, PropertyTranslationKeys.CM10_IS_C10_METER, false));
         return propertySpecs;
     }
 

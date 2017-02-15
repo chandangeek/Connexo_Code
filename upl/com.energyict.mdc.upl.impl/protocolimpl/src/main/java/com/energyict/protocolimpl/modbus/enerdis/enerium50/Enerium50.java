@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium50;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.Enerium200;
@@ -14,8 +15,8 @@ import java.io.IOException;
  */
 public class Enerium50 extends Enerium200 {
 
-    public Enerium50(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public Enerium50(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override

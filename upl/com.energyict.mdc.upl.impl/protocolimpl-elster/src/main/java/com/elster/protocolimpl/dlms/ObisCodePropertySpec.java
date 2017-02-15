@@ -15,8 +15,8 @@ import com.energyict.protocolimpl.properties.AbstractPropertySpec;
  */
 class ObisCodePropertySpec extends AbstractPropertySpec {
 
-    ObisCodePropertySpec(String name, boolean required) {
-        super(name, required);
+    ObisCodePropertySpec(String name, boolean required, String displayName, String description) {
+        super(name, required, displayName, description);
     }
 
     @Override

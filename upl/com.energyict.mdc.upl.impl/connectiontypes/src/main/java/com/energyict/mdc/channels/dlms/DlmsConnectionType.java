@@ -1,8 +1,10 @@
 package com.energyict.mdc.channels.dlms;
 
 
+import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.upl.io.ConnectionType;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -39,26 +41,26 @@ public abstract class DlmsConnectionType extends ConnectionTypeImpl {
     }
 
     PropertySpec getAddressingModePropertySpec() {
-        return this.bigDecimalSpec(PROPERTY_NAME_ADDRESSING_MODE, BigDecimal.valueOf(2),
+        return this.bigDecimalSpec(PROPERTY_NAME_ADDRESSING_MODE, PropertyTranslationKeys.DLMS_ADDRESSING_MODE,BigDecimal.valueOf(2),
                 BigDecimal.valueOf(1),
                 BigDecimal.valueOf(2),
                 BigDecimal.valueOf(4));
     }
 
     PropertySpec getServerMacAddress() {
-        return this.bigDecimalSpec(PROPERTY_NAME_SERVER_MAC_ADDRESS, new BigDecimal(1));
+        return this.bigDecimalSpec(PROPERTY_NAME_SERVER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_MAC_ADDRESS, new BigDecimal(1));
     }
 
     PropertySpec getServerUpperMacAddress() {
-        return this.bigDecimalSpec(PROPERTY_NAME_SERVER_UPPER_MAC_ADDRESS, new BigDecimal(17));
+        return this.bigDecimalSpec(PROPERTY_NAME_SERVER_UPPER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS, new BigDecimal(17));
     }
 
     PropertySpec getServerLowerMacAddress() {
-        return this.bigDecimalSpec(PROPERTY_NAME_SERVER_LOWER_MAC_ADDRESS, new BigDecimal(1));
+        return this.bigDecimalSpec(PROPERTY_NAME_SERVER_LOWER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS, new BigDecimal(1));
     }
 
     PropertySpec getConnectionPropertySpec() {
-        return this.bigDecimalSpec(PROPERTY_NAME_CONNECTION, new BigDecimal(1));
+        return this.bigDecimalSpec(PROPERTY_NAME_CONNECTION, PropertyTranslationKeys.DLMS_CONNECTION, new BigDecimal(1));
     }
 
     @Override
@@ -66,8 +68,8 @@ public abstract class DlmsConnectionType extends ConnectionTypeImpl {
         return ConnectionTypeDirection.OUTBOUND;
     }
 
-    protected PropertySpec bigDecimalSpec(String name, BigDecimal defaultvalue, BigDecimal... possibleValues) {
-        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, false, this.propertySpecService::bigDecimalSpec);
+    protected PropertySpec bigDecimalSpec(String name, TranslationKey translationKey, BigDecimal defaultvalue, BigDecimal... possibleValues) {
+        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, false, translationKey, this.propertySpecService::bigDecimalSpec);
         specBuilder.setDefaultValue(defaultvalue);
         specBuilder.addValues(possibleValues);
         if (possibleValues.length > 0) {

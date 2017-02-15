@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.modbus.core.discover;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
@@ -28,8 +29,8 @@ public class GenericModbusDiscover extends Modbus {
 
     final int DEBUG=0;
 
-    public GenericModbusDiscover(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public GenericModbusDiscover(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override

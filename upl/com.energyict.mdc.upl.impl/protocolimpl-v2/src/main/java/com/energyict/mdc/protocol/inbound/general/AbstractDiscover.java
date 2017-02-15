@@ -8,6 +8,7 @@ import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocol.ProtocolImplFactory;
 import com.energyict.protocol.ProtocolInstantiator;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
@@ -121,11 +122,11 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
     public List<PropertySpec> getUPLPropertySpecs() {
         return new ArrayList<>(Arrays.asList(
                 UPLPropertySpecFactory
-                    .specBuilder(TIMEOUT_KEY, false, this.propertySpecService::durationSpec)
+                    .specBuilder(TIMEOUT_KEY, false, PropertyTranslationKeys.V2_INBOUND_TIMEOUT, this.propertySpecService::durationSpec)
                     .setDefaultValue(TIMEOUT_DEFAULT)
                     .finish(),
                 UPLPropertySpecFactory
-                    .specBuilder(RETRIES_KEY, false, this.propertySpecService::bigDecimalSpec)
+                    .specBuilder(RETRIES_KEY, false, PropertyTranslationKeys.V2_INBOUND_RETRIES, this.propertySpecService::bigDecimalSpec)
                     .setDefaultValue(RETRIES_DEFAULT)
                     .finish()));
     }

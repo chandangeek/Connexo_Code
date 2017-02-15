@@ -18,6 +18,7 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.customerconfig.EDPRegisterConfig;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 import com.energyict.protocolimpl.metcom.Metcom2;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.sctm.base.GenericRegisters;
 
@@ -61,7 +62,7 @@ public class EKM extends Metcom2 implements RegisterProtocol {
     }
 
     private PropertySpec stringSpec(String name) {
-        return UPLPropertySpecFactory.specBuilder(name, false, this.getPropertySpecService()::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(name, false, PropertyTranslationKeys.SCTM_BILLING_TIMESTAMP_ID, this.getPropertySpecService()::stringSpec).finish();
     }
 
     @Override

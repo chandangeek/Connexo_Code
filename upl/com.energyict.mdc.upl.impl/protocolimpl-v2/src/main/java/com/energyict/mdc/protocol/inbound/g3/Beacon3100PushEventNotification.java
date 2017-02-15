@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.inbound.g3;
 
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
+import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
@@ -51,7 +52,7 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
         List<com.energyict.mdc.upl.properties.PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(
                 UPLPropertySpecFactory
-                        .specBuilder(PROVIDE_PROTOCOL_JAVA_CLASS_NAME_PROPERTY, false, this.propertySpecService::booleanSpec)
+                        .specBuilder(PROVIDE_PROTOCOL_JAVA_CLASS_NAME_PROPERTY, false, PropertyTranslationKeys.V2_G3_PROVIDE_PROTOCOL_JAVA_CLASS_NAME, this.propertySpecService::booleanSpec)
                         .setDefaultValue(Boolean.TRUE)
                         .finish());
         return propertySpecs;

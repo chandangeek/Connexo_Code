@@ -9,10 +9,12 @@ import com.elster.protocolimpl.dlms.registers.DlmsSimpleRegisterDefinition;
 import com.elster.protocolimpl.dlms.registers.HistoricalObisCode;
 import com.elster.protocolimpl.dlms.registers.IReadableRegister;
 import com.elster.protocolimpl.dlms.registers.RegisterMap;
+import com.elster.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -221,8 +223,8 @@ public class EK280 extends Dlms {
 
     private IReadableRegister[] readableRegisters;
 
-    public EK280(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, PropertySpecService propertySpecService, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
-        super(calendarFinder, calendarExtractor, propertySpecService, deviceMessageFileFinder, deviceMessageFileExtractor);
+    public EK280(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, PropertySpecService propertySpecService, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor, NlsService nlsService) {
+        super(calendarFinder, calendarExtractor, propertySpecService, deviceMessageFileFinder, deviceMessageFileExtractor, nlsService);
         ocIntervalProfile = Ek280Defs.LOAD_PROFILE_60;
         ocLogProfile = Ek280Defs.EVENT_LOG;
 
@@ -243,7 +245,7 @@ public class EK280 extends Dlms {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.specBuilder(ARCHIVESTRUCTUREVERSION, false, getPropertySpecService()::stringSpec).finish());
+        propertySpecs.add(UPLPropertySpecFactory.specBuilder(ARCHIVESTRUCTUREVERSION, false, PropertyTranslationKeys.DLMS_ARCHIVE_STRUCTURE_VERSION ,getPropertySpecService()::stringSpec).finish());
         return propertySpecs;
     }
 

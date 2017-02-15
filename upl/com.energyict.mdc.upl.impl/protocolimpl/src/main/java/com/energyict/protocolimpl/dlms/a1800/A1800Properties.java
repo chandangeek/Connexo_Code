@@ -1,6 +1,8 @@
 
 package com.energyict.protocolimpl.dlms.a1800;
 
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -16,7 +18,9 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.common.ObisCodePropertySpec;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.util.Arrays;
 import java.util.List;
@@ -39,35 +43,33 @@ class A1800Properties extends DlmsProtocolProperties implements DlmsSessionPrope
     private static final String READ_SERIAL_NUMBER = "ReadSerialNumber";
 
     private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
     private InvokeIdAndPriorityHandler invokeIdAndPriorityHandler = null;
 
-    A1800Properties(PropertySpecService propertySpecService) {
+    A1800Properties(PropertySpecService propertySpecService, NlsService nlsService) {
         this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
     }
 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.integerSpec(SECURITY_LEVEL),
-                this.integerSpec(CLIENT_MAC_ADDRESS),
-                this.integerSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS),
-                this.integerSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS),
-                this.integerSpec(READ_SERIAL_NUMBER),
-                this.integerSpec(PROPNAME_SEND_PREFIX),
-                new ObisCodePropertySpec(PROPNAME_LOAD_PROFILE_OBIS_CODE, false),
-                this.integerSpec(PROPNAME_APPLY_TRANSFORMER_RATIOS));
+                this.integerSpec(SECURITY_LEVEL, PropertyTranslationKeys.DLMS_SECURITYLEVEL),
+                this.integerSpec(CLIENT_MAC_ADDRESS, PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS),
+                this.integerSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS),
+                this.integerSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS),
+                this.integerSpec(READ_SERIAL_NUMBER, PropertyTranslationKeys.DLMS_READ_SERIAL_NUMBER),
+                this.integerSpec(PROPNAME_SEND_PREFIX, PropertyTranslationKeys.DLMS_SEND_PREFIX),
+                new ObisCodePropertySpec(PROPNAME_LOAD_PROFILE_OBIS_CODE, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_LOAD_PROFILE_OBIS_CODE).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_LOAD_PROFILE_OBIS_CODE_DESCRIPTION).format()),
+                this.integerSpec(PROPNAME_APPLY_TRANSFORMER_RATIOS, PropertyTranslationKeys.DLMS_APPLY_TRANSFORMER_RATIOS));
     }
 
-    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, optionsSupplier).finish();
     }
 
-    private PropertySpec stringSpec(String name) {
-        return this.spec(name, this.propertySpecService::stringSpec);
-    }
-
-    private PropertySpec integerSpec(String name) {
-        return this.spec(name, this.propertySpecService::integerSpec);
+    private PropertySpec integerSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::integerSpec);
     }
 
     public DLMSReference getReference() {

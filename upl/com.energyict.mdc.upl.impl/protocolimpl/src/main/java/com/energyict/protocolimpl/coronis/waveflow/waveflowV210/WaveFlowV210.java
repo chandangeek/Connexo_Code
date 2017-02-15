@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.obis.ObisCode;
@@ -29,8 +30,8 @@ public class WaveFlowV210 extends WaveFlow implements MessageProtocol {
     private ObisCodeMapper obisCodeMapper;
     private ProfileDataReaderV210 profileDataReader;
 
-    public WaveFlowV210(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public WaveFlowV210(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService,nlsService);
     }
 
     @Override

@@ -1,6 +1,8 @@
 package com.energyict.mdc.channels.ip.socket;
 
+import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -104,15 +106,15 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
     }
 
     private PropertySpec postDialDelayPropertySpec() {
-        return this.bigDecimalSpec(POST_DIAL_DELAY, BigDecimal.valueOf(DEFAULT_POST_DIAL_DELAY));
+        return this.bigDecimalSpec(POST_DIAL_DELAY, PropertyTranslationKeys.OUTBOUND_IP_POST_DIAL_DELAY_MILLIS, BigDecimal.valueOf(DEFAULT_POST_DIAL_DELAY));
     }
 
     private PropertySpec postDialRetriesPropertySpec() {
-        return this.bigDecimalSpec(POST_DIAL_TRIES, BigDecimal.valueOf(DEFAULT_POST_DIAL_TRIES));
+        return this.bigDecimalSpec(POST_DIAL_TRIES, PropertyTranslationKeys.OUTBOUND_IP_POST_DIAL_COMMAND_ATTEMPTS, BigDecimal.valueOf(DEFAULT_POST_DIAL_TRIES));
     }
 
     private PropertySpec postDialCommandPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(POST_DIAL_COMMAND, false, this.getPropertySpecService()::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(POST_DIAL_COMMAND, false, PropertyTranslationKeys.OUTBOUND_IP_POST_DIAL_COMMAND, this.getPropertySpecService()::stringSpec).finish();
     }
 
     @Override
@@ -154,9 +156,9 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
         return "$Date: 2013-05-16 13:24:08 +0200 (do, 16 mei 2013) $";
     }
 
-    private PropertySpec bigDecimalSpec(String name, BigDecimal defaultValue) {
+    private PropertySpec bigDecimalSpec(String name, TranslationKey translationKey, BigDecimal defaultValue) {
         return UPLPropertySpecFactory
-                .specBuilder(name, false, this.getPropertySpecService()::bigDecimalSpec)
+                .specBuilder(name, false, translationKey, this.getPropertySpecService()::bigDecimalSpec)
                 .setDefaultValue(defaultValue)
                 .finish();
     }

@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
@@ -22,6 +23,7 @@ import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -52,8 +54,8 @@ public class FP93 extends AbstractProtocol implements MessageProtocol {
     private String unitInformationBlock;
     private int deviceID;
 
-    public FP93(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public FP93(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
         this.messageProtocol = new FP93Messages(this);
     }
 
@@ -83,7 +85,7 @@ public class FP93 extends AbstractProtocol implements MessageProtocol {
                 .filter(propertySpec -> !propertySpec.getName().equals(ADDRESS.getName()))
                 .forEach(propertySpecs::add);
         PropertySpecService propertySpecService = this.getPropertySpecService();
-        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(ADDRESS.getName(), false, () -> propertySpecService.boundedBigDecimalSpec(BigDecimal.ONE, BigDecimal.valueOf(99999)));
+        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(ADDRESS.getName(), false, PropertyTranslationKeys.EMCO_ADDRESS, () -> propertySpecService.boundedBigDecimalSpec(BigDecimal.ONE, BigDecimal.valueOf(99999)));
         propertySpecs.add(specBuilder.finish());
         return propertySpecs;
     }

@@ -4,6 +4,7 @@
 package com.energyict.protocolimpl.modbus.schneider.compactnsx;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
@@ -25,8 +26,8 @@ import java.util.Date;
  */
 public class CompactNSX extends Modbus {
 
-	public CompactNSX(PropertySpecService propertySpecService) {
-		super(propertySpecService);
+	public CompactNSX(PropertySpecService propertySpecService, NlsService nlsService) {
+		super(propertySpecService, nlsService);
 	}
 
 	@Override

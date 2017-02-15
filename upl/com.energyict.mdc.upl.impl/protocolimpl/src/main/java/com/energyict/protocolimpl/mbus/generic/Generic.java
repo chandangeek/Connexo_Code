@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.mbus.generic;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
@@ -26,8 +27,8 @@ public class Generic extends MBus {
 
     final int DEBUG=0;
 
-    public Generic(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public Generic(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override

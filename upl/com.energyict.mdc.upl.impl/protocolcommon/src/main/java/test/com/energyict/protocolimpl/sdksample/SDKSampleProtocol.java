@@ -26,6 +26,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -44,6 +45,7 @@ import com.energyict.protocolimpl.base.CacheObject;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -76,8 +78,8 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     private boolean simulateRealCommunication = false;
     private ObisCode loadProfileObisCode;
 
-    public SDKSampleProtocol(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public SDKSampleProtocol(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override
@@ -330,9 +332,9 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.integerSpec(PK_SAMPLE, false));
-        propertySpecs.add(this.stringSpec(PK_SIMULATE_REAL_COMMUNICATION, false));
-        propertySpecs.add(this.stringSpec(PK_LOAD_PROFILE_OBIS_CODE, false));
+        propertySpecs.add(this.integerSpec(PK_SAMPLE, PropertyTranslationKeys.SDKSAMPLE_SAMPLE, false));
+        propertySpecs.add(this.stringSpec(PK_SIMULATE_REAL_COMMUNICATION, PropertyTranslationKeys.SDKSAMPLE_SIMULATE_REAL_COMMUNICATION, false));
+        propertySpecs.add(this.stringSpec(PK_LOAD_PROFILE_OBIS_CODE, PropertyTranslationKeys.SDKSAMPLE_LOAD_PROFILE_OBIS_CODE, false));
         return propertySpecs;
     }
 

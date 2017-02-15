@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub;
 
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -8,6 +9,7 @@ import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.UkHubSecurityProvider;
 
@@ -49,40 +51,40 @@ public class UkHubProperties extends DlmsProtocolProperties {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.integerSpec(SECURITY_LEVEL, true),
-                this.integerSpec(ADDRESSING_MODE, false),
-                this.integerSpec(CLIENT_MAC_ADDRESS, false),
-                this.stringSpec(SERVER_MAC_ADDRESS, false),
-                this.integerSpec(CONNECTION, false),
-                this.integerSpec(PK_FORCED_DELAY, false),
-                this.integerSpec(PK_DELAY_AFTER_ERROR, false),
-                this.integerSpec(INFORMATION_FIELD_SIZE, false),
-                this.integerSpec(MAX_REC_PDU_SIZE, false),
-                this.integerSpec(PK_RETRIES, false),
-                this.integerSpec(PK_TIMEOUT, false),
-                this.integerSpec(ROUND_TRIP_CORRECTION, false),
-                this.integerSpec(BULK_REQUEST, false),
-                this.integerSpec(CIPHERING_TYPE, false),
-                this.integerSpec(NTA_SIMULATION_TOOL, false),
-                this.integerSpec(LOGBOOK_SELECTOR, false),
-                this.hexStringSpec(DATATRANSPORT_AUTHENTICATIONKEY, false),
-                this.hexStringSpec(DATATRANSPORT_ENCRYPTIONKEY, false));
+                this.integerSpec(SECURITY_LEVEL, true, PropertyTranslationKeys.EICT_SECURITY_LEVEL),
+                this.integerSpec(ADDRESSING_MODE, false, PropertyTranslationKeys.EICT_ADDRESSING_MODE),
+                this.integerSpec(CLIENT_MAC_ADDRESS, false, PropertyTranslationKeys.EICT_CLIENT_MAC_ADDRESS),
+                this.stringSpec(SERVER_MAC_ADDRESS, false, PropertyTranslationKeys.EICT_SERVER_MAC_ADDRESS),
+                this.integerSpec(CONNECTION, false, PropertyTranslationKeys.EICT_CONNECTION),
+                this.integerSpec(PK_FORCED_DELAY, false, PropertyTranslationKeys.EICT_FORCED_DELAY),
+                this.integerSpec(PK_DELAY_AFTER_ERROR, false, PropertyTranslationKeys.EICT_DELAY_AFTER_ERROR),
+                this.integerSpec(INFORMATION_FIELD_SIZE, false, PropertyTranslationKeys.EICT_INFORMATION_FIELD_SIZE),
+                this.integerSpec(MAX_REC_PDU_SIZE, false, PropertyTranslationKeys.EICT_MAX_REC_PDU_SIZE),
+                this.integerSpec(PK_RETRIES, false, PropertyTranslationKeys.EICT_RETRIES),
+                this.integerSpec(PK_TIMEOUT, false, PropertyTranslationKeys.EICT_TIMEOUT),
+                this.integerSpec(ROUND_TRIP_CORRECTION, false, PropertyTranslationKeys.EICT_ROUND_TRIP_CORRECTION),
+                this.integerSpec(BULK_REQUEST, false, PropertyTranslationKeys.EICT_BULK_REQUEST),
+                this.integerSpec(CIPHERING_TYPE, false, PropertyTranslationKeys.EICT_CIPHERING_TYPE),
+                this.integerSpec(NTA_SIMULATION_TOOL, false, PropertyTranslationKeys.EICT_NTA_SIMULATION_TOOL),
+                this.integerSpec(LOGBOOK_SELECTOR, false, PropertyTranslationKeys.EICT_LOGBOOK_SELECTOR),
+                this.hexStringSpec(DATATRANSPORT_AUTHENTICATIONKEY, false, PropertyTranslationKeys.EICT_DATATRANSPORT_AUTHENTICATIONKEY),
+                this.hexStringSpec(DATATRANSPORT_ENCRYPTIONKEY, false, PropertyTranslationKeys.EICT_DATATRANSPORT_ENCRYPTIONKEY));
     }
 
-    private <T> PropertySpec spec(String name, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, required, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, boolean required, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, required, translationKey, optionsSupplier).finish();
     }
 
-    private PropertySpec stringSpec(String name, boolean required) {
-        return this.spec(name, required, this.propertySpecService::stringSpec);
+    private PropertySpec stringSpec(String name, boolean required, TranslationKey translationKey) {
+        return this.spec(name, required, translationKey, this.propertySpecService::stringSpec);
     }
 
-    private PropertySpec hexStringSpec(String name, boolean required) {
-        return this.spec(name, required, this.propertySpecService::hexStringSpec);
+    private PropertySpec hexStringSpec(String name, boolean required, TranslationKey translationKey) {
+        return this.spec(name, required, translationKey, this.propertySpecService::hexStringSpec);
     }
 
-    private PropertySpec integerSpec(String name, boolean required) {
-        return this.spec(name, required, this.propertySpecService::integerSpec);
+    private PropertySpec integerSpec(String name, boolean required, TranslationKey translationKey) {
+        return this.spec(name, required, translationKey, this.propertySpecService::integerSpec);
     }
 
     @ProtocolProperty

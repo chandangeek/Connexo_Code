@@ -1,6 +1,7 @@
 package com.energyict.mdc.channels.ip.datagrams;
 
 import com.energyict.mdc.channels.ip.OutboundIpConnectionType;
+import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.io.ConnectionType;
@@ -65,7 +66,7 @@ public class OutboundUdpConnectionType extends OutboundIpConnectionType {
     }
 
     private PropertySpec bufferSizePropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(BUFFER_SIZE_NAME, true, this.getPropertySpecService()::bigDecimalSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(BUFFER_SIZE_NAME, true, PropertyTranslationKeys.OUTBOUND_IP_BUFFER_SIZE, this.getPropertySpecService()::bigDecimalSpec).finish();
     }
 
     @Override

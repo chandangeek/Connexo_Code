@@ -1,5 +1,6 @@
 package com.elster.us.protocolimplv2.mercury.minimax;
 
+import com.elster.us.nls.PropertyTranslationKeys;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -51,21 +52,21 @@ public class MiniMaxTcpDeviceProtocolDialect extends AbstractDeviceProtocolDiale
 
     private PropertySpec retriesPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(RETRIES, false, this.propertySpecService::bigDecimalSpec)
+                .specBuilder(RETRIES, false, PropertyTranslationKeys.MERCURY_RETRIES, this.propertySpecService::bigDecimalSpec)
                 .setDefaultValue(new BigDecimal(3))
                 .finish();
     }
 
     private PropertySpec timeoutPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(TIMEOUT, false, this.propertySpecService::durationSpec)
+                .specBuilder(TIMEOUT, false, PropertyTranslationKeys.MERCURY_TIMEOUT, this.propertySpecService::durationSpec)
                 .setDefaultValue(Duration.ofSeconds(DEFAULT_TCP_TIMEOUT))
                 .finish();
     }
 
     private PropertySpec roundTripCorrectionPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(ROUND_TRIP_CORRECTION, false, this.propertySpecService::bigDecimalSpec)
+                .specBuilder(ROUND_TRIP_CORRECTION, false, PropertyTranslationKeys.MERCURY_ROUND_TRIP_CORRECTION, this.propertySpecService::bigDecimalSpec)
                 .setDefaultValue(new BigDecimal(DEFAULT_ROUND_TRIP_CORRECTION))
                 .finish();
     }

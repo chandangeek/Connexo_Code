@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.dlms.g3.G3SecurityProvider;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 
@@ -43,11 +44,11 @@ public class Dsmr50Properties extends Dsmr40Properties {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.specBuilder(PROP_LASTSEENDATE, false, this.getPropertySpecService()::stringSpec).finish());
-        propertySpecs.add(UPLPropertySpecFactory.specBuilder(AARQ_RETRIES, false, this.getPropertySpecService()::integerSpec).finish());
-        propertySpecs.add(UPLPropertySpecFactory.specBuilder(AARQ_TIMEOUT, false, this.getPropertySpecService()::integerSpec).finish());
-        propertySpecs.add(UPLPropertySpecFactory.specBuilder(PSK, false, this.getPropertySpecService()::stringSpec).finish());
-        propertySpecs.add(UPLPropertySpecFactory.specBuilder(CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME, false, this.getPropertySpecService()::integerSpec).finish());
+        propertySpecs.add(UPLPropertySpecFactory.specBuilder(PROP_LASTSEENDATE, false, PropertyTranslationKeys.NTA_LAST_SEND_DATE, this.getPropertySpecService()::stringSpec).finish());
+        propertySpecs.add(UPLPropertySpecFactory.specBuilder(AARQ_RETRIES, false, PropertyTranslationKeys.NTA_AARQ_RETRIES, this.getPropertySpecService()::integerSpec).finish());
+        propertySpecs.add(UPLPropertySpecFactory.specBuilder(AARQ_TIMEOUT, false, PropertyTranslationKeys.NTA_AARQ_TIMEOUT, this.getPropertySpecService()::integerSpec).finish());
+        propertySpecs.add(UPLPropertySpecFactory.specBuilder(PSK, false, PropertyTranslationKeys.NTA_PSK, this.getPropertySpecService()::stringSpec).finish());
+        propertySpecs.add(UPLPropertySpecFactory.specBuilder(CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME, false, PropertyTranslationKeys.NTA_CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME, this.getPropertySpecService()::integerSpec).finish());
         return propertySpecs;
     }
 

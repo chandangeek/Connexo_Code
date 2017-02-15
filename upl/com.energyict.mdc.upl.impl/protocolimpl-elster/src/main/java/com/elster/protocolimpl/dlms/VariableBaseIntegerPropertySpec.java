@@ -17,8 +17,8 @@ import com.energyict.protocolimpl.properties.AbstractPropertySpec;
  */
 class VariableBaseIntegerPropertySpec extends AbstractPropertySpec {
 
-    VariableBaseIntegerPropertySpec(String name, boolean required) {
-        super(name, required);
+    VariableBaseIntegerPropertySpec(String name, boolean required, String displayName, String discription) {
+        super(name, required, displayName, discription);
     }
 
     @Override

@@ -9,6 +9,7 @@ package com.energyict.protocolimpl.modbus.flonidan.uniflo1200;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -27,6 +28,7 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.connection.UNIFLO12
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200Parsers;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.UNIFLO1200Profile;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200RegisterFactory;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
@@ -56,8 +58,8 @@ public class UNIFLO1200 extends Modbus implements SerialNumberSupport {
 	private UNIFLO1200Profile loadProfile;
 	private int loadProfileNumber;
 
-	public UNIFLO1200(PropertySpecService propertySpecService) {
-		super(propertySpecService);
+	public UNIFLO1200(PropertySpecService propertySpecService, NlsService nlsService) {
+		super(propertySpecService, nlsService);
 	}
 
 	@Override
@@ -171,11 +173,11 @@ public class UNIFLO1200 extends Modbus implements SerialNumberSupport {
         PropertySpecService propertySpecService = this.getPropertySpecService();
         propertySpecs.add(
                 UPLPropertySpecFactory
-                        .specBuilder(PASSWORD.getName(), false, () -> propertySpecService.stringSpecOfMaximumLength(8))
+                        .specBuilder(PASSWORD.getName(), false, PropertyTranslationKeys.MODBUS_PASSWORD,() -> propertySpecService.stringSpecOfMaximumLength(8))
                         .finish());
         propertySpecs.add(
                 UPLPropertySpecFactory
-                        .specBuilder("LoadProfileNumber", false, propertySpecService::integerSpec)
+                        .specBuilder("LoadProfileNumber", false, PropertyTranslationKeys.MODBUS_LOADPROFILE_NUMBER, propertySpecService::integerSpec)
                         .addValues(MIN_LOADPROFILE_NUMBER, MAX_LOADPROFILE_NUMBER)
                         .finish());
         return propertySpecs;

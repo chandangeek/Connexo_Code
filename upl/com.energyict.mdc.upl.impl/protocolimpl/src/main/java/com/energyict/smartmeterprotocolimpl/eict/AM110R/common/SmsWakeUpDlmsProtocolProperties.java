@@ -1,10 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.eict.AM110R.common;
 
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.util.Arrays;
@@ -137,37 +139,37 @@ public abstract class SmsWakeUpDlmsProtocolProperties extends DlmsProtocolProper
 
     protected List<PropertySpec> getSmsWakeUpPropertySpecs(boolean required) {
         return Arrays.asList(
-                this.stringSpec(SMS_BASE_URL_PROP, required),
-                this.stringSpec(SMS_SOURCE_PROP, required),
-                this.stringSpec(SMS_AUTH_PROP, required),
-                this.stringSpec(SMS_SERVICE_CODE_PROP, required),
-                this.stringSpec(SMS_PHONE_NUMBER_PROP, required),
-                this.longSpec(WAKEUP_POLLING_TIMEOUT, required),
-                this.stringSpec(WAKEUP_POLLING_FREQUENCY, required));
+                this.stringSpec(SMS_BASE_URL_PROP, required, PropertyTranslationKeys.EICT_SMS_BASE_URL),
+                this.stringSpec(SMS_SOURCE_PROP, required, PropertyTranslationKeys.EICT_SMS_SOURCE),
+                this.stringSpec(SMS_AUTH_PROP, required, PropertyTranslationKeys.EICT_SMS_AUTH),
+                this.stringSpec(SMS_SERVICE_CODE_PROP, required, PropertyTranslationKeys.EICT_SMS_SERVICE_CODE),
+                this.stringSpec(SMS_PHONE_NUMBER_PROP, required, PropertyTranslationKeys.EICT_SMS_PHONE_NUMBER),
+                this.longSpec(WAKEUP_POLLING_TIMEOUT, required, PropertyTranslationKeys.EICT_WAKEUP_POLLING_TIMEOUT),
+                this.stringSpec(WAKEUP_POLLING_FREQUENCY, required, PropertyTranslationKeys.EICT_WAKEUP_POLLING_FREQUENCY));
     }
 
-    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, optionsSupplier).finish();
     }
 
-    private  <T> PropertySpec spec(String name, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, required, optionsSupplier).finish();
+    private  <T> PropertySpec spec(String name, boolean required, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, required, translationKey, optionsSupplier).finish();
     }
 
-    protected PropertySpec stringSpec(String name, boolean required) {
-        return this.spec(name, required, this.propertySpecService::stringSpec);
+    protected PropertySpec stringSpec(String name, boolean required, TranslationKey translationKey) {
+        return this.spec(name, required, translationKey, this.propertySpecService::stringSpec);
     }
 
-    protected PropertySpec hexStringSpec(String name, boolean required) {
-        return this.spec(name, required, this.propertySpecService::hexStringSpec);
+    protected PropertySpec hexStringSpec(String name, boolean required, TranslationKey translationKey) {
+        return this.spec(name, required, translationKey, this.propertySpecService::hexStringSpec);
     }
 
-    protected PropertySpec integerSpec(String name, boolean required) {
-        return this.spec(name, required, this.propertySpecService::integerSpec);
+    protected PropertySpec integerSpec(String name, boolean required, TranslationKey translationKey) {
+        return this.spec(name, required, translationKey, this.propertySpecService::integerSpec);
     }
 
-    private PropertySpec longSpec(String name, boolean required) {
-        return this.spec(name, required, this.propertySpecService::longSpec);
+    private PropertySpec longSpec(String name, boolean required, TranslationKey translationKey) {
+        return this.spec(name, required, translationKey, this.propertySpecService::longSpec);
     }
 
 }
