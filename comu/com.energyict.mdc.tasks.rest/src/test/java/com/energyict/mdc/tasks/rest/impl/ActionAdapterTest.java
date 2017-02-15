@@ -1,8 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.tasks.rest.impl;
 
-import org.junit.Test;
-
 import javax.xml.bind.annotation.adapters.XmlAdapter;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

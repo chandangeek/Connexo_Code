@@ -1,9 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.tasks.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.tasks.ProtocolTask;
-
 import com.energyict.mdc.tasks.rest.Categories;
+
 import java.util.ArrayList;
 import java.util.List;
 

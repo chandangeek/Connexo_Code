@@ -1,8 +1,8 @@
-package com.energyict.mdc.tasks.rest.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.tasks.TaskService;
+package com.energyict.mdc.tasks.rest.impl;
 
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
@@ -12,7 +12,11 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.rest.impl.util.ResourceHelper;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
