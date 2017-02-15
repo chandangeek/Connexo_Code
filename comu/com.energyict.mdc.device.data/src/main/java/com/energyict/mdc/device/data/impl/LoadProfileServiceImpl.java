@@ -7,7 +7,6 @@ import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
-
 import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -71,7 +70,7 @@ public class LoadProfileServiceImpl implements ServerLoadProfileService {
                 return Optional.of((LoadProfile) introspector.getValue("actual"));
             }
             case "DatabaseId": {
-                return this.findById((long) introspector.getValue("databaseValue"));
+                return this.findById(Long.valueOf(introspector.getValue("databaseValue").toString()));
             }
             case "DeviceIdentifierAndObisCode": {
                 DeviceIdentifier deviceIdentifier = (DeviceIdentifier) introspector.getValue("device");
