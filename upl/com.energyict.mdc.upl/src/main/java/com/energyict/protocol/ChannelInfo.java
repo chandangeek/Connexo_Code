@@ -429,6 +429,14 @@ public class ChannelInfo implements java.io.Serializable {
      */
     @Override
     public boolean equals(Object o) {
+        return equals(o, false);
+    }
+
+    public boolean equalsIgnoreReadingType(Object o) {
+        return equals(o, true);
+    }
+
+    private boolean equals(Object o, boolean ignoreReadingType) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -470,14 +478,16 @@ public class ChannelInfo implements java.io.Serializable {
             return true;
         }
 
-        if (this.getReadingTypeMRID() == null && that.getReadingTypeMRID() != null) {
-            return false;
-        }
-        if (this.getReadingTypeMRID() != null && that.getReadingTypeMRID() == null) {
-            return false;
-        }
-        if (this.getReadingTypeMRID() != null && that.getReadingTypeMRID() != null && !this.getReadingTypeMRID().equals(that.getReadingTypeMRID())) {
-            return false;
+        if (!ignoreReadingType) {
+            if (this.getReadingTypeMRID() == null && that.getReadingTypeMRID() != null) {
+                return false;
+            }
+            if (this.getReadingTypeMRID() != null && that.getReadingTypeMRID() == null) {
+                return false;
+            }
+            if (this.getReadingTypeMRID() != null && that.getReadingTypeMRID() != null && !this.getReadingTypeMRID().equals(that.getReadingTypeMRID())) {
+                return false;
+            }
         }
 
         //Units are considered equal if they are both null, or if they both have the same BaseUnit
