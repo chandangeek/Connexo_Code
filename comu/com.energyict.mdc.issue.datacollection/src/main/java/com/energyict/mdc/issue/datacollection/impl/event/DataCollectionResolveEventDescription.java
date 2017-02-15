@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.issue.datacollection.impl.event;
 
 import com.elster.jupiter.util.Checks;
@@ -7,6 +11,7 @@ import com.energyict.mdc.issue.datacollection.event.DeviceCommunicationFailureRe
 import com.energyict.mdc.issue.datacollection.event.UnableToConnectResolvedEvent;
 import com.energyict.mdc.issue.datacollection.event.UnknownDeviceResolvedEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
+
 import org.osgi.service.event.EventConstants;
 
 import java.util.ArrayList;

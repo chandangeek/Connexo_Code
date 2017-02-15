@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.issue.datacollection;
 
 import com.elster.jupiter.issue.impl.service.IssueCreationServiceImpl;
@@ -19,15 +23,21 @@ import com.energyict.mdc.issue.datacollection.event.UnableToConnectEvent;
 import com.energyict.mdc.issue.datacollection.event.UnableToConnectResolvedEvent;
 import com.energyict.mdc.issue.datacollection.event.UnknownInboundDeviceEvent;
 import com.energyict.mdc.issue.datacollection.event.UnknownSlaveDeviceEvent;
-import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventHandlerFactory;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
+import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventHandlerFactory;
 
-import org.junit.Test;
-import org.mockito.Matchers;
 import org.osgi.service.event.EventConstants;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.junit.Test;
+import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;

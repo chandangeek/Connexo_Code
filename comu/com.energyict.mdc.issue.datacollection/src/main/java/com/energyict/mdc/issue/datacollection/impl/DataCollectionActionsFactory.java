@@ -1,12 +1,8 @@
-package com.energyict.mdc.issue.datacollection.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.issue.datacollection.impl.actions.CloseIssueAction;
-import com.energyict.mdc.issue.datacollection.impl.actions.RetryCommunicationTaskAction;
-import com.energyict.mdc.issue.datacollection.impl.actions.RetryCommunicationTaskNowAction;
-import com.energyict.mdc.issue.datacollection.impl.actions.RetryConnectionTaskAction;
+package com.energyict.mdc.issue.datacollection.impl;
 
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionFactory;
@@ -18,6 +14,14 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.issue.datacollection.impl.actions.CloseIssueAction;
+import com.energyict.mdc.issue.datacollection.impl.actions.RetryCommunicationTaskAction;
+import com.energyict.mdc.issue.datacollection.impl.actions.RetryCommunicationTaskNowAction;
+import com.energyict.mdc.issue.datacollection.impl.actions.RetryConnectionTaskAction;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;

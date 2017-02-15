@@ -1,14 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.issue.datacollection.event;
 
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.google.inject.Injector;
 
 import javax.inject.Inject;
