@@ -27,7 +27,8 @@ Ext.define('Mdc.model.ConnectionMethod', {
             mapping: function (data) {
                 return {start: data.comWindowStart, end: data.comWindowEnd};
             }
-        }
+        },
+        {name: 'protocolDialectConfigurationProperties', type: 'auto', useNull: true, defaultValue: null}
     ],
     associations: [
         {name: 'rescheduleRetryDelay',type: 'hasOne',model:'Mdc.model.field.TimeInfo',associationKey: 'rescheduleRetryDelay'},
