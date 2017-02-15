@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Isu.view.issues.AddCommentForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.issue-add-comment-form',

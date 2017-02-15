@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Isu.view.creationrules.List', {
     extend: 'Ext.grid.Panel',
     requires: [
