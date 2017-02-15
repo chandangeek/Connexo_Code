@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 //TODO: localize all strings
 Ext.define('Dsh.controller.history.Workspace', {
     extend: 'Uni.controller.history.Converter',

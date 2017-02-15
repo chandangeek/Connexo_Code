@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dsh.view.widget.connection.PreviewCommunication', {
     extend: 'Ext.form.Panel',
     requires: [

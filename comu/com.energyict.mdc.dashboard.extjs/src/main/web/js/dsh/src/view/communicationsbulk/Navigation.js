@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dsh.view.communicationsbulk.Navigation', {
     extend: 'Uni.view.menu.NavigationMenu',
     alias: 'widget.communications-bulk-navigation',

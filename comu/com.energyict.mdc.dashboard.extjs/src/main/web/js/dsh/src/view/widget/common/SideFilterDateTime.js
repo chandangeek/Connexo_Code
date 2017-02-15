@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dsh.view.widget.common.SideFilterDateTime', {
     extend: 'Ext.form.FieldSet',
     alias: 'widget.side-filter-date-time',
