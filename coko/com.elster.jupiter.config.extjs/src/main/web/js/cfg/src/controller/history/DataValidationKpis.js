@@ -10,27 +10,58 @@ Ext.define('Cfg.controller.history.DataValidationKpis', {
     ],
 
     rootToken: 'administration',
-    routeConfig: {
+
+    commonConfig: {
         administration: {
             title: Uni.I18n.translate('general.administration', 'CFG', 'Administration'),
             route: 'administration',
             disabled: true,
             items: {
                 datavalidationkpis: {
-                    title: Uni.I18n.translate('dataValidationKPIs.general.dataValidationKPIs', 'CFG', 'Data validation KPIs'),
+                    title: Uni.I18n.translate('general.dataQualityKpis', 'CFG', 'Data quality KPIs'),
                     route: 'datavalidationkpis',
-                    controller: 'Cfg.controller.DataValidationKpi',
-                    privileges: Cfg.privileges.Validation.view,
-                    disabled: typeof(MdmApp) != 'undefined',
-                    action: 'showDataValidationKPIs',
                     items: {
                         add: {
-                            title: Uni.I18n.translate('dataValidationKPIs.general.addDataValidationKPI', 'CFG', 'Add data validation KPI'),
-                            route: 'add',
-                            controller: 'Cfg.controller.DataValidationKpi',
-                            privileges: Cfg.privileges.Validation.admin,
-                            disabled: typeof(MdmApp) != 'undefined',
-                            action: 'showAddDataValidationKpi'
+                            title: Uni.I18n.translate('dataqualitykpis.add', 'CFG', 'Add data quality KPI'),
+                            route: 'add'
+                        }
+                    }
+                }
+            }
+        }
+    },
+    configPerApp: {
+        'MultiSense': {
+            administration: {
+                items: {
+                    datavalidationkpis: {
+                        controller: 'Cfg.controller.DataValidationKpi',
+                        privileges: Cfg.privileges.Validation.view,
+                        action: 'showDataValidationKPIs',
+                        items: {
+                            add: {
+                                controller: 'Cfg.controller.DataValidationKpi',
+                                privileges: Cfg.privileges.Validation.admin,
+                                action: 'showAddDataValidationKpi'
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        'MdmApp': {
+            administration: {
+                items: {
+                    datavalidationkpis: {
+                        controller: 'Cfg.insight.dataqualitykpi.controller.DataQualityKpiOverview',
+                        privileges: Cfg.privileges.Validation.view,
+                        action: 'showDataQualityKPIs',
+                        items: {
+                            add: {
+                                controller: 'Cfg.insight.dataqualitykpi.controller.DataQualityKpiAdd',
+                                privileges: Cfg.privileges.Validation.admin,
+                                action: 'showAddDataQualityKpi'
+                            }
                         }
                     }
                 }
@@ -39,7 +70,11 @@ Ext.define('Cfg.controller.history.DataValidationKpis', {
     },
 
     init: function () {
-        var router = this.getController('Uni.controller.history.Router');
-        router.addConfig(this.routeConfig);
+        var me = this,
+            appName = Uni.util.Application.getAppName();
+
+        me.routeConfig = Ext.merge(me.commonConfig, me.configPerApp[appName]);
+
+        me.callParent(arguments);
     }
 });

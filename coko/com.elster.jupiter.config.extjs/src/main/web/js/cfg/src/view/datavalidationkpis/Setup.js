@@ -16,7 +16,7 @@ Ext.define('Cfg.view.datavalidationkpis.Setup', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('general.dataValidationKpis', 'CFG', 'Data validation KPIs'),
+            title: Uni.I18n.translate('general.dataQualityKpis', 'CFG', 'Data quality KPIs'),
             items: [
                 {
                     xtype: 'preview-container',
@@ -27,13 +27,13 @@ Ext.define('Cfg.view.datavalidationkpis.Setup', {
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
                         itemId: 'ctr-no-datavalidationkpis',
-                        title: Uni.I18n.translate('datavalidationkpis.empty.title', 'CFG', 'No data validation KPIs found'),
+                        title: Uni.I18n.translate('dataqualitykpis.empty.title', 'CFG', 'No data quality KPIs found'),
                         reasons: [
-                            Uni.I18n.translate('datavalidationkpis.empty.list.item1', 'CFG', 'No data validation KPIs have been created yet.')
+                            Uni.I18n.translate('dataqualitykpis.empty.list.item1', 'CFG', 'No data quality KPIs have been created yet.')
                         ],
                         stepItems: [
                             {
-                                text: Uni.I18n.translate('datavalidationkpis.add', 'CFG', 'Add data validation KPI'),
+                                text: Uni.I18n.translate('dataqualitykpis.add', 'CFG', 'Add data quality KPI'),
                                 action: 'addDataValidationKpi',
                                 privileges: Cfg.privileges.Validation.admin
                             }

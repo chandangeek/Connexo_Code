@@ -21,7 +21,9 @@ Ext.define('Cfg.controller.Main', {
         'Cfg.controller.Validation',
         'Cfg.controller.EventType',
         'Cfg.controller.Tasks',
-        'Cfg.controller.Log'
+        'Cfg.controller.Log',
+        'Cfg.insight.dataqualitykpi.controller.DataQualityKpiOverview',
+        'Cfg.insight.dataqualitykpi.controller.DataQualityKpiAdd'
     ],
 
     refs: [
@@ -80,7 +82,6 @@ Ext.define('Cfg.controller.Main', {
                     {
                         text: validationKpiRoute.getTitle(),
                         href: validationKpiRoute.buildUrl(),
-                        hidden: validationKpiRoute.disabled,
                         itemId: 'lnk-data-validation-kpis'
                     }
                 ]
