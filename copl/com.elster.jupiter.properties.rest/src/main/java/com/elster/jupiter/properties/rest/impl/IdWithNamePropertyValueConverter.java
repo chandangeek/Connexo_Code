@@ -10,6 +10,7 @@ import com.elster.jupiter.properties.rest.AssignPropertyFactory;
 import com.elster.jupiter.properties.rest.PropertyType;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.RaiseEventPropertyFactory;
+import com.elster.jupiter.properties.rest.RelativePeriodWithCountPropertyFactory;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
 
 import java.util.ArrayList;
@@ -32,6 +33,9 @@ public class IdWithNamePropertyValueConverter implements PropertyValueConverter 
         }
         if (propertySpec.getValueFactory() instanceof RaiseEventPropertyFactory) {
             return SimplePropertyType.RAISEEVENTPROPS;
+        }
+        if (propertySpec.getValueFactory() instanceof RelativePeriodWithCountPropertyFactory) {
+            return SimplePropertyType.RELATIVEPERIODWITHCOUNT;
         }
         return SimplePropertyType.IDWITHNAME;
     }
