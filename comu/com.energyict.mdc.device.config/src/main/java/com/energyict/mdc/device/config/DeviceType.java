@@ -257,6 +257,7 @@ public interface DeviceType extends HasId, HasName {
         DeviceType create();
     }
 
+    @ProviderType
     interface DeviceConfigurationBuilder {
 
         /**
@@ -358,6 +359,8 @@ public interface DeviceType extends HasId, HasName {
         DeviceConfigurationBuilder gatewayType(GatewayType gatewayType);
 
         DeviceConfigurationBuilder dataloggerEnabled(boolean dataloggerEnabled);
+
+        DeviceConfigurationBuilder validateOnStore(boolean validateOnStore);
     }
 
     /**

@@ -145,6 +145,10 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
 
     public void setDataloggerEnabled(boolean enabled);
 
+    public boolean getValidateOnStore();
+
+    public void setValidateOnStore(boolean validateOnStore);
+
     /**
      * Indicate whether or not this DeviceConfiguration allows itself to be
      * used as a Datalogger
