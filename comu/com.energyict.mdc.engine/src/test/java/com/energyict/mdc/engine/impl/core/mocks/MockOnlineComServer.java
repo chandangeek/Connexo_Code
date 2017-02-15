@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.core.mocks;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.channel.serial.SerialPortConfiguration;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;

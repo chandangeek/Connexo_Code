@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store.legacy;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.util.time.StopWatch;
-import com.energyict.mdc.channels.serial.ServerSerialPort;
+import com.energyict.mdc.channel.serial.ServerSerialPort;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;

@@ -1,13 +1,13 @@
 package com.energyict.mdc.engine.impl.commands.store.legacy;
 
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dialer.serialserviceprovider.SerialPort;
-import com.energyict.mdc.channels.serial.BaudrateValue;
-import com.energyict.mdc.channels.serial.NrOfDataBits;
-import com.energyict.mdc.channels.serial.NrOfStopBits;
-import com.energyict.mdc.channels.serial.Parities;
-import com.energyict.mdc.channels.serial.SerialPortConfiguration;
-import com.energyict.mdc.channels.serial.ServerSerialPort;
+import com.energyict.dialer.uplserialserviceprovider.SerialPort;
+import com.energyict.mdc.channel.serial.BaudrateValue;
+import com.energyict.mdc.channel.serial.NrOfDataBits;
+import com.energyict.mdc.channel.serial.NrOfStopBits;
+import com.energyict.mdc.channel.serial.Parities;
+import com.energyict.mdc.channel.serial.SerialPortConfiguration;
+import com.energyict.mdc.channel.serial.ServerSerialPort;
 import com.energyict.mdc.io.ComChannelInputStreamAdapter;
 import com.energyict.mdc.io.ComChannelOutputStreamAdapter;
 import com.energyict.mdc.protocol.SerialPortComChannel;

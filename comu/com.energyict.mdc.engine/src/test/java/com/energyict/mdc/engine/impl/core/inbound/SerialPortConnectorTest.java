@@ -1,13 +1,13 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.channels.serial.BaudrateValue;
-import com.energyict.mdc.channels.serial.FlowControl;
-import com.energyict.mdc.channels.serial.NrOfDataBits;
-import com.energyict.mdc.channels.serial.NrOfStopBits;
-import com.energyict.mdc.channels.serial.Parities;
-import com.energyict.mdc.channels.serial.SerialPortConfiguration;
-import com.energyict.mdc.channels.serial.ServerSerialPort;
+import com.energyict.mdc.channel.serial.BaudrateValue;
+import com.energyict.mdc.channel.serial.FlowControl;
+import com.energyict.mdc.channel.serial.NrOfDataBits;
+import com.energyict.mdc.channel.serial.NrOfStopBits;
+import com.energyict.mdc.channel.serial.Parities;
+import com.energyict.mdc.channel.serial.SerialPortConfiguration;
+import com.energyict.mdc.channel.serial.ServerSerialPort;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
@@ -20,8 +20,13 @@ import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.api.impl.HexServiceImpl;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
 import org.joda.time.DateTimeConstants;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,13 +38,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;

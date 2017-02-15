@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.util.time.StopWatch;
-import com.energyict.mdc.channels.serial.SerialPortConfiguration;
-import com.energyict.mdc.channels.serial.ServerSerialPort;
+import com.energyict.mdc.channel.serial.SerialPortConfiguration;
+import com.energyict.mdc.channel.serial.ServerSerialPort;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
