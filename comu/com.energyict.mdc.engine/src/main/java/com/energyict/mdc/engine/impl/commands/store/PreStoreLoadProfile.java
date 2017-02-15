@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.metering.readings.IntervalBlock;
@@ -40,13 +44,6 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.streams.Predicates.not;
 
-/**
- * Performs several actions on the given LoadProfile data which are required before storing.
- * <p/>
- * Copyrights EnergyICT
- * Date: 7/30/14
- * Time: 9:34 AM
- */
 public class PreStoreLoadProfile {
 
     private final Clock clock;

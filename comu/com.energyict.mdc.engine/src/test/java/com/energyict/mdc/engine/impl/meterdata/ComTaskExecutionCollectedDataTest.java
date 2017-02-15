@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
@@ -8,15 +13,13 @@ import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.tasks.ComTask;
 
-import com.elster.jupiter.transaction.TransactionService;
-
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

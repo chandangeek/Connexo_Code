@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.events.EventService;
@@ -66,11 +70,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-/**
- * Copyrights EnergyICT
- * Date: 19/05/2014
- * Time: 16:12
- */
 public final class ExecutionContext implements JournalEntryFactory {
 
     private static final long NANOS_IN_MILLI = 1000000L;

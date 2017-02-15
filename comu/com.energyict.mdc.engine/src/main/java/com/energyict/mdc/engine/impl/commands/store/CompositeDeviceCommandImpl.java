@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;

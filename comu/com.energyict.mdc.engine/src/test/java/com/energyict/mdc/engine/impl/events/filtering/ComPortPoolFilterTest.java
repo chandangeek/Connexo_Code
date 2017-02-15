@@ -1,12 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.events.filtering;
 
+import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.events.ComPortPoolRelatedEvent;
 import com.energyict.mdc.engine.events.ComServerEvent;
-import com.energyict.mdc.engine.config.ComPortPool;
 
 import java.util.Arrays;
 
-import org.junit.*;
+import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

@@ -1,14 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 
-/**
- * Implementation of OfflineDeviceContext that indicates to need everything.
- *
- * Copyrights EnergyICT
- * Date: 14/03/13
- * Time: 14:46
- */
 public enum DeviceOffline implements OfflineDeviceContext {
 
     needsEverything;

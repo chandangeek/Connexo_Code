@@ -1,16 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.events.datastorage;
 
-import com.energyict.mdc.common.*;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
-import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -18,15 +20,16 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 24/02/2016
- * Time: 16:19
- */
 @RunWith(MockitoJUnitRunner.class)
 public class CollectedRegisterListEventTest {
 

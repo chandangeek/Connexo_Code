@@ -1,9 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.ForceClockCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.web;
 
 import com.energyict.mdc.engine.config.OnlineComServer;
@@ -14,8 +18,10 @@ import org.eclipse.jetty.server.Server;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 

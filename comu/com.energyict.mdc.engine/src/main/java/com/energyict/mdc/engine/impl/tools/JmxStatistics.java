@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.tools;
 
 import javax.management.openmbean.CompositeData;
@@ -13,11 +17,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 15-jul-2011
- * Time: 11:53:41
- */
 public class JmxStatistics implements CompositeData {
 
     private static final Logger LOGGER = Logger.getLogger(JmxStatistics.class.getName());

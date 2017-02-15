@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.monitor;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.time.TimeDuration;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.Date;
 import java.util.Optional;

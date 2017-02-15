@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.users.User;
@@ -9,15 +13,6 @@ import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 
 import java.util.Locale;
 
-/**
- * Implementation of a ComPortListener which servers functionality to use a Jetty server to process
- * inbound servlet based protocols. My only responsibility is to keep the Jetty server up and
- * now and then check if we need to change our configuration.
- * <p>
- * Copyrights EnergyICT
- * Date: 19/10/12
- * Time: 11:39
- */
 public class ServletInboundComPortListener extends ServletBasedComPortListenerImpl {
 
     private EmbeddedWebServer embeddedWebServer;

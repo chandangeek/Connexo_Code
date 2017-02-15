@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.TypedProperties;
@@ -14,22 +18,16 @@ import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Optional;
 
-/**
- * This class will try to group and organize the ComTaskExecutions for a specific connection.
- * The criteria are:
- * <ul>
- * <li>All ComTaskExecutions should be grouped by Master Device</li>
- * <li>The ComTaskExecutions should be grouped by used SecurityPropertySet</li>
- * <li>If a ComTaskExecution contains a BasicCheck protocolTask, then it should be the first member of the ComTaskExecution <i>set</i>
- * AND it should be the first <i>set</i> of the Device</li>
- * </ul>
- * <p>
- * Copyrights EnergyICT
- * Date: 4/04/13
- * Time: 16:38
- */
 public final class ComTaskExecutionOrganizer {
 
     private final TopologyService topologyService;

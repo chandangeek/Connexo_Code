@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.time.TimeDuration;
@@ -11,24 +15,21 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.ClockTask;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import java.time.Clock;
 import java.util.Date;
 import java.util.Optional;
 
+import org.junit.Test;
+import org.mockito.Mock;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 8/07/13
- * Time: 13:54
- * Author: khe
- */
 public class SetClockCommandImplTest {
 
     @Mock

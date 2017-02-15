@@ -1,8 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
@@ -12,13 +15,6 @@ import com.energyict.mdc.tasks.ProtocolTask;
 
 import java.util.List;
 
-/**
- * Responsible for creating ComCommands
- * <p>
- * Copyrights EnergyICT
- * Date: 7/08/12
- * Time: 16:26
- */
 public interface CommandCreator {
 
     /**

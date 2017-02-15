@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -54,11 +58,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
-/**
- * Copyrights EnergyICT
- * Date: 15/01/14
- * Time: 16:08
- */
 @RunWith(MockitoJUnitRunner.class)
 public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollectedDataIntegrationTest {
 

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.engine.impl.meterdata.DeviceCommandFactory;
@@ -6,11 +10,6 @@ import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 05.08.15
- * Time: 16:15
- */
 public abstract class AbstractDeviceCommandFactory implements DeviceCommandFactory {
 
     abstract MeterDataStoreCommandImpl getMeterDataStoreCommand(DeviceCommand.ServiceProvider serviceProvider);

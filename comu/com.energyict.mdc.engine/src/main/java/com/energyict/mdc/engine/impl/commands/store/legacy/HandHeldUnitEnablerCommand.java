@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.legacy;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
@@ -20,16 +24,6 @@ import com.energyict.mdc.protocol.api.legacy.HalfDuplexEnabler;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
 
-/**
- * Command to enable the HandHeldUnit controller for legacy protocols
- * <p>
- * Note that this will also provide the proper HalfDuplexController, if the protocols indicate they can use it.
- * This controller can then be used by the protocols to have more control over the serial comport (e.g. toggle RTS flags etc.)
- * <p>
- * Copyrights EnergyICT
- * Date: 21/08/12
- * Time: 14:19
- */
 public class HandHeldUnitEnablerCommand extends SimpleComCommand {
 
     private ComChannelPlaceHolder comChannelPlaceHolder;

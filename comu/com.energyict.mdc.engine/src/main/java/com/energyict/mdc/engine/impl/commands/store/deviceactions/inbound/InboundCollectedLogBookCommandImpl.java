@@ -1,30 +1,25 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.LogBooksCommandImpl;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.engine.impl.meterdata.DeviceIpAddress;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LogBooksTask;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 9/6/13
- * Time: 8:41 AM
- */
 public class InboundCollectedLogBookCommandImpl extends LogBooksCommandImpl {
 
     private final List<ServerCollectedData> collectedData;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.events.EventService;
@@ -64,15 +68,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Provides code reuse for in- and outbound {@link com.energyict.mdc.engine.config.ComPort ComPorts }
- * which perform one or more ComTasks.
- * It will be useful to group the AOP logging as well.
- * <p>
- * Copyrights EnergyICT
- * Date: 25/10/12
- * Time: 16:27
- */
 public abstract class JobExecution implements ScheduledJob {
 
     private static final Logger LOGGER = Logger.getLogger(JobExecution.class.getName());

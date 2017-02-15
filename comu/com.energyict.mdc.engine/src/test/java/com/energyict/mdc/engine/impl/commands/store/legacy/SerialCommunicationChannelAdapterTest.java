@@ -1,6 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.legacy;
 
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.io.BaudrateValue;
 import com.energyict.mdc.io.FlowControl;
 import com.energyict.mdc.io.NrOfDataBits;
@@ -9,15 +12,17 @@ import com.energyict.mdc.io.Parities;
 import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.io.ServerSerialPort;
-import org.junit.*;
-import org.junit.runner.*;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -25,13 +30,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Tests for the {@link SerialCommunicationChannelAdapter} component
- *
- * Copyrights EnergyICT
- * Date: 24/08/12
- * Time: 11:11
- */
 @RunWith(MockitoJUnitRunner.class)
 public class SerialCommunicationChannelAdapterTest {
 

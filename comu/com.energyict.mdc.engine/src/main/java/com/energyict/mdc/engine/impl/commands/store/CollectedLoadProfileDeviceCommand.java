@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
@@ -17,13 +21,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Provides functionality to store {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} data.
- *
- * Copyrights EnergyICT
- * Date: 29/08/12
- * Time: 14:52
- */
 public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<CollectedLoadProfileEvent> {
 
     public final static String DESCRIPTION_TITLE = "Collected load profile data";

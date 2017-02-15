@@ -1,15 +1,18 @@
-package com.energyict.mdc.engine.impl.cache;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.engine.impl.MessageSeeds;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+package com.energyict.mdc.engine.impl.cache;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.engine.impl.MessageSeeds;
+import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
@@ -22,13 +25,6 @@ import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-/**
- * Functionality to handle the {@link DeviceCache} object
- * <p/>
- * Copyrights EnergyICT
- * Date: 31/08/12
- * Time: 16:32
- */
 public final class DeviceCacheImpl implements DeviceCache {
 
     private static final int DEFLATION_BUFFER_SIZE = 4096;

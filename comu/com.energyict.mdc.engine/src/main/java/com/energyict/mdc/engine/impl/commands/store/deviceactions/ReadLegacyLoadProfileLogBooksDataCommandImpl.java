@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
@@ -23,6 +27,7 @@ import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -88,8 +93,8 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImpl extends SimpleComComma
                         MessageFormat.format(
                                 "{0} [{1,date,yyyy-MM-dd HH:mm:ss} - {2,date,yyy-MM-dd HH:mm:ss}]",
                                 loadProfileReader.getProfileObisCode(),
-                                loadProfileReader.getStartReadingTime(),
-                                loadProfileReader.getEndReadingTime()));
+                                Date.from(loadProfileReader.getStartReadingTime()),
+                                Date.from(loadProfileReader.getEndReadingTime())));
                 loadProfilesToReadBuilder.next();
             }
         }
@@ -110,13 +115,15 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImpl extends SimpleComComma
                 }
                 if (!collectedLoadProfile.getCollectedIntervalData().isEmpty()) {
                     descriptionBuilder.append(" - ");
+                    Instant from = collectedLoadProfile.getCollectedIntervalDataRange().lowerEndpoint().isBefore(lastLogBookDate)
+                            ? collectedLoadProfile.getCollectedIntervalDataRange().lowerEndpoint() :
+                            lastLogBookDate;
+                    Instant to = collectedLoadProfile.getCollectedIntervalDataRange().upperEndpoint();
                     descriptionBuilder.append(
                             MessageFormat.format(
                                     "dataPeriod: [{0,date,yyyy-MM-dd HH:mm:ss} - {1,date,yyy-MM-dd HH:mm:ss}]",
-                                    collectedLoadProfile.getCollectedIntervalDataRange().lowerEndpoint().isBefore(lastLogBookDate)
-                                            ? collectedLoadProfile.getCollectedIntervalDataRange().lowerEndpoint() :
-                                            lastLogBookDate,
-                                    collectedLoadProfile.getCollectedIntervalDataRange().upperEndpoint()));
+                                    Date.from(from),
+                                    Date.from(to)));
                 }
                 descriptionBuilder.append(")");
                 descriptionBuilder.next();

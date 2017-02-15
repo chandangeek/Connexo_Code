@@ -1,8 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.status;
 
 import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.monitor.*;
-import com.energyict.mdc.engine.status.*;
+import com.energyict.mdc.engine.monitor.ComServerMonitor;
+import com.energyict.mdc.engine.monitor.InboundComPortMonitor;
+import com.energyict.mdc.engine.monitor.ScheduledComPortMonitor;
+import com.energyict.mdc.engine.status.ComServerStatus;
+import com.energyict.mdc.engine.status.ComServerType;
 
 import java.time.Duration;
 import java.time.Instant;
