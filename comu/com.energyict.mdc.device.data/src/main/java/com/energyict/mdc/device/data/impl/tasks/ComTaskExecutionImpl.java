@@ -479,7 +479,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     @Override
     public void updateNextExecutionTimestamp() {
         recalculateNextAndPlannedExecutionTimestamp();
-        this.updateForScheduling();
+        this.updateForScheduling(true);
     }
 
     void recalculateNextAndPlannedExecutionTimestamp() {
@@ -542,19 +542,8 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
         this.setPlannedNextExecutionTimestamp(plannedNextExecutionTimestamp);
         this.nextExecutionTimestamp = nextExecutionTimestamp;
-        if(this.nextExecutionTimestamp != null ) {
         /* ConnectionTask can be null when the default is used but
          * no default has been set or created yet. */
-            this.getConnectionTask().ifPresent(ct -> {
-                if(calledByConnectionTask) {
-                    calledByConnectionTask = false;
-                } else {
-                    ((ServerConnectionTask) ct).scheduledComTaskRescheduled(this);
-                    calledByConnectionTask = false;
-                }
-            });
-        }
-
     }
 
     /**
@@ -631,17 +620,11 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     private Instant defineNextExecutionTimeStamp(Instant nextExecutionTimestamp) {
         if (!this.connectionTaskIsScheduled() || ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(getScheduledConnectionTask().getConnectionStrategy())) {
             return this.applyComWindowIfOutboundAndAny(nextExecutionTimestamp);
-        } else { // in case of outbound MINIMIZE
-//            Instant nextActualConnectionTime = getScheduledConnectionTask().getNextExecutionTimestamp();
-//            // nextActualConnectionTime can be off regular schedule due to retries. If a retry time would fit our needs, we'll hitch along.
-//            if (nextActualConnectionTime != null && !nextExecutionTimestamp.isAfter(nextActualConnectionTime)) {
-//                return nextActualConnectionTime;
-//            } else {
-                Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(this.clock.getZone()));
-                calendar.setTimeInMillis(nextExecutionTimestamp.toEpochMilli());
-                calendar.add(Calendar.MILLISECOND, -1); // hack getNextTimeStamp to be inclusive
-                return getScheduledConnectionTask().getNextExecutionSpecs().getNextTimestamp(calendar).toInstant();
-//            }
+        } else {
+            Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(this.clock.getZone()));
+            calendar.setTimeInMillis(nextExecutionTimestamp.toEpochMilli());
+            calendar.add(Calendar.MILLISECOND, -1); // hack getNextTimeStamp to be inclusive
+            return getScheduledConnectionTask().getNextExecutionSpecs().getNextTimestamp(calendar).toInstant();
         }
     }
 
@@ -693,7 +676,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         this.setPlannedNextExecutionTimestamp(currentDate);
         this.nextExecutionTimestamp = applyComWindowIfOutboundAndAny(currentDate);
         if (this.getId() > 0) {
-            this.updateForScheduling();
+            this.updateForScheduling(false);
         }
         if (this.connectionTaskIsScheduled()) {
             ((ScheduledConnectionTaskImpl) this.getConnectionTask().get()).scheduleConnectionNow();
@@ -705,7 +688,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         if (!isOnHold() || when == null) {
             this.schedule(when, this.getPlannedNextExecutionTimestamp());
             if (this.getId() > 0) {
-                this.updateForScheduling();
+                this.updateForScheduling(true);
             }
         }
     }
@@ -727,7 +710,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     // 'functional' fields do not need a 'versioncount upgrade'. When rescheduling a comtaskexecution
     // you do not want a new version (no history log) -> only tell the system the comtaskexecution is rescheduled
-    private void updateForScheduling() {
+    private void updateForScheduling(boolean informConnectionTask) {
         this.update(ComTaskExecutionFields.COMPORT.fieldName(),
                 ComTaskExecutionFields.LASTSUCCESSFULCOMPLETIONTIMESTAMP.fieldName(),
                 ComTaskExecutionFields.LASTEXECUTIONFAILED.fieldName(),
@@ -736,6 +719,15 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
                 ComTaskExecutionFields.EXECUTIONSTART.fieldName(),
                 ComTaskExecutionFields.ONHOLD.fieldName(),
                 ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName());
+
+        if(informConnectionTask) {
+            this.getConnectionTask().ifPresent(ct -> {
+                if(!calledByConnectionTask) {
+                    ((ServerConnectionTask) ct).scheduledComTaskRescheduled(this);
+                }
+                calledByConnectionTask = false;
+            });
+        }
     }
 
     @Override
@@ -754,13 +746,13 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     public void executionCompleted() {
         this.markSuccessfullyCompleted();
         this.doReschedule(calculateNextExecutionTimestamp(clock.instant()));
-        updateForScheduling();
+        updateForScheduling(true);
     }
 
     @Override
     public void executionRescheduled(Instant rescheduleDate) {
         this.doReschedule(rescheduleDate);
-        updateForScheduling();
+        updateForScheduling(true);
     }
 
     /**
@@ -783,7 +775,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         } else {
             this.doExecutionFailed();
         }
-        updateForScheduling();
+        updateForScheduling(true);
     }
 
     protected void doExecutionAttemptFailed() {
@@ -984,7 +976,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     private void setConnectionTaskIfExists(Device device, ComTaskEnablement comTaskEnablement) {
         Optional<PartialConnectionTask> optionalPartialConnectionTask = comTaskEnablement.getPartialConnectionTask();
-        if(optionalPartialConnectionTask.isPresent()){
+        if (optionalPartialConnectionTask.isPresent()) {
             PartialConnectionTask partialConnectionTask = optionalPartialConnectionTask.get();
             device.getConnectionTasks()
                     .stream()
@@ -1450,6 +1442,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         @SuppressWarnings("unchecked")
         public ComTaskExecution add() {
             this.comTaskExecution.prepareForSaving();
+            this.comTaskExecution.getConnectionTask().ifPresent(ct -> ((ServerConnectionTask) ct).scheduledComTaskRescheduled(this.comTaskExecution));
             return this.comTaskExecution;
         }
 
@@ -1500,6 +1493,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
         @Override
         public ComTaskExecutionUpdater forceNextExecutionTimeStampAndPriority(Instant nextExecutionTimestamp, int priority) {
+            this.connectionTaskSchedulingMayHaveChanged = true;
             this.comTaskExecution.setNextExecutionTimestamp(nextExecutionTimestamp);
             this.comTaskExecution.setExecutingPriority(priority);
             return this;
@@ -1555,7 +1549,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             nextExecutionSpecs.set(comSchedule.getNextExecutionSpecs());
             this.comTaskExecution.comSchedule.set(comSchedule);
             this.comTaskExecution.behavior = new ScheduledBehavior();
-            if(this.comTaskExecution.getNextExecutionTimestamp() == null) {
+            if (this.comTaskExecution.getNextExecutionTimestamp() == null) {
                 this.comTaskExecution.recalculateNextAndPlannedExecutionTimestamp();
             }
             return this;
