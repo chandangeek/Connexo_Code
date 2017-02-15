@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.property.store.TimeUnits', {
     extend: 'Ext.data.Store',
     requires: [
@@ -10,7 +14,10 @@ Ext.define('Uni.property.store.TimeUnits', {
         reader: {
             type: 'json',
             root: 'timeUnits'
-        }
+        },
+        pageParam: false,
+        startParam: false,
+        limitParam: false
     }
 });
 
