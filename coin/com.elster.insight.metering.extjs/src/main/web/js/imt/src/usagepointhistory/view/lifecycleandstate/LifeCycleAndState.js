@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointhistory.view.lifecycleandstate.LifeCycleAndState', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.life-cycle-and-state',
@@ -22,7 +26,7 @@ Ext.define('Imt.usagepointhistory.view.lifecycleandstate.LifeCycleAndState', {
                         fn: Ext.bind(me.onTypeSelect, me)
                     }
                 }
-            },            
+            },
             previewComponent: {
                 xtype: 'life-cycle-and-state-preview',
                 itemId: 'life-cycle-and-state-preview'
@@ -33,6 +37,6 @@ Ext.define('Imt.usagepointhistory.view.lifecycleandstate.LifeCycleAndState', {
     },
 
     onTypeSelect: function (selectionModel, record) {
-        this.down('#life-cycle-and-state-preview').loadRecord(record);        
+        this.down('#life-cycle-and-state-preview').loadRecord(record);
     }
 });

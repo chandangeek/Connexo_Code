@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointmanagement.view.Add', {
     extend: 'Uni.view.container.ContentContainer',
     xtype: 'add-usage-point',

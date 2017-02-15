@@ -1,10 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.register-data-grid',
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Imt.purpose.view.registers.RegisterReadingActionMenu'
+        'Imt.purpose.view.registers.RegisterReadingActionMenu',
+        'Imt.purpose.util.TooltipRenderer'
     ],
     store: 'Imt.purpose.store.RegisterReadings',
     output: null,
@@ -18,10 +23,9 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
                 header: Uni.I18n.translate('general.measurementTime', 'IMT', 'Measurement time'),
                 flex: 1,
                 dataIndex: 'timeStamp',
-                renderer: function (value) {
-                    return value
-                        ? Uni.DateTime.formatDateTimeShort(new Date(value))
-                        : '-'
+                renderer: function (value, metaData, record) {                                                 
+                    return Ext.isEmpty(value) ? '-' : Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', 
+                        [Uni.DateTime.formatDateShort(new Date(value)), Uni.DateTime.formatTimeShort(new Date(value))]) + Imt.purpose.util.TooltipRenderer.prepareIcon(record);
                 }
             },
             {
@@ -41,6 +45,15 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
                 emptyText: ' '
             },
             {
+                header: Uni.I18n.translate('device.readingData.lastUpdate', 'IMT', 'Last update'),
+                dataIndex: 'reportedDateTime',
+                flex: 1,
+                renderer: function(value){
+                    var date = new Date(value);
+                    return Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)])
+                }
+            },
+            {
                 xtype: 'uni-actioncolumn',
                 itemId: 'register-data-grid-action-column',
                 privileges: Imt.privileges.UsagePoint.admin,
@@ -56,9 +69,9 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('outputs.registers.pagingtoolbartop.displayMsgItems', 'IMT', '{0} - {1} of {2} items'),
-                displayMoreMsg: Uni.I18n.translate('outputs.registers.displayMsgMoreItems', 'IMT', '{0} - {1} of more than {2} items'),
-                emptyMsg: Uni.I18n.translate('outputs.registers.noItemsToDisplay', 'IMT', 'There are no items to display'),
+                displayMsg: Uni.I18n.translate('outputs.registers.pagingtoolbartop.displayMsgItems', 'IMT', '{0} - {1} of {2} readings'),
+                displayMoreMsg: Uni.I18n.translate('outputs.registers.displayMsgMoreItems', 'IMT', '{0} - {1} of more than {2} readings'),
+                emptyMsg: Uni.I18n.translate('outputs.registers.noItemsToDisplay', 'IMT', 'There are no readings to display'),
                 items: [
                     {
                         xtype: 'button',
@@ -97,7 +110,8 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
         }
 
         if (record.get('isConfirmed') && !record.isModified('value')) {
-            icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;"></span>';
+            icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;" data-qtip="'
+                + Uni.I18n.translate('reading.validationResult.confirmed', 'IMT', 'Confirmed') + '"></span>';
         }
         return value + icon;
     }

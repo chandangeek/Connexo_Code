@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.metrologyconfiguration.controller.Edit', {
     extend: 'Ext.app.Controller',
 
@@ -177,7 +181,8 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         router.getRoute().forward();
     },
     onFailureSaving: function (response) {
-        var form = this.getMetrologyConfigurationEditPage().down('form'),
+        var me = this,
+            form = me.getMetrologyConfigurationEditPage().down('form'),
             formErrorsPanel = form.down('uni-form-error-message'),
             basicForm = form.getForm(),
             responseText;
@@ -192,6 +197,23 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                 formErrorsPanel.show();
             }
         }
+    },
+
+    mapErrors: function (errors) {
+        var map = {};
+
+        Ext.Array.each(errors, function (error) {
+            if (!map[error.id]) {
+                map[error.id] = {
+                    id: error.id,
+                    msg: [error.msg]
+                };
+            } else {
+                map[error.id].msg.push(error.msg);
+            }
+        });
+
+        return _.values(map);
     },
 
     showWizard: function (usagePointId) {
@@ -294,7 +316,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                         errors = Ext.decode(response.responseText, true);
 
                     if (errors && !Ext.isEmpty(errors.errors)) {
-                        wizard.markInvalid(errors.errors);
+                        wizard.markInvalid(me.mapErrors(errors.errors));
                     }
                 }
             }, Ext.merge(options, {
@@ -332,14 +354,13 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         var me = this,
             configuration = field.findRecordByValue(newValue),
             wizard = me.getWizard(),
+            stepNumber = 1,
             buttons = wizard.getDockedComponent('define-metrology-configuration-wizard-buttons'),
             nextBtn = buttons.down('[action=step-next]'),
             addBtn = buttons.down('[action=add]'),
             navigation = me.getNavigationMenu(),
             currentSteps = wizard.query('[isWizardStep=true]'),
             currentMenuItems = navigation.query('menuitem'),
-            purposesField = wizard.down('#purposes-field'),
-            stepNumber = 1,
             stepsToAdd = [],
             navigationItemsToAdd = [];
 
@@ -384,13 +405,15 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         wizard.updateRecord(configuration);
         Ext.resumeLayouts(true);
 
-        purposesField.setLoading();
+        wizard.setLoading();
         me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration').load(newValue, {
             success: function (record) {
-                purposesField.setStore(record.metrologyContracts())
+                if (wizard.rendered) {
+                    wizard.down('#purposes-field').setStore(record.metrologyContracts())
+                }
             },
             callback: function () {
-                purposesField.setLoading(false);
+                wizard.setLoading(false);
             }
         });
     },

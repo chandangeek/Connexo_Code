@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointlifecyclestates.view.Edit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.usagepoint-life-cycle-state-edit',
@@ -61,7 +65,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.Edit', {
                         {
                             xtype: 'displayfield-with-info-icon',
                             itemId: 'usagepoint-life-cycle-stage-info-icon',
-                            infoTooltip: Uni.I18n.translate('general.addUsagePointLifeCycleState.stage.qtip', 'IMT', 'Stage of usage point life cycle state influences an available actions for usage point in such state.'),
+                            infoTooltip: Uni.I18n.translate('general.addUsagePointLifeCycleState.stage.qtip1', 'IMT', 'The stage of the usage point life cycle influences the available actions for the usage point in that state.'),
                             onlyIcon: true
                         }
                     ]
@@ -225,7 +229,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.Edit', {
                     var createBtn = this.down('#createEditButton');
                     this.setTitle(Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", record.get('name')));
                     createBtn.setText(Uni.I18n.translate('general.save', 'IMT', 'Save'));
-                    createBtn.action = 'save';                   
+                    createBtn.action = 'save';
                 }
                 this.getForm().loadRecord(record);
                 var processOnEntryStore = this.down('#processesOnEntryGrid').getStore();

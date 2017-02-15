@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.purpose.view.OutputReadings', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.output-readings',
@@ -25,32 +29,22 @@ Ext.define('Imt.purpose.view.OutputReadings', {
             durations,
             all,
             duration;
-        switch (output.get('outputType')){
-            case 'channel' : {
-                emptyComponent = {
-                    xtype: 'no-readings-found-panel',
-                    itemId: 'readings-empty-panel'
+
+        emptyComponent = {
+            xtype: 'no-readings-found-panel',
+            itemId: 'readings-empty-panel'
+        };
+
+        if (output.get('outputType') === 'register') {
+            emptyComponent.stepItems = [
+                {
+                    text: Uni.I18n.translate('register-data.list.add', 'IMT', 'Add reading'),
+                    privileges: Imt.privileges.UsagePoint.admin,
+                    href: me.router.getRoute('usagepoints/view/purpose/output/addregisterdata').buildUrl(),
+                    action: 'add',
+                    itemId: 'add-register-data'
                 }
-            } break;
-            case 'register': {
-                emptyComponent = Ext.create('Uni.view.notifications.NoItemsFoundPanel',{
-                    itemId: 'register-data-empty-panel',
-                    title: Uni.I18n.translate('register-data.list.empty', 'IMT', 'No readings have been defined yet'),
-                    reasons: [
-                        Uni.I18n.translate('register-data.list.reason1', 'IMT', 'No readings have been defined yet'),
-                        Uni.I18n.translate('register-data.list.reason3', 'IMT', 'No readings comply with the filter')
-                    ],
-                    stepItems: [
-                        {
-                            text: Uni.I18n.translate('register-data.list.add', 'IMT', 'Add reading'),
-                            privileges: Imt.privileges.UsagePoint.admin,
-                            href: me.router.getRoute('usagepoints/view/purpose/output/addregisterdata').buildUrl(),
-                            action: 'add',
-                            itemId: 'add-register-data'
-                        }
-                    ]
-                })
-            }
+            ];
         }
 
         if (me.interval) {
@@ -83,8 +77,22 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                         dataIndexTo: 'intervalEnd',
                         text: Uni.I18n.translate('general.startDate', 'IMT', 'Start date'),
                         loadStore: false,
-                        itemId: 'devicechannels-topfilter-duration'
-                    }, duration)
+                        itemId: 'output-readings-topfilter-duration'
+                    }, duration),
+                    {
+                        type: 'checkbox',
+                        dataIndex: 'suspect',
+                        itemId: 'output-readings-topfilter-validation-result',
+                        layout: 'hbox',
+                        defaults: {margin: '0 10 0 0'},
+                        options: [
+                            {
+                                display: Uni.I18n.translate('reading.validationResult.suspect', 'IMT', 'Suspect'),
+                                value: 'suspect',
+                                itemId: 'output-readings-topfilter-suspect'
+                            }
+                        ]
+                    }
                 ]
             }
         ];
@@ -149,7 +157,6 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                         output: me.output,
                         router: me.router,
                         hidden: true,
-                        withOutAppName: true,
                         outputType: output.get('outputType')
                     }
                 });
@@ -191,10 +198,12 @@ Ext.define('Imt.purpose.view.OutputReadings', {
             output = me.output,
             unitOfMeasure = output.get('readingType').names.unitOfMeasure,
             okColor = "#70BB51",
+            estimatedColor = '#568343',
             suspectColor = 'rgba(235, 86, 66, 1)',
             informativeColor = "#dedc49",
             notValidatedColor = "#71adc7",
             tooltipOkColor = 'rgba(255, 255, 255, 0.85)',
+            tooltipEstimatedColor = 'rgba(86, 131, 67, 0.3)',
             tooltipSuspectColor = 'rgba(235, 86, 66, 0.3)',
             tooltipInformativeColor = 'rgba(222, 220, 73, 0.3)',
             tooltipNotValidatedColor = 'rgba(0, 131, 200, 0.3)';
@@ -212,13 +221,17 @@ Ext.define('Imt.purpose.view.OutputReadings', {
             point.unitOfMeasure = unitOfMeasure;
             point.color = okColor;
             point.tooltipColor = tooltipOkColor;
+            point.showQualityIcon = !Ext.isEmpty(record.get('readingQualities'));
 
             point.validationRules = record.get('validationRules');
 
             if (record.get('modificationFlag')) {
                 point.edited = true;
             }
-            if (properties.notValidated) {
+            if (record.get('estimatedByRule')) {
+                point.color = estimatedColor;
+                point.tooltipColor = tooltipEstimatedColor;
+            } else if (properties.notValidated) {
                 point.color = notValidatedColor;
                 point.tooltipColor = tooltipNotValidatedColor
             } else if (properties.suspect) {

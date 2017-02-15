@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointlifecycle.controller.UsagePointLifeCycles', {
     extend: 'Ext.app.Controller',
 
@@ -89,7 +93,7 @@ Ext.define('Imt.usagepointlifecycle.controller.UsagePointLifeCycles', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('usagePointLifeCycles.confirmWindow.removeMsg', 'IMT', 'This usage point life cycle will no longer be available.'),
-            title: Uni.I18n.translate('usagePointLifeCycles.remove.title', 'IMT', "Remove '{0}'?",[record.get('name')]),
+            title: Uni.I18n.translate('usagePointLifeCycles.remove.title', 'IMT', "Remove '{0}'?", [record.get('name')]),
             config: {
                 me: me,
                 record: record,
@@ -133,8 +137,8 @@ Ext.define('Imt.usagepointlifecycle.controller.UsagePointLifeCycles', {
 
     showUsagePointLifeCyclePreview: function (selectionModel, record) {
         var me = this,
-            page = me.getPage(),            
-            preview = page.down('usagepoint-life-cycles-preview');            
+            page = me.getPage(),
+            preview = page.down('usagepoint-life-cycles-preview');
 
         Ext.suspendLayouts();
         preview.setTitle(Ext.String.htmlEncode(record.get('name')));

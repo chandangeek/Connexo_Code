@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointlifecycle.view.PreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.usagepoint-life-cycles-preview-form',
@@ -17,7 +21,7 @@ Ext.define('Imt.usagepointlifecycle.view.PreviewForm', {
                 name: 'name'
             },
             {
-                itemId: 'cycle-default',                
+                itemId: 'cycle-default',
                 fieldLabel: Uni.I18n.translate('general.default', 'IMT', 'Default'),
                 name: 'isDefault',
                 renderer: function (value) {
@@ -39,11 +43,10 @@ Ext.define('Imt.usagepointlifecycle.view.PreviewForm', {
                     {
                         xtype: 'container',
                         itemId: 'states-container',
-                        items: [
-                        ]
+                        items: []
                     }
                 ]
-            }            
+            }
         ];
 
         me.callParent(arguments);

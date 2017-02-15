@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointhistory.view.lifecycleandstate.LifeCycleAndStatePreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.life-cycle-and-state-preview-form',
@@ -6,11 +10,11 @@ Ext.define('Imt.usagepointhistory.view.lifecycleandstate.LifeCycleAndStatePrevie
     defaults: {
         xtype: 'container',
         columnWidth: 0.5
-    },    
+    },
 
     initComponent: function () {
         var me = this;
-        
+
         me.items = [
             {
                 defaults: {
@@ -21,7 +25,7 @@ Ext.define('Imt.usagepointhistory.view.lifecycleandstate.LifeCycleAndStatePrevie
                     {
                         name: 'type_name',
                         itemId: 'fld-type',
-                        fieldLabel: Uni.I18n.translate('general.type', 'IMT', 'Type')                        
+                        fieldLabel: Uni.I18n.translate('general.type', 'IMT', 'Type')
                     },
                     {
                         name: 'fromStateName',
@@ -36,7 +40,7 @@ Ext.define('Imt.usagepointhistory.view.lifecycleandstate.LifeCycleAndStatePrevie
                     {
                         name: 'status_name',
                         itemId: 'fld-status',
-                        fieldLabel: Uni.I18n.translate('general.status', 'IMT', 'Status')                        
+                        fieldLabel: Uni.I18n.translate('general.status', 'IMT', 'Status')
                     },
                     {
                         name: 'user_name',
@@ -62,18 +66,18 @@ Ext.define('Imt.usagepointhistory.view.lifecycleandstate.LifeCycleAndStatePrevie
                     }
                 },
                 items: [
-                    {                        
+                    {
                         itemId: 'fld-pretransitionsContainer',
-                        fieldLabel: Uni.I18n.translate('usagePointLifeCycleTransitions.add.failedPretransitionChecks', 'IMT', 'Failed pre-transition checks')                        
+                        fieldLabel: Uni.I18n.translate('usagePointLifeCycleTransitions.add.failedPretransitionChecks', 'IMT', 'Failed pre-transition checks')
                     },
-                    {                        
+                    {
                         itemId: 'fld-autoActionsContainer',
                         fieldLabel: Uni.I18n.translate('usagePointLifeCycleTransitions.add.failedAutoActions', 'IMT', 'Failed auto actions')
                     }
                 ]
             }
         ];
-        
+
         me.callParent();
     }
 });

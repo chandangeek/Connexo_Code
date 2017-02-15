@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointlifecycletransitions.view.Add', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.usagepoint-life-cycle-transitions-add',
@@ -112,7 +116,7 @@ Ext.define('Imt.usagepointlifecycletransitions.view.Add', {
                         margin: '0 0 20 20',
                         hidden: true,
                         width: 800
-                    },                    
+                    },
                     {
                         xtype: 'textfield',
                         name: 'name',
@@ -142,7 +146,7 @@ Ext.define('Imt.usagepointlifecycletransitions.view.Add', {
                                 valueField: 'id',
                                 listeners: {
                                     select: function (combo, chosenState) {
-                                        var transitionToCombo = me.down('#transition-to-combo'),                                            
+                                        var transitionToCombo = me.down('#transition-to-combo'),
                                             store = transitionToCombo.getStore(),
                                             id;
 
@@ -200,7 +204,7 @@ Ext.define('Imt.usagepointlifecycletransitions.view.Add', {
                                 valueField: 'id',
                                 listeners: {
                                     select: function (combo, chosenState) {
-                                        var transitionFromCombo = me.down('#transition-from-combo'),                                            
+                                        var transitionFromCombo = me.down('#transition-from-combo'),
                                             store = transitionFromCombo.getStore(),
                                             id;
 

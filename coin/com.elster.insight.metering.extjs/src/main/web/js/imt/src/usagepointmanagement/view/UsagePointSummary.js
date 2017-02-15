@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointmanagement.view.UsagePointSummary', {
     extend: 'Ext.form.Panel',
     requires: [
@@ -79,8 +83,15 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSummary', {
                 name: 'state',
                 fieldLabel: Uni.I18n.translate('general.state', 'IMT', 'State'),
                 renderer: function (value) {
-                    return value ? Ext.String.htmlEncode(value.name) + ' (<a href="' + me.router.getRoute('usagepoints/view/history').buildUrl() + '">' +
-                    Uni.I18n.translate('general.viewHistory', 'IMT', 'View history') + '</a>)' : '-';
+                    return value
+                        ? Ext.String.htmlEncode(value.name) + ' (<a href="' + me.router.getRoute('usagepoints/view/history').buildUrl() + '">' +
+                    Uni.I18n.translate('general.viewHistory', 'IMT', 'View history') + '</a>)'
+                    + '<br><span style="font-size: 90%">'
+                    + Uni.I18n.translate('general.fromDate.lc', 'IMT', 'from {0}', [Uni.DateTime.formatDateTimeShort(new Date(me.getRecord().get('lastTransitionTime')))], false)
+                    + '</span>'
+                        : '-';
+
+
                 }
             },
             {

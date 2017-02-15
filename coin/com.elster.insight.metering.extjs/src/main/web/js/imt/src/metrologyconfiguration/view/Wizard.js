@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.metrologyconfiguration.view.Wizard', {
     extend: 'Ext.form.Panel',
     alias: 'widget.define-metrology-configuration-wizard',
@@ -42,8 +46,8 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                     } :
                     {
                         itemId: 'not-possible-add',
-                        xtype: 'uni-form-empty-message',
-                        text: Uni.I18n.translate('metrologyConfiguration.wizard.notPossibleDefine', 'IMT', "You can't define metrology configuration for the usage point because of no available metrology configurations.")
+                        xtype: 'uni-form-info-message',
+                        text: Uni.I18n.translate('metrologyConfiguration.wizard.notPossibleLink', 'IMT', "You can't link a metrology configuration to this usage point because there are no matching metrology configurations found or you have no privileges to see them. Please check your metrology configurations attributes.")
                     },
                     me.isPossibleAdd ?
                     {

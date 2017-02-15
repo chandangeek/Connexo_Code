@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointlifecycle.view.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.usagepoint-life-cycles-grid',
@@ -14,7 +18,7 @@ Ext.define('Imt.usagepointlifecycle.view.Grid', {
     initComponent: function () {
         var me = this;
 
-        me.columns = [            
+        me.columns = [
             {
                 xtype: 'uni-default-column',
                 header: Uni.I18n.translate('general.default', 'IMT', 'Default'),

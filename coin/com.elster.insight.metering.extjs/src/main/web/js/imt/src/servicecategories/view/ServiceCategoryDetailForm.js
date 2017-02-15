@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.servicecategories.view.ServiceCategoryDetailForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.service-category-detail-form',

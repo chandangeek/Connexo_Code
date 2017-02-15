@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.controller.History', {
     extend: 'Uni.controller.history.Converter',
 
@@ -215,7 +219,7 @@ Ext.define('Imt.controller.History', {
                             privileges: Imt.privileges.UsagePoint.view,
                             items: {
                                 activatemeters: {
-                                    title: Uni.I18n.translate('general.label.editMeters', 'IMT', 'Edit meters'),
+                                    title: Uni.I18n.translate('general.linkMeters', 'IMT', 'Link meters'),
                                     route: 'activatemeters',
                                     controller: 'Imt.usagepointsetup.controller.MetrologyConfig',
                                     action: 'showActivateMeters',
@@ -253,7 +257,7 @@ Ext.define('Imt.controller.History', {
                             }
                         },
                         definemetrology: {
-                            title: Uni.I18n.translate('general.label.definemetrologyconfiguration', 'IMT', 'Define metrology configuration'),
+                            title: Uni.I18n.translate('usagePoint.metrologyConfiguration.link', 'IMT', 'Link metrology configuration'),
                             controller: 'Imt.metrologyconfiguration.controller.Edit',
                             action: 'showWizard',
                             privileges: Imt.privileges.UsagePoint.admin,

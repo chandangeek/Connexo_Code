@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSetsActions', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.custom-attribute-sets-actions',

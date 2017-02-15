@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointlifecycletransitions.model.UsagePointLifeCycleTransition', {
     extend: 'Uni.model.ParentVersion',
     fields: [
@@ -5,7 +9,7 @@ Ext.define('Imt.usagepointlifecycletransitions.model.UsagePointLifeCycleTransiti
         'name',
         'fromState',
         'toState',
-        'privileges',        
+        'privileges',
         {name: 'microActions', defaultValue: null},
         {name: 'microChecks', defaultValue: null},
         {
@@ -23,7 +27,7 @@ Ext.define('Imt.usagepointlifecycletransitions.model.UsagePointLifeCycleTransiti
             mapping: function (data) {
                 if (data.toState) {
                     return data.toState.name;
-                }                
+                }
             }
         }
     ],

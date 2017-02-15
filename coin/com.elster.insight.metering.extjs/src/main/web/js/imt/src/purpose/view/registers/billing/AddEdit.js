@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.purpose.view.registers.billing.AddEdit', {
     extend: 'Imt.purpose.view.registers.MainAddEdit',
     alias: 'widget.add-billing-register-reading',
