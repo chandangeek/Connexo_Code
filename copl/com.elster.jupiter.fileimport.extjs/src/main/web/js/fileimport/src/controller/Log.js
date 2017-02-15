@@ -87,6 +87,7 @@ Ext.define('Fim.controller.Log', {
                     me.getHistoryLogViewMenu().setTitle(showImportService ? Uni.I18n.translate('general.importHistory', 'FIM', 'Import history') : Uni.I18n.translate('general.importServices', 'FIM', 'Import services'));
 
                 } else {
+                    me.getApplication().fireEvent('importhistorylogload', occurrenceTask);
                     view.down('#main-panel').setTitle(
                         Uni.I18n.translate('importService.log.of.occurence', 'FIM', "Log '{0}'", occurrenceTask.get('startedOnDisplay'))
                     );
@@ -106,12 +107,17 @@ Ext.define('Fim.controller.Log', {
             page = me.getPage(),
             sortContainer = page.down('container[name=sortitemspanel]').getContainer(),
             store = me.getStore('Fim.store.Logs'),
+            menu = page.down('#menu-history-log-sort'),
             sorting,
             menuItem,
             cls;
 
         sortContainer.removeAll();
         sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']);
+
+        menu.down('[name=level]').show();
+        menu.down('[name=timestamp]').show();
+        page.down('#add-sort-btn').enable();
 
         if (Ext.isArray(sorting)) {
             Ext.Array.each(sorting, function (sortItem) {
@@ -130,8 +136,13 @@ Ext.define('Fim.controller.Log', {
                         sortDirection: sortItem.direction,
                         iconCls: cls
                     });
+                    menuItem.hide();
                 }
             });
+        }
+
+        if (menu.down('[name=timestamp]').hidden  && menu.down('[name=level]').hidden){
+            page.down('#add-sort-btn').disable();
         }
     },
 

@@ -45,7 +45,9 @@ Ext.define('Fim.view.history.History', {
             xtype: 'panel',
             itemid : 'fim-history-form',
             ui: 'large',
-            title: Uni.I18n.translate('general.history', 'FIM', 'History'),
+            title: me.showImportService
+                ? Uni.I18n.translate('general.history', 'FIM', 'History')
+                : Uni.I18n.translate('general.importHistory', 'FIM', 'Import history'),
             items: [
                 {
                     xtype: 'filter-toolbar',
