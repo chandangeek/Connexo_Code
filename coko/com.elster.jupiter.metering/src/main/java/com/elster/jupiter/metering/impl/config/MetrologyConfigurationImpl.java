@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -486,7 +490,8 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
         return Optional.ofNullable(this.obsoleteTime);
     }
 
-    private void invalidateCache() {
+    @Override
+    public void invalidateCache() {
         this.publisher.publish(new InvalidateCacheRequest(MeteringService.COMPONENTNAME, TableSpecs.MTR_METROLOGYCONFIG.name()));
     }
 }

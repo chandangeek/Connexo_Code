@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
@@ -162,7 +166,7 @@ public class MeteringServiceImpl implements ServerMeteringService {
 
     @Override
     public Finder<ReadingType> findReadingTypes(ReadingTypeFilter filter) {
-        return DefaultFinder.of(ReadingType.class, filter.getCondition(), dataModel);
+        return DefaultFinder.of(ReadingType.class, filter.getCondition(), dataModel).sorted("fullAliasName", true);
     }
 
     @Override

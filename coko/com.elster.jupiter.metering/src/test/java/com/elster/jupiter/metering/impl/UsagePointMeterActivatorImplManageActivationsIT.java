@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
@@ -26,6 +30,7 @@ import com.elster.jupiter.metering.ami.EndDeviceCommand;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.impl.config.TestHeadEndInterface;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -416,61 +421,4 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         usagePoint.linkMeters().activate(meter, meterRole).complete();
     }
 
-    private static class TestHeadEndInterface implements HeadEndInterface {
-        private List<ReadingType> supportedReadingTypes;
-
-        public TestHeadEndInterface(ReadingType... supported) {
-            this.supportedReadingTypes = Arrays.stream(supported).collect(Collectors.toList());
-        }
-
-        @Override
-        public Optional<URL> getURLForEndDevice(EndDevice endDevice) {
-            return Optional.empty();
-        }
-
-        @Override
-        public EndDeviceCapabilities getCapabilities(EndDevice endDevice) {
-            return new EndDeviceCapabilities(this.supportedReadingTypes, Collections.emptyList());
-        }
-
-        @Override
-        public CommandFactory getCommandFactory() {
-            return null;
-        }
-
-        @Override
-        public CompletionOptions scheduleMeterRead(Meter meter, List<ReadingType> readingTypes, Instant instant) {
-            return null;
-        }
-
-        @Override
-        public CompletionOptions scheduleMeterRead(Meter meter, List<ReadingType> readingTypes, Instant instant, ServiceCall serviceCall) {
-            return null;
-        }
-
-        @Override
-        public CompletionOptions readMeter(Meter meter, List<ReadingType> readingTypes) {
-            return null;
-        }
-
-        @Override
-        public CompletionOptions readMeter(Meter meter, List<ReadingType> readingTypes, ServiceCall serviceCall) {
-            return null;
-        }
-
-        @Override
-        public CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant releaseDate) {
-            return null;
-        }
-
-        @Override
-        public CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant releaseDate, ServiceCall parentServiceCall) {
-            return null;
-        }
-
-        @Override
-        public String getAmrSystem() {
-            return KnownAmrSystem.MDC.getName();
-        }
-    }
 }

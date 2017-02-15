@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.readings.beans;
 
 import com.elster.jupiter.metering.ReadingQualityType;
@@ -13,11 +17,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 28/11/13
- * Time: 10:36
- */
 public abstract class BaseReadingImpl implements BaseReading {
 
     private final BigDecimal value;

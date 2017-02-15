@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.NotEmpty;
@@ -34,7 +38,7 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
         ID("id"),
         NAME("name"),
         METROLOGY_CONFIGURATION("metrologyConfiguration"),
-        TEMPLATE("readingTypeTemplate"),
+        TEMPLATE("readingTypeTemplateId"),
         ATTRIBUTES("overriddenAttributes"),
         READING_TYPE("readingType"),;
 

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.config;
 
 import com.elster.jupiter.metering.UsagePoint;
@@ -6,6 +10,7 @@ import com.elster.jupiter.util.HasId;
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Models an API for measurement data that is calculated from
@@ -39,6 +44,8 @@ public interface MetrologyContract extends HasId {
      * @return The List of ReadingTypeDeliverable
      */
     List<ReadingTypeDeliverable> getDeliverables();
+
+    Set<ReadingTypeRequirement> getRequirements();
 
     MetrologyPurpose getMetrologyPurpose();
 

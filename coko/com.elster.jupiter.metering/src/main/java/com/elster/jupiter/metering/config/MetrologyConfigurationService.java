@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.config;
 
 import com.elster.jupiter.domain.util.Finder;
@@ -49,6 +53,8 @@ public interface MetrologyConfigurationService {
     List<ReadingTypeTemplate> getReadingTypeTemplates();
 
     Optional<ReadingTypeTemplate> findReadingTypeTemplate(String name);
+
+    Optional<ReadingTypeTemplate> findReadingTypeTemplate(long id);
 
     MetrologyPurpose createMetrologyPurpose(NlsKey name, NlsKey description);
 
