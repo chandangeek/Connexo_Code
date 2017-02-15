@@ -28,6 +28,7 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
 
+@HasUniqueNamePerDeviceType(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_UNIQUE + "}")
 public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
     private long id;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -63,8 +64,8 @@ public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
         DURATION("duration"),
         KEYTYPE("keyType"),
         DEVICETYPE("deviceType");
-        private final String javaFieldName;
 
+        private final String javaFieldName;
         Fields(String javaFieldName) {
             this.javaFieldName = javaFieldName;
         }
@@ -72,8 +73,8 @@ public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
         String fieldName() {
             return javaFieldName;
         }
-    }
 
+    }
     @Inject
     public KeyAccessorTypeImpl(DataModel dataModel) {
         this.dataModel = dataModel;
@@ -173,6 +174,17 @@ public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
     @Override
     public KeyAccessorTypeUpdater startUpdate() {
         return new KeyAccessorTypeUpdaterImpl();
+    }
+
+    protected boolean nameIsUnique() {
+        if(deviceType.isPresent()) {
+            return !deviceType.get().getKeyAccessorTypes().stream()
+                    .filter(keyAccessorType -> !keyAccessorType.equals(this))
+                    .filter(keyAccessorType -> keyAccessorType.getName().equals(this.getName()))
+                    .findAny()
+                    .isPresent();
+        }
+        return false;
     }
 
     static class UserActionRecord {
