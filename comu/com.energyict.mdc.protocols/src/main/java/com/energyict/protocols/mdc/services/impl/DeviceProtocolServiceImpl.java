@@ -214,7 +214,14 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
                 Stream.of(GarnetTranslationKeys.values()),
                 Stream.of(CommonV2TranslationKeys.values()),
                 Stream.of(ACE4000Properties.TranslationKeys.values()),
-                Stream.of(TranslationKeys.values()))
+                Stream.of(TranslationKeys.values()),
+                Stream.of(com.energyict.protocols.mdc.services.impl.TranslationKeys.values()),
+                Stream.of(com.energyict.mdc.channels.nls.PropertyTranslationKeys.values()),
+                Stream.of(com.energyict.nls.PropertyTranslationKeys.values()),
+                Stream.of(com.elster.protocolimpl.nls.PropertyTranslationKeys.values()),
+                Stream.of(com.elster.us.nls.PropertyTranslationKeys.values()),
+                Stream.of(com.energyict.protocolimpl.nls.PropertyTranslationKeys.values()),
+                Stream.of(com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }
