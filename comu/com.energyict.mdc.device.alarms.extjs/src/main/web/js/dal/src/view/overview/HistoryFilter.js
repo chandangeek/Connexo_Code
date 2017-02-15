@@ -14,7 +14,7 @@ Ext.define('Dal.view.overview.HistoryFilter', {
                 type: 'combobox',
                 itemId: 'cbo-history-filter-reasons',
                 dataIndex: 'reason',
-                emptyText: Uni.I18n.translate('general.reasons', 'DAL', 'Reasons'),
+                emptyText: Uni.I18n.translate('general.reason', 'DAL', 'Reason'),
                 multiSelect: true,
                 displayField: 'name',
                 valueField: 'id',
