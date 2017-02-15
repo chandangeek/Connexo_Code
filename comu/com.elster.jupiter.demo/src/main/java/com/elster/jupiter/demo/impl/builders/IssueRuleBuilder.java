@@ -16,7 +16,6 @@ import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.properties.HasIdAndName;
-import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
@@ -160,14 +159,11 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                 properties.put(BASIC_DATA_VALIDATION_RULE_TEMPLATE + ".deviceConfigurations", deviceConfigurations);
             }
         } else if (template.getName().equals(BASIC_DEVICE_ALARM_RULE_TEMPLATE)) {
-            properties.put(
-                    BasicDeviceAlarmRuleTemplate.EVENTTYPE,
-                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.EVENTTYPE).get().getValueFactory().fromStringValue(type));
             properties.put(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS, getRandomEventCodeList(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS));
             properties.put(BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS, getRandomEventCodeList(BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS));
             properties.put(
                     BasicDeviceAlarmRuleTemplate.RAISE_EVENT_PROPS,
-                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.RAISE_EVENT_PROPS).get().getValueFactory().fromStringValue("1:1:1"));
+                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.RAISE_EVENT_PROPS).get().getValueFactory().fromStringValue("0:0:0"));
             properties.put(BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, getAllDeviceStatesInAllDeviceTypes());
             properties.put(
                     BasicDeviceAlarmRuleTemplate.THRESHOLD, getRandomRelativePeriodWithCount());
@@ -286,23 +282,27 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         return list;
     }
 
-    private List<HasIdAndName> getRandomRelativePeriodWithCount() {
+    private HasIdAndName getRandomRelativePeriodWithCount() {
         List<HasIdAndName> list = new ArrayList<>();
-        int occurrencCount = new Random().nextInt(5);
+        int occurrenceCount = new Random().nextInt(5);
         timeService.getRelativePeriods()
                 .stream()
-                .sorted(Comparator.comparing(RelativePeriod::getId))
+                .collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
+                    Collections.shuffle(collected);
+                    return collected.stream();
+                }))
+                .limit(1)
                 .forEach(relativePeriod -> list.add(new HasIdAndName() {
                                                         @Override
                                                         public String getId() {
-                                                            return occurrencCount + SEPARATOR + relativePeriod.getId();
+                                                            return occurrenceCount + SEPARATOR + relativePeriod.getId();
                                                         }
 
                                                         @Override
                                                         public String getName() {
                                                             try {
                                                                 JSONObject jsonId = new JSONObject();
-                                                                jsonId.put("occurrenceCount", occurrencCount);
+                                                                jsonId.put("occurrenceCount", occurrenceCount);
                                                                 jsonId.put("relativePeriod", relativePeriod.getName());
                                                                 return jsonId.toString();
                                                             } catch (JSONException e) {
@@ -313,7 +313,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                                                     }
                 ));
 
-        return list;
+        return list.size() == 1 ? list.get(0) : null;
     }
 
 }
