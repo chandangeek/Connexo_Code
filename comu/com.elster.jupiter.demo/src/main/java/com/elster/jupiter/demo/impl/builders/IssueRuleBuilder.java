@@ -16,6 +16,7 @@ import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
@@ -169,11 +170,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                     template.getPropertySpec(BasicDeviceAlarmRuleTemplate.RAISE_EVENT_PROPS).get().getValueFactory().fromStringValue("1:1:1"));
             properties.put(BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, getAllDeviceStatesInAllDeviceTypes());
             properties.put(
-                    BasicDeviceAlarmRuleTemplate.EVENT_OCCURENCE_COUNT,
-                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.EVENT_OCCURENCE_COUNT).get().getValueFactory().fromStringValue("2"));
-            properties.put(
-                    BasicDeviceAlarmRuleTemplate.THRESHOLD, timeService.findRelativePeriodByName("Last 7 days").isPresent() ? timeService.findRelativePeriodByName("Last 7 days")
-                            .get() : timeService.getAllRelativePeriod());
+                    BasicDeviceAlarmRuleTemplate.THRESHOLD, getRandomRelativePeriodWithCount());
         }
         return properties;
     }
@@ -217,8 +214,17 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                     .map(type -> type.concat(SEPARATOR).concat(String.valueOf(new Random().nextInt(65))))
                     .collect(Collectors.toList());
             rawList.stream().forEach(value ->
-                    listValue.add(() -> String.valueOf(value))
-            );
+                    listValue.add((new HasIdAndName() {
+                        @Override
+                        public Object getId() {
+                            return value;
+                        }
+
+                        @Override
+                        public String getName() {
+                            return "end device event " + value;
+                        }
+                    })));
 
         } else {
             rawList = Stream.of(EndDeviceEventTypeMapping.values())
@@ -232,8 +238,17 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                     .map(type -> type.concat(SEPARATOR).concat(String.valueOf(new Random().nextInt(65))))
                     .collect(Collectors.toList());
             rawList.stream().forEach(value ->
-                    listValue.add(() -> String.valueOf(value))
-            );
+                    listValue.add((new HasIdAndName() {
+                        @Override
+                        public Object getId() {
+                            return value;
+                        }
+
+                        @Override
+                        public String getName() {
+                            return "end device event " + value;
+                        }
+                    })));
 
         }
         return listValue;
@@ -267,6 +282,36 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                                                                }
                                                            }
                                 )));
+
+        return list;
+    }
+
+    private List<HasIdAndName> getRandomRelativePeriodWithCount() {
+        List<HasIdAndName> list = new ArrayList<>();
+        int occurrencCount = new Random().nextInt(5);
+        timeService.getRelativePeriods()
+                .stream()
+                .sorted(Comparator.comparing(RelativePeriod::getId))
+                .forEach(relativePeriod -> list.add(new HasIdAndName() {
+                                                        @Override
+                                                        public String getId() {
+                                                            return occurrencCount + SEPARATOR + relativePeriod.getId();
+                                                        }
+
+                                                        @Override
+                                                        public String getName() {
+                                                            try {
+                                                                JSONObject jsonId = new JSONObject();
+                                                                jsonId.put("occurrenceCount", occurrencCount);
+                                                                jsonId.put("relativePeriod", relativePeriod.getName());
+                                                                return jsonId.toString();
+                                                            } catch (JSONException e) {
+                                                                e.printStackTrace();
+                                                            }
+                                                            return "";
+                                                        }
+                                                    }
+                ));
 
         return list;
     }
