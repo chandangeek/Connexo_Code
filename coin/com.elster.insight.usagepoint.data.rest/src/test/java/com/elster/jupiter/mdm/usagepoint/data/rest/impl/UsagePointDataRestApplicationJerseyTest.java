@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.appserver.AppService;
@@ -27,6 +31,7 @@ import com.elster.jupiter.mdm.usagepoint.data.favorites.FavoritesService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
@@ -51,6 +56,7 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.usagepoint.calendar.UsagePointCalendarService;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 
@@ -140,6 +146,10 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     SearchService searchService;
     @Mock
     MessageService messageService;
+    @Mock
+    MeteringTranslationService meteringTranslationService;
+    @Mock
+    UsagePointLifeCycleService usagePointLifeCycleService;
 
     @Override
     protected Application getApplication() {
@@ -184,6 +194,8 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setAppService(appService);
         application.setSearchService(searchService);
         application.setMessageService(messageService);
+        application.setMeteringTranslationService(meteringTranslationService);
+        application.setUsagePointLifeCycleService(usagePointLifeCycleService);
         return application;
     }
 

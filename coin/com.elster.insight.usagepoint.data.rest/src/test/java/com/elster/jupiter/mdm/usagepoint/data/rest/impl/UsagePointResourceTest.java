@@ -1,7 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.bpm.ProcessInstanceInfos;
-import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
@@ -37,7 +40,7 @@ import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPrope
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
-import com.elster.jupiter.time.PeriodicalScheduleExpression;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
@@ -80,6 +83,7 @@ import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -110,8 +114,6 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     @Mock
     private MetrologyConfigurationCustomPropertySetUsage metrologyConfigurationCustomPropertySetUsage;
     @Mock
-    private ChannelsContainer channelsContainer;
-    @Mock
     private DataValidationTask validationTask;
     @Mock
     private UsagePointGroup usagePointGroup;
@@ -124,9 +126,13 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     @Mock
     private UsagePointStage usagePointStage;
     @Mock
+    private ChannelsContainer channelsContainer;
+    @Mock
     private PropertySpec propertySpec;
     @Mock
     private PropertyValueConverter propertyValueConverter;
+    @Mock
+    private UsagePointStateChangeRequest usagePointStateChangeRequest;
 
     @Before
     public void setUp1() {
@@ -201,18 +207,6 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePoint.getLocation()).thenReturn(Optional.empty());
         when(locationService.findLocationById(anyLong())).thenReturn(Optional.empty());
 
-        when(validationService.findValidationTasks()).thenReturn(Collections.singletonList(validationTask));
-        when(validationTask.getUsagePointGroup()).thenReturn(Optional.of(usagePointGroup));
-        when(validationTask.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
-        when(validationTask.getScheduleExpression()).thenReturn(PeriodicalScheduleExpression
-                .every(6)
-                .hours()
-                .at(10, 0)
-                .build());
-        when(validationTask.getEndDeviceGroup()).thenReturn(Optional.empty());
-        when(validationTask.getLastRun()).thenReturn(Optional.empty());
-        when(validationTask.getLastOccurrence()).thenReturn(Optional.empty());
-        when(validationTask.getId()).thenReturn(31L);
         doReturn(usagePointQuery).when(meteringService).getUsagePointQuery();
         doReturn(Collections.singletonList(usagePoint)).when(usagePointQuery)
                 .select(any(Condition.class), anyInt(), anyInt());
@@ -228,6 +222,9 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePointState.getId()).thenReturn(1L);
         when(usagePointState.getName()).thenReturn("State");
         when(usagePointState.getVersion()).thenReturn(1L);
+
+        when(usagePointLifeCycleService.getLastUsagePointStateChangeRequest(usagePoint)).thenReturn(Optional.of(usagePointStateChangeRequest));
+        when(usagePointStateChangeRequest.getTransitionTime()).thenReturn(Instant.EPOCH);
     }
 
     @Test
@@ -238,6 +235,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         assertThat(response.mRID).isEqualTo("MRID");
         assertThat(response.name).isEqualTo(USAGE_POINT_NAME);
+        assertThat(response.lastTransitionTime).isEqualTo(0L);
         assertThat(response.state).isNotNull();
         assertThat(response.state.id).isEqualTo(1L);
         assertThat(response.state.name).isEqualTo("State");
@@ -475,6 +473,20 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         assertThat(response.getStatus()).isEqualTo(200);
         verify(usagePoint).apply(usagePointMetrologyConfiguration, now);
+
+        //unlink usage point
+
+        when(effectiveMetrologyConfigurationOnUsagePoint.getStart()).thenReturn(now);
+
+        UsagePointInfo usagePointInfo = new UsagePointInfo();
+        usagePointInfo.id = usagePoint.getId();
+        usagePointInfo.version = usagePoint.getVersion();
+
+
+        response = target("usagepoints/" + USAGE_POINT_NAME + "/unlinkmetrologyconfiguration").queryParam("validate", "false").request().put(Entity.json(usagePointInfo));
+
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(effectiveMetrologyConfigurationOnUsagePoint, times(1)).close(now);
     }
 
     @Test
@@ -653,16 +665,5 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         Response response = target("usagepoints/locations/1").request().get();
         assertThat(response.getStatus()).isEqualTo(200);
-    }
-
-    @Test
-    public void testGetValidationTasksOnUsagePoint() throws Exception {
-        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/validationtasks").request().get();
-        assertThat(response.getStatus()).isEqualTo(200);
-        JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(model.<Integer>get("$.total")).isEqualTo(1);
-        assertThat(model.<List>get("$.dataValidationTasks")).hasSize(1);
-        assertThat(model.<Integer>get("$.dataValidationTasks[0].id")).isEqualTo(31);
-        assertThat(model.<Integer>get("$.dataValidationTasks[0].usagePointGroup.id")).isEqualTo(51);
     }
 }

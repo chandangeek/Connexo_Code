@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.mdm.common.rest.TimeDurationInfo;
@@ -23,19 +27,18 @@ public abstract class OutputInfo {
 
     public FormulaInfo formula;
 
+    public ChannelDataValidationSummaryInfo summary;
+
+    public UsagePointValidationStatusInfo validationInfo;
+
     public static class ChannelOutputInfo extends OutputInfo {
 
         public TimeDurationInfo interval;
 
         public String flowUnit;
-
-        public UsagePointValidationStatusInfo validationInfo;
-
     }
 
     public static class RegisterOutputInfo extends OutputInfo {
-
-        public UsagePointValidationStatusInfo validationInfo;
 
         public String deliverableType;
     }

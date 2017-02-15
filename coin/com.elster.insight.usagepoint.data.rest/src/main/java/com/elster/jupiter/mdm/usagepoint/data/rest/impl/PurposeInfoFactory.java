@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -34,8 +38,7 @@ public class PurposeInfoFactory {
         purposeInfo.name = metrologyContract.getMetrologyPurpose().getName();
         purposeInfo.description = metrologyContract.getMetrologyPurpose().getDescription();
         purposeInfo.required = metrologyContract.isMandatory();
-        purposeInfo.active = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract, clock.instant())
-                .isPresent();
+        purposeInfo.active = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract, clock.instant()).isPresent();
         purposeInfo.version = metrologyContract.getVersion();
         IdWithNameInfo status = new IdWithNameInfo();
         MetrologyContract.Status metrologyContractStatus = metrologyContract.getStatus(effectiveMetrologyConfiguration.getUsagePoint());
@@ -43,7 +46,7 @@ public class PurposeInfoFactory {
         status.name = metrologyContractStatus.getName();
         purposeInfo.status = status;
         effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).ifPresent(channelsContainer ->
-                purposeInfo.validationInfo = validationStatusFactory.getValidationStatusInfo(effectiveMetrologyConfiguration, metrologyContract, channelsContainer.getChannels()));
+                purposeInfo.validationInfo = validationStatusFactory.getValidationStatusInfo(effectiveMetrologyConfiguration, metrologyContract, channelsContainer.getChannels(), null));
         if (withValidationTasks) {
             purposeInfo.dataValidationTasks = validationService.findValidationTasksQuery()
                     .select(where("metrologyContract").isEqualTo(metrologyContract))

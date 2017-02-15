@@ -1,11 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
-import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -13,21 +19,23 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.rest.util.ConcurrentModificationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.util.Pair;
 
 import javax.inject.Inject;
-import java.time.Clock;
-import java.util.ArrayList;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.time.Clock;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ResourceHelper {
@@ -112,9 +120,12 @@ public class ResourceHelper {
     }
 
     public ConcurrentModificationException usagePointAlreadyLinkedException(String name) {
-        return conflictFactory.conflict().withMessageBody(MessageSeeds.USAGE_POINT_LINKED_EXCEPTION_MSG, name).withMessageTitle(MessageSeeds.USAGE_POINT_LINKED_EXCEPTION, name).build();
+        return conflictFactory.conflict()
+                .withMessageBody(MessageSeeds.USAGE_POINT_LINKED_EXCEPTION_MSG, name)
+                .withMessageTitle(MessageSeeds.USAGE_POINT_LINKED_EXCEPTION, name)
+                .build();
     }
-    
+
     public Optional<MetrologyPurpose> findMetrologyPurpose(long id) {
         return metrologyConfigurationService.findMetrologyPurpose(id);
     }
@@ -131,6 +142,11 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYCONTRACT_IS_NOT_LINKED_TO_USAGEPOINT, contractId, effectiveMC.getUsagePoint().getName()));
     }
 
+    public MetrologyContract findMetrologyContractOrThrowException(UsagePoint usagePoint, long contractId) {
+        return metrologyConfigurationService.findMetrologyContract(contractId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYCONTRACT_IS_NOT_LINKED_TO_USAGEPOINT, contractId, usagePoint.getName()));
+    }
+
     public ReadingTypeDeliverable findReadingTypeDeliverableOrThrowException(MetrologyContract metrologyContract, long outputId, String usagePointName) {
         return metrologyContract.getDeliverables().stream()
                 .filter(deliverable -> deliverable.getId() == outputId)
@@ -138,26 +154,7 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_OUTPUT_FOR_USAGEPOINT, usagePointName, outputId));
     }
 
-    public void checkMeterRequirements(UsagePoint usagePoint, MetrologyContract metrologyContract) {
-        List<ReadingType> readingTypesOnMeter = new ArrayList<>();
-
-        usagePoint.getMeterActivations(clock.instant()).stream().forEach(meterActivation -> {
-            meterActivation.getMeter().get().getHeadEndInterface()
-                    .flatMap(headEndInterface -> meterActivation.getMeter().map(headEndInterface::getCapabilities))
-                    .ifPresent(endDeviceCapabilities -> readingTypesOnMeter.addAll(endDeviceCapabilities.getConfiguredReadingTypes()));
-        });
-
-        List<ReadingTypeRequirement> unmatchedRequirements = getReadingTypeRequirements(metrologyContract)
-                .stream()
-                .filter(requirement -> !readingTypesOnMeter.stream().anyMatch(requirement::matches))
-                .collect(Collectors.toList());
-
-        if (!unmatchedRequirements.isEmpty()) {
-            throw exceptionFactory.newException(MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS);
-        }
-    }
-    
-        public UsagePointGroup findUsagePointGroupOrThrowException(long id) {
+    public UsagePointGroup findUsagePointGroupOrThrowException(long id) {
         return meteringGroupsService.findUsagePointGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
@@ -170,13 +167,48 @@ public class ResourceHelper {
                         .supplier());
     }
 
-    public List<ReadingTypeRequirement> getReadingTypeRequirements(MetrologyContract metrologyContract) {
-        ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
-        metrologyContract.getDeliverables()
-                .stream()
-                .map(ReadingTypeDeliverable::getFormula)
-                .map(Formula::getExpressionNode)
-                .forEach(expressionNode -> expressionNode.accept(requirementsCollector));
-        return requirementsCollector.getReadingTypeRequirements();
+    public void checkMeterRequirements(UsagePoint usagePoint, MetrologyContract metrologyContract) {
+        List<MeterActivation> meterActivations = usagePoint.getMeterActivations(clock.instant());
+        EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationOnUsagePoint = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGYCONFIG_FOR_USAGEPOINT, usagePoint.getName()));
+        List<MeterRole> meterRolesOfMetrologyConfiguration = metrologyConfigurationOnUsagePoint.getMetrologyConfiguration().getMeterRoles();
+        List<Pair<MeterRole, Meter>> metersInRoles = meterActivations.stream()
+                .filter(meterActivation -> meterActivation.getMeterRole().map(meterRolesOfMetrologyConfiguration::contains).orElse(false))
+                .map(meterActivation -> Pair.of(meterActivation.getMeterRole().get(), meterActivation.getMeter().get()))
+                .collect(Collectors.toList());
+        for (Pair<MeterRole, Meter> pair : metersInRoles) {
+            MeterRole meterRole = pair.getFirst();
+            Meter meter = pair.getLast();
+            Set<ReadingTypeRequirement> requirements = metrologyContract.getRequirements().stream()
+                    .filter(readingTypeRequirement -> meterRole.equals(metrologyConfigurationOnUsagePoint.getMetrologyConfiguration()
+                            .getMeterRoleFor(readingTypeRequirement)
+                            .orElse(null)))
+                    .collect(Collectors.toSet());
+            Set<ReadingTypeRequirement> unsatisfiedRequirements = getUnsatisfiedReadingTypeRequirementsOfMeter(requirements, meter);
+            if (!unsatisfiedRequirements.isEmpty()) {
+                throw exceptionFactory.newException(MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS);
+            }
+        }
+    }
+
+    private Set<ReadingTypeRequirement> getUnsatisfiedReadingTypeRequirementsOfMeter(Set<ReadingTypeRequirement> requirements, Meter meter) {
+        List<ReadingType> meterProvidedReadingTypes = meter.getHeadEndInterface()
+                .map(headEndInterface -> headEndInterface.getCapabilities(meter))
+                .map(EndDeviceCapabilities::getConfiguredReadingTypes)
+                .orElse(Collections.emptyList());
+        return requirements.stream()
+                .filter(requirement -> !meterProvidedReadingTypes.stream().anyMatch(requirement::matches))
+                .collect(Collectors.toSet());
+    }
+
+    public IdWithNameInfo getApplicationInfo(QualityCodeSystem system) {
+        switch (system) {
+            case MDC:
+                return new IdWithNameInfo(system.name(), "MultiSense");
+            case MDM:
+                return new IdWithNameInfo(system.name(), "Insight");
+            default:
+                return new IdWithNameInfo(system.name(), system.name());
+        }
     }
 }
