@@ -26,6 +26,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskLogEntry;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
@@ -335,32 +336,66 @@ public class RecurrentTaskIT {
         assertThat(dataModel.getJournal(recurrentTaskId)).hasSize(2);
     }
 
-    @Test
-    public void testTaskOccurrenceLog() {
-        long id = createRecurrentTask(PeriodicalScheduleExpression.every(1).days().at(18, 0, 0).build());
-        RecurrentTaskImpl recurrentTask = (RecurrentTaskImpl) taskService.getRecurrentTask(id).get();
-        OrmService instance = injector.getInstance(OrmService.class);
-        DataModel dataModel = instance.getDataModel(TaskService.COMPONENTNAME).get();
-
+    private long createOccurenceAndLogOnDifferentLevels(RecurrentTaskImpl recurrentTask) {
         long taskOccurrenceId;
         try (TransactionContext context = transactionService.getContext()) {
             TaskOccurrence taskOccurrence = recurrentTask.createScheduledTaskOccurrence();
             Logger logger = Logger.getAnonymousLogger();
+            // In test root logger is not really configured. So I want all logs to appear in these tests
+            logger.setLevel(Level.ALL);
             logger.addHandler(taskOccurrence.createTaskLogHandler().asHandler());
-            logger.log(Level.INFO, "   Coucou   ");
+            logger.log(Level.FINE, "   Coucou Fine  ");
+            logger.log(Level.INFO, "   Coucou Info  ");
+            logger.log(Level.WARNING, "   Coucou Warning  ");
 
             taskOccurrenceId = taskOccurrence.getId();
             context.commit();
         }
+        return taskOccurrenceId;
+    }
+
+    @Test
+    public void testTaskOccurrenceLogDefaultLogLevel() {
+        long id = createRecurrentTask(PeriodicalScheduleExpression.every(1).days().at(18, 0, 0).build());
+        RecurrentTaskImpl recurrentTask = (RecurrentTaskImpl) taskService.getRecurrentTask(id).get();
+        DataModel dataModel = injector.getInstance(OrmService.class).getDataModel(TaskService.COMPONENTNAME).get();
+
+        long taskOccurrenceId = createOccurenceAndLogOnDifferentLevels(recurrentTask);
 
         TaskOccurrence occurrence = dataModel.mapper(TaskOccurrence.class).getExisting(taskOccurrenceId);
         List<TaskLogEntry> logs = occurrence.getLogs();
         assertThat(logs).hasSize(1);
         TaskLogEntry entry = logs.get(0);
         assertThat(entry.getTaskOccurrence()).isEqualTo(occurrence);
-        assertThat(entry.getLogLevel()).isEqualTo(Level.INFO);
-        assertThat(entry.getMessage()).isEqualTo("Coucou");
+        assertThat(entry.getLogLevel()).isEqualTo(Level.WARNING);
+        assertThat(entry.getMessage()).isEqualTo("Coucou Warning");
 
+    }
+
+
+    @Test
+    public void testTaskOccurrenceLogFineLevel() {
+        long id = createRecurrentTask(PeriodicalScheduleExpression.every(1).days().at(18, 0, 0).build(), Level.FINE);
+        RecurrentTaskImpl recurrentTask = (RecurrentTaskImpl) taskService.getRecurrentTask(id).get();
+        DataModel dataModel = injector.getInstance(OrmService.class).getDataModel(TaskService.COMPONENTNAME).get();
+
+        long taskOccurrenceId = createOccurenceAndLogOnDifferentLevels(recurrentTask);
+
+        TaskOccurrence occurrence = dataModel.mapper(TaskOccurrence.class).getExisting(taskOccurrenceId);
+        List<TaskLogEntry> logs = occurrence.getLogs();
+        assertThat(logs).hasSize(3);
+        TaskLogEntry entry = logs.get(0);
+        assertThat(entry.getTaskOccurrence()).isEqualTo(occurrence);
+        assertThat(entry.getLogLevel()).isEqualTo(Level.FINE);
+        assertThat(entry.getMessage()).isEqualTo("Coucou Fine");
+        entry = logs.get(1);
+        assertThat(entry.getTaskOccurrence()).isEqualTo(occurrence);
+        assertThat(entry.getLogLevel()).isEqualTo(Level.INFO);
+        assertThat(entry.getMessage()).isEqualTo("Coucou Info");
+        entry = logs.get(2);
+        assertThat(entry.getTaskOccurrence()).isEqualTo(occurrence);
+        assertThat(entry.getLogLevel()).isEqualTo(Level.WARNING);
+        assertThat(entry.getMessage()).isEqualTo("Coucou Warning");
     }
 
     @Test
@@ -402,18 +437,25 @@ public class RecurrentTaskIT {
     }
 
     private long createRecurrentTask(ScheduleExpression scheduleExpression) {
+        return createRecurrentTask(scheduleExpression, null);
+    }
+
+    private long createRecurrentTask(ScheduleExpression scheduleExpression, Level level) {
         long id;
         try (TransactionContext context = transactionService.getContext()) {
             QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
             DestinationSpec destination = queueTableSpec.createDestinationSpec("Destiny", 60);
-            RecurrentTask recurrentTask = taskService.newBuilder()
+            RecurrentTaskBuilder.RecurrentTaskBuilderFinisher builder = taskService.newBuilder()
                     .setApplication("Pulse")
                     .setName(NAME)
                     .setScheduleExpression(scheduleExpression)
                     .setDestination(destination)
                     .setPayLoad(PAY_LOAD)
-                    .scheduleImmediately(true)
-                    .build();
+                    .scheduleImmediately(true);
+            if (level != null) {
+                builder.setLogLevel(level.intValue());
+            }
+            RecurrentTask recurrentTask = builder.build();
             id = recurrentTask.getId();
             context.commit();
         }
