@@ -13,6 +13,7 @@ import com.elster.jupiter.properties.rest.DeviceConfigurationPropertyFactory;
 import com.elster.jupiter.properties.rest.DeviceLifeCycleInDeviceTypePropertyFactory;
 import com.elster.jupiter.properties.rest.EndDeviceEventTypePropertyFactory;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
+import com.elster.jupiter.properties.rest.RelativePeriodWithCountFactory;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.util.HasName;
 
@@ -46,6 +47,9 @@ public class ListPropertyValueConverter implements PropertyValueConverter {
         if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof EndDeviceEventTypePropertyFactory) {
             return SimplePropertyType.ENDDEVICEEVENTTYPE;
         }
+        if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof RelativePeriodWithCountFactory) {
+            return SimplePropertyType.RELATIVEPERIODWITHCOUNT;
+        }
         return SimplePropertyType.LISTVALUE;
     }
 
@@ -62,13 +66,8 @@ public class ListPropertyValueConverter implements PropertyValueConverter {
     @Override
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
         if (domainValue != null) {
-            List<Object> nameList = ((List<Object>) domainValue).stream()
-                    .filter(value -> (value instanceof HasName) && !(value instanceof HasIdAndName))
-                    .map(value -> ((HasName) value).getName())
-                    .collect(Collectors.toList());
-            List<Object> idAndnameList = ((List<Object>) domainValue).stream().filter(value -> value instanceof HasIdAndName).map(value -> ((HasIdAndName) value).getId()).collect(Collectors.toList());
-            idAndnameList.addAll(nameList);
-            return idAndnameList;
+            List<HasIdAndName> value = (List<HasIdAndName>) domainValue;
+            return value.stream().map(HasIdAndName::getId).collect(Collectors.toList());
         }
         return null;
     }
