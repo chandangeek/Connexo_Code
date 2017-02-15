@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
@@ -44,6 +45,8 @@ public class EnableValidationTest {
     private Device device;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private DeviceConfiguration deviceConfiguration;
 
     @Test
     public void testGetPropertySpecsDelegatesToPropertySpecService() {
@@ -64,6 +67,8 @@ public class EnableValidationTest {
         EnableValidation enableValidation = this.getTestInstance();
         DeviceValidation deviceValidation = mock(DeviceValidation.class);
         when(this.device.forValidation()).thenReturn(deviceValidation);
+        when(this.device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.getValidateOnStore()).thenReturn(true);
         ExecutableActionProperty property = mock(ExecutableActionProperty.class);
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key());
