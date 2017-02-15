@@ -112,7 +112,6 @@ public class DeviceConfigurationApplication extends Application implements Messa
                 SecurityPropertySetResource.class,
                 ComTaskEnablementResource.class,
                 LoadProfileTypeResource.class,
-                ExecutionLevelResource.class,
                 LoadProfileConfigurationResource.class,
                 DeviceConfigValidationRuleSetResource.class,
                 ValidationRuleSetResource.class,

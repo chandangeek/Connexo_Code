@@ -70,52 +70,6 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
     }
 
     @Test
-    public void addSecurityPropertySetAddsUserActions() throws Exception {
-        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(DeviceProtocolAuthenticationAccessLevels.values()));
-        when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(DeviceProtocolEncryptionAccessLevels.values()));
-
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
-        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-
-        DeviceType deviceType = mock(DeviceType.class);
-        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
-        when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
-        when(deviceConfigurationService.findAndLockDeviceType(123L, OK_VERSION)).thenReturn(Optional.of(deviceType));
-
-        SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
-        when(securityPropertySet.getAuthenticationDeviceAccessLevel()).thenReturn(DeviceProtocolAuthenticationAccessLevels.ONE);
-        when(securityPropertySet.getEncryptionDeviceAccessLevel()).thenReturn(DeviceProtocolEncryptionAccessLevels.ONE);
-
-        SecurityPropertySetBuilder builder = mock(SecurityPropertySetBuilder.class);
-        when(builder.addUserAction(any(DeviceSecurityUserAction.class))).thenReturn(builder);
-        when(builder.authenticationLevel(anyInt())).thenReturn(builder);
-        when(builder.encryptionLevel(anyInt())).thenReturn(builder);
-        when(builder.build()).thenReturn(securityPropertySet);
-
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfiguration.createSecurityPropertySet(anyString())).thenReturn(builder);
-        when(deviceConfiguration.getId()).thenReturn(456L);
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        when(securityPropertySet.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        when(deviceConfigurationService.findDeviceConfiguration(456L)).thenReturn(Optional.of(deviceConfiguration));
-        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(456L, OK_VERSION)).thenReturn(Optional.of(deviceConfiguration));
-
-        SecurityPropertySetInfo securityPropertySetInfo = new SecurityPropertySetInfo();
-        securityPropertySetInfo.name = "addSecurityPropertySetAddDefaultPrivileges";
-        securityPropertySetInfo.authenticationLevel = SecurityLevelInfo.from(DeviceProtocolAuthenticationAccessLevels.ONE);
-        securityPropertySetInfo.authenticationLevelId = DeviceProtocolAuthenticationAccessLevels.ONE.getId();
-        securityPropertySetInfo.encryptionLevel = SecurityLevelInfo.from(DeviceProtocolEncryptionAccessLevels.ONE);
-        securityPropertySetInfo.encryptionLevelId = DeviceProtocolEncryptionAccessLevels.ONE.getId();
-
-        // Business method
-        target("/devicetypes/123/deviceconfigurations/456/securityproperties").request().post(Entity.json(securityPropertySetInfo));
-
-        // Asserts
-        verify(builder, atLeastOnce()).addUserAction(any(DeviceSecurityUserAction.class));
-    }
-
-    @Test
     public void testGetSecurityPropertySet() throws Exception {
         DeviceType deviceType = mock(DeviceType.class);
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
@@ -145,23 +99,6 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         assertThat(jsonModel.<Integer>get("$.data[0].encryptionLevelId")).isEqualTo(1001);
         assertThat(jsonModel.<Integer>get("$.data[0].encryptionLevel.id")).isEqualTo(1001);
         assertThat(jsonModel.<String>get("$.data[0].encryptionLevel.name")).isEqualTo("Encrypt1");
-        assertThat(jsonModel.<List>get("$.data[0].executionLevels")).hasSize(2);
-        assertThat(jsonModel.<String>get("$.data[0].executionLevels[0].id")).isEqualTo(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1.getPrivilege());
-        assertThat(jsonModel.<String>get("$.data[0].executionLevels[0].name")).isEqualTo("Level 1");
-        assertThat(jsonModel.<List>get("$.data[0].executionLevels[0].userRoles")).hasSize(3);
-        assertThat(jsonModel.<Integer>get("$.data[0].executionLevels[0].userRoles[0].id")).isEqualTo(67);
-        assertThat(jsonModel.<String>get("$.data[0].executionLevels[0].userRoles[0].name")).isEqualTo("A - user group 2");
-        assertThat(jsonModel.<Integer>get("$.data[0].executionLevels[0].userRoles[1].id")).isEqualTo(68);
-        assertThat(jsonModel.<String>get("$.data[0].executionLevels[0].userRoles[1].name")).isEqualTo("O - user group 1");
-        assertThat(jsonModel.<Integer>get("$.data[0].executionLevels[0].userRoles[2].id")).isEqualTo(66);
-        assertThat(jsonModel.<String>get("$.data[0].executionLevels[0].userRoles[2].name")).isEqualTo("Z - user group 1");
-        assertThat(jsonModel.<String>get("$.data[0].executionLevels[1].id")).isEqualTo(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2.getPrivilege());
-        assertThat(jsonModel.<String>get("$.data[0].executionLevels[1].name")).isEqualTo("Level 2");
-
-        assertThat(jsonModel.<String>get("$.data[1].executionLevels[0].id")).isEqualTo(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1.getPrivilege());
-        assertThat(jsonModel.<String>get("$.data[1].executionLevels[0].name")).isEqualTo("Level 1");
-        assertThat(jsonModel.<String>get("$.data[1].executionLevels[1].id")).isEqualTo(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1.getPrivilege());
-        assertThat(jsonModel.<String>get("$.data[1].executionLevels[1].name")).isEqualTo("Level 1");
     }
 
     @Test
@@ -187,17 +124,6 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         JsonModel jsonModel = JsonModel.create(response);
 
         assertThat(jsonModel.<List>get("$.data")).hasSize(2);
-        assertThat(jsonModel.<List>get("$.data[0].executionLevels")).hasSize(2);
-        assertThat(jsonModel.<List>get("$.data[0].executionLevels[0].userRoles")).hasSize(1);
-        assertThat(jsonModel.<Integer>get("$.data[0].executionLevels[0].userRoles[0].id")).isEqualTo(66);
-        assertThat(jsonModel.<String>get("$.data[0].executionLevels[0].userRoles[0].name")).isEqualTo("Z - user group 1");
-        assertThat(jsonModel.<List>get("$.data[0].executionLevels[1].userRoles")).isEmpty();
-
-        assertThat(jsonModel.<List>get("$.data[1].executionLevels")).hasSize(2);
-        assertThat(jsonModel.<List>get("$.data[1].executionLevels[0].userRoles")).isEmpty();
-        assertThat(jsonModel.<List>get("$.data[1].executionLevels[1].userRoles")).hasSize(1);
-        assertThat(jsonModel.<Integer>get("$.data[1].executionLevels[1].userRoles[0].id")).isEqualTo(67);
-        assertThat(jsonModel.<String>get("$.data[1].executionLevels[1].userRoles[0].name")).isEqualTo("A - user group 2");
     }
 
     @Test
@@ -255,7 +181,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(encryptionAccessLevel.getId()).thenReturn(encryptionAccessLevelId);
         when(encryptionAccessLevel.getTranslation()).thenReturn(encryptionAccessLevelName);
         when(mock.getEncryptionDeviceAccessLevel()).thenReturn(encryptionAccessLevel);
-        when(mock.getUserActions()).thenReturn(userAction);
+//        when(mock.getUserActions()).thenReturn(userAction);
         when(mock.getVersion()).thenReturn(OK_VERSION);
         return mock;
     }
