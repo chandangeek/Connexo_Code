@@ -27,7 +27,7 @@ Ext.define('Mdc.keyfunctiontypes.view.PreviewContainer', {
             itemId: 'no-files',
             title: Uni.I18n.translate('keyfunctiontypes.empty.title', 'MDC', 'No key function types found'),
             reasons: [
-                Uni.I18n.translate('keyfunctiontypes.empty.list.item', 'MDC', 'No key function types have been defined yet'),
+                Uni.I18n.translate('keyfunctiontypes.empty.list.item', 'MDC', 'No key function types have been defined yet')
             ],
             stepItems: [
                 {

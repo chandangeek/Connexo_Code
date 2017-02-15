@@ -8,7 +8,8 @@ Ext.define('Mdc.keyfunctiontypes.controller.KeyFunctionTypes', {
     views: [
         'Mdc.keyfunctiontypes.view.Setup',
         'Mdc.keyfunctiontypes.view.AddEditKeyFunctionType',
-        'Uni.view.window.Confirmation'
+        'Uni.view.window.Confirmation',
+        'Mdc.keyfunctiontypes.view.KeyFunctionTypesPrivilegesEditWindow'
     ],
 
     stores: [
@@ -37,6 +38,10 @@ Ext.define('Mdc.keyfunctiontypes.controller.KeyFunctionTypes', {
         {
             ref: 'addEditForm',
             selector: 'key-function-type-add-form form'
+        },
+        {
+            ref: 'keyFunctionTypePrivilegesEditWindow',
+            selector: 'keyfunctiontype-privileges-edit-window'
         }
     ],
 
@@ -64,8 +69,10 @@ Ext.define('Mdc.keyfunctiontypes.controller.KeyFunctionTypes', {
             },
             '#key-function-type-key-type-combobox': {
                 change: me.keyTypeChanged
+            },
+            '#mdc-keyfunctiontype-privileges-edit-window-save': {
+                click: this.saveKeyFunctionType
             }
-
         });
     },
 
@@ -86,7 +93,7 @@ Ext.define('Mdc.keyfunctiontypes.controller.KeyFunctionTypes', {
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
                 view = Ext.widget('device-type-key-function-types-setup', {
-                    deviceTypeId: deviceTypeId,
+                    deviceTypeId: deviceTypeId
                 });
                 me.deviceTypeId = deviceTypeId;
                 me.getApplication().fireEvent('changecontentevent', view);
@@ -106,6 +113,11 @@ Ext.define('Mdc.keyfunctiontypes.controller.KeyFunctionTypes', {
                 break;
             case 'remove':
                 me.removeKeyFunctionType(menu.record);
+                break;
+            case 'changePrivileges':
+                Ext.widget('keyfunctiontype-privileges-edit-window', {
+                    keyFunctionTypeRecord: menu.record
+                }).show();
                 break;
         }
     },
@@ -303,5 +315,26 @@ Ext.define('Mdc.keyfunctiontypes.controller.KeyFunctionTypes', {
 
     keyTypeChanged: function(combobox, newValue) {
         combobox.up('form').down('#key-function-type-validity-period').setVisible(newValue.requiresDuration);
+    },
+
+    saveKeyFunctionType: function () {
+        var me = this,
+            editWindow = me.getKeyFunctionTypePrivilegesEditWindow(),
+            keyFunctionTypeRecordInEditWindow = editWindow.keyFunctionTypeRecord,
+            viewport = Ext.ComponentQuery.query('viewport')[0];
+
+        editWindow.close();
+        viewport.setLoading();
+        keyFunctionTypeRecordInEditWindow.getProxy().setUrl(me.deviceTypeId);
+        keyFunctionTypeRecordInEditWindow.save({
+            callback: function (record, operation, success) {
+                var responseText = Ext.decode(operation.response.responseText, true);
+                if (success) {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('keyfunctiontypes.saveKeyFunctionTypeSuccess', 'MDC', 'Key function type saved'));
+                    me.recordSelected(me.getTypesGrid(), keyFunctionTypeRecordInEditWindow);
+                    viewport.setLoading(false);
+                }
+            }
+        });
     }
 });

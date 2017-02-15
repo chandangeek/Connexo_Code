@@ -12,7 +12,31 @@ Ext.define('Mdc.keyfunctiontypes.model.KeyFunctionType', {
         {name: 'name', type: 'string'},
         {name: 'description', type: 'string'},
         {name: 'keyType', type: 'auto'},
-        {name: 'validityPeriod', type: 'auto', useNull: true}
+        {name: 'validityPeriod', type: 'auto', useNull: true},
+        {name: 'viewLevels', type: 'auto'},
+        {name: 'editLevels', type: 'auto'},
+        {name: 'defaultViewLevels', type: 'auto'},
+        {name: 'defaultEditLevels', type: 'auto'},
+        {
+            name: 'viewLevelsInfo',
+            persist: false,
+            mapping: function (data) {
+                return {
+                    levels: data.viewLevels,
+                    defaultLevels: data.defaultViewLevels
+                };
+            }
+        },
+        {
+            name: 'editLevelsInfo',
+            persist: false,
+            mapping: function (data) {
+                return {
+                    levels: data.editLevels,
+                    defaultLevels: data.defaultEditLevels
+                };
+            }
+        }
     ],
 
     proxy: {

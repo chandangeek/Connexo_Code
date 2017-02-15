@@ -8,6 +8,10 @@ Ext.define('Mdc.keyfunctiontypes.view.PreviewForm', {
     alias: 'widget.devicetype-key-function-types-preview-form',
     layout: 'fit',
 
+    requires: [
+        'Uni.form.field.ExecutionLevelDisplay'
+    ],
+
     items: {
         xtype: 'form',
         layout: 'column',
@@ -19,7 +23,7 @@ Ext.define('Mdc.keyfunctiontypes.view.PreviewForm', {
         items: [
             {
                 defaults: {
-                    xtype: 'displayfield',
+                    xtype: 'displayfield'
                 },
                 items: [
                     {
@@ -34,31 +38,33 @@ Ext.define('Mdc.keyfunctiontypes.view.PreviewForm', {
                         fieldLabel: Uni.I18n.translate('general.keyType', 'MDC', 'Key type'),
                         name: 'keyType',
                         renderer: function (value) {
-                            value = value && value.name ?  value.name : '-';
-                            return value;
+                            return Ext.isEmpty(value) || Ext.isEmpty(value.name) ? '-' : value.name;
                         }
                     }
                 ]
             },
             {
                 defaults: {
-                    xtype: 'displayfield',
+                    xtype: 'displayfield'
                 },
                 items: [
                     {
                         fieldLabel: Uni.I18n.translate('general.validityPeriod', 'MDC', 'Validity period'),
                         name: 'validityPeriod',
                         renderer: function (val) {
-                            val ? val = val.count + ' ' + val.timeUnit : '-';
-                            return val;
+                            return Ext.isEmpty(val) ? '-' : val.count + ' ' + val.localizedTimeUnit;
                         }
                     },
-                    //{
-                    //    fieldLabel: Uni.I18n.translate('keyfunctiontypes.viewPrivileges', 'MDC', 'View privileges'),
-                    //},
-                    //{
-                    //    fieldLabel: Uni.I18n.translate('keyfunctiontypes.edotovomeges', 'MDC', 'Edit privileges'),
-                    //}
+                    {
+                        fieldLabel: Uni.I18n.translate('keyfunctiontypes.viewPrivileges', 'MDC', 'View privileges'),
+                        xtype: 'execution-level-displayfield',
+                        name: 'viewLevelsInfo'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('keyfunctiontypes.editPrivileges', 'MDC', 'Edit privileges'),
+                        xtype: 'execution-level-displayfield',
+                        name: 'editLevelsInfo'
+                    }
                 ]
             }
         ]
