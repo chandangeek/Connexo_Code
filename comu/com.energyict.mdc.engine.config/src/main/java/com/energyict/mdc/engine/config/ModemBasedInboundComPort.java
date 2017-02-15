@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.config;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.channel.serial.SerialPortConfiguration;
 
 import java.math.BigDecimal;
 import java.util.List;
