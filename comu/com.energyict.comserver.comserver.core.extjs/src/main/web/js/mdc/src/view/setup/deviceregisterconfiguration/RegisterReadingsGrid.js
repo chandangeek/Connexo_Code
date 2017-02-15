@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceRegisterReadingsGrid',
@@ -61,11 +65,14 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
                         var status = record.data.validationResult ? record.data.validationResult.split('.')[1] : 'unknown',
                             icon = '';
                         if (record.get('isConfirmed')) {
-                            icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;"></span>'
+                            icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;" data-qtip="'
+                                + Uni.I18n.translate('reading.validationResult.confirmed', 'MDC', 'Confirmed') + '"></span>'
                         } else if (status === 'suspect') {
-                            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;"></span>';
+                            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;" data-qtip="'
+                                + Uni.I18n.translate('general.suspect', 'MDC', 'Suspect') + '"></span>';
                         } else if (status === 'notValidated') {
-                            icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>';
+                            icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
+                                + Uni.I18n.translate('general.notValidated', 'MDC', 'Not validated') + '"></span>';
                         }
                         return data + icon;
                     }

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtocolActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.device-communication-protocol-action-menu',

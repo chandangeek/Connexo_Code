@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.timeofuseondevice.view.ActivatePassiveCalendarWindow', {
     extend: 'Ext.window.Window',
     alias: 'widget.activate-passive-calendar-window',

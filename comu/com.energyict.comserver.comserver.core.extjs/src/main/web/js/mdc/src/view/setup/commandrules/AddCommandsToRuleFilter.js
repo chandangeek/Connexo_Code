@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.commandrules.AddCommandsToRuleFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     alias: 'widget.AddCommandsToRuleFilter',

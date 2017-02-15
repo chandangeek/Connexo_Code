@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.Main', {
     extend: 'Ext.app.Controller',
 
@@ -289,7 +293,7 @@ Ext.define('Mdc.controller.Main', {
 
             if (Mdc.privileges.Device.canAddDevice()) {
                 var portalItem = Ext.create('Uni.model.PortalItem', {
-                    title: Uni.I18n.translate('general.deviceLifecycleManagement', 'MDC', 'Device lifecycle management'),
+                    title: Uni.I18n.translate('general.device.lifecycle.management', 'MDC', 'Device life cycle management'),
                     portal: 'devices',
                     route: 'devices',
                     items: [

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.loadprofiletype.EditCustomAttributeSetForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.edit-custom-attribute-set-form',

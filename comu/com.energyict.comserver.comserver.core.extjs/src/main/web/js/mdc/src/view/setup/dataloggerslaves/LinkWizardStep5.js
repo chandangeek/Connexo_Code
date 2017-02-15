@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep5', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.dataloggerslave-link-wizard-step5',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
     extend: 'Ext.data.Model',
     idProperty: 'interval_end',
@@ -15,6 +19,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'confirmed', type: 'auto'},
         {name: 'dataValidated', type: 'auto'},
         {name: 'multiplier', type: 'auto'},
+        {name: 'reportedDateTime', dateFormat: 'time',type: 'date'},
         {name: 'slaveChannel', type: 'auto', defaultValue: null},
         'plotband',
         {name: 'readingQualities', type: 'auto', defaultValue: null},

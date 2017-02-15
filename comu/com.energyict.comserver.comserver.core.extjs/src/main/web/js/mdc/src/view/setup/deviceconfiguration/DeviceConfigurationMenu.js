@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
     extend: 'Uni.view.menu.SideMenu',
     xtype: 'device-configuration-menu',

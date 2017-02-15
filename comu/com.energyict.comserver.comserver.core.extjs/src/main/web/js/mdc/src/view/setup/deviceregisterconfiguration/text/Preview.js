@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceregisterconfiguration.text.Preview', {
     extend: 'Mdc.view.setup.deviceregisterconfiguration.GeneralPreview',
     alias: 'widget.deviceRegisterConfigurationPreview-text',

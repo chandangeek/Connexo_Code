@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.device-attributes-action-menu',

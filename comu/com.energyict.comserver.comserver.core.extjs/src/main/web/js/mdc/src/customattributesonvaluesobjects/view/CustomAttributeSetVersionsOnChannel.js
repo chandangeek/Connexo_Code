@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetVersionsOnChannel', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.channel-history-custom-attribute-sets-versions',

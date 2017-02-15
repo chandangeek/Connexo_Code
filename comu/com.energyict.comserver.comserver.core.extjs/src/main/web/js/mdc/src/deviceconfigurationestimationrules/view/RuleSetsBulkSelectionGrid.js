@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.deviceconfigurationestimationrules.view.RuleSetsBulkSelectionGrid', {
     extend: 'Uni.view.grid.BulkSelection',
     alias: 'widget.device-configuration-estimation-add-rule-sets-bulk-selection',
