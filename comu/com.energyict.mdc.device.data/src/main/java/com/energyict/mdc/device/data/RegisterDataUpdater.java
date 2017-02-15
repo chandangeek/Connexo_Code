@@ -16,9 +16,9 @@ import java.time.Instant;
 @ProviderType
 public interface RegisterDataUpdater {
 
-    RegisterDataUpdater editReading(BaseReading modified);
+    RegisterDataUpdater editReading(BaseReading modified, Instant editTimeStamp);
 
-    RegisterDataUpdater confirmReading(BaseReading modified);
+    RegisterDataUpdater confirmReading(BaseReading modified, Instant editTimeStamp);
 
     RegisterDataUpdater removeReading(Instant timestamp);
 

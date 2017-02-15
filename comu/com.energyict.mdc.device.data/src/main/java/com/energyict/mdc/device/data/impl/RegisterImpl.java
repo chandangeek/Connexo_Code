@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Provides an implementation of a Register of a {@link com.energyict.mdc.device.data.Device},
@@ -226,14 +225,22 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
         }
 
         @Override
-        public RegisterDataUpdater editReading(BaseReading modified) {
+        public RegisterDataUpdater editReading(BaseReading modified, Instant editTimeStamp) {
+            updateBillingTimeStampChange(modified, editTimeStamp);
             this.activationDate.ifPresent(previousTimestamp -> this.setActivationDateIfBefore(modified.getTimeStamp()));
             this.edited.add(modified);
             return this;
         }
 
+        private void updateBillingTimeStampChange(BaseReading modified, Instant editTimeStamp) {
+            if(isBilling() && !editTimeStamp.equals(modified.getTimeStamp())){
+                this.removeReading(editTimeStamp);
+            }
+        }
+
         @Override
-        public RegisterDataUpdater confirmReading(BaseReading modified) {
+        public RegisterDataUpdater confirmReading(BaseReading modified, Instant editTimeStamp) {
+            updateBillingTimeStampChange(modified, editTimeStamp);
             this.activationDate.ifPresent(previousTimestamp -> this.setActivationDateIfBefore(modified.getTimeStamp()));
             this.confirmed.add(modified);
             return this;
