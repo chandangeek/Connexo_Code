@@ -36,9 +36,14 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Preview', {
                 fieldLabel: Uni.I18n.translate('device.registerData.eventTime', 'MDC', 'Event time'),
                 name: 'eventDate',
                 renderer: me.renderDateTimeLong
+            },
+            {
+                fieldLabel: Uni.I18n.translate('device.registerData.eventTime', 'MDC', 'Event time'),
+                name: 'eventDate',
+                renderer: me.renderDateTimeLong
             },{
                 xtype: 'fieldcontainer',
-                fieldLabel: Uni.I18n.translate('device.registerData.collectedValue', 'MDC', 'Collected'),
+                fieldLabel: Uni.I18n.translate('device.registerData.collectedValue', 'MDC', 'Collected value'),
                 layout: {
                     type: 'hbox'
                 },

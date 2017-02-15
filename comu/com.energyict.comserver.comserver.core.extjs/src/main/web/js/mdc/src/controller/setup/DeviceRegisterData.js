@@ -154,6 +154,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
             collectedUnit = collectedReadingType.names.unitOfMeasure,
             calculatedUnit = 'NY',
             isCumulative = registerBeingViewed.get('isCumulative'),
+            isBilling = registerBeingViewed.get('isBilling'),
             hasEvent = registerBeingViewed.get('hasEvent'),
             multiplier = registerBeingViewed.get('multiplier'),
             hasCalculatedValue = false,
@@ -162,6 +163,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
             deltaValueColumn = contentPanel.down('grid').down('[dataIndex=deltaValue]'),
             valueColumn = contentPanel.down('grid').down('[dataIndex=value]'),
             measurementTimeColumn = contentPanel.down('grid').down('[dataIndex=timeStamp]'),
+            intervalTimeColumn = contentPanel.down('grid').down('[dataIndex=interval]'),
             eventTimeColumn = contentPanel.down('grid').down('#eventTime');
 
         Ext.Array.each(records, function(record) {
@@ -183,16 +185,27 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
             calculatedValueColumn.setVisible(hasCalculatedValue);
         }
 
-        if (type === 'billing' || type === 'numerical') {
+        if (type === 'numerical') {
+            intervalTimeColumn.setVisible(false);
+            if(isBilling){
+                measurementTimeColumn.setVisible(false);
+                intervalTimeColumn.setVisible(true);
+            }
             if (isCumulative) {
                 deltaValueColumn.setText(Uni.I18n.translate('device.registerData.deltaValue', 'MDC', 'Delta value')
                     + ' (' + (calculatedUnit != 'NY' ? calculatedUnit : collectedUnit) + ')'
                 );
                 deltaValueColumn.setVisible(true);
                 measurementTimeColumn.setVisible(false);
+                intervalTimeColumn.setVisible(true);
             }
             if(!hasEvent){
                 eventTimeColumn.setVisible(false);
+            }
+            if(hasEvent && !isCumulative && !isBilling){
+                measurementTimeColumn.setVisible(false);
+                intervalTimeColumn.setVisible(false);
+                eventTimeColumn.setVisible(true);
             }
 
         }

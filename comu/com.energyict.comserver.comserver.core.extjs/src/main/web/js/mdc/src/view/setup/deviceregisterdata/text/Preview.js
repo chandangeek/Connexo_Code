@@ -13,13 +13,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Preview', {
                 renderer: me.renderDateTimeLong
             },
             {
-                fieldLabel: Uni.I18n.translate('device.registerData.readingTime', 'MDC', 'Reading time'),
-                name: 'reportedDateTime',
-                renderer: me.renderDateTimeLong
-            },
-            {
                 xtype: 'fieldcontainer',
-                fieldLabel: Uni.I18n.translate('device.registerData.value', 'MDC', 'Value'),
+                fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
                 layout: {
                     type: 'hbox'
                 },

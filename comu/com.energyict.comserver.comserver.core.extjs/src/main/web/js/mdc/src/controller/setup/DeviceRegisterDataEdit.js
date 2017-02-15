@@ -54,13 +54,13 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
     updateRegisterData: function (operation) {
         var me = this,
             form = me.getDeviceregisterreportedit().down('#registerDataEditForm');
-        if (form.isValid()) {
+      //  if (form.isValid()) {
             me.hideErrorPanel();
             me[operation + 'RegisterDataRecord'](form.getValues(), {operation: operation});
-        } else {
-            me.clearPreLoader();
-            me.showErrorPanel();
-        }
+        //} else {
+        //    me.clearPreLoader();
+        //    me.showErrorPanel();
+        //}
     },
 
     editRegisterDataRecord: function (values, cfg) {
@@ -180,7 +180,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
         if (!Ext.isEmpty(values.value)) {
             record.data.value = values.value;
         }
-        record.set("timeStamp", values.timeStamp);
+        record.set("timeStamp", values.timeStamp==="null"?values.eventDate:values.timeStamp);
+        record.set("eventDate", values.eventDate);
         record.get('isConfirmed') && record.set('isConfirmed', false);
         if (record.get("type") == 'billing' || record.get("type") == 'numerical') {
             record.set("interval", {start: values['interval.start'], end: values['interval.end']});
@@ -228,6 +229,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                                 } else {
                                     subType = type;
                                 }
+
                                 var widget = Ext.widget('deviceregisterreportedit-' + subType, {
                                     edit: true,
                                     returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({

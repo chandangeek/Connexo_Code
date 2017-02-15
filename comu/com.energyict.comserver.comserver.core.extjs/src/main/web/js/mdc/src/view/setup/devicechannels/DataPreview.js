@@ -393,7 +393,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 if (calculatedReadingType) {
                     valueItem.items.push(
                         {
-                            fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected'),
+                            fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
                             xtype: 'displayfield',
                             labelWidth: 200,
                             itemId: 'channelBulkValue' + channel.id,

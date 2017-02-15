@@ -35,14 +35,14 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                     return '-';
                 }
             },
-            //{
-            //    fieldLabel: Uni.I18n.translate('device.registerData.readingTime', 'MDC', 'Reading time'),
-            //    name: 'reportedDateTime',
-            //    renderer: me.renderDateTimeLong
-            //},
+            {
+                fieldLabel: Uni.I18n.translate('device.registerData.eventTime', 'MDC', 'Event time'),
+                name: 'eventDate',
+                renderer: me.renderDateTimeLong
+            },
             {
                 xtype: 'fieldcontainer',
-                fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected'),
+                fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
                 layout: {
                     type: 'hbox'
                 },

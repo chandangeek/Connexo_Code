@@ -12,13 +12,13 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Edit', {
         me.callParent(arguments);
 
         if (me.isEdit()) {
-            me.down('#timeStampDisplayField').setDisabled(false);
-            me.down('#timeStampDisplayField').show();
-            me.down('#timeStampContainer').hide();
-            me.down('#timeStampContainer').setDisabled(true);
+            //me.down('#timeStampDisplayField').setDisabled(true);
+            //me.down('#timeStampDisplayField').hide();
+            me.down('#timeStampContainer').show();
+            me.down('#timeStampContainer').setDisabled(false);
         } else {
-            me.down('#timeStampDisplayField').hide();
-            me.down('#timeStampDisplayField').setDisabled(true);
+            //me.down('#timeStampDisplayField').hide();
+            //me.down('#timeStampDisplayField').setDisabled(true);
             me.down('#timeStampContainer').setDisabled(false);
             me.down('#timeStampContainer').show();
         }
@@ -35,7 +35,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Edit', {
 
     initComponent: function () {
         var me = this;
-
         me.content = [
             {
                 xtype: 'form',
@@ -57,26 +56,37 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Edit', {
                             xtype: 'container'
                         }
                     },
+                    //{
+                    //    xtype: 'date-time',
+                    //    name: 'timeStamp',
+                    //    valueInMilliseconds: true,
+                    //    hidden: true
+                    //},
                     {
-                        xtype: 'displayfield',
-                        name: 'timeStamp',
+                        xtype: 'fieldcontainer',
+                        itemId: 'hiddenContainer',
+                        required: true,
                         fieldLabel: this.hasEvent?Uni.I18n.translate('device.registerData.eventTime', 'MDC', 'Event time'):Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
-                        itemId: 'timeStampDisplayField',
-                        renderer: function (value) {
-                            if(!Ext.isEmpty(value)) {
-                                Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
-                                    [ Uni.DateTime.formatDateShort(new Date(value)), Uni.DateTime.formatTimeShort(new Date(value))]
-                                )
-                            }
+                        hidden: true,
+                        defaults: {
+                            width: '100%'
                         },
-                        submitValue: true,
-                        hidden: true
+                        items: [
+                            {
+                                xtype: 'date-time',
+                                itemId: 'timeStampField',
+                                name: 'timeStamp',
+                                layout: 'hbox',
+                                valueInMilliseconds: true,
+                                value: 0
+                            }
+                        ]
                     },
                     {
                         xtype: 'fieldcontainer',
                         itemId: 'timeStampContainer',
                         required: true,
-                        fieldLabel: Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
+                        fieldLabel: this.hasEvent?Uni.I18n.translate('device.registerData.eventTime', 'MDC', 'Event time'):Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
                         defaults: {
                             width: '100%'
                         },
@@ -84,7 +94,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Edit', {
                             {
                                 xtype: 'date-time',
                                 itemId: 'timeStampEditField',
-                                name: 'timeStamp',
+                                name: 'eventDate',
                                 layout: 'hbox',
                                 valueInMilliseconds: true
                             }

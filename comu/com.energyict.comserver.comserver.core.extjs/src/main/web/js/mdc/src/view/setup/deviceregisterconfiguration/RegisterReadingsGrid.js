@@ -56,7 +56,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
                // hidden: true
             },
             {
-                header: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected'),
+                header: Uni.I18n.translate('general.collected', 'MDC', 'Collected'),
                 flex: 10,
                 dataIndex: 'valueAndUnit',
                 renderer: function (data, metaData, record) {

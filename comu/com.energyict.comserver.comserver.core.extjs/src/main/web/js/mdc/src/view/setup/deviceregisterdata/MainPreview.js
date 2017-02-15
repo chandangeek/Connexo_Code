@@ -157,6 +157,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
             calculatedValueField = me.down('#mdc-calculated-value-field'),
             deltaValueField = me.down('displayfield[name=deltaValue]'),
             measurementTime = me.down('displayfield[name=timeStamp]'),
+            eventTime = me.down('displayfield[name=eventDate]'),
             intervalField = me.down('displayfield[name=interval]'),
             multiplierField = me.down('#mdc-register-preview-' + registerRecord.get('type') + '-multiplier'),
             hasCalculatedValue = !Ext.isEmpty(registerRecord.get('calculatedValue')),
@@ -190,6 +191,16 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
             } else {
                 measurementTime.show();
                 intervalField.hide();
+            }
+            if(registerBeingViewed.get('hasEvent')){
+                eventTime.show();
+            } else {
+                eventTime.hide();
+            }
+            if(!registerBeingViewed.get('isCumulative') && !registerBeingViewed.get('isBilling') && registerBeingViewed.get('hasEvent')){
+                measurementTime.hide();
+                intervalField.hide();
+                eventTime.show();
             }
         }
 
