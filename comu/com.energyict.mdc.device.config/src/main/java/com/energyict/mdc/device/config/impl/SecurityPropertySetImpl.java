@@ -291,76 +291,54 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         }
     }
 
-    @Override
-    public Set<DeviceSecurityUserAction> getUserActions() {
-        return this.userActions;
-    }
+//    @Override
+//    public Set<DeviceSecurityUserAction> getUserActions() {
+//        return this.userActions;
+//    }
 
-    @Override
-    public void addUserAction(DeviceSecurityUserAction userAction) {
-        boolean changed = userActions.add(userAction);
-        if (changed) {
-            userActionRecords.add(new UserActionRecord(this, userAction));
-        }
-    }
+//    @Override
+//    public boolean currentUserIsAllowedToEditDeviceProperties() {
+//        Principal principal = threadPrincipalService.getPrincipal();
+//        if (!(principal instanceof User)) {
+//            return false;
+//        }
+//        User user = (User) principal;
+//        Set<DeviceSecurityUserAction> deviceSecurityUserActions = this.getUserActions();
+//        for (DeviceSecurityUserAction deviceSecurityUserAction : deviceSecurityUserActions) {
+//            if (editingIsAuthorizedFor(deviceSecurityUserAction, user)) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
+//
+//    @Override
+//    public boolean currentUserIsAllowedToViewDeviceProperties() {
+//        Principal principal = threadPrincipalService.getPrincipal();
+//        if (!(principal instanceof User)) {
+//            return false;
+//        }
+//        User user = (User) principal;
+//        Set<DeviceSecurityUserAction> deviceSecurityUserActions = this.getUserActions();
+//        for (DeviceSecurityUserAction deviceSecurityUserAction : deviceSecurityUserActions) {
+//            if (viewingIsAuthorizedFor(deviceSecurityUserAction, user)) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
-    @Override
-    public void removeUserAction(DeviceSecurityUserAction userAction) {
-        boolean changed = userActions.remove(userAction);
-        if (changed) {
-            for (Iterator<UserActionRecord> iterator = userActionRecords.iterator(); iterator.hasNext(); ) {
-                if (iterator.next().userAction.equals(userAction)) {
-                    iterator.remove();
-                    getDataModel().touch(this);
-                    break;
-                }
-            }
-        }
-    }
+//    private boolean viewingIsAuthorizedFor(DeviceSecurityUserAction action, User user) {
+//        return action.isViewing() && this.isAuthorized(action, user);
+//    }
 
-    @Override
-    public boolean currentUserIsAllowedToEditDeviceProperties() {
-        Principal principal = threadPrincipalService.getPrincipal();
-        if (!(principal instanceof User)) {
-            return false;
-        }
-        User user = (User) principal;
-        Set<DeviceSecurityUserAction> deviceSecurityUserActions = this.getUserActions();
-        for (DeviceSecurityUserAction deviceSecurityUserAction : deviceSecurityUserActions) {
-            if (editingIsAuthorizedFor(deviceSecurityUserAction, user)) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    private boolean isAuthorized(DeviceSecurityUserAction action, User user) {
+//        return user.hasPrivilege("MDC", action.getPrivilege());
+//    }
 
-    @Override
-    public boolean currentUserIsAllowedToViewDeviceProperties() {
-        Principal principal = threadPrincipalService.getPrincipal();
-        if (!(principal instanceof User)) {
-            return false;
-        }
-        User user = (User) principal;
-        Set<DeviceSecurityUserAction> deviceSecurityUserActions = this.getUserActions();
-        for (DeviceSecurityUserAction deviceSecurityUserAction : deviceSecurityUserActions) {
-            if (viewingIsAuthorizedFor(deviceSecurityUserAction, user)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean viewingIsAuthorizedFor(DeviceSecurityUserAction action, User user) {
-        return action.isViewing() && this.isAuthorized(action, user);
-    }
-
-    private boolean isAuthorized(DeviceSecurityUserAction action, User user) {
-        return user.hasPrivilege("MDC", action.getPrivilege());
-    }
-
-    private boolean editingIsAuthorizedFor(DeviceSecurityUserAction action, User user) {
-        return action.isEditing() && this.isAuthorized(action, user);
-    }
+//    private boolean editingIsAuthorizedFor(DeviceSecurityUserAction action, User user) {
+//        return action.isEditing() && this.isAuthorized(action, user);
+//    }
 
     @Override
     public void setAuthenticationLevel(int authenticationLevelId) {
@@ -494,7 +472,6 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         SecurityPropertySetBuilder builder = deviceConfiguration.createSecurityPropertySet(getName());
         builder.authenticationLevel(authenticationLevelId);
         builder.encryptionLevel(encryptionLevelId);
-        getUserActions().stream().forEach(builder::addUserAction);
         return builder.build();
     }
 

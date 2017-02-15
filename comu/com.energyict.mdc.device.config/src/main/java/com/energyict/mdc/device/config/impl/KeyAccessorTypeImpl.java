@@ -10,7 +10,9 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.KeyAccessorTypeUpdater;
@@ -18,6 +20,7 @@ import com.energyict.mdc.device.config.KeyAccessorTypeUpdater;
 import com.google.inject.Inject;
 
 import javax.validation.constraints.Size;
+import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -45,6 +48,7 @@ public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
     @IsPresent
     private Reference<DeviceType> deviceType = Reference.empty();
     private DataModel dataModel;
+    private final ThreadPrincipalService threadPrincipalService;
     private Set<DeviceSecurityUserAction> userActions = EnumSet.noneOf(DeviceSecurityUserAction.class);
     private List<UserActionRecord> userActionRecords = new ArrayList<>();
     @SuppressWarnings("unused")
@@ -76,8 +80,9 @@ public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
 
     }
     @Inject
-    public KeyAccessorTypeImpl(DataModel dataModel) {
+    public KeyAccessorTypeImpl(DataModel dataModel, ThreadPrincipalService threadPrincipalService) {
         this.dataModel = dataModel;
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     public long getId() {
@@ -169,6 +174,48 @@ public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
                 }
             }
         }
+    }
+
+    public boolean currentUserIsAllowedToEditDeviceProperties() {
+        Principal principal = threadPrincipalService.getPrincipal();
+        if (!(principal instanceof User)) {
+            return false;
+        }
+        User user = (User) principal;
+        Set<DeviceSecurityUserAction> deviceSecurityUserActions = this.getUserActions();
+        for (DeviceSecurityUserAction deviceSecurityUserAction : deviceSecurityUserActions) {
+            if (editingIsAuthorizedFor(deviceSecurityUserAction, user)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean currentUserIsAllowedToViewDeviceProperties() {
+        Principal principal = threadPrincipalService.getPrincipal();
+        if (!(principal instanceof User)) {
+            return false;
+        }
+        User user = (User) principal;
+        Set<DeviceSecurityUserAction> deviceSecurityUserActions = this.getUserActions();
+        for (DeviceSecurityUserAction deviceSecurityUserAction : deviceSecurityUserActions) {
+            if (viewingIsAuthorizedFor(deviceSecurityUserAction, user)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean viewingIsAuthorizedFor(DeviceSecurityUserAction action, User user) {
+        return action.isViewing() && this.isAuthorized(action, user);
+    }
+
+    private boolean isAuthorized(DeviceSecurityUserAction action, User user) {
+        return user.hasPrivilege("MDC", action.getPrivilege());
+    }
+
+    private boolean editingIsAuthorizedFor(DeviceSecurityUserAction action, User user) {
+        return action.isEditing() && this.isAuthorized(action, user);
     }
 
     @Override
