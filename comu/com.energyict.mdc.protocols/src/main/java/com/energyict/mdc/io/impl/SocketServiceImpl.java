@@ -1,7 +1,7 @@
 package com.energyict.mdc.io.impl;
 
-import com.energyict.mdc.channels.ip.datagrams.InboundUdpSessionImpl;
-import com.energyict.mdc.channels.ip.socket.SocketComChannel;
+import com.energyict.mdc.channel.ip.datagrams.InboundUdpSessionImpl;
+import com.energyict.mdc.channel.ip.socket.SocketComChannel;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.io.InboundUdpSession;

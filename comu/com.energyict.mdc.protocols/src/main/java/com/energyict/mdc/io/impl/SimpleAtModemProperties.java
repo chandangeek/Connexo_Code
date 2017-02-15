@@ -1,7 +1,7 @@
 package com.energyict.mdc.io.impl;
 
 
-import com.energyict.mdc.channels.serial.modemproperties.AbstractAtModemProperties;
+import com.energyict.mdc.channel.serial.modemproperties.AbstractAtModemProperties;
 
 import java.math.BigDecimal;
 import java.time.temporal.TemporalAmount;
