@@ -115,9 +115,9 @@ public class RegisterDataResource {
         validateLinkedToSlave(register, reading.getTimeStamp());
         validateManualAddedEditValueForOverflow(register, reading);
         if (readingInfo instanceof NumericalReadingInfo && NumericalReadingInfo.class.cast(readingInfo).isConfirmed != null && NumericalReadingInfo.class.cast(readingInfo).isConfirmed) {
-            register.startEditingData().confirmReading(reading).complete();
+            register.startEditingData().confirmReading(reading, readingInfo.timeStamp).complete();
         } else {
-            register.startEditingData().editReading(reading).complete();
+            register.startEditingData().editReading(reading, readingInfo.timeStamp).complete();
         }
         return Response.status(Response.Status.OK).build();
     }
@@ -138,7 +138,7 @@ public class RegisterDataResource {
             BaseReading reading = readingInfo.createNew(register);
             validateLinkedToSlave(register, reading.getTimeStamp());
             validateManualAddedEditValueForOverflow(register, reading);
-            register.startEditingData().editReading(reading).complete();
+            register.startEditingData().editReading(reading, readingInfo.timeStamp).complete();
         } catch (NoMeterActivationAt e) {
             Instant time = (Instant) e.get("time");
             throw this.exceptionFactory.newExceptionSupplier(MessageSeeds.CANT_ADD_READINGS_FOR_STATE, Date.from(time)).get();

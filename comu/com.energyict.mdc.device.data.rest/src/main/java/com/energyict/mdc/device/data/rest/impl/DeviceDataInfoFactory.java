@@ -260,7 +260,7 @@ public class DeviceDataInfoFactory {
         setMultiplier(register, numericalReadingInfo, reading);
         setInterval(reading, numericalReadingInfo);
         setCollectedValue(reading, register, numericalReadingInfo, numberOfFractionDigits);
-        setDeltaValue(reading, numericalReadingInfo);
+        setDeltaValue(reading,register, numericalReadingInfo);
         setCalculatedValueIfApplicable(reading, register, numericalReadingInfo, numberOfFractionDigits);
         addValidationInfo(reading, numericalReadingInfo, isValidationStatusActive);
         setSlaveInformation(register, dataLoggerSlave, numericalReadingInfo);
@@ -268,8 +268,10 @@ public class DeviceDataInfoFactory {
         return numericalReadingInfo;
     }
 
-    private void setDeltaValue(NumericalReading reading, NumericalReadingInfo numericalReadingInfo) {
-        reading.getDelta().ifPresent(deltaValue -> numericalReadingInfo.deltaValue=deltaValue);
+    private void setDeltaValue(NumericalReading reading, Register<?, ?> register, NumericalReadingInfo numericalReadingInfo) {
+        if(register.getReadingType().isCumulative()) {
+            reading.getDelta().ifPresent(deltaValue -> numericalReadingInfo.deltaValue = deltaValue);
+        }
     }
 
     private void setInterval(NumericalReading reading, NumericalReadingInfo numericalReadingInfo) {

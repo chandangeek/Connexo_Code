@@ -296,7 +296,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         when(readingType.getMRID()).thenReturn("mRID");
         RegisterDataUpdater registerDataUpdater = mock(RegisterDataUpdater.class);
         when(registerDataUpdater.removeReading(any(Instant.class))).thenReturn(registerDataUpdater);
-        when(registerDataUpdater.editReading(any(BaseReading.class))).thenReturn(registerDataUpdater);
+        when(registerDataUpdater.editReading(any(BaseReading.class), any(Instant.class))).thenReturn(registerDataUpdater);
         when(register.startEditingData()).thenReturn(registerDataUpdater);
 
         NumericalReadingInfo numericalReadingInfo = new NumericalReadingInfo();
@@ -304,7 +304,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         numericalReadingInfo.timeStamp = READING_TIMESTAMP;
 
         Response response = target("devices/1/registers/1/data/1").request().put(Entity.json(numericalReadingInfo));
-        verify(registerDataUpdater).editReading(any());
+        verify(registerDataUpdater).editReading(any(), any(Instant.class));
         verify(registerDataUpdater).complete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
@@ -335,7 +335,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         when(readingType.getMRID()).thenReturn("mRID");
         RegisterDataUpdater registerDataUpdater = mock(RegisterDataUpdater.class);
         when(registerDataUpdater.removeReading(any(Instant.class))).thenReturn(registerDataUpdater);
-        when(registerDataUpdater.confirmReading(any(BaseReading.class))).thenReturn(registerDataUpdater);
+        when(registerDataUpdater.confirmReading(any(BaseReading.class),any(Instant.class))).thenReturn(registerDataUpdater);
         when(register.startEditingData()).thenReturn(registerDataUpdater);
 
         NumericalReadingInfo numericalReadingInfo = new NumericalReadingInfo();
@@ -343,7 +343,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         numericalReadingInfo.timeStamp = READING_TIMESTAMP;
 
         Response response = target("devices/1/registers/1/data/1").request().put(Entity.json(numericalReadingInfo));
-        verify(registerDataUpdater).confirmReading(any());
+        verify(registerDataUpdater).confirmReading(any(), any(Instant.class));
         verify(registerDataUpdater).complete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }

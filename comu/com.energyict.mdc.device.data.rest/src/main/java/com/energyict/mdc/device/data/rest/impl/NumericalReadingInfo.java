@@ -62,9 +62,9 @@ public class NumericalReadingInfo extends ReadingInfo {
     @Override
     protected BaseReading createNew(Register<?, ?> register) {
         if(interval != null){
-            return ReadingImpl.of(register.getReadingType().getMRID(), this.value, this.timeStamp, Instant.ofEpochMilli(interval.start), Instant.ofEpochMilli(interval.end));
+            return ReadingImpl.of(register.getReadingType().getMRID(), this.value, register.isBilling()?this.eventDate:this.timeStamp, Instant.ofEpochMilli(interval.start), Instant.ofEpochMilli(interval.end));
         } else if (!register.isBilling()){
-            return ReadingImpl.of(register.getReadingType().getMRID(), this.value, this.timeStamp);
+            return ReadingImpl.of(register.getReadingType().getMRID(), this.value, register.isBilling()?this.eventDate:this.timeStamp);
         } else {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
