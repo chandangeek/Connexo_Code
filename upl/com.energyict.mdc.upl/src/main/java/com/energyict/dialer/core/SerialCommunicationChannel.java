@@ -10,7 +10,7 @@ package com.energyict.dialer.core;
  * Created on 17 september 2003, 9:07
  */
 
-import com.energyict.dialer.serialserviceprovider.SerialPort;
+import com.energyict.dialer.uplserialserviceprovider.SerialPort;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,9 +1,9 @@
 package com.energyict.mdc.upl.io;
 
 import aQute.bnd.annotation.ProviderType;
-import com.energyict.mdc.channels.serial.SerialPortConfiguration;
-import com.energyict.mdc.channels.serial.ServerSerialPort;
-import com.energyict.mdc.channels.serial.modemproperties.postdialcommand.ModemComponent;
+import com.energyict.mdc.channel.serial.SerialPortConfiguration;
+import com.energyict.mdc.channel.serial.ServerSerialPort;
+import com.energyict.mdc.channel.serial.modemproperties.postdialcommand.ModemComponent;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 

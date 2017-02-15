@@ -1,7 +1,9 @@
 package com.energyict.mdc.upl.io;
 
+import com.energyict.mdc.channel.serial.ServerSerialPort;
+
 /**
- * Models exceptional situations that occur while working with a {@link com.energyict.mdc.channels.serial.ServerSerialPort}.
+ * Models exceptional situations that occur while working with a {@link ServerSerialPort}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-01-09 (09:57)
@@ -15,7 +17,7 @@ public class SerialPortException extends RuntimeException {
         SERIAL_PORT_LIBRARY_EXCEPTION,
         SERIAL_PORT_CONFIGURATION_MISMATCH,
         SERIAL_PORT_DOES_NOT_EXIST,
-        SERIAL_PORT_IS_IN_USE;
+        SERIAL_PORT_IS_IN_USE
     }
 
     /**
