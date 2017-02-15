@@ -37,6 +37,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.ListIterator;
 
@@ -437,6 +438,7 @@ public enum TableSpecs {
                     .notNull()
                     .conversion(NUMBER2INSTANT)
                     .map("createDateTime")
+                    .installValue(String.valueOf(Instant.EPOCH.toEpochMilli()))
                     .add()
                     .since(Version.version(10, 3));
             table.partitionOn(createdDateTimeColumn);
