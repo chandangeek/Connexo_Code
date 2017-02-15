@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 
+import com.energyict.mdc.protocol.pluggable.adapters.upl.ValueType;
 import com.energyict.mdc.upl.properties.ValueFactory;
 
 /**
@@ -9,15 +10,19 @@ import com.energyict.mdc.upl.properties.ValueFactory;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-12-12 (11:47)
  */
-class ConnexoToUPLValueFactoryAdapter implements ValueFactory {
+public class ConnexoToUPLValueFactoryAdapter implements ValueFactory {
     private final com.elster.jupiter.properties.ValueFactory actual;
+
+    private ConnexoToUPLValueFactoryAdapter(com.elster.jupiter.properties.ValueFactory actual) {
+        this.actual = actual;
+    }
 
     static ConnexoToUPLValueFactoryAdapter adapt(com.elster.jupiter.properties.ValueFactory actual) {
         return new ConnexoToUPLValueFactoryAdapter(actual);
     }
 
-    private ConnexoToUPLValueFactoryAdapter(com.elster.jupiter.properties.ValueFactory actual) {
-        this.actual = actual;
+    public com.elster.jupiter.properties.ValueFactory getActual() {
+        return actual;
     }
 
     @SuppressWarnings("unchecked")
@@ -28,7 +33,7 @@ class ConnexoToUPLValueFactoryAdapter implements ValueFactory {
 
     @Override
     public String getValueTypeName() {
-        return this.actual.getValueType().getName();
+        return ValueType.fromCXOClassName(this.actual.getValueType().getName()).getUplClassName();
     }
 
     @SuppressWarnings("unchecked")

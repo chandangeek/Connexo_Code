@@ -6,6 +6,7 @@ import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.ValueRequiredException;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoToUPLPropertSpecAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoToUPLValueFactoryAdapter;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 
@@ -45,7 +46,12 @@ public class UPLToConnexoPropertySpecAdapter implements PropertySpec {
 
     @Override
     public ValueFactory getValueFactory() {
-        return new UPLToConnexoValueFactoryAdapter(this.actual.getValueFactory());
+        com.energyict.mdc.upl.properties.ValueFactory valueFactory = this.actual.getValueFactory();
+        if (valueFactory instanceof ConnexoToUPLValueFactoryAdapter) {
+            return ((ConnexoToUPLValueFactoryAdapter) valueFactory).getActual();
+        } else {
+            return new UPLToConnexoValueFactoryAdapter(valueFactory);
+        }
     }
 
     @Override
@@ -55,7 +61,7 @@ public class UPLToConnexoPropertySpecAdapter implements PropertySpec {
 
     @Override
     public boolean isReference() {
-        return ValueType.fromClassName(this.actual.getValueFactory().getValueTypeName()).isReference();
+        return ValueType.fromUPLClassName(this.actual.getValueFactory().getValueTypeName()).isReference();
     }
 
     @Override

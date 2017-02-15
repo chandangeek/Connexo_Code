@@ -2,6 +2,8 @@ package com.energyict.mdc.protocol.pluggable.adapters.upl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.Password;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.mdc.upl.properties.FirmwareVersion;
@@ -13,7 +15,6 @@ import com.energyict.obis.ObisCode;
 
 import java.math.BigDecimal;
 import java.sql.Types;
-import java.time.Duration;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAmount;
 import java.util.Date;
@@ -27,7 +28,7 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-12-12 (14:44)
  */
-enum ValueType {
+public enum ValueType {
     BOOLEAN("java.lang.boolean", boolean.class, Types.INTEGER),
     BOXED_BOOLEAN("java.lang.Boolean", Boolean.class, Types.INTEGER),
     STRING("java.lang.String", String.class, Types.VARCHAR),
@@ -35,6 +36,7 @@ enum ValueType {
     LIS200_ADDRESS("com.energyict.mdc.upl.properties.Lis200Address", Lis200Address.class, Types.VARCHAR),
     LINE_POINT("com.energyict.mdc.upl.properties.LinePoint", LinePoint.class, Types.VARCHAR),
     HEX_STRING("com.energyict.mdc.upl.properties.HexString", HexString.class, Types.VARCHAR),
+    PASSWORD("com.energyict.mdc.upl.properties.Password", Password.class, Types.VARCHAR),
     INTEGER("java.lang.int", int.class, Types.NUMERIC),
     LONG("java.lang.long", long.class, Types.NUMERIC),
     BOXED_INTEGER("java.lang.Integer", Integer.class, Types.NUMERIC),
@@ -42,7 +44,7 @@ enum ValueType {
     BIGDECIMAL("java.math.BigDecimal", BigDecimal.class, Types.NUMERIC),
     DATE("java.util.Date", Date.class, Types.DATE),
     LOCAL_TIME("java.time.LocalTime", LocalTime.class, Types.NUMERIC),
-    JAVA_TIME_DURATION("java.time.Duration", Duration.class, Types.VARCHAR),
+    JAVA_TIME_DURATION("java.time.Duration", TimeDuration.class, Types.VARCHAR),
     TEMPORAL_AMOUNT("java.time.temporal.TemporalAmount", TemporalAmount.class, Types.VARCHAR),
     TIME_ZONE("java.util.TimeZone", TimeZone.class, Types.VARCHAR),
     DEVICE_MESSAGE_FILE("com.energyict.mdc.upl.properties.DeviceMessageFile", DeviceMessageFile.class, Types.NUMERIC) {
@@ -77,26 +79,38 @@ enum ValueType {
     },
     OBIS_CODE("com.energyict.obis.ObisCode", ObisCode.class, Types.VARCHAR);
 
-    private final String className;
+    private final String uplClassName;
     private final Class connexoClass;
     private final int connexoSqlType;
 
-    ValueType(String className, Class connexoClass, int connexoSqlType) {
-        this.className = className;
+    ValueType(String uplClassName, Class connexoClass, int connexoSqlType) {
+        this.uplClassName = uplClassName;
         this.connexoClass = connexoClass;
         this.connexoSqlType = connexoSqlType;
     }
 
-    static ValueType fromClassName(String className) {
+    public static ValueType fromUPLClassName(String uplClassName) {
         return Stream
                 .of(values())
-                .filter(each -> each.className.equals(className))
+                .filter(each -> each.uplClassName.equals(uplClassName))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Value type " + className + " is not (yet) supported by " + UPLToConnexoValueFactoryAdapter.class.getName()));
+                .orElseThrow(() -> new IllegalArgumentException("Value type " + uplClassName + " is not (yet) supported by " + UPLToConnexoValueFactoryAdapter.class.getName()));
     }
 
-    Class getConnexoClass() {
+    public static ValueType fromCXOClassName(String cxoClassName) {
+        return Stream
+                .of(values())
+                .filter(each -> each.connexoClass.getName().equals(cxoClassName))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Value type " + cxoClassName + " is not (yet) supported by " + UPLToConnexoValueFactoryAdapter.class.getName()));
+    }
+
+    public Class getConnexoClass() {
         return connexoClass;
+    }
+
+    public String getUplClassName() {
+        return uplClassName;
     }
 
     int getConnexoSqlType() {
