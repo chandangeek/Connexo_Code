@@ -51,7 +51,7 @@ public enum ProtocolKeyTypes {
             return "NIST P-256";
         }
         public KeyType createKeyType(PkiService pkiService) {
-            return pkiService.addAsymmetricKeyType(getName()).EC().curve("secp256r1").add();
+            return pkiService.addAsymmetricKeyType(getName()).ECDSA().curve("secp256r1").add();
         }
 
     },
@@ -60,7 +60,7 @@ public enum ProtocolKeyTypes {
             return "NIST P-384";
         }
         public KeyType createKeyType(PkiService pkiService) {
-            return pkiService.addAsymmetricKeyType(getName()).EC().curve("secp384r1").add();
+            return pkiService.addAsymmetricKeyType(getName()).ECDSA().curve("secp384r1").add();
         }
     },
     ;

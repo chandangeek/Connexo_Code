@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.PrivateKeyFactory;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 
@@ -17,11 +18,16 @@ import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 /**
  * Created by bvn on 1/26/17.
@@ -32,6 +38,7 @@ import java.util.Optional;
         immediate = true)
 public class PkiServiceImpl implements PkiService {
 
+    private final List<PrivateKeyFactory> privateKeyFactories = new CopyOnWriteArrayList<>();
 
     private DataModel dataModel;
     private UpgradeService upgradeService;
@@ -45,8 +52,26 @@ public class PkiServiceImpl implements PkiService {
         this.activate();
     }
 
+    // OSGi constructor
     public PkiServiceImpl() {
 
+    }
+
+    @Override
+    public List<String> getKeyEncryptionMethods(CryptographicType cryptographicType) {
+        switch (cryptographicType) {
+            case AsymmetricKey: return privateKeyFactories.stream().map(PrivateKeyFactory::getKeyEncryptionMethod).collect(Collectors.toList());
+            default: return Collections.emptyList();
+        }
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addPrivateKeyWrapper(PrivateKeyFactory privateKeyFactory) {
+        this.privateKeyFactories.add(privateKeyFactory);
+    }
+
+    public void removePrivateKeyWrapper(PrivateKeyFactory privateKeyFactory) {
+        this.privateKeyFactories.remove(privateKeyFactory);
     }
 
     @Reference
@@ -139,19 +164,19 @@ public class PkiServiceImpl implements PkiService {
 
         @Override
         public AsyncKeySizeBuilder RSA() {
-            this.underConstruction.setAlgorithm("RSA");
+            this.underConstruction.setAlgorithm(AsymmetricKeyAlgorithms.RSA.name());
             return new AsyncKeySizeBuilderImpl();
         }
 
         @Override
         public AsyncKeySizeBuilder DSA() {
-            this.underConstruction.setAlgorithm("DSA");
+            this.underConstruction.setAlgorithm(AsymmetricKeyAlgorithms.DSA.name());
             return new AsyncKeySizeBuilderImpl();
         }
 
         @Override
-        public AsyncCurveBuilder EC() {
-            this.underConstruction.setAlgorithm("EC");
+        public AsyncCurveBuilder ECDSA() {
+            this.underConstruction.setAlgorithm(AsymmetricKeyAlgorithms.ECDSA.name());
             return new AsyncCurveBuilderImpl();
         }
 

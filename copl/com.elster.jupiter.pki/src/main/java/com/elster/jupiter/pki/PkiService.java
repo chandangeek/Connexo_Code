@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Finder;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -12,7 +13,17 @@ import java.util.Optional;
 @ProviderType
 public interface PkiService {
 
+    enum AsymmetricKeyAlgorithms {
+        RSA, DSA, ECDSA
+    }
+
     String COMPONENTNAME = "PKI";
+
+    /**
+     * Get a list of names of all KeyEncryptionMethods that registered through whiteboard.
+     * @return List of key encryption method names
+     */
+    List<String> getKeyEncryptionMethods(CryptographicType cryptographicType);
 
     /**
      * Returns a list (through paged finder) for all existing keyTypes in Connexo
@@ -52,7 +63,7 @@ public interface PkiService {
     public interface AsyncBuilder {
         AsyncKeySizeBuilder RSA();
         AsyncKeySizeBuilder DSA();
-        AsyncCurveBuilder EC();
+        AsyncCurveBuilder ECDSA();
     };
 
     public interface AsyncKeySizeBuilder {

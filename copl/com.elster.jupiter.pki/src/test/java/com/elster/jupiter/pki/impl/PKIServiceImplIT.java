@@ -74,11 +74,11 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testCreateECKey() {
-        KeyType created = pkiInMemoryPersistence.getPkiService().addAsymmetricKeyType("NIST P-256").EC().curve("secp256r1").add();
+        KeyType created = pkiInMemoryPersistence.getPkiService().addAsymmetricKeyType("NIST P-256").ECDSA().curve("secp256r1").add();
         Optional<KeyType> keyType = pkiInMemoryPersistence.getPkiService().getKeyType("NIST P-256");
         assertThat(keyType).isPresent();
         assertThat(keyType.get().getName()).isEqualTo("NIST P-256");
-        assertThat(keyType.get().getAlgorithm()).isEqualTo("EC");
+        assertThat(keyType.get().getAlgorithm()).isEqualTo("ECDSA");
         assertThat(keyType.get().getCryptographicType()).isEqualTo(CryptographicType.AsymmetricKey);
         assertThat(keyType.get().getKeySize()).isEqualTo(0); // CXO-5375, I expect null here
         assertThat(keyType.get().getCurve()).isEqualTo("secp256r1");
