@@ -131,6 +131,7 @@ Ext.define('Dal.view.overview.HistoryGraph', {
         me.yMaxSumPerDay = 0;
         me.colors = null;
         me.fields = me.defaultFields;
+        me.height = 300;
         me.remove(me.down('chart'), true);
     },
 
