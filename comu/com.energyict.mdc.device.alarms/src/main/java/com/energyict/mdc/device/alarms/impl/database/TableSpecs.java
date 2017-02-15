@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.alarms.impl.database;
 
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -6,14 +10,14 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
+import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import com.energyict.mdc.device.alarms.event.HistoricalDeviceAlarmRelatedEvent;
 import com.energyict.mdc.device.alarms.event.OpenDeviceAlarmRelatedEvent;
+import com.energyict.mdc.device.alarms.impl.records.DeviceAlarmImpl;
 import com.energyict.mdc.device.alarms.impl.records.DeviceAlarmRelatedEventImpl;
 import com.energyict.mdc.device.alarms.impl.records.HistoricalDeviceAlarmImpl;
-import com.energyict.mdc.device.alarms.impl.records.DeviceAlarmImpl;
 import com.energyict.mdc.device.alarms.impl.records.HistoricalDeviceAlarmRelatedEventImpl;
 import com.energyict.mdc.device.alarms.impl.records.OpenDeviceAlarmImpl;
 import com.energyict.mdc.device.alarms.impl.records.OpenDeviceAlarmRelatedEventImpl;
@@ -26,15 +30,15 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
-import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM_CLEARED_STATUS;
 import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM;
-import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ID;
+import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM_CLEARED_STATUS;
 import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM_FK_TO_ISSUE;
 import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM_HISTORY_FK_TO_ISSUE;
 import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM_HISTORY_PK;
 import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM_OPEN_FK_TO_ISSUE;
 import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM_OPEN_PK;
 import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM_PK;
+import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ID;
 
 public enum TableSpecs {
     DAL_ALARM_HISTORY {
