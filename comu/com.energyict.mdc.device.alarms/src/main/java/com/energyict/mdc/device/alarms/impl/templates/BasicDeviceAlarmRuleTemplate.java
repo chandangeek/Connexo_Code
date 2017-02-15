@@ -60,6 +60,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 @Component(name = "com.energyict.mdc.device.alarms.BasicDeviceAlarmRuleTemplate",
         property = {"name=" + BasicDeviceAlarmRuleTemplate.NAME},
@@ -68,7 +69,6 @@ import java.util.logging.Logger;
 public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     protected static final Logger LOG = Logger.getLogger(BasicDeviceAlarmRuleTemplate.class.getName());
     static final String NAME = "BasicDeviceAlarmRuleTemplate";
-    public static final String EVENTTYPE = NAME + ".eventType";
     public static final String RAISE_EVENT_PROPS = NAME + ".raiseEventProps";
     public static final String TRIGGERING_EVENTS = NAME + ".triggeringEvents";
     public static final String CLEARING_EVENTS = NAME + ".clearingEvents";
@@ -164,8 +164,8 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
                 "rule \"Basic device alarm rule @{ruleId}\"\n" +
                 "when\n" +
-                "\tevent : DeviceAlarmEvent( eventType == \"@{" + DeviceAlarmEventDescription.END_DEVICE_EVENT_CREATED.getUniqueKey() + "}\" )\n" +
-                "\teval( event.checkOccurrenceConditions(@{ruleId}, \"@{" + THRESHOLD + "}\", \"@{" + RAISE_EVENT_PROPS + "}\", \"@{" + TRIGGERING_EVENTS + "}\", \"@{" + CLEARING_EVENTS + "}\", \"@{" + DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES + "}\") == true )\n" +
+                "\tevent : DeviceAlarmEvent( eventType == \"" + DeviceAlarmEventDescription.END_DEVICE_EVENT_CREATED.getUniqueKey() + "\" )\n" +
+                "\teval( event.checkOccurrenceConditions(@{ruleId}, \"@{" + THRESHOLD + "}\", \"@{" + RAISE_EVENT_PROPS + "}\", \"@{" + TRIGGERING_EVENTS + "}\", \"@{" + CLEARING_EVENTS + "}\") == true )\n" +
                 "\teval( event.hasAssociatedDeviceLifecycleStatesInDeviceTypes(\"@{" + DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES + "}\") == true )\n" +
                 "then\n" +
                 "\tSystem.out.println(\"Processing device alarm based on rule template number @{ruleId}\");\n" +
@@ -204,7 +204,11 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                         deviceType.getDeviceLifeCycle().getFiniteStateMachine().getStates().stream().distinct()
                                 .sorted(Comparator.comparing(State::getId))
                                 .forEach(state -> list.add(new DeviceLifeCycleInDeviceTypeInfo(deviceType, state))));
-        DeviceLifeCycleInDeviceTypeInfo[] possibleValues = list.stream().toArray(DeviceLifeCycleInDeviceTypeInfo[]::new);
+        DeviceLifeCycleInDeviceTypeInfo[] deviceLifeCycleInDeviceTypepossibleValues = list.stream().toArray(DeviceLifeCycleInDeviceTypeInfo[]::new);
+        RaiseEventPropsInfo[] raiseEventPropsPossibleValues = Stream.of("0.0.0", "1.0.0", "1.0.1", "1.1.0", "1.1.1")
+                .map(RaiseEventPropsInfo::new)
+                .toArray(RaiseEventPropsInfo[]::new);
+
 
         builder.add(propertySpecService
                 .specForValuesOf(new EventTypeInfoValueFactory())
@@ -225,7 +229,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 .markMultiValued(",")
-                .addValues(possibleValues)
+                .addValues(deviceLifeCycleInDeviceTypepossibleValues)
                 .markExhaustive(PropertySelectionMode.LIST)
                 .finish());
         builder.add(propertySpecService
@@ -234,9 +238,10 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 .setDefaultValue(new RaiseEventPropsInfo(RAISE_EVENT_PROPS_DEFAULT_VALUE))
+                .addValues(raiseEventPropsPossibleValues)
                 .finish());
         builder.add(propertySpecService
-                .specForValuesOf(new RelativePeriodWithCountInfoValuePropertyFactory())
+                .specForValuesOf(new RelativePeriodWithCountInfoValueFactory())
                 .named(THRESHOLD, TranslationKeys.EVENT_TEMPORAL_THRESHOLD)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
@@ -619,7 +624,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     }
 
 
-    private class RelativePeriodWithCountInfoValuePropertyFactory implements ValueFactory<HasIdAndName>, RelativePeriodWithCountPropertyFactory {
+    private class RelativePeriodWithCountInfoValueFactory implements ValueFactory<HasIdAndName>, RelativePeriodWithCountPropertyFactory {
         @Override
         public HasIdAndName fromStringValue(String stringValue) {
             List<String> values = Arrays.asList(stringValue.split(SEPARATOR));
@@ -627,7 +632,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUIMENTS, "Relative period with occurrence count for device alarms");
             }
             int count = Integer.parseInt(values.get(0));
-            RelativePeriod relativePeriod = timeService.findRelativePeriodByName(values.get(1)).orElse(null);
+            RelativePeriod relativePeriod = timeService.findRelativePeriod(Long.parseLong(values.get(1))).orElse(null);
             return new RelativePeriodWithCountInfo(count, relativePeriod);
         }
 

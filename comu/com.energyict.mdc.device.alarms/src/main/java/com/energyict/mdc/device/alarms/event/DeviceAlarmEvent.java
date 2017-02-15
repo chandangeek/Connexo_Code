@@ -128,9 +128,9 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         }
 
         int eventCountThreshold = Integer.parseInt(relativePeriodWithCountValues.get(0));
-        Optional<RelativePeriod> relativePeriod = timeService.findRelativePeriodByName(relativePeriodWithCountValues.get(1));
+        Optional<RelativePeriod> relativePeriod = timeService.findRelativePeriod(Long.parseLong(relativePeriodWithCountValues.get(1)));
 
-        if (relativePeriod == null) {
+        if (!relativePeriod.isPresent()) {
             return false;
         }
 
@@ -141,7 +141,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
             return false;
         }
         if (getEndDeviceEventTypes(clearingEndDeviceEventTypes).contains(this.getEventTypeMrid())) {
-            if (raiseEventProps != null && !raiseEventProps.isEmpty() && Integer.parseInt(Arrays.asList(raiseEventProps.split(SEPARATOR)).get(0)) == 1 &&
+            if (raiseEventProps != null && !raiseEventProps.isEmpty() && logOnSameAlarm(raiseEventProps) &&
                     // issueService.getIssueCreationService().findCreationRuleById(Long.parseLong(ruleId)).isPresent() &&
                     issueService.findOpenIssuesForDevice(getDevice().getName()).find().stream().filter(issue -> issue.getRule().getId() == ruleId).findAny().isPresent()) {
                 return true;
@@ -217,6 +217,14 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         }
     }
 
+    private boolean logOnSameAlarm(String raiseEventProps){
+        List<String> values = Arrays.asList(raiseEventProps.split(SEPARATOR));
+        if (values.size() != 3) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUIMENTS, "Device Life Cycle in Device Type");
+        }
+        return Integer.parseInt(values.get(0))==1;
+    }
+
     private StringTokenizer getTokenized(String string) {
         return new StringTokenizer(string, ".");
     }
@@ -227,7 +235,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     }
 
     public boolean hasAssociatedDeviceLifecycleStatesInDeviceTypes(String statesInDeviceTypes) {
-        String stateInDeviceType = getDevice().getDeviceType().getId() + ":" + getDevice().getState().getId();
+        String stateInDeviceType = getDevice().getDeviceType().getId() + SEPARATOR + getDevice().getState().getId();
         return parseCommaSeparatedStringToList(statesInDeviceTypes).contains(stateInDeviceType);
     }
 
