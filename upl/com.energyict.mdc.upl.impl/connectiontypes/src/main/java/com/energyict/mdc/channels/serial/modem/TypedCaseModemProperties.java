@@ -1,7 +1,7 @@
 package com.energyict.mdc.channels.serial.modem;
 
-import com.energyict.mdc.channels.serial.modemproperties.AbstractCaseModemProperties;
-import com.energyict.mdc.channels.serial.modemproperties.AtModemComponent;
+import com.energyict.mdc.channel.serial.modemproperties.AbstractCaseModemProperties;
+import com.energyict.mdc.channel.serial.modemproperties.AtModemComponent;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;

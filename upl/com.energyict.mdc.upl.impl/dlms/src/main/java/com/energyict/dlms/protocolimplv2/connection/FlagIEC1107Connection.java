@@ -1,17 +1,16 @@
 package com.energyict.dlms.protocolimplv2.connection;
 
-import com.energyict.mdc.channels.serial.BaudrateValue;
-import com.energyict.mdc.channels.serial.NrOfDataBits;
-import com.energyict.mdc.channels.serial.NrOfStopBits;
-import com.energyict.mdc.channels.serial.Parities;
-import com.energyict.mdc.channels.serial.SerialPortConfiguration;
-import com.energyict.mdc.protocol.SerialPortComChannel;
-import com.energyict.mdc.upl.io.NestedIOException;
-
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.channel.serial.BaudrateValue;
+import com.energyict.mdc.channel.serial.NrOfDataBits;
+import com.energyict.mdc.channel.serial.NrOfStopBits;
+import com.energyict.mdc.channel.serial.Parities;
+import com.energyict.mdc.channel.serial.SerialPortConfiguration;
+import com.energyict.mdc.protocol.SerialPortComChannel;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;

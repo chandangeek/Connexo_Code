@@ -1,6 +1,6 @@
 package com.energyict.mdc.channels.serial.optical.rxtx;
 
-import com.energyict.mdc.channels.serial.OpticalDriver;
+import com.energyict.mdc.channel.serial.OpticalDriver;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.properties.PropertySpecService;

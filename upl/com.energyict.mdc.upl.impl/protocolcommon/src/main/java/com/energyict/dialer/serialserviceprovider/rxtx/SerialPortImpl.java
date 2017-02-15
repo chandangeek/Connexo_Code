@@ -1,10 +1,9 @@
 package com.energyict.dialer.serialserviceprovider.rxtx;
 
 
+import com.energyict.dialer.uplserialserviceprovider.SerialConfig;
+import com.energyict.dialer.uplserialserviceprovider.SerialPort;
 import com.energyict.mdc.upl.io.NestedIOException;
-
-import com.energyict.dialer.serialserviceprovider.SerialConfig;
-import com.energyict.dialer.serialserviceprovider.SerialPort;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

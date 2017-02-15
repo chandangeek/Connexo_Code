@@ -6,14 +6,13 @@
 
 package com.energyict.dialer.coreimpl;
 
+import com.energyict.dialer.uplserialserviceprovider.SerInputStream;
+import com.energyict.dialer.uplserialserviceprovider.SerOutputStream;
+import com.energyict.dialer.uplserialserviceprovider.SerialConfig;
+import com.energyict.dialer.uplserialserviceprovider.SerialPort;
+import com.energyict.dialer.uplserialserviceprovider.SerialPortServiceProvider;
 import com.energyict.mdc.upl.RuntimeEnvironment;
 import com.energyict.mdc.upl.io.NestedIOException;
-
-import com.energyict.dialer.serialserviceprovider.SerInputStream;
-import com.energyict.dialer.serialserviceprovider.SerOutputStream;
-import com.energyict.dialer.serialserviceprovider.SerialConfig;
-import com.energyict.dialer.serialserviceprovider.SerialPort;
-import com.energyict.dialer.serialserviceprovider.SerialPortServiceProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

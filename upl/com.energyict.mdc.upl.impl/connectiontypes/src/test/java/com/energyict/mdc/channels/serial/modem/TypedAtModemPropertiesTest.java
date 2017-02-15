@@ -1,9 +1,9 @@
 package com.energyict.mdc.channels.serial.modem;
 
 import com.energyict.cbo.ApplicationException;
-import com.energyict.mdc.channels.serial.modemproperties.TypedAtModemProperties;
-import com.energyict.mdc.channels.serial.modemproperties.postdialcommand.AbstractAtPostDialCommand;
-import com.energyict.mdc.channels.serial.modemproperties.postdialcommand.PostDialCommandParser;
+import com.energyict.mdc.channel.serial.modemproperties.TypedAtModemProperties;
+import com.energyict.mdc.channel.serial.modemproperties.postdialcommand.AbstractAtPostDialCommand;
+import com.energyict.mdc.channel.serial.modemproperties.postdialcommand.PostDialCommandParser;
 import org.junit.Test;
 
 import java.util.List;

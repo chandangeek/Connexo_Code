@@ -1,7 +1,7 @@
 package com.energyict.mdc.channels.serial.modem;
 
-import com.energyict.mdc.channels.serial.SerialComChannelImpl;
-import com.energyict.mdc.channels.serial.ServerSerialPort;
+import com.energyict.mdc.channel.serial.SerialComChannelImpl;
+import com.energyict.mdc.channel.serial.ServerSerialPort;
 import com.energyict.mdc.protocol.ComChannelType;
 
 import java.util.ArrayList;

@@ -1,5 +1,6 @@
 package com.energyict.mdc.channels;
 
+import com.energyict.mdc.channel.AbstractComChannel;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 

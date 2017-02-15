@@ -1,7 +1,7 @@
 package com.energyict.mdc.channels.serial.direct.rxtx;
 
-import com.energyict.mdc.channels.serial.FlowControl;
-import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.channel.serial.FlowControl;
+import com.energyict.mdc.channel.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.common.AbstractSerialConnectionType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.upl.io.ConnectionType;

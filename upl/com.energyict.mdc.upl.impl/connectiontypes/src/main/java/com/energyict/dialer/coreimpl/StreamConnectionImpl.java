@@ -7,7 +7,7 @@
 package com.energyict.dialer.coreimpl;
 
 import com.energyict.dialer.core.StreamConnection;
-import com.energyict.dialer.serialserviceprovider.SerialPort;
+import com.energyict.dialer.uplserialserviceprovider.SerialPort;
 import com.energyict.mdc.upl.RuntimeEnvironment;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.tools.InputStreamObserver;

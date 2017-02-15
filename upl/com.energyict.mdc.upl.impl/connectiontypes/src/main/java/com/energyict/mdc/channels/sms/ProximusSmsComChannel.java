@@ -1,6 +1,6 @@
 package com.energyict.mdc.channels.sms;
 
-import com.energyict.mdc.channels.AbstractComChannel;
+import com.energyict.mdc.channel.AbstractComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 

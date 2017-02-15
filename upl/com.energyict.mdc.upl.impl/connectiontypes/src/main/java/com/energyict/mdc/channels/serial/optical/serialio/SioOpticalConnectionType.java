@@ -1,6 +1,6 @@
 package com.energyict.mdc.channels.serial.optical.serialio;
 
-import com.energyict.mdc.channels.serial.OpticalDriver;
+import com.energyict.mdc.channel.serial.OpticalDriver;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.properties.PropertySpecService;

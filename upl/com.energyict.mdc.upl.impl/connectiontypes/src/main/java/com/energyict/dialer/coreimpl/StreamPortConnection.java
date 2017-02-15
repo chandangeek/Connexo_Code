@@ -6,9 +6,8 @@
 
 package com.energyict.dialer.coreimpl;
 
+import com.energyict.dialer.uplserialserviceprovider.SerialPort;
 import com.energyict.mdc.upl.RuntimeEnvironment;
-
-import com.energyict.dialer.serialserviceprovider.SerialPort;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
