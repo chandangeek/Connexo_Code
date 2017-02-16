@@ -148,7 +148,7 @@ public class MasterDataSerializer {
                     final NextExecutionSpecs nextExecutionSpecs = comTaskEnablement.getNextExecutionSpecs();
                     final long scheduleId = getScheduleId(nextExecutionSpecs);
                     if (scheduleId != NO_SCHEDULE && !scheduleAlreadyExists(allMasterData.getSchedules(), nextExecutionSpecs)) {
-                        final Beacon3100Schedule beacon3100Schedule = new Beacon3100Schedule(scheduleId, getScheduleName(nextExecutionSpecs), CronTabStyleConverter.convert(nextExecutionSpecs, beaconTimeZone.getTimeZone(), localTimezone));
+                        final Beacon3100Schedule beacon3100Schedule = new Beacon3100Schedule(scheduleId, getScheduleName(nextExecutionSpecs), CronTabStyleConverter.convert(nextExecutionSpecs, beaconTimeZone != null ? beaconTimeZone.getTimeZone()  : localTimezone, localTimezone));
                         allMasterData.getSchedules().add(beacon3100Schedule);
                     }
                 }

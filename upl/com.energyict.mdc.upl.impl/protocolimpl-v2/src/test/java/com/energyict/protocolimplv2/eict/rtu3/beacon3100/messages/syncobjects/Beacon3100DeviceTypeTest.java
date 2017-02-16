@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
 import com.energyict.cpo.TypedProperties;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.mdc.tasks.ComTaskEnablement;
 import com.energyict.mdc.tasks.ComTaskEnablementImpl;
 import com.energyict.obis.ObisCode;
@@ -93,20 +95,20 @@ public class Beacon3100DeviceTypeTest {
         Beacon3100ProtocolConfiguration beaconProtocol1 = new Beacon3100ProtocolConfiguration("com.beacon.2", new TypedProperties());
 
         List<Object> lpObisCodes= new ArrayList<>();
-        lpObisCodes.add(new RegisterItem(new ObisCode(0,0,99,1,0,255), 100));
-        lpObisCodes.add(new RegisterItem(new ObisCode(0,0,99,2,0,255), 100));
+        lpObisCodes.add(new LoadProfileItem(new ObisCode(0,0,99,1,0,255), new Unsigned32(100)));
+        lpObisCodes.add(new LoadProfileItem(new ObisCode(0,0,99,2,0,255), new Unsigned32(100)));
 
 
         List<Object> registersObisCodes= new ArrayList<>();
-        registersObisCodes.add(new RegisterItem(new ObisCode(0,1,8,0,0,255), 100));
-        registersObisCodes.add(new RegisterItem(new ObisCode(0,2,8,0,0,255), 100));
-        registersObisCodes.add(new RegisterItem(new ObisCode(0,3,8,0,0,255), 100));
-        registersObisCodes.add(new RegisterItem(new ObisCode(0,4,8,0,0,255), 100));
+        registersObisCodes.add(new RegisterItem(new ObisCode(0,1,8,0,0,255), new Unsigned16(100)));
+        registersObisCodes.add(new RegisterItem(new ObisCode(0,2,8,0,0,255), new Unsigned16(100)));
+        registersObisCodes.add(new RegisterItem(new ObisCode(0,3,8,0,0,255), new Unsigned16(100)));
+        registersObisCodes.add(new RegisterItem(new ObisCode(0,4,8,0,0,255), new Unsigned16(100)));
 
 
         List<Object> eventLogsObisCodes= new ArrayList<>();
-        eventLogsObisCodes.add(new RegisterItem(new ObisCode(0,0,99,98,0,255), 100));
-        eventLogsObisCodes.add(new RegisterItem(new ObisCode(0,0,99,98,1,255), 100));
+        eventLogsObisCodes.add(new EventLogItem(new ObisCode(0,0,99,98,0,255), new Unsigned32(100)));
+        eventLogsObisCodes.add(new EventLogItem(new ObisCode(0,0,99,98,1,255), new Unsigned32(100)));
 
 
         Beacon3100Schedulable schedulable1 = new Beacon3100Schedulable(new ComTaskEnablementImpl(), 1, 2, 3, lpObisCodes, registersObisCodes, eventLogsObisCodes, false );

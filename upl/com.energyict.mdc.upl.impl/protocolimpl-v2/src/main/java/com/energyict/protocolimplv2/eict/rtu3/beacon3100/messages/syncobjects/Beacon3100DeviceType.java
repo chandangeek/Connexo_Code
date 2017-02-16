@@ -119,7 +119,7 @@ public class Beacon3100DeviceType {
         return clockSyncConfiguration;
     }
 
-    public boolean updateBufferSizeForRegister(ObisCode obisCode, int bufferSize) {
+    public boolean updateBufferSizeForRegister(ObisCode obisCode, Unsigned16 bufferSize) {
         for(Beacon3100Schedulable schedulable: schedulables){
             if(schedulable.updateBufferSizeForRegister(obisCode, bufferSize))
                 return true;
@@ -127,14 +127,14 @@ public class Beacon3100DeviceType {
         return false;
     }
 
-    public boolean updateBufferSizeForAllRegisters(int bufferSize) {
+    public boolean updateBufferSizeForAllRegisters(Unsigned16 bufferSize) {
         for(Beacon3100Schedulable schedulable: schedulables){
            schedulable.updateBufferSizeForAllRegisters(bufferSize);
         }
         return false;
     }
 
-    public boolean updateBufferSizeForLoadProfiles(ObisCode obisCode, int bufferSize) {
+    public boolean updateBufferSizeForLoadProfiles(ObisCode obisCode, Unsigned32 bufferSize) {
         for(Beacon3100Schedulable schedulable: schedulables){
             if(schedulable.updateBufferSizeForLoadProfile(obisCode, bufferSize))
                 return true;
@@ -142,14 +142,14 @@ public class Beacon3100DeviceType {
         return false;
     }
 
-    public boolean updateBufferSizeForAllLoadProfiles(int bufferSize) {
+    public boolean updateBufferSizeForAllLoadProfiles(Unsigned32 bufferSize) {
         for(Beacon3100Schedulable schedulable: schedulables){
             schedulable.updateBufferSizeForAllLoadProfiles(bufferSize);
         }
         return false;
     }
 
-    public boolean updateBufferSizeForEventLogs(ObisCode obisCode, int bufferSize) {
+    public boolean updateBufferSizeForEventLogs(ObisCode obisCode, Unsigned32 bufferSize) {
         for(Beacon3100Schedulable schedulable: schedulables){
             if(schedulable.updateBufferSizeForEventLogs(obisCode, bufferSize))
                 return true;
@@ -157,7 +157,7 @@ public class Beacon3100DeviceType {
         return false;
     }
 
-    public boolean updateBufferSizeForAllEventLogs(int bufferSize) {
+    public boolean updateBufferSizeForAllEventLogs(Unsigned32 bufferSize) {
         for(Beacon3100Schedulable schedulable: schedulables){
             schedulable.updateBufferSizeForAllEventLogs(bufferSize);
         }

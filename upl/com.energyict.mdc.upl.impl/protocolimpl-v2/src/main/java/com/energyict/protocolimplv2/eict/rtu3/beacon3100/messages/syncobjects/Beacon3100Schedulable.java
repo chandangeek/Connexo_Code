@@ -4,6 +4,7 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.mdc.tasks.ComTaskEnablement;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocolimplv2.abnt.common.structure.field.EventField;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -93,7 +94,7 @@ public class Beacon3100Schedulable {
 
         final Array profileArray = new Array();
         for (Object profileItem : getProfiles()) {
-            profileArray.addDataType(((RegisterItem)profileItem).toStructure());
+            profileArray.addDataType(((LoadProfileItem)profileItem).toStructure());
         }
         structure.addDataType(profileArray);
 
@@ -105,7 +106,7 @@ public class Beacon3100Schedulable {
 
         final Array eventLogArray = new Array();
         for (Object eventLogItem : getEventLogs()) {
-            eventLogArray.addDataType(((RegisterItem)eventLogItem).toStructure());
+            eventLogArray.addDataType(((EventLogItem)eventLogItem).toStructure());
         }
         structure.addDataType(eventLogArray);
 
@@ -146,8 +147,8 @@ public class Beacon3100Schedulable {
         return eventLogs;
     }
 
-    public boolean updateBufferSizeForRegister(ObisCode obisCode, int bufferSize) {
-        RegisterItem registerItem = findObisCode(obisCode, registers);
+    public boolean updateBufferSizeForRegister(ObisCode obisCode, Unsigned16 bufferSize) {
+        RegisterItem registerItem = (RegisterItem) Item.findObisCode(obisCode, registers);
         if(registerItem != null){
             registerItem.setBufferSize(bufferSize);
             return true;
@@ -155,14 +156,29 @@ public class Beacon3100Schedulable {
         return false;
     }
 
-    public void updateBufferSizeForAllRegisters(int bufferSize) {
+    public void updateBufferSizeForAllRegisters(Unsigned16 bufferSize) {
         for(Object registerItem : registers){
             ((RegisterItem)registerItem).setBufferSize(bufferSize);
         }
     }
 
-    public boolean updateBufferSizeForLoadProfile(ObisCode obisCode, int bufferSize) {
-        RegisterItem registerItem = findObisCode(obisCode, profiles);
+    public boolean updateBufferSizeForLoadProfile(ObisCode obisCode, Unsigned32 bufferSize) {
+        LoadProfileItem loadProfileItem = (LoadProfileItem) Item.findObisCode(obisCode, profiles);
+        if(loadProfileItem != null){
+            loadProfileItem.setBufferSize(bufferSize);
+            return true;
+        }
+        return false;
+    }
+
+    public void updateBufferSizeForAllLoadProfiles(Unsigned32 bufferSize) {
+        for(Object loadProfileItem : profiles){
+            ((LoadProfileItem)loadProfileItem).setBufferSize(bufferSize);
+        }
+    }
+
+    public boolean updateBufferSizeForEventLogs(ObisCode obisCode, Unsigned32 bufferSize) {
+        EventLogItem registerItem = (EventLogItem) Item.findObisCode(obisCode, eventLogs);
         if(registerItem != null){
             registerItem.setBufferSize(bufferSize);
             return true;
@@ -170,33 +186,10 @@ public class Beacon3100Schedulable {
         return false;
     }
 
-    public void updateBufferSizeForAllLoadProfiles(int bufferSize) {
-        for(Object registerItem : profiles){
-            ((RegisterItem)registerItem).setBufferSize(bufferSize);
+    public void updateBufferSizeForAllEventLogs(Unsigned32 bufferSize) {
+        for(Object eventLogItem : eventLogs){
+            ((EventLogItem)eventLogItem).setBufferSize(bufferSize);
         }
     }
 
-    public boolean updateBufferSizeForEventLogs(ObisCode obisCode, int bufferSize) {
-        RegisterItem registerItem = findObisCode(obisCode, eventLogs);
-        if(registerItem != null){
-            registerItem.setBufferSize(bufferSize);
-            return true;
-        }
-        return false;
-    }
-
-    public void updateBufferSizeForAllEventLogs(int bufferSize) {
-        for(Object registerItem : eventLogs){
-            ((RegisterItem)registerItem).setBufferSize(bufferSize);
-        }
-    }
-
-    public RegisterItem findObisCode(ObisCode obisCode, List<Object> list){
-        for(Object registerItem : list){
-            if(((RegisterItem)registerItem).getObisCode().equals(obisCode)){
-                return (RegisterItem)registerItem;
-            }
-        }
-        return null;
-    }
 }
