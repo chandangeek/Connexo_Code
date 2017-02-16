@@ -90,10 +90,22 @@ public class IssueResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Path("/{id}")
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    public IssueInfo getIssue(@PathParam("id") long issueId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+        Issue issue = issueService.findIssue(issueId)
+                .filter(isu -> !isu.getReason().getIssueType().getPrefix().equals("ALM"))
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, String.valueOf(issueId)));
+        return issueInfoFactory.from(issue, uriInfo, fieldSelection.getFields());
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{id}/status")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public IssueStatusInfo getStatus(@PathParam("id") long issueId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         IssueStatus issueStatus = issueService.findIssue(issueId)
+                .filter(isu -> !isu.getReason().getIssueType().getPrefix().equals("ALM"))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, String.valueOf(issueId))).getStatus();
         return issueStatusInfoFactory.from(issueStatus, uriInfo, fieldSelection.getFields());
     }
@@ -108,7 +120,8 @@ public class IssueResource {
         if (issueShortInfo == null || issueShortInfo.version == null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "version");
         }
-        Issue issue = issueService.findAndLockIssueByIdAndVersion(issueId, issueShortInfo.version).filter(isu -> !isu.getStatus().isHistorical())
+        Issue issue = issueService.findAndLockIssueByIdAndVersion(issueId, issueShortInfo.version)
+                .filter(isu -> !isu.getStatus().isHistorical() || !isu.getReason().getIssueType().getPrefix().equals("ALM"))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, String.valueOf(issueId)));
         if (issueShortInfo.status == null || issueShortInfo.status.id == null || issueShortInfo.status.id.isEmpty()) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.FIELD_MISSING, "status.id");
@@ -132,7 +145,8 @@ public class IssueResource {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public Response addComment(@PathParam("id") long issueId, IssueCommentInfo issueCommentInfo, @Context UriInfo uriInfo) {
-        Issue issue = issueService.findIssue(issueId).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, String.valueOf(issueId)));
+        Issue issue = issueService.findIssue(issueId).filter(isu -> !isu.getReason().getIssueType().getPrefix().equals("ALM"))
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, String.valueOf(issueId)));
         User user = userService.findUser(issueCommentInfo.author.name)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USER, issueCommentInfo.author.id));
         issue.addComment(issueCommentInfo.comment, user).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));

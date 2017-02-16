@@ -86,6 +86,18 @@ public class AlarmResource {
 
     }
 
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Path("/{id}")
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    public AlarmInfo getAlarm(@PathParam("id") long alarmId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+        IssueFilter filter = issueService.newIssueFilter();
+        Issue alarm = issueService.findAlarms(filter).find().stream().filter(alm -> alm.getId() == alarmId).findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ALARM, String.valueOf(alarmId)));
+        return alarmInfoFactory.from(alarm, uriInfo, fieldSelection.getFields());
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{id}/status")
