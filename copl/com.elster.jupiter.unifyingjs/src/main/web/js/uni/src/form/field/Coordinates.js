@@ -221,7 +221,7 @@ Ext.define('Uni.form.field.Coordinates', {
                 elevField.setValue('');
             }
         }
-        defaultButton.setDisabled(me.displayValue.usagePointSpatialCoordinates == undefined);
+        defaultButton.setDisabled(me.usagePointSpatialCoordinates == undefined);
     },
 
     setValue: function (value) {
