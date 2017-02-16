@@ -7,16 +7,22 @@ Ext.define('Est.estimationtasks.view.DetailForm', {
     alias: 'widget.estimationtasks-detail-form',
 
     requires: [
-        'Uni.form.field.Duration'
+        'Uni.form.field.Duration',
+        'Uni.form.field.LogLevelDisplay'
     ],
 
     initComponent: function () {
         var me = this;
+
         me.items = [
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('general.name', 'EST', 'Name'),
                 name: 'name',
+                labelWidth: 250
+            },
+            {
+                xtype: 'log-level-displayfield',
                 labelWidth: 250
             },
             {
@@ -37,6 +43,11 @@ Ext.define('Est.estimationtasks.view.DetailForm', {
                     {
                         fieldLabel: Uni.I18n.translate('estimationtasks.general.usagePointGroup', 'EST', 'Usage point group'),
                         name: 'usagePointGroup_name',
+                        hidden: typeof(MdmApp) == 'undefined'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('estimationtasks.general.metrologyPurpose', 'EST', 'Purpose'),
+                        name: 'metrologyPurpose_name',
                         hidden: typeof(MdmApp) == 'undefined'
                     }
                 ]

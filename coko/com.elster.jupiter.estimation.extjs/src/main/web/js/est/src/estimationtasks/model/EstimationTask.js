@@ -14,9 +14,15 @@ Ext.define('Est.estimationtasks.model.EstimationTask', {
         {name: 'period', type: 'auto', defaultValue: null},
         {name: 'deviceGroup', type: 'auto', defaultValue: null},
         {name: 'usagePointGroup', type: 'auto', defaultValue: null},
+        {name: 'metrologyPurpose', type: 'auto', defaultValue: null},
         {name: 'lastEstimationOccurrence', type: 'auto', defaultValue: null},
         {name: 'nextRun', type: 'number', useNull: true},
         {name: 'lastRun', type: 'number', useNull: true},
+        {
+            name: 'logLevel',
+            type: 'int',
+            useNull: true
+        },
         {
             name: 'deviceGroup_name',
             persist: false,
@@ -34,6 +40,17 @@ Ext.define('Est.estimationtasks.model.EstimationTask', {
             mapping: function (data) {
                 if (data.usagePointGroup && data.usagePointGroup.displayValue) {
                     return data.usagePointGroup.displayValue;
+                } else {
+                    return '-'
+                }
+            }
+        },
+        {
+            name: 'metrologyPurpose_name',
+            persist: false,
+            mapping: function (data) {
+                if (data.metrologyPurpose && data.metrologyPurpose.displayValue) {
+                    return data.metrologyPurpose.displayValue;
                 } else {
                     return '-'
                 }
@@ -150,6 +167,19 @@ Ext.define('Est.estimationtasks.model.EstimationTask', {
             }
         }
     ],
+
+    getTriggerText: function () {
+        var me = this,
+            nextRun = me.get('nextRun');
+
+        return Ext.isEmpty(me.get('schedule'))
+            ? Uni.I18n.translate('estimation.schedule.manual', 'EST', 'On request')
+            : Uni.I18n.translate('estimation.schedule.scheduled', 'EST', '{0}. Next run {1}', [
+            me.get('recurrence'),
+            nextRun ? Uni.DateTime.formatDateTimeLong(Ext.isDate(nextRun) ? nextRun : new Date(nextRun)) : '-'
+        ]);
+    },
+
     proxy: {
         type: 'rest',
         url: '/api/est/estimation/tasks',

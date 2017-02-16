@@ -9,7 +9,8 @@ Ext.define('Est.estimationtasks.view.LogGrid', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Uni.DateTime'
+        'Uni.DateTime',
+        'Uni.grid.column.LogLevel'
     ],
     initComponent: function () {
         var me = this;
@@ -23,7 +24,7 @@ Ext.define('Est.estimationtasks.view.LogGrid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('estimationtasks.general.logLevel', 'EST', 'Log level'),
+                xtype: 'log-level-column',
                 dataIndex: 'loglevel',
                 flex: 1
             },
