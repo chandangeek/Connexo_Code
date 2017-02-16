@@ -1,3 +1,7 @@
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
 <project name="find-cmd-impl">
     <!--
     Run "sencha which" to find the Sencha Cmd basedir and get "cmd.dir" setup. We
