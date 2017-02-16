@@ -42,7 +42,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.Edit', {
                             field.focus(false);
                         }
                     }
-                },
+                },                
                 {
                     xtype: 'fieldcontainer',
                     itemId: 'usagepoint-life-cycle-stage-container',

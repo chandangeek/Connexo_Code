@@ -35,6 +35,7 @@ Ext.define('Imt.purpose.view.ReadingsGraph', {
             html = '<b>' + Uni.DateTime.formatDateLong(new Date(tooltip.x)),
             editedIcon = '<span class="icon-pencil4" style="margin-left:4px; display:inline-block; vertical-align:top;"></span>',
             point = tooltip.point,
+            qualityIcon = '',
             icon,
             bgColor,
             value;
@@ -45,6 +46,10 @@ Ext.define('Imt.purpose.view.ReadingsGraph', {
             icon = '<span class="icon-flag6" style="margin-left:4px; display:inline-block; vertical-align:top;"></span>';
         }
 
+        if (point.showQualityIcon) {
+            qualityIcon = '<span class="icon-price-tags" style="margin-left:4px; display:inline-block; vertical-align:top;"></span>';
+        }
+
         if (point.value) {
             value = point.value ? point.value + ' ' + point.unitOfMeasure : Uni.I18n.translate('general.missing', 'IMT', 'Missing');
         } else {
@@ -52,7 +57,7 @@ Ext.define('Imt.purpose.view.ReadingsGraph', {
         }
 
         html += '<br/>' + Uni.I18n.translate('devicechannels.interval', 'IMT', 'Interval') + ' ' + Uni.DateTime.formatTimeShort(new Date(point.x));
-        html += ' - ' + Uni.DateTime.formatTimeShort(new Date(point.intervalEnd)) + '<br>';
+        html += ' - ' + Uni.DateTime.formatTimeShort(new Date(point.intervalEnd)) + qualityIcon + '<br>';
         html += '<table style="margin-top: 10px"><tbody>';
         bgColor = point.tooltipColor;
         html += '<tr><td colspan="2"><b>' + Uni.I18n.translate('general.value', 'IMT', 'Value') + ':</b>&nbsp;' + value + (icon ? icon : '') + (point.edited ? editedIcon : '') + '</td></tr>';
