@@ -59,7 +59,6 @@ public class IssueStatusInfoFactory extends SelectableFieldFactory<IssueStatusIn
         Map<String, PropertyCopier<IssueStatusInfo, IssueStatus>> map = new HashMap<>();
         map.put("id", (issueStatusInfo, issueStatus, uriInfo) -> issueStatusInfo.id = issueStatus.getKey());
         map.put("name", (issueStatusInfo, issueStatus, uriInfo) -> issueStatusInfo.name = issueStatus.getName());
-        map.put("allowForClosing", (issueStatusInfo, issueStatus, uriInfo) -> issueStatusInfo.allowForClosing = issueStatus.isHistorical());
         return map;
     }
 }
