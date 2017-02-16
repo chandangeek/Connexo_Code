@@ -1,9 +1,9 @@
 package com.energyict.mdc.channels.serial.direct.serialio;
 
 import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
-import com.energyict.mdc.channels.serial.BaudrateValue;
-import com.energyict.mdc.channels.serial.NrOfStopBits;
-import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.channel.serial.BaudrateValue;
+import com.energyict.mdc.channel.serial.NrOfStopBits;
+import com.energyict.mdc.channel.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.common.AbstractSerialConnectionType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.upl.io.ConnectionType;

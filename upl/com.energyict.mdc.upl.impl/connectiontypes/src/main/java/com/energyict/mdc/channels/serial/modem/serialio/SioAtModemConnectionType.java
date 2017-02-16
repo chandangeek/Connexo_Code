@@ -1,9 +1,9 @@
 package com.energyict.mdc.channels.serial.modem.serialio;
 
+import com.energyict.mdc.channel.serial.modemproperties.AtModemComponent;
+import com.energyict.mdc.channel.serial.modemproperties.TypedAtModemProperties;
 import com.energyict.mdc.channels.nls.MessageSeeds;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
-import com.energyict.mdc.channels.serial.modemproperties.AtModemComponent;
-import com.energyict.mdc.channels.serial.modemproperties.TypedAtModemProperties;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.upl.io.ConnectionType;

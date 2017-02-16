@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.mdc.channels.SynchroneousComChannel;
+import com.energyict.mdc.channel.SynchroneousComChannel;
 import com.energyict.mdc.meterdata.CollectedDataFactory;
 import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
 import com.energyict.mdc.meterdata.DeviceLogBook;

@@ -1,7 +1,6 @@
 package com.energyict.mdc.channels.serial.optical.rxtx;
 
-import com.energyict.mdc.channels.serial.SerialPortConfiguration;
-
+import com.energyict.mdc.channel.serial.SerialPortConfiguration;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;

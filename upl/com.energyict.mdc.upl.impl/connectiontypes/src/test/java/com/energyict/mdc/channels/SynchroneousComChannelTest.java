@@ -1,6 +1,7 @@
 package com.energyict.mdc.channels;
 
 import com.energyict.comserver.exceptions.CodingException;
+import com.energyict.mdc.channel.SynchroneousComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.protocol.exception.CommunicationException;
 import org.junit.Before;

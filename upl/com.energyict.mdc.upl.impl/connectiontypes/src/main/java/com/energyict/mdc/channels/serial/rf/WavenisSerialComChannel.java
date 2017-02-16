@@ -1,8 +1,8 @@
 package com.energyict.mdc.channels.serial.rf;
 
-import com.energyict.mdc.channels.SynchroneousComChannel;
-import com.energyict.mdc.channels.serial.SerialPortConfiguration;
-import com.energyict.mdc.channels.serial.ServerSerialPort;
+import com.energyict.mdc.channel.SynchroneousComChannel;
+import com.energyict.mdc.channel.serial.SerialPortConfiguration;
+import com.energyict.mdc.channel.serial.ServerSerialPort;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 

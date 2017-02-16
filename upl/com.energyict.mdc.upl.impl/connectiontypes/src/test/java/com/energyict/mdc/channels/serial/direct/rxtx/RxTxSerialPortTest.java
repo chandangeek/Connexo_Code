@@ -1,29 +1,28 @@
 package com.energyict.mdc.channels.serial.direct.rxtx;
 
-import com.energyict.mdc.channels.serial.BaudrateValue;
-import com.energyict.mdc.channels.serial.FlowControl;
-import com.energyict.mdc.channels.serial.NrOfDataBits;
-import com.energyict.mdc.channels.serial.NrOfStopBits;
-import com.energyict.mdc.channels.serial.Parities;
-import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.channel.serial.BaudrateValue;
+import com.energyict.mdc.channel.serial.FlowControl;
+import com.energyict.mdc.channel.serial.NrOfDataBits;
+import com.energyict.mdc.channel.serial.NrOfStopBits;
+import com.energyict.mdc.channel.serial.Parities;
+import com.energyict.mdc.channel.serial.SerialPortConfiguration;
+import com.energyict.mdc.channel.serial.direct.rxtx.RxTxSerialPort;
 import com.energyict.mdc.exceptions.SerialPortException;
-
 import gnu.io.SerialPort;
 import gnu.io.UnsupportedCommOperationException;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 /**
- * Tests for the {@link com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialPort} component
+ * Tests for the {@link RxTxSerialPort} component
  * <p/>
  * Copyrights EnergyICT
  * Date: 17/08/12

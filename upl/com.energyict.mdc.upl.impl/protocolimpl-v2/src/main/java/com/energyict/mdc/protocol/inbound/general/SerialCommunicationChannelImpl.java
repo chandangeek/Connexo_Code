@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.inbound.general;
 
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dialer.serialserviceprovider.SerialPort;
+import com.energyict.dialer.uplserialserviceprovider.SerialPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
 import com.energyict.protocolimplv2.comchannels.ComChannelOutputStreamAdapter;

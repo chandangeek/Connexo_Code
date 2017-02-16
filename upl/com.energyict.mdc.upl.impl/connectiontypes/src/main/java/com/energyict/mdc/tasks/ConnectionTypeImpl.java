@@ -1,21 +1,20 @@
 package com.energyict.mdc.tasks;
 
-import com.energyict.mdc.channels.ip.datagrams.DatagramComChannel;
-import com.energyict.mdc.channels.ip.datagrams.OutboundUdpSession;
-import com.energyict.mdc.channels.ip.socket.SocketComChannel;
+import com.energyict.mdc.channel.ip.datagrams.DatagramComChannel;
+import com.energyict.mdc.channel.ip.datagrams.OutboundUdpSession;
+import com.energyict.mdc.channel.ip.socket.SocketComChannel;
+import com.energyict.mdc.channel.serial.OpticalDriver;
+import com.energyict.mdc.channel.serial.SerialComChannelImpl;
+import com.energyict.mdc.channel.serial.SerialPortConfiguration;
+import com.energyict.mdc.channel.serial.ServerSerialPort;
+import com.energyict.mdc.channel.serial.direct.rxtx.RxTxSerialPort;
+import com.energyict.mdc.channel.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.channels.nls.MessageSeeds;
-import com.energyict.mdc.channels.serial.OpticalDriver;
-import com.energyict.mdc.channels.serial.SerialComChannelImpl;
-import com.energyict.mdc.channels.serial.SerialPortConfiguration;
-import com.energyict.mdc.channels.serial.ServerSerialPort;
-import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialPort;
-import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
-
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimplv2.messages.nls.Thesaurus;

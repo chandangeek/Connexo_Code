@@ -3,12 +3,12 @@
  */
 package com.energyict.mdc.channels.serial.common;
 
-import com.energyict.mdc.channels.serial.BaudrateValue;
-import com.energyict.mdc.channels.serial.FlowControl;
-import com.energyict.mdc.channels.serial.NrOfDataBits;
-import com.energyict.mdc.channels.serial.NrOfStopBits;
-import com.energyict.mdc.channels.serial.Parities;
-import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.channel.serial.BaudrateValue;
+import com.energyict.mdc.channel.serial.FlowControl;
+import com.energyict.mdc.channel.serial.NrOfDataBits;
+import com.energyict.mdc.channel.serial.NrOfStopBits;
+import com.energyict.mdc.channel.serial.Parities;
+import com.energyict.mdc.channel.serial.SerialPortConfiguration;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.upl.nls.TranslationKey;

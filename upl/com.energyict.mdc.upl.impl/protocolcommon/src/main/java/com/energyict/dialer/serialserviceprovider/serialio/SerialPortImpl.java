@@ -1,7 +1,7 @@
 package com.energyict.dialer.serialserviceprovider.serialio;
 
-import com.energyict.dialer.serialserviceprovider.SerialConfig;
-import com.energyict.dialer.serialserviceprovider.SerialPort;
+import com.energyict.dialer.uplserialserviceprovider.SerialConfig;
+import com.energyict.dialer.uplserialserviceprovider.SerialPort;
 
 import java.io.IOException;
 import java.io.InputStream;
