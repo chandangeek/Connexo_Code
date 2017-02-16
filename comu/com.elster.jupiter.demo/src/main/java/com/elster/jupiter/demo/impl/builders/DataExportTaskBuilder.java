@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
+import java.util.logging.Level;
 
 public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTaskBuilder> {
     private final DataExportService dataExportService;
@@ -65,6 +66,7 @@ public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTa
         startOn = startOn.withSecond(0).withMinute(0).withHour(11);
         com.elster.jupiter.export.DataExportTaskBuilder builder = dataExportService.newBuilder()
                 .setName(getName())
+                .setLogLevel(Level.WARNING.intValue())
                 .setApplication("MultiSense")
                 .setDataFormatterFactoryName("standardCsvDataProcessorFactory")
                 .setScheduleExpression(new TemporalExpression(TimeDuration.days(1), TimeDuration.hours(11)))
