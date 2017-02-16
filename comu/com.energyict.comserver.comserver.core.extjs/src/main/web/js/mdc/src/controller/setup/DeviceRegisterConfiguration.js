@@ -264,7 +264,6 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
             calculatedReadingTypeField = widget.down('[name=calculatedReadingType]');
 
         me.registerId = record.get('id');
-        me.registerName = record.get('name');
         previewContainer.setLoading(true);
         Ext.suspendLayouts();
 
@@ -433,11 +432,11 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                     }
                     confirmationWindow.insert(1, me.getValidationContent());
                     confirmationWindow.show({
-                        title: Uni.I18n.translate('registerconfiguration.validation.validateNow', 'MDC', 'Validate data of register configuration {0}?', [record.get('name')]),
+                        title: Uni.I18n.translate('registerconfiguration.validation.validateNow', 'MDC', 'Validate data of register configuration {0}?', [record.get('readingType').fullAliasName]),
                         msg: ''
                     });
                 } else {
-                    var title = Uni.I18n.translate('registerconfiguration.validateNow.error', 'MDC', 'Failed to validate data of register configuration {0}', [record.get('name')]),
+                    var title = Uni.I18n.translate('registerconfiguration.validateNow.error', 'MDC', 'Failed to validate data of register configuration {0}', [record.get('readingType').fullAliasName]),
                         message = Uni.I18n.translate('registerconfiguration.validation.noData', 'MDC', 'There is currently no data for this register configuration'),
                         config = {
                             icon: Ext.MessageBox.WARNING
@@ -457,7 +456,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         if (confWindow.down('#validateRegisterFromDate').getValue() > me.dataValidationLastChecked) {
             confWindow.down('#validateRegisterDateErrors').update(Uni.I18n.translate('deviceloadprofiles.activation.error', 'MDC', 'The date should be before or equal to the default date.'));
             confWindow.down('#validateRegisterDateErrors').setVisible(true);
-        } else {
+        } else  {
             confWindow.down('button').setDisabled(true);
             Ext.Ajax.request({
                 url: '/api/ddr/devices/' + encodeURIComponent(me.deviceId) + '/registers/' + me.registerId + '/validate',

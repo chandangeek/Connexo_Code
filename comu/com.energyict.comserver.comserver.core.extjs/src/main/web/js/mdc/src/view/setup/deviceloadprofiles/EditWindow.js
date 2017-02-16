@@ -6,6 +6,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.EditWindow', {
     extend: 'Ext.window.Window',
     alias: 'widget.deviceloadprofile-edit-window',
     modal: true,
+    closable: false,
     title: Uni.I18n.translate('general.changeNextReadingBlockStart', 'MDC', 'Change next reading block start'),
     loadProfileRecord: null,
 

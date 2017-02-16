@@ -70,8 +70,10 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ValidationPreview', {
                 renderer: function (value, field) {
                     var rec = field.up('form').getRecord();
                     if (rec && rec.get('isConfirmed')) {
+                        field.show();
                         return this.getConfirmed(rec.get('confirmedInApps'));
                     } else if (!Ext.isEmpty(value)) {
+                        field.show();
                         return this.getValidationRules(value);
                     } else {
                         field.hide();
