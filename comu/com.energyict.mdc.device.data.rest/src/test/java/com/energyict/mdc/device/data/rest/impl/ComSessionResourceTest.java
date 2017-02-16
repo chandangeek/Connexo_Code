@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
@@ -32,9 +36,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.device.data.BatchService;
@@ -9,11 +13,6 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 08.07.16
- * Time: 08:44
- */
 @XmlRootElement
 public class DataLoggerSlaveDeviceInfos {
 

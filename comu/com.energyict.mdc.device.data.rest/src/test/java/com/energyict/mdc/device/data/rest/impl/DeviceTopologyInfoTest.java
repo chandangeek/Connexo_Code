@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
@@ -30,11 +34,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 2/05/2016
- * Time: 13:33
- */
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceTopologyInfoTest {
 
