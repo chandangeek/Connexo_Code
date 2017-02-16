@@ -363,6 +363,7 @@
             <modules>
                 <module>../com.elster.jupiter.gogo</module>
                 <module>../com.elster.jupiter.metering.cps</module>
+                <module>../com.elster.jupiter.metering.cps.doa</module>
                 <module>../com.elster.jupiter.webservices.inbound.rest.demo</module>
                 <module>../com.elster.jupiter.webservices.outbound.rest.demo</module>
                 <module>../com.elster.jupiter.webservices.outbound.client.demo</module>
