@@ -18,6 +18,18 @@ Ext.define('Fim.view.log.Preview', {
             },
             items: [
                 {
+                    fieldLabel: Uni.I18n.translate('importService.history.importServiceName', 'FIM', 'Import service'),
+                    name: 'importServiceName',
+                    renderer: function (value) {
+                        var url = me.router.getRoute('administration/importservices/importservice').buildUrl({
+                            importServiceId: me.importServiceId
+                        });
+                        return Fim.privileges.DataImport.canView()
+                            ? '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>'
+                            : Ext.String.htmlEncode(value);
+                    }
+                },
+                {
                     fieldLabel: Uni.I18n.translate('importService.history.fileName', 'FIM', 'File name'),
                     name: 'fileName'
                 },

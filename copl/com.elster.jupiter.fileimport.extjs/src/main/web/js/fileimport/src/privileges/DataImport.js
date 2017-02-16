@@ -15,7 +15,8 @@ Ext.define('Fim.privileges.DataImport', {
     singleton: true,
     view: ['privilege.administrate.importServices',
         'privilege.view.importServices'],
-
+    viewHistory: ['privilege.view.import.history',
+        'privilege.view.importServices'],
     admin: ['privilege.administrate.importServices'],
 
     all: function () {
@@ -23,6 +24,9 @@ Ext.define('Fim.privileges.DataImport', {
     },
     canView: function () {
         return Uni.Auth.checkPrivileges(Fim.privileges.DataImport.view);
+    },
+    canViewHistory: function () {
+        return Uni.Auth.checkPrivileges(Fim.privileges.DataImport.viewHistory);
     },
     getAdmin: function () {
         return typeof(MdcApp) != 'undefined' ? false : typeof(MdmApp) != 'undefined' ? false : typeof(SystemApp) != 'undefined' ? Uni.Auth.checkPrivileges(Fim.privileges.DataImport.admin) : false;

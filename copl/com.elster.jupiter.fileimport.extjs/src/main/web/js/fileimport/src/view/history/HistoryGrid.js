@@ -10,10 +10,11 @@ Ext.define('Fim.view.history.HistoryGrid', {
         'Uni.grid.column.Action',
         'Uni.grid.column.Duration',
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom',
-        'Fim.view.history.HistoryActionMenu'
+        'Uni.view.toolbar.PagingBottom'
     ],
     showImportService: false,
+    fromWorkSpace: false,
+
     initComponent: function () {
         var me = this;
         me.columns = [
@@ -22,19 +23,30 @@ Ext.define('Fim.view.history.HistoryGrid', {
                 dataIndex: 'startedOn',
                 flex: 1,
                 renderer: function (value, metaData, record) {
-                    var url = me.router.getRoute('administration/importservices/importservice/history/occurrence').buildUrl({
+                    var url = me.fromWorkSpace ?
+                        me.router.getRoute('workspace/importhistory/occurrence').buildUrl({
+                            occurrenceId: record.get('id')
+                        }) :
+                        me.router.getRoute('administration/importservices/importservice/history/occurrence').buildUrl({
                             importServiceId: record.get('importServiceId'),
                             occurrenceId: record.get('id')
-                        }),
-                        date = value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
-                    return '<a href="' + url + '">' + date + '</a>';
+                        });
+                    return value ? '<a href="' + url + '">' + Uni.DateTime.formatDateTimeShort(new Date(value)) + '</a>' : '-';
                 }
             },
             {
                 header: Uni.I18n.translate('general.importService', 'FIM', 'Import service'),
                 dataIndex: 'importServiceName',
                 flex: 2,
-                hidden: !me.showImportService
+                hidden: !me.showImportService,
+                renderer: function (value, metaData, record) {
+                    var url = me.router.getRoute('administration/importservices/importservice').buildUrl({
+                        importServiceId: record.get('importServiceId')
+                    });
+                    return Fim.privileges.DataImport.canView()
+                        ? '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>'
+                        : Ext.String.htmlEncode(value);
+                }
             },
             {
                 xtype: 'uni-grid-column-duration',
@@ -48,13 +60,6 @@ Ext.define('Fim.view.history.HistoryGrid', {
                 dataIndex: 'status',
                 textAlign: 'center',
                 flex: 1
-            },
-            {
-                xtype: 'uni-actioncolumn',
-                width: 100,
-                menu: {
-                    xtype: 'fim-history-action-menu'
-                }
             }
         ];
 

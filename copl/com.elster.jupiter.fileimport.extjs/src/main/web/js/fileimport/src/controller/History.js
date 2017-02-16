@@ -50,14 +50,15 @@ Ext.define('Fim.controller.History', {
             },
             '#fim-history-sort-toolbar #itemsContainer button': {
                 click: this.switchSortingOrder
-            },
-            'fim-history-action-menu': {
-                click: this.chooseAction
             }
         });
     },
 
-    showImportServicesHistory: function (importServiceId) {
+    showImportServicesHistoryWorkspace: function () {
+        this.showImportServicesHistory(undefined, true);
+    },
+
+    showImportServicesHistory: function (importServiceId, fromWorkSpace) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             store = me.getStore('Fim.store.ImportServicesHistory'),
@@ -73,7 +74,8 @@ Ext.define('Fim.controller.History', {
         view = Ext.widget('fim-import-service-history', {
             router: router,
             importServiceId: importServiceId,
-            showImportService: noSpecificImportService
+            showImportService: noSpecificImportService,
+            fromWorkSpace: fromWorkSpace
         });
 
         me.getApplication().fireEvent('changecontentevent', view);
@@ -156,7 +158,6 @@ Ext.define('Fim.controller.History', {
         Ext.suspendLayouts();
         preview.setTitle(record.get('startedOnDisplay'));
         previewForm.loadRecord(record);
-        preview.down('fim-history-action-menu').record = record;
         Ext.resumeLayouts();
     },
 
@@ -248,20 +249,5 @@ Ext.define('Fim.controller.History', {
         store.load(function(records, operation, success) {
             gridView.setLoading(false);
         });
-    },
-
-    chooseAction: function (menu, item) {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            route;
-
-        router.arguments.importServiceId = menu.record.get('importServiceId');
-        router.arguments.occurrenceId = menu.record.get('occurrenceId');
-        if (item.action === 'viewLog') {
-            route = 'administration/importservices/importservice/history/occurrence';
-        }
-
-        route && (route = router.getRoute(route));
-        route && route.forward(router.arguments);
     }
 });
