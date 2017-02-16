@@ -95,7 +95,7 @@ public class TruncatedTimelineSqlBuilderTest {
         builder.append("LOCALDATE");
 
         // Asserts
-        assertThat(sqlBuilder.getText()).isEqualToIgnoringCase("((TRUNC((LOCALDATE - INTERVAL '17' HOUR) - INTERVAL '5' MONTH, 'IYYY') + INTERVAL '17' HOUR) + INTERVAL '4' MONTH)");
+        assertThat(sqlBuilder.getText()).isEqualToIgnoringCase("((TRUNC((LOCALDATE - INTERVAL '17' HOUR) - INTERVAL '5' MONTH, 'YEAR') + INTERVAL '17' HOUR) + INTERVAL '4' MONTH)");
     }
 
     private static VirtualReadingType kWh15Mins() {

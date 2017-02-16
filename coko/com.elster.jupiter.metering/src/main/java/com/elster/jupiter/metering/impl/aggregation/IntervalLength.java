@@ -773,11 +773,13 @@ public enum IntervalLength {
     }
 
     public static IntervalLength from(Duration duration) {
-        return Stream
-                    .of(values())
-                    .filter(each -> each.toTemporalAmount().equals(duration))
-                    .findAny()
-                    .orElseThrow(() -> new IllegalArgumentException("Unsupported duration: " + duration.toString()));
+        EnumSet<IntervalLength> allExceptNotSupported = EnumSet.allOf(IntervalLength.class);
+        allExceptNotSupported.remove(NOT_SUPPORTED);
+        return allExceptNotSupported
+                .stream()
+                .filter(each -> each.toTemporalAmount().equals(duration))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException("Unsupported duration: " + duration.toString()));
     }
 
     public static Set<IntervalLength> multiples(IntervalLength from, IntervalLength to) {
@@ -949,7 +951,7 @@ public enum IntervalLength {
         static final String DAY = "DDD";
         static final String WEEK = "DAY";
         static final String MONTH = "MONTH";
-        static final String YEAR = "IYYY";
+        static final String YEAR = "YEAR";
     }
 
 }

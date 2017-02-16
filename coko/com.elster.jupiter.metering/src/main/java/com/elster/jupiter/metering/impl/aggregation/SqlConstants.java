@@ -299,7 +299,7 @@ final class SqlConstants {
         }
 
         static String[] names() {
-            return Stream.of(values()).toArray(String[]::new);
+            return Stream.of(values()).map(TimeSeriesColumnNames::sqlName).toArray(String[]::new);
         }
 
     }

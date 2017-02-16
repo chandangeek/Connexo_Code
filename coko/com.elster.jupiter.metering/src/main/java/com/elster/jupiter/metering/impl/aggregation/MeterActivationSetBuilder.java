@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -81,6 +82,7 @@ class MeterActivationSetBuilder {
         registered
                 .stream()
                 .map(RegisteredCustomPropertySet::getCustomPropertySet)
+                .filter(Objects::nonNull)   // Remove the once that were not available on the classpath, which may not be a good idea but it does produce weird and ureadable exceptions
                 .filter(versioned)
                 .filter(this::hasSLPProperty)
                 .forEach(customPropertySets::add);

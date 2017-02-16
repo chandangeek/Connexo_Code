@@ -177,8 +177,8 @@ public class IntervalLengthFromDurationTest {
         for (int s = 0; s < 60; s++) {
             try {
                 // Business method
-                IntervalLength.from(Duration.ofSeconds(s));
-                fail("Was expected that conversion from " + s + " seconds would throw " + IllegalArgumentException.class.getSimpleName());
+                IntervalLength intervalLength = IntervalLength.from(Duration.ofSeconds(s));
+                fail("Was expected that conversion from " + s + " seconds would throw " + IllegalArgumentException.class.getSimpleName() + " but got " + intervalLength);
             } catch (IllegalArgumentException e) {
                 // Expected
             }
@@ -191,8 +191,8 @@ public class IntervalLengthFromDurationTest {
         for (int m = 0; m < 1000; m++) {
             try {
                 // Business method
-                IntervalLength.from(Duration.ofMillis(m));
-                fail("Was expected that conversion from " + m + " millis would throw " + IllegalArgumentException.class.getSimpleName());
+                IntervalLength intervalLength = IntervalLength.from(Duration.ofMillis(m));
+                fail("Was expected that conversion from " + m + " millis would throw " + IllegalArgumentException.class.getSimpleName() + " but got " + intervalLength);
             } catch (IllegalArgumentException e) {
                 // Expected
             }
