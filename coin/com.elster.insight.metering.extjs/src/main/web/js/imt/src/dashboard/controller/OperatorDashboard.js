@@ -62,6 +62,6 @@ Ext.define('Imt.dashboard.controller.OperatorDashboard', {
         if (flaggedUsagePointGroups) {
             flaggedUsagePointGroups.reload();
         }
-        lastUpdateField.update(Uni.I18n.translate('general.lastUpdatedAt', 'IMT', 'Last updated at {0}', [Uni.DateTime.formatTimeShort(new Date())]));
+        lastUpdateField.update(Uni.I18n.translate('general.lastRefreshedAt', 'IMT', 'Last refreshed at {0}', [Uni.DateTime.formatTimeShort(new Date())]));
     }
 });
