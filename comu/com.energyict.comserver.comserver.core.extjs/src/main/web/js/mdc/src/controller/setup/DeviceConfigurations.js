@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     extend: 'Ext.app.Controller',
 
@@ -49,6 +53,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         {ref: 'typeOfGatewayRadioGroup', selector: '#deviceConfigurationEditForm #typeOfGatewayCombo'},
         {ref: 'typeOfGatewayRadioGroupContainer', selector: '#deviceConfigurationEditForm #typeOfGatewayComboContainer'},
         {ref: 'dataLoggerRadioGroup', selector: '#deviceConfigurationEditForm #dataLoggerRadioGroup'},
+        {ref: 'validateOnStoreRadioGroup', selector: '#deviceConfigurationEditForm #validateOnStoreRadioGroup'},
         {ref: 'dataLoggerMessage', selector: '#deviceConfigurationEditForm #dataLoggerMessage'},
         {ref: 'editLogbookConfiguration', selector: 'edit-logbook-configuration'},
         {ref: 'previewActionMenu', selector: 'deviceConfigurationPreview #device-configuration-action-menu'},
@@ -484,6 +489,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             typeOfGatewayRadioGroup = this.getTypeOfGatewayRadioGroup(),
             dataLoggerMessage = this.getDataLoggerMessage(),
             dataLoggerRadioGroup = this.getDataLoggerRadioGroup(),
+            validateOnstoreRadioGroup = this.getValidateOnStoreRadioGroup();
             isDataLoggerSlaveType = deviceType.isDataLoggerSlave();
 
         if (deviceConfiguration) {
@@ -491,6 +497,9 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             gatewayRadioGroup.setValue({canBeGateway: deviceConfiguration.get('canBeGateway')});
             typeOfGatewayRadioGroup.setValue({gatewayType: deviceConfiguration.get('gatewayType')});
             dataLoggerRadioGroup.setValue({dataloggerEnabled: deviceConfiguration.get('dataloggerEnabled')});
+            if(validateOnstoreRadioGroup){
+                validateOnstoreRadioGroup.setValue({validateOnStore: deviceConfiguration.get('validateOnStore')})
+            }
             if (deviceConfiguration.get('active')) {
                 addressableRadioGroup.disable();
                 gatewayRadioGroup.disable();
@@ -645,11 +654,11 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             addressableRadioGroup = me.getAddressableRadioGroup(),
             gatewayRadioGroup = this.getGatewayRadioGroup(),
             dataLoggerRadioGroup = this.getDataLoggerRadioGroup(),
+            validateOnStoreRadioGroup = this.getValidateOnStoreRadioGroup(),
             record;
 
 
         editForm.setLoading(true);
-
         if (btn.action === 'createDeviceConfiguration') {
             record = Ext.create(Mdc.model.DeviceConfiguration);
             if (addressableRadioGroup.isDisabled()) {
@@ -661,10 +670,12 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             if (dataLoggerRadioGroup.isDisabled()) {
                 values.dataloggerEnabled = false;
             }
+            if (validateOnStoreRadioGroup.isDisabled()) {
+                values.validateOnStore = false;
+            }
         } else {
             record = this.getDeviceConfigurationEditForm().getRecord();
         }
-
         if (record) {
             me.hideErrorPanel();
             record.set(values);

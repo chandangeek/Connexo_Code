@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
     extend: 'Ext.app.Controller',
 
@@ -492,7 +496,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
         var me = this;
 
         Ext.Ajax.request({
-            url: '/api/ddr/devices/' + encodeURIComponent(deviceName) + '/schedules',
+            url: '/api/ddr/devices/' + deviceName + '/schedules',
             isNotEdit: true,
             method: 'PUT',
             params: '',

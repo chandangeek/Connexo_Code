@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
     extend: 'Ext.app.Controller',
 
@@ -197,7 +201,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             lastSelected = grid.getView().getSelectionModel().getLastSelected(),
             router = me.getController('Uni.controller.history.Router');
 
-        router.getRoute('devices/device/registers/registerdata/edit').forward({timestamp: lastSelected.getData().timeStamp});
+        router.getRoute('devices/device/registers/registerdata/edit').forward({registerId: grid.registerId, timestamp: lastSelected.getData().timeStamp});
     },
 
     showDeviceRegisterConfigurationDataEditView: function (deviceId, registerId, timestamp) {

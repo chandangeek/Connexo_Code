@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
     extend: 'Mdc.view.setup.deviceregisterdata.MainGrid',
     alias: 'widget.deviceregisterreportgrid-numerical',
@@ -32,9 +36,11 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                             icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;" data-qtip="'
                                 + Uni.I18n.translate('reading.validationResult.confirmed', 'MDC', 'Confirmed') + '"></span>'
                         } else if (status === 'suspect') {
-                            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;"></span>';
+                            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;" data-qtip="'
+                                + Uni.I18n.translate('general.suspect', 'MDC', 'Suspect') + '"></span>';
                         } else if (status === 'notValidated') {
-                            icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>';
+                            icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
+                                + Uni.I18n.translate('general.notValidated', 'MDC', 'Not validated') + '"></span>';
                         }
                         return Uni.Number.formatNumber(data, -1) + icon;
                     }
@@ -87,6 +93,15 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                     if (!Ext.isEmpty(data)) {
                         return Uni.Number.formatNumber(data, -1);
                     }
+                }
+            },
+            {
+                header: Uni.I18n.translate('device.registerData.lastUpdate', 'MDC', 'Last update'),
+                dataIndex: 'reportedDateTime',
+                flex: 1,
+                renderer: function(value){
+                    var date = new Date(value);
+                    return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)])
                 }
             },
             {
