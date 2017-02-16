@@ -113,6 +113,7 @@ Ext.define('Uni.property.view.property.Assign', {
         workgroupCombo.suspendEvents();
         workgroupCombo.setValue(jsonValue.workgroupId);
         workgroupCombo.resumeEvents();
+        userCombo.setWorkgroupId(jsonValue.workgroupId);
         userCombo.setValue(jsonValue.userId);
     },
 

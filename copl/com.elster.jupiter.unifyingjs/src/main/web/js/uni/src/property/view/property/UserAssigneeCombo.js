@@ -124,6 +124,10 @@ Ext.define('Uni.property.view.property.UserAssigneeCombo', {
             me.store.load();
     },
 
+    setWorkgroupId: function (workgroupId) {
+        this.workgroupId = workgroupId;
+    },
+
     initComponent: function () {
         var me = this;
 
