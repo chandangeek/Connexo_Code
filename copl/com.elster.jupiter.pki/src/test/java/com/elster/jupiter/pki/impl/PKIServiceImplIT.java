@@ -15,6 +15,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.Optional;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,6 +41,16 @@ public class PKIServiceImplIT {
     @BeforeClass
     public static void initialize() {
         pkiInMemoryPersistence.activate();
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        ((PkiServiceImpl)pkiInMemoryPersistence.getPkiService()).addPrivateKeyFactory(pkiInMemoryPersistence.getPlaintextPrivateKeyFactory());
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        ((PkiServiceImpl)pkiInMemoryPersistence.getPkiService()).removePrivateKeyFactory(pkiInMemoryPersistence.getPlaintextPrivateKeyFactory());
     }
 
     @Test
@@ -99,8 +111,7 @@ public class PKIServiceImplIT {
             NoSuchAlgorithmException,
             InvalidAlgorithmParameterException,
             InvalidKeyException, NoSuchProviderException {
-        KeyType keyType = pkiInMemoryPersistence.getPkiService().newAsymmetricKeyType("NIST P-256").ECDSA().curve("secp256r1").add();
-        ((PkiServiceImpl)pkiInMemoryPersistence.getPkiService()).addPrivateKeyFactory(pkiInMemoryPersistence.getPlaintextPrivateKeyFactory());
+        KeyType keyType = pkiInMemoryPersistence.getPkiService().newAsymmetricKeyType("NIST P-256K").ECDSA().curve("secp256k1").add();
 
         KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
         when(keyAccessorType.getKeyType()).thenReturn(keyType);
@@ -126,7 +137,6 @@ public class PKIServiceImplIT {
             InvalidAlgorithmParameterException,
             InvalidKeyException, NoSuchProviderException {
         KeyType keyType = pkiInMemoryPersistence.getPkiService().newAsymmetricKeyType("Some RSA key").RSA().keySize(2048).add();
-        ((PkiServiceImpl)pkiInMemoryPersistence.getPkiService()).addPrivateKeyFactory(pkiInMemoryPersistence.getPlaintextPrivateKeyFactory());
 
         KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
         when(keyAccessorType.getKeyType()).thenReturn(keyType);
@@ -152,7 +162,6 @@ public class PKIServiceImplIT {
             InvalidAlgorithmParameterException,
             InvalidKeyException, NoSuchProviderException {
         KeyType keyType = pkiInMemoryPersistence.getPkiService().newAsymmetricKeyType("Some DSA key").DSA().keySize(512).add();
-        ((PkiServiceImpl)pkiInMemoryPersistence.getPkiService()).addPrivateKeyFactory(pkiInMemoryPersistence.getPlaintextPrivateKeyFactory());
 
         KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
         when(keyAccessorType.getKeyType()).thenReturn(keyType);

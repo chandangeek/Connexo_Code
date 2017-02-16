@@ -32,7 +32,7 @@ import java.util.stream.Stream;
 @Component(name="PlaintextPrivateKeyFactory", service = PrivateKeyFactory.class, immediate = true)
 public class PlaintextPrivateKeyFactory implements PrivateKeyFactory {
 
-    public static final String KEY_ENCRYPTION_METHOD = "Plaintext";
+    public static final String KEY_ENCRYPTION_METHOD = "SSM";
     private static final String COMPONENTNAME = "SSM";
 
     private volatile DataVaultService dataVaultService;
