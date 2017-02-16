@@ -562,11 +562,8 @@ public class UsagePointResource {
             }
             return Response.accepted().build();
         }
-
-        UsagePoint usagePoint = createUsagePointAndActivateMeters(info, validationBuilder);
-
+        createUsagePointAndActivateMeters(info, validationBuilder);
         return Response.status(Response.Status.CREATED)
-                .entity(usagePointInfoFactory.fullInfoFrom(usagePoint))
                 .build();
 
     }
