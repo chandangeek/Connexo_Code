@@ -57,7 +57,9 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskGrid', {
             {
                 xtype: 'uni-actioncolumn',
                 privileges: Mdc.privileges.DeviceType.admin,
-                items:'Mdc.view.setup.communicationtask.CommunicationTaskActionMenu'
+                menu: {
+                    xtype: 'communication-task-action-menu'
+                }
             }
         ];
 
