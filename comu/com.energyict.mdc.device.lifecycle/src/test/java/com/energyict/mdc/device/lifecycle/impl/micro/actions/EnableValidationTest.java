@@ -68,7 +68,7 @@ public class EnableValidationTest {
         DeviceValidation deviceValidation = mock(DeviceValidation.class);
         when(this.device.forValidation()).thenReturn(deviceValidation);
         when(this.device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        when(deviceConfiguration.getValidateOnStore()).thenReturn(true);
+        when(deviceConfiguration.getValidateOnStore()).thenReturn(false);
         ExecutableActionProperty property = mock(ExecutableActionProperty.class);
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key());
@@ -80,6 +80,27 @@ public class EnableValidationTest {
 
         // Asserts
         verify(deviceValidation).activateValidation(now);
+    }
+
+    @Test
+    public void executeEnablesValidationOnStorage() {
+        Instant now = Instant.ofEpochSecond(97L);
+        EnableValidation enableValidation = this.getTestInstance();
+        DeviceValidation deviceValidation = mock(DeviceValidation.class);
+        when(this.device.forValidation()).thenReturn(deviceValidation);
+        when(this.device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.getValidateOnStore()).thenReturn(true);
+        ExecutableActionProperty property = mock(ExecutableActionProperty.class);
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key());
+        when(property.getPropertySpec()).thenReturn(propertySpec);
+        when(property.getValue()).thenReturn(now);
+
+        // Business method
+        enableValidation.execute(this.device, Instant.now(), Collections.singletonList(property));
+
+        // Asserts
+        verify(deviceValidation).activateValidationOnStorage(now);
     }
 
     public EnableValidation getTestInstance() {
