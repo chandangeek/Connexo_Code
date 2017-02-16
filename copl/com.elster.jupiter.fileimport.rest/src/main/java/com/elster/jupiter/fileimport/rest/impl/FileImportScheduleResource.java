@@ -272,11 +272,11 @@ public class FileImportScheduleResource {
     @GET
     @Path("/history/{occurrenceId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES})
-    public FileImportOccurrenceInfo geFileImportOccurence(@BeanParam JsonQueryParameters queryParameters,
-                                                          @BeanParam JsonQueryFilter filter,
-                                                          @PathParam("occurrenceId") long occurrenceId,
-                                                          @Context SecurityContext securityContext) {
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES, Privileges.Constants.VIEW_HISTORY})
+    public FileImportOccurrenceInfo geFileImportOccurrence(@BeanParam JsonQueryParameters queryParameters,
+                                                           @BeanParam JsonQueryFilter filter,
+                                                           @PathParam("occurrenceId") long occurrenceId,
+                                                           @Context SecurityContext securityContext) {
 
         return FileImportOccurrenceInfo.of(
                 fileImportService.getFileImportOccurrence(occurrenceId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND)));
