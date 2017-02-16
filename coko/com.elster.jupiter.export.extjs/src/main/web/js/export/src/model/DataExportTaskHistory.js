@@ -96,6 +96,20 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
                 return data.task.name;
             }
         },
+        {
+            name: 'taskId',
+            persist:false,
+            mapping:  function (data) {
+                return data.task.id;
+            }
+        },
+        {
+            name: 'logLevel',
+            persist:false,
+            mapping:  function (data) {
+                return data.task.logLevel;
+            }
+        },
 
         {
             name: 'statusOnDate',
@@ -269,6 +283,14 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             name: 'task',
             getterName: 'getTask'
         }
-    ]
+    ],
+
+    proxy: {
+        type: 'rest',
+        url: '/api/export/dataexporttask/history',
+        reader: {
+            type: 'json'
+        }
+    }
 
 });

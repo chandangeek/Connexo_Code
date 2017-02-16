@@ -20,11 +20,15 @@ Ext.define('Dxp.view.log.Preview', {
             },
             items: [
                 {
-                    fieldLabel: Uni.I18n.translate('general.name', 'DES', 'Name'),
+                    fieldLabel: Uni.I18n.translate('general.exportTask', 'DES', 'Export task'),
                     name: 'name',
                     renderer: function (value) {
-                        var url = me.router.getRoute('administration/dataexporttasks/dataexporttask').buildUrl();
-                        return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
+                        var url = me.router.getRoute('administration/dataexporttasks/dataexporttask').buildUrl({
+                            taskId: me.taskId
+                        });
+                        return Dxp.privileges.DataExport.canView()
+                            ? '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>'
+                            : Ext.String.htmlEncode(value);
                     }
                 },
                 {

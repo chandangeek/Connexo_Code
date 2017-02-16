@@ -8,22 +8,11 @@ Ext.define('Dxp.view.tasks.HistoryPreview', {
     alias: 'widget.dxp-tasks-history-preview',
 
     requires: [
-        'Dxp.view.tasks.HistoryPreviewForm',
-        'Dxp.view.tasks.HistoryActionMenu'
-    ],
-
-    tools: [
-        {
-            xtype: 'uni-button-action',
-            menu: {
-                xtype: 'tasks-history-action-menu'
-            }
-        }
+        'Dxp.view.tasks.HistoryPreviewForm'
     ],
 
     items: {
-        xtype: 'dxp-tasks-history-preview-form'//,
-        //itemId: 'pnl-data-export-task-preview'
+        xtype: 'dxp-tasks-history-preview-form'
     }
 });
 

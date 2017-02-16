@@ -22,7 +22,7 @@ Ext.define('Dxp.view.tasks.Setup', {
         me.content = {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('general.dataExportTasks', 'DES', 'Data export tasks'),
+            title: Uni.I18n.translate('general.exportTasks', 'DES', 'Export tasks'),
             items: [
                 {
                     xtype: 'preview-container',
@@ -35,14 +35,14 @@ Ext.define('Dxp.view.tasks.Setup', {
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
                         itemId: 'ctr-no-export-task',
-                        title: Uni.I18n.translate('dataExportTasks.empty.title', 'DES', 'No data export tasks found'),
+                        title: Uni.I18n.translate('exportTasks.empty.title', 'DES', 'No export tasks found'),
                         reasons: [
-                            Uni.I18n.translate('dataExportTasks.empty.list.item1', 'DES', 'No data export tasks have been defined yet.'),
-                            Uni.I18n.translate('dataExportTasks.empty.list.item2', 'DES', 'Data export tasks exist, but you do not have permission to view them.')
+                            Uni.I18n.translate('exportTasks.empty.list.item1', 'DES', 'No export tasks have been defined yet.'),
+                            Uni.I18n.translate('exportTasks.empty.list.item2', 'DES', 'Export tasks exist, but you do not have permission to view them.')
                         ],
                         stepItems: [
                             {
-                                text: Uni.I18n.translate('general.addDataExportTask', 'DES', 'Add data export task'),
+                                text: Uni.I18n.translate('general.addExportTask', 'DES', 'Add export task'),
                                 privileges: Dxp.privileges.DataExport.admin,
                                 href: '#/administration/dataexporttasks/add'
                             }

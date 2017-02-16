@@ -15,7 +15,8 @@ Ext.define('Dxp.view.tasks.Add', {
         'Uni.grid.column.ReadingType',
         'Uni.grid.column.EventType',
         'Dxp.view.tasks.DestinationsGrid',
-        'Uni.grid.column.RemoveAction'
+        'Uni.grid.column.RemoveAction',
+        'Uni.store.LogLevels'
     ],
 
     edit: false,
@@ -40,7 +41,7 @@ Ext.define('Dxp.view.tasks.Add', {
         me.content = [
             {
                 xtype: 'form',
-                title: Uni.I18n.translate('general.addDataExportTask', 'DES', 'Add data export task'),
+                title: Uni.I18n.translate('general.addExportTask', 'DES', 'Add export task'),
                 itemId: 'add-data-export-task-form',
                 ui: 'large',
                 width: '100%',
@@ -71,6 +72,19 @@ Ext.define('Dxp.view.tasks.Add', {
                                 field.focus(false, 200);
                             }
                         }
+                    },
+                    {
+                        xtype: 'combobox',
+                        fieldLabel: Uni.I18n.translate('general.logLevel', 'DES', 'Log level'),
+                        required: true,
+                        name: 'logLevel',
+                        width: 500,
+                        itemId: 'dxp-data-export-tasks-add-loglevel',
+                        allowBlank: false,
+                        store: 'LogLevelsStore',
+                        queryMode: 'local',
+                        displayField: 'displayValue',
+                        valueField: 'id'
                     },
 
                     {
@@ -481,7 +495,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                         inputValue: true
                                     }
                                 ]
-                            },
+                            }
                         ]
                     },
                     {

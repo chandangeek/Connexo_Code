@@ -8,7 +8,8 @@ Ext.define('Dxp.controller.Tasks', {
     requires: [
         'Dxp.privileges.DataExport',
         'Uni.form.field.Password',
-        'Uni.util.Application'
+        'Uni.util.Application',
+        'Uni.util.LogLevel'
     ],
 
     views: [
@@ -53,7 +54,9 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.store.DataSelectors',
         'Dxp.store.UpdateWindows',
         'Dxp.store.UpdateTimeframes',
-        'Dxp.store.SelectedReadingTypes'
+        'Dxp.store.SelectedReadingTypes',
+        'Dxp.store.Status',
+        'Dxp.store.DataExportTaskFilter'
     ],
 
     models: [
@@ -77,7 +80,6 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.model.DataProcessor',
         'Dxp.model.StandardDataSelector',
         'Dxp.model.Destination'
-
     ],
 
 
@@ -154,6 +156,7 @@ Ext.define('Dxp.controller.Tasks', {
     comboBoxValueForAll: -1,
 
     init: function () {
+        Uni.util.LogLevel.loadLogLevels();
         this.control({
             'data-export-tasks-add': {
                 render: this.populateStores
@@ -228,9 +231,6 @@ Ext.define('Dxp.controller.Tasks', {
             'dxp-tasks-destination-action-menu': {
                 click: this.chooseDestinationAction
             },
-            'tasks-history-action-menu': {
-                click: this.chooseAction
-            },
             'AddReadingTypesToTaskBulk': {
                 selectionchange: this.onSelectionChange
             },
@@ -241,6 +241,18 @@ Ext.define('Dxp.controller.Tasks', {
                 openInfoWindow: this.showSelectedReadingTypes,
                 showNoFoundPanel: this.showNoFoundPanel,
                 uncheckAll: this.uncheckAll
+            },
+            'des-history-sort-menu': {
+                click: this.chooseSort
+            },
+            '#des-history-sort-toolbar button[action=clear]': {
+                click: this.clearAllSorting
+            },
+            '#des-history-sort-toolbar button': {
+                closeclick: this.onSortCloseClicked
+            },
+            '#des-history-sort-toolbar #itemsContainer button': {
+                click: this.switchSortingOrder
             }
         });
     },
@@ -388,36 +400,44 @@ Ext.define('Dxp.controller.Tasks', {
         });
     },
 
-    showDataExportTaskHistory: function (currentTaskId) {
+    showDataExportTaskHistory: function (currentTaskId, fromWorkspace) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             store = me.getStore('Dxp.store.DataExportTasksHistory'),
             taskModel = me.getModel('Dxp.model.DataExportTask'),
+            noSpecificExportTask = (currentTaskId === undefined),
             view;
 
-        store.getProxy().setUrl(router.arguments);
+        noSpecificExportTask ? store.getProxy().setCommonUrl() : store.getProxy().setUrl(router.arguments);
+        me.setDefaultSort();
+
         view = Ext.widget('data-export-tasks-history', {
             router: router,
-            taskId: currentTaskId
+            taskId: currentTaskId,
+            showExportTask: !noSpecificExportTask,
+            fromWorkspace: fromWorkspace
         });
 
-        Ext.getStore('Dxp.store.DataExportTasksHistory').load();
+        me.getApplication().fireEvent('changecontentevent', view);
+        store.load();
+        me.updateSortingToolbar();
 
-        taskModel.load(currentTaskId, {
-            success: function (record) {
-                me.getApplication().fireEvent('changecontentevent', view);
-                me.getApplication().fireEvent('dataexporttaskload', record);
-                view.down('#tasks-view-menu').setHeader(record.get('name'));
-                if (record.get('dataSelector').selectorType === 'CUSTOM') {
-                    view.down('#export-period-column').hide();
-                } else {
-                    view.down('#export-period-column').show();
-                    if (record.get('dataSelector').selectorType === 'DEFAULT_EVENTS') {
-                        view.down('#tasks-view-menu').removeDataSourcesMenuItem();
+        if(!noSpecificExportTask){
+            taskModel.load(currentTaskId, {
+                success: function (record) {
+                    me.getApplication().fireEvent('dataexporttaskload', record);
+                    view.down('#tasks-view-menu').setHeader(record.get('name'));
+                    if (record.get('dataSelector').selectorType === 'CUSTOM') {
+                        view.down('#export-period-column').hide();
+                    } else {
+                        view.down('#export-period-column').show();
+                        if (record.get('dataSelector').selectorType === 'DEFAULT_EVENTS') {
+                            view.down('#tasks-view-menu').removeDataSourcesMenuItem();
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
     },
 
     showHistoryPreview: function (selectionModel, record) {
@@ -433,7 +453,7 @@ Ext.define('Dxp.controller.Tasks', {
             previewForm.down('displayfield[name=startedOn_formatted]').setVisible(true);
             previewForm.down('displayfield[name=finishedOn_formatted]').setVisible(true);
             previewForm.loadRecord(record);
-            preview.down('tasks-history-action-menu').record = record;
+            // preview.down('tasks-history-action-menu').record = record;
 
             if (record.get('status') === 'Failed') {
                 previewForm.down('#reason-field').show();
@@ -782,6 +802,7 @@ Ext.define('Dxp.controller.Tasks', {
             updateWindowCombo = view.down('#update-window'),
             timeframeCombo = view.down('#timeFrame'),
             recurrenceTypeCombo = view.down('#recurrence-type'),
+            logLevelCombo = view.down('#dxp-data-export-tasks-add-loglevel'),
             destinationsStore = view.down('#task-destinations-grid').getStore(),
             readingTypesStore = view.down('#readingTypesGridPanel').getStore(),
             eventTypesStore = view.down('#eventTypesGridPanel').getStore();
@@ -837,8 +858,11 @@ Ext.define('Dxp.controller.Tasks', {
             recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.findRecord('name', 'months'));
             if (me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')) {
                 me.setFormValues(view);
-            } else if (this.getCount() === 1) {
-                dataSelectorCombo.setValue(this.getAt(0).get('name'));
+            } else {
+                logLevelCombo.setValue(900); // = WARNING, the default value at creation time
+                if (this.getCount() === 1) {
+                    dataSelectorCombo.setValue(this.getAt(0).get('name'));
+                }
             }
         });
         me.recurrenceEnableDisable();
@@ -890,6 +914,7 @@ Ext.define('Dxp.controller.Tasks', {
         if (Dxp.privileges.DataExport.canUpdateSchedule() && !Dxp.privileges.DataExport.canUpdateFull()) {
             Ext.suspendLayouts();
             view.down('#task-name').setDisabled(true);
+            view.down('#dxp-data-export-tasks-add-loglevel').setDisabled(true);
             view.down('#dxp-data-selector-container').setDisabled(true);
             view.down('#device-group-container').setDisabled(true);
             view.down('#usage-point-group-container').setDisabled(true);
@@ -1302,9 +1327,6 @@ Ext.define('Dxp.controller.Tasks', {
             case 'removeTask':
                 me.removeTask(menu.record);
                 break;
-            case 'viewLog':
-                route = 'administration/dataexporttasks/dataexporttask/history/occurrence';
-                break;
             case 'viewHistory':
                 route = 'administration/dataexporttasks/dataexporttask/history';
                 break;
@@ -1340,8 +1362,8 @@ Ext.define('Dxp.controller.Tasks', {
         );
 
         confirmationWindow.show({
-            msg: Uni.I18n.translate('dataExportTasks.runMsg', 'DES', 'The data export task will be queued to run at the earliest possible time.'),
-            title: Uni.I18n.translate('general.runDataExportTaskx', 'DES', "Run data export task {0}?", [record.data.name])
+            msg: Uni.I18n.translate('exportTasks.runMsg', 'DES', 'Data export task will be queued to run at the earliest possible time.'),
+            title: Uni.I18n.translate('general.runExportTaskx', 'DES', "Run export task {0}?", [record.data.name])
         });
     },
 
@@ -1385,7 +1407,7 @@ Ext.define('Dxp.controller.Tasks', {
                         }
                     });
                 }
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dataExportTasks.runQueued', 'DES', 'Data export task run queued'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('exportTasks.run', 'DES', 'Export task run'));
             },
             failure: function (response) {
                 var res = Ext.decode(response.responseText, true);
@@ -1404,7 +1426,7 @@ Ext.define('Dxp.controller.Tasks', {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation');
         confirmationWindow.show({
-            msg: Uni.I18n.translate('general.remove.msg', 'DES', 'This data export task will no longer be available.'),
+            msg: Uni.I18n.translate('general.remove.msgx', 'DES', 'This export task will no longer be available.'),
             title: Uni.I18n.translate('general.removex', 'DES', 'Remove {0}?', [record.data.name]),
             config: {},
             fn: function (state) {
@@ -1429,7 +1451,7 @@ Ext.define('Dxp.controller.Tasks', {
                 } else {
                     me.getController('Uni.controller.history.Router').getRoute('administration/dataexporttasks').forward();
                 }
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.remove.confirm.msg', 'DES', 'Data export task removed'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.remove.confirm.msgx', 'DES', 'Export task removed'));
             },
             failure: function (object, operation) {
                 if (operation.response.status === 409) {
@@ -1848,13 +1870,11 @@ Ext.define('Dxp.controller.Tasks', {
         }
         form.down('#readingTypesFieldContainer').doComponentLayout();
 
-
         var emptyEventTypes = (selectedDataSelector)
             && (selectedDataSelector.get('selectorType') === 'DEFAULT_EVENTS')
             && (page.down('#eventTypesGridPanel').getStore().data.items.length == 0);
         me.validateEventsGrid(emptyEventTypes);
         form.down('#eventTypesFieldContainer').doComponentLayout();
-
 
         var emptyDestinations = page.down('#task-destinations-grid').getStore().data.items.length == 0;
         if (emptyDestinations) {
@@ -1929,6 +1949,7 @@ Ext.define('Dxp.controller.Tasks', {
             }
 
             record.set('name', form.down('#task-name').getValue());
+            record.set('logLevel', form.down('#dxp-data-export-tasks-add-loglevel').getValue());
 
             startOnDate = moment(form.down('#start-on').getValue()).valueOf();
 
@@ -2143,9 +2164,9 @@ Ext.define('Dxp.controller.Tasks', {
                         me.getController('Uni.controller.history.Router').getRoute('administration/dataexporttasks').forward();
                     }
                     if (button.action === 'editTask') {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editDataExportTask.successMsg.saved', 'DES', 'Data export task saved'));
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editExportTask.successMsg.saved', 'DES', 'Export task saved'));
                     } else {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('addDataExportTask.successMsg', 'DES', 'Data export task added'));
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('addExportTask.successMsg', 'DES', 'Export task added'));
                     }
                 },
                 failure: function (record, operation) {
@@ -2232,6 +2253,7 @@ Ext.define('Dxp.controller.Tasks', {
             storeDestinations = [],
             arrReadingTypes = [],
             eventTypes = [];
+
         readingTypesStore.each(function (record) {
             arrReadingTypes.push(record.getData());
         });
@@ -2269,8 +2291,7 @@ Ext.define('Dxp.controller.Tasks', {
             emptyReadingTypesLabel = page.down('#noReadingTypesLabel'),
             destinationsStore = destinationsGrid.getStore(),
             gridStore = readingTypesGrid.getStore(),
-            evenTypesStore = eventTypesGrid.getStore(),
-            formatterStore = page.down('#file-formatter-combo').getStore();
+            evenTypesStore = eventTypesGrid.getStore();
 
         Ext.suspendLayouts();
         gridStore.removeAll();
@@ -2294,7 +2315,6 @@ Ext.define('Dxp.controller.Tasks', {
             readingTypesGrid.show();
         }
 
-
         if (me.eventTypesArray) {
             Ext.each(me.eventTypesArray, function (record) {
                 evenTypesStore.add(record);
@@ -2311,7 +2331,6 @@ Ext.define('Dxp.controller.Tasks', {
             this.getNoEventTypesLabel().hide();
             eventTypesGrid.show();
         }
-
 
         Ext.each(me.destinationsArray, function (record) {
             if (me.destinationIndexToEdit != -1) {
@@ -2343,12 +2362,10 @@ Ext.define('Dxp.controller.Tasks', {
         view.down('#usage-point-group-combo').setValue(formModel.get('readingTypeDataSelector.value.usagePointGroup'));
         view.down('#export-period-combo').setValue(formModel.get('readingTypeDataSelector.value.exportPeriod'));
 
-
         view.down('#recurrence-trigger').setValue({recurrence: formModel.get('recurrence')});
 
         view.down('#data-selector-export-complete').setValue({exportComplete: formModel.get('exportComplete')});
         view.down('#data-selector-validated-data').setValue(formModel.get('validatedDataOption'));
-
 
         view.down('#updated-data-trigger').setValue({exportUpdate: formModel.get('exportUpdate')});
         view.down('#update-window').setValue(formModel.get('updateWindow'));
@@ -2666,5 +2683,148 @@ Ext.define('Dxp.controller.Tasks', {
         var me = this,
             grid = me.getAddReadingTypesToTaskBulk();
         grid.getUncheckAllButton().fireEvent('click', grid.getUncheckAllButton());
-    }
+    },
+
+    clearAllSorting: function (btn) {
+        var me = this,
+            store = me.getStore('Dxp.store.DataExportTasksHistory'),
+            sorting;
+
+        sorting = [];
+        store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
+        me.updateSortingToolbarAndResults();
+    },
+
+    onSortCloseClicked: function (btn) {
+        var me = this,
+            store = me.getStore('Dxp.store.DataExportTasksHistory'),
+            sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']);
+
+        if (Ext.isArray(sorting)) {
+            Ext.Array.remove(sorting, Ext.Array.findBy(sorting, function (item) {
+                return item.property === btn.sortType
+            }));
+        }
+        store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
+        me.updateSortingToolbarAndResults();
+    },
+
+    switchSortingOrder: function (btn) {
+        var me = this,
+            store = me.getStore('Dxp.store.DataExportTasksHistory'),
+            sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']),
+            sortingItem;
+
+        if (Ext.isArray(sorting)) {
+            sortingItem = Ext.Array.findBy(sorting, function (item) {
+                return item.property === btn.sortType
+            });
+            if (sortingItem) {
+                if (sortingItem.direction === Uni.component.sort.model.Sort.ASC) {
+                    sortingItem.direction = Uni.component.sort.model.Sort.DESC;
+                } else {
+                    sortingItem.direction = Uni.component.sort.model.Sort.ASC;
+                }
+            }
+        }
+        store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
+        me.updateSortingToolbarAndResults();
+    },
+
+    updateSortingToolbarAndResults: function() {
+        var me = this,
+            gridView = me.getHistory().down('#data-export-history-grid'),
+            store = me.getStore('Dxp.store.DataExportTasksHistory');
+
+        me.updateSortingToolbar();
+        gridView.setLoading();
+        store.load(function(records, operation, success) {
+            gridView.setLoading(false);
+        });
+    },
+
+    updateSortingToolbar: function () {
+        var me = this,
+            page = me.getHistory(),
+            sortContainer = page.down('container[name=sortitemspanel]').getContainer(),
+            store = me.getStore('Dxp.store.DataExportTasksHistory'),
+            sorting,
+            menuItem,
+            cls;
+
+        sortContainer.removeAll();
+        sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']);
+
+        if (Ext.isArray(sorting)) {
+            Ext.Array.each(sorting, function (sortItem) {
+
+                if (sortItem.direction) {
+                    menuItem = me.getHistory().down('#menu-history-sort [name=' + sortItem.property + ']');
+                    cls = sortItem.direction === Uni.component.sort.model.Sort.ASC
+                        ? 'x-btn-sort-item-asc'
+                        : 'x-btn-sort-item-desc';
+
+                    sortContainer.add({
+                        xtype: 'sort-item-btn',
+                        itemId: 'history-sort-by-' + sortItem.property + '-button',
+                        text: menuItem.text,
+                        sortType: sortItem.property,
+                        sortDirection: sortItem.direction,
+                        iconCls: cls
+                    });
+                }
+            });
+        }
+    },
+
+    setDefaultSort: function () {
+        var me = this,
+            store = me.getStore('Dxp.store.DataExportTasksHistory'),
+            sorting = store.getProxy().extraParams['sort'];
+
+        if (sorting === undefined) { // set default filters
+            sorting = [];
+            sorting.push({
+                property: 'status',
+                direction: Uni.component.sort.model.Sort.DESC
+            });
+            sorting.push({
+                property: 'startDate',
+                direction: Uni.component.sort.model.Sort.DESC
+            });
+            store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
+        }
+    },
+
+    chooseSort: function (menu, item) {
+        var me = this,
+            name = item.name,
+            store = me.getStore('Dxp.store.DataExportTasksHistory'),
+            sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']),
+            sortingItem;
+
+        if (Ext.isArray(sorting)) {
+            sortingItem = Ext.Array.findBy(sorting, function (item) {
+                return item.property === name
+            });
+
+            if (sortingItem) {
+                return;
+            } else {
+                sorting.push({
+                    property: name,
+                    direction: Uni.component.sort.model.Sort.DESC
+                });
+            }
+        } else {
+            sorting = [
+                {
+                    property: name,
+                    direction: Uni.component.sort.model.Sort.DESC
+                }
+            ];
+        }
+        store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
+        me.updateSortingToolbarAndResults();
+    },
 });

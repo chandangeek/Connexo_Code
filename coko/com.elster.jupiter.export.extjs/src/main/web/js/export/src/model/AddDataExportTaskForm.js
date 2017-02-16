@@ -9,6 +9,7 @@ Ext.define('Dxp.model.AddDataExportTaskForm', {
     ],
     fields: [
         'name',
+        'logLevel',
         'readingTypeDataSelector.value.endDeviceGroup',
         'readingTypeDataSelector.value.usagePointGroup',
         'dataProcessor',

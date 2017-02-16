@@ -12,15 +12,28 @@ Ext.define('Dxp.privileges.DataExport', {
         'Uni.Auth'
     ],
     singleton: true,
-    view : ['privilege.administrate.dataExportTask',
+    view : [
+        'privilege.administrate.dataExportTask',
         'privilege.view.dataExportTask',
         'privilege.update.dataExportTask',
         'privilege.update.schedule.dataExportTask',
-        'privilege.run.dataExportTask'],
+        'privilege.run.dataExportTask'
+    ],
     run:'privilege.run.dataExportTask',
-    update: ['privilege.update.dataExportTask', 'privilege.update.schedule.dataExportTask'],
+    update: [
+        'privilege.update.dataExportTask',
+        'privilege.update.schedule.dataExportTask'
+    ],
     updateSchedule: 'privilege.update.schedule.dataExportTask',
-    admin : ['privilege.administrate.dataExportTask'],
+    admin : 'privilege.administrate.dataExportTask',
+    viewHistory : [
+        'privilege.view.export.history',
+        'privilege.administrate.dataExportTask',
+        'privilege.view.dataExportTask',
+        'privilege.update.dataExportTask',
+        'privilege.update.schedule.dataExportTask',
+        'privilege.run.dataExportTask'
+    ],
 
     all: function() {
         return Ext.Array.merge(Dxp.privileges.DataExport.view);
@@ -30,6 +43,9 @@ Ext.define('Dxp.privileges.DataExport', {
     },
     canView:function(){
         return Uni.Auth.checkPrivileges(Dxp.privileges.DataExport.view);
+    },
+    canViewHistory:function(){
+        return Uni.Auth.checkPrivileges(Dxp.privileges.DataExport.viewHistory);
     },
     canUpdateFull:function(){
         return Uni.Auth.checkPrivileges('privilege.update.dataExportTask');

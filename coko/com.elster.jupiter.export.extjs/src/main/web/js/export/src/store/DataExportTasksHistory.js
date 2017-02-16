@@ -16,6 +16,9 @@ Ext.define('Dxp.store.DataExportTasksHistory', {
         },
         setUrl: function (params) {
             this.url = this.urlTpl.replace('{taskId}', params.taskId);
+        },
+        setCommonUrl: function () {
+            this.url = '/api/export/dataexporttask/history';
         }
     }
 });

@@ -17,14 +17,14 @@ Ext.define('Dxp.controller.history.Export', {
             disabled: true,
             items: {
                 dataexporttasks: {
-                    title: Uni.I18n.translate('general.dataExportTasks', 'DES', 'Data export tasks'),
+                    title: Uni.I18n.translate('general.exportTasks', 'DES', 'Export tasks'),
                     route: 'dataexporttasks',
                     controller: 'Dxp.controller.Tasks',
                     privileges : Dxp.privileges.DataExport.view,
                     action: 'showDataExportTasks',
                     items: {
                         add: {
-                            title: Uni.I18n.translate('general.addDataExportTask', 'DES', 'Add data export task'),
+                            title: Uni.I18n.translate('general.addExportTask', 'DES', 'Add export task'),
                             route: 'add',
                             controller: 'Dxp.controller.Tasks',
                             privileges: Dxp.privileges.DataExport.admin,
@@ -47,9 +47,10 @@ Ext.define('Dxp.controller.history.Export', {
                             }
                         },
                         dataexporttask: {
-                            title: Uni.I18n.translate('general.dataExportTask', 'DES', 'Data export task'),
+                            title: Uni.I18n.translate('general.exportTask', 'DES', 'Export task'),
                             route: '{taskId}',
                             controller: 'Dxp.controller.Tasks',
+                            privileges: Dxp.privileges.DataExport.view,
                             action: 'showTaskDetailsView',
                             callback: function (route) {
                                 this.getApplication().on('dataexporttaskload', function (record) {
@@ -83,16 +84,18 @@ Ext.define('Dxp.controller.history.Export', {
                                     }
                                 },
                                 history: {
-                                    title: Uni.I18n.translate('general.dataExportTaskHistory', 'DES', 'Data export task history'),
+                                    title: Uni.I18n.translate('general.exportTaskHistory', 'DES', 'Export task history'),
                                     route: 'history',
                                     controller: 'Dxp.controller.Tasks',
                                     action: 'showDataExportTaskHistory',
                                     filter: 'Dxp.model.HistoryFilter',
+                                    privileges: Dxp.privileges.DataExport.view,
                                     items: {
                                         occurrence: {
-                                            title: Uni.I18n.translate('general.dataExportTaskLog', 'DES', 'Data export task log'),
+                                            title: Uni.I18n.translate('general.exportTaskLog', 'DES', 'Export task log'),
                                             route: '{occurrenceId}',
                                             controller: 'Dxp.controller.Log',
+                                            privileges: Dxp.privileges.DataExport.view,
                                             action: 'showLog'
                                         }
                                     }
@@ -101,9 +104,46 @@ Ext.define('Dxp.controller.history.Export', {
                                     title: Uni.I18n.translate('general.dataSources', 'DES', 'Data sources'),
                                     route: 'datasources',
                                     controller: 'Dxp.controller.Tasks',
+                                    privileges: Dxp.privileges.DataExport.view,
                                     action: 'showDataSources'
                                 }
                             }
+                        }
+                    }
+                },
+                exporthistory: {
+                    title: Uni.I18n.translate('general.exportTasksHistory', 'DES', 'Export tasks history'),
+                    route: 'exporthistory',
+                    controller: 'Dxp.controller.Tasks',
+                    action: 'showDataExportTaskHistory',
+                    filter: 'Dxp.model.HistoryFilter',
+                    privileges: Dxp.privileges.DataExport.view
+                }
+            }
+        },
+        workspace: {
+            title: Uni.I18n.translate('title.workspace', 'DES', 'Workspace'),
+            route: 'workspace',
+            disabled: true,
+            items: {
+                exporthistory: {
+                    title: Uni.I18n.translate('general.exportHistory', 'DES', 'Export history'),
+                    route: 'exporthistory',
+                    controller: 'Dxp.controller.Tasks',
+                    action: 'showDataExportTaskHistory',
+                    params: {
+                        currentTaskId: undefined,
+                        fromWorkspace: true
+                    },
+                    filter: 'Dxp.model.HistoryFilter',
+                    privileges: Dxp.privileges.DataExport.view,
+                    items: {
+                        occurrence: {
+                            title: Uni.I18n.translate('general.log', 'DES', 'Log'),
+                            route: '{occurrenceId}',
+                            controller: 'Dxp.controller.Log',
+                            privileges: Dxp.privileges.DataExport.view,
+                            action: 'showLogWorkspace'
                         }
                     }
                 }
