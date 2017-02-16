@@ -130,6 +130,9 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
         info.name = "test";
         info.installationTime = Instant.EPOCH.toEpochMilli();
         info.serviceCategory = ServiceKind.ELECTRICITY;
+        info.extendedLocation = new EditLocationInfo();
+        info.extendedLocation.locationId = null;
+        info.extendedGeoCoordinates = null;
         Response response = target("usagepoints").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(201);
 
@@ -145,6 +148,9 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
         info.name = "upd";
         info.installationTime = Instant.EPOCH.toEpochMilli();
         info.version = 1L;
+        info.extendedLocation = new EditLocationInfo();
+        info.extendedLocation.locationId = null;
+        info.extendedGeoCoordinates = null;
 
         Response response = target("usagepoints/" + USAGE_POINT_NAME).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);

@@ -3,6 +3,8 @@ package com.elster.jupiter.metering.rest.impl;
 import com.elster.jupiter.domain.util.FormValidationException;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -79,6 +81,8 @@ public class UsagePointResource {
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory;
     private final ResourceHelper resourceHelper;
+    private final Thesaurus thesaurus;
+    private final LocationService locationService;
 
     @Inject
     public UsagePointResource(MeteringService meteringService,
@@ -91,7 +95,8 @@ public class UsagePointResource {
                               Thesaurus thesaurus,
                               MetrologyConfigurationService metrologyConfigurationService,
                               MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory,
-                              ResourceHelper resourceHelper) {
+                              ResourceHelper resourceHelper,
+                              LocationService locationService) {
         this.meteringService = meteringService;
         this.clock = clock;
         this.conflictFactory = conflictFactory;
@@ -101,6 +106,8 @@ public class UsagePointResource {
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.metrologyConfigurationInfoFactory = metrologyConfigurationInfoFactory;
         this.resourceHelper = resourceHelper;
+        this.thesaurus = thesaurus;
+        this.locationService = locationService;
     }
 
     @GET
@@ -133,6 +140,11 @@ public class UsagePointResource {
     @Transactional
     public UsagePointInfo updateUsagePoint(@PathParam("name") String name, UsagePointInfo info) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePoint(info);
+        usagePoint.setSpatialCoordinates(usagePointInfoFactory.getGeoCoordinates(info));
+        Location location = usagePointInfoFactory.getLocation(info);
+        if (location != null) {
+            usagePoint.setLocation(location.getId());
+        }
         info.writeTo(usagePoint);
         return usagePointInfoFactory.from(usagePoint);
     }
@@ -144,7 +156,9 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public UsagePointInfo getUsagePoint(@PathParam("name") String name) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-        return new UsagePointInfo(usagePoint, clock);
+        UsagePointInfo info = new UsagePointInfo(usagePoint, clock);
+        addLocationInfo(info, usagePoint);
+        return info;
     }
 
     @POST
@@ -163,6 +177,11 @@ public class UsagePointResource {
         UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
         usagePoint.addDetail(usagePoint.getServiceCategory()
                 .newUsagePointDetail(usagePoint, clock.instant()));
+        usagePoint.setSpatialCoordinates(usagePointInfoFactory.getGeoCoordinates(info));
+        Location location = usagePointInfoFactory.getLocation(info);
+        if (location != null) {
+            usagePoint.setLocation(location.getId());
+        }
         usagePoint.update();
         return Response.status(Response.Status.CREATED).entity(usagePointInfoFactory.from(usagePoint)).build();
     }
@@ -421,6 +440,13 @@ public class UsagePointResource {
                 .flatMap(Collection::stream)
                 .forEach(readingTypes::add);
         return readingTypes;
+    }
+
+    private void addLocationInfo(UsagePointInfo info, UsagePoint usagePoint) {
+        info.extendedGeoCoordinates = new CoordinatesInfo(usagePoint);
+        info.extendedLocation = new EditLocationInfo(meteringService, locationService, thesaurus, usagePoint);
+        info.geoCoordinates = info.extendedGeoCoordinates.coordinatesDisplay;
+        info.location = info.extendedLocation.locationValue;
     }
 
 }

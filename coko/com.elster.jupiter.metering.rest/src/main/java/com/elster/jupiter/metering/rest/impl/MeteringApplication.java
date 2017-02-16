@@ -8,6 +8,7 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
@@ -23,6 +24,7 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -60,6 +62,8 @@ public class MeteringApplication extends Application implements TranslationKeyPr
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile LicenseService licenseService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile LocationService locationService;
+    private volatile ThreadPrincipalService threadPrincipalService;
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
@@ -121,6 +125,11 @@ public class MeteringApplication extends Application implements TranslationKeyPr
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
+    @Reference
+    public void setLocationService(LocationService locationService) {
+        this.locationService = locationService;
+    }
+
     @Activate
     public void activate() {
     }
@@ -179,6 +188,11 @@ public class MeteringApplication extends Application implements TranslationKeyPr
         return keys;
     }
 
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
     class HK2Binder extends AbstractBinder {
         @Override
         protected void configure() {
@@ -201,6 +215,8 @@ public class MeteringApplication extends Application implements TranslationKeyPr
             bind(licenseService).to(LicenseService.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(ReadingTypeFilterFactory.class).to(ReadingTypeFilterFactory.class);
+            bind(locationService).to(LocationService.class);
+            bind(threadPrincipalService).to(ThreadPrincipalService.class);
         }
     }
 }
