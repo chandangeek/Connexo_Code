@@ -420,7 +420,7 @@ public class ExpressionNodeParserTest {
 
             // Asserts: see expected exception rule
         } catch (InvalidNodeException e) {
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CUSTOM_PROPERTY_MUST_BE_NUMERICAL);
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CUSTOM_PROPERTY_TYPE_INCOMPATIBILITY);
             throw e;
         }
     }

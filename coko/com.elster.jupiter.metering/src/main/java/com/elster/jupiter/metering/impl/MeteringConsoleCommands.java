@@ -748,7 +748,7 @@ public class MeteringConsoleCommands {
     }
 
     public void addDeliverableToContract() {
-        System.out.println("Usage: addDeliverableToContract <metrology configuration id> <deliverable id> <default purpose>");
+        System.out.println("Usage: addDeliverableToContract <metrology configuration id> <deliverable id> (" + Stream.of(DefaultMetrologyPurpose.values()).map(DefaultMetrologyPurpose::name).collect(Collectors.joining(" | ")) + ")");
     }
 
     public void addDeliverableToContract(long metrologyConfigId, long deliverableId, String defaultPurpose) {

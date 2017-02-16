@@ -18,6 +18,7 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.slp.SyntheticLoadProfile;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
 import com.elster.jupiter.util.units.Quantity;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Created by igh on 29/02/2016.
@@ -175,9 +177,7 @@ public class ExpressionNodeParser {
             if (!activeCustomPropertySet.get().getCustomPropertySet().isVersioned()) {
                 throw InvalidNodeException.customPropertySetNotVersioned(this.thesaurus, customPropertySet);
             }
-            if (!this.isNumerical(propertySpec.get())) {
-                throw InvalidNodeException.customPropertyMustBeNumerical(this.thesaurus, customPropertySet, propertySpec.get());
-            }
+            this.checkCompatibility(propertySpec.get(), customPropertySet);
             this.nodes.add(new CustomPropertyNodeImpl(propertySpec.get(), activeCustomPropertySet.get()));
         } else {
             throw new IllegalArgumentException("No custom property set found with id " + customPropertySetId);
@@ -191,10 +191,21 @@ public class ExpressionNodeParser {
                 .anyMatch(each -> each.getCustomPropertySet().getId().equals(customPropertySet.getId()));
     }
 
-    private boolean isNumerical(PropertySpec propertySpec) {
+    private void checkCompatibility(PropertySpec propertySpec, CustomPropertySet customPropertySet) {
+        if (propertySpec.isReference()) {
+            if (!this.isCompatible(propertySpec, SyntheticLoadProfile.class)) {
+                throw InvalidNodeException.customPropertyMustBeSyntheticLoadProfile(this.thesaurus, customPropertySet, propertySpec);
+            }
+        } else if (!this.isCompatible(propertySpec, Number.class, Quantity.class)) {
+            throw InvalidNodeException.customPropertyMustBeNumerical(this.thesaurus, customPropertySet, propertySpec);
+        }
+
+    }
+
+    @SuppressWarnings("unchecked")
+    private boolean isCompatible(PropertySpec propertySpec, Class...supportedValueTypes) {
         Class valueType = propertySpec.getValueFactory().getValueType();
-        return Number.class.isAssignableFrom(valueType)
-                || Quantity.class.isAssignableFrom(valueType);
+        return Stream.of(supportedValueTypes).anyMatch(each -> each.isAssignableFrom(valueType));
     }
 
     private void handleNullNode() {
