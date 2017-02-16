@@ -4,9 +4,16 @@
 
 Ext.define('Cfg.insight.dataqualitykpi.model.DataQualityKpi', {
     extend: 'Uni.model.Version',
-    fields: ['id', 'usagePointGroup', 'frequency', 'latestCalculationDate', 'purposes'],
+    fields: [
+        {name: 'type', defaultValue: 'usagePointDataQualityKpi'},
+        {name: 'id', type: 'integer', useNull: true},
+        {name: 'usagePointGroup', type: 'auto', defaultValue: null},
+        {name: 'metrologyPurpose', type: 'auto', defaultValue: null},
+        {name: 'frequency', type: 'auto', defaultValue: null},
+        {name: 'latestCalculationDate', dateFormat: 'time', type: 'date', persist: false}
+    ],
     proxy: {
         type: 'rest',
-        url: '/api/val/kpis'
+        url: '/api/dqk/kpis'
     }
 });
