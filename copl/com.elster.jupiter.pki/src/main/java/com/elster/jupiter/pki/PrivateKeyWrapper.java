@@ -6,7 +6,10 @@ package com.elster.jupiter.pki;
 
 import aQute.bnd.annotation.ConsumerType;
 
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.util.Map;
 
@@ -24,13 +27,23 @@ public interface PrivateKeyWrapper extends HasDynamicPropertiesWithUpdatableValu
     String getKeyEncryptionMethod();
 
     /**
-     * An instance of PrivateKey that can be used by the caller. How the value for the PrivateKey is determined, depends
+     * Creates an empty instance of PrivateKey that can be filled in by the caller. How the value for the PrivateKey is determined, depends
      * on the KeyEncryptionType
      * @return The PrivateKey build from the provided properties. Note that java.security.PrivateKey is provided through
      * the Java's SPI.
      * @throws InvalidKeyException
      */
     PrivateKey getPrivateKey() throws InvalidKeyException;
+
+    /**
+     * Generate a new random value for this entity.
+     * @return The newly generated value.
+     * @throws NoSuchAlgorithmException
+     */
+    PrivateKeyWrapper renewValue() throws
+            NoSuchAlgorithmException,
+            InvalidAlgorithmParameterException,
+            NoSuchProviderException;
 
     /**
      * These properties are defined by the implementor. In case of a plaintext key, there will be a property containing

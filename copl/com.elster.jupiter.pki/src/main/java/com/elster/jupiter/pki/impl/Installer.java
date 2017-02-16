@@ -8,7 +8,7 @@ import com.elster.jupiter.upgrade.FullInstaller;
 import javax.inject.Inject;
 import java.util.logging.Logger;
 
-class Installer implements FullInstaller {
+public class Installer implements FullInstaller {
 
     private final DataModel dataModel;
 

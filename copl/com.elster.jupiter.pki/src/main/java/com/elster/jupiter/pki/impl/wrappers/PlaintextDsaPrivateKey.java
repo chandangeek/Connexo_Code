@@ -6,16 +6,18 @@ package com.elster.jupiter.pki.impl.wrappers;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.properties.PropertySpecService;
 
 import javax.inject.Inject;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
+import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.EnumSet;
 
 /**
  * Created by bvn on 2/14/17.
@@ -28,12 +30,6 @@ public class PlaintextDsaPrivateKey extends AbstractPlaintextPrivateKeyImpl {
     }
 
     @Override
-    EnumSet<Properties> getActualProperties() {
-        return EnumSet.of(Properties.ENCRYPTED_PRIVATE_KEY, Properties.KEYSIZE);
-    }
-
-
-    @Override
     public PrivateKey getPrivateKey() throws InvalidKeyException {
         try {
             byte[] decrypt = dataVaultService.decrypt(getEncryptedPrivateKey());
@@ -43,5 +39,15 @@ public class PlaintextDsaPrivateKey extends AbstractPlaintextPrivateKeyImpl {
             throw new InvalidKeyException(e);
         }
     }
+
+    @Override
+    public PrivateKeyWrapper renewValue() throws NoSuchAlgorithmException {
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");
+        keyGen.initialize(getKeyType().getKeySize(), new SecureRandom());
+        PrivateKey privateKey = keyGen.generateKeyPair().getPrivate();
+        setEncryptedPrivateKey(dataVaultService.encrypt(privateKey.getEncoded()));
+        return this;
+    }
+
 
 }

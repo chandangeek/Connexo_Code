@@ -3,14 +3,19 @@ package com.elster.jupiter.pki.impl;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.PrivateKeyFactory;
+import com.elster.jupiter.pki.impl.wrappers.PlaintextPrivateKeyFactory;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -47,6 +52,9 @@ public class PkiInMemoryPersistence {
                 new UtilModule(),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
+                new EventsModule(),
+                new TimeModule(),
+                new BasicPropertiesModule(),
                 new TransactionModule(false),
                 new InMemoryMessagingModule(),
                 new PkiModule()
@@ -76,6 +84,10 @@ public class PkiInMemoryPersistence {
 
     public UserService getUserService() {
         return injector.getInstance(UserService.class);
+    }
+
+    public PrivateKeyFactory getPlaintextPrivateKeyFactory() {
+        return injector.getInstance(PlaintextPrivateKeyFactory.class);
     }
 
     private static class MockModule extends AbstractModule {

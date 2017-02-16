@@ -39,7 +39,7 @@ public interface PkiService {
      * @param keySize The size in bytes, e.g. 1024
      * @return The newly created, persisted KeyType
      */
-    KeyType addSymmetricKeyType(String name, String keyAlgorithmName, int keySize);
+    KeyType newSymmetricKeyType(String name, String keyAlgorithmName, int keySize);
 
     /**
      * Creates a new KeyType describing an asymmetric key.
@@ -47,10 +47,10 @@ public interface PkiService {
      * @param name The name given to this key type. The name will be a unique identifier.
      * @return A builder guiding you through the creation of an asymmetric key definition
      */
-    PkiService.AsyncBuilder addAsymmetricKeyType(String name);
+    PkiService.AsyncBuilder newAsymmetricKeyType(String name);
 
-    PkiService.AsyncBuilder addCertificateWithPrivateKeyType(String name); // TODO Fix
-    KeyType addCertificateType(String name); // TODO fix
+    PkiService.AsyncBuilder newCertificateWithPrivateKeyType(String name); // TODO Fix
+    KeyType newCertificateType(String name); // TODO fix
 
     /**
      * Get an existing KeyType by name.
@@ -59,6 +59,15 @@ public interface PkiService {
      * @return The KpiType if present, empty otherwise.
      */
     Optional<KeyType> getKeyType(String name);
+
+    /**
+     * Creates a new PrivateKeyWrapper. The PkiService will delegate the actual creation and storage to the appropriate
+     * factory given the provided key encryption method.
+     * @param keyAccessorType Contains all information required by the pkiService and factories to figure out what has
+     * to be done.
+     * @return a new private key wrapper of the required type and encryption method
+     */
+    PrivateKeyWrapper newPrivateKeyWrapper(KeyAccessorType keyAccessorType);
 
     public interface AsyncBuilder {
         AsyncKeySizeBuilder RSA();

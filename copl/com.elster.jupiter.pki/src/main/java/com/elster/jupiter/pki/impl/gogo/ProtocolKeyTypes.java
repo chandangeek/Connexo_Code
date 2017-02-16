@@ -19,7 +19,7 @@ public enum ProtocolKeyTypes {
             return "AES 128";
         }
         public KeyType createKeyType(PkiService pkiService) {
-            return pkiService.addSymmetricKeyType(getName(), "AES", 128);
+            return pkiService.newSymmetricKeyType(getName(), "AES", 128);
         }
     },
     AES_192 {
@@ -27,7 +27,7 @@ public enum ProtocolKeyTypes {
             return "AES 192";
         }
         public KeyType createKeyType(PkiService pkiService) {
-            return pkiService.addSymmetricKeyType(getName(), "AES", 192);
+            return pkiService.newSymmetricKeyType(getName(), "AES", 192);
         }
     },
     AES_256 {
@@ -35,7 +35,7 @@ public enum ProtocolKeyTypes {
             return "AES 256";
         }
         public KeyType createKeyType(PkiService pkiService) {
-            return pkiService.addSymmetricKeyType(getName(), "AES", 256);
+            return pkiService.newSymmetricKeyType(getName(), "AES", 256);
         }
     },
     DES {
@@ -43,7 +43,7 @@ public enum ProtocolKeyTypes {
             return "DES";
         }
         public KeyType createKeyType(PkiService pkiService) {
-            return pkiService.addSymmetricKeyType(getName(), "DES", 64);
+            return pkiService.newSymmetricKeyType(getName(), "DES", 64);
         }
     },
     SECP256R1 {
@@ -51,7 +51,7 @@ public enum ProtocolKeyTypes {
             return "NIST P-256";
         }
         public KeyType createKeyType(PkiService pkiService) {
-            return pkiService.addAsymmetricKeyType(getName()).ECDSA().curve("secp256r1").add();
+            return pkiService.newAsymmetricKeyType(getName()).ECDSA().curve("secp256r1").add();
         }
 
     },
@@ -60,7 +60,7 @@ public enum ProtocolKeyTypes {
             return "NIST P-384";
         }
         public KeyType createKeyType(PkiService pkiService) {
-            return pkiService.addAsymmetricKeyType(getName()).ECDSA().curve("secp384r1").add();
+            return pkiService.newAsymmetricKeyType(getName()).ECDSA().curve("secp384r1").add();
         }
     },
     ;

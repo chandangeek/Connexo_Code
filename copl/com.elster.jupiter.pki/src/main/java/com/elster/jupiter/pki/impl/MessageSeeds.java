@@ -16,7 +16,8 @@ public enum MessageSeeds implements MessageSeed {
     NAME_IS_UNIQUE(1001, Keys.NAME_UNIQUE, "Name must be unique"),
     FIELD_TOO_LONG(1002, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters"),
     FIELD_IS_REQUIRED(1003, Keys.FIELD_IS_REQUIRED, "This field is required"),
-    ;
+    NO_SUCH_ENCRYPTION_METHOD(1004, Keys.NO_SUCH_ENCRYPTION_METHOD, "Storage method is unknown or not registered yet"),
+    DUPLICATE_KEY_ENCRYPTION_REGISTRATION(1005, Keys.DUPLICATE_KEY_ENCRYPTION_REGISTRATION, "A key storage method with the same name for this type of elements has already been registered");
 
     private final int number;
     private final String key;
@@ -64,6 +65,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NAME_UNIQUE = "X.name.unique";
         public static final String FIELD_TOO_LONG = "fieldTooLong";
         public static final String FIELD_IS_REQUIRED = "field.required";
+        public static final String NO_SUCH_ENCRYPTION_METHOD = "no.such.encryption.method";
+        public static final String DUPLICATE_KEY_ENCRYPTION_REGISTRATION = "key.encryption.duplication";
     }
 
 }

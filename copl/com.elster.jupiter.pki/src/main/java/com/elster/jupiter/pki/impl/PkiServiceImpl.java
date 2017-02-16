@@ -8,13 +8,16 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.CryptographicType;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.PrivateKeyFactory;
+import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 
 import com.google.inject.AbstractModule;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -23,11 +26,14 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.security.Security;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 /**
  * Created by bvn on 1/26/17.
@@ -38,7 +44,7 @@ import java.util.stream.Collectors;
         immediate = true)
 public class PkiServiceImpl implements PkiService {
 
-    private final List<PrivateKeyFactory> privateKeyFactories = new CopyOnWriteArrayList<>();
+    private final Map<String, PrivateKeyFactory> privateKeyFactories = new ConcurrentHashMap<>();
 
     private DataModel dataModel;
     private UpgradeService upgradeService;
@@ -60,26 +66,27 @@ public class PkiServiceImpl implements PkiService {
     @Override
     public List<String> getKeyEncryptionMethods(CryptographicType cryptographicType) {
         switch (cryptographicType) {
-            case AsymmetricKey: return privateKeyFactories.stream().map(PrivateKeyFactory::getKeyEncryptionMethod).collect(Collectors.toList());
+            case AsymmetricKey: return new ArrayList(privateKeyFactories.keySet());
             default: return Collections.emptyList();
         }
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addPrivateKeyWrapper(PrivateKeyFactory privateKeyFactory) {
-        this.privateKeyFactories.add(privateKeyFactory);
+    public void addPrivateKeyFactory(PrivateKeyFactory privateKeyFactory) {
+        if (this.privateKeyFactories.containsKey(privateKeyFactory.getKeyEncryptionMethod())) {
+            throw new DuplicateKeyEncryptionRegistration(thesaurus);
+        }
+        this.privateKeyFactories.put(privateKeyFactory.getKeyEncryptionMethod(), privateKeyFactory);
     }
 
-    public void removePrivateKeyWrapper(PrivateKeyFactory privateKeyFactory) {
-        this.privateKeyFactories.remove(privateKeyFactory);
+    public void removePrivateKeyFactory(PrivateKeyFactory privateKeyFactory) {
+        this.privateKeyFactories.remove(privateKeyFactory.getKeyEncryptionMethod());
     }
 
     @Reference
     public void setOrmService(OrmService ormService) {
         DataModel dataModel = ormService.newDataModel(COMPONENTNAME, "Private Key Infrastructure");
-        for (TableSpecs tableSpecs : TableSpecs.values()) {
-            tableSpecs.addTo(dataModel);
-        }
+        Stream.of(TableSpecs.values()).forEach(tableSpecs -> tableSpecs.addTo(dataModel));
         this.dataModel = dataModel;
     }
 
@@ -101,6 +108,7 @@ public class PkiServiceImpl implements PkiService {
     public void activate() {
         this.dataModel.register(this.getModule());
         upgradeService.register(InstallIdentifier.identifier("Pulse", PkiService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+        Security.addProvider(new BouncyCastleProvider());
 //        initPrivileges();
     }
 
@@ -117,7 +125,7 @@ public class PkiServiceImpl implements PkiService {
     }
 
     @Override
-    public KeyType addSymmetricKeyType(String name, String keyAlgorithmName, int keySize) {
+    public KeyType newSymmetricKeyType(String name, String keyAlgorithmName, int keySize) {
         KeyTypeImpl keyType = dataModel.getInstance(KeyTypeImpl.class);
         keyType.setName(name);
         keyType.setAlgorithm(keyAlgorithmName);
@@ -128,18 +136,18 @@ public class PkiServiceImpl implements PkiService {
     }
 
     @Override
-    public AsyncBuilder addAsymmetricKeyType(String name) {
+    public AsyncBuilder newAsymmetricKeyType(String name) {
         KeyTypeImpl instance = dataModel.getInstance(KeyTypeImpl.class);
         return new AsyncBuilderImpl(name, instance);
     }
 
     @Override
-    public AsyncBuilder addCertificateWithPrivateKeyType(String name) {
+    public AsyncBuilder newCertificateWithPrivateKeyType(String name) {
         return null; // TODO complete
     }
 
     @Override
-    public KeyType addCertificateType(String name) {
+    public KeyType newCertificateType(String name) {
         return null; // TODO complete
     }
 
@@ -151,6 +159,14 @@ public class PkiServiceImpl implements PkiService {
     @Override
     public Finder<KeyType> findAllKeyTypes() {
         return DefaultFinder.of(KeyType.class, dataModel).defaultSortColumn(KeyTypeImpl.Fields.NAME.fieldName());
+    }
+
+    @Override
+    public PrivateKeyWrapper newPrivateKeyWrapper(KeyAccessorType keyAccessorType) {
+        if (!privateKeyFactories.containsKey(keyAccessorType.getKeyEncryptionMethod())) {
+            throw new NoSuchKeyEncryptionMethod(thesaurus);
+        }
+        return privateKeyFactories.get(keyAccessorType.getKeyEncryptionMethod()).newPrivateKey(keyAccessorType);
     }
 
     private class AsyncBuilderImpl implements AsyncBuilder {

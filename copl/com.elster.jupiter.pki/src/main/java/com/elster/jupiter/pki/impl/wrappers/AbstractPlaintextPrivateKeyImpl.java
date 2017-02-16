@@ -7,12 +7,18 @@ package com.elster.jupiter.pki.impl.wrappers;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
+import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
 import com.google.common.collect.ImmutableMap;
 
+import javax.validation.constraints.Size;
 import java.util.Base64;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -31,9 +37,9 @@ abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapp
     private final DataModel dataModel;
 
     private long id;
+    @Size(max = Table.MAX_STRING_LENGTH, message = "{"+MessageSeeds.Keys.FIELD_TOO_LONG+"}")
     private String encryptedPrivateKey;
-    private Integer keySize;
-    private String curve;
+    private Reference<KeyType> keyTypeReference = Reference.empty();
 
     static final Map<String, Class<? extends AbstractPlaintextPrivateKeyImpl>> IMPLEMENTERS =
             ImmutableMap.of(
@@ -47,6 +53,11 @@ abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapp
         this.dataModel = dataModel;
     }
 
+    public AbstractPlaintextPrivateKeyImpl init(KeyAccessorType keyAccessorType) {
+        keyTypeReference.set(keyAccessorType.getKeyType());
+        return this;
+    }
+
     public String getEncryptedPrivateKey() {
         return encryptedPrivateKey;
     }
@@ -55,12 +66,8 @@ abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapp
         this.encryptedPrivateKey = encryptedPrivateKey;
     }
 
-    public Integer getKeySize() {
-        return keySize;
-    }
-
-    public void setKeySize(Integer keySize) {
-        this.keySize = keySize;
+    public KeyType getKeyType() {
+        return keyTypeReference.get();
     }
 
     @Override
@@ -70,32 +77,32 @@ abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapp
 
     @Override
     public void setProperties(Map<String, Object> properties) {
-        getActualProperties().forEach(p -> p.copyFromMap(properties, this));
+        EnumSet.allOf(Properties.class).forEach(p -> p.copyFromMap(properties, this));
     }
 
     @Override
     public Map<String, Object> getProperties() {
         Map<String, Object> properties = new HashMap<>();
-        getActualProperties().forEach(p -> p.copyToMap(properties, this));
+        EnumSet.allOf(Properties.class).forEach(p -> p.copyToMap(properties, this));
         return properties;
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return getActualProperties().stream().map(properties -> properties.asPropertySpec(propertySpecService)).collect(toList());
+        return EnumSet.allOf(Properties.class)
+                .stream().map(properties -> properties.asPropertySpec(propertySpecService)).collect(toList());
     }
 
     protected void save() {
         Save.action(id).save(dataModel, this);
     }
-    abstract EnumSet<Properties> getActualProperties();
 
     enum Properties {
         ENCRYPTED_PRIVATE_KEY("encryptedPrivateKey", "privateKey") {
             public PropertySpec asPropertySpec(PropertySpecService propertySpecService) {
                 return propertySpecService.stringSpec()
-                        .named(getPropertyName(), "Encrypted key")
-                        .describedAs("Encrypted version of private key")
+                        .named(getPropertyName(), "Private key")
+                        .describedAs("Plaintext view of private key")
                         .finish();
             }
 
@@ -113,41 +120,7 @@ abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapp
                 properties.put(getPropertyName(), Base64.getEncoder().encodeToString(decrypt));
             }
         },
-        CURVE("curve", "curve") {
-            public PropertySpec asPropertySpec(PropertySpecService propertySpecService) {
-                return propertySpecService.stringSpec().named(getPropertyName(), "Curve").describedAs("Curve").finish();
-            }
-
-            @Override
-            void copyFromMap(Map<String, Object> properties, AbstractPlaintextPrivateKeyImpl privateKey) {
-                if (properties.containsKey(getPropertyName())) {
-                    privateKey.curve = (String) properties.get(getPropertyName());
-                }
-            }
-
-            @Override
-            void copyToMap(Map<String, Object> properties, AbstractPlaintextPrivateKeyImpl privateKey) {
-                properties.put(getPropertyName(), privateKey.curve);
-            }
-
-        },
-        KEYSIZE("keySize", "keySize") {
-            public PropertySpec asPropertySpec(PropertySpecService propertySpecService) {
-                return propertySpecService.stringSpec().named(getPropertyName(), "Algorithm").describedAs("Key algorithm").finish();
-            }
-
-            @Override
-            void copyFromMap(Map<String, Object> properties, AbstractPlaintextPrivateKeyImpl privateKey) {
-                if (properties.containsKey(getPropertyName())) {
-                    privateKey.keySize = (Integer) properties.get(getPropertyName());
-                }
-            }
-
-            @Override
-            void copyToMap(Map<String, Object> properties, AbstractPlaintextPrivateKeyImpl privateKey) {
-                properties.put(getPropertyName(), privateKey.keySize);
-            }
-        };
+        ;
 
         private final String fieldName;
         private final String propertyName;
