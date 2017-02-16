@@ -8,7 +8,8 @@ Ext.define('Cfg.view.validationtask.HistoryPreviewForm', {
 
     requires: [        
         'Uni.form.field.Duration',
-        'Cfg.view.validationtask.DataSourcesPreviewContainer'
+        'Cfg.view.validationtask.DataSourcesPreviewContainer',
+        'Uni.form.field.LogLevelDisplay'
     ],
     appName: null,
 
@@ -23,6 +24,10 @@ Ext.define('Cfg.view.validationtask.HistoryPreviewForm', {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('general.name', 'CFG', 'Name'),
                 name: 'name',
+                labelWidth: 250
+            },
+            {
+                xtype: 'log-level-displayfield',
                 labelWidth: 250
             },
             {

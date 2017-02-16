@@ -8,7 +8,8 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
 
     requires: [        
         'Uni.form.field.Duration',
-        'Cfg.view.validationtask.DataSourcesPreviewContainer'
+        'Cfg.view.validationtask.DataSourcesPreviewContainer',
+        'Uni.form.field.LogLevelDisplay'
     ],
 
     myTooltip: Ext.create('Ext.tip.ToolTip', {
@@ -25,6 +26,10 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('general.name', 'CFG', 'Name'),
                 name: 'name',
+                labelWidth: 250
+            },
+            {
+                xtype: 'log-level-displayfield',
                 labelWidth: 250
             },
             {

@@ -11,11 +11,20 @@ Ext.define('Cfg.model.ValidationTask', {
     fields: [
 			'id', 'name',
         {
+            name: 'logLevel',
+            type: 'int',
+            useNull: true
+        },
+        {
             name: 'deviceGroup',
             defaultValue: null
         },
         {
             name: 'usagePointGroup',
+            defaultValue: null
+        },
+        {
+            name: 'metrologyPurpose',
             defaultValue: null
         },
         {name: 'schedule', type: 'auto'},
@@ -132,15 +141,13 @@ Ext.define('Cfg.model.ValidationTask', {
     ],
 
     getTriggerText: function() {
-        var schedule = this.get('schedule'),
-            periodsStore = Ext.getStore('Cfg.store.DaysWeeksMonths'),
-            nextRun = this.get('nextRun');
+        var me = this,
+            nextRun = me.get('nextRun');
 
-        return Ext.isEmpty(schedule)
+        return Ext.isEmpty(me.get('schedule'))
             ? Uni.I18n.translate('validation.schedule.manual', 'CFG', 'On request')
-            : Uni.I18n.translate('validation.schedule.scheduled', 'CFG', 'Every {0} {1}. Next run {2}', [
-            schedule.count,
-            periodsStore.findRecord('name', schedule.timeUnit).get('displayValue'),
+            : Uni.I18n.translate('validation.schedule.scheduled', 'CFG', '{0}. Next run {1}', [
+            me.get('recurrence'),
             nextRun ? Uni.DateTime.formatDateTimeLong(Ext.isDate(nextRun) ? nextRun : new Date(nextRun)) : '-'
         ]);
     },
