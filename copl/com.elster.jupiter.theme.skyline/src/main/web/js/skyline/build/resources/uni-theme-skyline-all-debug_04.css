@@ -1,3 +1,13 @@
+/* line 331, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-panel-header-form-error-framed-collapsed-right-br {
+  background-position: right -50px;
+}
+
+/* line 335, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-panel-header-form-error-framed-collapsed-right-ml {
+  background-position: 0 right;
+}
+
 /* line 339, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-panel-header-form-error-framed-collapsed-right-mr {
   background-position: right right;
@@ -379,17 +389,14 @@
 .x-panel .x-panel-header-form-error-framed-top {
   border-bottom-width: 0 !important;
 }
-
 /* line 434, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel .x-panel-header-form-error-framed-right {
   border-left-width: 0 !important;
 }
-
 /* line 438, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel .x-panel-header-form-error-framed-bottom {
   border-top-width: 0 !important;
 }
-
 /* line 442, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel .x-panel-header-form-error-framed-left {
   border-right-width: 0 !important;
@@ -399,17 +406,14 @@
 .x-nbr .x-panel-header-form-error-framed-collapsed-top {
   border-bottom-width: 0 !important;
 }
-
 /* line 452, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-nbr .x-panel-header-form-error-framed-collapsed-right {
   border-left-width: 0 !important;
 }
-
 /* line 456, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-nbr .x-panel-header-form-error-framed-collapsed-bottom {
   border-top-width: 0 !important;
 }
-
 /* line 460, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-nbr .x-panel-header-form-error-framed-collapsed-left {
   border-right-width: 0 !important;
@@ -426,7 +430,6 @@
   transform: rotate(90deg);
   transform-origin: 0 0;
 }
-
 /* line 40, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/rotate-element.scss */
 .x-ie9m .x-panel-header-form-error-framed-vertical .x-panel-header-text-container {
   background-color: white;
@@ -439,7 +442,6 @@
   height: 16px;
   background-position: center center;
 }
-
 /* line 591, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-form-error-framed .x-panel-header-glyph {
   color: #1e7d9e;
@@ -447,7 +449,6 @@
   line-height: 16px;
   opacity: 0.5;
 }
-
 /* line 608, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-ie8m .x-panel-header-form-error-framed .x-panel-header-glyph {
   color: #8ebece;
@@ -457,7 +458,6 @@
 .x-panel-header-form-error-framed-horizontal .x-panel-header-icon-before-title {
   margin: 0 6px 0 0;
 }
-
 /* line 627, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-form-error-framed-horizontal .x-panel-header-icon-after-title {
   margin: 0 0 0 6px;
@@ -467,7 +467,6 @@
 .x-panel-header-form-error-framed-vertical .x-panel-header-icon-before-title {
   margin: 0 0 6px 0;
 }
-
 /* line 649, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-form-error-framed-vertical .x-panel-header-icon-after-title {
   margin: 6px 0 0 0;
@@ -477,7 +476,6 @@
 .x-panel-header-form-error-framed-horizontal .x-tool-after-title {
   margin: 0 0 0 6px;
 }
-
 /* line 672, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-form-error-framed-horizontal .x-tool-before-title {
   margin: 0 6px 0 0;
@@ -487,7 +485,6 @@
 .x-panel-header-form-error-framed-vertical .x-tool-after-title {
   margin: 6px 0 0 0;
 }
-
 /* line 694, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-form-error-framed-vertical .x-tool-before-title {
   margin: 0 0 6px 0;
@@ -627,7 +624,6 @@
 .x-panel-header-form-error {
   font-size: 13px;
 }
-
 /* line 252, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-form-error .x-tool-img {
   background-color: white;
@@ -691,17 +687,14 @@
 .x-panel .x-panel-header-form-error-collapsed-border-top {
   border-bottom-width: 0 !important;
 }
-
 /* line 533, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel .x-panel-header-form-error-collapsed-border-right {
   border-left-width: 0 !important;
 }
-
 /* line 537, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel .x-panel-header-form-error-collapsed-border-bottom {
   border-top-width: 0 !important;
 }
-
 /* line 541, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel .x-panel-header-form-error-collapsed-border-left {
   border-right-width: 0 !important;
@@ -754,7 +747,6 @@
   transform: rotate(90deg);
   transform-origin: 0 0;
 }
-
 /* line 40, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/rotate-element.scss */
 .x-ie9m .x-panel-header-form-error-vertical .x-panel-header-text-container {
   background-color: white;
@@ -767,7 +759,6 @@
   height: 16px;
   background-position: center center;
 }
-
 /* line 591, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-form-error .x-panel-header-glyph {
   color: #1e7d9e;
@@ -775,7 +766,6 @@
   line-height: 16px;
   opacity: 0.5;
 }
-
 /* line 608, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-ie8m .x-panel-header-form-error .x-panel-header-glyph {
   color: #8ebece;
@@ -785,7 +775,6 @@
 .x-panel-header-form-error-horizontal .x-panel-header-icon-before-title {
   margin: 0 6px 0 0;
 }
-
 /* line 627, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-form-error-horizontal .x-panel-header-icon-after-title {
   margin: 0 0 0 6px;
@@ -795,7 +784,6 @@
 .x-panel-header-form-error-vertical .x-panel-header-icon-before-title {
   margin: 0 0 6px 0;
 }
-
 /* line 649, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-form-error-vertical .x-panel-header-icon-after-title {
   margin: 6px 0 0 0;
@@ -805,7 +793,6 @@
 .x-panel-header-form-error-horizontal .x-tool-after-title {
   margin: 0 0 0 6px;
 }
-
 /* line 672, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-form-error-horizontal .x-tool-before-title {
   margin: 0 6px 0 0;
@@ -815,7 +802,6 @@
 .x-panel-header-form-error-vertical .x-tool-after-title {
   margin: 6px 0 0 0;
 }
-
 /* line 694, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-form-error-vertical .x-tool-before-title {
   margin: 0 0 6px 0;
@@ -945,12 +931,12 @@
   border-width: 1px !important;
 }
 
-/* line 183, ../../sass/src/panel/Panel.scss */
+/* line 180, ../../sass/src/panel/Panel.scss */
 .x-uni-form-error-msg-icon {
   background-image: url("images/form/ico_warning.png");
 }
 
-/* line 187, ../../sass/src/panel/Panel.scss */
+/* line 184, ../../sass/src/panel/Panel.scss */
 *[class*='x-panel-'].no-side-padding {
   padding-right: 0;
   padding-left: 0;
@@ -990,7 +976,6 @@
 .x-panel-header-tile {
   font-size: 25px;
 }
-
 /* line 252, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-tile .x-tool-img {
   background-color: white;
@@ -2367,17 +2352,14 @@
 .x-panel .x-panel-header-tile-top {
   border-bottom-width: 0 !important;
 }
-
 /* line 434, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel .x-panel-header-tile-right {
   border-left-width: 0 !important;
 }
-
 /* line 438, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel .x-panel-header-tile-bottom {
   border-top-width: 0 !important;
 }
-
 /* line 442, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel .x-panel-header-tile-left {
   border-right-width: 0 !important;
@@ -2387,17 +2369,14 @@
 .x-nbr .x-panel-header-tile-collapsed-top {
   border-bottom-width: 0 !important;
 }
-
 /* line 452, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-nbr .x-panel-header-tile-collapsed-right {
   border-left-width: 0 !important;
 }
-
 /* line 456, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-nbr .x-panel-header-tile-collapsed-bottom {
   border-top-width: 0 !important;
 }
-
 /* line 460, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-nbr .x-panel-header-tile-collapsed-left {
   border-right-width: 0 !important;
@@ -2414,7 +2393,6 @@
   transform: rotate(90deg);
   transform-origin: 0 0;
 }
-
 /* line 40, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/rotate-element.scss */
 .x-ie9m .x-panel-header-tile-vertical .x-panel-header-text-container {
   background-color: white;
@@ -2427,7 +2405,6 @@
   height: 16px;
   background-position: center center;
 }
-
 /* line 591, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-tile .x-panel-header-glyph {
   color: #1e7d9e;
@@ -2435,7 +2412,6 @@
   line-height: 16px;
   opacity: 0.5;
 }
-
 /* line 608, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-ie8m .x-panel-header-tile .x-panel-header-glyph {
   color: #8ebece;
@@ -2445,7 +2421,6 @@
 .x-panel-header-tile-horizontal .x-panel-header-icon-before-title {
   margin: 0 6px 0 0;
 }
-
 /* line 627, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-tile-horizontal .x-panel-header-icon-after-title {
   margin: 0 0 0 6px;
@@ -2455,7 +2430,6 @@
 .x-panel-header-tile-vertical .x-panel-header-icon-before-title {
   margin: 0 0 6px 0;
 }
-
 /* line 649, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-tile-vertical .x-panel-header-icon-after-title {
   margin: 6px 0 0 0;
@@ -2465,7 +2439,6 @@
 .x-panel-header-tile-horizontal .x-tool-after-title {
   margin: 0 0 0 6px;
 }
-
 /* line 672, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-tile-horizontal .x-tool-before-title {
   margin: 0 6px 0 0;
@@ -2475,7 +2448,6 @@
 .x-panel-header-tile-vertical .x-tool-after-title {
   margin: 6px 0 0 0;
 }
-
 /* line 694, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-tile-vertical .x-tool-before-title {
   margin: 0 0 6px 0;
@@ -2610,7 +2582,6 @@
   margin-right: 20px;
   margin-bottom: 20px;
 }
-
 /* line 27, ../../sass/src/panel/TilePanel.scss */
 .x-panel-tile .x-panel-header {
   padding-top: 5px;
@@ -2618,7 +2589,6 @@
   padding-bottom: 5px;
   padding-left: 5px;
 }
-
 /* line 34, ../../sass/src/panel/TilePanel.scss */
 .x-panel-tile .x-panel-header .x-toolbar {
   padding: 0 0 0 0;
@@ -2690,7 +2660,6 @@
   padding-right: 24px;
   padding-bottom: 8px;
 }
-
 /* line 14, ../../sass/src/panel/NoItemsFound.scss */
 .uni-panel-no-items-found .uni-panel-no-items-found-header {
   font-family: 'Lato', helvetica, arial, verdana, sans-serif;
@@ -2701,22 +2670,18 @@
   padding-bottom: 8px;
   padding-left: 15px;
 }
-
 /* line 26, ../../sass/src/panel/NoItemsFound.scss */
 .uni-panel-no-items-found .message > .x-panel-body {
   background-color: transparent;
 }
-
 /* line 30, ../../sass/src/panel/NoItemsFound.scss */
 .uni-panel-no-items-found .reasons-text {
   padding-left: 32px;
 }
-
 /* line 34, ../../sass/src/panel/NoItemsFound.scss */
 .uni-panel-no-items-found .steps-text {
   padding-left: 32px;
 }
-
 /* line 38, ../../sass/src/panel/NoItemsFound.scss */
 .uni-panel-no-items-found ul {
   list-style: none;
@@ -2725,13 +2690,11 @@
   margin-bottom: 18px;
   padding-left: 32px;
 }
-
 /* line 45, ../../sass/src/panel/NoItemsFound.scss */
 .uni-panel-no-items-found ul li {
   margin: 0;
   margin-bottom: 8px;
 }
-
 /* line 52, ../../sass/src/panel/NoItemsFound.scss */
 .uni-panel-no-items-found .steps {
   padding-left: 32px;
@@ -2739,7 +2702,6 @@
   margin-top: 8px;
   margin-bottom: 10px;
 }
-
 /* line 60, ../../sass/src/panel/NoItemsFound.scss */
 .uni-panel-no-items-found *[class*='x-panel-body-'] {
   font-size: 13px;
@@ -2749,10 +2711,7 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/* line 10, ../../sass/src/panel/Tool.scss */
+/* line 6, ../../sass/src/panel/Tool.scss */
 .x-tool .x-tool-img {
   font-family: 'icomoon' !important;
   speak: none;
@@ -2766,29 +2725,27 @@
   font-size: 16px;
 }
 
-/* line 24, ../../sass/src/panel/Tool.scss */
+/* line 20, ../../sass/src/panel/Tool.scss */
 .x-tool-expand-top, .x-tool-collapse-top {
   background: none;
   opacity: 1;
 }
-
-/* line 27, ../../sass/src/panel/Tool.scss */
+/* line 23, ../../sass/src/panel/Tool.scss */
 .x-tool-expand-top:before, .x-tool-collapse-top:before {
   content: "\ede7";
 }
 
-/* line 32, ../../sass/src/panel/Tool.scss */
+/* line 28, ../../sass/src/panel/Tool.scss */
 .x-tool-expand-bottom, .x-tool-collapse-bottom {
   background: none;
   opacity: 1;
 }
-
-/* line 35, ../../sass/src/panel/Tool.scss */
+/* line 31, ../../sass/src/panel/Tool.scss */
 .x-tool-expand-bottom:before, .x-tool-collapse-bottom:before {
   content: "\ede9";
 }
 
-/* line 201, ../../sass/src/panel/Panel.scss */
+/* line 198, ../../sass/src/panel/Panel.scss */
 .error-border .x-panel-body {
   border-color: #eb5642 !important;
 }
@@ -2853,7 +2810,6 @@
   width: 15px !important;
   background-position: -15px 0 !important;
 }
-
 /* line 10, ../../sass/src/form/field/RadioButton.scss */
 .x-form-radio:hover {
   cursor: pointer;
@@ -2868,13 +2824,11 @@
 .x-item-disabled.x-form-cb-checked .x-form-radio {
   background-position: 0 -15px !important;
 }
-
 /* line 23, ../../sass/src/form/field/RadioButton.scss */
 .x-item-disabled .x-form-radio {
   opacity: 1;
   background-position: 0 0 !important;
 }
-
 /* line 26, ../../sass/src/form/field/RadioButton.scss */
 .x-item-disabled .x-form-radio:hover {
   cursor: default;
@@ -2945,7 +2899,6 @@ div.x-form-spinner-down {
   width: 22px !important;
   margin: 2px !important;
 }
-
 /* line 51, ../../sass/src/form/field/Trigger.scss */
 .x-form-date-trigger:before {
   font-family: 'icomoon';
@@ -3045,7 +2998,6 @@ div.x-form-spinner-down {
   height: auto;
   min-height: 28px;
 }
-
 /* line 38, ../../sass/src/form/field/Base.scss */
 .x-form-display-field .application {
   color: #a0a0a0;
@@ -3223,7 +3175,6 @@ div.x-form-spinner-down {
   zoom: 1;
   background-color: transparent;
 }
-
 /* line 250, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-default .x-tool-img {
   background-image: url(images/tools/tool-sprites-dark.png);
@@ -4338,7 +4289,6 @@ div.x-form-spinner-down {
   line-height: 16px;
   background-position: center center;
 }
-
 /* line 402, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-default .x-window-header-glyph {
   color: black;
@@ -4351,7 +4301,6 @@ div.x-form-spinner-down {
 .x-window-header-default-horizontal .x-window-header-icon-before-title {
   margin: 0 8px 0 0;
 }
-
 /* line 438, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-default-horizontal .x-window-header-icon-after-title {
   margin: 0 0 0 8px;
@@ -4361,7 +4310,6 @@ div.x-form-spinner-down {
 .x-window-header-default-vertical .x-window-header-icon-before-title {
   margin: 0 0 8px 0;
 }
-
 /* line 460, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-default-vertical .x-window-header-icon-after-title {
   margin: 8px 0 0 0;
@@ -4371,7 +4319,6 @@ div.x-form-spinner-down {
 .x-window-header-default-horizontal .x-tool-after-title {
   margin: 0 0 0 6px;
 }
-
 /* line 483, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-default-horizontal .x-tool-before-title {
   margin: 0 6px 0 0;
@@ -4381,7 +4328,6 @@ div.x-form-spinner-down {
 .x-window-header-default-vertical .x-tool-after-title {
   margin: 6px 0 0 0;
 }
-
 /* line 505, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-default-vertical .x-tool-before-title {
   margin: 0 0 6px 0;
@@ -4678,7 +4624,6 @@ div.x-form-spinner-down {
   zoom: 1;
   background-color: transparent;
 }
-
 /* line 250, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-notification .x-tool-img {
   background-image: url(images/tools/tool-sprites-dark.png);
@@ -5721,7 +5666,6 @@ div.x-form-spinner-down {
   line-height: 16px;
   background-position: center center;
 }
-
 /* line 402, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-notification .x-window-header-glyph {
   color: black;
@@ -5734,7 +5678,6 @@ div.x-form-spinner-down {
 .x-window-header-notification-horizontal .x-window-header-icon-before-title {
   margin: 0 8px 0 0;
 }
-
 /* line 438, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-notification-horizontal .x-window-header-icon-after-title {
   margin: 0 0 0 8px;
@@ -5744,7 +5687,6 @@ div.x-form-spinner-down {
 .x-window-header-notification-vertical .x-window-header-icon-before-title {
   margin: 0 0 8px 0;
 }
-
 /* line 460, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-notification-vertical .x-window-header-icon-after-title {
   margin: 8px 0 0 0;
@@ -5754,7 +5696,6 @@ div.x-form-spinner-down {
 .x-window-header-notification-horizontal .x-tool-after-title {
   margin: 0 0 0 6px;
 }
-
 /* line 483, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-notification-horizontal .x-tool-before-title {
   margin: 0 6px 0 0;
@@ -5764,7 +5705,6 @@ div.x-form-spinner-down {
 .x-window-header-notification-vertical .x-tool-after-title {
   margin: 6px 0 0 0;
 }
-
 /* line 505, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-notification-vertical .x-tool-before-title {
   margin: 0 0 6px 0;
@@ -6061,7 +6001,6 @@ div.x-form-spinner-down {
   zoom: 1;
   background-color: transparent;
 }
-
 /* line 250, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-notification-error .x-tool-img {
   background-image: url(images/tools/tool-sprites-dark.png);
@@ -7104,7 +7043,6 @@ div.x-form-spinner-down {
   line-height: 16px;
   background-position: center center;
 }
-
 /* line 402, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-notification-error .x-window-header-glyph {
   color: black;
@@ -7117,7 +7055,6 @@ div.x-form-spinner-down {
 .x-window-header-notification-error-horizontal .x-window-header-icon-before-title {
   margin: 0 8px 0 0;
 }
-
 /* line 438, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-notification-error-horizontal .x-window-header-icon-after-title {
   margin: 0 0 0 8px;
@@ -7127,7 +7064,6 @@ div.x-form-spinner-down {
 .x-window-header-notification-error-vertical .x-window-header-icon-before-title {
   margin: 0 0 8px 0;
 }
-
 /* line 460, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-notification-error-vertical .x-window-header-icon-after-title {
   margin: 8px 0 0 0;
@@ -7137,7 +7073,6 @@ div.x-form-spinner-down {
 .x-window-header-notification-error-horizontal .x-tool-after-title {
   margin: 0 0 0 6px;
 }
-
 /* line 483, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-notification-error-horizontal .x-tool-before-title {
   margin: 0 6px 0 0;
@@ -7147,7 +7082,6 @@ div.x-form-spinner-down {
 .x-window-header-notification-error-vertical .x-tool-after-title {
   margin: 6px 0 0 0;
 }
-
 /* line 505, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-notification-error-vertical .x-tool-before-title {
   margin: 0 0 6px 0;
@@ -7449,7 +7383,6 @@ div.x-form-spinner-down {
   zoom: 1;
   background-color: transparent;
 }
-
 /* line 250, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-notification-success .x-tool-img {
   background-image: url(images/tools/tool-sprites-dark.png);
@@ -8492,7 +8425,6 @@ div.x-form-spinner-down {
   line-height: 16px;
   background-position: center center;
 }
-
 /* line 402, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-notification-success .x-window-header-glyph {
   color: black;
@@ -8505,7 +8437,6 @@ div.x-form-spinner-down {
 .x-window-header-notification-success-horizontal .x-window-header-icon-before-title {
   margin: 0 8px 0 0;
 }
-
 /* line 438, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-notification-success-horizontal .x-window-header-icon-after-title {
   margin: 0 0 0 8px;
@@ -8515,7 +8446,6 @@ div.x-form-spinner-down {
 .x-window-header-notification-success-vertical .x-window-header-icon-before-title {
   margin: 0 0 8px 0;
 }
-
 /* line 460, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-notification-success-vertical .x-window-header-icon-after-title {
   margin: 8px 0 0 0;
@@ -8525,7 +8455,6 @@ div.x-form-spinner-down {
 .x-window-header-notification-success-horizontal .x-tool-after-title {
   margin: 0 0 0 6px;
 }
-
 /* line 483, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-notification-success-horizontal .x-tool-before-title {
   margin: 0 6px 0 0;
@@ -8535,7 +8464,6 @@ div.x-form-spinner-down {
 .x-window-header-notification-success-vertical .x-tool-after-title {
   margin: 6px 0 0 0;
 }
-
 /* line 505, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-notification-success-vertical .x-tool-before-title {
   margin: 0 0 6px 0;
@@ -8837,7 +8765,6 @@ div.x-form-spinner-down {
   zoom: 1;
   background-color: transparent;
 }
-
 /* line 250, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-message-error .x-tool-img {
   background-image: url(images/tools/tool-sprites-dark.png);
@@ -9880,7 +9807,6 @@ div.x-form-spinner-down {
   line-height: 16px;
   background-position: center center;
 }
-
 /* line 402, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-message-error .x-window-header-glyph {
   color: black;
@@ -9893,7 +9819,6 @@ div.x-form-spinner-down {
 .x-window-header-message-error-horizontal .x-window-header-icon-before-title {
   margin: 0 8px 0 0;
 }
-
 /* line 438, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-message-error-horizontal .x-window-header-icon-after-title {
   margin: 0 0 0 8px;
@@ -9903,7 +9828,6 @@ div.x-form-spinner-down {
 .x-window-header-message-error-vertical .x-window-header-icon-before-title {
   margin: 0 0 8px 0;
 }
-
 /* line 460, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-message-error-vertical .x-window-header-icon-after-title {
   margin: 8px 0 0 0;
@@ -9913,7 +9837,6 @@ div.x-form-spinner-down {
 .x-window-header-message-error-horizontal .x-tool-after-title {
   margin: 0 0 0 6px;
 }
-
 /* line 483, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-message-error-horizontal .x-tool-before-title {
   margin: 0 6px 0 0;
@@ -9923,7 +9846,6 @@ div.x-form-spinner-down {
 .x-window-header-message-error-vertical .x-tool-after-title {
   margin: 6px 0 0 0;
 }
-
 /* line 505, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-message-error-vertical .x-tool-before-title {
   margin: 0 0 6px 0;
@@ -10082,7 +10004,6 @@ div.x-form-spinner-down {
   padding-bottom: 12px;
   padding-left: 16px;
 }
-
 /* line 19, ../../sass/src/window/Acknowledgement.scss */
 .uni-window-acknowledgement .icon {
   background-image: url("images/shared/icon-confirm.png");
@@ -10090,23 +10011,19 @@ div.x-form-spinner-down {
   height: 26px;
   width: 26px;
 }
-
 /* line 26, ../../sass/src/window/Acknowledgement.scss */
 .uni-window-acknowledgement .message {
   padding-right: 12px;
   padding-left: 12px;
 }
-
 /* line 33, ../../sass/src/window/Acknowledgement.scss */
 .uni-window-acknowledgement .message > .x-panel-body {
   background-color: transparent;
 }
-
 /* line 37, ../../sass/src/window/Acknowledgement.scss */
 .uni-window-acknowledgement .x-form-item-label {
   color: #70bb51;
 }
-
 /* line 41, ../../sass/src/window/Acknowledgement.scss */
 .uni-window-acknowledgement .close {
   background-image: url("images/shared/icon-close.png");
@@ -10122,20 +10039,17 @@ div.x-form-spinner-down {
   font-size: 22px;
   color: #eb5642;
 }
-
 /* line 17, ../../sass/src/window/Confirmation.scss */
 .uni-confirmation-window *[class*='x-window-'] .x-header-text {
   font-weight: bold;
   font-size: 16px;
   color: #eb5642;
 }
-
 /* line 23, ../../sass/src/window/Confirmation.scss */
 .uni-confirmation-window *[class*='x-window-'] .x-form-display-field {
   margin-top: 16px;
   color: #686868;
 }
-
 /* line 28, ../../sass/src/window/Confirmation.scss */
 .uni-confirmation-window *[class*='x-window-'] *[class*='x-message-box-'] {
   background-position: 12px 4px;
@@ -10146,20 +10060,17 @@ div.x-form-spinner-down {
   font-size: 22px;
   color: #70bb51;
 }
-
 /* line 17, ../../sass/src/window/Confirmation.scss */
 .uni-confirmation-window-green *[class*='x-window-'] .x-header-text {
   font-weight: bold;
   font-size: 16px;
   color: #70bb51;
 }
-
 /* line 23, ../../sass/src/window/Confirmation.scss */
 .uni-confirmation-window-green *[class*='x-window-'] .x-form-display-field {
   margin-top: 16px;
   color: #686868;
 }
-
 /* line 28, ../../sass/src/window/Confirmation.scss */
 .uni-confirmation-window-green *[class*='x-window-'] *[class*='x-message-box-'] {
   background-position: 12px 4px;
@@ -10185,7 +10096,6 @@ div.x-form-spinner-down {
   color: #686868;
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
 }
-
 /* line 9, ../../sass/src/form/field/Checkbox.scss */
 .x-form-cb-label:hover {
   cursor: pointer;
@@ -10201,7 +10111,6 @@ div.x-form-spinner-down {
   height: 15px !important;
   width: 15px !important;
 }
-
 /* line 26, ../../sass/src/form/field/Checkbox.scss */
 .x-form-checkbox:hover {
   cursor: pointer;
@@ -10302,7 +10211,6 @@ div.x-form-spinner-down {
   width: 22px !important;
   margin: 2px !important;
 }
-
 /* line 51, ../../sass/src/form/field/Trigger.scss */
 .x-form-date-trigger:before {
   font-family: 'icomoon';
@@ -10388,7 +10296,6 @@ div.x-form-spinner-down {
   padding-left: 0;
   padding-right: 8px;
 }
-
 /* line 35, ../../sass/src/toolbar/Paging.scss */
 .x-toolbar-pagingtoolbarbottom .pagenav .x-toolbar-text {
   font-size: 14px;
@@ -10398,7 +10305,6 @@ div.x-form-spinner-down {
   padding-top: 3px;
   padding-bottom: 2px;
 }
-
 /* line 49, ../../sass/src/toolbar/Paging.scss */
 .x-toolbar-pagingtoolbarbottom .pagenav .x-toolbar-text.active {
   margin-right: 1px;
@@ -10410,13 +10316,11 @@ div.x-form-spinner-down {
   border: solid 1px #70bb51;
   border-radius: 2px;
 }
-
 /* line 66, ../../sass/src/toolbar/Paging.scss */
 .x-toolbar-pagingtoolbarbottom .pagenav .x-toolbar-text a {
   color: #686868;
   text-decoration: none;
 }
-
 /* line 71, ../../sass/src/toolbar/Paging.scss */
 .x-toolbar-pagingtoolbarbottom .pagenav .x-toolbar-text a:hover {
   text-decoration: underline;
@@ -10510,19 +10414,16 @@ a.x-datepicker-date:hover {
   color: white;
   border-radius: 10px 10px 10px 10px;
 }
-
 /* line 51, ../../sass/src/picker/Date.scss */
 .x-datepicker-month .x-btn-default-small .x-btn-inner {
   font-size: 13px;
   color: white;
   border-radius: 10px 10px 10px 10px;
 }
-
 /* line 57, ../../sass/src/picker/Date.scss */
 .x-datepicker-month .x-btn-default-small-over {
   background-color: #70bb51;
 }
-
 /* line 61, ../../sass/src/picker/Date.scss */
 .x-datepicker-month .x-btn-default-small {
   background-color: #70bb51;
@@ -10534,12 +10435,10 @@ a.x-datepicker-date:hover {
   color: white;
   border-radius: 10px 10px 10px 10px;
 }
-
 /* line 73, ../../sass/src/picker/Date.scss */
 .x-datepicker-footer .x-btn-default-small-over {
   background-color: #70bb51;
 }
-
 /* line 77, ../../sass/src/picker/Date.scss */
 .x-datepicker-footer .x-btn-default-small {
   background-color: #70bb51;
@@ -10573,17 +10472,14 @@ a.x-datepicker-date:hover {
 .x-grid {
   padding-bottom: 32px;
 }
-
 /* line 8, ../../sass/src/panel/Table.scss */
 .x-grid .x-toolbar {
   border: none;
 }
-
 /* line 11, ../../sass/src/panel/Table.scss */
 .x-grid .x-docked-bottom {
   margin-bottom: -16px;
 }
-
 /* line 17, ../../sass/src/panel/Table.scss */
 .x-grid.x-grid-header-hidden .x-grid-body {
   -webkit-border-radius: 10px;
@@ -10593,7 +10489,6 @@ a.x-datepicker-date:hover {
   border-radius: 10px;
   border-top-width: 1px !important;
 }
-
 /* line 21, ../../sass/src/panel/Table.scss */
 .x-grid.x-grid-header-hidden .x-grid-header-ct {
   border-width: 0px !important;
@@ -10611,48 +10506,39 @@ a.x-datepicker-date:hover {
   -o-border-radius: 0 0 10px 10px;
   border-radius: 0 0 10px 10px;
 }
-
 /* line 33, ../../sass/src/panel/Table.scss */
 .x-grid-body.x-panel-body-wrong-data {
   border-color: #eb5642 !important;
 }
-
 /* line 52, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row a {
   color: #686868;
   text-decoration: underline;
 }
-
 /* line 59, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row a:hover {
   text-decoration: underline;
 }
-
 /* line 63, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row a:active {
   text-decoration: none;
 }
-
 /* line 67, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row .x-form-display-field-body {
   height: auto;
 }
-
 /* line 69, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row .x-form-display-field-body .x-form-display-field {
   margin: 0;
 }
-
 /* line 75, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row-selected a {
   color: white;
 }
-
 /* line 78, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row-selected .x-form-display-field {
   color: white;
 }
-
 /* line 82, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row-selected .x-grid-row-summary .x-grid-td {
   color: #686868;
@@ -10693,7 +10579,6 @@ a.x-datepicker-date:hover {
   margin-bottom: 16px;
   padding: 10px 12px !important;
 }
-
 /* line 11, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-panel-header {
   font-family: 'Open Sans Condensed', helvetica, arial, verdana, sans-serif;
@@ -10702,7 +10587,6 @@ a.x-datepicker-date:hover {
   color: #1e7d9e;
   background: none;
 }
-
 /* line 19, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-body:before {
   border-left: 2px dotted #A0A0A0;
@@ -10712,50 +10596,41 @@ a.x-datepicker-date:hover {
   position: absolute;
   top: 28px;
 }
-
 /* line 28, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-body {
   background: none;
 }
-
 /* line 32, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-item {
   padding: 0 8px;
   height: 48px;
   background-color: transparent;
 }
-
 /* line 37, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-item.not-a-clickable {
   cursor: default;
 }
-
 /* line 41, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-item.not-a-clickable a,
 .x-navigation-menu .x-menu-item.not-a-clickable .x-menu-item-text {
   cursor: default;
 }
-
 /* line 47, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-item:first-child {
   padding-top: 0 !important;
 }
-
 /* line 49, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-item:first-child .x-menu-item-text {
   border-top: none !important;
 }
-
 /* line 54, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-item:last-child {
   padding-bottom: 0 !important;
 }
-
 /* line 58, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-item + .x-menu-item .x-menu-item-link {
   border-top: none !important;
 }
-
 /* line 62, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-item .x-menu-item-text {
   border-top: 1px solid #a6a6a6;
@@ -10764,12 +10639,10 @@ a.x-datepicker-date:hover {
   line-height: 48px;
   overflow: hidden;
 }
-
 /* line 70, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-item .x-menu-item-link {
   padding: 0 !important;
 }
-
 /* line 74, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .navigation-item-number {
   border: 1px solid transparent;
@@ -10783,7 +10656,6 @@ a.x-datepicker-date:hover {
   width: 32px;
   letter-spacing: 1px;
 }
-
 /* line 87, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-completed .navigation-item-number {
   border-color: #a0a0a0;
@@ -10791,13 +10663,11 @@ a.x-datepicker-date:hover {
   color: #a0a0a0;
   font-weight: bold;
 }
-
 /* line 94, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-completed .x-menu-item-text {
   color: #a0a0a0 !important;
   font-weight: bold;
 }
-
 /* line 99, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-active .navigation-item-number {
   background-color: #70bb51;
@@ -10805,13 +10675,11 @@ a.x-datepicker-date:hover {
   color: white;
   font-weight: bold;
 }
-
 /* line 106, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-active .x-menu-item-text {
   color: #70bb51 !important;
   font-weight: bold;
 }
-
 /* line 111, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-non-completed .navigation-item-number {
   background-color: #686868;
@@ -10819,13 +10687,11 @@ a.x-datepicker-date:hover {
   color: white;
   font-weight: bold;
 }
-
 /* line 118, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-non-completed .x-menu-item-text {
   color: #686868 !important;
   font-weight: bold;
 }
-
 /* line 124, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-error .navigation-item-number {
   background-color: #eb5642;
@@ -10833,7 +10699,6 @@ a.x-datepicker-date:hover {
   color: white;
   font-weight: bold;
 }
-
 /* line 131, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-error .x-menu-item-text {
   color: #eb5642 !important;
@@ -10847,25 +10712,21 @@ a.x-datepicker-date:hover {
 .x-panel-tilemenu.x-menu {
   border: none;
 }
-
 /* line 8, ../../sass/src/menu/TileMenu.scss */
 .x-panel-tilemenu.x-menu .x-menu-item {
   background-image: url("images/menu/bullet.png");
   background-repeat: no-repeat;
   background-position: left center;
 }
-
 /* line 13, ../../sass/src/menu/TileMenu.scss */
 .x-panel-tilemenu.x-menu .x-menu-item:first-child {
   padding-top: 0;
 }
-
 /* line 17, ../../sass/src/menu/TileMenu.scss */
 .x-panel-tilemenu.x-menu .x-menu-item .x-menu-item-text {
   font-size: 14px;
   color: #686868;
 }
-
 /* line 22, ../../sass/src/menu/TileMenu.scss */
 .x-panel-tilemenu.x-menu .x-menu-item .x-menu-item-link {
   border-top: none !important;
@@ -10873,17 +10734,14 @@ a.x-datepicker-date:hover {
   padding-top: 2px;
   padding-bottom: 2px;
 }
-
 /* line 30, ../../sass/src/menu/TileMenu.scss */
 .x-panel-tilemenu.x-menu .x-menu-item .x-menu-item-indent-no-separator {
   margin-left: 16px;
 }
-
 /* line 35, ../../sass/src/menu/TileMenu.scss */
 .x-panel-tilemenu.x-menu .x-menu-item.x-menu-item-active {
   background-color: transparent;
 }
-
 /* line 38, ../../sass/src/menu/TileMenu.scss */
 .x-panel-tilemenu.x-menu .x-menu-item.x-menu-item-active span {
   text-decoration: underline;
@@ -10914,7 +10772,6 @@ a.x-datepicker-date:hover {
   padding-bottom: 0;
   padding-left: 12px;
 }
-
 /* line 18, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-panel-header {
   font-family: 'Open Sans Condensed', helvetica, arial, verdana, sans-serif;
@@ -10922,34 +10779,28 @@ a.x-datepicker-date:hover {
   font-size: 24px;
   color: #1e7d9e;
 }
-
 /* line 25, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-menu-item + .x-menu-item .x-menu-item-link {
   border-top: none !important;
 }
-
 /* line 29, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-menu-item:last-child {
   padding-bottom: 0 !important;
 }
-
 /* line 33, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-menu-item:first-child {
   padding-top: 0 !important;
 }
-
 /* line 37, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-menu-body {
   background: none;
 }
-
 /* line 40, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-menu-body .x-menu-item {
   padding: 0 !important;
   margin-right: 5px;
   margin-bottom: 12px;
 }
-
 /* line 48, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-menu-body .x-menu-item .x-menu-item-link {
   font-weight: bold;
@@ -10960,7 +10811,6 @@ a.x-datepicker-date:hover {
   margin: 0;
   margin-right: 4px;
 }
-
 /* line 62, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-menu-body .x-menu-item .x-menu-item-text {
   font-weight: bold;
@@ -10971,40 +10821,33 @@ a.x-datepicker-date:hover {
   text-overflow: ellipsis;
   width: 210px;
 }
-
 /* line 73, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-menu-body .item-active {
   border-right: 4px solid #70bb51;
   cursor: default;
 }
-
 /* line 77, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-menu-body .item-active .x-menu-item-text {
   font-weight: bold !important;
   color: #70bb51;
 }
-
 /* line 83, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-menu-body .x-menu-item-active {
   background: #686868;
 }
-
 /* line 86, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-menu-body .x-menu-item-active .x-menu-item-text {
   color: #ffffff;
 }
-
 /* line 92, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-panel-menu-side-sub {
   margin-bottom: 8px;
   left: 0;
 }
-
 /* line 96, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-panel-menu-side-sub-collapsed {
   margin-bottom: 20px !important;
 }
-
 /* line 100, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-panel-menu-side-sub .x-panel-header {
   font-family: 'Lato', helvetica, arial, verdana, sans-serif;
@@ -11016,18 +10859,15 @@ a.x-datepicker-date:hover {
   color: #686868;
   cursor: pointer;
 }
-
 /* line 111, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-panel-menu-side-sub .x-menu-item {
   margin-right: 0;
   margin-bottom: 0;
 }
-
 /* line 117, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-panel-menu-side-sub .x-menu-item .x-menu-item-link {
   margin-right: 0;
 }
-
 /* line 121, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-panel-menu-side-sub .x-menu-item .x-menu-item-text {
   font-weight: normal;
@@ -11037,38 +10877,31 @@ a.x-datepicker-date:hover {
 .x-menu .x-menu-body {
   border-radius: 5px;
 }
-
 /* line 15, ../../sass/src/menu/Menu.scss */
 .x-menu .x-menu-item .x-menu-item-link {
   padding: 4px 8px;
 }
-
 /* line 18, ../../sass/src/menu/Menu.scss */
 .x-menu .x-menu-item .x-menu-item-text {
   color: white;
 }
-
 /* line 23, ../../sass/src/menu/Menu.scss */
 .x-menu .x-menu-item + .x-menu-item .x-menu-item-link {
   border-top: transparent 1px solid;
 }
-
 /* line 27, ../../sass/src/menu/Menu.scss */
 .x-menu .x-menu-item:last-child {
   padding-bottom: 4px;
 }
-
 /* line 31, ../../sass/src/menu/Menu.scss */
 .x-menu .x-menu-item:first-child {
   padding-top: 4px;
 }
-
 /* line 35, ../../sass/src/menu/Menu.scss */
 .x-menu .x-menu-scroll-top {
   height: 16px;
   background-image: url("images/menu/scroll-top-white.png");
 }
-
 /* line 40, ../../sass/src/menu/Menu.scss */
 .x-menu .x-menu-scroll-bottom {
   height: 16px;
@@ -11086,7 +10919,6 @@ a.x-datepicker-date:hover {
   padding: 8px 16px;
   margin-bottom: 16px;
 }
-
 /* line 53, ../../sass/src/menu/Menu.scss */
 .x-panel-side-menu .x-panel-header {
   padding: 8px 0;
@@ -11095,7 +10927,6 @@ a.x-datepicker-date:hover {
   font-size: 14px;
   border-bottom: 1px solid #d4d4d4 !important;
 }
-
 /* line 61, ../../sass/src/menu/Menu.scss */
 .x-panel-side-menu .x-menu-body {
   background: none;
@@ -11106,43 +10937,36 @@ a.x-datepicker-date:hover {
   border-radius: 0px;
   padding: 8px 0;
 }
-
 /* line 66, ../../sass/src/menu/Menu.scss */
 .x-panel-side-menu .x-menu-body .x-menu-item {
   padding: 2px 0;
   text-transform: uppercase;
 }
-
 /* line 69, ../../sass/src/menu/Menu.scss */
 .x-panel-side-menu .x-menu-body .x-menu-item .x-menu-item-link {
   padding: 0;
   border: 0;
   margin: 0;
 }
-
 /* line 75, ../../sass/src/menu/Menu.scss */
 .x-panel-side-menu .x-menu-body .x-menu-item .x-menu-item-text {
   color: #686868;
   font-size: 14px;
 }
-
 /* line 80, ../../sass/src/menu/Menu.scss */
 .x-panel-side-menu .x-menu-body .current {
   border-right: 4px solid #74af74;
   cursor: default;
 }
-
 /* line 83, ../../sass/src/menu/Menu.scss */
 .x-panel-side-menu .x-menu-body .current .x-menu-item-text {
   color: #74af74;
   font-weight: bold;
 }
-
 /* line 88, ../../sass/src/menu/Menu.scss */
 .x-panel-side-menu .x-menu-body .x-menu-item-active {
   background: #d4d4d4;
 }
-
 /* line 90, ../../sass/src/menu/Menu.scss */
 .x-panel-side-menu .x-menu-body .x-menu-item-active x-menu-item-text {
   color: white;
@@ -11151,10 +10975,7 @@ a.x-datepicker-date:hover {
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/* line 10, ../../sass/src/panel/Tool.scss */
+/* line 6, ../../sass/src/panel/Tool.scss */
 .x-tool .x-tool-img {
   font-family: 'icomoon' !important;
   speak: none;
@@ -11168,24 +10989,22 @@ a.x-datepicker-date:hover {
   font-size: 16px;
 }
 
-/* line 24, ../../sass/src/panel/Tool.scss */
+/* line 20, ../../sass/src/panel/Tool.scss */
 .x-tool-expand-top, .x-tool-collapse-top {
   background: none;
   opacity: 1;
 }
-
-/* line 27, ../../sass/src/panel/Tool.scss */
+/* line 23, ../../sass/src/panel/Tool.scss */
 .x-tool-expand-top:before, .x-tool-collapse-top:before {
   content: "\ede7";
 }
 
-/* line 32, ../../sass/src/panel/Tool.scss */
+/* line 28, ../../sass/src/panel/Tool.scss */
 .x-tool-expand-bottom, .x-tool-collapse-bottom {
   background: none;
   opacity: 1;
 }
-
-/* line 35, ../../sass/src/panel/Tool.scss */
+/* line 31, ../../sass/src/panel/Tool.scss */
 .x-tool-expand-bottom:before, .x-tool-collapse-bottom:before {
   content: "\ede9";
 }
@@ -11763,7 +11582,6 @@ a.x-datepicker-date:hover {
   margin: 0 1px 0 0;
   cursor: pointer;
 }
-
 /* line 316, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-large .x-tab-inner {
   font-size: 13px;
@@ -11772,7 +11590,6 @@ a.x-datepicker-date:hover {
   color: white;
   line-height: 16px;
 }
-
 /* line 326, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-large .x-tab-icon-el {
   width: 16px;
@@ -11780,7 +11597,6 @@ a.x-datepicker-date:hover {
   line-height: 16px;
   background-position: center center;
 }
-
 /* line 333, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-large .x-tab-glyph {
   font-size: 16px;
@@ -11843,12 +11659,10 @@ a.x-datepicker-date:hover {
 .x-tab-large-over {
   background-color: #9ec7d8;
 }
-
 /* line 515, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-large-over .x-tab-glyph {
   color: white;
 }
-
 /* line 522, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-ie8m .x-tab-large-over .x-tab-glyph {
   color: #cee3eb;
@@ -11858,17 +11672,14 @@ a.x-datepicker-date:hover {
 .x-tab-large-active {
   background-color: #cde2eb;
 }
-
 /* line 557, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-large-active .x-tab-inner {
   color: #71adc7;
 }
-
 /* line 572, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-large-active .x-tab-glyph {
   color: #71adc7;
 }
-
 /* line 579, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-ie8m .x-tab-large-active .x-tab-glyph {
   color: #9fc7d9;
@@ -11890,26 +11701,22 @@ a.x-datepicker-date:hover {
 .x-tab-large-disabled {
   cursor: default;
 }
-
 /* line 626, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-large-disabled .x-tab-inner {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=30);
   opacity: 0.3;
 }
-
 /* line 645, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-large-disabled .x-tab-icon-el {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
   opacity: 0.5;
 }
-
 /* line 650, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-large-disabled .x-tab-glyph {
   color: white;
   opacity: 0.3;
   filter: none;
 }
-
 /* line 664, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-ie8m .x-tab-large-disabled .x-tab-glyph {
   color: #b2d2e0;
@@ -11953,7 +11760,6 @@ a.x-datepicker-date:hover {
 .x-tab-large-right-over .x-frame-bc {
   background-image: url(images/tab/tab-large-top-over-corners.gif);
 }
-
 /* line 720, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-large-top-over .x-frame-ml,
 .x-tab-large-top-over .x-frame-mr,
@@ -11963,7 +11769,6 @@ a.x-datepicker-date:hover {
 .x-tab-large-right-over .x-frame-mr {
   background-image: url(images/tab/tab-large-top-over-sides.gif);
 }
-
 /* line 723, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-large-top-over .x-frame-mc,
 .x-tab-large-left-over .x-frame-mc,
@@ -11980,13 +11785,11 @@ a.x-datepicker-date:hover {
 .x-tab-large-bottom-over .x-frame-bc {
   background-image: url(images/tab/tab-large-bottom-over-corners.gif);
 }
-
 /* line 742, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-large-bottom-over .x-frame-ml,
 .x-tab-large-bottom-over .x-frame-mr {
   background-image: url(images/tab/tab-large-bottom-over-sides.gif);
 }
-
 /* line 745, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-large-bottom-over .x-frame-mc {
   background-color: #9ec7d8;
@@ -12013,7 +11816,6 @@ a.x-datepicker-date:hover {
 .x-tab-large-right-active .x-frame-bc {
   background-image: url(images/tab/tab-large-top-active-corners.gif);
 }
-
 /* line 766, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-large-top-active .x-frame-ml,
 .x-tab-large-top-active .x-frame-mr,
@@ -12023,7 +11825,6 @@ a.x-datepicker-date:hover {
 .x-tab-large-right-active .x-frame-mr {
   background-image: url(images/tab/tab-large-top-active-sides.gif);
 }
-
 /* line 769, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-large-top-active .x-frame-mc,
 .x-tab-large-left-active .x-frame-mc,
@@ -12040,13 +11841,11 @@ a.x-datepicker-date:hover {
 .x-tab-large-bottom-active .x-frame-bc {
   background-image: url(images/tab/tab-large-bottom-active-corners.gif);
 }
-
 /* line 788, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-large-bottom-active .x-frame-ml,
 .x-tab-large-bottom-active .x-frame-mr {
   background-image: url(images/tab/tab-large-bottom-active-sides.gif);
 }
-
 /* line 791, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-large-bottom-active .x-frame-mc {
   background-color: #cde2eb;
@@ -12073,7 +11872,6 @@ a.x-datepicker-date:hover {
 .x-tab-large-right-disabled .x-frame-bc {
   background-image: url(images/tab/tab-large-top-disabled-corners.gif);
 }
-
 /* line 812, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-large-top-disabled .x-frame-ml,
 .x-tab-large-top-disabled .x-frame-mr,
@@ -12083,7 +11881,6 @@ a.x-datepicker-date:hover {
 .x-tab-large-right-disabled .x-frame-mr {
   background-image: url(images/tab/tab-large-top-disabled-sides.gif);
 }
-
 /* line 815, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-large-top-disabled .x-frame-mc,
 .x-tab-large-left-disabled .x-frame-mc,
@@ -12100,13 +11897,11 @@ a.x-datepicker-date:hover {
 .x-tab-large-bottom-disabled .x-frame-bc {
   background-image: url(images/tab/tab-large-bottom-disabled-corners.gif);
 }
-
 /* line 834, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-large-bottom-disabled .x-frame-ml,
 .x-tab-large-bottom-disabled .x-frame-mr {
   background-image: url(images/tab/tab-large-bottom-disabled-sides.gif);
 }
-
 /* line 837, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-large-bottom-disabled .x-frame-mc {
   background-color: #92c0d3;
@@ -12118,7 +11913,6 @@ a.x-datepicker-date:hover {
   height: 12px;
   background-image: url(images/tab/tab-large-close.png);
 }
-
 /* line 876, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-large .x-tab-close-btn-over {
   background-position: -12px 0;
@@ -12225,7 +12019,6 @@ a.x-datepicker-date:hover {
 .x-tab-bar-large-horizontal {
   height: 36px;
 }
-
 /* line 165, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-content-box .x-tab-bar-large-horizontal {
   height: 36px;
@@ -12235,7 +12028,6 @@ a.x-datepicker-date:hover {
 .x-tab-bar-large-vertical {
   width: 36px;
 }
-
 /* line 177, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-content-box .x-tab-bar-large-vertical {
   width: 36px;
@@ -12283,7 +12075,6 @@ a.x-datepicker-date:hover {
   border-width: 0 0 0 0;
   height: 5px;
 }
-
 /* line 239, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-plain .x-tab-bar-strip-large-top {
   border-width: 0 0 0 0;
@@ -12294,7 +12085,6 @@ a.x-datepicker-date:hover {
   border-width: 0 0 0 0;
   height: 5px;
 }
-
 /* line 247, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-plain .x-tab-bar-strip-large-bottom {
   border-width: 0 0 0 0;
@@ -12305,7 +12095,6 @@ a.x-datepicker-date:hover {
   border-width: 0 0 0 0;
   width: 5px;
 }
-
 /* line 255, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-plain .x-tab-bar-strip-large-left {
   border-width: 0 0 0 0;
@@ -12316,7 +12105,6 @@ a.x-datepicker-date:hover {
   border-width: 0 0 0 0;
   width: 5px;
 }
-
 /* line 272, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-plain .x-tab-bar-strip-large-right {
   border-width: 0 0 0 0;
@@ -12334,31 +12122,26 @@ a.x-datepicker-date:hover {
   opacity: 0.5;
   background-color: #71adc7;
 }
-
 /* line 351, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-large .x-box-scroller-plain .x-box-scroller {
   background-color: transparent;
 }
-
 /* line 362, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-large .x-box-scroller-hover {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=60);
   opacity: 0.6;
 }
-
 /* line 368, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-large .x-box-scroller-pressed {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=70);
   opacity: 0.7;
 }
-
 /* line 377, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-large .x-tabbar-scroll-left,
 .x-tab-bar-large .x-tabbar-scroll-right {
   height: 31px;
   width: 24px;
 }
-
 /* line 383, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-large .x-tabbar-scroll-top,
 .x-tab-bar-large .x-tabbar-scroll-bottom {
@@ -12370,7 +12153,6 @@ a.x-datepicker-date:hover {
 .x-tab-bar-large-bottom .x-box-scroller {
   margin-top: 0;
 }
-
 /* line 395, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-large-right .x-box-scroller {
   margin-left: 0;
@@ -12380,17 +12162,14 @@ a.x-datepicker-date:hover {
 .x-tab-bar-large .x-tabbar-scroll-left {
   background-image: url(images/tab-bar/large-scroll-left.png);
 }
-
 /* line 413, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-large .x-tabbar-scroll-right {
   background-image: url(images/tab-bar/large-scroll-right.png);
 }
-
 /* line 417, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-large .x-tabbar-scroll-top {
   background-image: url(images/tab-bar/large-scroll-top.png);
 }
-
 /* line 421, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-large .x-tabbar-scroll-bottom {
   background-image: url(images/tab-bar/large-scroll-bottom.png);
@@ -12400,17 +12179,14 @@ a.x-datepicker-date:hover {
 .x-tab-bar-large .x-box-scroller-plain .x-tabbar-scroll-left {
   background-image: url(images/tab-bar/large-plain-scroll-left.png);
 }
-
 /* line 443, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-large .x-box-scroller-plain .x-tabbar-scroll-right {
   background-image: url(images/tab-bar/large-plain-scroll-right.png);
 }
-
 /* line 447, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-large .x-box-scroller-plain .x-tabbar-scroll-top {
   background-image: url(images/tab-bar/large-plain-scroll-top.png);
 }
-
 /* line 451, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-large .x-box-scroller-plain .x-tabbar-scroll-bottom {
   background-image: url(images/tab-bar/large-plain-scroll-bottom.png);
@@ -13029,7 +12805,6 @@ a.x-datepicker-date:hover {
   margin: 0 1px 0 0;
   cursor: pointer;
 }
-
 /* line 316, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-medium .x-tab-inner {
   font-size: 13px;
@@ -13038,7 +12813,6 @@ a.x-datepicker-date:hover {
   color: white;
   line-height: 16px;
 }
-
 /* line 326, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-medium .x-tab-icon-el {
   width: 16px;
@@ -13046,7 +12820,6 @@ a.x-datepicker-date:hover {
   line-height: 16px;
   background-position: center center;
 }
-
 /* line 333, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-medium .x-tab-glyph {
   font-size: 16px;
@@ -13109,12 +12882,10 @@ a.x-datepicker-date:hover {
 .x-tab-medium-over {
   background-color: #9ec7d8;
 }
-
 /* line 515, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-medium-over .x-tab-glyph {
   color: white;
 }
-
 /* line 522, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-ie8m .x-tab-medium-over .x-tab-glyph {
   color: #cee3eb;
@@ -13124,17 +12895,14 @@ a.x-datepicker-date:hover {
 .x-tab-medium-active {
   background-color: #cde2eb;
 }
-
 /* line 557, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-medium-active .x-tab-inner {
   color: #71adc7;
 }
-
 /* line 572, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-medium-active .x-tab-glyph {
   color: #71adc7;
 }
-
 /* line 579, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-ie8m .x-tab-medium-active .x-tab-glyph {
   color: #9fc7d9;
@@ -13156,26 +12924,22 @@ a.x-datepicker-date:hover {
 .x-tab-medium-disabled {
   cursor: default;
 }
-
 /* line 626, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-medium-disabled .x-tab-inner {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=30);
   opacity: 0.3;
 }
-
 /* line 645, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-medium-disabled .x-tab-icon-el {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
   opacity: 0.5;
 }
-
 /* line 650, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-medium-disabled .x-tab-glyph {
   color: white;
   opacity: 0.3;
   filter: none;
 }
-
 /* line 664, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-ie8m .x-tab-medium-disabled .x-tab-glyph {
   color: #b2d2e0;
@@ -13219,7 +12983,6 @@ a.x-datepicker-date:hover {
 .x-tab-medium-right-over .x-frame-bc {
   background-image: url(images/tab/tab-medium-top-over-corners.gif);
 }
-
 /* line 720, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-medium-top-over .x-frame-ml,
 .x-tab-medium-top-over .x-frame-mr,
@@ -13229,7 +12992,6 @@ a.x-datepicker-date:hover {
 .x-tab-medium-right-over .x-frame-mr {
   background-image: url(images/tab/tab-medium-top-over-sides.gif);
 }
-
 /* line 723, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-medium-top-over .x-frame-mc,
 .x-tab-medium-left-over .x-frame-mc,
@@ -13246,13 +13008,11 @@ a.x-datepicker-date:hover {
 .x-tab-medium-bottom-over .x-frame-bc {
   background-image: url(images/tab/tab-medium-bottom-over-corners.gif);
 }
-
 /* line 742, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-medium-bottom-over .x-frame-ml,
 .x-tab-medium-bottom-over .x-frame-mr {
   background-image: url(images/tab/tab-medium-bottom-over-sides.gif);
 }
-
 /* line 745, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-medium-bottom-over .x-frame-mc {
   background-color: #9ec7d8;
@@ -13279,7 +13039,6 @@ a.x-datepicker-date:hover {
 .x-tab-medium-right-active .x-frame-bc {
   background-image: url(images/tab/tab-medium-top-active-corners.gif);
 }
-
 /* line 766, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-medium-top-active .x-frame-ml,
 .x-tab-medium-top-active .x-frame-mr,
@@ -13289,7 +13048,6 @@ a.x-datepicker-date:hover {
 .x-tab-medium-right-active .x-frame-mr {
   background-image: url(images/tab/tab-medium-top-active-sides.gif);
 }
-
 /* line 769, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-medium-top-active .x-frame-mc,
 .x-tab-medium-left-active .x-frame-mc,
@@ -13306,13 +13064,11 @@ a.x-datepicker-date:hover {
 .x-tab-medium-bottom-active .x-frame-bc {
   background-image: url(images/tab/tab-medium-bottom-active-corners.gif);
 }
-
 /* line 788, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-medium-bottom-active .x-frame-ml,
 .x-tab-medium-bottom-active .x-frame-mr {
   background-image: url(images/tab/tab-medium-bottom-active-sides.gif);
 }
-
 /* line 791, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-medium-bottom-active .x-frame-mc {
   background-color: #cde2eb;
@@ -13339,7 +13095,6 @@ a.x-datepicker-date:hover {
 .x-tab-medium-right-disabled .x-frame-bc {
   background-image: url(images/tab/tab-medium-top-disabled-corners.gif);
 }
-
 /* line 812, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-medium-top-disabled .x-frame-ml,
 .x-tab-medium-top-disabled .x-frame-mr,
@@ -13349,7 +13104,6 @@ a.x-datepicker-date:hover {
 .x-tab-medium-right-disabled .x-frame-mr {
   background-image: url(images/tab/tab-medium-top-disabled-sides.gif);
 }
-
 /* line 815, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-medium-top-disabled .x-frame-mc,
 .x-tab-medium-left-disabled .x-frame-mc,
@@ -13366,13 +13120,11 @@ a.x-datepicker-date:hover {
 .x-tab-medium-bottom-disabled .x-frame-bc {
   background-image: url(images/tab/tab-medium-bottom-disabled-corners.gif);
 }
-
 /* line 834, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-medium-bottom-disabled .x-frame-ml,
 .x-tab-medium-bottom-disabled .x-frame-mr {
   background-image: url(images/tab/tab-medium-bottom-disabled-sides.gif);
 }
-
 /* line 837, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-medium-bottom-disabled .x-frame-mc {
   background-color: #92c0d3;
@@ -13384,7 +13136,6 @@ a.x-datepicker-date:hover {
   height: 12px;
   background-image: url(images/tab/tab-medium-close.png);
 }
-
 /* line 876, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-medium .x-tab-close-btn-over {
   background-position: -12px 0;
@@ -13491,7 +13242,6 @@ a.x-datepicker-date:hover {
 .x-tab-bar-medium-horizontal {
   height: 36px;
 }
-
 /* line 165, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-content-box .x-tab-bar-medium-horizontal {
   height: 36px;
@@ -13501,7 +13251,6 @@ a.x-datepicker-date:hover {
 .x-tab-bar-medium-vertical {
   width: 36px;
 }
-
 /* line 177, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-content-box .x-tab-bar-medium-vertical {
   width: 36px;
@@ -13549,7 +13298,6 @@ a.x-datepicker-date:hover {
   border-width: 0 0 0 0;
   height: 5px;
 }
-
 /* line 239, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-plain .x-tab-bar-strip-medium-top {
   border-width: 0 0 0 0;
@@ -13560,7 +13308,6 @@ a.x-datepicker-date:hover {
   border-width: 0 0 0 0;
   height: 5px;
 }
-
 /* line 247, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-plain .x-tab-bar-strip-medium-bottom {
   border-width: 0 0 0 0;
@@ -13571,7 +13318,6 @@ a.x-datepicker-date:hover {
   border-width: 0 0 0 0;
   width: 5px;
 }
-
 /* line 255, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-plain .x-tab-bar-strip-medium-left {
   border-width: 0 0 0 0;
@@ -13582,7 +13328,6 @@ a.x-datepicker-date:hover {
   border-width: 0 0 0 0;
   width: 5px;
 }
-
 /* line 272, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-plain .x-tab-bar-strip-medium-right {
   border-width: 0 0 0 0;
@@ -13600,31 +13345,26 @@ a.x-datepicker-date:hover {
   opacity: 0.5;
   background-color: #71adc7;
 }
-
 /* line 351, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-medium .x-box-scroller-plain .x-box-scroller {
   background-color: transparent;
 }
-
 /* line 362, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-medium .x-box-scroller-hover {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=60);
   opacity: 0.6;
 }
-
 /* line 368, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-medium .x-box-scroller-pressed {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=70);
   opacity: 0.7;
 }
-
 /* line 377, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-medium .x-tabbar-scroll-left,
 .x-tab-bar-medium .x-tabbar-scroll-right {
   height: 31px;
   width: 24px;
 }
-
 /* line 383, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-medium .x-tabbar-scroll-top,
 .x-tab-bar-medium .x-tabbar-scroll-bottom {
@@ -13636,7 +13376,6 @@ a.x-datepicker-date:hover {
 .x-tab-bar-medium-bottom .x-box-scroller {
   margin-top: 0;
 }
-
 /* line 395, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-medium-right .x-box-scroller {
   margin-left: 0;
@@ -13646,17 +13385,14 @@ a.x-datepicker-date:hover {
 .x-tab-bar-medium .x-tabbar-scroll-left {
   background-image: url(images/tab-bar/medium-scroll-left.png);
 }
-
 /* line 413, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-medium .x-tabbar-scroll-right {
   background-image: url(images/tab-bar/medium-scroll-right.png);
 }
-
 /* line 417, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-medium .x-tabbar-scroll-top {
   background-image: url(images/tab-bar/medium-scroll-top.png);
 }
-
 /* line 421, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-medium .x-tabbar-scroll-bottom {
   background-image: url(images/tab-bar/medium-scroll-bottom.png);
@@ -13666,17 +13402,14 @@ a.x-datepicker-date:hover {
 .x-tab-bar-medium .x-box-scroller-plain .x-tabbar-scroll-left {
   background-image: url(images/tab-bar/medium-plain-scroll-left.png);
 }
-
 /* line 443, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-medium .x-box-scroller-plain .x-tabbar-scroll-right {
   background-image: url(images/tab-bar/medium-plain-scroll-right.png);
 }
-
 /* line 447, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-medium .x-box-scroller-plain .x-tabbar-scroll-top {
   background-image: url(images/tab-bar/medium-plain-scroll-top.png);
 }
-
 /* line 451, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-medium .x-box-scroller-plain .x-tabbar-scroll-bottom {
   background-image: url(images/tab-bar/medium-plain-scroll-bottom.png);
@@ -14295,7 +14028,6 @@ a.x-datepicker-date:hover {
   margin: 0 1px 0 0;
   cursor: pointer;
 }
-
 /* line 316, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small .x-tab-inner {
   font-size: 13px;
@@ -14304,7 +14036,6 @@ a.x-datepicker-date:hover {
   color: white;
   line-height: 16px;
 }
-
 /* line 326, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small .x-tab-icon-el {
   width: 16px;
@@ -14312,7 +14043,6 @@ a.x-datepicker-date:hover {
   line-height: 16px;
   background-position: center center;
 }
-
 /* line 333, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small .x-tab-glyph {
   font-size: 16px;
@@ -14375,12 +14105,10 @@ a.x-datepicker-date:hover {
 .x-tab-small-over {
   background-color: #9ec7d8;
 }
-
 /* line 515, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-over .x-tab-glyph {
   color: white;
 }
-
 /* line 522, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-ie8m .x-tab-small-over .x-tab-glyph {
   color: #cee3eb;
@@ -14390,17 +14118,14 @@ a.x-datepicker-date:hover {
 .x-tab-small-active {
   background-color: #cde2eb;
 }
-
 /* line 557, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-active .x-tab-inner {
   color: #71adc7;
 }
-
 /* line 572, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-active .x-tab-glyph {
   color: #71adc7;
 }
-
 /* line 579, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-ie8m .x-tab-small-active .x-tab-glyph {
   color: #9fc7d9;
@@ -14422,26 +14147,22 @@ a.x-datepicker-date:hover {
 .x-tab-small-disabled {
   cursor: default;
 }
-
 /* line 626, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-disabled .x-tab-inner {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=30);
   opacity: 0.3;
 }
-
 /* line 645, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-disabled .x-tab-icon-el {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
   opacity: 0.5;
 }
-
 /* line 650, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-disabled .x-tab-glyph {
   color: white;
   opacity: 0.3;
   filter: none;
 }
-
 /* line 664, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-ie8m .x-tab-small-disabled .x-tab-glyph {
   color: #b2d2e0;
@@ -14485,7 +14206,6 @@ a.x-datepicker-date:hover {
 .x-tab-small-right-over .x-frame-bc {
   background-image: url(images/tab/tab-small-top-over-corners.gif);
 }
-
 /* line 720, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-top-over .x-frame-ml,
 .x-tab-small-top-over .x-frame-mr,
@@ -14495,7 +14215,6 @@ a.x-datepicker-date:hover {
 .x-tab-small-right-over .x-frame-mr {
   background-image: url(images/tab/tab-small-top-over-sides.gif);
 }
-
 /* line 723, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-top-over .x-frame-mc,
 .x-tab-small-left-over .x-frame-mc,
@@ -14512,13 +14231,11 @@ a.x-datepicker-date:hover {
 .x-tab-small-bottom-over .x-frame-bc {
   background-image: url(images/tab/tab-small-bottom-over-corners.gif);
 }
-
 /* line 742, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-bottom-over .x-frame-ml,
 .x-tab-small-bottom-over .x-frame-mr {
   background-image: url(images/tab/tab-small-bottom-over-sides.gif);
 }
-
 /* line 745, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-bottom-over .x-frame-mc {
   background-color: #9ec7d8;
@@ -14545,7 +14262,6 @@ a.x-datepicker-date:hover {
 .x-tab-small-right-active .x-frame-bc {
   background-image: url(images/tab/tab-small-top-active-corners.gif);
 }
-
 /* line 766, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-top-active .x-frame-ml,
 .x-tab-small-top-active .x-frame-mr,
@@ -14555,7 +14271,6 @@ a.x-datepicker-date:hover {
 .x-tab-small-right-active .x-frame-mr {
   background-image: url(images/tab/tab-small-top-active-sides.gif);
 }
-
 /* line 769, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-top-active .x-frame-mc,
 .x-tab-small-left-active .x-frame-mc,
@@ -14572,13 +14287,11 @@ a.x-datepicker-date:hover {
 .x-tab-small-bottom-active .x-frame-bc {
   background-image: url(images/tab/tab-small-bottom-active-corners.gif);
 }
-
 /* line 788, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-bottom-active .x-frame-ml,
 .x-tab-small-bottom-active .x-frame-mr {
   background-image: url(images/tab/tab-small-bottom-active-sides.gif);
 }
-
 /* line 791, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-bottom-active .x-frame-mc {
   background-color: #cde2eb;
@@ -14605,7 +14318,6 @@ a.x-datepicker-date:hover {
 .x-tab-small-right-disabled .x-frame-bc {
   background-image: url(images/tab/tab-small-top-disabled-corners.gif);
 }
-
 /* line 812, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-top-disabled .x-frame-ml,
 .x-tab-small-top-disabled .x-frame-mr,
@@ -14615,7 +14327,6 @@ a.x-datepicker-date:hover {
 .x-tab-small-right-disabled .x-frame-mr {
   background-image: url(images/tab/tab-small-top-disabled-sides.gif);
 }
-
 /* line 815, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-top-disabled .x-frame-mc,
 .x-tab-small-left-disabled .x-frame-mc,
@@ -14632,13 +14343,11 @@ a.x-datepicker-date:hover {
 .x-tab-small-bottom-disabled .x-frame-bc {
   background-image: url(images/tab/tab-small-bottom-disabled-corners.gif);
 }
-
 /* line 834, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-bottom-disabled .x-frame-ml,
 .x-tab-small-bottom-disabled .x-frame-mr {
   background-image: url(images/tab/tab-small-bottom-disabled-sides.gif);
 }
-
 /* line 837, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-bottom-disabled .x-frame-mc {
   background-color: #92c0d3;
@@ -14650,7 +14359,6 @@ a.x-datepicker-date:hover {
   height: 12px;
   background-image: url(images/tab/tab-small-close.png);
 }
-
 /* line 876, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small .x-tab-close-btn-over {
   background-position: -12px 0;
@@ -14757,7 +14465,6 @@ a.x-datepicker-date:hover {
 .x-tab-bar-small-horizontal {
   height: 36px;
 }
-
 /* line 165, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-content-box .x-tab-bar-small-horizontal {
   height: 36px;
@@ -14767,7 +14474,6 @@ a.x-datepicker-date:hover {
 .x-tab-bar-small-vertical {
   width: 36px;
 }
-
 /* line 177, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-content-box .x-tab-bar-small-vertical {
   width: 36px;
@@ -14815,7 +14521,6 @@ a.x-datepicker-date:hover {
   border-width: 0 0 0 0;
   height: 5px;
 }
-
 /* line 239, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-plain .x-tab-bar-strip-small-top {
   border-width: 0 0 0 0;
@@ -14826,7 +14531,6 @@ a.x-datepicker-date:hover {
   border-width: 0 0 0 0;
   height: 5px;
 }
-
 /* line 247, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-plain .x-tab-bar-strip-small-bottom {
   border-width: 0 0 0 0;
@@ -14837,7 +14541,6 @@ a.x-datepicker-date:hover {
   border-width: 0 0 0 0;
   width: 5px;
 }
-
 /* line 255, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-plain .x-tab-bar-strip-small-left {
   border-width: 0 0 0 0;
@@ -14848,7 +14551,6 @@ a.x-datepicker-date:hover {
   border-width: 0 0 0 0;
   width: 5px;
 }
-
 /* line 272, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-plain .x-tab-bar-strip-small-right {
   border-width: 0 0 0 0;
@@ -14866,31 +14568,26 @@ a.x-datepicker-date:hover {
   opacity: 0.5;
   background-color: #71adc7;
 }
-
 /* line 351, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-small .x-box-scroller-plain .x-box-scroller {
   background-color: transparent;
 }
-
 /* line 362, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-small .x-box-scroller-hover {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=60);
   opacity: 0.6;
 }
-
 /* line 368, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-small .x-box-scroller-pressed {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=70);
   opacity: 0.7;
 }
-
 /* line 377, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-small .x-tabbar-scroll-left,
 .x-tab-bar-small .x-tabbar-scroll-right {
   height: 31px;
   width: 24px;
 }
-
 /* line 383, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-small .x-tabbar-scroll-top,
 .x-tab-bar-small .x-tabbar-scroll-bottom {
@@ -14902,7 +14599,6 @@ a.x-datepicker-date:hover {
 .x-tab-bar-small-bottom .x-box-scroller {
   margin-top: 0;
 }
-
 /* line 395, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-small-right .x-box-scroller {
   margin-left: 0;
@@ -14912,17 +14608,14 @@ a.x-datepicker-date:hover {
 .x-tab-bar-small .x-tabbar-scroll-left {
   background-image: url(images/tab-bar/small-scroll-left.png);
 }
-
 /* line 413, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-small .x-tabbar-scroll-right {
   background-image: url(images/tab-bar/small-scroll-right.png);
 }
-
 /* line 417, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-small .x-tabbar-scroll-top {
   background-image: url(images/tab-bar/small-scroll-top.png);
 }
-
 /* line 421, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-small .x-tabbar-scroll-bottom {
   background-image: url(images/tab-bar/small-scroll-bottom.png);
@@ -14932,17 +14625,14 @@ a.x-datepicker-date:hover {
 .x-tab-bar-small .x-box-scroller-plain .x-tabbar-scroll-left {
   background-image: url(images/tab-bar/small-plain-scroll-left.png);
 }
-
 /* line 443, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-small .x-box-scroller-plain .x-tabbar-scroll-right {
   background-image: url(images/tab-bar/small-plain-scroll-right.png);
 }
-
 /* line 447, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-small .x-box-scroller-plain .x-tabbar-scroll-top {
   background-image: url(images/tab-bar/small-plain-scroll-top.png);
 }
-
 /* line 451, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-small .x-box-scroller-plain .x-tabbar-scroll-bottom {
   background-image: url(images/tab-bar/small-plain-scroll-bottom.png);
@@ -15010,24 +14700,20 @@ a.x-datepicker-date:hover {
   padding-right: 8px;
   padding-left: 8px;
 }
-
 /* line 36, ../../sass/src/tab/Tab.scss */
 .x-tab-default-top:hover {
   border-bottom: #c9dbe3 solid 4px !important;
 }
-
 /* line 39, ../../sass/src/tab/Tab.scss */
 .x-tab-default-top:hover .x-tab-inner {
   font-weight: bold;
   color: #686868;
 }
-
 /* line 45, ../../sass/src/tab/Tab.scss */
 .x-tab-default-top.x-tab-default-active {
   border-bottom: #70bb51 solid 4px !important;
   background-color: transparent;
 }
-
 /* line 49, ../../sass/src/tab/Tab.scss */
 .x-tab-default-top.x-tab-default-active .x-tab-inner {
   font-weight: bold;
@@ -15042,17 +14728,14 @@ a.x-datepicker-date:hover {
   padding-right: 4px;
   padding-left: 4px;
 }
-
 /* line 71, ../../sass/src/tab/Tab.scss */
 .x-tab-default-bottom .x-tab-glyph {
   color: #333333;
 }
-
 /* line 88, ../../sass/src/tab/Tab.scss */
 .x-tab-default-bottom.x-tab-default-active {
   background-color: transparent;
 }
-
 /* line 92, ../../sass/src/tab/Tab.scss */
 .x-tab-default-bottom.x-tab-default-active .x-tab-inner {
   font-weight: bold;
@@ -15078,24 +14761,20 @@ a.x-datepicker-date:hover {
   padding-right: 8px;
   padding-left: 8px;
 }
-
 /* line 36, ../../sass/src/tab/Tab.scss */
 .x-tab-large-top:hover {
   border-bottom: #c9dbe3 solid 4px !important;
 }
-
 /* line 39, ../../sass/src/tab/Tab.scss */
 .x-tab-large-top:hover .x-tab-inner {
   font-weight: bold;
   color: #686868;
 }
-
 /* line 45, ../../sass/src/tab/Tab.scss */
 .x-tab-large-top.x-tab-large-active {
   border-bottom: #70bb51 solid 4px !important;
   background-color: transparent;
 }
-
 /* line 49, ../../sass/src/tab/Tab.scss */
 .x-tab-large-top.x-tab-large-active .x-tab-inner {
   font-weight: bold;
@@ -15110,17 +14789,14 @@ a.x-datepicker-date:hover {
   padding-right: 4px;
   padding-left: 4px;
 }
-
 /* line 71, ../../sass/src/tab/Tab.scss */
 .x-tab-large-bottom .x-tab-glyph {
   color: #333333;
 }
-
 /* line 88, ../../sass/src/tab/Tab.scss */
 .x-tab-large-bottom.x-tab-large-active {
   background-color: transparent;
 }
-
 /* line 92, ../../sass/src/tab/Tab.scss */
 .x-tab-large-bottom.x-tab-large-active .x-tab-inner {
   font-weight: bold;
@@ -15146,24 +14822,20 @@ a.x-datepicker-date:hover {
   padding-right: 8px;
   padding-left: 8px;
 }
-
 /* line 36, ../../sass/src/tab/Tab.scss */
 .x-tab-medium-top:hover {
   border-bottom: #c9dbe3 solid 4px !important;
 }
-
 /* line 39, ../../sass/src/tab/Tab.scss */
 .x-tab-medium-top:hover .x-tab-inner {
   font-weight: bold;
   color: #686868;
 }
-
 /* line 45, ../../sass/src/tab/Tab.scss */
 .x-tab-medium-top.x-tab-medium-active {
   border-bottom: #70bb51 solid 4px !important;
   background-color: transparent;
 }
-
 /* line 49, ../../sass/src/tab/Tab.scss */
 .x-tab-medium-top.x-tab-medium-active .x-tab-inner {
   font-weight: bold;
@@ -15178,17 +14850,14 @@ a.x-datepicker-date:hover {
   padding-right: 4px;
   padding-left: 4px;
 }
-
 /* line 71, ../../sass/src/tab/Tab.scss */
 .x-tab-medium-bottom .x-tab-glyph {
   color: #333333;
 }
-
 /* line 88, ../../sass/src/tab/Tab.scss */
 .x-tab-medium-bottom.x-tab-medium-active {
   background-color: transparent;
 }
-
 /* line 92, ../../sass/src/tab/Tab.scss */
 .x-tab-medium-bottom.x-tab-medium-active .x-tab-inner {
   font-weight: bold;
@@ -15214,24 +14883,20 @@ a.x-datepicker-date:hover {
   padding-right: 8px;
   padding-left: 8px;
 }
-
 /* line 36, ../../sass/src/tab/Tab.scss */
 .x-tab-small-top:hover {
   border-bottom: #c9dbe3 solid 4px !important;
 }
-
 /* line 39, ../../sass/src/tab/Tab.scss */
 .x-tab-small-top:hover .x-tab-inner {
   font-weight: bold;
   color: #686868;
 }
-
 /* line 45, ../../sass/src/tab/Tab.scss */
 .x-tab-small-top.x-tab-small-active {
   border-bottom: #70bb51 solid 4px !important;
   background-color: transparent;
 }
-
 /* line 49, ../../sass/src/tab/Tab.scss */
 .x-tab-small-top.x-tab-small-active .x-tab-inner {
   font-weight: bold;
@@ -15246,17 +14911,14 @@ a.x-datepicker-date:hover {
   padding-right: 4px;
   padding-left: 4px;
 }
-
 /* line 71, ../../sass/src/tab/Tab.scss */
 .x-tab-small-bottom .x-tab-glyph {
   color: #333333;
 }
-
 /* line 88, ../../sass/src/tab/Tab.scss */
 .x-tab-small-bottom.x-tab-small-active {
   background-color: transparent;
 }
-
 /* line 92, ../../sass/src/tab/Tab.scss */
 .x-tab-small-bottom.x-tab-small-active .x-tab-inner {
   font-weight: bold;

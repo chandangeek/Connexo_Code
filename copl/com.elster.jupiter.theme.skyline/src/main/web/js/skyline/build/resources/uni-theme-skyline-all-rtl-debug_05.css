@@ -1,12 +1,6 @@
-.x-tab-bar-medium .x-tabbar-scroll-right {
-  background-image: url(images/tab-bar/medium-scroll-right.png);
-}
-
-/* line 417, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-medium .x-tabbar-scroll-top {
   background-image: url(images/tab-bar/medium-scroll-top.png);
 }
-
 /* line 421, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-medium .x-tabbar-scroll-bottom {
   background-image: url(images/tab-bar/medium-scroll-bottom.png);
@@ -16,7 +10,6 @@
 .x-rtl.x-tab-bar-medium .x-tabbar-scroll-left {
   background-image: url(images/tab-bar/medium-scroll-right.png);
 }
-
 /* line 431, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-rtl.x-tab-bar-medium .x-tabbar-scroll-right {
   background-image: url(images/tab-bar/medium-scroll-left.png);
@@ -26,17 +19,14 @@
 .x-tab-bar-medium .x-box-scroller-plain .x-tabbar-scroll-left {
   background-image: url(images/tab-bar/medium-plain-scroll-left.png);
 }
-
 /* line 443, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-medium .x-box-scroller-plain .x-tabbar-scroll-right {
   background-image: url(images/tab-bar/medium-plain-scroll-right.png);
 }
-
 /* line 447, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-medium .x-box-scroller-plain .x-tabbar-scroll-top {
   background-image: url(images/tab-bar/medium-plain-scroll-top.png);
 }
-
 /* line 451, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-medium .x-box-scroller-plain .x-tabbar-scroll-bottom {
   background-image: url(images/tab-bar/medium-plain-scroll-bottom.png);
@@ -46,7 +36,6 @@
 .x-rtl.x-tab-bar-medium .x-box-scroller-plain .x-tabbar-scroll-left {
   background-image: url(images/tab-bar/medium-plain-scroll-right.png);
 }
-
 /* line 462, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-rtl.x-tab-bar-medium .x-box-scroller-plain .x-tabbar-scroll-right {
   background-image: url(images/tab-bar/medium-plain-scroll-left.png);
@@ -665,7 +654,6 @@
   margin: 0 1px 0 0;
   cursor: pointer;
 }
-
 /* line 316, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small .x-tab-inner {
   font-size: 13px;
@@ -674,7 +662,6 @@
   color: white;
   line-height: 16px;
 }
-
 /* line 326, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small .x-tab-icon-el {
   width: 16px;
@@ -682,7 +669,6 @@
   line-height: 16px;
   background-position: center center;
 }
-
 /* line 333, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small .x-tab-glyph {
   font-size: 16px;
@@ -790,12 +776,10 @@
 .x-tab-small-over {
   background-color: #9ec7d8;
 }
-
 /* line 515, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-over .x-tab-glyph {
   color: white;
 }
-
 /* line 522, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-ie8m .x-tab-small-over .x-tab-glyph {
   color: #cee3eb;
@@ -805,17 +789,14 @@
 .x-tab-small-active {
   background-color: #cde2eb;
 }
-
 /* line 557, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-active .x-tab-inner {
   color: #71adc7;
 }
-
 /* line 572, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-active .x-tab-glyph {
   color: #71adc7;
 }
-
 /* line 579, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-ie8m .x-tab-small-active .x-tab-glyph {
   color: #9fc7d9;
@@ -837,26 +818,22 @@
 .x-tab-small-disabled {
   cursor: default;
 }
-
 /* line 626, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-disabled .x-tab-inner {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=30);
   opacity: 0.3;
 }
-
 /* line 645, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-disabled .x-tab-icon-el {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
   opacity: 0.5;
 }
-
 /* line 650, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-disabled .x-tab-glyph {
   color: white;
   opacity: 0.3;
   filter: none;
 }
-
 /* line 664, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-ie8m .x-tab-small-disabled .x-tab-glyph {
   color: #b2d2e0;
@@ -900,7 +877,6 @@
 .x-tab-small-right-over .x-frame-bc {
   background-image: url(images/tab/tab-small-top-over-corners.gif);
 }
-
 /* line 720, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-top-over .x-frame-ml,
 .x-tab-small-top-over .x-frame-mr,
@@ -910,7 +886,6 @@
 .x-tab-small-right-over .x-frame-mr {
   background-image: url(images/tab/tab-small-top-over-sides.gif);
 }
-
 /* line 723, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-top-over .x-frame-mc,
 .x-tab-small-left-over .x-frame-mc,
@@ -927,13 +902,11 @@
 .x-tab-small-bottom-over .x-frame-bc {
   background-image: url(images/tab/tab-small-bottom-over-corners.gif);
 }
-
 /* line 742, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-bottom-over .x-frame-ml,
 .x-tab-small-bottom-over .x-frame-mr {
   background-image: url(images/tab/tab-small-bottom-over-sides.gif);
 }
-
 /* line 745, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-bottom-over .x-frame-mc {
   background-color: #9ec7d8;
@@ -960,7 +933,6 @@
 .x-tab-small-right-active .x-frame-bc {
   background-image: url(images/tab/tab-small-top-active-corners.gif);
 }
-
 /* line 766, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-top-active .x-frame-ml,
 .x-tab-small-top-active .x-frame-mr,
@@ -970,7 +942,6 @@
 .x-tab-small-right-active .x-frame-mr {
   background-image: url(images/tab/tab-small-top-active-sides.gif);
 }
-
 /* line 769, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-top-active .x-frame-mc,
 .x-tab-small-left-active .x-frame-mc,
@@ -987,13 +958,11 @@
 .x-tab-small-bottom-active .x-frame-bc {
   background-image: url(images/tab/tab-small-bottom-active-corners.gif);
 }
-
 /* line 788, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-bottom-active .x-frame-ml,
 .x-tab-small-bottom-active .x-frame-mr {
   background-image: url(images/tab/tab-small-bottom-active-sides.gif);
 }
-
 /* line 791, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-bottom-active .x-frame-mc {
   background-color: #cde2eb;
@@ -1020,7 +989,6 @@
 .x-tab-small-right-disabled .x-frame-bc {
   background-image: url(images/tab/tab-small-top-disabled-corners.gif);
 }
-
 /* line 812, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-top-disabled .x-frame-ml,
 .x-tab-small-top-disabled .x-frame-mr,
@@ -1030,7 +998,6 @@
 .x-tab-small-right-disabled .x-frame-mr {
   background-image: url(images/tab/tab-small-top-disabled-sides.gif);
 }
-
 /* line 815, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-top-disabled .x-frame-mc,
 .x-tab-small-left-disabled .x-frame-mc,
@@ -1047,13 +1014,11 @@
 .x-tab-small-bottom-disabled .x-frame-bc {
   background-image: url(images/tab/tab-small-bottom-disabled-corners.gif);
 }
-
 /* line 834, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-bottom-disabled .x-frame-ml,
 .x-tab-small-bottom-disabled .x-frame-mr {
   background-image: url(images/tab/tab-small-bottom-disabled-sides.gif);
 }
-
 /* line 837, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small-bottom-disabled .x-frame-mc {
   background-color: #92c0d3;
@@ -1065,7 +1030,6 @@
   height: 12px;
   background-image: url(images/tab/tab-small-close.png);
 }
-
 /* line 876, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-small .x-tab-close-btn-over {
   background-position: -12px 0;
@@ -1194,7 +1158,6 @@
 .x-tab-bar-small-horizontal {
   height: 36px;
 }
-
 /* line 165, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-content-box .x-tab-bar-small-horizontal {
   height: 36px;
@@ -1204,7 +1167,6 @@
 .x-tab-bar-small-vertical {
   width: 36px;
 }
-
 /* line 177, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-content-box .x-tab-bar-small-vertical {
   width: 36px;
@@ -1264,7 +1226,6 @@
   border-width: 0 0 0 0;
   height: 5px;
 }
-
 /* line 239, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-plain .x-tab-bar-strip-small-top {
   border-width: 0 0 0 0;
@@ -1275,7 +1236,6 @@
   border-width: 0 0 0 0;
   height: 5px;
 }
-
 /* line 247, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-plain .x-tab-bar-strip-small-bottom {
   border-width: 0 0 0 0;
@@ -1286,7 +1246,6 @@
   border-width: 0 0 0 0;
   width: 5px;
 }
-
 /* line 255, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-plain .x-tab-bar-strip-small-left {
   border-width: 0 0 0 0;
@@ -1296,7 +1255,6 @@
 .x-rtl.x-tab-bar-strip-small-left {
   border-width: 0 0 0 0;
 }
-
 /* line 263, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-plain .x-rtl.x-tab-bar-strip-small-left {
   border-width: 0 0 0 0;
@@ -1307,7 +1265,6 @@
   border-width: 0 0 0 0;
   width: 5px;
 }
-
 /* line 272, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-plain .x-tab-bar-strip-small-right {
   border-width: 0 0 0 0;
@@ -1317,7 +1274,6 @@
 .x-rtl.x-tab-bar-strip-small-right {
   border-width: 0 0 0 0;
 }
-
 /* line 280, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-plain .x-rtl.x-tab-bar-strip-small-right {
   border-width: 0 0 0 0;
@@ -1335,31 +1291,26 @@
   opacity: 0.5;
   background-color: #71adc7;
 }
-
 /* line 351, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-small .x-box-scroller-plain .x-box-scroller {
   background-color: transparent;
 }
-
 /* line 362, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-small .x-box-scroller-hover {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=60);
   opacity: 0.6;
 }
-
 /* line 368, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-small .x-box-scroller-pressed {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=70);
   opacity: 0.7;
 }
-
 /* line 377, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-small .x-tabbar-scroll-left,
 .x-tab-bar-small .x-tabbar-scroll-right {
   height: 31px;
   width: 24px;
 }
-
 /* line 383, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-small .x-tabbar-scroll-top,
 .x-tab-bar-small .x-tabbar-scroll-bottom {
@@ -1371,12 +1322,10 @@
 .x-tab-bar-small-bottom .x-box-scroller {
   margin-top: 0;
 }
-
 /* line 395, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-small-right .x-box-scroller {
   margin-left: 0;
 }
-
 /* line 400, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-rtl.x-tab-bar-small-right .x-box-scroller {
   margin-left: 0;
@@ -1387,17 +1336,14 @@
 .x-tab-bar-small .x-tabbar-scroll-left {
   background-image: url(images/tab-bar/small-scroll-left.png);
 }
-
 /* line 413, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-small .x-tabbar-scroll-right {
   background-image: url(images/tab-bar/small-scroll-right.png);
 }
-
 /* line 417, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-small .x-tabbar-scroll-top {
   background-image: url(images/tab-bar/small-scroll-top.png);
 }
-
 /* line 421, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-small .x-tabbar-scroll-bottom {
   background-image: url(images/tab-bar/small-scroll-bottom.png);
@@ -1407,7 +1353,6 @@
 .x-rtl.x-tab-bar-small .x-tabbar-scroll-left {
   background-image: url(images/tab-bar/small-scroll-right.png);
 }
-
 /* line 431, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-rtl.x-tab-bar-small .x-tabbar-scroll-right {
   background-image: url(images/tab-bar/small-scroll-left.png);
@@ -1417,17 +1362,14 @@
 .x-tab-bar-small .x-box-scroller-plain .x-tabbar-scroll-left {
   background-image: url(images/tab-bar/small-plain-scroll-left.png);
 }
-
 /* line 443, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-small .x-box-scroller-plain .x-tabbar-scroll-right {
   background-image: url(images/tab-bar/small-plain-scroll-right.png);
 }
-
 /* line 447, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-small .x-box-scroller-plain .x-tabbar-scroll-top {
   background-image: url(images/tab-bar/small-plain-scroll-top.png);
 }
-
 /* line 451, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-small .x-box-scroller-plain .x-tabbar-scroll-bottom {
   background-image: url(images/tab-bar/small-plain-scroll-bottom.png);
@@ -1437,7 +1379,6 @@
 .x-rtl.x-tab-bar-small .x-box-scroller-plain .x-tabbar-scroll-left {
   background-image: url(images/tab-bar/small-plain-scroll-right.png);
 }
-
 /* line 462, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-rtl.x-tab-bar-small .x-box-scroller-plain .x-tabbar-scroll-right {
   background-image: url(images/tab-bar/small-plain-scroll-left.png);
@@ -1505,24 +1446,20 @@
   padding-right: 8px;
   padding-left: 8px;
 }
-
 /* line 36, ../../sass/src/tab/Tab.scss */
 .x-tab-default-top:hover {
   border-bottom: #c9dbe3 solid 4px !important;
 }
-
 /* line 39, ../../sass/src/tab/Tab.scss */
 .x-tab-default-top:hover .x-tab-inner {
   font-weight: bold;
   color: #686868;
 }
-
 /* line 45, ../../sass/src/tab/Tab.scss */
 .x-tab-default-top.x-tab-default-active {
   border-bottom: #70bb51 solid 4px !important;
   background-color: transparent;
 }
-
 /* line 49, ../../sass/src/tab/Tab.scss */
 .x-tab-default-top.x-tab-default-active .x-tab-inner {
   font-weight: bold;
@@ -1537,17 +1474,14 @@
   padding-right: 4px;
   padding-left: 4px;
 }
-
 /* line 71, ../../sass/src/tab/Tab.scss */
 .x-tab-default-bottom .x-tab-glyph {
   color: #333333;
 }
-
 /* line 88, ../../sass/src/tab/Tab.scss */
 .x-tab-default-bottom.x-tab-default-active {
   background-color: transparent;
 }
-
 /* line 92, ../../sass/src/tab/Tab.scss */
 .x-tab-default-bottom.x-tab-default-active .x-tab-inner {
   font-weight: bold;
@@ -1573,24 +1507,20 @@
   padding-right: 8px;
   padding-left: 8px;
 }
-
 /* line 36, ../../sass/src/tab/Tab.scss */
 .x-tab-large-top:hover {
   border-bottom: #c9dbe3 solid 4px !important;
 }
-
 /* line 39, ../../sass/src/tab/Tab.scss */
 .x-tab-large-top:hover .x-tab-inner {
   font-weight: bold;
   color: #686868;
 }
-
 /* line 45, ../../sass/src/tab/Tab.scss */
 .x-tab-large-top.x-tab-large-active {
   border-bottom: #70bb51 solid 4px !important;
   background-color: transparent;
 }
-
 /* line 49, ../../sass/src/tab/Tab.scss */
 .x-tab-large-top.x-tab-large-active .x-tab-inner {
   font-weight: bold;
@@ -1605,17 +1535,14 @@
   padding-right: 4px;
   padding-left: 4px;
 }
-
 /* line 71, ../../sass/src/tab/Tab.scss */
 .x-tab-large-bottom .x-tab-glyph {
   color: #333333;
 }
-
 /* line 88, ../../sass/src/tab/Tab.scss */
 .x-tab-large-bottom.x-tab-large-active {
   background-color: transparent;
 }
-
 /* line 92, ../../sass/src/tab/Tab.scss */
 .x-tab-large-bottom.x-tab-large-active .x-tab-inner {
   font-weight: bold;
@@ -1641,24 +1568,20 @@
   padding-right: 8px;
   padding-left: 8px;
 }
-
 /* line 36, ../../sass/src/tab/Tab.scss */
 .x-tab-medium-top:hover {
   border-bottom: #c9dbe3 solid 4px !important;
 }
-
 /* line 39, ../../sass/src/tab/Tab.scss */
 .x-tab-medium-top:hover .x-tab-inner {
   font-weight: bold;
   color: #686868;
 }
-
 /* line 45, ../../sass/src/tab/Tab.scss */
 .x-tab-medium-top.x-tab-medium-active {
   border-bottom: #70bb51 solid 4px !important;
   background-color: transparent;
 }
-
 /* line 49, ../../sass/src/tab/Tab.scss */
 .x-tab-medium-top.x-tab-medium-active .x-tab-inner {
   font-weight: bold;
@@ -1673,17 +1596,14 @@
   padding-right: 4px;
   padding-left: 4px;
 }
-
 /* line 71, ../../sass/src/tab/Tab.scss */
 .x-tab-medium-bottom .x-tab-glyph {
   color: #333333;
 }
-
 /* line 88, ../../sass/src/tab/Tab.scss */
 .x-tab-medium-bottom.x-tab-medium-active {
   background-color: transparent;
 }
-
 /* line 92, ../../sass/src/tab/Tab.scss */
 .x-tab-medium-bottom.x-tab-medium-active .x-tab-inner {
   font-weight: bold;
@@ -1709,24 +1629,20 @@
   padding-right: 8px;
   padding-left: 8px;
 }
-
 /* line 36, ../../sass/src/tab/Tab.scss */
 .x-tab-small-top:hover {
   border-bottom: #c9dbe3 solid 4px !important;
 }
-
 /* line 39, ../../sass/src/tab/Tab.scss */
 .x-tab-small-top:hover .x-tab-inner {
   font-weight: bold;
   color: #686868;
 }
-
 /* line 45, ../../sass/src/tab/Tab.scss */
 .x-tab-small-top.x-tab-small-active {
   border-bottom: #70bb51 solid 4px !important;
   background-color: transparent;
 }
-
 /* line 49, ../../sass/src/tab/Tab.scss */
 .x-tab-small-top.x-tab-small-active .x-tab-inner {
   font-weight: bold;
@@ -1741,17 +1657,14 @@
   padding-right: 4px;
   padding-left: 4px;
 }
-
 /* line 71, ../../sass/src/tab/Tab.scss */
 .x-tab-small-bottom .x-tab-glyph {
   color: #333333;
 }
-
 /* line 88, ../../sass/src/tab/Tab.scss */
 .x-tab-small-bottom.x-tab-small-active {
   background-color: transparent;
 }
-
 /* line 92, ../../sass/src/tab/Tab.scss */
 .x-tab-small-bottom.x-tab-small-active .x-tab-inner {
   font-weight: bold;
