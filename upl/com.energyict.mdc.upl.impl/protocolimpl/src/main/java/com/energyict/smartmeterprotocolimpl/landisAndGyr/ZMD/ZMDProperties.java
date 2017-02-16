@@ -108,7 +108,7 @@ public class ZMDProperties extends DlmsProtocolProperties {
 
     @Override
     public byte[] getSystemIdentifier() {
-        return "".getBytes();
+        return null; // Which will ensure the AssociationControlServiceElement 'CallingApplicationProcessTitle' tag is not present
     }
 
     @Override
