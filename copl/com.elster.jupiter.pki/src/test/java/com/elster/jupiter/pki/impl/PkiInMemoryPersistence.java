@@ -10,7 +10,7 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.PrivateKeyFactory;
-import com.elster.jupiter.pki.impl.wrappers.PlaintextPrivateKeyFactory;
+import com.elster.jupiter.pki.impl.wrappers.assymetric.PlaintextPrivateKeyFactory;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;

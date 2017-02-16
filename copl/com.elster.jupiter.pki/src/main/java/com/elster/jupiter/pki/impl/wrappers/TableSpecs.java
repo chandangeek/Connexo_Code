@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.impl.wrappers.assymetric.AbstractPlaintextPrivateKeyImpl;
 
 public enum TableSpecs {
     SSM_PLAINTEXTPK {

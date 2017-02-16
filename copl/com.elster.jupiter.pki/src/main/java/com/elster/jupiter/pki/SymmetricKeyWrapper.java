@@ -1,7 +1,18 @@
 package com.elster.jupiter.pki;
 
+import javax.crypto.SecretKey;
+
 /**
- * Created by bvn on 1/25/17.
+ * This class wraps an actual Key with the information required to read it from db or renew it.
+ * Through offering PropertySpecs & properties, a generic interface is offered for the UI
  */
 public interface SymmetricKeyWrapper {
+
+    String getKeyEncryptionMethod();
+
+    SecretKey getKey();
+
+
+
+
 }

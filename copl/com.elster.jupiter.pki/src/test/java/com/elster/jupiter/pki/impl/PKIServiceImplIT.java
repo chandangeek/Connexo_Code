@@ -7,7 +7,7 @@ import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
-import com.elster.jupiter.pki.impl.wrappers.PlaintextPrivateKeyFactory;
+import com.elster.jupiter.pki.impl.wrappers.assymetric.PlaintextPrivateKeyFactory;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;

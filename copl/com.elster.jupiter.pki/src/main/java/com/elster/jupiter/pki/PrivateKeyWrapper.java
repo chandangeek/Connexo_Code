@@ -14,8 +14,8 @@ import java.security.PrivateKey;
 import java.util.Map;
 
 /**
- *
- * Created by bvn on 1/12/17.
+ * This class wraps an actual PrivateKey with the information required to read it from db or renew it.
+ * Through offering PropertySpecs & properties, a generic interface is offered for the UI
  */
 @ConsumerType
 public interface PrivateKeyWrapper extends HasDynamicPropertiesWithUpdatableValues {

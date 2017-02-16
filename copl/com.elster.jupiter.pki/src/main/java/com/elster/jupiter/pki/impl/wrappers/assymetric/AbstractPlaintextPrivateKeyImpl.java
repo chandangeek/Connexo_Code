@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell Inc. All rights reserved.
  */
 
-package com.elster.jupiter.pki.impl.wrappers;
+package com.elster.jupiter.pki.impl.wrappers.assymetric;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Save;
@@ -41,7 +41,7 @@ abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapp
     private String encryptedPrivateKey;
     private Reference<KeyType> keyTypeReference = Reference.empty();
 
-    static final Map<String, Class<? extends AbstractPlaintextPrivateKeyImpl>> IMPLEMENTERS =
+    public static final Map<String, Class<? extends AbstractPlaintextPrivateKeyImpl>> IMPLEMENTERS =
             ImmutableMap.of(
                     "RSA", PlaintextRsaPrivateKey.class,
                     "DSA", PlaintextDsaPrivateKey.class,
@@ -97,7 +97,7 @@ abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapp
         Save.action(id).save(dataModel, this);
     }
 
-    enum Properties {
+    public enum Properties {
         ENCRYPTED_PRIVATE_KEY("encryptedPrivateKey", "privateKey") {
             public PropertySpec asPropertySpec(PropertySpecService propertySpecService) {
                 return propertySpecService.stringSpec()
@@ -134,7 +134,7 @@ abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapp
         abstract void copyFromMap(Map<String, Object> properties, AbstractPlaintextPrivateKeyImpl privateKey);
         abstract void copyToMap(Map<String, Object> properties, AbstractPlaintextPrivateKeyImpl privateKey);
 
-        String fieldName() {
+        public String fieldName() {
             return fieldName;
         }
 
