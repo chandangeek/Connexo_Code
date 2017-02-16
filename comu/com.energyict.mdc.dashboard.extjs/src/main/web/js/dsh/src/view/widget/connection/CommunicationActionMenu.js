@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dsh.view.widget.connection.CommunicationActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.communication-action-menu',

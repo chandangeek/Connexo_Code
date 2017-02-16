@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dsh.view.OperatorDashboard', {
     extend: 'Ext.panel.Panel',
     requires: [
@@ -221,7 +225,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
                         },
                         {
                             name: 'processInstancesId',
-                            label: Uni.I18n.translate('widget.myWorkList.property.processInstancesId', 'DSH', 'Process Id')
+                            label: Uni.I18n.translate('widget.myWorkList.property.processInstancesId', 'DSH', 'Process ID')
                         },
                         {
                             name: 'processName',
