@@ -5,7 +5,7 @@ Ext.define('Mdc.service.Search', {
         var me = this;
         me.defaultColumns = {
             'com.energyict.mdc.device.data.Device': ['id', 'name', 'serialNumber', 'deviceTypeName', 'deviceConfigurationName', 'state', 'location'],
-            'com.elster.jupiter.metering.UsagePoint': ['name', 'displayServiceCategory', 'displayMetrologyConfiguration']
+            'com.elster.jupiter.metering.UsagePoint': ['name', 'displayServiceCategory', 'displayMetrologyConfiguration', 'location']
         };
         me.callParent(arguments);
     },

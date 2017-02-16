@@ -39,6 +39,21 @@ Ext.define('Mdc.usagepointmanagement.view.AddUsagePointForm', {
             required: true
         },
         {
+            xtype: 'coordinates',
+            name: 'extendedGeoCoordinates',
+            itemId: 'extendedGeoCoordinates',
+            width: 600,
+            fieldLabel: Uni.I18n.translate('general.coordinates', 'MDC', 'Coordinates')
+        },
+        {
+            xtype: 'location',
+            name: 'extendedLocation',
+            itemId: 'extendedLocation',
+            width: 610,
+            findLocationsUrl: '/api/jsr/search/com.energyict.mdc.device.data.Device/locationsearchcriteria/location',
+            locationDetailsUrl: '/api/ddr/devices/locations'
+        },
+        {
             xtype: 'fieldcontainer',
             ui: 'actions',
             fieldLabel: '&nbsp',
