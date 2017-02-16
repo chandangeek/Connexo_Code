@@ -53,16 +53,14 @@ public class IssueResource {
 
     private final IssueInfoFactory issueInfoFactory;
     private final IssueStatusInfoFactory issueStatusInfoFactory;
-    private final IssueCommentInfoFactory issueCommentInfoFactory;
     private final IssueService issueService;
     private final ExceptionFactory exceptionFactory;
     private final UserService userService;
 
     @Inject
-    public IssueResource(IssueInfoFactory issueInfoFactory, IssueStatusInfoFactory issueStatusInfoFactory, IssueCommentInfoFactory issueCommentInfoFactory, IssueService issueService, ExceptionFactory exceptionFactory, UserService userService) {
+    public IssueResource(IssueInfoFactory issueInfoFactory, IssueStatusInfoFactory issueStatusInfoFactory, IssueService issueService, ExceptionFactory exceptionFactory, UserService userService) {
         this.issueInfoFactory = issueInfoFactory;
         this.issueStatusInfoFactory = issueStatusInfoFactory;
-        this.issueCommentInfoFactory = issueCommentInfoFactory;
         this.issueService = issueService;
         this.exceptionFactory = exceptionFactory;
         this.userService = userService;
@@ -87,17 +85,6 @@ public class IssueResource {
         //addSorting(finder, params);
     }
 
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @Path("/{id}")
-    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public IssueInfo getIssue(@PathParam("id") long issueId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        Issue issue = issueService.findIssue(issueId)
-                .filter(isu -> !isu.getReason().getIssueType().getPrefix().equals("ALM"))
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, String.valueOf(issueId)));
-        return issueInfoFactory.from(issue, uriInfo, fieldSelection.getFields());
-    }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
@@ -166,29 +153,6 @@ public class IssueResource {
 
         return Response.created(uri).build();
     }
-
-
-    @GET
-    @Transactional
-    @Path("/{id}/comments")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public PagedInfoList<IssueCommentInfo> getComments(@PathParam("id") long issueId,
-                                                       @BeanParam FieldSelection fieldSelection,
-                                                       @Context UriInfo uriInfo,
-                                                       @BeanParam JsonQueryParameters queryParameters) {
-        Issue issue = issueService.findIssue(issueId).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, String.valueOf(issueId)));
-        Condition condition = where("issueId").isEqualTo(issue.getId());
-        Query<IssueComment> query = issueService.query(IssueComment.class, User.class);
-        List<IssueComment> commentsList = query.select(condition, Order.ascending("createTime"));
-        List<IssueCommentInfo> infos = commentsList.stream().map(isu -> issueCommentInfoFactory.from(isu, uriInfo, fieldSelection.getFields()))
-                .collect(toList());
-        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
-                .path(IssueResource.class);
-        return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
-
-    }
-
 
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")

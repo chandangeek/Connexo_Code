@@ -51,17 +51,15 @@ import static java.util.stream.Collectors.toList;
 public class AlarmResource {
 
     private final AlarmInfoFactory alarmInfoFactory;
-    private final IssueStatusInfoFactory issueStatusInfoFactory;
-    private final IssueCommentInfoFactory issueCommentInfoFactory;
+    private final AlarmStatusInfoFactory alarmStatusInfoFactory;
     private final IssueService issueService;
     private final ExceptionFactory exceptionFactory;
     private final UserService userService;
 
     @Inject
-    public AlarmResource(AlarmInfoFactory alarmInfoFactory, IssueStatusInfoFactory issueStatusInfoFactory, IssueCommentInfoFactory issueCommentInfoFactory, IssueService issueService, ExceptionFactory exceptionFactory, UserService userService) {
+    public AlarmResource(AlarmInfoFactory alarmInfoFactory, AlarmStatusInfoFactory alarmStatusInfoFactory, IssueService issueService, ExceptionFactory exceptionFactory, UserService userService) {
         this.alarmInfoFactory = alarmInfoFactory;
-        this.issueStatusInfoFactory = issueStatusInfoFactory;
-        this.issueCommentInfoFactory = issueCommentInfoFactory;
+        this.alarmStatusInfoFactory = alarmStatusInfoFactory;
         this.issueService = issueService;
         this.exceptionFactory = exceptionFactory;
         this.userService = userService;
@@ -80,33 +78,21 @@ public class AlarmResource {
                 .map(isu -> alarmInfoFactory.from(isu, uriInfo, fieldSelection.getFields()))
                 .collect(toList());
         UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
-                .path(IssueResource.class);
+                .path(AlarmResource.class);
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
         //addSorting(finder, params);
 
-    }
-
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @Path("/{id}")
-    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public AlarmInfo getAlarm(@PathParam("id") long alarmId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        IssueFilter filter = issueService.newIssueFilter();
-        Issue alarm = issueService.findAlarms(filter).find().stream().filter(alm -> alm.getId() == alarmId).findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ALARM, String.valueOf(alarmId)));
-        return alarmInfoFactory.from(alarm, uriInfo, fieldSelection.getFields());
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{id}/status")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public IssueStatusInfo getStatus(@PathParam("id") long alarmId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+    public AlarmStatusInfo getStatus(@PathParam("id") long alarmId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         IssueFilter filter = issueService.newIssueFilter();
         IssueStatus issueStatus = issueService.findAlarms(filter).find().stream().filter(alarm -> alarm.getId() == alarmId).findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ALARM, String.valueOf(alarmId))).getStatus();
-        return issueStatusInfoFactory.from(issueStatus, uriInfo, fieldSelection.getFields());
+        return alarmStatusInfoFactory.from(issueStatus, uriInfo, fieldSelection.getFields());
     }
 
     @PUT
@@ -172,30 +158,6 @@ public class AlarmResource {
                 build(alarm.getId());
 
         return Response.created(uri).build();
-    }
-
-
-    @GET
-    @Transactional
-    @Path("/{id}/comments")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public PagedInfoList<IssueCommentInfo> getComments(@PathParam("id") long alarmId,
-                                                       @BeanParam FieldSelection fieldSelection,
-                                                       @Context UriInfo uriInfo,
-                                                       @BeanParam JsonQueryParameters queryParameters) {
-        IssueFilter filter = issueService.newIssueFilter();
-        Issue alarm = issueService.findAlarms(filter).find().stream().filter(alm -> alm.getId() == alarmId).findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ALARM, String.valueOf(alarmId)));
-        Condition condition = where("issueId").isEqualTo(alarm.getId());
-        Query<IssueComment> query = issueService.query(IssueComment.class, User.class);
-        List<IssueComment> commentsList = query.select(condition, Order.ascending("createTime"));
-        List<IssueCommentInfo> infos = commentsList.stream().map(isu -> issueCommentInfoFactory.from(isu, uriInfo, fieldSelection.getFields()))
-                .collect(toList());
-        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
-                .path(IssueResource.class);
-        return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
-
     }
 
     @PROPFIND

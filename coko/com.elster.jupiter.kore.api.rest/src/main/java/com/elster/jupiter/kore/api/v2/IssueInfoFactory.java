@@ -24,9 +24,9 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
-public class IssueInfoFactory  extends SelectableFieldFactory<IssueInfo, Issue> {
+public class IssueInfoFactory extends SelectableFieldFactory<IssueInfo, Issue> {
 
-    private final EndDeviceInfoFactory endDeviceInfoFactory;
+    private final DeviceInfoFactory deviceInfoFactory;
     private final IssueStatusInfoFactory issueStatusInfoFactory;
     private final IssueAssigneeInfoFactory issueAssigneeInfoFactory;
     private final IssueTypeInfoFactory issueTypeInfoFactory;
@@ -34,8 +34,8 @@ public class IssueInfoFactory  extends SelectableFieldFactory<IssueInfo, Issue> 
     private final IssueReasonInfoFactory issueReasonInfoFactory;
 
     @Inject
-    public IssueInfoFactory(EndDeviceInfoFactory endDeviceInfoFactory, IssueStatusInfoFactory issueStatusInfoFactory, IssueAssigneeInfoFactory issueAssigneeInfoFactory, IssueTypeInfoFactory issueTypeInfoFactory, IssuePriorityInfoFactory issuePriorityInfoFactory, IssueReasonInfoFactory issueReasonInfoFactory) {
-        this.endDeviceInfoFactory = endDeviceInfoFactory;
+    public IssueInfoFactory(DeviceInfoFactory deviceInfoFactory, IssueStatusInfoFactory issueStatusInfoFactory, IssueAssigneeInfoFactory issueAssigneeInfoFactory, IssueTypeInfoFactory issueTypeInfoFactory, IssuePriorityInfoFactory issuePriorityInfoFactory, IssueReasonInfoFactory issueReasonInfoFactory) {
+        this.deviceInfoFactory = deviceInfoFactory;
         this.issueStatusInfoFactory = issueStatusInfoFactory;
         this.issueAssigneeInfoFactory = issueAssigneeInfoFactory;
         this.issueTypeInfoFactory = issueTypeInfoFactory;
@@ -53,6 +53,7 @@ public class IssueInfoFactory  extends SelectableFieldFactory<IssueInfo, Issue> 
     public List<LinkInfo> asLink(Collection<? extends Issue> issues, Relation relation, UriInfo uriInfo) {
         return issues.stream().map(i -> asLink(i, relation, uriInfo)).collect(toList());
     }
+
     private Link link(Issue issue, Relation relation, UriInfo uriInfo) {
         return Link.fromUriBuilder(getUriBuilder(uriInfo))
                 .rel(relation.rel())
@@ -86,7 +87,7 @@ public class IssueInfoFactory  extends SelectableFieldFactory<IssueInfo, Issue> 
         map.put("assignee", (issueInfo, issue, uriInfo) -> issueInfo.assignee = issueAssigneeInfoFactory.asInfo(issue.getAssignee()));
         map.put("workGroupAssignee", (issueInfo, issue, uriInfo) -> issueInfo.workGroupAssignee = issueAssigneeInfoFactory.asInfo("WORKGROUP", issue.getAssignee()));
         map.put("userAssignee", (issueInfo, issue, uriInfo) -> issueInfo.userAssignee = issueAssigneeInfoFactory.asInfo("USER", issue.getAssignee()));
-        map.put("device", (issueInfo, issue, uriInfo) -> issueInfo.device = endDeviceInfoFactory.from((Meter)issue.getDevice(),uriInfo,null));
+        map.put("device", (issueInfo, issue, uriInfo) -> issueInfo.device = deviceInfoFactory.from((Meter) issue.getDevice(), uriInfo, null));
         map.put("issueType", (issueInfo, issue, uriInfo) -> issueInfo.issueType = issueTypeInfoFactory.asInfo(issue.getReason().getIssueType()));
         map.put("creationDate", (issueInfo, issue, uriInfo) -> issueInfo.creationDate = issue.getCreateTime().toEpochMilli());
         map.put("modTime", (issueInfo, issue, uriInfo) -> issueInfo.modTime = issue.getModTime().toEpochMilli());

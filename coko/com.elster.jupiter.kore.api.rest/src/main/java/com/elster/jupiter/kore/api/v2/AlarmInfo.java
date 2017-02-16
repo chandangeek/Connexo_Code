@@ -8,12 +8,12 @@ public class AlarmInfo extends LinkInfo<Long> {
     public IssueReasonInfo reason;
     public PriorityInfo priority;
     public int priorityValue;
-    public IssueStatusInfo status;
+    public AlarmStatusInfo status;
     public long dueDate;
     public IssueAssigneeInfo assignee;
     public IssueAssigneeInfo workGroupAssignee;
     public IssueAssigneeInfo userAssignee;
-    public EndDeviceInfo device;
+    public DeviceInfo device;
     public String title;
     public IssueTypeInfo alarmType;
     public long creationDate;
