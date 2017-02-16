@@ -246,7 +246,7 @@ Ext.define('Tme.controller.RelativePeriods', {
                 actionsMenu.down('#view-details').hide();
                 me.getApplication().fireEvent('relativeperiodload', record);
                 detailsForm.loadRecord(record);
-                view.down('relative-periods-menu #relative-period-overview-link').setText(record.get('name'));
+                view.down('relative-periods-menu').setHeader(record.get('name'));
                 relativePeriodPreview.setRelativePeriodId(periodId);
                 relativePeriodPreview.updatePreview();
             }
