@@ -14,6 +14,7 @@ import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLDeviceMessageSpecAda
 import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageCategories;
 import com.energyict.protocolimplv2.messages.DeviceMessageSpecSupplier;
 import org.osgi.service.component.annotations.Activate;
@@ -134,22 +135,24 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
 
     @Override
     public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOptionFor(DeviceMessageId deviceMessageId) {
-        return Stream.of(com.energyict.protocolimplv2.messages.FirmwareDeviceMessage.values())
-                .map(provider -> provider.get(uplPropertySpecService, uplNlsService, converter))
-                .filter(spec -> spec.getId() == deviceMessageId.dbValue())
-                .map(com.energyict.protocolimplv2.messages.FirmwareDeviceMessage.class::cast)
-                .map(com.energyict.protocolimplv2.messages.FirmwareDeviceMessage::getProtocolSupportedFirmwareOption)
-                .findAny().orElse(Optional.empty());
+        for (com.energyict.protocolimplv2.messages.FirmwareDeviceMessage deviceMessageProvider : com.energyict.protocolimplv2.messages.FirmwareDeviceMessage.values()) {
+            com.energyict.mdc.upl.messages.DeviceMessageSpec spec = deviceMessageProvider.get(uplPropertySpecService, uplNlsService, converter);
+            if (spec.getId() == deviceMessageId.dbValue()) {
+                return deviceMessageProvider.getProtocolSupportedFirmwareOption();
+            }
+        }
+        return Optional.empty();
     }
 
     @Override
     public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOptionsFor(DeviceMessageId deviceMessageId) {
-        return Stream.of(com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage.values())
-                .map(provider -> provider.get(uplPropertySpecService, uplNlsService, converter))
-                .filter(spec -> spec.getId() == deviceMessageId.dbValue())
-                .map(com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage.class::cast)
-                .map(com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage::getProtocolSupportedCalendarOption)
-                .findAny().orElse(Optional.empty());
+        for (ActivityCalendarDeviceMessage deviceMessageProvider : ActivityCalendarDeviceMessage.values()) {
+            com.energyict.mdc.upl.messages.DeviceMessageSpec spec = deviceMessageProvider.get(uplPropertySpecService, uplNlsService, converter);
+            if (spec.getId() == deviceMessageId.dbValue()) {
+                return deviceMessageProvider.getProtocolSupportedCalendarOption();
+            }
+        }
+        return Optional.empty();
     }
 
     @Override

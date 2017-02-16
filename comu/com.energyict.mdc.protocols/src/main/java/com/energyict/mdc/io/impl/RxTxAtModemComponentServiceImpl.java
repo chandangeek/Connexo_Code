@@ -2,9 +2,9 @@ package com.energyict.mdc.io.impl;
 
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.channels.serial.SerialPortConfiguration;
-import com.energyict.mdc.channels.serial.ServerSerialPort;
-import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialPort;
+import com.energyict.mdc.channel.serial.SerialPortConfiguration;
+import com.energyict.mdc.channel.serial.ServerSerialPort;
+import com.energyict.mdc.channel.serial.direct.rxtx.RxTxSerialPort;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.upl.io.LibraryType;
 import com.energyict.mdc.upl.io.ModemType;
