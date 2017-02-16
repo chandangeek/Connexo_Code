@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.rest.impl;
 
 import com.elster.jupiter.metering.ReadingType;
@@ -89,7 +93,7 @@ public class MetrologyConfigurationResourceTest extends MeteringApplicationJerse
         FullySpecifiedReadingTypeRequirement fullySpecifiedReadingTypeRequirement = mock(FullySpecifiedReadingTypeRequirement.class);
         when(requirementBuilder.withReadingType(readingType)).thenReturn(fullySpecifiedReadingTypeRequirement);
         ReadingTypeDeliverableBuilder deliverableBuilder = mock(ReadingTypeDeliverableBuilder.class);
-        when(metrologyConfiguration.newReadingTypeDeliverable(readingType.getFullAliasName(), readingType, Formula.Mode.AUTO)).thenReturn(deliverableBuilder);
+        when(metrologyConfiguration.newReadingTypeDeliverable(readingType.getFullAliasName(), readingType, Formula.Mode.EXPERT)).thenReturn(deliverableBuilder);
         ReadingTypeDeliverable readingTypeDeliverable = mock(ReadingTypeDeliverable.class);
         when(deliverableBuilder.build(deliverableBuilder.requirement(fullySpecifiedReadingTypeRequirement))).thenReturn(readingTypeDeliverable);
         MetrologyContract metrologyContract = mock(MetrologyContract.class);

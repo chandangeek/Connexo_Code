@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.rest.impl;
 
 import com.elster.jupiter.domain.util.FormValidationException;
@@ -191,7 +195,7 @@ public class MetrologyConfigurationResource {
                         metrologyConfiguration
                                 .newReadingTypeRequirement(readingType.getFullAliasName(), meterRoleDefault)
                                 .withReadingType(readingType);
-                ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable(readingType.getFullAliasName(), readingType, Formula.Mode.AUTO);
+                ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable(readingType.getFullAliasName(), readingType, Formula.Mode.EXPERT);
                 ReadingTypeDeliverable deliverable = builder.build(builder.requirement(fullySpecifiedReadingTypeRequirement));
                 MetrologyContract metrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(purpose);
                 metrologyContract.addDeliverable(deliverable);

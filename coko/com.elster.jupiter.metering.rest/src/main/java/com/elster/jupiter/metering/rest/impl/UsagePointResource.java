@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.rest.impl;
 
 import com.elster.jupiter.domain.util.FormValidationException;
@@ -17,10 +21,10 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.OverlapsOnMetrologyConfigurationVersionEnd;
 import com.elster.jupiter.metering.config.OverlapsOnMetrologyConfigurationVersionStart;
-import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationEndDate;
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationEndDateInThePast;
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd;
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart;
+import com.elster.jupiter.metering.config.UnsatisfiedMetrologyConfigurationEndDate;
 import com.elster.jupiter.metering.config.UnsatisfiedReadingTypeRequirements;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
@@ -343,7 +347,7 @@ public class UsagePointResource {
         } catch (UnsatisfiedReadingTypeRequirements ex) {
             throw new FormValidationException().addException("metrologyConfiguration",
                     MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE.getDefaultFormat());
-        } catch (UnsatisfiedMerologyConfigurationEndDate ex) {
+        } catch (UnsatisfiedMetrologyConfigurationEndDate ex) {
             throw new FormValidationException().addException("end", ex.getMessage());
         } catch (UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart | UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd ex) {
             throw new FormValidationException().addException("start", ex.getMessage());
@@ -381,7 +385,7 @@ public class UsagePointResource {
         } catch (UnsatisfiedReadingTypeRequirements ex) {
             throw new FormValidationException().addException("metrologyConfiguration",
                     MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE.getDefaultFormat());
-        } catch (OverlapsOnMetrologyConfigurationVersionEnd | UnsatisfiedMerologyConfigurationEndDateInThePast | UnsatisfiedMerologyConfigurationEndDate ex) {
+        } catch (OverlapsOnMetrologyConfigurationVersionEnd | UnsatisfiedMerologyConfigurationEndDateInThePast | UnsatisfiedMetrologyConfigurationEndDate ex) {
             throw new FormValidationException().addException("end", ex.getMessage());
         } catch (OverlapsOnMetrologyConfigurationVersionStart ex) {
             throw new FormValidationException().addException("start", ex.getMessage());
