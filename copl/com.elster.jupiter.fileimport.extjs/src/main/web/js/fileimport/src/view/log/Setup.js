@@ -75,6 +75,7 @@ Ext.define('Fim.view.log.Setup', {
                     },
                     emptyComponent: {
                         xtype: 'uni-form-empty-message',
+                        doAutoSize: false,
                         itemId: 'import-history-log-grid-empty-message',
                    }
                 }
