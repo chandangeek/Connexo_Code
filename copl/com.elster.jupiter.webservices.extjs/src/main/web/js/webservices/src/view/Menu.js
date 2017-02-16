@@ -8,13 +8,13 @@ Ext.define('Wss.view.Menu', {
 
     router: null,
     record: null,
-    objectType: Uni.I18n.translate('webservices.webserviceEndpoints', 'WSS', 'Web service endpoints'),
+    objectType: Uni.I18n.translate('webservices.webserviceEndpoint', 'WSS', 'Web service endpoint'),
 
 
     initComponent: function () {
         var me = this;
 
-        me.title = me.record.get('name');
+        me.title = me.record.get('name') || Uni.I18n.translate('webservices.webserviceEndpoint', 'WSS', 'Web service endpoint');
 
         me.menuItems = [
             {
