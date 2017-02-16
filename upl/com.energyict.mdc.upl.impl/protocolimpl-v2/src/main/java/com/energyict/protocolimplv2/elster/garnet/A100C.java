@@ -16,7 +16,6 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
 import com.energyict.protocolimplv2.common.AbstractMbusDevice;
 import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
 import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
@@ -38,13 +37,6 @@ public class A100C extends AbstractMbusDevice {
 
     public A100C(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         super(new GarnetConcentrator(propertySpecService, collectedDataFactory, issueFactory));
-        this.propertySpecService = propertySpecService;
-        this.nlsService = nlsService;
-        this.converter = converter;
-    }
-
-    public A100C(GarnetConcentrator meterProtocol, String serialNumber, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(meterProtocol, serialNumber);
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;

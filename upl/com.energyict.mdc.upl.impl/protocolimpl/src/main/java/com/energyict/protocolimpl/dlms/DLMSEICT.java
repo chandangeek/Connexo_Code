@@ -56,7 +56,7 @@ public class DLMSEICT extends DLMSSN {
     private static final long EV_LOAD_PROFILE_CLEARED = 0x00004000;
     private static final long EV_CAPTURED_EVENTS = 0x008860E5; // Add new events...
 
-    DLMSEICT(PropertySpecService propertySpecService, NlsService nlsService) {
+    public DLMSEICT(PropertySpecService propertySpecService, NlsService nlsService) {
         super(propertySpecService, nlsService);
     }
 

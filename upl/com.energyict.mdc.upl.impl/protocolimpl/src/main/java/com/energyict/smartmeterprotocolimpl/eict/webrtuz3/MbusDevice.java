@@ -4,7 +4,6 @@ import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
-
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.messaging.MbusDeviceMessaging;
@@ -29,7 +28,7 @@ public class MbusDevice extends SlaveMeter implements MessageProtocol{
         super();
     }
 
-    public MbusDevice(WebRTUZ3 meterProtocol, String serialNumber, int physicalAddress) {
+    protected MbusDevice(WebRTUZ3 meterProtocol, String serialNumber, int physicalAddress) {
         super(meterProtocol, serialNumber, physicalAddress);
     }
 

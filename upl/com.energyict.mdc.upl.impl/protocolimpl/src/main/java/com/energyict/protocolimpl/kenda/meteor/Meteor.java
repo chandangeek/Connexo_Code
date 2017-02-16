@@ -102,19 +102,20 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
         destinationCodeExt = 0;    // Defines peripheral equipment of final destination
     }
 
-    public Meteor(  // real constructor, sets header correct.
-            byte[] sourceCode,
-            byte sourceCodeExt,
-            byte[] destinationCode,
-            byte destinationCodeExt,
-            PropertySpecService propertySpecService,
-                    NlsService nlsService) {
+    public void setSourceCode(byte[] sourceCode) {
         this.sourceCode = sourceCode;
+    }
+
+    public void setSourceCodeExt(byte sourceCodeExt) {
         this.sourceCodeExt = sourceCodeExt;
+    }
+
+    public void setDestinationCode(byte[] destinationCode) {
         this.destinationCode = destinationCode;
+    }
+
+    public void setDestinationCodeExt(byte destinationCodeExt) {
         this.destinationCodeExt = destinationCodeExt;
-        this.propertySpecService = propertySpecService;
-        this.nlsService = nlsService;
     }
 
     @Override
