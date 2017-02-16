@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.deviceconfigurationestimationrules.view.RulesGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.device-configuration-estimation-rules-grid',

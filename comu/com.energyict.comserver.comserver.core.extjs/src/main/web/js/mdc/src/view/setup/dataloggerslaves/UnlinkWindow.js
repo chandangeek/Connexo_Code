@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.dataloggerslaves.UnlinkWindow', {
     extend: 'Ext.window.Window',
     alias: 'widget.dataloggerslave-unlink-window',

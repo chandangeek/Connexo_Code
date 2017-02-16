@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.customattributesonvaluesobjects.model.AttributeSetOnRegister', {
     extend: 'Mdc.customattributesonvaluesobjects.model.AttributeSetOnObject',
     requires: [

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.validation.RuleSetVersionsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.validation-versions-grid',

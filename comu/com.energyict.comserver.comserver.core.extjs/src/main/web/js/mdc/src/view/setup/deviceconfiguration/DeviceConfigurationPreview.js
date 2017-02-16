@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.deviceConfigurationPreview',
@@ -118,6 +122,16 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                                     xtype: 'displayfield',
                                     fieldLabel: Uni.I18n.translate('deviceconfiguration.dataLoggerFunctionality', 'MDC', 'Data logger functionality'),
                                     name: 'dataloggerEnabled',
+                                    renderer: function (value) {
+                                        return value === true
+                                            ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
+                                            : Uni.I18n.translate('general.no', 'MDC', 'No');
+                                    }
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    fieldLabel: Uni.I18n.translate('deviceconfiguration.validateOnStore', 'MDC', 'Validate data on storage'),
+                                    name: 'validateOnStore',
                                     renderer: function (value) {
                                         return value === true
                                             ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')

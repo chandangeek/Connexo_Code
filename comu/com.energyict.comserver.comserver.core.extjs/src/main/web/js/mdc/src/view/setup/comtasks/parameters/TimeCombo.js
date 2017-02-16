@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.comtasks.parameters.TimeCombo', {
     extend: 'Ext.form.field.ComboBox',
     alias: 'widget.communication-tasks-parameters-timecombo',

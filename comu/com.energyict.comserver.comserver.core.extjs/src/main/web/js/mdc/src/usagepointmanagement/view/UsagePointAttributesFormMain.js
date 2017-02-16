@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.usagepointmanagement.view.UsagePointAttributesFormMain', {
     extend: 'Ext.form.Panel',
     alias: 'widget.usagePointAttributesFormMain',

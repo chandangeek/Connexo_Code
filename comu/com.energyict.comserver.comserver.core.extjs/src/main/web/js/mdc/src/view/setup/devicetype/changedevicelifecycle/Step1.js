@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicetype.changedevicelifecycle.Step1', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.change-device-life-cycle-step1',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceLoadProfileChannelDataGrid',
@@ -135,6 +139,15 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 emptyText: ' '
             },
             {
+                header: Uni.I18n.translate('device.channelData.lastUpdate', 'MDC', 'Last update'),
+                dataIndex: 'reportedDateTime',
+                flex: 0.5,
+                renderer: function(value){
+                    var date = new Date(value);
+                    return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)])
+                }
+            },
+            {
                 xtype: 'uni-actioncolumn',
                 itemId: 'channel-data-grid-action-column',
                 menu: {
@@ -192,6 +205,10 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
         var me = this,
             status = validationInfo.validationResult ? validationInfo.validationResult.split('.')[1] : '',
             icon = '',
+            app,
+            date,
+            tooltipText,
+            formattedDate,
             value = Ext.isEmpty(v)
                 ? '-'
                 : Uni.Number.formatNumber(
@@ -200,17 +217,29 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 );
 
         if (status === 'notValidated') {
-            icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>';
+            icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
+                + Uni.I18n.translate('general.notValidated', 'MDC', 'Not validated') + '"></span>';
         } else if (validationInfo.confirmedNotSaved) {
             metaData.tdCls = 'x-grid-dirty-cell';
         } else if (status === 'suspect') {
-            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;"></span>';
+            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;" data-qtip="'
+                + Uni.I18n.translate('general.suspect', 'MDC', 'Suspect') + '"></span>';
         }
 
         if (validationInfo.estimatedByRule && !record.isModified('value')) {
-            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;"></span>';
+            date = Ext.isDate(record.get('readingTime')) ? record.get('readingTime') : new Date(record.get('readingTime'));
+            formattedDate = Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
+                [Uni.DateTime.formatDateLong(date), Uni.DateTime.formatTimeLong(date)]
+            );
+            app = validationInfo.editedInApp ? validationInfo.editedInApp.name : null;
+            tooltipText = !Ext.isEmpty(app)
+                ? Uni.I18n.translate('general.estimatedOnXApp', 'MDC', 'Estimated in {0} on {1}', [app, formattedDate])
+                : Uni.I18n.translate('general.estimatedOnX', 'MDC', 'Estimated on {0}', formattedDate);
+            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;" data-qtip="'
+                + tooltipText + '"></span>';
         } else if (validationInfo.isConfirmed && !record.isModified('value')) {
-            icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;"></span>';
+            icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;" data-qtip="'
+                + Uni.I18n.translate('reading.validationResult.confirmed', 'MDC', 'Confirmed') + '"></span>';
         }
         return value + icon;
     }
