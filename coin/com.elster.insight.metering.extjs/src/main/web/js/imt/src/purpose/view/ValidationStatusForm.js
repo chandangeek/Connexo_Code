@@ -5,6 +5,7 @@
 Ext.define('Imt.purpose.view.ValidationStatusForm', {
     extend: 'Ext.container.Container',
     alias: 'widget.output-validation-status-form',
+    showSuspectReasonField: true,
     router: null,
 
     initComponent: function () {
@@ -82,6 +83,7 @@ Ext.define('Imt.purpose.view.ValidationStatusForm', {
                 itemId: 'suspect-reason-field',
                 fieldLabel: Uni.I18n.translate('usagepoint.purpose.output.validation.suspects', 'IMT', 'Suspects (last month)'),
                 htmlEncode: false,
+                privileges: me.showSuspectReasonField,
                 renderer: function (value) {
                     var result = '';
 

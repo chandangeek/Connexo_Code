@@ -8,6 +8,7 @@ Ext.define('Imt.purpose.view.NoReadingsFoundPanel', {
     title: Uni.I18n.translate('readings.list.empty', 'IMT', 'No data is available'),
     reasons: [
         Uni.I18n.translate('readings.list.reason1', 'IMT', 'No data has been collected yet'),
-        Uni.I18n.translate('readings.list.reason3', 'IMT', 'No devices have been linked to this usage point in specified period of time')
+        Uni.I18n.translate('readings.list.reason3', 'IMT', 'No devices have been linked to this usage point in specified period of time'),
+        Uni.I18n.translate('readings.list.reason4', 'IMT', 'No data matching to the filters')
     ]
 });
