@@ -2336,7 +2336,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                 callback: function (route) {
                                     me.checkInsightRedirect(route);
                                     this.getApplication().on('editUsagePointLoaded', function (record) {
-                                        route.setTitle(Uni.I18n.translate('general.editCurrentUsagePoint', 'MDC', "Edit '{0}'", record.get('name')));
+                                        route.setTitle(Uni.I18n.translate('general.editCurrentUsagePoint', 'MDC', "Edit '{0}'", record.get('name'), false));
                                         return true;
                                     }, {single: true});
 
