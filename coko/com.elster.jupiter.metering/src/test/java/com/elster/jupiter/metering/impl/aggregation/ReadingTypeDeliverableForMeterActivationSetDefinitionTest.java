@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.cbo.Accumulation;
@@ -102,11 +106,12 @@ public class ReadingTypeDeliverableForMeterActivationSetDefinitionTest {
                         eq(SqlConstants.TimeSeriesColumnNames.VERSIONCOUNT.sqlName()),
                         eq(SqlConstants.TimeSeriesColumnNames.RECORDTIME.sqlName()),
                         eq(SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName()),
+                        eq(SqlConstants.TimeSeriesColumnNames.SOURCECHANNELS.sqlName()),
                         eq(SqlConstants.TimeSeriesColumnNames.VALUE.sqlName()),
                         eq(SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName()));
-        assertThat(this.withClauseSqlBuilder.getText()).isEqualTo("SELECT -1, 0, 0, 0, 0,  ? , sysdate  FROM dual");
+        assertThat(this.withClauseSqlBuilder.getText()).isEqualTo("SELECT -1, 0, 0, 0, 0, ,  ? , sysdate  FROM dual");
         String selectClause = this.selectClauseSqlBuilder.getText().replace("\n", " ");
-        assertThat(selectClause).isEqualTo("'ReadingTypeDeliverableForMeterActivationSetDefinitionTest', rod97_1.value, rod97_1.localdate, rod97_1.timestamp, rod97_1.readingQuality, 1   FROM rod97_1");
+        assertThat(selectClause).isEqualTo("'ReadingTypeDeliverableForMeterActivationSetDefinitionTest', rod97_1.value, rod97_1.localdate, rod97_1.timestamp, rod97_1.readingQuality, 1, rod97_1.sourceChannels   FROM rod97_1");
     }
 
     @Test
@@ -121,7 +126,7 @@ public class ReadingTypeDeliverableForMeterActivationSetDefinitionTest {
 
         // Asserts
         String selectClause = this.selectClauseSqlBuilder.getText().replace("\n", " ");
-        assertThat(selectClause).isEqualToIgnoringCase("'ReadingTypeDeliverableForMeterActivationSetDefinitionTest', SUM(rod97_1.value), TRUNC(rod97_1.localdate, 'MONTH'), MAX(rod97_1.timestamp), max(rod97_1.readingQuality), count(*)   FROM rod97_1 GROUP BY TRUNC(rod97_1.localdate, 'MONTH')");
+        assertThat(selectClause).isEqualToIgnoringCase("'ReadingTypeDeliverableForMeterActivationSetDefinitionTest', SUM(rod97_1.value), TRUNC(rod97_1.localdate, 'MONTH'), MAX(rod97_1.timestamp), max(rod97_1.readingQuality), count(*), max(rod97_1.sourceChannels)   FROM rod97_1 GROUP BY TRUNC(rod97_1.localdate, 'MONTH')");
     }
 
     @Test
@@ -144,7 +149,7 @@ public class ReadingTypeDeliverableForMeterActivationSetDefinitionTest {
 
         // Asserts
         String withSelectClause = this.withClauseSqlBuilder.getText().replace("\n", " ");
-        assertThat(withSelectClause).isEqualToIgnoringCase("SELECT -1, MAX(rid97_1001_1.timestamp), 0, 0, GREATEST(rid97_1001_1.readingQuality), AVG(), TRUNC(rid97_1001_1.localdate, 'MONTH')  FROM rid97_1001_1 GROUP BY TRUNC(rid97_1001_1.LOCALDATE, 'MONTH')");
+        assertThat(withSelectClause).isEqualToIgnoringCase("SELECT -1, MAX(rid97_1001_1.timestamp), 0, 0, GREATEST(rid97_1001_1.readingQuality), rid97_1001_1.sourceChannels, AVG(), TRUNC(rid97_1001_1.localdate, 'MONTH')  FROM rid97_1001_1 GROUP BY TRUNC(rid97_1001_1.LOCALDATE, 'MONTH')");
     }
 
     private ReadingTypeDeliverableForMeterActivationSet testInstance(VirtualReadingType virtualReadingType) {

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -1165,6 +1169,7 @@ public enum TableSpecs {
             table.map(ReadingTypeTemplateImpl.class);
             table.since(version(10, 2));
             table.setJournalTableName("MTR_RT_TEMPLATE_JRNL");
+            table.cache();
 
             Column idColumn = table.addAutoIdColumn();
             table.column(ReadingTypeTemplateImpl.Fields.NAME.name())
@@ -1176,6 +1181,12 @@ public enum TableSpecs {
                     .number()
                     .conversion(NUMBER2ENUM)
                     .map(ReadingTypeTemplateImpl.Fields.DEFAULT_TEMPLATE.fieldName())
+                    .add();
+            table.column(ReadingTypeTemplateImpl.Fields.EQUIDISTANT.name())
+                    .varChar(NAME_LENGTH)
+                    .conversion(CHAR2ENUM)
+                    .since(version(10,3))
+                    .map(ReadingTypeTemplateImpl.Fields.EQUIDISTANT.fieldName())
                     .add();
             table.addAuditColumns();
 
@@ -1278,6 +1289,7 @@ public enum TableSpecs {
                     .column(ReadingTypeRequirementImpl.Fields.TEMPLATE.name())
                     .number()
                     .conversion(ColumnConversion.NUMBER2LONG)
+                    .map(ReadingTypeRequirementImpl.Fields.TEMPLATE.fieldName())
                     .add();
             Column readingTypeColumn = table
                     .column(ReadingTypeRequirementImpl.Fields.READING_TYPE.name())
@@ -1297,7 +1309,7 @@ public enum TableSpecs {
             table.foreignKey("FK_RT_REQUIREMENT_TO_TPL")
                     .references(ReadingTypeTemplate.class)
                     .on(templateColumn)
-                    .map(ReadingTypeRequirementImpl.Fields.TEMPLATE.fieldName())
+                    .map("readingTypeTemplate")
                     .add();
             table.foreignKey("FK_RT_REQUIREMENT_TO_RT")
                     .references(ReadingType.class)

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
@@ -103,7 +107,7 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
 
     @Override
     public Optional<MetrologyConfiguration> findMetrologyConfiguration(long id) {
-        return this.getDataModel().mapper(MetrologyConfiguration.class).getUnique("id", id);
+        return this.getDataModel().mapper(MetrologyConfiguration.class).getOptional(id);
     }
 
     @Override
@@ -187,6 +191,11 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     @Override
     public Optional<ReadingTypeTemplate> findReadingTypeTemplate(String name) {
         return getDataModel().mapper(ReadingTypeTemplate.class).getUnique(ReadingTypeTemplateImpl.Fields.NAME.fieldName(), name);
+    }
+
+    @Override
+    public Optional<ReadingTypeTemplate> findReadingTypeTemplate(long id) {
+        return getDataModel().mapper(ReadingTypeTemplate.class).getOptional(id);
     }
 
     @Override

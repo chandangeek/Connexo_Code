@@ -1,18 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.readings;
 
 import com.elster.jupiter.metering.ReadingQualityType;
 
 import java.util.stream.Stream;
 
-/**
- * Common known reading qualities that can be readout from a device, by a protocol.
- * These were previously known as interval flags.
- * <p>
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 13/05/2016 - 17:08
- */
 public enum ProtocolReadingQualities {
 
     POWERDOWN("1.2.1001"),

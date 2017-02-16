@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.Save;
@@ -11,6 +15,7 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Thesaurus;
@@ -25,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class MetrologyContractImpl implements MetrologyContract {
@@ -145,6 +151,7 @@ public class MetrologyContractImpl implements MetrologyContract {
     public void update() {
         if (this.getId() > 0) {
             this.metrologyConfigurationService.getDataModel().touch(this);
+            this.metrologyConfiguration.getOptional().ifPresent(ServerMetrologyConfiguration::invalidateCache);
         }
     }
 
@@ -240,5 +247,15 @@ public class MetrologyContractImpl implements MetrologyContract {
         TranslationKey getTranslation() {
             return this.statusTranslation;
         }
+    }
+
+    @Override
+    public Set<ReadingTypeRequirement> getRequirements() {
+        ReadingTypeRequirementsCollector readingTypeRequirementsCollector = new ReadingTypeRequirementsCollector();
+        getDeliverables().stream()
+                .map(ReadingTypeDeliverable::getFormula)
+                .map(Formula::getExpressionNode)
+                .forEach(expressionNode -> expressionNode.accept(readingTypeRequirementsCollector));
+        return readingTypeRequirementsCollector.getReadingTypeRequirements().stream().collect(Collectors.toSet());
     }
 }

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -175,7 +179,12 @@ public class MeteringConsoleCommands {
         String channels = meterActivation.getChannelsContainer().getChannels().stream()
                 .map(channel -> channel.getId() + " " + channel.getMainReadingType().getMRID())
                 .collect(java.util.stream.Collectors.joining("\n\t"));
-        return meterActivation.getRange().toString() + "\n\t" + channels;
+        String activationDetails = meterActivation.getUsagePoint()
+                .map(usagePoint ->
+                        "activation on usage point '" + usagePoint.getName()
+                                + "' in role '" + meterActivation.getMeterRole().get().getDisplayName() + "'"
+                ).orElse("");
+        return meterActivation.getRange().toString() + " " + activationDetails + "\n\t" + channels;
     }
 
     public void createMeter() {
@@ -241,7 +250,7 @@ public class MeteringConsoleCommands {
             UsagePoint usagePoint = this.meteringService.findUsagePointByName(usagePointName)
                     .orElseThrow(() -> new IllegalArgumentException("Usage point " + usagePointName + " does not exist"));
             Instant activationDate = Instant.ofEpochMilli(epochMilli);
-            meter.activate(usagePoint, meterRole, activationDate);
+            usagePoint.linkMeters().activate(activationDate, meter, meterRole).complete();
             context.commit();
         } finally {
             threadPrincipalService.clear();
@@ -647,11 +656,11 @@ public class MeteringConsoleCommands {
             ReadingType readingType = meteringService.getReadingType(readingTypeString)
                     .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
             deliverable
-                .startUpdate()
-                .setName(name)
-                .setReadingType(readingType)
-                .setFormula(formulaString)
-                .complete();
+                    .startUpdate()
+                    .setName(name)
+                    .setReadingType(readingType)
+                    .setFormula(formulaString)
+                    .complete();
             context.commit();
         }
     }
