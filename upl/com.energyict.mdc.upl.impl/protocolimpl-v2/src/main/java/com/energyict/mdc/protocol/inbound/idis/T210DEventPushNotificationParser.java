@@ -35,6 +35,7 @@ import com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.events.T210DStandar
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierLikeSerialNumber;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
+import java.util.logging.Level;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -46,7 +47,7 @@ import java.util.logging.Logger;
  */
 public class T210DEventPushNotificationParser extends DataPushNotificationParser {
 
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
     public static final String IP_ADDRESS_PROPERTY_NAME = "host";
     private static final ObisCode LOGICAL_NAME_OBIS = ObisCode.fromString("0.0.42.0.0.255");
     private static final ObisCode LOAD_PROFILE_1_OBIS = ObisCode.fromString("1.0.99.1.0.255");
@@ -810,7 +811,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
 
     private void printDebugMessageToConsole(String message){
         if (DEBUG) {
-            System.out.println(message);
+            getContext().logOnAllLoggerHandlers(message, Level.FINEST);
         }
     }
 }
