@@ -2,10 +2,21 @@ package com.energyict.protocolimplv2.dlms.idis.am540.messages;
 
 import com.energyict.mdc.messages.DeviceMessageSpec;
 
+import com.energyict.cpo.PropertySpec;
+import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130Messaging;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessageExecutor;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
+import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadProfileMessage;
+import com.energyict.protocolimplv2.messages.LogBookDeviceMessage;
+import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,5 +111,13 @@ public class AM540Messaging extends AM130Messaging {
         supportedMessages.add(PLCConfigurationDeviceMessage.ResetPlcOfdmMacCounters);
         supportedMessages.add(PLCConfigurationDeviceMessage.WritePlcG3Timeout);
         supportedMessages.add(PLCConfigurationDeviceMessage.ConfigurePLcG3KeepAlive);
+    }
+
+    @Override
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+        if (propertySpec.getName().equals(DeviceMessageConstants.monitoredValueAttributeName)) {
+            return messageAttribute.toString(); // Simply return as string (in IDISMessaging#format this attribute is parsed as MonitoredValue.fromDescription, which we don't want here)
+        }
+        return super.format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
     }
 }
