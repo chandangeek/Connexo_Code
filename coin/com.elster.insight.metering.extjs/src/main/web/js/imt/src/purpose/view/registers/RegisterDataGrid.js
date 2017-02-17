@@ -98,6 +98,9 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
         } else if (status === 'suspect') {
             icon = '<span class="icon-flag5" style="margin-left:10px; color:red; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.validationResult.suspect', 'IMT', 'Suspect') + '"></span>';
+        } else if (status === 'ok' && record.get('action') == 'WARN_ONLY') {
+            icon = '<span class="icon-flag5" style="margin-left:10px; color: #dedc49; position:absolute;" data-qtip="'
+                + Uni.I18n.translate('validationStatus.informative', 'IMT', 'Informative') + '"></span>';
         }
 
         if (record.get('isConfirmed') && !record.isModified('value')) {
