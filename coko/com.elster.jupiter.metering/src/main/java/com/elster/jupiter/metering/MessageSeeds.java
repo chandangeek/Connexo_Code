@@ -123,7 +123,10 @@ public enum MessageSeeds implements MessageSeed {
     REQUIRED_CAS_MISSING(8002, Constants.REQUIRED_CAS_MISSING, "Required custom property sets are missing"),
 
     CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE(9001, Constants.CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE, "Can''t remove usage point life cycle because it''s in use by at least one of the usage point."),
-    CAN_NOT_DELETE_ACTIVE_STATE(9002, Constants.CAN_NOT_DELETE_ACTIVE_STATE, "This state can''t be removed from this usage point life cycle because one or more usage points use this state.");
+    CAN_NOT_DELETE_ACTIVE_STATE(9002, Constants.CAN_NOT_DELETE_ACTIVE_STATE, "This state can''t be removed from this usage point life cycle because one or more usage points use this state."),
+
+    DUPLICATE_SLP_NAME(10001, Constants.DUPLICATE_SLP_NAME, "Synthetic load profile name must be unique", Level.SEVERE)
+    ;
 
     private final int number;
     private final String key;
@@ -267,6 +270,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE = "can.not.delete.active.life.cycle";
         public static final String CAN_NOT_DELETE_ACTIVE_STATE = "can.not.delete.active.state";
         public static final String REQUIRED_CAS_MISSING = "required.cas.missing";
+        public static final String DUPLICATE_SLP_NAME = "slp.name.already.exists";
     }
 
 }

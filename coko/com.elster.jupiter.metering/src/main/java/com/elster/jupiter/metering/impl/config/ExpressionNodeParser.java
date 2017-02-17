@@ -18,7 +18,7 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.slp.SyntheticLoadProfile;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
 import com.elster.jupiter.util.units.Quantity;
