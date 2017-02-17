@@ -146,7 +146,7 @@ if (DEBUG>=1) System.out.println("KV_DEBUG> "+gekv.getStandardTableFactory().get
         // calc blocksize
         int intervalsPerBlock = gekv.getStandardTableFactory().getActualLoadProfileTable().getLoadProfileSet().getNrOfBlockIntervalsSet()[0];
         int profileInterval = gekv.getProfileInterval();
-        Date newTo = new Date(to.getTime()+(long)(profileInterval*intervalsPerBlock*1000));
+        Date newTo = new Date(to.getTime());
         
         // read the block headers
         while(true) {
