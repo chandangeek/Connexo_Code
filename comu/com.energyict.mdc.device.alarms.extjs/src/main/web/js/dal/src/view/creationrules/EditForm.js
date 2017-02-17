@@ -85,7 +85,7 @@ Ext.define('Dal.view.creationrules.EditForm', {
                     }
                 ]
             },
-            {
+            /*{
                 xtype: 'fieldcontainer',
                 fieldLabel: Uni.I18n.translate('general.raisedOnEventTypes', 'DAL', 'Raised on event types'),
                 itemId: 'raisedOnventTypesFieldContainer',
@@ -201,7 +201,7 @@ Ext.define('Dal.view.creationrules.EditForm', {
                         margin: '0 0 0 10'
                     }
                 ]
-            },
+            },*/
             {
                 itemId: 'property-form',
                 xtype: 'property-form',
@@ -488,7 +488,7 @@ Ext.define('Dal.view.creationrules.EditForm', {
             actionsGrid.hide();
             me.down('#alarms-creation-rule-no-actions').show();
         }
-        me.updateEventTypesGrid();
+        // me.updateEventTypesGrid();
         template = templateCombo.findRecordByValue(templateCombo.getValue());
         if (template) {
             me.down('#rule-template-info').setInfoTooltip(template.get('description'));

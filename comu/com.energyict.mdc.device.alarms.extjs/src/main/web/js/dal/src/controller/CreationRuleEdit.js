@@ -82,6 +82,7 @@ Ext.define('Dal.controller.CreationRuleEdit', {
     },
 
     showEdit: function (id) {
+
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             clipboard = this.getStore('Dal.store.Clipboard'),
@@ -90,15 +91,10 @@ Ext.define('Dal.controller.CreationRuleEdit', {
                 router: router,
                 isEdit: !!id
             }),
-            issueTypesStore = me.getStore('Isu.store.IssueTypes'),
-            dependencesCounter = 2,
             dependenciesOnLoad = function () {
-                dependencesCounter--;
-                if (!dependencesCounter) {
-                    if (widget.rendered) {
-                        widget.setLoading(false);
-                        widget.down('form').loadRecord(rule);
-                    }
+                if (widget.rendered) {
+                    widget.setLoading(false);
+                    widget.down('form').loadRecord(rule);
                 }
             },
             rule;
@@ -112,45 +108,23 @@ Ext.define('Dal.controller.CreationRuleEdit', {
             me.loadDependencies(dependenciesOnLoad);
         } else {
             if (id) {
-                dependencesCounter++;
                 me.getModel('Dal.model.CreationRule').load(id, {
                     success: function (record) {
                         rule = record;
                         me.getApplication().fireEvent('alarmCreationRuleEdit', rule);
                         dependenciesOnLoad();
-                        me.loadDependencies(record, dependenciesOnLoad);
+                        me.loadDependencies(dependenciesOnLoad);
                     }
                 });
             } else {
                 rule = Ext.create('Dal.model.CreationRule');
+                me.loadDependencies(dependenciesOnLoad);
             }
         }
 
-        me.loadDependencies(dependenciesOnLoad);
+        dependenciesOnLoad();
 
-        if (me.deviceTypesStore) { // store(s) was/were already loaded previously
-            return;
-        }
-        var modelEntry = Ext.create('Dal.model.eventType.EndDeviceEventTypePart', {
-            value: me.comboBoxValueForAll,
-            displayName: Uni.I18n.translate('general.all', 'DAL', 'All')
-        });
-        me.deviceTypesStore = Ext.getStore('Dal.store.eventType.DeviceTypes');
-        me.deviceDomainsStore = Ext.getStore('Dal.store.eventType.DeviceDomains');
-        me.deviceSubDomainsStore = Ext.getStore('Dal.store.eventType.DeviceSubDomains');
-        me.deviceEventOrActionsStore = Ext.getStore('Dal.store.eventType.DeviceEventOrActions');
-        me.deviceTypesStore.load(function () {
-            me.deviceTypesStore.insert(0, modelEntry);
-        });
-        me.deviceDomainsStore.load(function () {
-            me.deviceDomainsStore.insert(0, modelEntry);
-        });
-        me.deviceSubDomainsStore.load(function () {
-            me.deviceSubDomainsStore.insert(0, modelEntry);
-        });
-        me.deviceEventOrActionsStore.load(function () {
-            me.deviceEventOrActionsStore.insert(0, modelEntry);
-        });
+
     },
 
     loadDependencies: function (callback) {
@@ -158,9 +132,9 @@ Ext.define('Dal.controller.CreationRuleEdit', {
             templatesStore = me.getStore('Dal.store.CreationRuleTemplates'),
             alarmReasonsStore = me.getStore('Dal.store.AlarmReasons');
 
-        templatesStore.getProxy().setExtraParam('issueType', 'datacollection'); //FixMe remove query parameter issueType;
+        templatesStore.getProxy();
         templatesStore.load(callback);
-        alarmReasonsStore.load(callback);
+        alarmReasonsStore.load();
     },
 
     ruleSave: function () {

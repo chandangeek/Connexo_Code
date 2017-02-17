@@ -96,7 +96,7 @@ Ext.define('Dal.model.CreationRule', {
 
     proxy: {
         type: 'rest',
-        url: '/api/isu/creationrules',
+        url: '/api/dal/creationrules',
         reader: {
             type: 'json'
         }
