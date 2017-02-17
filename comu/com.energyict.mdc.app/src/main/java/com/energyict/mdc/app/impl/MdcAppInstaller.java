@@ -188,6 +188,7 @@ public class MdcAppInstaller {
                     //Import
                     com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
                     com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_HISTORY,
+                    com.elster.jupiter.fileimport.security.Privileges.Constants.IMPORT_FILE,
 
                     //Issues
                     com.elster.jupiter.issue.security.Privileges.Constants.ACTION_ISSUE,
