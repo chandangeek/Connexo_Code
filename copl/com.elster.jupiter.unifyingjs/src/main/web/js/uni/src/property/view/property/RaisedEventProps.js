@@ -58,7 +58,7 @@ Ext.define('Uni.property.view.property.RaisedEventProps', {
                         fieldLabel: Uni.I18n.translate('general.raiseEvents.cleared', 'UNI', 'When cleared'),
                         items: [
                             {boxLabel: Uni.I18n.translate('general.raiseEvents.nothing', 'UNI', 'Do nothing'), name: 'raiseEventsCleared', inputValue: '0'},
-                            {boxLabel: Uni.I18n.translate('general.raiseEvents.cleared', 'UNI', 'Decrease urgency (-1)'), name: 'raiseEventsCleared', inputValue: '1'}
+                            {boxLabel: Uni.I18n.translate('general.raiseEvents.decrease.urgency', 'UNI', 'Decrease urgency (-1)'), name: 'raiseEventsCleared', inputValue: '1'}
                         ]
                     }
                 ]
