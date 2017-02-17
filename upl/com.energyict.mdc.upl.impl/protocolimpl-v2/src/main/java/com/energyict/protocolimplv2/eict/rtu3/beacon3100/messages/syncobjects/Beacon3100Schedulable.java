@@ -8,6 +8,7 @@ import com.energyict.protocolimplv2.abnt.common.structure.field.EventField;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -93,24 +94,37 @@ public class Beacon3100Schedulable {
         structure.addDataType(new Unsigned32(getClientTypeId()));
 
         final Array profileArray = new Array();
-        for (Object profileItem : getProfiles()) {
-            profileArray.addDataType(((LoadProfileItem)profileItem).toStructure());
+        for (Object item : getProfiles()) {
+            LoadProfileItem loadProfileItem = new LoadProfileItem(getObisCodeFromLinkedHashMap((LinkedHashMap) item), new Unsigned32(0));
+            profileArray.addDataType((loadProfileItem).toStructure());
         }
         structure.addDataType(profileArray);
 
         final Array registerArray = new Array();
-        for (Object registerItem : getRegisters()) {
-            registerArray.addDataType(((RegisterItem)registerItem).toStructure());
+        for (Object item : getRegisters()) {
+            RegisterItem registerItem = new RegisterItem(getObisCodeFromLinkedHashMap((LinkedHashMap)item), new Unsigned16(0));
+            registerArray.addDataType(registerItem.toStructure());
         }
         structure.addDataType(registerArray);
 
         final Array eventLogArray = new Array();
-        for (Object eventLogItem : getEventLogs()) {
-            eventLogArray.addDataType(((EventLogItem)eventLogItem).toStructure());
+        for (Object item : getEventLogs()) {
+            EventLogItem eventLogItem = new EventLogItem(getObisCodeFromLinkedHashMap((LinkedHashMap)item), new Unsigned32(0));
+            eventLogArray.addDataType(eventLogItem.toStructure());
         }
         structure.addDataType(eventLogArray);
 
         return structure;
+    }
+
+    private ObisCode getObisCodeFromLinkedHashMap(LinkedHashMap item) {
+        int a = ((Integer) (item).get("a")).intValue();
+        int b = ((Integer) (item).get("b")).intValue();
+        int c = ((Integer) (item).get("c")).intValue();
+        int d = ((Integer) (item).get("d")).intValue();
+        int e = ((Integer) (item).get("e")).intValue();
+        int f = ((Integer) (item).get("f")).intValue();
+        return new ObisCode(a,b,c,d,e,f);
     }
 
     public ComTaskEnablement getComTaskEnablement() {
