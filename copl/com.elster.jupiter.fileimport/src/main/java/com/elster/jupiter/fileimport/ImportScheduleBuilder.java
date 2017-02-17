@@ -74,8 +74,11 @@ public interface ImportScheduleBuilder {
      */
     ImportScheduleBuilder setScheduleExpression(ScheduleExpression scheduleExpression);
 
-
-
+    /**
+     * @param isActiveOnUI defines is it possible to upload file for import via user inerface
+     * @return this
+     */
+    ImportScheduleBuilder setActiveOnUI(boolean isActiveOnUI);
 
     PropertyBuilder addProperty(String name);
 

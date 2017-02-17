@@ -25,6 +25,7 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.nio.file.FileSystem;
@@ -68,6 +69,9 @@ final class ImportScheduleImpl implements ServerImportSchedule {
     @NonNullPath(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.VALID_PATH_REQUIRED + "}")
     @NonEmptyPath(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     private Path failureDirectory;
+
+    @NotNull(message = "{CannotBeNull}")
+    private boolean isActiveOnUI;
 
     private String pathMatcher;
     private transient ScheduleExpression scheduleExpression;
@@ -129,11 +133,11 @@ final class ImportScheduleImpl implements ServerImportSchedule {
     }
 
     static ImportScheduleImpl from(DataModel dataModel, String name, boolean active, ScheduleExpression scheduleExpression, String applicationName, String importerName, String destination,
-                                   Path importDirectory, String pathMatcher, Path inProcessDirectory, Path failureDirectory, Path successDirectory) {
-        return dataModel.getInstance(ImportScheduleImpl.class).init(name, active, scheduleExpression, applicationName, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory);
+                                   Path importDirectory, String pathMatcher, Path inProcessDirectory, Path failureDirectory, Path successDirectory, boolean isActiveOnUI) {
+        return dataModel.getInstance(ImportScheduleImpl.class).init(name, active, scheduleExpression, applicationName, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory, isActiveOnUI);
     }
 
-    private ImportScheduleImpl init(String name, boolean active, ScheduleExpression scheduleExpression, String applicationName, String importerName, String destinationName, Path importDirectory, String pathMatcher, Path inProcessDirectory, Path failureDirectory, Path successDirectory) {
+    private ImportScheduleImpl init(String name, boolean active, ScheduleExpression scheduleExpression, String applicationName, String importerName, String destinationName, Path importDirectory, String pathMatcher, Path inProcessDirectory, Path failureDirectory, Path successDirectory, boolean isActiveOnUI) {
         this.name = name;
         this.active = active;
         this.scheduleExpression = scheduleExpression;
@@ -146,6 +150,7 @@ final class ImportScheduleImpl implements ServerImportSchedule {
         this.successDirectory = successDirectory;
         this.pathMatcher = pathMatcher;
         this.applicationName = applicationName;
+        this.isActiveOnUI = isActiveOnUI;
         return this;
     }
 
@@ -244,6 +249,16 @@ final class ImportScheduleImpl implements ServerImportSchedule {
     @Override
     public List<FileImporterProperty> getImporterProperties() {
         return Collections.unmodifiableList(properties);
+    }
+
+    @Override
+    public boolean getActiveOnUI() {
+        return isActiveOnUI;
+    }
+
+    @Override
+    public void setActiveOnUI(boolean isActiveOnUI) {
+        this.isActiveOnUI = active;
     }
 
     @Override

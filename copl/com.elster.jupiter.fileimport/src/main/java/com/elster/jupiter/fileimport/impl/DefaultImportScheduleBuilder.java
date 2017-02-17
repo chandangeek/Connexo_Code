@@ -26,6 +26,7 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
     private Path inProcessDirectory;
     private Path successDirectory;
     private Path failureDirectory;
+    private boolean isActiveOnUI;
     private transient ScheduleExpression scheduleExpression;
     private final DataModel dataModel;
     private final FileImportService fileImportService;
@@ -46,7 +47,7 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
         }
         fileImportService.getImportFactory(importerName).ifPresent(in -> destination = in.getDestinationName());
 
-        ImportScheduleImpl importSchedule = ImportScheduleImpl.from(dataModel, name, false, scheduleExpression, applicationName, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory);
+        ImportScheduleImpl importSchedule = ImportScheduleImpl.from(dataModel, name, false, scheduleExpression, applicationName, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory, isActiveOnUI);
         properties.stream().forEach(p -> importSchedule.setProperty(p.name, p.value));
         importSchedule.save();
         return importSchedule;
@@ -93,6 +94,12 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
     @Override
     public ImportScheduleBuilder setFailureDirectory(Path directory) {
         this.failureDirectory = directory;
+        return this;
+    }
+
+    @Override
+    public ImportScheduleBuilder setActiveOnUI(boolean isActiveOnUI) {
+        this.isActiveOnUI = isActiveOnUI;
         return this;
     }
 

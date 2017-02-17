@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.fileimport.impl;
 
+import com.elster.jupiter.fileimport.FileImportHistory;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporterProperty;
 import com.elster.jupiter.fileimport.ImportLogEntry;
@@ -44,6 +45,7 @@ enum TableSpecs {
             table.column("INPROCESSDIR").varChar(DESCRIPTION_LENGTH).notNull().conversion(CHAR2PATH).map("inProcessDirectory").add();
             table.column("SUCCESSDIR").varChar(DESCRIPTION_LENGTH).notNull().conversion(CHAR2PATH).map("successDirectory").add();
             table.column("FAILDIR").varChar(DESCRIPTION_LENGTH).notNull().conversion(CHAR2PATH).map("failureDirectory").add();
+            table.column("ISACTIVEONUI").bool().notNull().map("isActiveOnUI").add();
             Column obsoleteColumn = table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
             table.addAuditColumns();
             table.primaryKey("FIM_PK_IMPORT_SCHEDULE").on(idColumn).add();
@@ -121,6 +123,25 @@ enum TableSpecs {
                 .reverseMap("properties")
                 .composition()
                 .add();
+        }
+    },
+    FIM_FILE_IMPORT_HISTORY {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<FileImportHistory> table = dataModel.addTable(name(), FileImportHistory.class);
+            table.map(FileImportHistoryImpl.class);
+            Column id = table.addAutoIdColumn();
+            table.setJournalTableName("FIM_FILE_IMPORT_HISTORYJRNL");
+            Column importScheduleColumn = table.column("IMPORTSCHEDULE").number().notNull().add();
+            table.column("USERNAME").varChar(NAME_LENGTH).map("userName").notNull().add();
+            table.column("UPLOADTIME").number().conversion(NUMBER2INSTANT).map("uploadTime").notNull().add();
+            table.primaryKey("FIM_PK_HISTORY").on(id).add();
+
+            table.foreignKey("FIM_FK_IMPORTSCHEDULE")
+                    .on(importScheduleColumn)
+                    .references(FIM_IMPORT_SCHEDULE.name())
+                    .map("importSchedule")
+                    .add();
         }
     };
 
