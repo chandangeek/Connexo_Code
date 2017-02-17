@@ -14,6 +14,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -57,6 +58,8 @@ public class FileImportApplication extends Application implements MessageSeedPro
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile ThreadPrincipalService threadPrincipalService;
+
     private List<App> apps = new CopyOnWriteArrayList<>();
 
     public Set<Class<?>> getClasses() {
@@ -113,6 +116,11 @@ public class FileImportApplication extends Application implements MessageSeedPro
         apps.add(app);
     }
 
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
     @SuppressWarnings("unused")
     public void removeApplication(App app) {
         apps.remove(app);
@@ -143,6 +151,7 @@ public class FileImportApplication extends Application implements MessageSeedPro
                 bind(FileImportApplication.this).to(AppNamesProvider.class);
                 bind(FileImportScheduleInfoFactory.class).to(FileImportScheduleInfoFactory.class);
                 bind(FileImporterInfoFactory.class).to(FileImporterInfoFactory.class);
+                bind(threadPrincipalService).to(ThreadPrincipalService.class);
                 bindFactory(getValidatorFactory()).to(Validator.class);
             }
         });

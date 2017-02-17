@@ -29,6 +29,7 @@ public class FileImportScheduleInfo {
     public String successDirectory;
     @Pattern(regexp = "[a-zA-Z0-9_\\-\\s]+((/|\\\\)[a-zA-Z0-9_\\-\\s]+)*", groups = {POST.class, PUT.class}, message = "{" + MessageSeeds.Keys.INVALIDCHARS_EXCEPTION + "}")
     public String failureDirectory;
+    public boolean isActiveOnUI;
     public String pathMatcher;
     public String importerName;
     public Integer scanFrequency;

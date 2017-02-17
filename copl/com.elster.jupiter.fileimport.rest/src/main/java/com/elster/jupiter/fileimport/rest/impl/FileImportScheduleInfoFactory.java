@@ -47,6 +47,7 @@ public class FileImportScheduleInfoFactory {
         info.application = appNamesProvider.findAppNameByKey(importSchedule.getApplicationName());
         info.deleted = importSchedule.isDeleted();
         info.importerAvailable = importSchedule.isImporterAvailable();
+        info.isActiveOnUI = importSchedule.getActiveOnUI();
 
         info.importerInfo = fileImporterInfoFactory.asInfo(fileImportService.getImportFactory(importSchedule.getImporterName()).get());
         info.scanFrequency = ScanFrequency.toScanFrequency(importSchedule.getScheduleExpression());

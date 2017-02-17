@@ -21,6 +21,7 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -65,9 +66,10 @@ public class FileImportScheduleResource {
     private final FileImportScheduleInfoFactory fileImportScheduleInfoFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final Validator validator;
+    private final ThreadPrincipalService threadPrincipalService;
 
     @Inject
-    public FileImportScheduleResource(FileImportService fileImportService, TransactionService transactionService, PropertyValueInfoService propertyValueInfoService, FileSystem fileSystem, FileImportScheduleInfoFactory fileImportScheduleInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, Validator validator) {
+    public FileImportScheduleResource(FileImportService fileImportService, TransactionService transactionService, PropertyValueInfoService propertyValueInfoService, FileSystem fileSystem, FileImportScheduleInfoFactory fileImportScheduleInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, Validator validator, ThreadPrincipalService threadPrincipalService) {
         this.fileImportService = fileImportService;
         this.transactionService = transactionService;
         this.propertyValueInfoService = propertyValueInfoService;
@@ -75,6 +77,7 @@ public class FileImportScheduleResource {
         this.fileImportScheduleInfoFactory = fileImportScheduleInfoFactory;
         this.conflictFactory = conflictFactory;
         this.validator = validator;
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @GET
@@ -130,6 +133,7 @@ public class FileImportScheduleResource {
                 .setSuccessDirectory(getPath(info.successDirectory))
                 .setProcessingDirectory(getPath(info.inProcessDirectory))
                 .setImporterName(info.importerInfo.name)
+                .setActiveOnUI(info.isActiveOnUI)
                 .setScheduleExpression(ScanFrequency.toScheduleExpression(info.scanFrequency));
 
         List<PropertySpec> propertiesSpecs = fileImportService.getPropertiesSpecsForImporter(info.importerInfo.name);
