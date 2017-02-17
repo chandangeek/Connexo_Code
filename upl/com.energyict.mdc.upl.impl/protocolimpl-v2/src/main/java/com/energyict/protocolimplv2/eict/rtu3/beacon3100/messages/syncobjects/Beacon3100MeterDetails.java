@@ -5,7 +5,6 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,6 +21,10 @@ public class Beacon3100MeterDetails {
      * For Beacon firmware version < R10.1
      */
     private long deviceTypeId;
+
+    public void setDeviceTypeAssignments(List<DeviceTypeAssignment> deviceTypeAssignments) {
+        this.deviceTypeAssignments = deviceTypeAssignments;
+    }
 
     /**
      * For Beacon firmware version >= R10.1
@@ -43,10 +46,18 @@ public class Beacon3100MeterDetails {
         this.llsSecret = llsSecret;
         this.authenticationKey = authenticationKey;
         this.encryptionKey = encryptionKey;
-        deviceTypeAssignments = new ArrayList<>();
-        deviceTypeAssignments.add(new DeviceTypeAssignment(deviceTypeId, null, null));
     }
 
+    public Beacon3100MeterDetails(String macAddress, List<DeviceTypeAssignment> deviceTypeAssignments, String deviceTimeZone, String serialNumber, List<Beacon3100ClientDetails> clientDetails, String llsSecret, String authenticationKey, String encryptionKey) {
+        this.macAddress = macAddress;
+        this.deviceTimeZone = deviceTimeZone;
+        this.deviceTypeAssignments = deviceTypeAssignments;
+        this.serialNumber = serialNumber;
+        this.clientDetails = clientDetails;
+        this.llsSecret = llsSecret;
+        this.authenticationKey = authenticationKey;
+        this.encryptionKey = encryptionKey;
+    }
 
     //JSon constructor
     private Beacon3100MeterDetails() {
@@ -118,7 +129,7 @@ public class Beacon3100MeterDetails {
         return structure;
     }
 
-    public Structure toStructureFWVersion10AndAbove() {
+    public Structure toStructureNewFW() {
         final Structure structure = new Structure();
         structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getMacAddress(), "")));
         final Array deviceTypeAssignmentArray = new Array();
@@ -163,9 +174,4 @@ public class Beacon3100MeterDetails {
         }
         return false;
     }
-
-    public void setDeviceTypeAssignments(List<DeviceTypeAssignment> deviceTypeAssignments) {
-        this.deviceTypeAssignments = deviceTypeAssignments;
-    }
-
 }

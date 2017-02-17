@@ -23,6 +23,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -152,7 +153,7 @@ public class MasterDataSync {
     /**
      * Sync the meter details. This assumes that the relevant device types are already synced!
      */
-    public CollectedMessage syncDeviceData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage,  boolean firmwareVersionLowerThan10) throws IOException {
+    public CollectedMessage syncDeviceData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         Beacon3100MeterDetails[] meterDetails;
         try {
             final String serializedMasterData = pendingMessage.getPreparedContext();    //This context field contains the serialized version of the master data.
@@ -165,7 +166,7 @@ public class MasterDataSync {
             return collectedMessage;
         }
 
-        syncDevices(meterDetails, firmwareVersionLowerThan10);
+        syncDevices(meterDetails);
 
         boolean cleanupUnusedMasterData = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.cleanUpUnusedDeviceTypesAttributeName).getDeviceMessageAttributeValue());
         if (cleanupUnusedMasterData) {
@@ -236,14 +237,10 @@ public class MasterDataSync {
         return true;
     }
 
-    private void syncDevices(Beacon3100MeterDetails[] allMeterDetails, boolean firmwareVersionLowerThan10) throws IOException {
+    private void syncDevices(Beacon3100MeterDetails[] allMeterDetails) throws IOException {
         boolean isFirmwareVersion140OrAbove = getIsFirmwareVersion140OrAbove();
         for (Beacon3100MeterDetails beacon3100MeterDetails : allMeterDetails) {
-            if(firmwareVersionLowerThan10) {
-                syncOneDevice(beacon3100MeterDetails.toStructure(isFirmwareVersion140OrAbove));
-            }else{
-                syncOneDevice(beacon3100MeterDetails.toStructureFWVersion10AndAbove());
-            }
+            syncOneDevice(beacon3100MeterDetails.toStructure(isFirmwareVersion140OrAbove));
         }
     }
 
@@ -389,7 +386,7 @@ public class MasterDataSync {
 
     private void syncAllDevices(Beacon3100MeterDetails[] allMeterDetails) throws IOException {
         for (Beacon3100MeterDetails beacon3100MeterDetails : allMeterDetails) {
-            syncOneDevice(beacon3100MeterDetails.toStructureFWVersion10AndAbove());
+            syncOneDevice(beacon3100MeterDetails.toStructureNewFW());
         }
     }
 
@@ -402,7 +399,7 @@ public class MasterDataSync {
         Beacon3100MeterDetails[] meterDetails = new MasterDataSerializer().getMeterDetails(deviceId);
 
         if(meterDetails!= null && meterDetails[0] != null) {
-            syncOneDevice(meterDetails[0].toStructureFWVersion10AndAbove());
+            syncOneDevice(meterDetails[0].toStructureNewFW());
         }
 
         return collectedMessage;
@@ -449,7 +446,7 @@ public class MasterDataSync {
         deviceTypeAssignements.add(new DeviceTypeAssignment(configurationId, dateFormat.parse(startTime), dateFormat.parse(endTime)));
         beacon3100MeterDetails.setDeviceTypeAssignments(deviceTypeAssignements);
 
-        syncOneDevice(beacon3100MeterDetails.toStructureFWVersion10AndAbove());
+        syncOneDevice(beacon3100MeterDetails.toStructureNewFW());
     }
 
     public CollectedMessage setBufferForSpecificRegister(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {

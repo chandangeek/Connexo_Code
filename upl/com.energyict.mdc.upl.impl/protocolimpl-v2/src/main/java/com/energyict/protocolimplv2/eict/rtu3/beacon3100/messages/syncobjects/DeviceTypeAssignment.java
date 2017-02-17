@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.NullData;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.DateTime;
@@ -24,8 +23,6 @@ public class DeviceTypeAssignment {
         this.startDate = startDate;
         this.endDate = endDate;
     }
-    //Needed by JSon
-    public DeviceTypeAssignment(){}
 
     public long getDeviceTypeId() {
         return deviceTypeId;
@@ -51,16 +48,8 @@ public class DeviceTypeAssignment {
     public AbstractDataType toStructure() {
         final Structure structure = new Structure();
         structure.addDataType(new Unsigned32(deviceTypeId));
-        if(startDate != null) {
-            structure.addDataType(new DateTime(startDate));
-        }else{
-            structure.addDataType(new NullData());
-        }
-        if(endDate != null) {
-            structure.addDataType(new DateTime(endDate));
-        }else{
-            structure.addDataType(new NullData());
-        }
+        structure.addDataType(new DateTime(startDate));
+        structure.addDataType(new DateTime(endDate));
         return structure;
     }
 }

@@ -44,6 +44,7 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks.Beacon3100LogB
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.*;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.BroadcastUpgrade;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.DeviceInfoSerializer;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.Beacon3100DeviceType;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSync;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers.RegisterFactory;
@@ -113,7 +114,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private static final String SEPARATOR = ";";
     private static final String SEPARATOR2 = ",";
-    private boolean firmareVersionLowerThan10 = false;
+    private boolean readOldObisCodes = false;
 
 
     /**
@@ -265,14 +266,14 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private MasterDataSync masterDataSync;
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor = null;
 
-    public Beacon3100Messaging(Beacon3100 protocol, boolean firmareVersionLowerThan10) {
+    public Beacon3100Messaging(Beacon3100 protocol, boolean readOldObisCodes) {
         super(protocol);
-        this.firmareVersionLowerThan10 = firmareVersionLowerThan10;
+        this.readOldObisCodes = readOldObisCodes;
     }
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        if(!firmareVersionLowerThan10){
+        if(!readOldObisCodes){
             SUPPORTED_MESSAGES.add(DeviceActionMessage.SyncAllDevicesWithDC);
             SUPPORTED_MESSAGES.add(DeviceActionMessage.SyncOneDeviceWithDC);
             SUPPORTED_MESSAGES.add(DeviceActionMessage.SyncOneDeviceWithDCAdvanced);
@@ -494,11 +495,11 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     collectedMessage = plcMessageResult;
                 } else { // if it was not a PLC message
                     if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncMasterdataForDC)) {
-                        collectedMessage = getMasterDataSync().syncMasterData(pendingMessage, collectedMessage, firmareVersionLowerThan10);
+                        collectedMessage = getMasterDataSync().syncMasterData(pendingMessage, collectedMessage, readOldObisCodes);
                     } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncOneConfigurationForDC)) {
-                        collectedMessage = getMasterDataSync().syncMasterData(pendingMessage, collectedMessage, firmareVersionLowerThan10);
+                        collectedMessage = getMasterDataSync().syncMasterData(pendingMessage, collectedMessage, readOldObisCodes);
                     } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncDeviceDataForDC)) {
-                        collectedMessage = getMasterDataSync().syncDeviceData(pendingMessage, collectedMessage, firmareVersionLowerThan10);
+                        collectedMessage = getMasterDataSync().syncDeviceData(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncAllDevicesWithDC)) {
                         collectedMessage = getMasterDataSync().syncAllDeviceData(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncOneDeviceWithDC)) {
@@ -1601,7 +1602,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private ScheduleManager getScheduleManager() throws NotInObjectListException {
-        if(firmareVersionLowerThan10) {
+        if(readOldObisCodes) {
             return getCosemObjectFactory().getScheduleManager();
         }else{
             return getCosemObjectFactory().getScheduleManager(SCHEDULE_MANAGER_NEW_OBISCODE);
@@ -1893,7 +1894,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private NTPServerAddress getNtpServerAddress() throws NotInObjectListException {
-        if(firmareVersionLowerThan10){
+        if(readOldObisCodes){
             return getCosemObjectFactory().getNTPServerAddress();
         }else {
             return getCosemObjectFactory().getNTPServerAddress(TIME_SERVER_NEW_OBISCODE);
@@ -1905,7 +1906,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void setDeviceName(OfflineDeviceMessage pendingMessage) throws IOException {
-        if(firmareVersionLowerThan10) {
+        if(readOldObisCodes) {
             writeOctetStringData(pendingMessage, DEVICE_NAME_OLD_OBISCODE);
         }else{
             writeOctetStringData(pendingMessage, DEVICE_NAME_NEW_OBISCODE);
@@ -1913,7 +1914,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void setDeviceHostName(OfflineDeviceMessage pendingMessage) throws IOException {
-        if(firmareVersionLowerThan10){
+        if(readOldObisCodes){
             writeOctetStringData(pendingMessage, DEVICE_HOST_NAME_OLD_OBISCODE);
         }else {
             writeOctetStringData(pendingMessage, DEVICE_HOST_NAME_NEW_OBISCODE);
@@ -1921,7 +1922,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void setDeviceLocation(OfflineDeviceMessage pendingMessage) throws IOException {
-        if(firmareVersionLowerThan10) {
+        if(readOldObisCodes) {
             writeOctetStringData(pendingMessage, DEVICE_LOCATION_OLD_OBISCODE);
         }else{
             writeOctetStringData(pendingMessage, DEVICE_LOCATION_NEW_OBISCODE);
@@ -1934,7 +1935,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void rebootApplication(OfflineDeviceMessage pendingMessage) throws IOException {
-        if(firmareVersionLowerThan10){
+        if(readOldObisCodes){
             getCosemObjectFactory().getLifeCycleManagement().restartApplication();
         }else {
             getCosemObjectFactory().getLifeCycleManagement(LIFE_CYCLEMANAGEMENT_NEW_OBISCODE).restartApplication();
@@ -1974,7 +1975,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private ModemWatchdogConfiguration getModemWatchdogConfiguration() throws NotInObjectListException {
-        if(firmareVersionLowerThan10){
+        if(readOldObisCodes){
             return getCosemObjectFactory().getModemWatchdogConfiguration();
         }else{
             return getCosemObjectFactory().getModemWatchdogConfiguration(MODEM_WATCHDOG_NEW_OBISCODE);
@@ -2027,7 +2028,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private UplinkPingConfiguration getUplinkPingConfiguration() throws NotInObjectListException {
-        if(firmareVersionLowerThan10) {
+        if(readOldObisCodes) {
             return getCosemObjectFactory().getUplinkPingConfiguration();
         }else{
             return getCosemObjectFactory().getUplinkPingConfiguration(PING_SERVICE_NEW_OBISCODE);
@@ -2110,7 +2111,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private void configureAPNs(OfflineDeviceMessage pendingMessage) throws IOException {
         final long activeApn = Long.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.activeAPN).getDeviceMessageAttributeValue());
         final String apnConfigurations = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.apnConfigurations).getDeviceMessageAttributeValue();
-        if(firmareVersionLowerThan10) {
+        if(readOldObisCodes) {
             getCosemObjectFactory().getData(MULTI_APN_COFIG_OLD_OBISCODE).setValueAttr(createApnConfigs(activeApn, apnConfigurations));
         }else{
             getCosemObjectFactory().getData(MULTI_APN_COFIG_NEW_OBISCODE).setValueAttr(createApnConfigs(activeApn, apnConfigurations));
@@ -2211,7 +2212,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     public boolean readOldObisCodes() {
-        return firmareVersionLowerThan10;
+        return readOldObisCodes;
     }
 
 
