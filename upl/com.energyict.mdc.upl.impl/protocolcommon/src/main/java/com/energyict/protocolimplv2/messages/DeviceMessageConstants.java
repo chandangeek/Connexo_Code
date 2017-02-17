@@ -792,5 +792,7 @@ public class DeviceMessageConstants {
     public static final String startDate = "DeviceActionMessage.startDate";
     public static final String endDate = "DeviceActionMessage.endDate";
     public static final String configurationId = "DeviceActionMessage.configurationId";
+    public static final String bufferSize = "DeviceActionMessage.bufferSize";
+    public static final String obisCode = "DeviceActionMessage.obisCode";
 
 }

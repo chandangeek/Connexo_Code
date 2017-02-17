@@ -512,9 +512,9 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                     BigDecimal persistedMirrorLogicalDeviceId = null;
                     BigDecimal persistedLastSeenDate = null;
                     try {
-                        getGeneralProperty(macAddress, AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID);
-                        getGeneralProperty(macAddress, AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID);
-                        getGeneralProperty(macAddress, G3Properties.PROP_LASTSEENDATE);
+                        persistedMirrorLogicalDeviceId = getGeneralProperty(macAddress, AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID);
+                        persistedGatewayLogicalDeviceId = getGeneralProperty(macAddress, AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID);
+                        persistedLastSeenDate = getGeneralProperty(macAddress, G3Properties.PROP_LASTSEENDATE);
 
                     } catch (Exception ex) {
                     }

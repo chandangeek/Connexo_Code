@@ -98,7 +98,22 @@ public enum DeviceActionMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.deviceId),
             PropertySpecFactory.datePropertySpec(DeviceMessageConstants.startDate),
             PropertySpecFactory.datePropertySpec(DeviceMessageConstants.endDate),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.configurationId));
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.configurationId)),
+    SetBufferForAllLoadProfiles(52,
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.bufferSize)),
+    SetBufferForSpecificLoadProfile(53,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.obisCode),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.bufferSize)),
+    SetBufferForAllEventLogs(54,
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.bufferSize)),
+    SetBufferForSpecificEventLog(55,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.obisCode),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.bufferSize)),
+    SetBufferForAllRegisters(56,
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.bufferSize)),
+    SetBufferForSpecificRegister(57,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.obisCode),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.bufferSize));
     private static final DeviceMessageCategory category = DeviceMessageCategories.DEVICE_ACTIONS;
     private final int id;
     private final List<PropertySpec> deviceMessagePropertySpecs;

@@ -44,6 +44,7 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks.Beacon3100LogB
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.*;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.BroadcastUpgrade;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.DeviceInfoSerializer;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.Beacon3100DeviceType;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSync;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers.RegisterFactory;
@@ -276,6 +277,12 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             SUPPORTED_MESSAGES.add(DeviceActionMessage.SyncAllDevicesWithDC);
             SUPPORTED_MESSAGES.add(DeviceActionMessage.SyncOneDeviceWithDC);
             SUPPORTED_MESSAGES.add(DeviceActionMessage.SyncOneDeviceWithDCAdvanced);
+            SUPPORTED_MESSAGES.add(DeviceActionMessage.SetBufferForAllLoadProfiles);
+            SUPPORTED_MESSAGES.add(DeviceActionMessage.SetBufferForSpecificLoadProfile);
+            SUPPORTED_MESSAGES.add(DeviceActionMessage.SetBufferForAllEventLogs);
+            SUPPORTED_MESSAGES.add(DeviceActionMessage.SetBufferForSpecificEventLog);
+            SUPPORTED_MESSAGES.add(DeviceActionMessage.SetBufferForAllRegisters);
+            SUPPORTED_MESSAGES.add(DeviceActionMessage.SetBufferForSpecificRegister);
         }
         return SUPPORTED_MESSAGES;
     }
@@ -368,12 +375,12 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     @Override
     public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
         if (deviceMessage.getSpecification().equals(DeviceActionMessage.SyncMasterdataForDC)) {
-            return new MasterDataSerializer().serializeMasterData(offlineDevice.getId());
+            return new MasterDataSerializer().serializeMasterData(offlineDevice.getId(), readOldObisCodes());
         } else if (deviceMessage.getSpecification().equals(DeviceActionMessage.SyncDeviceDataForDC)) {
             return new MasterDataSerializer().serializeMeterDetails(offlineDevice.getId());
         } else if (deviceMessage.getSpecification().equals(DeviceActionMessage.SyncOneConfigurationForDC)) {
             int configId = ((BigDecimal) deviceMessage.getAttributes().get(0).getValue()).intValue();
-            return new MasterDataSerializer().serializeMasterDataForOneConfig(configId);
+            return new MasterDataSerializer().serializeMasterDataForOneConfig(configId, readOldObisCodes());
         } else if (deviceMessage.getSpecification().equals(FirmwareDeviceMessage.DataConcentratorMulticastFirmwareUpgrade)) {
             return MulticastSerializer.serialize(offlineDevice, deviceMessage);
         } else if (deviceMessage.getSpecification().equals(FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES)) {
@@ -488,9 +495,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     collectedMessage = plcMessageResult;
                 } else { // if it was not a PLC message
                     if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncMasterdataForDC)) {
-                        collectedMessage = getMasterDataSync().syncMasterData(pendingMessage, collectedMessage);
+                        collectedMessage = getMasterDataSync().syncMasterData(pendingMessage, collectedMessage, readOldObisCodes);
                     } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncOneConfigurationForDC)) {
-                        collectedMessage = getMasterDataSync().syncMasterData(pendingMessage, collectedMessage);
+                        collectedMessage = getMasterDataSync().syncMasterData(pendingMessage, collectedMessage, readOldObisCodes);
                     } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncDeviceDataForDC)) {
                         collectedMessage = getMasterDataSync().syncDeviceData(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncAllDevicesWithDC)) {
@@ -695,6 +702,18 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = configurePushSetupNotificationCiphering(pendingMessage, collectedMessage);
                     }else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_SEND_TEST_NOTIFICATION)) {
                         collectedMessage = configurePushSetupSendTestNotification(pendingMessage, collectedMessage);
+                    } else if(pendingMessage.getSpecification().equals(DeviceActionMessage.SetBufferForAllLoadProfiles)){
+                        collectedMessage = getMasterDataSync().setBufferForAllLoadProfiles(pendingMessage, collectedMessage);
+                    }else if(pendingMessage.getSpecification().equals(DeviceActionMessage.SetBufferForSpecificLoadProfile)){
+                        collectedMessage = getMasterDataSync().setBufferForSpecificLoadProfile(pendingMessage, collectedMessage);
+                    }else if(pendingMessage.getSpecification().equals(DeviceActionMessage.SetBufferForAllEventLogs)){
+                        collectedMessage = getMasterDataSync().setBufferForAllEventLogs(pendingMessage, collectedMessage);
+                    }else if(pendingMessage.getSpecification().equals(DeviceActionMessage.SetBufferForSpecificEventLog)){
+                        collectedMessage = getMasterDataSync().setBufferForSpecificEventLog(pendingMessage, collectedMessage);
+                    }else if(pendingMessage.getSpecification().equals(DeviceActionMessage.SetBufferForAllRegisters)){
+                        collectedMessage = getMasterDataSync().setBufferForAllRegisters(pendingMessage, collectedMessage);
+                    }else if(pendingMessage.getSpecification().equals(DeviceActionMessage.SetBufferForSpecificRegister)){
+                        collectedMessage = getMasterDataSync().setBufferForSpecificRegister(pendingMessage, collectedMessage);
                     } else{   //Unsupported message
                         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                         collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol");
@@ -718,6 +737,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
         return result;
     }
+
+
 
     //Sub classes can override this implementation
     protected CollectedMessage changeHLSSecretUsingServiceKey(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
@@ -2193,4 +2214,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     public boolean readOldObisCodes() {
         return readOldObisCodes;
     }
+
+
 }

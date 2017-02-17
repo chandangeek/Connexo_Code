@@ -59,7 +59,7 @@ public class MasterDataSerializer {
     /**
      * Return the serialized description of all master data (scheduling info, obiscodes, etc) for a given config.
      */
-    public String serializeMasterDataForOneConfig(int configId) {
+    public String serializeMasterDataForOneConfig(int configId, boolean readOldObisCodes) {
 
         final DeviceConfiguration deviceConfiguration = getMeteringWarehouse().getDeviceConfigurationFactory().find(configId);
         if (deviceConfiguration == null) {
@@ -85,7 +85,7 @@ public class MasterDataSerializer {
             }
         }
 
-        addDeviceConfiguration(gatewayDevice, allMasterData, slaveDevice, deviceConfiguration);
+        addDeviceConfiguration(gatewayDevice, allMasterData, slaveDevice, deviceConfiguration, readOldObisCodes);
 
         return jsonSerialize(allMasterData);
 
@@ -94,7 +94,7 @@ public class MasterDataSerializer {
     /**
      * Return the serialized description of all master data (scheduling info, obiscodes, etc) for the configs of all slave meters that are linked to a given device
      */
-    public String serializeMasterData(int deviceId) {
+    public String serializeMasterData(int deviceId, boolean readOldObiscodes) {
         final Device masterDevice = getMeteringWarehouse().getDeviceFactory().find(deviceId);
         if (masterDevice == null) {
             throw invalidFormatException("'DC device ID'", String.valueOf(deviceId), "ID should reference a unique device");
@@ -106,19 +106,19 @@ public class MasterDataSerializer {
             //Add all information about the device type config. (only once per device type config)
             final DeviceConfiguration deviceConfiguration = device.getConfiguration();
             if (!deviceTypeAlreadyExists(allMasterData.getDeviceTypes(), deviceConfiguration)) {
-                addDeviceConfiguration(masterDevice, allMasterData, device, deviceConfiguration);
+                addDeviceConfiguration(masterDevice, allMasterData, device, deviceConfiguration, readOldObiscodes);
             }
         }
 
         return jsonSerialize(allMasterData);
     }
 
-    private void addDeviceConfiguration(Device masterDevice, AllMasterData allMasterData, Device device, DeviceConfiguration deviceConfiguration) {
+    private void addDeviceConfiguration(Device masterDevice, AllMasterData allMasterData, Device device, DeviceConfiguration deviceConfiguration, boolean readOldObiscodes) {
         final int deviceTypeConfigId = deviceConfiguration.getId();
         final String deviceTypeName = deviceConfiguration.getDeviceType().getName() + "_" + deviceConfiguration.getName();   //DevicTypeName_ConfigName
 
         final Beacon3100ProtocolConfiguration protocolConfiguration = getProtocolConfiguration(deviceConfiguration, masterDevice, deviceConfiguration.getDeviceType());
-        final List<Beacon3100Schedulable> schedulables = getSchedulables(deviceConfiguration, allMasterData);
+        final List<Beacon3100Schedulable> schedulables = getSchedulables(deviceConfiguration, allMasterData, readOldObiscodes);
         if (schedulables.isEmpty()) {
             getLogger().warning("Comtask enablements on device configuration with ID " + deviceConfiguration.getId() +"are empty. Device configuration should have at least one comtask enablement that reads out meter data.");
         } else {
@@ -128,7 +128,7 @@ public class MasterDataSerializer {
             //Use the security set of the first task to read out the serial number.. doesn't really matter
             final Beacon3100MeterSerialConfiguration meterSerialConfiguration = new Beacon3100MeterSerialConfiguration(FIXED_SERIAL_NUMBER_OBISCODE, schedulables.get(0).getClientTypeId());
 
-            final Beacon3100DeviceType beacon3100DeviceType = new Beacon3100DeviceType(deviceTypeConfigId, deviceTypeName, meterSerialConfiguration, protocolConfiguration, schedulables, clockSyncConfiguration);
+            final Beacon3100DeviceType beacon3100DeviceType = new Beacon3100DeviceType(deviceTypeConfigId, deviceTypeName, meterSerialConfiguration, protocolConfiguration, schedulables, clockSyncConfiguration, readOldObiscodes);
             allMasterData.getDeviceTypes().add(beacon3100DeviceType);
 
             final TimeZoneInUse beaconTimeZone = device.getProtocolProperties().getTypedProperty(DlmsProtocolProperties.TIMEZONE);
@@ -148,7 +148,7 @@ public class MasterDataSerializer {
                     final NextExecutionSpecs nextExecutionSpecs = comTaskEnablement.getNextExecutionSpecs();
                     final long scheduleId = getScheduleId(nextExecutionSpecs);
                     if (scheduleId != NO_SCHEDULE && !scheduleAlreadyExists(allMasterData.getSchedules(), nextExecutionSpecs)) {
-                        final Beacon3100Schedule beacon3100Schedule = new Beacon3100Schedule(scheduleId, getScheduleName(nextExecutionSpecs), CronTabStyleConverter.convert(nextExecutionSpecs, beaconTimeZone.getTimeZone(), localTimezone));
+                        final Beacon3100Schedule beacon3100Schedule = new Beacon3100Schedule(scheduleId, getScheduleName(nextExecutionSpecs), CronTabStyleConverter.convert(nextExecutionSpecs, beaconTimeZone != null ? beaconTimeZone.getTimeZone()  : localTimezone, localTimezone));
                         allMasterData.getSchedules().add(beacon3100Schedule);
                     }
                 }
@@ -187,6 +187,15 @@ public class MasterDataSerializer {
         return jsonSerialize(result);
     }
 
+    public Beacon3100MeterDetails[] getMeterDetails(int deviceId){
+        final Device masterDevice = getMeteringWarehouse().getDeviceFactory().find(deviceId);
+        if (masterDevice == null) {
+            throw invalidFormatException("'DC device ID'", String.valueOf(deviceId), "ID should reference a unique device");
+        }
+
+        final List<Device> downstreamDevices = masterDevice.getDownstreamDevices();
+        return new Beacon3100MeterDetails[downstreamDevices.size()];
+    }
 
     private Beacon3100MeterDetails createMeterDetails(Device device, Device masterDevice) {
         final String callHomeId = parseCallHomeId(device);
@@ -341,7 +350,7 @@ public class MasterDataSerializer {
     /**
      * Gather scheduling info by iterating over the comtask enablements (on config level), this will be the same for all devices of the same device type & config.
      */
-    private List<Beacon3100Schedulable> getSchedulables(DeviceConfiguration deviceConfiguration, AllMasterData allMasterData) {
+    private List<Beacon3100Schedulable> getSchedulables(DeviceConfiguration deviceConfiguration, AllMasterData allMasterData, boolean readOldObisCodes) {
         List<Beacon3100Schedulable> schedulables = new ArrayList<>();
         for (ComTaskEnablement comTaskEnablement : deviceConfiguration.getCommunicationConfiguration().getEnabledComTasks()) {
             final long scheduleId = getScheduleId(comTaskEnablement.getNextExecutionSpecs());
@@ -351,9 +360,9 @@ public class MasterDataSerializer {
                 final int logicalDeviceId = 1;  //Linky and AM540 devices always use 1 as logical device
                 int clientTypeId = getClientTypeId(comTaskEnablement);
 
-                List<ObisCode> loadProfileObisCodes = getLoadProfileObisCodesForComTask(deviceConfiguration, comTaskEnablement);
-                List<ObisCode> registerObisCodes = getRegisterObisCodesForComTask(deviceConfiguration, comTaskEnablement);
-                List<ObisCode> logBookObisCodes = getLogBookObisCodesForComTask(deviceConfiguration, comTaskEnablement);
+                List<Object> loadProfileObisCodes = getLoadProfileObisCodesForComTask(deviceConfiguration, comTaskEnablement);
+                List<Object> registerObisCodes = getRegisterObisCodesForComTask(deviceConfiguration, comTaskEnablement);
+                List<Object> logBookObisCodes = getLogBookObisCodesForComTask(deviceConfiguration, comTaskEnablement);
 
                 if (isConfiguredToCollectLoadProfileData(comTaskEnablement) && loadProfileObisCodes.isEmpty()) {
                     allMasterData.getWarningKeys().add("emptyLoadProfileComTask");
@@ -369,7 +378,12 @@ public class MasterDataSerializer {
                 }
 
                 if (isReadMeterDataTask(loadProfileObisCodes, registerObisCodes, logBookObisCodes)) {
-                    final Beacon3100Schedulable schedulable = new Beacon3100Schedulable(comTaskEnablement, scheduleId, logicalDeviceId, clientTypeId, loadProfileObisCodes, registerObisCodes, logBookObisCodes);
+                    final Beacon3100Schedulable schedulable;
+                    if(readOldObisCodes) {
+                        schedulable = new Beacon3100Schedulable(comTaskEnablement, scheduleId, logicalDeviceId, clientTypeId, loadProfileObisCodes, registerObisCodes, logBookObisCodes);
+                    } else{
+                        schedulable = new Beacon3100Schedulable(comTaskEnablement, scheduleId, logicalDeviceId, clientTypeId, loadProfileObisCodes, registerObisCodes, logBookObisCodes, false);
+                    }
                     schedulables.add(schedulable);
                 }
             }
@@ -384,7 +398,7 @@ public class MasterDataSerializer {
         return ((ServerComTask) comTaskEnablement.getComTask()).isConfiguredToCollectLoadProfileData();
     }
 
-    private boolean isReadMeterDataTask(List<ObisCode> loadProfileObisCodes, List<ObisCode> registerObisCodes, List<ObisCode> logBookObisCodes) {
+    private boolean isReadMeterDataTask(List<Object> loadProfileObisCodes, List<Object> registerObisCodes, List<Object> logBookObisCodes) {
         return !(loadProfileObisCodes.isEmpty() && registerObisCodes.isEmpty() && logBookObisCodes.isEmpty());
     }
 
@@ -405,8 +419,8 @@ public class MasterDataSerializer {
         }
     }
 
-    private List<ObisCode> getLogBookObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
-        Set<ObisCode> logBookObisCodes = new HashSet<>();
+    private List<Object> getLogBookObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
+        Set<Object> logBookObisCodes = new HashSet<>();
         if (isConfiguredToCollectEvents(comTaskEnablement)) {
             for (ProtocolTask protocolTask : comTaskEnablement.getComTask().getProtocolTasks()) {
                 if (protocolTask instanceof LogBooksTask) {
@@ -440,7 +454,7 @@ public class MasterDataSerializer {
         return ((ServerComTask) comTaskEnablement.getComTask()).isConfiguredToCollectEvents();
     }
 
-    private List<ObisCode> getRegisterObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
+    private List<Object> getRegisterObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
         Set<ObisCode> registerObisCodes = new HashSet<>();
         if (isConfiguredToCollectRegisterData(comTaskEnablement)) {
             for (ProtocolTask protocolTask : comTaskEnablement.getComTask().getProtocolTasks()) {
@@ -479,16 +493,16 @@ public class MasterDataSerializer {
         return ((ServerComTask) comTaskEnablement.getComTask()).isConfiguredToCollectRegisterData();
     }
 
-    private List<ObisCode> filterOutUnwantedRegisterObisCodes(Set<ObisCode> obisCodes) {
+    private List<Object> filterOutUnwantedRegisterObisCodes(Set<ObisCode> obisCodes) {
         Iterator<ObisCode> iterator = obisCodes.iterator();
         while (iterator.hasNext()) {
-            ObisCode obisCode = iterator.next();
+            Object obisCode = iterator.next();
             if (obisCode.equals(Clock.getDefaultObisCode()) || obisCode.equals(FIXED_SERIAL_NUMBER_OBISCODE)) {
                 getLogger().warning("Filtering out register with obiscode '" + obisCode.toString() + "', it is already present in the mirror logical device by default.");
                 iterator.remove();
             }
         }
-        return new ArrayList<>(obisCodes);
+        return new ArrayList<Object>(obisCodes);
     }
 
     private Logger getLogger() {
@@ -498,7 +512,7 @@ public class MasterDataSerializer {
         return logger;
     }
 
-    private List<ObisCode> getLoadProfileObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
+    private List<Object> getLoadProfileObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
         Set<ObisCode> loadProfileObisCodes = new HashSet<>();
         if (isConfiguredToCollectLoadProfileData(comTaskEnablement)) {
             for (ProtocolTask protocolTask : comTaskEnablement.getComTask().getProtocolTasks()) {
@@ -516,7 +530,7 @@ public class MasterDataSerializer {
                 }
             }
         }
-        return new ArrayList<>(loadProfileObisCodes);
+        return new ArrayList<Object>(loadProfileObisCodes);
     }
 
     private Beacon3100ClientType getClientType(Device device, ComTaskEnablement comTaskEnablement) {
