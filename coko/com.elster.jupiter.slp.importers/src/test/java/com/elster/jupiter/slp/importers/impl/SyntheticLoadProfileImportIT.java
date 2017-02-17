@@ -162,11 +162,8 @@ public class SyntheticLoadProfileImportIT {
 
         try (TransactionContext context = transactionService.getContext()) {
             for (int i = 1; i < 4; i++) {
-                SyntheticLoadProfileBuilder builder = syntheticLoadProfileService.newSyntheticLoadProfile("slp" + i);
+                SyntheticLoadProfileBuilder builder = syntheticLoadProfileService.newSyntheticLoadProfile("slp" + i, Duration.ofMinutes(15), Period.ofDays(1), DATE);
                 builder.withDescription("synthetic load profile description");
-                builder.withInterval(Duration.ofMinutes(15));
-                builder.withDuration(Period.ofDays(1));
-                builder.withStartTime(DATE);
                 builder.build();
             }
             context.commit();
