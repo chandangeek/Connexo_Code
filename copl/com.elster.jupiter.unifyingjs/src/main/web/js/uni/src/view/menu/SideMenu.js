@@ -98,6 +98,11 @@ Ext.define('Uni.view.menu.SideMenu', {
 
     expandedSubMenus: [],
 
+    /**
+     * @cfg objectType
+     */
+    objectType: null,
+
     subMenuDefaults: {
         xtype: 'menu',
         floating: false,
@@ -123,6 +128,8 @@ Ext.define('Uni.view.menu.SideMenu', {
         if (!Ext.isEmpty(me.menuItems)) {
             me.items = me.menuItems;
         }
+
+        me.buildHeader();
 
         me.callParent(arguments);
 
@@ -327,5 +334,39 @@ Ext.define('Uni.view.menu.SideMenu', {
         var me = this;
 
         me.add.apply(me, arguments);
+    },
+
+    buildHeader: function () {
+        var me = this;
+        me.header = {
+            xtype: 'panel',
+            height: 50,
+            maxWidth: 223,
+            items: [{
+                xtype: 'component',
+                itemId: 'side-menu-header-object-type',
+                cls: 'x-menu-header-object-type',
+                html: Ext.htmlEncode(me.objectType)
+            }, {
+                xtype: 'component',
+                itemId: 'side-menu-header-object-name',
+                cls: 'x-menu-header-object-name',
+                html: Ext.htmlEncode(me.title)
+            }],
+            title: false
+        };
+    },
+
+    setHeader: function (title) {
+        var me = this;
+        if (me.rendered) {
+            if (title) {
+                me.down('#side-menu-header-object-name').update(Ext.htmlEncode(title));
+            }
+            me.updateLayout();
+        } else {
+            me.title = title;
+            me.buildHeader();
+        }
     }
 });
