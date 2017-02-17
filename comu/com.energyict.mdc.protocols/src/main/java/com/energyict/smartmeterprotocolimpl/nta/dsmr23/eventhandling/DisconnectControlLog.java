@@ -4,13 +4,12 @@
 
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling;
 
-import com.energyict.mdc.protocol.api.ProtocolException;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
+import com.energyict.mdc.protocol.api.ProtocolException;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -77,39 +76,57 @@ public class DisconnectControlLog extends AbstractEvent {
                 }
                 break;
                 case EVENT_MANUAL_DISCONNECTION: {
-                    meterEvents.add(createNewDisconnectControlLogbookEvent(eventTimeStamp, MeterEvent.MANUAL_DISCONNECTION, eventId, "The disconnector has been manually disconnected - Active threshold value: " + threshold));
+                    MeterEvent meterEvent = createNewDisconnectControlLogbookEvent(eventTimeStamp, MeterEvent.MANUAL_DISCONNECTION, eventId, "The disconnector has been manually disconnected - Active threshold value: " + threshold);
+                    meterEvent.addAdditionalInfo("Threshold", threshold);
+                    meterEvents.add(meterEvent);
                 }
                 break;
                 case EVENT_MANUAL_CONNECTION: {
-                    meterEvents.add(createNewDisconnectControlLogbookEvent(eventTimeStamp, MeterEvent.MANUAL_CONNECTION, eventId, "The disconnector has been manually connected - Active threshold value: " + threshold));
+                    MeterEvent meterEvent = createNewDisconnectControlLogbookEvent(eventTimeStamp, MeterEvent.MANUAL_CONNECTION, eventId, "The disconnector has been manually connected - Active threshold value: " + threshold);
+                    meterEvent.addAdditionalInfo("Threshold", threshold);
+                    meterEvents.add(meterEvent);
                 }
                 break;
                 case EVENT_REMOTE_DISCONNECTION: {
-                    meterEvents.add(createNewDisconnectControlLogbookEvent(eventTimeStamp, MeterEvent.REMOTE_DISCONNECTION, eventId, "The disconnector has been remotely disconnected - Active threshold value: " + threshold));
+                    MeterEvent meterEvent = createNewDisconnectControlLogbookEvent(eventTimeStamp, MeterEvent.REMOTE_DISCONNECTION, eventId, "The disconnector has been remotely disconnected - Active threshold value: " + threshold);
+                    meterEvent.addAdditionalInfo("Threshold", threshold);
+                    meterEvents.add(meterEvent);
                 }
                 break;
                 case EVENT_REMOTE_CONNECTION: {
-                    meterEvents.add(createNewDisconnectControlLogbookEvent(eventTimeStamp, MeterEvent.REMOTE_CONNECTION, eventId, "The disconnector has been remotely connected - Active threshold value: " + threshold));
+                    MeterEvent meterEvent = createNewDisconnectControlLogbookEvent(eventTimeStamp, MeterEvent.REMOTE_CONNECTION, eventId, "The disconnector has been remotely connected - Active threshold value: " + threshold);
+                    meterEvent.addAdditionalInfo("Threshold", threshold);
+                    meterEvents.add(meterEvent);
                 }
                 break;
                 case EVENT_LOCAL_DISCONNECTION: {
-                    meterEvents.add(createNewDisconnectControlLogbookEvent(eventTimeStamp, MeterEvent.LOCAL_DISCONNECTION, eventId, "The disconnector has been locally disconnected (i.e. via the limiter) - Active threshold value: " + threshold));
+                    MeterEvent meterEvent = createNewDisconnectControlLogbookEvent(eventTimeStamp, MeterEvent.LOCAL_DISCONNECTION, eventId, "The disconnector has been locally disconnected (i.e. via the limiter) - Active threshold value: " + threshold);
+                    meterEvent.addAdditionalInfo("Threshold", threshold);
+                    meterEvents.add(meterEvent);
                 }
                 break;
                 case EVENT_LIMITER_THRESHOLD_EXCEEDED: {
-                    meterEvents.add(createNewDisconnectControlLogbookEvent(eventTimeStamp, MeterEvent.LIMITER_THRESHOLD_EXCEEDED, eventId, "The limiter threshold has been exceeded - Active threshold value: " + threshold));
+                    MeterEvent meterEvent = createNewDisconnectControlLogbookEvent(eventTimeStamp, MeterEvent.LIMITER_THRESHOLD_EXCEEDED, eventId, "The limiter threshold has been exceeded - Active threshold value: " + threshold);
+                    meterEvent.addAdditionalInfo("Threshold", threshold);
+                    meterEvents.add(meterEvent);
                 }
                 break;
                 case EVENT_LIMITER_THRESHOLD_OK: {
-                    meterEvents.add(createNewDisconnectControlLogbookEvent(eventTimeStamp, MeterEvent.LIMITER_THRESHOLD_OK, eventId, "The monitored value of the limiter dropped below the threshold - Active threshold value: " + threshold));
+                    MeterEvent meterEvent = createNewDisconnectControlLogbookEvent(eventTimeStamp, MeterEvent.LIMITER_THRESHOLD_OK, eventId, "The monitored value of the limiter dropped below the threshold - Active threshold value: " + threshold);
+                    meterEvent.addAdditionalInfo("Threshold", threshold);
+                    meterEvents.add(meterEvent);
                 }
                 break;
                 case EVENT_LIMITER_THRESHOLD_CHANGED: {
-                    meterEvents.add(createNewDisconnectControlLogbookEvent(eventTimeStamp, MeterEvent.LIMITER_THRESHOLD_CHANGED, eventId, "The limiter threshold has been changed - Active threshold value: " + threshold));
+                    MeterEvent meterEvent = createNewDisconnectControlLogbookEvent(eventTimeStamp, MeterEvent.LIMITER_THRESHOLD_CHANGED, eventId, "The limiter threshold has been changed - Active threshold value: " + threshold);
+                    meterEvent.addAdditionalInfo("Threshold", threshold);
+                    meterEvents.add(meterEvent);
                 }
                 break;
                 default: {
-                    meterEvents.add(createNewDisconnectControlLogbookEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Unknown eventcode: " + eventId + " - Active threshold value: " + threshold));
+                    MeterEvent meterEvent = createNewDisconnectControlLogbookEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Unknown eventcode: " + eventId + " - Active threshold value: " + threshold);
+                    meterEvent.addAdditionalInfo("Threshold", threshold);
+                    meterEvents.add(meterEvent);
                 }
                 break;
             }
