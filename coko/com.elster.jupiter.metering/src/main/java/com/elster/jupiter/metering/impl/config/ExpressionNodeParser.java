@@ -107,6 +107,8 @@ public class ExpressionNodeParser {
                 handleNullNode();
             }
             handleOperationNode(lastToken);
+        } else {
+            throw new IllegalArgumentException("Unexpected token: " + currentToken);
         }
         removeArgumentCounter();
         incrementArgumentCounter();
@@ -199,7 +201,6 @@ public class ExpressionNodeParser {
         } else if (!this.isCompatible(propertySpec, Number.class, Quantity.class)) {
             throw InvalidNodeException.customPropertyMustBeNumerical(this.thesaurus, customPropertySet, propertySpec);
         }
-
     }
 
     @SuppressWarnings("unchecked")

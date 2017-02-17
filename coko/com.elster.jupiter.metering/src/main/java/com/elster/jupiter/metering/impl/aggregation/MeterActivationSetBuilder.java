@@ -185,16 +185,20 @@ class MeterActivationSetBuilder {
      * @return The MeterActivationSet or <code>Optional.empty()</code> as described above
      */
     private Optional<MeterActivationSet> createMeterActivationSet(Instant switchTimestamp) {
-        List<MeterActivation> meterActivations =
-                this.getOverlappingMeterActivations()
-                        .filter(meterActivation -> meterActivation.getRange().contains(switchTimestamp))
-                        .collect(Collectors.toList());
-        Optional<ServerCalendarUsage> calendarUsage = this.getOverlappingCalendarUsages().filter(each -> each.getRange().contains(switchTimestamp)).findAny();
-        Optional<SyntheticLoadProfileUsage> syntheticLoadProfileUsage = this.getSyntheticLoadProfileUsage(switchTimestamp);
-        if (meterActivations.isEmpty() && !calendarUsage.isPresent() && !syntheticLoadProfileUsage.isPresent()) {
+        if (this.period.hasUpperBound() && switchTimestamp.equals(this.period.upperEndpoint())) {
             return Optional.empty();
         } else {
-            return Optional.of(this.createMeterActivationSet(switchTimestamp, meterActivations, calendarUsage, syntheticLoadProfileUsage));
+            List<MeterActivation> meterActivations =
+                    this.getOverlappingMeterActivations()
+                            .filter(meterActivation -> meterActivation.getRange().contains(switchTimestamp))
+                            .collect(Collectors.toList());
+            Optional<ServerCalendarUsage> calendarUsage = this.getOverlappingCalendarUsages().filter(each -> each.getRange().contains(switchTimestamp)).findAny();
+            Optional<SyntheticLoadProfileUsage> syntheticLoadProfileUsage = this.getSyntheticLoadProfileUsage(switchTimestamp);
+            if (meterActivations.isEmpty() && !calendarUsage.isPresent() && !syntheticLoadProfileUsage.isPresent()) {
+                return Optional.empty();
+            } else {
+                return Optional.of(this.createMeterActivationSet(switchTimestamp, meterActivations, calendarUsage, syntheticLoadProfileUsage));
+            }
         }
     }
 

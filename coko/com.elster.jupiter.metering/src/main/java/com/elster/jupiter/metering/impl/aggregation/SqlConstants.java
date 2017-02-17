@@ -80,7 +80,9 @@ final class SqlConstants {
         TIMESTAMP("timestamp", "UTCSTAMP") {
             @Override
             void appendAsDeliverableSelectValue(Formula.Mode mode, ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
-                String value = expressionNode.accept(new TimeStampFromExpressionNode());
+                TimeStampFromExpressionNode visitor = new TimeStampFromExpressionNode();
+                expressionNode.accept(visitor);
+                String value = visitor.getSqlName();
                 if (value == null) {
                     sqlBuilder.append("0");
                 } else if (expertIntervalLength.isPresent()) {
@@ -171,7 +173,11 @@ final class SqlConstants {
                 String channels = collector.getSourceChannelSqlNames()
                         .stream()
                         .collect(Collectors.joining(" || '" + SourceChannelSetFactory.SOURCE_CHANNEL_IDS_SEPARATOR + "' || "));
-                sqlBuilder.append(channels);
+                if (channels.isEmpty()) {
+                    sqlBuilder.append("''");
+                } else {
+                    sqlBuilder.append(channels);
+                }
             }
 
             @Override

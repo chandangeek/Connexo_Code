@@ -50,7 +50,11 @@ class SyntheticLoadProfilePropertyNode  extends CustomPropertyNode {
 
     @Override
     public IntermediateDimension getIntermediateDimension() {
-        return IntermediateDimension.of(this.actual.getUnitOfMeasure().getDimension());
+        if (this.actual != null) {
+            return IntermediateDimension.of(this.actual.getUnitOfMeasure().getDimension());
+        } else {
+            return super.getIntermediateDimension();
+        }
     }
 
     String sqlName() {
@@ -73,14 +77,29 @@ class SyntheticLoadProfilePropertyNode  extends CustomPropertyNode {
 
     @SuppressWarnings("unchecked")
     protected void appendWithClause(SqlBuilder withClauseBuilder) {
-        withClauseBuilder.append("SELECT slpvalues.* FROM (");
-        withClauseBuilder.add(
-            this.actual
-                    .getRawValuesSql(
-                            this.rawDataPeriod(),
-                            this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
-                            this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)));
-        withClauseBuilder.append(") slpvalues");
+        if (this.actual != null) {
+            withClauseBuilder.append("SELECT slpvalues.* FROM (");
+            withClauseBuilder.add(
+                this.actual
+                        .getRawValuesSql(
+                                this.rawDataPeriod(),
+                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
+                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)));
+            withClauseBuilder.append(") slpvalues");
+        } else {
+            Loggers.SQL.severe(() -> "No actual SLP for property " +  this.getPropertySpec().getName() + " of custom property set " + this.getCustomPropertySet().getId() + " likely because user does not have sufficient privileges to view them");
+            // Likely the current user was not allowed to view the custom property values
+            withClauseBuilder.append("/* Using all default values because current user did not have sufficient privileges to view the actual synthetic load profile from the custom property set (see logging) */");
+            withClauseBuilder.append("SELECT ");
+            withClauseBuilder.append(SqlConstants.VIRTUAL_TIMESERIES_ID);
+            withClauseBuilder.append(", ");
+            withClauseBuilder.addLong(this.rawDataPeriod().lowerEndpoint().toEpochMilli());
+            withClauseBuilder.append(", ");
+            withClauseBuilder.append(SqlConstants.VIRTUAL_VERSION_COUNT);
+            withClauseBuilder.append(", ");
+            withClauseBuilder.append(SqlConstants.VIRTUAL_RECORD_TIME);
+            withClauseBuilder.append(", 0, sysdate FROM dual");  // user 0 as the actual value
+        }
     }
 
     private Pair<String, String> toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames columnName) {
@@ -88,15 +107,23 @@ class SyntheticLoadProfilePropertyNode  extends CustomPropertyNode {
     }
 
     IntervalLength getIntervalLength() {
-        return IntervalLength.from(this.actual.getInterval());
+        if (this.actual != null) {
+            return IntervalLength.from(this.actual.getInterval());
+        } else {
+            return IntervalLength.MINUTE15; // The default
+        }
     }
 
     VirtualReadingType getSourceReadingType() {
-        return VirtualReadingType.from(
-                this.getIntervalLength(),
-                this.actual.getUnitOfMeasure().getDimension(),
-                Accumulation.NOTAPPLICABLE,
-                this.commodityFromUnit(this.actual.getUnitOfMeasure()));
+        if (this.actual != null) {
+            return VirtualReadingType.from(
+                    this.getIntervalLength(),
+                    this.actual.getUnitOfMeasure().getDimension(),
+                    Accumulation.NOTAPPLICABLE,
+                    this.commodityFromUnit(this.actual.getUnitOfMeasure()));
+        } else {
+            return VirtualReadingType.dontCare();
+        }
     }
 
     private Commodity commodityFromUnit(Unit unitOfMeasure) {

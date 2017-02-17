@@ -43,6 +43,10 @@ class CustomPropertyNode implements ServerExpressionNode {
         return this.customPropertySet.getCustomPropertySet();
     }
 
+    PropertySpec getPropertySpec() {
+        return this.propertySpec;
+    }
+
     @Override
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visitProperty(this);
