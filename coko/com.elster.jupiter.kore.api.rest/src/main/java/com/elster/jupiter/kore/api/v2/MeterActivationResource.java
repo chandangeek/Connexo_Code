@@ -10,6 +10,9 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointMeterActivator;
+import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.JsonQueryParameters;
@@ -17,6 +20,7 @@ import com.elster.jupiter.rest.api.util.v1.hypermedia.PagedInfoList;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.Checks;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -33,6 +37,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,11 +49,13 @@ public class MeterActivationResource {
     private final MeterActivationInfoFactory meterActivationInfoFactory;
     private final MeteringService meteringService;
     private final ExceptionFactory exceptionFactory;
+    private final MetrologyConfigurationService metrologyConfigurationService;
 
     @Inject
-    public MeterActivationResource(MeterActivationInfoFactory meterActivationInfoFactory, MeteringService meteringService, ExceptionFactory exceptionFactory) {
+    public MeterActivationResource(MeterActivationInfoFactory meterActivationInfoFactory, MeteringService meteringService, MetrologyConfigurationService metrologyConfigurationService, ExceptionFactory exceptionFactory) {
         this.meterActivationInfoFactory = meterActivationInfoFactory;
         this.meteringService = meteringService;
+        this.metrologyConfigurationService = metrologyConfigurationService;
         this.exceptionFactory = exceptionFactory;
     }
 
@@ -129,8 +136,7 @@ public class MeterActivationResource {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "interval.start");
         }
 
-        MeterActivation activation;
-        Instant start = Instant.ofEpochMilli(meterActivationInfo.interval.start);
+        Instant start = Instant.ofEpochMilli(meterActivationInfo.interval.start).truncatedTo(ChronoUnit.MINUTES);
 
         if (!usagePoint.getMeterActivations().isEmpty() && start.isBefore(usagePoint.getMeterActivations()
                 .get(usagePoint.getMeterActivations().size() - 1)
@@ -140,9 +146,25 @@ public class MeterActivationResource {
         if (meterActivationInfo.meter == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "meter");
         }
-        Meter meter = meteringService.findMeterById(meterActivationInfo.meter)
+        Meter meter = meteringService.findMeterByMRID(meterActivationInfo.meter)
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METER, "meter"));
-        activation = usagePoint.activate(meter, start);
+
+        MeterRole meterRole = metrologyConfigurationService.findMeterRole(meterActivationInfo.meterRole)
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METER_ROLE, meterActivationInfo.meterRole));
+
+        UsagePointMeterActivator linker = usagePoint.linkMeters();
+        if(!usagePoint.getMeterActivations().isEmpty()){
+            linker.clear(start, meterRole);
+            linker.activate(start, meter, meterRole);
+        } else {
+            linker.clear(meterRole);
+            linker.activate(meter, meterRole);
+        }
+        linker.complete();
+
+        MeterActivation activation = usagePoint.getMeterActivations(meterRole).stream().filter(ma -> ma.getStart().equals(start)).findFirst()
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METER_ACTIVATION_FOR_METER_ROLE, meterActivationInfo.meterRole));
+
         return meterActivationInfoFactory.from(activation, uriInfo, Collections.emptyList());
     }
 

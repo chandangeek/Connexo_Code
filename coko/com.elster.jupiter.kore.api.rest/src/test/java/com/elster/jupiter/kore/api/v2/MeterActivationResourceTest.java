@@ -144,7 +144,7 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         MeterActivationInfo meterActivationInfo = new MeterActivationInfo();
         meterActivationInfo.interval = new IntervalInfo();
         meterActivationInfo.interval.start = clock.millis();
-        meterActivationInfo.meter = 123L;
+        meterActivationInfo.meter = "123L";
 
         Meter mock = mock(Meter.class);
         when(mock.getId()).thenReturn(123L);
@@ -218,7 +218,7 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
     public void testCreateMeterActivationWithoutPreviousMeterActivation() throws Exception {
         MeterActivationInfo meterActivationInfo = new MeterActivationInfo();
         meterActivationInfo.interval = new IntervalInfo();
-        meterActivationInfo.meter = 123456789L;
+        meterActivationInfo.meter = "123456789L";
         Instant now = clock.instant();
         meterActivationInfo.interval.start = now.toEpochMilli();
         Meter mock = mock(Meter.class);
@@ -240,7 +240,7 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         MeterActivationInfo meterActivationInfo = new MeterActivationInfo();
         meterActivationInfo.interval = new IntervalInfo();
         meterActivationInfo.interval.start = clock.millis();
-        meterActivationInfo.meter = 123456789L;
+        meterActivationInfo.meter = "123456789L";
 
         when(meteringService.findMeterById(123456789L)).thenReturn(Optional.empty());
 

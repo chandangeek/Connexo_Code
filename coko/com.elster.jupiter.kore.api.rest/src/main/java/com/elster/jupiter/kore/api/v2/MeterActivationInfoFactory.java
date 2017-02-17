@@ -83,7 +83,7 @@ public class MeterActivationInfoFactory extends SelectableFieldFactory<MeterActi
         map.put("interval", (meterActivationInfo, meterActivation, uriInfo) -> meterActivationInfo.interval = IntervalInfo
                 .from(meterActivation.getInterval().toOpenRange()));
         map.put("meter", (meterActivationInfo, meterActivation, uriInfo) -> meterActivation.getMeter()
-                .ifPresent(m -> meterActivationInfo.meter = m.getId()));
+                .ifPresent(m -> meterActivationInfo.meter = m.getMRID()));
         map.put("endDevice", (meterActivationInfo, meterActivation, uriInfo) -> meterActivation.getMeter()
                 .ifPresent(m -> meterActivationInfo.endDevice = endDeviceInfoFactory.get()
                         .asLink(m, Relation.REF_RELATION, uriInfo)));

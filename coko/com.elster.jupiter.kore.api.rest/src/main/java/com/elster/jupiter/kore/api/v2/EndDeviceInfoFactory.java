@@ -36,7 +36,7 @@ public class EndDeviceInfoFactory extends SelectableFieldFactory<EndDeviceInfo, 
 
     public LinkInfo asLink(Meter endDevice, Relation relation, UriInfo uriInfo) {
         EndDeviceInfo info = new EndDeviceInfo();
-        copySelectedFields(info, endDevice, uriInfo, Arrays.asList("id", "version"));
+        copySelectedFields(info, endDevice, uriInfo, Arrays.asList("id", "mRID", "version"));
         info.link = link(endDevice, relation, uriInfo);
         return info;
     }
