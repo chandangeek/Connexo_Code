@@ -17,6 +17,9 @@ Ext.define('Uni.form.field.EventTypeDisplay', {
             + Uni.I18n.translate('general.deviceSubDomain', 'UNI', 'Device subdomain') + ': ' + record.get('deviceSubDomainName') + '<br>'
             + Uni.I18n.translate('general.deviceEventOrAction', 'UNI', 'Device event or action') + ': ' + record.get('deviceEventOrActionName') + '<br>';
 
+        if(record.get('deviceCode') && record.get('deviceCode') != ''){
+            tooltip += Uni.I18n.translate('general.deviceCode', 'UNI', 'Device code') + ': ' + record.get('deviceCode') + '<br>';
+        }
         return '<span style="display:inline-block; float:left; margin-right:7px;">' + value + '</span>' +
             '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="' + tooltip + '"></span>';
     }
