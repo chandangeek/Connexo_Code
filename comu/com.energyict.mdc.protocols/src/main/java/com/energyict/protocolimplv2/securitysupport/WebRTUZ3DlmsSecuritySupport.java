@@ -12,15 +12,13 @@ import javax.inject.Inject;
 import java.util.Optional;
 
 /**
- * Provides general security <b>capabilities</b> for a DLMS protocol.
+ * Provides general security <b>capabilities</b> for the WebRTUZ3 protocol.
  * <p>
  * Copyrights EnergyICT
  * Date: 10/01/13
  * Time: 16:39
  */
 public class WebRTUZ3DlmsSecuritySupport extends AbstractSecuritySupportAdapter implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
-
-    //TODO this is just a copy of DLMS security support, adjust it
 
     // For unit testing purposes
     @Inject
@@ -35,7 +33,7 @@ public class WebRTUZ3DlmsSecuritySupport extends AbstractSecuritySupportAdapter 
 
     protected com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities getSecuritySupport() {
         if (securitySupport == null) {
-            securitySupport = new com.energyict.protocolimplv2.security.DlmsSecuritySupport(propertySpecService);
+            securitySupport = new com.energyict.protocolimplv2.security.WebRTUZ3DlmsSecuritySupport(propertySpecService);
         }
         return securitySupport;
     }
