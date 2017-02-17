@@ -189,6 +189,7 @@ public class MeteringApplication extends Application implements TranslationKeyPr
             keys.add(new SimpleTranslationKey(eventOrAction.name(), eventOrAction.getMnemonic()));
         }
         keys.addAll(Arrays.asList(TranslationSeeds.values()));
+        keys.addAll(Arrays.asList(LocationTranslationKeys.values()));
         return keys;
     }
 

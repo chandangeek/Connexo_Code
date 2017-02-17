@@ -29,7 +29,9 @@ import com.elster.jupiter.metering.config.UnsatisfiedReadingTypeRequirements;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -63,9 +65,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -143,6 +147,15 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Transactional
     public UsagePointInfo updateUsagePoint(@PathParam("name") String name, UsagePointInfo info) {
+        RestValidationBuilder validationBuilder = new RestValidationBuilder();
+        validateGeoCoordinates(validationBuilder, "extendedGeoCoordinates", info.extendedGeoCoordinates);
+        validateLocation(validationBuilder, info.extendedLocation);
+        validationBuilder
+                .notEmpty(info.name, "name")
+                .notEmpty(info.serviceCategory, "serviceCategory")
+                .validate();
+        validationBuilder.validate();
+
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePoint(info);
         usagePoint.setSpatialCoordinates(usagePointInfoFactory.getGeoCoordinates(info));
         Location location = usagePointInfoFactory.getLocation(info);
@@ -171,7 +184,10 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     public Response createUsagePoint(UsagePointInfo info) {
-        new RestValidationBuilder()
+        RestValidationBuilder validationBuilder = new RestValidationBuilder();
+        validateGeoCoordinates(validationBuilder, "extendedGeoCoordinates", info.extendedGeoCoordinates);
+        validateLocation(validationBuilder, info.extendedLocation);
+        validationBuilder
                 .notEmpty(info.name, "name")
                 .notEmpty(info.serviceCategory, "serviceCategory")
                 .validate();
@@ -453,4 +469,50 @@ public class UsagePointResource {
         info.location = info.extendedLocation.locationValue;
     }
 
+    private void validateGeoCoordinates(RestValidationBuilder validationBuilder, String fieldName, CoordinatesInfo geoCoordinates) {
+        String spatialCoordinates = geoCoordinates.spatialCoordinates;
+        if (Checks.is(spatialCoordinates).empty() || !spatialCoordinates.contains(":")) {
+            return;
+        }
+        String[] parts = spatialCoordinates.split(":");
+        if (parts.length == 0) {
+            return;
+        }
+
+        if (parts.length != 3) {
+            validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_COORDINATES, fieldName));
+            return;
+        }
+
+        if (Arrays.stream(parts)
+                .anyMatch(element -> element.split(",").length > 2
+                        || element.split(".").length > 2)) {
+            validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_COORDINATES, fieldName));
+            return;
+        }
+
+        try {
+            BigDecimal numericLatitude = new BigDecimal(parts[0].contains(",") ? String.valueOf(parts[0].replace(",", ".")) : parts[0]);
+            BigDecimal numericLongitude = new BigDecimal(parts[1].contains(",") ? String.valueOf(parts[1].replace(",", ".")) : parts[1]);
+            if (numericLatitude.compareTo(BigDecimal.valueOf(-90)) < 0
+                    || numericLatitude.compareTo(BigDecimal.valueOf(90)) > 0
+                    || numericLongitude.compareTo(BigDecimal.valueOf(-180)) < 0
+                    || numericLongitude.compareTo(BigDecimal.valueOf(180)) > 0) {
+                validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_COORDINATES, fieldName));
+            }
+        } catch (Exception e) {
+            validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_COORDINATES, fieldName));
+        }
+    }
+
+    private void validateLocation(RestValidationBuilder validationBuilder, EditLocationInfo editLocation) {
+        if (editLocation.properties != null) {
+            List<PropertyInfo> propertyInfos = Arrays.asList(editLocation.properties);
+            for (PropertyInfo propertyInfo : propertyInfos) {
+                if (propertyInfo.required && ((propertyInfo.propertyValueInfo.value == null) || (propertyInfo.propertyValueInfo.value.toString().isEmpty()))) {
+                    validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.REQUIRED, "properties." + propertyInfo.key));
+                }
+            }
+        }
+    }
 }
