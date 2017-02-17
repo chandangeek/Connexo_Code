@@ -219,7 +219,7 @@ public class GEKV extends AbstractProtocol implements C12ProtocolLink, SerialNum
     }
 
     public String getProtocolVersion() {
-        return "$Date: 2015-11-26 15:23:40 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: 2017-2-10 15:23:40 +0200 (Fr, 10 Feb 2017)$";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {
