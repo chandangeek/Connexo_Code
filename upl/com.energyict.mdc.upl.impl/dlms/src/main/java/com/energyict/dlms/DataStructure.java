@@ -149,7 +149,12 @@ public class DataStructure implements Serializable {
         return ((Long) this.element[index]).longValue();
     }
 
+    public boolean isBigDecimal(int index){
+        return isLong(index) || isInteger(index) || isFloat(index);
+    }
+
     public BigDecimal getBigDecimalValue(int index) throws ProtocolException {
+
         if (isLong(index)) {
             return BigDecimal.valueOf(getLong(index));
         } else if (isInteger(index)) {

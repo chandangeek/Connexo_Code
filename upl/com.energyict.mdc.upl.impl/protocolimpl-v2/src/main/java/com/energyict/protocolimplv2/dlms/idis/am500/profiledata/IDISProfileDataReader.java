@@ -107,17 +107,22 @@ public class IDISProfileDataReader {
                         previousTimeStamp = timeStamp;
 
                         if (hasStatusInformation(correctedLoadProfileObisCode)) {
-                            protocol.getLogger().fine("A status obisCode is expected in this loadProfile");
                             status = structure.getInteger(1);
                             offset = 2;
                         } else {
-                            protocol.getLogger().fine("A status obisCode is NOT expected in this loadProfile (only clock)");
+                            // no status is expected in this load profile - i.e. billing profile
                         }
 
                         final List<IntervalValue> values = new ArrayList<>();
 
                         for (int channel = 0; channel < channelInfos.size(); channel++) {
-                            value = new IntervalValue(structure.getBigDecimalValue(channel + offset), status, getEiServerStatus(status));
+                            if (structure.isBigDecimal(channel + offset)) {
+                                value = new IntervalValue(structure.getBigDecimalValue(channel + offset), status, getEiServerStatus(status));
+                            } else {
+                                // unwanted channel (like a date), will be removed by com.energyict.comserver.commands.core.SimpleComCommand.removeUnwantedChannels()
+                                value = new IntervalValue(null, 0, 0);
+                            }
+
                             values.add(value);
                         }
 
