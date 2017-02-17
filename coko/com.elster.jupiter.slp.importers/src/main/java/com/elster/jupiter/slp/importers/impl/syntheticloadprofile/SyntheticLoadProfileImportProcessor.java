@@ -6,21 +6,16 @@ package com.elster.jupiter.slp.importers.impl.syntheticloadprofile;
 
 import com.elster.jupiter.fileimport.csvimport.FileImportLogger;
 import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
-import com.elster.jupiter.slp.SyntheticLoadProfile;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 import com.elster.jupiter.slp.importers.impl.AbstractImportProcessor;
 import com.elster.jupiter.slp.importers.impl.MessageSeeds;
 import com.elster.jupiter.slp.importers.impl.SyntheticLoadProfileDataImporterContext;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
-import com.elster.jupiter.util.time.Interval;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor<SyntheticLoadProfileImportRecord> {

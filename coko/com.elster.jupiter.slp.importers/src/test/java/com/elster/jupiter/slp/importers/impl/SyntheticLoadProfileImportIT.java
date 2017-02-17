@@ -5,24 +5,28 @@
 package com.elster.jupiter.slp.importers.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.slp.SyntheticLoadProfileBuilder;
-import com.elster.jupiter.slp.SyntheticLoadProfileService;
-import com.elster.jupiter.slp.impl.SyntheticLoadProfileModule;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfileBuilder;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.slp.importers.impl.syntheticloadprofile.SyntheticLoadProfileImporterFactory;
 import com.elster.jupiter.slp.importers.impl.properties.SupportedNumberFormat;
 import com.elster.jupiter.time.TimeService;
@@ -32,6 +36,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 
@@ -114,12 +119,17 @@ public class SyntheticLoadProfileImportIT {
                     new PubSubModule(),
                     new TransactionModule(),
                     new NlsModule(),
-                    new SyntheticLoadProfileModule(),
                     new DataVaultModule(),
                     new EventsModule(),
                     new UserModule(),
                     new FileImportModule(),
-                    new BasicPropertiesModule()
+                    new BasicPropertiesModule(),
+                    new FiniteStateMachineModule(),
+                    new UsagePointLifeCycleConfigurationModule(),
+                    new CustomPropertySetsModule(),
+                    new PartyModule(),
+                    new SearchModule(),
+                    new MeteringModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);

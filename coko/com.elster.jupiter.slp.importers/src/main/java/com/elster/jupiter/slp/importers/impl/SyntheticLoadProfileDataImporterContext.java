@@ -10,7 +10,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.slp.SyntheticLoadProfileService;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.users.UserService;
 
 import org.osgi.service.component.annotations.Component;
