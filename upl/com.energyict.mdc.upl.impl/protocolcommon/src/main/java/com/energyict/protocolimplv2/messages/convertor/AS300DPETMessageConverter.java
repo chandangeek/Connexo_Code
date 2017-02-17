@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
@@ -39,11 +40,13 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
     private static final ObisCode PUBLIC_KEYS_OBISCODE = ObisCode.fromString("0.128.0.2.0.2");
     private final DeviceExtractor deviceExtractor;
     private final RegisterExtractor registerExtractor;
+    private final DeviceGroupExtractor deviceGroupExtractor;
 
-    protected AS300DPETMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor tariffCalendarExtractor, DeviceExtractor deviceExtractor, RegisterExtractor registerExtractor) {
+    protected AS300DPETMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor tariffCalendarExtractor, DeviceExtractor deviceExtractor, RegisterExtractor registerExtractor, DeviceGroupExtractor deviceGroupExtractor) {
         super(messagingProtocol, propertySpecService, nlsService, converter, deviceMessageFileExtractor, tariffCalendarExtractor);
         this.deviceExtractor = deviceExtractor;
         this.registerExtractor = registerExtractor;
+        this.deviceGroupExtractor = deviceGroupExtractor;
     }
 
     @Override
@@ -76,8 +79,7 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
         StringBuilder builder = new StringBuilder();
         int index = 1;
         try {
-            for (Object member : group.members()) {
-                Device device = (Device) member;
+            for (Device device : deviceGroupExtractor.members(group)) {
                 Optional<Register> register = this.deviceExtractor.register(device, PUBLIC_KEYS_OBISCODE);
                 if (register.isPresent()) {
                     Optional<RegisterExtractor.RegisterReading> lastReading = this.registerExtractor.lastReading(register.get());
