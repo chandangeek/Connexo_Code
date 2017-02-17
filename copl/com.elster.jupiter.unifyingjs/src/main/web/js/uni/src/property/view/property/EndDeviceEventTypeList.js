@@ -75,7 +75,7 @@ Ext.define('Uni.property.view.property.EndDeviceEventTypeList', {
                                 margin: '0 0 0 10',
                                 handler: function() {
                                     Ext.create('Uni.property.view.property.EventTypeWindow', {
-                                        title: Uni.I18n.translate('general.addEventType', 'DAL', 'Add event type'),
+                                        title: Uni.I18n.translate('general.addEventType', 'UNI', 'Add event type'),
                                         addEventType: me.addEventType,
                                         parent: me
                                     });
