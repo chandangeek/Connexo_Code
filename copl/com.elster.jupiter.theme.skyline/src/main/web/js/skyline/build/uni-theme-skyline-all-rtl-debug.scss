@@ -1,4 +1,4 @@
-$image-search-path: 'D:/ssentyur/Jupiter/stash_repositories/copl/com.elster.jupiter.theme.skyline/src/main/web/js/skyline/build/resources' !default;
+$image-search-path: 'D:/projects/jupiter/copl/com.elster.jupiter.theme.skyline/src/main/web/js/skyline/build/resources' !default;
 $theme-name:  'uni-theme-skyline' !default;
 $include-ext-abstractcomponent: true;
 $include-ext-abstractmanager: true;
@@ -811,6 +811,5 @@ $relative-image-path-for-uis: $uni-theme-skyline-resource-path;
 @import '../sass/src/panel/Table';
 @import '../sass/src/grid/header/Container';
 @import '../sass/src/menu/Menu';
-@import '../sass/src/panel/Tool';
 @import '../sass/src/tab/Tab';
 @import '../sass/src/tab/Bar';

@@ -1,13 +1,3 @@
-/* line 331, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-panel-header-form-error-framed-collapsed-right-br {
-  background-position: right -50px;
-}
-
-/* line 335, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-panel-header-form-error-framed-collapsed-right-ml {
-  background-position: 0 right;
-}
-
 /* line 339, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-panel-header-form-error-framed-collapsed-right-mr {
   background-position: right right;
@@ -931,12 +921,12 @@
   border-width: 1px !important;
 }
 
-/* line 180, ../../sass/src/panel/Panel.scss */
+/* line 183, ../../sass/src/panel/Panel.scss */
 .x-uni-form-error-msg-icon {
   background-image: url("images/form/ico_warning.png");
 }
 
-/* line 184, ../../sass/src/panel/Panel.scss */
+/* line 187, ../../sass/src/panel/Panel.scss */
 *[class*='x-panel-'].no-side-padding {
   padding-right: 0;
   padding-left: 0;
@@ -2708,44 +2698,7 @@
   color: #686868;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/* line 6, ../../sass/src/panel/Tool.scss */
-.x-tool .x-tool-img {
-  font-family: 'icomoon' !important;
-  speak: none;
-  font-style: normal;
-  font-weight: normal;
-  font-variant: normal;
-  text-transform: none;
-  line-height: 1;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-size: 16px;
-}
-
-/* line 20, ../../sass/src/panel/Tool.scss */
-.x-tool-expand-top, .x-tool-collapse-top {
-  background: none;
-  opacity: 1;
-}
-/* line 23, ../../sass/src/panel/Tool.scss */
-.x-tool-expand-top:before, .x-tool-collapse-top:before {
-  content: "\ede7";
-}
-
-/* line 28, ../../sass/src/panel/Tool.scss */
-.x-tool-expand-bottom, .x-tool-collapse-bottom {
-  background: none;
-  opacity: 1;
-}
-/* line 31, ../../sass/src/panel/Tool.scss */
-.x-tool-expand-bottom:before, .x-tool-collapse-bottom:before {
-  content: "\ede9";
-}
-
-/* line 198, ../../sass/src/panel/Panel.scss */
+/* line 200, ../../sass/src/panel/Panel.scss */
 .error-border .x-panel-body {
   border-color: #eb5642 !important;
 }
@@ -10765,43 +10718,61 @@ a.x-datepicker-date:hover {
   border-radius: 8px;
   background: #ebebeb;
   margin-bottom: 16px;
-  overflow: hidden;
   padding: 0;
   padding-top: 10px;
   padding-right: 12px;
   padding-bottom: 0;
   padding-left: 12px;
 }
-/* line 18, ../../sass/src/menu/Side.scss */
+/* line 17, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-panel-header {
   font-family: 'Open Sans Condensed', helvetica, arial, verdana, sans-serif;
   padding-left: 4px;
   font-size: 24px;
   color: #1e7d9e;
 }
-/* line 25, ../../sass/src/menu/Side.scss */
+/* line 23, ../../sass/src/menu/Side.scss */
+.x-panel-menu-side .x-panel-header .x-menu-header-object-type {
+  font-size: 14px;
+  font-family: 'Lato', helvetica, arial, verdana, sans-serif;
+  padding-left: 0px;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 210px;
+}
+/* line 34, ../../sass/src/menu/Side.scss */
+.x-panel-menu-side .x-panel-header .x-menu-header-object-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 210px;
+}
+/* line 42, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-menu-item + .x-menu-item .x-menu-item-link {
   border-top: none !important;
 }
-/* line 29, ../../sass/src/menu/Side.scss */
+/* line 46, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-menu-item:last-child {
   padding-bottom: 0 !important;
 }
-/* line 33, ../../sass/src/menu/Side.scss */
+/* line 50, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-menu-item:first-child {
   padding-top: 0 !important;
 }
-/* line 37, ../../sass/src/menu/Side.scss */
+/* line 54, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-menu-body {
   background: none;
+  padding: 8px 0;
 }
-/* line 40, ../../sass/src/menu/Side.scss */
+/* line 58, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-menu-body .x-menu-item {
   padding: 0 !important;
   margin-right: 5px;
   margin-bottom: 12px;
 }
-/* line 48, ../../sass/src/menu/Side.scss */
+/* line 66, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-menu-body .x-menu-item .x-menu-item-link {
   font-weight: bold;
   border: none;
@@ -10811,7 +10782,7 @@ a.x-datepicker-date:hover {
   margin: 0;
   margin-right: 4px;
 }
-/* line 62, ../../sass/src/menu/Side.scss */
+/* line 80, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-menu-body .x-menu-item .x-menu-item-text {
   font-weight: bold;
   font-size: 14px;
@@ -10821,34 +10792,30 @@ a.x-datepicker-date:hover {
   text-overflow: ellipsis;
   width: 210px;
 }
-/* line 73, ../../sass/src/menu/Side.scss */
+/* line 91, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-menu-body .item-active {
   border-right: 4px solid #70bb51;
   cursor: default;
 }
-/* line 77, ../../sass/src/menu/Side.scss */
+/* line 95, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-menu-body .item-active .x-menu-item-text {
   font-weight: bold !important;
   color: #70bb51;
 }
-/* line 83, ../../sass/src/menu/Side.scss */
+/* line 101, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-menu-body .x-menu-item-active {
   background: #686868;
 }
-/* line 86, ../../sass/src/menu/Side.scss */
+/* line 104, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-menu-body .x-menu-item-active .x-menu-item-text {
   color: #ffffff;
 }
-/* line 92, ../../sass/src/menu/Side.scss */
+/* line 110, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-panel-menu-side-sub {
   margin-bottom: 8px;
   left: 0;
 }
-/* line 96, ../../sass/src/menu/Side.scss */
-.x-panel-menu-side .x-panel-menu-side-sub-collapsed {
-  margin-bottom: 20px !important;
-}
-/* line 100, ../../sass/src/menu/Side.scss */
+/* line 114, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-panel-menu-side-sub .x-panel-header {
   font-family: 'Lato', helvetica, arial, verdana, sans-serif;
   border-bottom: 1px solid #d4d4d4 !important;
@@ -10857,18 +10824,17 @@ a.x-datepicker-date:hover {
   padding-left: 0;
   font-size: 14px;
   color: #686868;
-  cursor: pointer;
 }
-/* line 111, ../../sass/src/menu/Side.scss */
+/* line 124, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-panel-menu-side-sub .x-menu-item {
   margin-right: 0;
   margin-bottom: 0;
 }
-/* line 117, ../../sass/src/menu/Side.scss */
+/* line 130, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-panel-menu-side-sub .x-menu-item .x-menu-item-link {
   margin-right: 0;
 }
-/* line 121, ../../sass/src/menu/Side.scss */
+/* line 134, ../../sass/src/menu/Side.scss */
 .x-panel-menu-side .x-panel-menu-side-sub .x-menu-item .x-menu-item-text {
   font-weight: normal;
 }
@@ -10970,43 +10936,6 @@ a.x-datepicker-date:hover {
 /* line 90, ../../sass/src/menu/Menu.scss */
 .x-panel-side-menu .x-menu-body .x-menu-item-active x-menu-item-text {
   color: white;
-}
-
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/* line 6, ../../sass/src/panel/Tool.scss */
-.x-tool .x-tool-img {
-  font-family: 'icomoon' !important;
-  speak: none;
-  font-style: normal;
-  font-weight: normal;
-  font-variant: normal;
-  text-transform: none;
-  line-height: 1;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-size: 16px;
-}
-
-/* line 20, ../../sass/src/panel/Tool.scss */
-.x-tool-expand-top, .x-tool-collapse-top {
-  background: none;
-  opacity: 1;
-}
-/* line 23, ../../sass/src/panel/Tool.scss */
-.x-tool-expand-top:before, .x-tool-collapse-top:before {
-  content: "\ede7";
-}
-
-/* line 28, ../../sass/src/panel/Tool.scss */
-.x-tool-expand-bottom, .x-tool-collapse-bottom {
-  background: none;
-  opacity: 1;
-}
-/* line 31, ../../sass/src/panel/Tool.scss */
-.x-tool-expand-bottom:before, .x-tool-collapse-bottom:before {
-  content: "\ede9";
 }
 
 /*
