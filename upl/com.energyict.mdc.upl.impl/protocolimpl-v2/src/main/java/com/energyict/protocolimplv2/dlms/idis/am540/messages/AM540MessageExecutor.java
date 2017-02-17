@@ -1,13 +1,49 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.messages;
 
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.actionWhenOverThresholdAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.actionWhenUnderThresholdAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileActivationDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileDurationAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileGroupIdListAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileIdAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyThresholdAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.monitorInstanceAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.monitoredValueAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newWrappedEncryptionKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.normalThresholdAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.thresholdInAmpereAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.underThresholdDurationAttributeName;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultCode;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.Limiter;
+import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.ScriptTable;
+import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
@@ -16,18 +52,17 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130MessageExecutor;
 import com.energyict.protocolimplv2.dlms.idis.am540.AM540Cache;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadProfileMessage;
+import com.energyict.protocolimplv2.messages.LogBookDeviceMessage;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.LoadProfileOptInOut;
 import com.energyict.protocolimplv2.messages.enums.SetDisplayMode;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.DSMR50ActivitiyCalendarController;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Date;
-
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.actionWhenUnderThresholdAttributeName;
 
 /**
  * @author sva
@@ -151,6 +186,35 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
         try {
             ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
             imageTransfer.enableImageTransfer();
+            
+            // This should do it for DEWA, for EVN, we'll need to also initiate the image transfer.
+            if (shouldEnableAndInitiateImageTransfer(pendingMessage)) {
+            	final OfflineDeviceMessageAttribute imageIdentifierAttribute = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName);
+            	final OfflineDeviceMessageAttribute imageSizeAttribute = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.FW_UPGADE_IMAGE_SIZE);
+            	
+            	if (imageIdentifierAttribute == null || imageSizeAttribute == null) {
+            		collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            		
+            		final String errorMessage = "Instructed to also initiate image transfer, but found no image identifier or image size in the message.";
+            		
+            		collectedMessage.setDeviceProtocolInformation(errorMessage);
+            		collectedMessage.setFailureInformation(ResultType.ConfigurationError, this.createMessageFailedIssue(pendingMessage, errorMessage));
+            	} else {
+            		final long imageSize = Long.parseLong(imageSizeAttribute.getDeviceMessageAttributeValue());
+            		final String imageIdentifier = imageIdentifierAttribute.getDeviceMessageAttributeValue();
+            		
+            		if (this.getLogger().isLoggable(Level.INFO)) {
+            			this.getLogger().log(Level.INFO, "Initiate image transfer : image identifier [" + imageIdentifier + "], image size [" + imageSize + "]");
+            		}
+            		
+            		final Structure imageInformationStructure = new Structure();
+            		
+            		imageInformationStructure.addDataType(OctetString.fromByteArray(imageIdentifier.getBytes(StandardCharsets.US_ASCII)));
+            		imageInformationStructure.addDataType(new Unsigned32(imageSize));
+            		
+            		imageTransfer.imageTransferInitiate(imageInformationStructure);
+            	}
+            }
         } catch (IOException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             String errorMsg = "Failed to enable image transfer: " + e.getMessage();
@@ -158,6 +222,32 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
             collectedMessage.setFailureInformation(ResultType.Other, createMessageFailedIssue(pendingMessage, errorMsg));
         }
         return collectedMessage;
+    }
+    
+    /**
+     * Returns the {@link Logger} instance.
+     *
+     * @return	The {@link Logger}.
+     */
+    private final Logger getLogger() {
+    	return this.getProtocol().getLogger();
+    }
+    
+    /**
+     * Indicates whether or not we should also initiate the {@link ImageTransfer} in addition to enabling it.
+     * 
+     * @param 		message		The message.
+     * 
+     * @return		<code>true</code> if we should initiate in addition to enabling, <code>false</code> if not.
+     */
+    private static final boolean shouldEnableAndInitiateImageTransfer(final OfflineDeviceMessage message) {
+    	final OfflineDeviceMessageAttribute attribute = MessageConverterTools.getDeviceMessageAttribute(message, DeviceMessageConstants.FW_UPGRADE_INITIATE_ENABLE_AND_INITIATE);
+    	
+    	if (attribute == null) {
+    		return false;
+    	}
+    	
+    	return Boolean.parseBoolean(attribute.getDeviceMessageAttributeValue());
     }
 
     protected CollectedMessage verifyAndActivateFirmware(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {

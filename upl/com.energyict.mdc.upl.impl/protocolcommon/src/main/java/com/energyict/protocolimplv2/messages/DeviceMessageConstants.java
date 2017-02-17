@@ -59,6 +59,17 @@ public class DeviceMessageConstants {
     public static final String MeterTimeZone = "FirmwareDeviceMessage.TimeZone";
     public static final String SecurityLevelMulticast = "FirmwareDeviceMessage.SecurityLevelMulticast";
     public static final String SecurityPolicyMulticastV0 = "FirmwareDeviceMessage.SecurityPolicyMulticastV0";
+    
+    /** 
+     * Boolean attribute that tells us whether or not to do the enable and initiate of the FW upgrade in one step. 
+     * 
+     * For DEWA this is false, since the DC can perform the initiate itself.
+     * For EVN, this is true, as the DC does not have the necessary access rights to perform the initiate.
+     */
+    public static final String FW_UPGRADE_INITIATE_ENABLE_AND_INITIATE = "FirmwareDeviceMessage.EnableAndInitiate";
+    
+    /** Numeric attribute, contains the image size. */
+    public static final String FW_UPGADE_IMAGE_SIZE = "FirmwareDeviceMessage.image.size";
 
     public static final String contractAttributeName = "contract";
     public static final String defaultTariffCodeAttrributeName = "ActivityCalendarDeviceMessage.default.tariff";

@@ -102,7 +102,12 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
             PropertySpecFactory.stringPropertySpec(firmwareUpdateImageIdentifierAttributeName),
             PropertySpecFactory.notNullableBooleanPropertySpec(resumeFirmwareUpdateAttributeName, true)),
-    ENABLE_IMAGE_TRANSFER(22),
+    ENABLE_IMAGE_TRANSFER(
+    		22,
+    		PropertySpecFactory.notNullableBooleanPropertySpec(FW_UPGRADE_INITIATE_ENABLE_AND_INITIATE, false),
+    		PropertySpecFactory.bigDecimalPropertySpec(FW_UPGADE_IMAGE_SIZE),
+    		PropertySpecFactory.stringPropertySpec(firmwareUpdateImageIdentifierAttributeName)
+    ),
     TRANSFER_SLAVE_FIRMWARE_FILE_TO_DATA_CONCENTRATOR(23,
             PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
             PropertySpecFactory.stringPropertySpec(firmwareUpdateImageIdentifierAttributeName)
