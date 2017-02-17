@@ -8,6 +8,7 @@ import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am130.properties.AM130ConfigurationSupport;
+import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISConfigurationSupport;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -75,7 +76,8 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
                 this.validateCachedFrameCounter(),
                 this.frameCounterRecoveryRetries(),
                 this.frameCounterRecoveryStep(),
-                this.deviceSystemTitlePropertySpec()
+                this.deviceSystemTitlePropertySpec(),
+                super.readCachePropertySpec()
         );
     }
     private PropertySpec frameCounterRecoveryRetries() {
