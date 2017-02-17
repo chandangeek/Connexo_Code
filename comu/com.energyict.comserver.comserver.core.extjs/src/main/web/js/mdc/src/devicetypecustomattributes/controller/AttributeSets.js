@@ -169,7 +169,7 @@ Ext.define('Mdc.devicetypecustomattributes.controller.AttributeSets', {
             success: function (deviceType) {
                 scope.getApplication().fireEvent('loadDeviceType', deviceType);
                 if (widget.down('deviceTypeSideMenu')) {
-                    widget.down('deviceTypeSideMenu').setDeviceTypeLink(deviceType.get('name'));
+                    widget.down('deviceTypeSideMenu').setDeviceTypeTitle(deviceType.get('name'));
                     widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));
                 }
             }

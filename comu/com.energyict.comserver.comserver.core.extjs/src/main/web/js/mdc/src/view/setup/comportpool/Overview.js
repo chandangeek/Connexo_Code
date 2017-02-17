@@ -20,7 +20,8 @@ Ext.define('Mdc.view.setup.comportpool.Overview', {
             items: [
                 {
                     ui: 'large',
-                    title: Uni.I18n.translate('general.overview','MDC','Overview'),
+                    itemId: 'comPortPool-overview-panel',
+                    title: Uni.I18n.translate('general.details','MDC','Details'),
                     flex: 1
                 },
                 {

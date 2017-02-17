@@ -11,13 +11,14 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
     deviceConfigurationId: null,
 
     title: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
+    objectType: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
 
     initComponent: function () {
         var me = this;
 
         me.menuItems = [
             {
-                text: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
+                text: Uni.I18n.translate('general.details', 'MDC', 'Details'),
                 itemId: 'deviceConfigurationOverviewLink',
                 href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId
             },

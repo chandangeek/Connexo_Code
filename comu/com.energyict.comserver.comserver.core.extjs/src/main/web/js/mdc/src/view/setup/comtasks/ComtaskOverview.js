@@ -22,7 +22,8 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskOverview', {
             items: [
                 {
                     ui: 'large',
-                    title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
+                    itemId: 'mdc-comtask-overview-panel',
+                    title: Uni.I18n.translate('general.details', 'MDC', 'Details'),
                     flex: 1,
                     items: {
                         xtype: 'comtaskpreviewform',
