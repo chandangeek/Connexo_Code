@@ -11,9 +11,6 @@ import com.energyict.mdc.upl.meterdata.Device;
  */
 public enum TranslationKeys implements TranslationKey {
 
-    DEVICEDIALHOMEID("deviceDialHomeId", "Device call home ID"),
-    TIMEOUT("protocol.timeout", "Timeout"),
-    RETRIES("protocol.retries", "Retries"),
     DIALECT_CPS_DOMAIN_NAME(DeviceProtocolDialectPropertyProvider.class.getName(), "Device protocol dialect"),
     SECURITY_PROPERTY_SET_CPS_DOMAIN_NAME(Device.class.getName(), "Security property set");
 
