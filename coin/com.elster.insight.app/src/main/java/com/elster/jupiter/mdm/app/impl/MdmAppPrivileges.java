@@ -81,6 +81,7 @@ class MdmAppPrivileges {
                 //Import services
                 com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
                 com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_HISTORY,
+                com.elster.jupiter.fileimport.security.Privileges.Constants.IMPORT_FILE,
 
                 //Calendars
                 com.elster.jupiter.calendar.security.Privileges.Constants.MANAGE_TOU_CALENDARS,
