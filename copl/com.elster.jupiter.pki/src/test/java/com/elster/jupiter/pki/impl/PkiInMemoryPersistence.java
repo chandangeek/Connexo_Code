@@ -10,7 +10,9 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.PrivateKeyFactory;
-import com.elster.jupiter.pki.impl.wrappers.assymetric.PlaintextPrivateKeyFactory;
+import com.elster.jupiter.pki.SymmetricKeyFactory;
+import com.elster.jupiter.pki.impl.wrappers.assymetric.DataVaultPrivateKeyFactory;
+import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -86,8 +88,12 @@ public class PkiInMemoryPersistence {
         return injector.getInstance(UserService.class);
     }
 
-    public PrivateKeyFactory getPlaintextPrivateKeyFactory() {
-        return injector.getInstance(PlaintextPrivateKeyFactory.class);
+    public PrivateKeyFactory getDataVaultPrivateKeyFactory() {
+        return injector.getInstance(DataVaultPrivateKeyFactory.class);
+    }
+
+    public SymmetricKeyFactory getDataVaultSymmetricKeyFactory() {
+        return injector.getInstance(DataVaultSymmetricKeyFactory.class);
     }
 
     private static class MockModule extends AbstractModule {

@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.impl.wrappers.assymetric.AbstractPlaintextPrivateKeyImpl;
+import com.elster.jupiter.pki.impl.wrappers.symmetric.PlaintextSymmetricKey;
 
 public enum TableSpecs {
     SSM_PLAINTEXTPK {
@@ -26,8 +27,25 @@ public enum TableSpecs {
                     .conversion(ColumnConversion.NUMBER2LONG)
                     .since(Version.version(10, 3))
                     .add();
-            table.foreignKey("SSM_FK_SSM_KT").on(keyTypeColumn).references(KeyType.class).map("keyTypeReference").add();
-            table.primaryKey("PK_PKI_PPK").on(id).add();
+            table.foreignKey("SSM_FK_PRIKEY_KT").on(keyTypeColumn).references(KeyType.class).map("keyTypeReference").add();
+            table.primaryKey("PK_PKI_PRIKEY").on(id).add();
+        }
+    },
+    SSM_PLAINTEXTSK {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<PlaintextSymmetricKey> table = dataModel.addTable(this.name(), PlaintextSymmetricKey.class);
+            table.map(PlaintextSymmetricKey.class);
+            Column id = table.addAutoIdColumn().since(Version.version(10,3));
+            table.column("KEY").varChar().map(PlaintextSymmetricKey.Properties.ENCRYPTED_KEY.fieldName()).since(Version.version(10,3)).add();
+            Column keyTypeColumn = table.column("KEYTYPE")
+                    .number()
+                    .notNull()
+                    .conversion(ColumnConversion.NUMBER2LONG)
+                    .since(Version.version(10, 3))
+                    .add();
+            table.foreignKey("SSM_FK_SYMKEY_KT").on(keyTypeColumn).references(KeyType.class).map("keyTypeReference").add();
+            table.primaryKey("PK_PKI_SYMKEY").on(id).add();
         }
     };
 

@@ -17,14 +17,14 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 
 @Component(name="PlaintextPrivateKeyFactory", service = PrivateKeyFactory.class, immediate = true)
-public class PlaintextPrivateKeyFactory implements PrivateKeyFactory {
+public class DataVaultPrivateKeyFactory implements PrivateKeyFactory {
 
-    public static final String KEY_ENCRYPTION_METHOD = "SSM";
+    public static final String KEY_ENCRYPTION_METHOD = "DataVault";
 
     private volatile DataModel dataModel;
 
     @Inject
-    public PlaintextPrivateKeyFactory(SoftwareSecurityDataModel ssmModel) {
+    public DataVaultPrivateKeyFactory(SoftwareSecurityDataModel ssmModel) {
         this.setSsmModel(ssmModel);
     }
 

@@ -7,7 +7,9 @@ import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
-import com.elster.jupiter.pki.impl.wrappers.assymetric.PlaintextPrivateKeyFactory;
+import com.elster.jupiter.pki.SymmetricKeyWrapper;
+import com.elster.jupiter.pki.impl.wrappers.assymetric.DataVaultPrivateKeyFactory;
+import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -15,6 +17,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.Optional;
 
+import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -45,12 +48,14 @@ public class PKIServiceImplIT {
 
     @Before
     public void setUp() throws Exception {
-        ((PkiServiceImpl)pkiInMemoryPersistence.getPkiService()).addPrivateKeyFactory(pkiInMemoryPersistence.getPlaintextPrivateKeyFactory());
+        ((PkiServiceImpl)pkiInMemoryPersistence.getPkiService()).addPrivateKeyFactory(pkiInMemoryPersistence.getDataVaultPrivateKeyFactory());
+        ((PkiServiceImpl)pkiInMemoryPersistence.getPkiService()).addSymmetricKeyFactory(pkiInMemoryPersistence.getDataVaultSymmetricKeyFactory());
     }
 
     @After
     public void tearDown() throws Exception {
-        ((PkiServiceImpl)pkiInMemoryPersistence.getPkiService()).removePrivateKeyFactory(pkiInMemoryPersistence.getPlaintextPrivateKeyFactory());
+        ((PkiServiceImpl)pkiInMemoryPersistence.getPkiService()).removePrivateKeyFactory(pkiInMemoryPersistence.getDataVaultPrivateKeyFactory());
+        ((PkiServiceImpl)pkiInMemoryPersistence.getPkiService()).removeSymmetricKeyFactory(pkiInMemoryPersistence.getDataVaultSymmetricKeyFactory());
     }
 
     @Test
@@ -115,7 +120,7 @@ public class PKIServiceImplIT {
 
         KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
         when(keyAccessorType.getKeyType()).thenReturn(keyType);
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(PlaintextPrivateKeyFactory.KEY_ENCRYPTION_METHOD);
+        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPrivateKeyFactory.KEY_ENCRYPTION_METHOD);
         PrivateKeyWrapper privateKeyWrapper = pkiInMemoryPersistence.getPkiService().newPrivateKeyWrapper(keyAccessorType);
         privateKeyWrapper.renewValue();
 
@@ -140,7 +145,7 @@ public class PKIServiceImplIT {
 
         KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
         when(keyAccessorType.getKeyType()).thenReturn(keyType);
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(PlaintextPrivateKeyFactory.KEY_ENCRYPTION_METHOD);
+        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPrivateKeyFactory.KEY_ENCRYPTION_METHOD);
         PrivateKeyWrapper privateKeyWrapper = pkiInMemoryPersistence.getPkiService().newPrivateKeyWrapper(keyAccessorType);
         privateKeyWrapper.renewValue();
 
@@ -165,7 +170,7 @@ public class PKIServiceImplIT {
 
         KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
         when(keyAccessorType.getKeyType()).thenReturn(keyType);
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(PlaintextPrivateKeyFactory.KEY_ENCRYPTION_METHOD);
+        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPrivateKeyFactory.KEY_ENCRYPTION_METHOD);
         PrivateKeyWrapper privateKeyWrapper = pkiInMemoryPersistence.getPkiService().newPrivateKeyWrapper(keyAccessorType);
         privateKeyWrapper.renewValue();
 
@@ -178,6 +183,28 @@ public class PKIServiceImplIT {
         assertThat(privateKeyWrapper.getPropertySpecs().get(0).getDisplayName()).isEqualTo("Private key");
         assertThat(privateKeyWrapper.getPropertySpecs().get(0).getDescription()).isEqualTo("Plaintext view of private key");
         assertThat(privateKeyWrapper.getPropertySpecs().get(0).getValueFactory().getValueType()).isEqualTo(String.class);
+    }
+
+    @Test
+    @Transactional
+    public void testCreatePlaintextSymmetricAesKey() {
+        KeyType created = pkiInMemoryPersistence.getPkiService().newSymmetricKeyType("AES128B", "AES", 128);
+        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+        when(keyAccessorType.getKeyType()).thenReturn(created);
+        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
+        SymmetricKeyWrapper symmetricKeyWrapper = pkiInMemoryPersistence.getPkiService()
+                .newSymmetricKeyWrapper(keyAccessorType);
+        symmetricKeyWrapper.renewValue();
+
+        Assertions.assertThat(symmetricKeyWrapper.getKey().getEncoded()).isNotEmpty();
+        Assertions.assertThat(symmetricKeyWrapper.getKey().getAlgorithm()).isEqualTo("AES");
+        Assertions.assertThat(symmetricKeyWrapper.getKey().getFormat()).isEqualTo("RAW");
+        Assertions.assertThat(symmetricKeyWrapper.getProperties()).hasSize(1);
+        Assertions.assertThat(symmetricKeyWrapper.getProperties()).containsKey("key");
+        Assertions.assertThat(symmetricKeyWrapper.getPropertySpecs()).hasSize(1);
+        Assertions.assertThat(symmetricKeyWrapper.getPropertySpecs().get(0).getDisplayName()).isEqualTo("key");
+        Assertions.assertThat(symmetricKeyWrapper.getPropertySpecs().get(0).getDescription()).isEqualTo("Plaintext view of key");
+        Assertions.assertThat(symmetricKeyWrapper.getPropertySpecs().get(0).getValueFactory().getValueType()).isEqualTo(String.class);
     }
 
 

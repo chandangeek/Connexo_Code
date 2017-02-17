@@ -65,9 +65,18 @@ public interface PkiService {
      * factory given the provided key encryption method.
      * @param keyAccessorType Contains all information required by the pkiService and factories to figure out what has
      * to be done.
-     * @return a new private key wrapper of the required type and encryption method
+     * @return a new private key wrapper of the required type and encryption method, without value.
      */
     PrivateKeyWrapper newPrivateKeyWrapper(KeyAccessorType keyAccessorType);
+
+    /**
+     * Creates a new SymmetricKeyWrapper. The PkiService will delegate the actual creation and storage to the appropriate
+     * factory given the provided key encryption method.
+     * @param keyAccessorType Contains all information required by the pkiService and factories to figure out what has
+     * to be done.
+     * @return a new symmetric key wrapper of the required type and encryption method, without value.
+     */
+    SymmetricKeyWrapper newSymmetricKeyWrapper(KeyAccessorType keyAccessorType);
 
     public interface AsyncBuilder {
         AsyncKeySizeBuilder RSA();

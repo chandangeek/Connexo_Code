@@ -6,6 +6,7 @@ package com.elster.jupiter.pki.impl.wrappers.assymetric;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
@@ -13,12 +14,20 @@ import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.impl.MessageSeeds;
+import com.elster.jupiter.pki.impl.Renewable;
+import com.elster.jupiter.pki.impl.wrappers.PkiLocalException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
 import com.google.common.collect.ImmutableMap;
 
 import javax.validation.constraints.Size;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -30,11 +39,12 @@ import static java.util.stream.Collectors.toList;
 /**
  * Implements storage of a PrivateKey in the DataVault.
  */
-abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapper {
+abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapper, Renewable {
 
     protected final DataVaultService dataVaultService;
     protected final PropertySpecService propertySpecService;
     private final DataModel dataModel;
+    private final Thesaurus thesaurus;
 
     private long id;
     @Size(max = Table.MAX_STRING_LENGTH, message = "{"+MessageSeeds.Keys.FIELD_TOO_LONG+"}")
@@ -47,10 +57,11 @@ abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapp
                     "DSA", PlaintextDsaPrivateKey.class,
                     "EC", PlaintextEcdsaPrivateKey.class);
 
-    public AbstractPlaintextPrivateKeyImpl(DataVaultService dataVaultService, PropertySpecService propertySpecService, DataModel dataModel) {
+    AbstractPlaintextPrivateKeyImpl(DataVaultService dataVaultService, PropertySpecService propertySpecService, DataModel dataModel, Thesaurus thesaurus) {
         this.dataVaultService = dataVaultService;
         this.propertySpecService = propertySpecService;
         this.dataModel = dataModel;
+        this.thesaurus = thesaurus;
     }
 
     public AbstractPlaintextPrivateKeyImpl init(KeyAccessorType keyAccessorType) {
@@ -66,13 +77,13 @@ abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapp
         this.encryptedPrivateKey = encryptedPrivateKey;
     }
 
-    public KeyType getKeyType() {
+    protected KeyType getKeyType() {
         return keyTypeReference.get();
     }
 
     @Override
     public String getKeyEncryptionMethod() {
-        return PlaintextPrivateKeyFactory.KEY_ENCRYPTION_METHOD;
+        return DataVaultPrivateKeyFactory.KEY_ENCRYPTION_METHOD;
     }
 
     @Override
@@ -96,6 +107,47 @@ abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapp
     protected void save() {
         Save.action(id).save(dataModel, this);
     }
+
+    @Override
+    public PrivateKey getPrivateKey() {
+        try {
+            return doGetPrivateKey();
+        } catch (InvalidKeyException e) {
+            throw new PkiLocalException(thesaurus, MessageSeeds.INVALID_KEY, e);
+        } catch (NoSuchAlgorithmException e) {
+            throw new PkiLocalException(thesaurus, MessageSeeds.ALGORITHM_NOT_SUPPORTED, e);
+        } catch (InvalidKeySpecException e) {
+            throw new PkiLocalException(thesaurus, MessageSeeds.INVALID_KEY_SPECIFICATION, e);
+        } catch (NoSuchProviderException e) {
+            throw new PkiLocalException(thesaurus, MessageSeeds.UNKNOWN_PROVIDER, e);
+        }
+    }
+
+    protected abstract PrivateKey doGetPrivateKey() throws InvalidKeyException, NoSuchAlgorithmException,
+            InvalidKeySpecException, NoSuchProviderException;
+
+    @Override
+    public void renewValue() {
+        try {
+            doRenewValue();
+        } catch (InvalidKeyException e) {
+            throw new PkiLocalException(thesaurus, MessageSeeds.INVALID_KEY, e);
+        } catch (NoSuchAlgorithmException e) {
+            throw new PkiLocalException(thesaurus, MessageSeeds.ALGORITHM_NOT_SUPPORTED, e);
+        } catch (InvalidKeySpecException e) {
+            throw new PkiLocalException(thesaurus, MessageSeeds.INVALID_KEY_SPECIFICATION, e);
+        } catch (InvalidAlgorithmParameterException e) {
+            throw new PkiLocalException(thesaurus, MessageSeeds.INVALID_ALGORITHM_PARAMETERS, e);
+        } catch (NoSuchProviderException e) {
+            throw new PkiLocalException(thesaurus, MessageSeeds.UNKNOWN_PROVIDER, e);
+        }
+    }
+
+    protected abstract void doRenewValue() throws
+            InvalidKeyException,
+            NoSuchAlgorithmException,
+            InvalidKeySpecException,
+            NoSuchProviderException, InvalidAlgorithmParameterException;
 
     public enum Properties {
         ENCRYPTED_PRIVATE_KEY("encryptedPrivateKey", "privateKey") {

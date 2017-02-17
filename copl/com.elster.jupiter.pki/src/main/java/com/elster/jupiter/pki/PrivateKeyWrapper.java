@@ -6,10 +6,7 @@ package com.elster.jupiter.pki;
 
 import aQute.bnd.annotation.ConsumerType;
 
-import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.util.Map;
 
@@ -37,13 +34,9 @@ public interface PrivateKeyWrapper extends HasDynamicPropertiesWithUpdatableValu
 
     /**
      * Generate a new random value for this entity.
-     * @return The newly generated value.
-     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeyException
      */
-    PrivateKeyWrapper renewValue() throws
-            NoSuchAlgorithmException,
-            InvalidAlgorithmParameterException,
-            NoSuchProviderException;
+    void renewValue() throws InvalidKeyException;
 
     /**
      * These properties are defined by the implementor. In case of a plaintext key, there will be a property containing

@@ -17,7 +17,13 @@ public enum MessageSeeds implements MessageSeed {
     FIELD_TOO_LONG(1002, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters"),
     FIELD_IS_REQUIRED(1003, Keys.FIELD_IS_REQUIRED, "This field is required"),
     NO_SUCH_ENCRYPTION_METHOD(1004, Keys.NO_SUCH_ENCRYPTION_METHOD, "Storage method is unknown or not registered yet"),
-    DUPLICATE_KEY_ENCRYPTION_REGISTRATION(1005, Keys.DUPLICATE_KEY_ENCRYPTION_REGISTRATION, "A key storage method with the same name for this type of elements has already been registered");
+    DUPLICATE_KEY_ENCRYPTION_REGISTRATION(1005, Keys.DUPLICATE_KEY_ENCRYPTION_REGISTRATION, "A key storage method with the same name for this type of elements has already been registered"),
+    ALGORITHM_NOT_SUPPORTED(1006, "NoSuchAlgorithm", "The required algorithm is not supported in the environment"),
+    INVALID_KEY(1007, "InvalidKeyException", "The key could not be recreated due to erroneous encoding"),
+    INVALID_KEY_SPECIFICATION(1007, "InvalidKeySpecificationException", "The key specification is invalid"),
+    INVALID_ALGORITHM_PARAMETERS(1009, "InvalidAlgorithmException", "Invalid or inappropriate algorithm parameters were provided"),
+    UNKNOWN_PROVIDER(1010, "UnknownSecurityProvider", "The requested security provider is not available in the environment"),
+    ;
 
     private final int number;
     private final String key;

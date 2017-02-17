@@ -5,8 +5,8 @@
 package com.elster.jupiter.pki.impl.wrappers.assymetric;
 
 import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.properties.PropertySpecService;
 
 import org.bouncycastle.jce.ECNamedCurveTable;
@@ -30,32 +30,24 @@ import java.security.spec.PKCS8EncodedKeySpec;
 public class PlaintextEcdsaPrivateKey extends AbstractPlaintextPrivateKeyImpl {
 
     @Inject
-    public PlaintextEcdsaPrivateKey(DataVaultService dataVaultService, PropertySpecService propertySpecService, DataModel dataModel) {
-        super(dataVaultService, propertySpecService, dataModel);
+    PlaintextEcdsaPrivateKey(DataVaultService dataVaultService, PropertySpecService propertySpecService, DataModel dataModel, Thesaurus thesaurus) {
+        super(dataVaultService, propertySpecService, dataModel, thesaurus);
     }
 
     @Override
-    public PrivateKey getPrivateKey() throws InvalidKeyException {
-        try {
-            byte[] decrypt = dataVaultService.decrypt(getEncryptedPrivateKey());
-            KeyFactory keyFactory = KeyFactory.getInstance("ECDSA");
-            return keyFactory.generatePrivate(new PKCS8EncodedKeySpec(decrypt));
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            throw new InvalidKeyException(e);
-        }
+    protected PrivateKey doGetPrivateKey() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException {
+        byte[] decrypt = dataVaultService.decrypt(getEncryptedPrivateKey());
+        KeyFactory keyFactory = KeyFactory.getInstance("ECDSA");
+        return keyFactory.generatePrivate(new PKCS8EncodedKeySpec(decrypt));
     }
 
     @Override
-    public PrivateKeyWrapper renewValue() throws
-            NoSuchAlgorithmException,
-            InvalidAlgorithmParameterException,
-            NoSuchProviderException {
+    protected void doRenewValue() throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("ECDSA", "BC");
         ECNamedCurveParameterSpec parameterSpec = ECNamedCurveTable.getParameterSpec(getKeyType().getCurve());
         keyGen.initialize(parameterSpec, new SecureRandom());
         PrivateKey privateKey = keyGen.generateKeyPair().getPrivate();
         setEncryptedPrivateKey(dataVaultService.encrypt(privateKey.getEncoded()));
-        return this;
     }
 
 

@@ -5,8 +5,8 @@
 package com.elster.jupiter.pki.impl.wrappers.assymetric;
 
 import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.properties.PropertySpecService;
 
 import javax.inject.Inject;
@@ -26,27 +26,23 @@ public class PlaintextRsaPrivateKey extends AbstractPlaintextPrivateKeyImpl {
 
 
     @Inject
-    public PlaintextRsaPrivateKey(DataVaultService dataVaultService, PropertySpecService propertySpecService, DataModel dataModel) {
-        super(dataVaultService, propertySpecService, dataModel);
+    PlaintextRsaPrivateKey(DataVaultService dataVaultService, PropertySpecService propertySpecService, DataModel dataModel, Thesaurus thesaurus) {
+        super(dataVaultService, propertySpecService, dataModel, thesaurus);
     }
 
     @Override
-    public PrivateKey getPrivateKey() throws InvalidKeyException {
-        try {
-            byte[] decrypt = dataVaultService.decrypt(getEncryptedPrivateKey());
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            return keyFactory.generatePrivate(new PKCS8EncodedKeySpec(decrypt));
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            throw new InvalidKeyException(e);
-        }
+    protected PrivateKey doGetPrivateKey() throws InvalidKeyException, NoSuchAlgorithmException,
+            InvalidKeySpecException {
+        byte[] decrypt = dataVaultService.decrypt(getEncryptedPrivateKey());
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        return keyFactory.generatePrivate(new PKCS8EncodedKeySpec(decrypt));
     }
 
     @Override
-    public PrivateKeyWrapper renewValue() throws NoSuchAlgorithmException {
+    protected void doRenewValue() throws NoSuchAlgorithmException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(getKeyType().getKeySize(), new SecureRandom());
         PrivateKey privateKey = keyGen.generateKeyPair().getPrivate();
         setEncryptedPrivateKey(dataVaultService.encrypt(privateKey.getEncoded()));
-        return this;
     }
 }

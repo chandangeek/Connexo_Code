@@ -13,6 +13,8 @@ import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.PrivateKeyFactory;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
+import com.elster.jupiter.pki.SymmetricKeyFactory;
+import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 
@@ -27,12 +29,12 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.security.Security;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -45,6 +47,7 @@ import java.util.stream.Stream;
 public class PkiServiceImpl implements PkiService {
 
     private final Map<String, PrivateKeyFactory> privateKeyFactories = new ConcurrentHashMap<>();
+    private final Map<String, SymmetricKeyFactory> symmetricKeyFactories = new ConcurrentHashMap<>();
 
     private DataModel dataModel;
     private UpgradeService upgradeService;
@@ -66,8 +69,9 @@ public class PkiServiceImpl implements PkiService {
     @Override
     public List<String> getKeyEncryptionMethods(CryptographicType cryptographicType) {
         switch (cryptographicType) {
-            case AsymmetricKey: return new ArrayList(privateKeyFactories.keySet());
-            default: return Collections.emptyList();
+            case AsymmetricKey: return privateKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
+            case SymmetricKey: return symmetricKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
+            default: return Collections.emptyList(); // No encryption methods for other cryptographic elements
         }
     }
 
@@ -81,6 +85,18 @@ public class PkiServiceImpl implements PkiService {
 
     public void removePrivateKeyFactory(PrivateKeyFactory privateKeyFactory) {
         this.privateKeyFactories.remove(privateKeyFactory.getKeyEncryptionMethod());
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addSymmetricKeyFactory(SymmetricKeyFactory symmetricKeyFactory) {
+        if (this.symmetricKeyFactories.containsKey(symmetricKeyFactory.getKeyEncryptionMethod())) {
+            throw new DuplicateKeyEncryptionRegistration(thesaurus);
+        }
+        this.symmetricKeyFactories.put(symmetricKeyFactory.getKeyEncryptionMethod(), symmetricKeyFactory);
+    }
+
+    public void removeSymmetricKeyFactory(SymmetricKeyFactory symmetricKeyFactory) {
+        this.symmetricKeyFactories.remove(symmetricKeyFactory.getKeyEncryptionMethod());
     }
 
     @Reference
@@ -167,6 +183,14 @@ public class PkiServiceImpl implements PkiService {
             throw new NoSuchKeyEncryptionMethod(thesaurus);
         }
         return privateKeyFactories.get(keyAccessorType.getKeyEncryptionMethod()).newPrivateKey(keyAccessorType);
+    }
+
+    @Override
+    public SymmetricKeyWrapper newSymmetricKeyWrapper(KeyAccessorType keyAccessorType) {
+        if (!symmetricKeyFactories.containsKey(keyAccessorType.getKeyEncryptionMethod())) {
+            throw new NoSuchKeyEncryptionMethod(thesaurus);
+        }
+        return symmetricKeyFactories.get(keyAccessorType.getKeyEncryptionMethod()).newSymmetricKey(keyAccessorType);
     }
 
     private class AsyncBuilderImpl implements AsyncBuilder {

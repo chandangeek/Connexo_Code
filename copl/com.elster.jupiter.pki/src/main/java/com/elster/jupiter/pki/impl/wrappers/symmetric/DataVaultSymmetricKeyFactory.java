@@ -6,7 +6,6 @@ package com.elster.jupiter.pki.impl.wrappers.symmetric;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.KeyAccessorType;
-import com.elster.jupiter.pki.PrivateKeyFactory;
 import com.elster.jupiter.pki.SymmetricKeyFactory;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.impl.wrappers.SoftwareSecurityDataModel;
@@ -15,17 +14,16 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.security.NoSuchAlgorithmException;
 
-@Component(name="PlaintextSymmetricKeyFactory", service = PrivateKeyFactory.class, immediate = true)
-public class PlaintextSymmetricKeyFactory implements SymmetricKeyFactory {
+@Component(name="PlaintextSymmetricKeyFactory", service = SymmetricKeyFactory.class, immediate = true)
+public class DataVaultSymmetricKeyFactory implements SymmetricKeyFactory {
 
-    public static final String KEY_ENCRYPTION_METHOD = "SSM";
+    public static final String KEY_ENCRYPTION_METHOD = "DataVault";
 
     private volatile DataModel dataModel;
 
     @Inject
-    public PlaintextSymmetricKeyFactory(SoftwareSecurityDataModel ssmModel) {
+    public DataVaultSymmetricKeyFactory(SoftwareSecurityDataModel ssmModel) {
         this.setSsmModel(ssmModel);
     }
 
@@ -40,8 +38,8 @@ public class PlaintextSymmetricKeyFactory implements SymmetricKeyFactory {
     }
 
     @Override
-    public SymmetricKeyWrapper newKey(KeyAccessorType keyAccessorType) throws NoSuchAlgorithmException {
-        SymmetricKeyWrapperImpl symmetricKeyWrapper = new SymmetricKeyWrapperImpl();
+    public SymmetricKeyWrapper newSymmetricKey(KeyAccessorType keyAccessorType) {
+        PlaintextSymmetricKey symmetricKeyWrapper = dataModel.getInstance(PlaintextSymmetricKey.class).init(keyAccessorType.getKeyType());
         symmetricKeyWrapper.save();
         return symmetricKeyWrapper;
     }

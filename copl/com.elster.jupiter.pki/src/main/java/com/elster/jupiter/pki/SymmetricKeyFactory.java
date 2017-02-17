@@ -4,8 +4,6 @@
 
 package com.elster.jupiter.pki;
 
-import java.security.NoSuchAlgorithmException;
-
 /**
  * A SymmetricKeyFactory allows creation and renewal of symmetric keys of a certain KeyEncryptionMethod.
  */
@@ -16,5 +14,5 @@ public interface SymmetricKeyFactory {
      */
     String getKeyEncryptionMethod();
 
-    SymmetricKeyWrapper newKey(KeyAccessorType keyAccessorType) throws NoSuchAlgorithmException;
+    SymmetricKeyWrapper newSymmetricKey(KeyAccessorType keyAccessorType);
 }
