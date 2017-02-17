@@ -14,6 +14,9 @@ import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.Period;
 import java.util.List;
 import java.util.Optional;
 
@@ -55,18 +58,26 @@ public class SyntheticLoadProfileServiceImpl implements SyntheticLoadProfileServ
         return recordSpec;
     }
 
-    public SyntheticLoadProfileBuilder newSyntheticLoadProfile(String name) {
-        return new SyntheticLoadProfileBuilderImpl(this, meteringService, name);
+    @Override
+    public SyntheticLoadProfileBuilder newSyntheticLoadProfile(String name, Duration interval, Period duration, Instant startTime) {
+        SyntheticLoadProfileBuilderImpl syntheticLoadProfileBuilder = new SyntheticLoadProfileBuilderImpl(this, meteringService, name);
+        syntheticLoadProfileBuilder.withInterval(interval);
+        syntheticLoadProfileBuilder.withDuration(duration);
+        syntheticLoadProfileBuilder.withStartTime(startTime);
+        return syntheticLoadProfileBuilder;
     }
 
+    @Override
     public List<SyntheticLoadProfile> findSyntheticLoadProfiles() {
         return dataModel.mapper(SyntheticLoadProfile.class).find();
     }
 
+    @Override
     public Optional<SyntheticLoadProfile> findSyntheticLoadProfile(long id) {
         return dataModel.mapper(SyntheticLoadProfile.class).getOptional(id);
     }
 
+    @Override
     public Optional<SyntheticLoadProfile> findSyntheticLoadProfile(String name) {
         return dataModel.mapper(SyntheticLoadProfile.class).getUnique("name", name);
     }

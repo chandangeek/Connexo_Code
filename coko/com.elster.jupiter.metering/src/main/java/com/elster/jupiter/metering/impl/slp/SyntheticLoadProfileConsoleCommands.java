@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl.slp;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfileBuilder;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
@@ -40,6 +41,7 @@ public class SyntheticLoadProfileConsoleCommands {
     private volatile SyntheticLoadProfileService syntheticLoadProfileService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile TransactionService transactionService;
+    private volatile MeteringService meteringService;
 
     @Reference
     public void setTransactionService(TransactionService transactionService) {
@@ -56,15 +58,25 @@ public class SyntheticLoadProfileConsoleCommands {
         this.threadPrincipalService = threadPrincipalService;
     }
 
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
     public void createSyntheticLoadProfile(String name, String intervalName, String durationName, String startTime){
+        createSyntheticLoadProfile(name, intervalName, durationName, startTime, "");
+    }
+
+    public void createSyntheticLoadProfile(String name, String intervalName, String durationName, String startTime, String readingType){
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             final Instant startDate = LocalDate.from(dateTimeFormat.parse(startTime)).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
-            SyntheticLoadProfileBuilder builder = syntheticLoadProfileService.newSyntheticLoadProfile(name);
+            SyntheticLoadProfileBuilder builder = syntheticLoadProfileService.newSyntheticLoadProfile(name,
+                    Duration.parse(intervalName.toUpperCase()),
+                    Period.parse(durationName.toUpperCase()),
+                    startDate);
             builder.withDescription(name);
-            builder.withInterval(Duration.parse(intervalName.toUpperCase()));
-            builder.withDuration(Period.parse(durationName.toUpperCase()));
-            builder.withStartTime(startDate);
+            builder.withReadingType(meteringService.getReadingType(readingType).orElse(null));
             builder.build();
             context.commit();
         } catch (RuntimeException e){

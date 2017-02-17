@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.slp;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.units.Unit;
@@ -24,7 +25,7 @@ public interface SyntheticLoadProfile extends HasId, HasName{
 
     Duration getInterval();
 
-    Unit getUnitOfMeasure();
+    Optional<ReadingType> getReadingType();
 
     Instant getStartTime();
 

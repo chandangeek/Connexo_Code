@@ -8,6 +8,7 @@ import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfileBuilder;
 import com.elster.jupiter.util.units.Unit;
@@ -27,7 +28,7 @@ public class SyntheticLoadProfileBuilderImpl implements SyntheticLoadProfileBuil
     private String name;
     private String description;
     private Duration interval;
-    private Unit unitOfMeasure;
+    private ReadingType readingType;
     private Instant startTime;
     private Period duration;
 
@@ -37,6 +38,7 @@ public class SyntheticLoadProfileBuilderImpl implements SyntheticLoadProfileBuil
         this.name = name;
     }
 
+    @Override
     public SyntheticLoadProfileBuilder withDescription(String description) {
         this.description = description;
         return this;
@@ -47,8 +49,9 @@ public class SyntheticLoadProfileBuilderImpl implements SyntheticLoadProfileBuil
         return this;
     }
 
-    public SyntheticLoadProfileBuilder withUnitOfMeasure(Unit unitOfMeasure) {
-        this.unitOfMeasure = unitOfMeasure;
+    @Override
+    public SyntheticLoadProfileBuilder withReadingType(ReadingType readingType) {
+        this.readingType = readingType;
         return this;
     }
 
@@ -62,11 +65,12 @@ public class SyntheticLoadProfileBuilderImpl implements SyntheticLoadProfileBuil
         return this;
     }
 
+    @Override
     public SyntheticLoadProfile build() {
         SyntheticLoadProfileImpl syntheticLoadProfile = syntheticLoadProfileService.getDataModel().getInstance(SyntheticLoadProfileImpl.class).initialize(name);
         syntheticLoadProfile.setDescription(description);
         syntheticLoadProfile.setInterval(interval);
-        syntheticLoadProfile.setUnitOfMeasure(unitOfMeasure);
+        syntheticLoadProfile.setReadingType(readingType);
         syntheticLoadProfile.setStartTime(startTime);
         syntheticLoadProfile.setDuration(duration);
 

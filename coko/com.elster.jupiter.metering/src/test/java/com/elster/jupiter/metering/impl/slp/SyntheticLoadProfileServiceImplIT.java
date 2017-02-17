@@ -7,6 +7,7 @@ package com.elster.jupiter.metering.impl.slp;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfileBuilder;
@@ -49,7 +50,7 @@ public class SyntheticLoadProfileServiceImplIT {
 
     private Injector injector;
 
-    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = MeteringInMemoryBootstrapModule.withClockAndReadingTypes(clock, "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
 
     @BeforeClass
     public static void beforeClass() {
@@ -67,17 +68,18 @@ public class SyntheticLoadProfileServiceImplIT {
     @Test
     @Transactional
     public void testCreateSyntheticLoadProfileSpecification() {
-        SyntheticLoadProfileBuilder builder = inMemoryBootstrapModule.getSyntheticLoadProfileService().newSyntheticLoadProfile(SYNTHETIC_LOAD_PROFILE_NAME);
+        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().getReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0").get();
+        SyntheticLoadProfileBuilder builder = inMemoryBootstrapModule.getSyntheticLoadProfileService().newSyntheticLoadProfile(SYNTHETIC_LOAD_PROFILE_NAME,INTERVAL15MIN,DURATION1MONTH,DATE);
         builder.withDescription(SYNTHETIC_LOAD_PROFILE_DESC);
-        builder.withInterval(INTERVAL15MIN);
-        builder.withDuration(DURATION1MONTH);
-        builder.withStartTime(DATE);
+        builder.withReadingType(readingType);
         SyntheticLoadProfile syntheticLoadProfileFromBuilder = builder.build();
         assertThat(syntheticLoadProfileFromBuilder.getName()).isEqualTo(SYNTHETIC_LOAD_PROFILE_NAME);
         assertThat(syntheticLoadProfileFromBuilder.getDescription()).isEqualTo(SYNTHETIC_LOAD_PROFILE_DESC);
         assertThat(syntheticLoadProfileFromBuilder.getInterval()).isEqualTo(INTERVAL15MIN);
         assertThat(syntheticLoadProfileFromBuilder.getDuration()).isEqualTo(DURATION1MONTH);
         assertThat(syntheticLoadProfileFromBuilder.getStartTime()).isEqualTo(DATE);
+        assertThat(syntheticLoadProfileFromBuilder.getReadingType()).isPresent();
+        assertThat(syntheticLoadProfileFromBuilder.getReadingType().get()).isEqualTo(readingType);
 
         SyntheticLoadProfile syntheticLoadProfile = inMemoryBootstrapModule.getSyntheticLoadProfileService().findSyntheticLoadProfile(syntheticLoadProfileFromBuilder.getId()).get();
         assertThat(syntheticLoadProfile.getName()).isEqualTo(SYNTHETIC_LOAD_PROFILE_NAME);
@@ -85,16 +87,15 @@ public class SyntheticLoadProfileServiceImplIT {
         assertThat(syntheticLoadProfile.getInterval()).isEqualTo(INTERVAL15MIN);
         assertThat(syntheticLoadProfile.getDuration()).isEqualTo(DURATION1MONTH);
         assertThat(syntheticLoadProfile.getStartTime()).isEqualTo(DATE);
+        assertThat(syntheticLoadProfile.getReadingType()).isPresent();
+        assertThat(syntheticLoadProfile.getReadingType().get()).isEqualTo(readingType);
     }
 
     @Test
     @Transactional
     public void testFindSyntheticLoadProfileSpecification() {
-        SyntheticLoadProfileBuilder builder = inMemoryBootstrapModule.getSyntheticLoadProfileService().newSyntheticLoadProfile(SYNTHETIC_LOAD_PROFILE_NAME);
+        SyntheticLoadProfileBuilder builder = inMemoryBootstrapModule.getSyntheticLoadProfileService().newSyntheticLoadProfile(SYNTHETIC_LOAD_PROFILE_NAME,INTERVAL15MIN,DURATION1MONTH,DATE);
         builder.withDescription(SYNTHETIC_LOAD_PROFILE_DESC);
-        builder.withInterval(INTERVAL15MIN);
-        builder.withDuration(DURATION1MONTH);
-        builder.withStartTime(DATE);
         builder.build();
 
         SyntheticLoadProfile syntheticLoadProfile = inMemoryBootstrapModule.getSyntheticLoadProfileService().findSyntheticLoadProfile(SYNTHETIC_LOAD_PROFILE_NAME).get();
@@ -108,11 +109,8 @@ public class SyntheticLoadProfileServiceImplIT {
     @Test
     @Transactional
     public void testAddValueToSyntheticLoadProfileSpecification() {
-        SyntheticLoadProfileBuilder builder = inMemoryBootstrapModule.getSyntheticLoadProfileService().newSyntheticLoadProfile(SYNTHETIC_LOAD_PROFILE_NAME);
+        SyntheticLoadProfileBuilder builder = inMemoryBootstrapModule.getSyntheticLoadProfileService().newSyntheticLoadProfile(SYNTHETIC_LOAD_PROFILE_NAME,INTERVAL15MIN,DURATION1MONTH,DATE);
         builder.withDescription(SYNTHETIC_LOAD_PROFILE_DESC);
-        builder.withInterval(INTERVAL15MIN);
-        builder.withDuration(DURATION1MONTH);
-        builder.withStartTime(DATE);
         long id = builder.build().getId();
 
         SyntheticLoadProfile syntheticLoadProfile = inMemoryBootstrapModule.getSyntheticLoadProfileService().findSyntheticLoadProfile(id).get();
@@ -129,11 +127,8 @@ public class SyntheticLoadProfileServiceImplIT {
     @Test
     @Transactional
     public void testAddMultipleValuesToSyntheticLoadProfileSpecification() {
-        SyntheticLoadProfileBuilder builder = inMemoryBootstrapModule.getSyntheticLoadProfileService().newSyntheticLoadProfile(SYNTHETIC_LOAD_PROFILE_NAME);
+        SyntheticLoadProfileBuilder builder = inMemoryBootstrapModule.getSyntheticLoadProfileService().newSyntheticLoadProfile(SYNTHETIC_LOAD_PROFILE_NAME,INTERVAL15MIN,DURATION1MONTH,DATE);
         builder.withDescription(SYNTHETIC_LOAD_PROFILE_DESC);
-        builder.withInterval(INTERVAL60MIN);
-        builder.withDuration(DURATION1MONTH);
-        builder.withStartTime(DATE);
         long id = builder.build().getId();
 
         SyntheticLoadProfile syntheticLoadProfile = inMemoryBootstrapModule.getSyntheticLoadProfileService().findSyntheticLoadProfile(id).get();
@@ -161,11 +156,8 @@ public class SyntheticLoadProfileServiceImplIT {
     @Test
     @Transactional
     public void testRemoveSyntheticLoadProfileSpecification() {
-        SyntheticLoadProfileBuilder builder = inMemoryBootstrapModule.getSyntheticLoadProfileService().newSyntheticLoadProfile(SYNTHETIC_LOAD_PROFILE_NAME + "ToRemove");
+        SyntheticLoadProfileBuilder builder = inMemoryBootstrapModule.getSyntheticLoadProfileService().newSyntheticLoadProfile(SYNTHETIC_LOAD_PROFILE_NAME + "ToRemove",INTERVAL15MIN,DURATION1MONTH,DATE);
         builder.withDescription(SYNTHETIC_LOAD_PROFILE_DESC + "ToRemove");
-        builder.withInterval(INTERVAL15MIN);
-        builder.withDuration(DURATION1MONTH);
-        builder.withStartTime(DATE);
         long id = builder.build().getId();
 
         SyntheticLoadProfile syntheticLoadProfile = inMemoryBootstrapModule.getSyntheticLoadProfileService().findSyntheticLoadProfile(id).get();

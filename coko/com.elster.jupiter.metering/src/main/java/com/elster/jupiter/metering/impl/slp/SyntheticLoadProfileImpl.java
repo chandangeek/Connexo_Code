@@ -11,6 +11,7 @@ import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -49,7 +50,7 @@ public class SyntheticLoadProfileImpl implements SyntheticLoadProfile {
     private String description;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private String interval;
-    private Unit unitOfMeasure;
+    private Reference<ReadingType> readingType = ValueReference.absent();
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Instant startTime;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
@@ -107,12 +108,12 @@ public class SyntheticLoadProfileImpl implements SyntheticLoadProfile {
     }
 
     @Override
-    public Unit getUnitOfMeasure() {
-        return unitOfMeasure;
+    public Optional<ReadingType> getReadingType() {
+        return readingType.getOptional();
     }
 
-    void setUnitOfMeasure(Unit unitOfMeasure) {
-        this.unitOfMeasure = unitOfMeasure;
+    void setReadingType(ReadingType readingType) {
+        this.readingType.set(readingType);
     }
 
     @Override

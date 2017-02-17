@@ -1948,16 +1948,25 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
-            table.addIntervalColumns("interval");
             table.column("INTERVAL").varChar(NAME_LENGTH).notNull().map("interval").add();
             table.column("DURATION").varChar(NAME_LENGTH).notNull().map("duration").add();
-            table.column("UNIT").varChar(8).conversion(CHAR2UNIT).map("unitOfMeasure").add();
+            Column readingTypeMRIDColumn = table.column("READINGTYPE").varChar(NAME_LENGTH).add();
             table.column("START_TIME").number().notNull().conversion(ColumnConversion.NUMBER2INSTANT).map("startTime").add();
             Column timeseriesColumn = table.column("TIMESERIES").number().add();
             table.addAuditColumns();
             table.primaryKey("PK_MTR_SLP_SLPROFILE").on(idColumn).add();
             table.unique("UK_MTR_SLP_SLPROFILE_NAME").on(nameColumn).add();
-            table.foreignKey("FK_MTR_SLP_TIMESERIES").on(timeseriesColumn).references(TimeSeries.class).map("timeSeries").add();
+            table.foreignKey("FK_MTR_SLP_TIMESERIES")
+                    .on(timeseriesColumn)
+                    .references(TimeSeries.class)
+                    .map("timeSeries")
+                    .add();
+            table.foreignKey("FK_MTR_SLP_READINGTYPE")
+                    .references(ReadingType.class)
+                    .onDelete(DeleteRule.RESTRICT)
+                    .map("readingType")
+                    .on(readingTypeMRIDColumn)
+                    .add();
         }
     };
 

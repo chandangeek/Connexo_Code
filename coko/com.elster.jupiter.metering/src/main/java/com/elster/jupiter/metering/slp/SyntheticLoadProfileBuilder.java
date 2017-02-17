@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.slp;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.units.Unit;
 
 import aQute.bnd.annotation.ProviderType;
@@ -16,13 +17,7 @@ import java.time.Period;
 public interface SyntheticLoadProfileBuilder {
     SyntheticLoadProfileBuilder withDescription(String description);
 
-    SyntheticLoadProfileBuilder withInterval(Duration interval);
-
-    SyntheticLoadProfileBuilder withUnitOfMeasure(Unit unitOfMeasure);
-
-    SyntheticLoadProfileBuilder withStartTime(Instant startTime);
-
-    SyntheticLoadProfileBuilder withDuration(Period duration);
+    SyntheticLoadProfileBuilder withReadingType(ReadingType readingType);
 
     SyntheticLoadProfile build();
 }
