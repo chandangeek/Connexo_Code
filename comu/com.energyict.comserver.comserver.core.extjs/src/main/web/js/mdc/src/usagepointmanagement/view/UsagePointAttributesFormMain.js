@@ -23,7 +23,10 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointAttributesFormMain', {
                 xtype: 'fieldcontainer',
                 itemId: "usagePointGeneralAttributes",
                 labelAlign: 'top',
-                layout: 'vbox',
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
                 defaults: {
                     xtype: 'displayfield',
                     labelWidth: 115
