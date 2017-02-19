@@ -45,26 +45,51 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
             data = [],
             total = output.get('total'),
             fields = ['name', 'key', 'data', 'url', 'percentage', 'detail', 'tooltip'],
-            statisticsEdited = [],
+            edited = [],
             title = '<a href="' + url + '">'
                 + Ext.String.htmlEncode(output.get('name'))
                 + '</a>',
-            statistics,
-            statisticsValid;
+            sortedStatistics = [],
+            statisticsValid,
+            statisticsSuspect,
+            statisticsNotValidated,
+            statisticsEdited;
 
         if (!me.titleIsPartOfDataView) {
             me.title = title;
         }
 
         if (total > 0) {
-            statistics = output.get('statistics');
-            if (statistics[0].key === 'statisticsValid' && statistics[1].key === 'statisticsSuspect') {
-                statisticsValid = statistics[0];
-                statistics[0] = statistics[1];
-                statistics[1] = statisticsValid;
+            output.get('statistics').map(function (item) {
+                switch (item.key) {
+                    case 'statisticsValid':
+                        statisticsValid = item;
+                        break;
+                    case 'statisticsSuspect':
+                        statisticsSuspect = item;
+                        break;
+                    case 'statisticsNotValidated':
+                        statisticsNotValidated = item;
+                        break;
+                    case 'statisticsEdited':
+                        statisticsEdited = item;
+                        break;
+                }
+            });
+            if (statisticsSuspect) {
+                sortedStatistics.push(statisticsSuspect);
+            }
+            if (statisticsValid) {
+                sortedStatistics.push(statisticsValid);
+            }
+            if (statisticsNotValidated) {
+                sortedStatistics.push(statisticsNotValidated);
+            }
+            if (statisticsEdited) {
+                sortedStatistics.push(statisticsEdited);
             }
             me.titleAlign = 'right';
-            output.get('statistics').map(function(item) {
+            sortedStatistics.map(function(item) {
                 var queryParams = {},
                     dataItem;
 
@@ -80,7 +105,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                 if (item.key != 'statisticsEdited') {
                     data.push(dataItem);
                 } else {
-                    statisticsEdited.push(dataItem);
+                    edited.push(dataItem);
                 }
             });
 
@@ -145,7 +170,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                     deferInitialRefresh: false,
                     store: Ext.create('Ext.data.Store', {
                         fields: fields,
-                        data: Ext.Array.merge(data, statisticsEdited)
+                        data: Ext.Array.merge(data, edited)
                     }),
                     itemSelector: 'tr.trlegend',
                     tpl: [
