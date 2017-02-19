@@ -48,31 +48,30 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
             statisticsEdited = [],
             title = '<a href="' + url + '">'
                 + Ext.String.htmlEncode(output.get('name'))
-                + '</a>';
+                + '</a>',
+            statistics,
+            statisticsValid;
 
         if (!me.titleIsPartOfDataView) {
             me.title = title;
         }
 
         if (total > 0) {
+            statistics = output.get('statistics');
+            if (statistics[0].key === 'statisticsValid' && statistics[1].key === 'statisticsSuspect') {
+                statisticsValid = statistics[0];
+                statistics[0] = statistics[1];
+                statistics[1] = statisticsValid;
+            }
             me.titleAlign = 'right';
             output.get('statistics').map(function(item) {
                 var queryParams = {},
-                    percentageUrl,
                     dataItem;
-
-                if (item.key == 'statisticsSuspect' || item.key == 'statisticsMissing') {
-                    percentageUrl = router.getRoute('usagepoints/view/purpose/output').buildUrl({
-                        purposeId: purpose.getId(),
-                        outputId: output.getId()
-                    }, queryParams);
-                }
 
                 dataItem = {
                     name: item.displayName,
                     key: item.key,
                     data: item.count,
-                    url: percentageUrl,
                     percentage: Math.round(item.count / total * 100) + '%',
                     detail: item.detail,
                     tooltip: me.prepareTooltip(item, 'VIEW')
@@ -167,8 +166,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                         '<tr class="trlegend">' +
                         '<td>{name}</td>',
                         '<td>',
-                        '<tpl if="url"><a href="{url}">{percentage}</a>' +
-                        '<tpl else>{percentage}</tpl>' +
+                        '<tpl>{percentage}</tpl>' +
                         '</td>',
                         '<td>',
                         '<tpl if="tooltip">',
