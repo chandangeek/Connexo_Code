@@ -339,6 +339,7 @@ public class InMemoryIntegrationPersistence {
             this.finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
             this.calendarService = injector.getInstance(CalendarService.class);
             this.deviceMessageService = injector.getInstance(DeviceMessageService.class);
+            injector.getInstance(UsagePointLifeCycleService.class);
             initHeadEndInterface();
             initializePrivileges();
             ctx.commit();

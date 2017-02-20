@@ -89,14 +89,14 @@ public class ManufacturerSearchablePropertyTest {
     }
 
     @Test
-    public void testNoGroup() {
+    public void testGroupPresent() {
         ManufacturerSearchableProperty property = this.getTestInstance();
 
         // Business method
         Optional<SearchablePropertyGroup> group = property.getGroup();
 
         // Asserts
-        assertThat(group).isEmpty();
+        assertThat(group).isPresent();
     }
 
     @Test
