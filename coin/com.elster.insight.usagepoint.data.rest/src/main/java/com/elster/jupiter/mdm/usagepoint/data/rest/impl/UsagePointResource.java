@@ -648,7 +648,6 @@ public class UsagePointResource {
     @Path("{name}/runningservicecalls")
     public PagedInfoList getServiceCallsFor(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-        List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
         Set<DefaultState> states = EnumSet.of(
                 DefaultState.CREATED,
                 DefaultState.SCHEDULED,
@@ -657,12 +656,17 @@ public class UsagePointResource {
                 DefaultState.ONGOING,
                 DefaultState.WAITING);
 
-        serviceCallService.findServiceCalls(usagePoint, states)
+        ServiceCallFilter filter = new ServiceCallFilter();
+        filter.targetObject = usagePoint;
+        filter.states = states.stream().map(Enum::name).collect(Collectors.toList());
+
+        List<ServiceCallInfo> serviceCallInfos = serviceCallService.getServiceCallFinder(filter)
+                .from(queryParameters)
                 .stream()
                 .map(serviceCallInfoFactory::summarized)
-                .forEach(serviceCallInfos::add);
+                .collect(Collectors.toList());
 
-        return PagedInfoList.fromCompleteList("serviceCalls", serviceCallInfos, queryParameters);
+        return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }
 
     @PUT
@@ -687,13 +691,14 @@ public class UsagePointResource {
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
 
         ServiceCallFilter filter = serviceCallInfoFactory.convertToServiceCallFilter(jsonQueryFilter);
+        filter.targetObject = usagePoint;
         serviceCallService.getServiceCallFinder(filter)
+                .from(queryParameters)
                 .stream()
-                .filter(serviceCall -> serviceCall.getTargetObject().map(usagePoint::equals).orElse(false))
                 .map(serviceCallInfoFactory::summarized)
                 .forEach(serviceCallInfos::add);
 
-        return PagedInfoList.fromCompleteList("serviceCalls", serviceCallInfos, queryParameters);
+        return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }
 
     @PUT
