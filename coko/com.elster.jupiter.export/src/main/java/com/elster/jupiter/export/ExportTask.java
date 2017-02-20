@@ -99,4 +99,8 @@ public interface ExportTask extends HasName, HasAuditInfo {
     List<DataExportDestination> getDestinations(Instant at);
 
     String getApplication();
+
+    int getLogLevel();
+
+    void setLogLevel(int newLevel);
 }

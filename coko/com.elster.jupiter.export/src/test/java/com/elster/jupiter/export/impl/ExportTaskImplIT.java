@@ -40,7 +40,6 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
-import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.util.time.Never;
 
@@ -58,6 +57,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -338,6 +338,7 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
         ExportTask exportTask = dataExportService.newBuilder()
                 .scheduleImmediately()
                 .setName(NAME)
+                .setLogLevel(Level.FINEST.intValue())
                 .setApplication(APPLICATION)
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                 .setDataFormatterFactoryName(FORMATTER)
@@ -385,6 +386,7 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
         ExportTask exportTask = dataExportService.newBuilder()
                 .scheduleImmediately()
                 .setName(NAME)
+                .setLogLevel(Level.FINEST.intValue())
                 .setApplication(APPLICATION)
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                 .selectingEventTypes()
@@ -654,6 +656,7 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
         return dataExportService.newBuilder()
                 .scheduleImmediately()
                 .setName(name)
+                .setLogLevel(Level.FINEST.intValue())
                 .setApplication(APPLICATION)
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                 .selectingMeterReadings()
