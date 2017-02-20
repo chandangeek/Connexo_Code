@@ -105,6 +105,11 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
 
     @Override
     public List<CommandRule> findAllCommandRules() {
+        checkCommandRuleStatsAndThrowException();
+        return dataModel.mapper(CommandRule.class).find();
+    }
+
+    private List<CommandRule> findAllCommandRulesWithoutStatCheck() {
         return dataModel.mapper(CommandRule.class).find();
     }
 
@@ -267,7 +272,6 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
     }
 
     private List<ExceededCommandRule> limitsExceededForCommand(DeviceMessage deviceMessage, Instant oldReleaseDate) {
-        checkCommandRuleStatsAndThrowException();
         List<CommandRule> commandRulesByDeviceMessageId = this.getActiveCommandRulesByDeviceMessageId(deviceMessage.getDeviceMessageId());
         if (commandRulesByDeviceMessageId.isEmpty()) {
             return Collections.emptyList();
@@ -290,7 +294,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
 
     private void checkCommandRuleStatsAndThrowException() {
         if (areCountersInValid()) {
-            throw new InvalidCommandRuleStatsException(thesaurus, MessageSeeds.INVALID_STATS);
+            throw new InvalidCommandRuleStatsException(thesaurus, MessageSeeds.MAC_COMMAND_RULES_FAILED);
         }
     }
 
@@ -302,7 +306,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
 
     private boolean areCountersInValid() {
         CommandRuleStats commandRuleStats = getCommandRuleStats();
-        int numberOfCommandRules = findAllCommandRules().size();
+        int numberOfCommandRules = findAllCommandRulesWithoutStatCheck().size();
         int numberOfCounters = dataModel.mapper(CommandRuleCounter.class).find().size();
         return commandRuleStats.getNrOfCounters() != numberOfCounters || commandRuleStats.getNrOfMessageRules() != numberOfCommandRules;
     }
