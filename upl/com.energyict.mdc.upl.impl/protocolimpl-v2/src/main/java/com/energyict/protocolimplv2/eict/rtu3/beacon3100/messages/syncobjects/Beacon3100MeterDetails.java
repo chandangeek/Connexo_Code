@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -118,11 +119,14 @@ public class Beacon3100MeterDetails {
         return structure;
     }
 
-    public Structure toStructureFWVersion10AndAbove() {
+    public Structure toStructureFWVersion10AndAbove(Beacon3100MeterDetails beacon3100MeterDetails) {
         final Structure structure = new Structure();
         structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getMacAddress(), "")));
         final Array deviceTypeAssignmentArray = new Array();
-        for (DeviceTypeAssignment deviceTypeAssignment : getDeviceTypeAssignments()) {
+        for (DeviceTypeAssignment deviceTypeAssignment : beacon3100MeterDetails.getDeviceTypeAssignments()) {
+            if(deviceTypeAssignment.getDeviceTypeId() == 0){
+                deviceTypeAssignment.setDeviceTypeId(beacon3100MeterDetails.getDeviceTypeId());
+            }
             deviceTypeAssignmentArray.addDataType(deviceTypeAssignment.toStructure());
         }
         structure.addDataType(deviceTypeAssignmentArray);

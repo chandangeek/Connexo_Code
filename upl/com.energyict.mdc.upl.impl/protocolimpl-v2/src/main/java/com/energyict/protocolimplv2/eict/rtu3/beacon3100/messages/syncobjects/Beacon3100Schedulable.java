@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
+import com.energyict.dlms.DLMSObis;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.mdc.tasks.ComTaskEnablement;
@@ -97,7 +98,7 @@ public class Beacon3100Schedulable {
         for (Object item : getProfiles()) {
             LoadProfileItem loadProfileItem = null;
             if( item instanceof LinkedHashMap) {
-                loadProfileItem = new LoadProfileItem(getObisCodeFromLinkedHashMap((LinkedHashMap) item), new Unsigned32(0));
+                loadProfileItem = new LoadProfileItem(getObisCodeFromLinkedHashMap((LinkedHashMap) item), new Unsigned32(1));
             }else if(item instanceof LoadProfileItem){
                 loadProfileItem = (LoadProfileItem)item;
             }
@@ -109,7 +110,7 @@ public class Beacon3100Schedulable {
         for (Object item : getRegisters()) {
             RegisterItem registerItem = null;
             if(item instanceof LinkedHashMap) {
-                registerItem = new RegisterItem(getObisCodeFromLinkedHashMap((LinkedHashMap) item), new Unsigned16(0));
+                registerItem = new RegisterItem(getObisCodeFromLinkedHashMap((LinkedHashMap) item), new Unsigned16(1));
             }else if (item instanceof RegisterItem){
                 registerItem = (RegisterItem)item;
             }
@@ -121,7 +122,7 @@ public class Beacon3100Schedulable {
         for (Object item : getEventLogs()) {
             EventLogItem eventLogItem = null;
             if(item instanceof LinkedHashMap) {
-                eventLogItem = new EventLogItem(getObisCodeFromLinkedHashMap((LinkedHashMap) item), new Unsigned32(0));
+                eventLogItem = new EventLogItem(getObisCodeFromLinkedHashMap((LinkedHashMap) item), new Unsigned32(1));
             }else{
                 eventLogItem = (EventLogItem)item;
             }

@@ -242,7 +242,7 @@ public class MasterDataSync {
             if(firmwareVersionLowerThan10) {
                 syncOneDevice(beacon3100MeterDetails.toStructure(isFirmwareVersion140OrAbove));
             }else{
-                syncOneDevice(beacon3100MeterDetails.toStructureFWVersion10AndAbove());
+                syncOneDevice(beacon3100MeterDetails.toStructureFWVersion10AndAbove(beacon3100MeterDetails));
             }
         }
     }
@@ -386,10 +386,9 @@ public class MasterDataSync {
     }
 
 
-
     private void syncAllDevices(Beacon3100MeterDetails[] allMeterDetails) throws IOException {
         for (Beacon3100MeterDetails beacon3100MeterDetails : allMeterDetails) {
-            syncOneDevice(beacon3100MeterDetails.toStructureFWVersion10AndAbove());
+            syncOneDevice(beacon3100MeterDetails.toStructureFWVersion10AndAbove(beacon3100MeterDetails));
         }
     }
 
@@ -402,7 +401,7 @@ public class MasterDataSync {
         Beacon3100MeterDetails[] meterDetails = new MasterDataSerializer().getMeterDetails(deviceId);
 
         if(meterDetails!= null && meterDetails[0] != null) {
-            syncOneDevice(meterDetails[0].toStructureFWVersion10AndAbove());
+            syncOneDevice(meterDetails[0].toStructureFWVersion10AndAbove(meterDetails[0]));
         }
 
         return collectedMessage;
@@ -449,7 +448,7 @@ public class MasterDataSync {
         deviceTypeAssignements.add(new DeviceTypeAssignment(configurationId, dateFormat.parse(startTime), dateFormat.parse(endTime)));
         beacon3100MeterDetails.setDeviceTypeAssignments(deviceTypeAssignements);
 
-        syncOneDevice(beacon3100MeterDetails.toStructureFWVersion10AndAbove());
+        syncOneDevice(beacon3100MeterDetails.toStructureFWVersion10AndAbove(beacon3100MeterDetails));
     }
 
     public CollectedMessage setBufferForSpecificRegister(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
