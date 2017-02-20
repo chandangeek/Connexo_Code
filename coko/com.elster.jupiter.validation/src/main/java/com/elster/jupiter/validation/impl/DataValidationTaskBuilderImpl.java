@@ -30,6 +30,7 @@ public class DataValidationTaskBuilderImpl implements DataValidationTaskBuilder 
     private MetrologyPurpose metrologyPurpose;
     private ValidationService dataValidationService;
     private QualityCodeSystem qualityCodeSystem;
+    private int logLevel;
 
     public DataValidationTaskBuilderImpl(DataModel dataModel, ValidationService dataValidationService) {
         this.dataModel = dataModel;
@@ -87,8 +88,14 @@ public class DataValidationTaskBuilderImpl implements DataValidationTaskBuilder 
     }
 
     @Override
+    public DataValidationTaskBuilder setLogLevel(int logLevel) {
+        this.logLevel = logLevel;
+        return this;
+    }
+
+    @Override
     public DataValidationTask create() {
-        DataValidationTaskImpl task = DataValidationTaskImpl.from(dataModel, name, nextExecution, qualityCodeSystem);
+        DataValidationTaskImpl task = DataValidationTaskImpl.from(dataModel, name, nextExecution, qualityCodeSystem, logLevel);
         task.setScheduleImmediately(scheduleImmediately);
         task.setScheduleExpression(scheduleExpression);
         task.setEndDeviceGroup(endDeviceGroup);

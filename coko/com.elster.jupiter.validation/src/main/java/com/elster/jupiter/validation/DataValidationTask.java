@@ -82,5 +82,8 @@ public interface DataValidationTask extends HasAuditInfo {
 
     void updateLastRun(Instant triggerTime);
 
+    int getLogLevel();
+
+    void setLogLevel(int newLevel);
 }
 
