@@ -10,7 +10,8 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
         'Uni.property.form.Property',
         'Uni.form.field.Duration',
         'Uni.property.form.GroupedPropertyForm',
-        'Dxp.view.tasks.DestinationsField'
+        'Dxp.view.tasks.DestinationsField',
+        'Uni.form.field.LogLevelDisplay'
     ],
 
     myTooltip: Ext.create('Ext.tip.ToolTip', {
@@ -19,6 +20,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
 
     initComponent: function () {
         var me = this;
+
         me.items = [
             {
                 xtype: 'displayfield',
@@ -26,7 +28,11 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                 name: 'name',
                 labelWidth: 250
             },
-
+            {
+                xtype: 'log-level-displayfield',
+                itemId: 'dxp-task-preview-log-level',
+                labelWidth: 250
+            },
             {
                 xtype: 'fieldcontainer',
                 fieldLabel: Uni.I18n.translate('general.schedule', 'DES', 'Schedule'),

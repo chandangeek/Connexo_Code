@@ -9,7 +9,8 @@ Ext.define('Dxp.view.log.Grid', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Uni.DateTime'
+        'Uni.DateTime',
+        'Uni.grid.column.LogLevel'
     ],
     initComponent: function () {
         var me = this;
@@ -23,7 +24,7 @@ Ext.define('Dxp.view.log.Grid', {
                 flex: 2
             },
             {
-                header: Uni.I18n.translate('general.logLevel', 'DES', 'Log level'),
+                xtype: 'log-level-column',
                 dataIndex: 'loglevel',
                 flex: 1
             },
@@ -53,4 +54,5 @@ Ext.define('Dxp.view.log.Grid', {
 
         me.callParent(arguments);
     }
+
 });

@@ -16,12 +16,15 @@ Ext.define('Dxp.controller.Log', {
         'Dxp.model.DataExportTask',
         'Dxp.model.DataExportTaskHistory'
     ],
-    refs: [
-        {
-            ref: 'page',
-            selector: 'log-setup'
-        }
+
+    requires: [
+        'Uni.util.LogLevel'
     ],
+
+    init: function () {
+        Uni.util.LogLevel.loadLogLevels();
+        this.callParent(arguments);
+    },
 
     showLogWorkspace: function (occurrenceId) {
         this.showLog(null, occurrenceId, true);
@@ -42,7 +45,7 @@ Ext.define('Dxp.controller.Log', {
             success: function (occurrenceTask) {
                 var task = occurrenceTask.getTask();
                     runStartedOnFormatted = occurrenceTask.data.startedOn_formatted;
-                    view = Ext.widget('log-setup', {
+                    view = Ext.widget('export-log-setup', {
                         router: router,
                         task: task,
                         runStartedOn: runStartedOnFormatted,
