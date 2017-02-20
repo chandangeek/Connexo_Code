@@ -368,6 +368,12 @@ Ext.define('Isu.controller.IssueDetail', {
                     router: router
                 });
                 break;
+            default:
+                form = Ext.widget('default-issue-details-form', {
+                    itemId: 'default-issue-details-form',
+                    router: router
+                });
+                break;
         }
         form.loadRecord(issue);
         container.add(form);

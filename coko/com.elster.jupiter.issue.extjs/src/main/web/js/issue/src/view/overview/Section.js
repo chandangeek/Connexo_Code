@@ -10,7 +10,7 @@ Ext.define('Isu.view.overview.Section', {
         'Uni.view.widget.Bar'
     ],
     title: null,
-    minHeight: 235,
+    minHeight: 230,
     itemsInCollapsedMode: 5,
     buttonAlign: 'left',
     parentItemId: 'overview-of-issues',
@@ -52,7 +52,7 @@ Ext.define('Isu.view.overview.Section', {
 
                 queryString[section] = record.get('id');
                 queryString.groupingType = 'none';
-                queryString.sort = ['-priority'];
+                queryString.sort = ['-priorityTotal'];
                 if (me.up(me.parentItemId)) {
                     var href = me.up(me.parentItemId).router.getRoute(me.route).buildUrl(null, queryString);
                     record.set('href', href);
@@ -67,8 +67,8 @@ Ext.define('Isu.view.overview.Section', {
                 tpl: '<table width="100%">' +
                 '<tpl for=".">' +
                 '<tbody class="item item-{#}">' +
-                '<tr>' +
-                '<td width="50%">' +
+                '<tr >' +
+                '<td width="50%" >' +
                 '<div style="overflow: hidden; text-overflow: ellipsis">' +
                 '<a href="{href}">{description}</a>' +
                 '</div>' +

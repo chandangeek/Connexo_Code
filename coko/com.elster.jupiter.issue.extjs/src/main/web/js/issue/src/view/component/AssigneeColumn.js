@@ -14,10 +14,6 @@ Ext.define('Isu.view.component.AssigneeColumn', {
         if (value && value.hasOwnProperty('id')){
             var result = '';
 
-            result += '<span class="isu-icon-USER isu-assignee-type-icon" data-qtip="';
-            result += Uni.I18n.translate('assignee.tooltip.USER', 'ISU', 'User');
-            result += '"></span>';
-
             if (value.name) {
                 result += Ext.String.htmlEncode(value.name);
             }
