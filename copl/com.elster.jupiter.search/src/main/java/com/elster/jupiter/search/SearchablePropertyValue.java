@@ -5,7 +5,13 @@
 package com.elster.jupiter.search;
 
 import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.util.streams.Predicates;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonSetter;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -56,8 +62,53 @@ public final class SearchablePropertyValue {
      * Serializable representation of searchable property value
      */
     public static class ValueBean {
+        // Set those fields public only for baseline check reasons
         public String propertyName;
         public SearchablePropertyOperator operator;
-        public List<String> values;
+        public List<String> values = new ArrayList<>();
+
+        public ValueBean() {}
+
+        public ValueBean(String propertyName, SearchablePropertyOperator operator, String... values){
+            this(propertyName, operator, (values == null ? new ArrayList<>() : Arrays.asList(values)));
+        }
+
+        public ValueBean(String propertyName, SearchablePropertyOperator operator, List<String> values){
+            if (operator == null || values == null){
+                throw new IllegalArgumentException();
+            }
+            this.propertyName = propertyName;
+            this.operator = operator;
+            this.setValues(values);
+        }
+
+        public boolean isValid(){
+            return (this.operator != null)  && (this.getOperator().isUnary() || !values.isEmpty());
+        }
+
+        @JsonGetter
+        public String getPropertyName() {
+            return propertyName;
+        }
+
+        @JsonGetter
+        public SearchablePropertyOperator getOperator() {
+            return operator;
+        }
+
+        public List<String> getValues() {
+            return values;
+        }
+
+        @JsonSetter
+        public void setValues(String... values) {
+            setValues(values == null ? Collections.emptyList() : Arrays.asList(values));
+        }
+
+        @JsonSetter
+        public void setValues(List<String> values) {
+            values.stream().filter(Predicates.not(String::isEmpty)).forEach(this.values::add);
+        }
+
     }
 }
