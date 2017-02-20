@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.config;
 
+import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -70,6 +71,12 @@ public interface MetrologyConfiguration extends HasId, HasName {
     void removeReadingTypeDeliverable(ReadingTypeDeliverable deliverable);
 
     List<ReadingTypeDeliverable> getDeliverables();
+
+    List<EventSet> getEventSets();
+
+    void addEventSet(EventSet eventSet);
+
+    void removeEventSet(EventSet eventSet);
 
     void delete();
 

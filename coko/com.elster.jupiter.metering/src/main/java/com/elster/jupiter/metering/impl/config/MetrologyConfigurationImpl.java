@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.NotEmpty;
@@ -57,12 +58,16 @@ import static com.elster.jupiter.domain.util.Save.UPDATE;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
+@DeliverableTimeOfUseBucketsBackedByEventSet(groups = MetrologyConfigurationImpl.Activation.class)
 public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration, HasUniqueName {
     public static final String TYPE_IDENTIFIER = "B";
 
     public static final Map<String, Class<? extends MetrologyConfiguration>> IMPLEMENTERS = ImmutableMap.of(
             MetrologyConfigurationImpl.TYPE_IDENTIFIER, MetrologyConfigurationImpl.class,
             UsagePointMetrologyConfigurationImpl.TYPE_IDENTIFIER, UsagePointMetrologyConfigurationImpl.class);
+
+    // Marker interface for javax.validation group
+    public interface Activation {}
 
     public enum Fields {
         NAME("name"),
@@ -112,6 +117,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     private List<ReadingTypeRequirement> readingTypeRequirements = new ArrayList<>();
     private List<MetrologyContract> metrologyContracts = new ArrayList<>();
     private List<ReadingTypeDeliverable> deliverables = new ArrayList<>();
+    private List<EventSetOnMetrologyConfiguration> eventSets = new ArrayList<>();
 
     private Instant obsoleteTime;
     @SuppressWarnings("unused")
@@ -203,6 +209,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     public void activate() {
         if (MetrologyConfigurationStatus.INACTIVE == status) {
             this.status = MetrologyConfigurationStatus.ACTIVE;
+            this.dataModel.getValidatorFactory().getValidator().validate(this, Activation.class);
             this.update();
         }
     }
@@ -303,9 +310,13 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
                 .init(this, metrologyPurpose);
         metrologyContract.setMandatory(mandatory);
         Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), metrologyContract);
-        this.metrologyContracts.add(metrologyContract);
+        this.doAddMetrologyContract(metrologyContract);
         touch();
         return metrologyContract;
+    }
+
+    void doAddMetrologyContract(MetrologyContract contract) {
+        this.metrologyContracts.add(contract);
     }
 
     @Override
@@ -367,11 +378,14 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
                         .getInstance(ReadingTypeDeliverableImpl.class)
                         .init(this, name, deliverableType, readingType, (ServerFormula) formula);
         Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), deliverable);
-        this.deliverables.add(deliverable);
+        this.doAddReadingTypeDeliverable(deliverable);
         touch();
         return deliverable;
     }
 
+    void doAddReadingTypeDeliverable(ReadingTypeDeliverable deliverable) {
+        this.deliverables.add(deliverable);
+    }
 
     @Override
     public void removeReadingTypeDeliverable(ReadingTypeDeliverable deliverable) {
@@ -494,4 +508,31 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     public void invalidateCache() {
         this.publisher.publish(new InvalidateCacheRequest(MeteringService.COMPONENTNAME, TableSpecs.MTR_METROLOGYCONFIG.name()));
     }
+
+    @Override
+    public List<EventSet> getEventSets() {
+        return this.eventSets
+                .stream()
+                .map(EventSetOnMetrologyConfiguration::getEventSet)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void addEventSet(EventSet eventSet) {
+        this.doAddEventSet(EventSetOnMetrologyConfigurationImpl.from(this.dataModel, this, eventSet));
+    }
+
+    void doAddEventSet(EventSetOnMetrologyConfiguration eventSet) {
+        this.eventSets.add(eventSet);
+    }
+
+    @Override
+    public void removeEventSet(EventSet eventSet) {
+        this.eventSets
+                .stream()
+                .filter(each -> each.getEventSet().equals(eventSet))
+                .findAny()
+                .ifPresent(this.eventSets::remove);
+    }
+
 }
