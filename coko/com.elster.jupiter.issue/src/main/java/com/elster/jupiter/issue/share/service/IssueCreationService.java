@@ -34,7 +34,7 @@ public interface IssueCreationService {
 
     void processIssueCreationEvent(long ruleId, IssueEvent event);
 
-    void processAlarmCreationEvent(int ruleId, IssueEvent event, String logOnSameAlarm);
+    void processAlarmCreationEvent(int ruleId, IssueEvent event, String raiseEventProps);
 
     void processIssueResolutionEvent(long ruleId, IssueEvent event);
 
