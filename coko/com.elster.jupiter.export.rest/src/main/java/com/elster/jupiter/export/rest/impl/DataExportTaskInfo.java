@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 @XmlRootElement
 public class DataExportTaskInfo {
@@ -27,5 +28,5 @@ public class DataExportTaskInfo {
     public StandardDataSelectorInfo standardDataSelector;
     public List<DestinationInfo> destinations = new ArrayList<>();
     public long version;
-
+    public int logLevel = Level.WARNING.intValue();
 }

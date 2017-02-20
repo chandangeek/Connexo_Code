@@ -78,6 +78,7 @@ public class DataExportTaskInfoFactory {
         DataExportTaskInfo info = new DataExportTaskInfo();
         info.id = dataExportTask.getId();
         info.name = dataExportTask.getName();
+        info.logLevel = dataExportTask.getLogLevel();
         info.active = dataExportTask.isActive();
         info.dataProcessor =
                 new ProcessorInfo(

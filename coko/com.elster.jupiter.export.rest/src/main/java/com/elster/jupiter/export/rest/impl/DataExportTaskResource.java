@@ -186,6 +186,7 @@ public class DataExportTaskResource {
     public Response addExportTask(DataExportTaskInfo info, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
         DataExportTaskBuilder builder = dataExportService.newBuilder()
                 .setName(info.name)
+                .setLogLevel(info.logLevel)
                 .setApplication(getApplicationNameFromCode(appCode))
                 .setDataFormatterFactoryName(info.dataProcessor.name)
                 .setScheduleExpression(getScheduleExpression(info))
@@ -298,6 +299,7 @@ public class DataExportTaskResource {
         ExportTask task = findAndLockExportTask(info);
 
         task.setName(info.name);
+        task.setLogLevel(info.logLevel);
         task.setScheduleExpression(getScheduleExpression(info));
         task.setNextExecution(info.nextRun);
 
