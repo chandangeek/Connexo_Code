@@ -210,6 +210,16 @@ public class DeviceAlarmImpl implements DeviceAlarm {
     }
 
     @Override
+    public Instant getCreateDateTime() {
+        return getBaseIssue().getCreateDateTime();
+    }
+
+    @Override
+    public void setCreateDateTime(Instant dateTime) {
+        getBaseIssue().setCreateDateTime(dateTime);
+    }
+
+    @Override
     public List<DeviceAlarmRelatedEvent> getDeviceAlarmRelatedEvents() {
         Optional<? extends DeviceAlarm> alarm;
         if (getStatus().isHistorical()) {
@@ -222,6 +232,7 @@ public class DeviceAlarmImpl implements DeviceAlarm {
 
     public void save() {
         if (getBaseIssue() != null) {
+            getBaseIssue().update();
             this.setId(getBaseIssue().getId());
         }
         Save.CREATE.save(dataModel, this);

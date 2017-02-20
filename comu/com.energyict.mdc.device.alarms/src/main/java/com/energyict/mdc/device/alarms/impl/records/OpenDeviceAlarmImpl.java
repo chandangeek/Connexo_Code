@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -19,6 +20,7 @@ import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvent;
+import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 
 import com.google.common.collect.Range;
 
@@ -29,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public final class OpenDeviceAlarmImpl extends DeviceAlarmImpl implements OpenDeviceAlarm {
 
@@ -63,7 +66,7 @@ public final class OpenDeviceAlarmImpl extends DeviceAlarmImpl implements OpenDe
 
 
     @Override
-    public List<DeviceAlarmRelatedEvent> getDeviceAlarmRelatedEvents(){
+    public List<DeviceAlarmRelatedEvent> getDeviceAlarmRelatedEvents() {
         return Collections.unmodifiableList(deviceAlarmRelatedEvents);
     }
 
@@ -84,15 +87,19 @@ public final class OpenDeviceAlarmImpl extends DeviceAlarmImpl implements OpenDe
         MeteringService meteringService = getDataModel().getInstance(MeteringService.class);
         Optional<EndDeviceEventType> eventType = meteringService.getEndDeviceEventType(endDeviceEventType);
         if (getDevice().getId() == endDeviceId && eventType.isPresent()) {
-            /*if (!eventType.isPresent()) {
-                eventType = Optional.of(meteringService.createEndDeviceEventType(endDeviceEventType));
-            }*/
             List<EndDeviceEventRecord> events = getDevice().getDeviceEvents(Range.closedOpen(eventTimestamp, eventTimestamp.plusMillis(1)), Collections.singletonList(eventType
                     .get()));
             // Beautify
             if (events.size() == 1) {
                 event.init(this, events.get(0));
                 deviceAlarmRelatedEvents.add(event);
+                if (eventTimestamp.isBefore(this.getCreateDateTime())) {
+                    this.setCreateDateTime(eventTimestamp);
+                }
+            } else {
+                throw new LocalizedFieldValidationException(MessageSeeds.INCORRECT_NUMBER_OF_CONCURRENT_PROCESSED_EVENTS, events.stream()
+                        .map(record -> record.getEndDevice().getId() + ":" + record.getEventTypeCode() + ":" + record.getCreatedDateTime())
+                        .collect(Collectors.joining(",")));
             }
         }
 

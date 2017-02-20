@@ -19,7 +19,8 @@ public enum MessageSeeds implements MessageSeed {
     ACTION_ALARM_WAS_ASSIGNED_USER(6, "action.alarm.was.assigned.user", "Alarm was assigned to user {0}", Level.INFO),
     ACTION_ALARM_WAS_ASSIGNED_WORKGROUP(7, "action.alarm.was.assigned.workgorup", "Alarm was assigned to workgroup {0}", Level.INFO),
     ACTION_ALARM_WAS_UNASSIGNED(8, "action.alarm.was.unassigned", "Alarm was unassigned", Level.INFO),
-    INVALID_NUMBER_OF_ARGUIMENTS(9, "invalid.number.of.arguments", "Invalid number of arguments", Level.SEVERE)
+    INVALID_NUMBER_OF_ARGUIMENTS(9, "invalid.number.of.arguments", "Invalid number of arguments", Level.SEVERE),
+    INCORRECT_NUMBER_OF_CONCURRENT_PROCESSED_EVENTS(9, "incorrect.number.of.concurrent.processed.events", "Incorrect number of concurrently processed events : {0}", Level.SEVERE)
     ;
 
     private final int number;

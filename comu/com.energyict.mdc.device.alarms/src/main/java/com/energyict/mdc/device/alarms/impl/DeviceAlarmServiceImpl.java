@@ -10,11 +10,13 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueGroup;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
@@ -46,6 +48,7 @@ import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import com.energyict.mdc.device.alarms.impl.database.TableSpecs;
+import com.energyict.mdc.device.alarms.impl.database.groups.DeviceAlarmGroupOperation;
 import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
 import com.energyict.mdc.device.alarms.impl.install.Installer;
@@ -267,6 +270,11 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                 .size()]));
     }
 
+    @Override
+    public List<IssueGroup> getDeviceAlarmGroupList(IssueGroupFilter filter) {
+        return DeviceAlarmGroupOperation.from(filter, this.dataModel, thesaurus).execute();
+    }
+
     public DataModel getDataModel() {
         return this.dataModel;
     }
@@ -353,10 +361,10 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         }
         //filter by create time
         if (filter.getStartCreateTime() != null) {
-            condition = condition.and(where("createTime").isGreaterThanOrEqual(filter.getStartCreateTime()));
+            condition = condition.and(where("baseIssue.createDateTime").isGreaterThanOrEqual(filter.getStartCreateTime()));
         }
         if (filter.getEndCreateTime() != null) {
-            condition = condition.and(where("createTime").isLessThanOrEqual(filter.getEndCreateTime()));
+            condition = condition.and(where("baseIssue.createDateTime").isLessThanOrEqual(filter.getEndCreateTime()));
         }
         return condition;
     }
