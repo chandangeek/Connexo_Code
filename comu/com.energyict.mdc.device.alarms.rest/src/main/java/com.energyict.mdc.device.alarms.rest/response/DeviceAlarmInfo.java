@@ -38,7 +38,7 @@ public class DeviceAlarmInfo {
         this.workGroupAssignee = (deviceAlarm.getAssignee() != null ? new IssueAssigneeInfo("WORKGROUP", deviceAlarm.getAssignee()) : null);
         this.userAssignee = (deviceAlarm.getAssignee() != null ? new IssueAssigneeInfo("USER", deviceAlarm.getAssignee()) : null);
         this.title = deviceAlarm.getTitle();
-        this.creationDate = deviceAlarm.getCreateTime().toEpochMilli();
+        this.creationDate = deviceAlarm.getCreateDateTime().toEpochMilli();
         this.version = deviceAlarm.getVersion();
         this.clearedStatus = deviceAlarm.isStatusCleared();
         this.priority = new PriorityInfo(deviceAlarm.getPriority());

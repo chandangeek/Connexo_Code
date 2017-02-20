@@ -391,7 +391,14 @@ public class DeviceAlarmResource extends BaseAlarmResource{
     }
 
     private List<? extends Issue> getDeviceAlarmForBulk(JsonQueryFilter filter) {
-        return getDeviceAlarmService().findAlarms(buildFilterFromQueryParameters(filter)).find();
+        return getDeviceAlarmService().findAlarms(buildFilterFromQueryParameters(filter))
+                .find().stream().map(alarm -> {
+            if(alarm.getStatus().isHistorical()){
+                return getIssueService().findHistoricalIssue(alarm.getId());
+            }else{
+                return getIssueService().findOpenIssue(alarm.getId());
+            }
+        }).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
     }
 
     private boolean isNumericValue(String id){
