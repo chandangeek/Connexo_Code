@@ -12,7 +12,7 @@
         <relativePath>../com.elster.jupiter.platform/pom.xml</relativePath>
     </parent>
     <artifactId>search.rest</artifactId>
-    <version>2.1.0${revision}</version>
+    <version>3.0.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.search.rest</name>
 

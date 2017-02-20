@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
@@ -51,19 +50,21 @@ public class SearchablePropertyValueConverter implements Function<JsonNode, Sear
         ArrayNode root = objectMapper.createArrayNode();
         for (SearchablePropertyValue value : searchablePropertyValues) {
             ObjectNode propertyNode = root.addObject();
-            propertyNode.put("property", value.getValueBean().propertyName);
+            propertyNode.put("property", value.getValueBean().getPropertyName());
             ArrayNode valuesNode = objectMapper.createArrayNode();
             propertyNode.put("value", valuesNode);
             ObjectNode valueNode = valuesNode.addObject();
-            valueNode.put(OPERATOR_FIELD, value.getValueBean().operator.code());
-            if (value.getProperty().getSelectionMode() == SearchableProperty.SelectionMode.MULTI || value.getValueBean().values.size() > 1) {
-                ArrayNode criteriaNode = objectMapper.createArrayNode();
-                value.getValueBean().values.stream().forEach(criteriaNode::add);
-                valueNode.put(CRITERIA_FIELD, criteriaNode);
-            } else if (value.getValueBean().values.size() == 1) {
-                valueNode.put(CRITERIA_FIELD, value.getValueBean().values.get(0));
-            } else {
-                //not a case
+            valueNode.put(OPERATOR_FIELD, value.getValueBean().getOperator().code());
+            if (!value.getValueBean().getOperator().isUnary()) {
+                if (value.getProperty().getSelectionMode() == SearchableProperty.SelectionMode.MULTI || value.getValueBean().getValues().size() > 1) {
+                    ArrayNode criteriaNode = objectMapper.createArrayNode();
+                    value.getValueBean().getValues().stream().forEach(criteriaNode::add);
+                    valueNode.put(CRITERIA_FIELD, criteriaNode);
+                } else if (value.getValueBean().getValues().size() == 1) {
+                    valueNode.put(CRITERIA_FIELD, value.getValueBean().getValues().get(0));
+                } else {
+                    //not a
+                }
             }
         }
         return root.toString();
@@ -72,38 +73,42 @@ public class SearchablePropertyValueConverter implements Function<JsonNode, Sear
     @Override
     public SearchablePropertyValue.ValueBean apply(JsonNode node) {
         if (node != null) {
-            SearchablePropertyValue.ValueBean propertyValue = new SearchablePropertyValue.ValueBean();
-            mapOperatorField(node, propertyValue);
-            mapCriteriaField(node, propertyValue);
-            if (propertyValue.operator == null || propertyValue.values == null) {
-                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "value");
+            try {
+                return new SearchablePropertyValue.ValueBean(null, mapOperatorField(node), mapCriteriaField(node));
+            }catch(IllegalArgumentException e){
+                 throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "value");
             }
-            return propertyValue;
         }
         return null;
     }
 
-    private void mapOperatorField(JsonNode node, SearchablePropertyValue.ValueBean propertyBean) {
+    private SearchablePropertyOperator mapOperatorField(JsonNode node) {
         JsonNode operatorNode = node.get(OPERATOR_FIELD);
         if (operatorNode != null && operatorNode.isTextual()) {
-            propertyBean.operator = SearchablePropertyOperator.getFromCode(operatorNode.textValue());
+            return SearchablePropertyOperator.getFromCode(operatorNode.textValue());
         }
+        return null;
     }
 
-    private void mapCriteriaField(JsonNode node, SearchablePropertyValue.ValueBean propertyBean) {
+    private List<String> mapCriteriaField(JsonNode node) {
+        List<String> values = new ArrayList<>();
         JsonNode criteriaField = node.get(CRITERIA_FIELD);
         if (criteriaField != null) {
-            List<String> values;
             if (criteriaField.isArray()) {
-                values = new ArrayList<>();
                 for (JsonNode singleCriteria : criteriaField) {
-                    values.add(getSingleCriteriaAsString(singleCriteria));
+                    String criteriaAsString = getSingleCriteriaAsString(singleCriteria);
+                    if (!criteriaAsString.isEmpty()) {
+                        values.add(criteriaAsString);
+                    }
                 }
             } else {
-                values = Collections.singletonList(getSingleCriteriaAsString(criteriaField));
+                String singleCriteria = getSingleCriteriaAsString(criteriaField);
+                if (!singleCriteria.isEmpty()) {
+                    values.add(singleCriteria);
+                }
             }
-            propertyBean.values = values;
         }
+        return values;
     }
 
     private String getSingleCriteriaAsString(JsonNode singleCriteria) {
