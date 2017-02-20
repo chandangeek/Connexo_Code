@@ -18,6 +18,6 @@ public interface EventSet extends HasName, HasId {
      */
     List<Event> getEvents();
 
-
     CalendarService.EventSetBuilder redefine();
+
 }
