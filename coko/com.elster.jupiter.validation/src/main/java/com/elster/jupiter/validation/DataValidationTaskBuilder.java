@@ -34,6 +34,8 @@ public interface DataValidationTaskBuilder {
 
     DataValidationTaskBuilder setNextExecution(Instant nextExecution);
 
+    DataValidationTaskBuilder setLogLevel(int logLevel);
+
     DataValidationTask create();
 
 }
