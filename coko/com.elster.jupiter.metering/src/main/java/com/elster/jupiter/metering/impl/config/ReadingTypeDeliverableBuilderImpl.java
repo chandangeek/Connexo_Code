@@ -20,6 +20,7 @@ import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.slp.SyntheticLoadProfile;
 import com.elster.jupiter.util.units.Quantity;
 
 import java.math.BigDecimal;
@@ -99,9 +100,7 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
         if (!registeredCustomPropertySet.get().getCustomPropertySet().isVersioned()) {
             throw InvalidNodeException.customPropertySetNotVersioned(this.formulaBuilder.getThesaurus(), customPropertySet);
         }
-        if (!this.isNumerical(propertySpec)) {
-            throw InvalidNodeException.customPropertyMustBeNumerical(this.formulaBuilder.getThesaurus(), customPropertySet, propertySpec);
-        }
+        this.checkCompatibility(propertySpec, customPropertySet);
         return new FormulaAndExpressionNodeBuilder(this.formulaBuilder.property(registeredCustomPropertySet.get(), propertySpec));
     }
 
@@ -112,10 +111,21 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
                 .anyMatch(each -> each.getCustomPropertySet().getId().equals(customPropertySet.getId()));
     }
 
-    private boolean isNumerical(PropertySpec propertySpec) {
+    private void checkCompatibility(PropertySpec propertySpec, CustomPropertySet customPropertySet) {
+        if (propertySpec.isReference()) {
+            if (!this.isCompatible(propertySpec, SyntheticLoadProfile.class)) {
+                throw InvalidNodeException.customPropertyMustBeSyntheticLoadProfile(this.formulaBuilder.getThesaurus(), customPropertySet, propertySpec);
+            }
+        } else if (!this.isCompatible(propertySpec, Number.class, Quantity.class)) {
+            throw InvalidNodeException.customPropertyMustBeNumerical(this.formulaBuilder.getThesaurus(), customPropertySet, propertySpec);
+        }
+
+    }
+
+    @SuppressWarnings("unchecked")
+    private boolean isCompatible(PropertySpec propertySpec, Class...supportedValueTypes) {
         Class valueType = propertySpec.getValueFactory().getValueType();
-        return Number.class.isAssignableFrom(valueType)
-                || Quantity.class.isAssignableFrom(valueType);
+        return Stream.of(supportedValueTypes).anyMatch(each -> each.isAssignableFrom(valueType));
     }
 
     @Override

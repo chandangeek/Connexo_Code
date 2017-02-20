@@ -94,7 +94,10 @@ public class CalculatedMetrologyContractDataImplTest {
     private PropertySpec propertySpec;
     @Mock
     private RegisteredCustomPropertySet customPropertySet;
+
     private InstantTruncaterFactory truncaterFactory;
+
+    private SourceChannelSetFactory sourceChannelSetFactory;
 
     @Mock
     private Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation;
@@ -133,6 +136,7 @@ public class CalculatedMetrologyContractDataImplTest {
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverable));
         when(this.meteringService.getGasDayOptions()).thenReturn(Optional.empty());
         this.truncaterFactory = new InstantTruncaterFactory(this.meteringService);
+        this.sourceChannelSetFactory = new SourceChannelSetFactory(this.meteringService);
     }
 
     private ZoneId testZoneId() {
@@ -150,8 +154,8 @@ public class CalculatedMetrologyContractDataImplTest {
         recordsByReadingType.put(this.monthlyNetConsumption, Arrays.asList(r1, r2));
 
         // Business method
-        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract, Range
-                .all(), recordsByReadingType, this.truncaterFactory);
+        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract,
+                Range.all(), recordsByReadingType, this.truncaterFactory, this.sourceChannelSetFactory);
 
         // Asserts
         assertThat(contractData.getUsagePoint()).isEqualTo(this.usagePoint);
@@ -167,8 +171,8 @@ public class CalculatedMetrologyContractDataImplTest {
         recordsByReadingType.put(this.monthlyNetConsumption, Arrays.asList(r1, r2));
 
         // Business method
-        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract, Range
-                .all(), recordsByReadingType, this.truncaterFactory);
+        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract,
+                Range.all(), recordsByReadingType, this.truncaterFactory, this.sourceChannelSetFactory);
 
         // Asserts
         assertThat(contractData.getMetrologyContract()).isEqualTo(this.contract);
@@ -184,7 +188,7 @@ public class CalculatedMetrologyContractDataImplTest {
         recordsByReadingType.put(this.monthlyNetConsumption, Arrays.asList(r1, r2));
 
         // Business method
-        new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract, Range.all(), recordsByReadingType, this.truncaterFactory);
+        new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract, Range.all(), recordsByReadingType, this.truncaterFactory, this.sourceChannelSetFactory);
 
         // Asserts
         verify(r1).setUsagePoint(this.usagePoint);
@@ -201,8 +205,8 @@ public class CalculatedMetrologyContractDataImplTest {
         recordsByReadingType.put(this.monthlyNetConsumption, Arrays.asList(r1, r2));
 
         // Business method
-        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract, Range
-                .all(), recordsByReadingType, this.truncaterFactory);
+        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract,
+                Range.all(), recordsByReadingType, this.truncaterFactory, this.sourceChannelSetFactory);
 
         // Asserts
         assertThat(contractData.getCalculatedDataFor(this.deliverable)).containsSequence(r1, r2);
@@ -220,8 +224,8 @@ public class CalculatedMetrologyContractDataImplTest {
         recordsByReadingType.put(this.monthlyNetConsumption, Arrays.asList(r1, r2));
 
         // Business method
-        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract, Range
-                .all(), recordsByReadingType, this.truncaterFactory);
+        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract,
+                Range.all(), recordsByReadingType, this.truncaterFactory, this.sourceChannelSetFactory);
 
         // Asserts
         List<? extends BaseReadingRecord> readingRecords = contractData.getCalculatedDataFor(this.deliverable);
@@ -242,8 +246,8 @@ public class CalculatedMetrologyContractDataImplTest {
         recordsByReadingType.put(this.monthlyNetConsumption, Arrays.asList(r2, r1));
 
         // Business method
-        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract, Range
-                .all(), recordsByReadingType, this.truncaterFactory);
+        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract,
+                Range.all(), recordsByReadingType, this.truncaterFactory, this.sourceChannelSetFactory);
 
         // Asserts
         List<? extends BaseReadingRecord> readingRecords = contractData.getCalculatedDataFor(this.deliverable);
@@ -264,8 +268,8 @@ public class CalculatedMetrologyContractDataImplTest {
         recordsByReadingType.put(this.monthlyNetConsumption, Arrays.asList(r1, r2));
 
         // Business method
-        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract, Range
-                .all(), recordsByReadingType, this.truncaterFactory);
+        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract,
+                Range.all(), recordsByReadingType, this.truncaterFactory, this.sourceChannelSetFactory);
 
         // Asserts
         List<? extends BaseReadingRecord> readingRecords = contractData.getCalculatedDataFor(this.deliverable);
@@ -291,7 +295,8 @@ public class CalculatedMetrologyContractDataImplTest {
         Range<Instant> period = Range.openClosed(april1st2016, july1st2016);   // Expecting monthly consumption of April, May and June
 
         // Business method
-        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract, period, recordsByReadingType, this.truncaterFactory);
+        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract,
+                period, recordsByReadingType, this.truncaterFactory, this.sourceChannelSetFactory);
 
         // Asserts
         List<? extends BaseReadingRecord> readingRecords = contractData.getCalculatedDataFor(this.deliverable);
@@ -329,7 +334,8 @@ public class CalculatedMetrologyContractDataImplTest {
         Range<Instant> period = Range.openClosed(march1st2016, july1st2016);
 
         // Business method
-        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract, period, recordsByReadingType, this.truncaterFactory);
+        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract,
+                period, recordsByReadingType, this.truncaterFactory, this.sourceChannelSetFactory);
 
         // Asserts
         List<? extends BaseReadingRecord> readingRecords = contractData.getCalculatedDataFor(this.deliverable);
@@ -373,7 +379,8 @@ public class CalculatedMetrologyContractDataImplTest {
         when(this.deliverable.getReadingType()).thenReturn(this.dailyGasVolume);
 
         // Business method
-        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract, period, recordsByReadingType, this.truncaterFactory);
+        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract,
+                period, recordsByReadingType, this.truncaterFactory, this.sourceChannelSetFactory);
 
         // Asserts
         List<? extends BaseReadingRecord> readingRecords = contractData.getCalculatedDataFor(this.deliverable);
@@ -407,7 +414,8 @@ public class CalculatedMetrologyContractDataImplTest {
         when(resultSet.getLong(4)).thenReturn(now.toEpochMilli());
         when(resultSet.getLong(5)).thenReturn(0L);
         when(resultSet.getLong(6)).thenReturn(30L);
-        return new CalculatedReadingRecord(new InstantTruncaterFactory(this.meteringService)).init(resultSet, this.deliverablesPerMeterActivation);
+        when(resultSet.getString(7)).thenReturn("1001");
+        return new CalculatedReadingRecord(new InstantTruncaterFactory(this.meteringService), new SourceChannelSetFactory(this.meteringService)).init(resultSet, this.deliverablesPerMeterActivation);
     }
 
     private Instant instant(int year, Month month, int dayOfMonth) {
@@ -417,5 +425,4 @@ public class CalculatedMetrologyContractDataImplTest {
     private Instant instant(int year, Month month, int dayOfMonth, int hour) {
         return instant(year, month, dayOfMonth).plus(hour, ChronoUnit.HOURS);
     }
-
 }

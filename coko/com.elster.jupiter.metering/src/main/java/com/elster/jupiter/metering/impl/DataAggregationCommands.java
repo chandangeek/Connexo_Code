@@ -24,6 +24,8 @@ import com.elster.jupiter.metering.impl.aggregation.ReadingQuality;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.units.Quantity;
 
 import com.google.common.collect.Range;
@@ -37,10 +39,12 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.metering.aggregation.console", service = DataAggregationCommands.class, property = {
@@ -60,6 +64,7 @@ public class DataAggregationCommands {
     private volatile MeteringService meteringService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile UserService userService;
     private volatile TransactionService transactionService;
     private volatile Clock clock;
 
@@ -89,18 +94,32 @@ public class DataAggregationCommands {
     }
 
     @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
     }
 
     public void aggregate() {
-        System.out.println("Usage: aggregate <usage point name> <contract purpose> <deliverable name> <start date>");
+        System.out.println("Usage: aggregate <usage point name> <contract purpose> <deliverable name> <start date> [<user name>]");
     }
 
     public void aggregate(String usagePointName, String contractPurpose, String deliverableName, String startDate) {
-        threadPrincipalService.set(() -> "Console");
-        try (TransactionContext context = transactionService.getContext()) {
-            UsagePoint usagePoint = meteringService.findUsagePointByName(usagePointName)
+        this.aggregate(usagePointName, contractPurpose, deliverableName, startDate, "root");
+    }
+
+    public void aggregate(String usagePointName, String contractPurpose, String deliverableName, String startDate, String userName) {
+        User user = this.userService.findUser(userName).orElseThrow(() -> new IllegalArgumentException("User with name " + userName + " does not exist"));
+        this.aggregate(usagePointName, contractPurpose, deliverableName, startDate, user);
+    }
+
+    private void aggregate(String usagePointName, String contractPurpose, String deliverableName, String startDate, User user) {
+        this.threadPrincipalService.set(user);
+        try (TransactionContext context = this.transactionService.getContext()) {
+            UsagePoint usagePoint = this.meteringService.findUsagePointByName(usagePointName)
                     .orElseThrow(() -> new NoSuchElementException("No such usagepoint"));
             MetrologyConfiguration configuration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
                     .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
@@ -115,7 +134,7 @@ public class DataAggregationCommands {
                     .orElseThrow(() -> new NoSuchElementException("Deliverable not found on contract"));
 
             Instant start = ZonedDateTime.ofInstant(Instant.parse(startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
-            CalculatedMetrologyContractData data = dataAggregationService.calculate(usagePoint, contract, Range.openClosed(start, Instant.now(clock)));
+            CalculatedMetrologyContractData data = this.dataAggregationService.calculate(usagePoint, contract, Range.openClosed(start, Instant.now(this.clock)));
 
             List<? extends BaseReadingRecord> dataForDeliverable = data.getCalculatedDataFor(deliverable);
             System.out.println("records found for deliverable:" + dataForDeliverable.size());
@@ -124,24 +143,48 @@ public class DataAggregationCommands {
     }
 
     public void showData() {
-        System.out.println("Usage: showData <usage point name> <contract purpose> <deliverable name> <start date> [<end date>]");
+        System.out.println("Usage: showData <usage point name> <contract purpose> <deliverable name> <start date> [<end date>] [<user name>]");
     }
 
     public void showData(String usagePointName, String contractPurpose, String deliverableName, String startDate) {
         Instant start = ZonedDateTime.ofInstant(Instant.parse(startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
         Range<Instant> period = Range.openClosed(start, Instant.now());
-        this.showData(usagePointName, contractPurpose, deliverableName, period);
+        this.showData(usagePointName, contractPurpose, deliverableName, period, "root");
     }
 
-    public void showData(String usagePointName, String contractPurpose, String deliverableName, String startDate, String endDate) {
+    public void showData(String usagePointName, String contractPurpose, String deliverableName, String startDate, String endDateOrUserName) {
+        Instant start = ZonedDateTime.ofInstant(Instant.parse(startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
+        try {
+            Instant end = ZonedDateTime.ofInstant(Instant.parse(endDateOrUserName + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
+            Range<Instant> period = Range.closedOpen(start, end);
+            this.showData(usagePointName, contractPurpose, deliverableName, period, "root");
+        } catch (DateTimeParseException e) {
+            // Maybe 5th parameter was username instead of endDate
+            Optional<User> user = this.userService.findUser(endDateOrUserName);
+            if (!user.isPresent()) {
+                // It was not a user so assuming date format is wrong
+                throw e;
+            } else {
+                Range<Instant> period = Range.openClosed(start, Instant.now());
+                this.showData(usagePointName, contractPurpose, deliverableName, period, user.get());
+            }
+        }
+    }
+
+    public void showData(String usagePointName, String contractPurpose, String deliverableName, String startDate, String endDate, String userName) {
         Instant start = ZonedDateTime.ofInstant(Instant.parse(startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
         Instant end = ZonedDateTime.ofInstant(Instant.parse(endDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
         Range<Instant> period = Range.closedOpen(start, end);
-        this.showData(usagePointName, contractPurpose, deliverableName, period);
+        this.showData(usagePointName, contractPurpose, deliverableName, period, userName);
     }
 
-    private void showData(String usagePointName, String contractPurpose, String deliverableName, Range<Instant> period) {
-        threadPrincipalService.set(() -> "Console");
+    private void showData(String usagePointName, String contractPurpose, String deliverableName, Range<Instant> period, String userName) {
+        User user = this.userService.findUser(userName).orElseThrow(() -> new IllegalArgumentException("User with name " + userName + " does not exist"));
+        this.showData(usagePointName, contractPurpose, deliverableName, period, user);
+    }
+
+    private void showData(String usagePointName, String contractPurpose, String deliverableName, Range<Instant> period, User user) {
+        threadPrincipalService.set(user);
         try (TransactionContext context = transactionService.getContext()) {
             UsagePoint usagePoint = meteringService.findUsagePointByName(usagePointName)
                     .orElseThrow(() -> new NoSuchElementException("No such usagepoint"));

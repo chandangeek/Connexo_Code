@@ -38,6 +38,11 @@ class IntervalLengthFromExpressionNode implements ServerExpressionNode.Visitor<I
     }
 
     @Override
+    public IntervalLength visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
+        return slp.getIntervalLength();
+    }
+
+    @Override
     public IntervalLength visitSqlFragment(SqlFragmentNode variable) {
         return null;
     }

@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.MetrologyContractCalculationIntrospector;
 import com.elster.jupiter.metering.aggregation.MetrologyContractDoesNotApplyToUsagePointException;
@@ -86,6 +87,8 @@ public class DataAggregationServiceImplIntrospectionTest {
     @Mock
     private UsagePointMetrologyConfiguration configuration;
     @Mock
+    private ServiceCategory serviceCategory;
+    @Mock
     private MetrologyPurpose metrologyPurpose;
     @Mock
     private MeterRole meterRole;
@@ -134,6 +137,8 @@ public class DataAggregationServiceImplIntrospectionTest {
         when(this.effectiveMetrologyConfiguration.getRange()).thenReturn(year2016());
         when(this.effectiveMetrologyConfiguration.getInterval()).thenReturn(Interval.of(year2016()));
         when(this.usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
+        when(this.usagePoint.getServiceCategory()).thenReturn(this.serviceCategory);
+        when(this.serviceCategory.getCustomPropertySets()).thenReturn(Collections.emptyList());
         when(this.meteringDataModelService.getThesaurus()).thenReturn(this.thesaurus);
     }
 

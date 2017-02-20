@@ -772,6 +772,16 @@ public enum IntervalLength {
         return from(readingType.getMacroPeriod(), readingType.getMeasuringPeriod());
     }
 
+    public static IntervalLength from(Duration duration) {
+        EnumSet<IntervalLength> allExceptNotSupported = EnumSet.allOf(IntervalLength.class);
+        allExceptNotSupported.remove(NOT_SUPPORTED);
+        return allExceptNotSupported
+                .stream()
+                .filter(each -> each.toTemporalAmount().equals(duration))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException("Unsupported duration: " + duration.toString()));
+    }
+
     public static Set<IntervalLength> multiples(IntervalLength from, IntervalLength to) {
         if (from.equals(to)) {
             return Collections.singleton(from);
@@ -941,7 +951,7 @@ public enum IntervalLength {
         static final String DAY = "DDD";
         static final String WEEK = "DAY";
         static final String MONTH = "MONTH";
-        static final String YEAR = "IYYY";
+        static final String YEAR = "YEAR";
     }
 
 }

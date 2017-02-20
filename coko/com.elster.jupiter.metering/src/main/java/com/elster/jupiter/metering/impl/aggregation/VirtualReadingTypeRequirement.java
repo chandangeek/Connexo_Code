@@ -124,7 +124,6 @@ class VirtualReadingTypeRequirement {
         VirtualReadingType sourceReadingType = this.getSourceReadingType();
         SqlConstants.TimeSeriesColumnNames.appendAllAggregatedSelectValues(sourceReadingType, this.targetReadingType, sqlBuilder);
         sqlBuilder.append("  FROM (SELECT ");
-
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.ID.fieldSpecName());
         sqlBuilder.append(", ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.fieldSpecName());
@@ -132,15 +131,14 @@ class VirtualReadingTypeRequirement {
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.VERSIONCOUNT.fieldSpecName());
         sqlBuilder.append(", ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.RECORDTIME.fieldSpecName());
-
-        sqlBuilder.append(", (SELECT nvl(max(case when type like '%.5.258' then 4 when type like '%.5.259' then 3 else 1 end), 0) FROM mtr_readingquality where readingtype = '");
-        sqlBuilder.append(this.getPreferredChannel().getMainReadingType().getMRID());
-        sqlBuilder.append("' and readingtimestamp = ");
-        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.fieldSpecName());
-        sqlBuilder.append(" and channelid = ");
-        sqlBuilder.append("" + this.getPreferredChannel().getId());
-        sqlBuilder.append(" and (type like '%.5.258' or type like '%.5.259' or type like '%.7.%' or type like '%.8.%')) AS ");
+        sqlBuilder.append(", ");
+        this.appendAggregatedReadingQualitySubQuery(sqlBuilder);
+        sqlBuilder.append(" AS ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName());
+        sqlBuilder.append(", ");
+        sqlBuilder.append("'" + this.getPreferredChannel().getId() + "'");
+        sqlBuilder.append(" AS ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.SOURCECHANNELS.sqlName());
         sqlBuilder.append(", ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.VALUE.fieldSpecName());
         sqlBuilder.append(", ");
@@ -206,15 +204,14 @@ class VirtualReadingTypeRequirement {
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.VERSIONCOUNT.fieldSpecName());
         sqlBuilder.append(", ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.RECORDTIME.fieldSpecName());
-
-        sqlBuilder.append(", (SELECT nvl(max(case when type like '%.5.258' then 4 when type like '%.5.259' then 3 else 1 end), 0) FROM mtr_readingquality where readingtype = '");
-        sqlBuilder.append(this.getPreferredChannel().getMainReadingType().getMRID());
-        sqlBuilder.append("' and readingtimestamp = ");
-        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.fieldSpecName());
-        sqlBuilder.append(" and channelid = ");
-        sqlBuilder.append("" + this.getPreferredChannel().getId());
-        sqlBuilder.append(" and (type like '%.5.258' or type like '%.5.259' or type like '%.7.%' or type like '%.8.%')) AS ");
+        sqlBuilder.append(", ");
+        this.appendAggregatedReadingQualitySubQuery(sqlBuilder);
+        sqlBuilder.append(" AS ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName());
+        sqlBuilder.append(", ");
+        sqlBuilder.append("'" + this.getPreferredChannel().getId() + "'");
+        sqlBuilder.append(" AS ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.SOURCECHANNELS.sqlName());
         sqlBuilder.append(", ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.VALUE.sqlName());
         sqlBuilder.append(", ");
@@ -228,6 +225,21 @@ class VirtualReadingTypeRequirement {
         }
         sqlBuilder.append(") ");
         sqlBuilder.append(tempSqlName());
+    }
+
+    private void appendAggregatedReadingQualitySubQuery(SqlBuilder sqlBuilder) {
+        sqlBuilder.append("(SELECT nvl(max(case");
+        sqlBuilder.append(" when type like '%.5.258' then " + CalculatedReadingRecord.SUSPECT);
+        sqlBuilder.append(" when type like '%.5.259' then " + CalculatedReadingRecord.MISSING);
+        sqlBuilder.append(" else " + CalculatedReadingRecord.ESTIMATED_EDITED);
+        sqlBuilder.append(" end), 0)");
+        sqlBuilder.append(" FROM mtr_readingquality where readingtype = '");
+        sqlBuilder.append(this.getPreferredChannel().getMainReadingType().getMRID());
+        sqlBuilder.append("' and readingtimestamp = ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.fieldSpecName());
+        sqlBuilder.append(" and channelid = ");
+        sqlBuilder.append("" + this.getPreferredChannel().getId());
+        sqlBuilder.append(" and (type like '%.5.258' or type like '%.5.259' or type like '%.7.%' or type like '%.8.%'))");
     }
 
     @SuppressWarnings("unchecked")
