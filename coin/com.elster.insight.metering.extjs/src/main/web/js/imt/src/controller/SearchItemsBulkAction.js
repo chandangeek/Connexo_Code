@@ -8,7 +8,8 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
     requires: [
         'Imt.usagepointmanagement.view.bulk.Browse',
         'Imt.usagepointmanagement.view.bulk.Navigation',
-        'Imt.usagepointmanagement.view.bulk.Wizard'
+        'Imt.usagepointmanagement.view.bulk.Wizard',
+        'Uni.view.window.Confirmation'
     ],
 
     stores: [
@@ -58,35 +59,59 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
         var me = this,
             search = me.getController('Imt.controller.Search'),
             searchResults = Ext.getStore('Uni.store.search.Results'),
-            widget;
+            widget,
+            goOnWithTheCurrentSearchResults = function() {
+                if (!searchResults.getCount()) {
+                    me.goBack();
+                } else {
+                    var store = Ext.create('Ext.data.Store', {
+                        buffered: true,
+                        pageSize: 100,
+                        remoteFilter: true,
+                        model: searchResults.model,
+                        filters: searchResults.filters.getRange(),
+                        proxy: searchResults.getProxy()
+                    });
 
-        // in case user forgot to press apply filters on search page we need ensure that search filters state matches search results state
-        search.service.applyFilters();
-        if (!searchResults.getCount()) {
-            this.goBack();
-        } else {
-            var store = Ext.create('Ext.data.Store', {
-                buffered: true,
-                pageSize: 100,
-                remoteFilter: true,
-                model: searchResults.model,
-                filters: searchResults.filters.getRange(),
-                proxy: searchResults.getProxy()
-            });
+                    // we replace reader to buffered due to our store is buffered
+                    store.getProxy().setReader(Ext.create('Uni.data.reader.JsonBuffered', store.getProxy().getReader()));
 
-            // we replace reader to buffered due to our store is buffered
-            store.getProxy().setReader(Ext.create('Uni.data.reader.JsonBuffered', store.getProxy().getReader()));
+                    widget = Ext.widget('usagepoints-bulk-browse', {
+                        deviceStore: store
+                    });
+                    me.getApplication().fireEvent('changecontentevent', widget);
+                    widget.setLoading();
+                    store.load(function() {
+                        widget.setLoading(false);
+                    });
+                }
+            };
 
-            widget = Ext.widget('usagepoints-bulk-browse', {
-                deviceStore: store
-            });
-            me.getApplication().fireEvent('changecontentevent', widget);
-            widget.setLoading();
-            store.load({
-                callback: function () {
-                    widget.setLoading(false);
+        if (search.service.changedFiltersNotYetApplied) {
+            var confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                confirmText: Uni.I18n.translate('general.apply', 'IMT', 'Apply'),
+                secondConfirmText: Uni.I18n.translate('general.dontApply', 'IMT', "Don't apply"),
+                green: true,
+                confirmation: function (button) {
+                    confirmationWindow.close();
+                    if (button.action === 'confirm') { // (Re)apply the criteria first
+                        searchResults.on('load', function() {
+                            goOnWithTheCurrentSearchResults();
+                        }, me, {single:true});
+                        search.service.applyFilters();
+                    } else if (button.action === 'confirm2') { // Don't (re)apply the cirteria
+                        goOnWithTheCurrentSearchResults();
+                        search.service.rollbackCriteriaChanges();
+                    }
                 }
             });
+            confirmationWindow.show({
+                title: Uni.I18n.translate('general.performBulkAction', 'IMT', 'Perform bulk action?'),
+                msg: Uni.I18n.translate('general.unconfirmedSearchCriteria', 'IMT',
+                    "Some search criteria haven't been applied. Do you want to apply them?")
+            });
+        } else {
+            goOnWithTheCurrentSearchResults();
         }
     },
 
