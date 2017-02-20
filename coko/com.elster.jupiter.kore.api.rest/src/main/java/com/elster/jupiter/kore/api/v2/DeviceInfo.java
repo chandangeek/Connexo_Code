@@ -10,6 +10,6 @@ public class DeviceInfo extends LinkInfo<Long> {
     public long id;
     public String mRID;
     public String name;
-    public LocationShortInfo location;
+    public SerializedLocationInfo location;
     public UsagePointShortInfo usagePoint;
 }

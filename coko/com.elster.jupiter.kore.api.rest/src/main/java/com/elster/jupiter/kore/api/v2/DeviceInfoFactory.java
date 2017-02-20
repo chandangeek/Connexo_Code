@@ -26,13 +26,13 @@ import static java.util.stream.Collectors.toList;
 
 public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo, Meter> {
 
-    public final LocationShortInfoFactory locationShortInfoFactory;
+    public final LocationInfoFactory locationInfoFactory;
     public final UsagePointShortInfoFactory usagePointShortInfoFactory;
 
 
     @Inject
-    public DeviceInfoFactory(LocationShortInfoFactory locationShortInfoFactory, UsagePointShortInfoFactory usagePointShortInfoFactory) {
-        this.locationShortInfoFactory = locationShortInfoFactory;
+    public DeviceInfoFactory(LocationInfoFactory locationInfoFactory, UsagePointShortInfoFactory usagePointShortInfoFactory) {
+        this.locationInfoFactory = locationInfoFactory;
         this.usagePointShortInfoFactory = usagePointShortInfoFactory;
     }
 
@@ -71,8 +71,7 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo, Meter>
         map.put("mRID", (deviceInfo, endDevice, uriInfo) -> deviceInfo.mRID = endDevice
                 .getMRID());
         map.put("name", (deviceInfo, endDevice, uriInfo) -> deviceInfo.name = endDevice.getName());
-        map.put("location", (deviceInfo, endDevice, uriInfo) -> deviceInfo.location = locationShortInfoFactory.asInfo(endDevice.getLocation().orElse(null)));
-        //support for inheriting usage point location
+        map.put("location", (deviceInfo, endDevice, uriInfo) -> deviceInfo.location = locationInfoFactory.asSerializedInfo(endDevice.getLocation().orElse(null)));
         map.put("usagePoint", (deviceInfo, endDevice, uriInfo) -> {
             if (endDevice != null && Meter.class.isInstance(endDevice)) {
                 Meter meter = Meter.class.cast(endDevice);

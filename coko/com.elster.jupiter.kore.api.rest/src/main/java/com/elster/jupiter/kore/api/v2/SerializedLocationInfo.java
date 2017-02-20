@@ -5,6 +5,6 @@
 package com.elster.jupiter.kore.api.v2;
 
 
-public class LocationShortInfo {
+public class SerializedLocationInfo {
     String location;
 }

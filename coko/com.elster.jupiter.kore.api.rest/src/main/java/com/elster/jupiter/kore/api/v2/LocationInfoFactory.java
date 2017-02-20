@@ -15,6 +15,9 @@ import com.elster.jupiter.util.geo.Longitude;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import javax.inject.Inject;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class LocationInfoFactory {
 
@@ -49,6 +52,21 @@ public class LocationInfoFactory {
             info.subLocality = locationMember.getSubLocality();
             info.zipCode = locationMember.getZipCode();
         });
+        return info;
+    }
+
+    public SerializedLocationInfo asSerializedInfo(Location location) {
+        SerializedLocationInfo info = new SerializedLocationInfo();
+        LocationInfo locationInfo = asInfo(location);
+        Class<?> clazz = asInfo(location).getClass();
+        info.location = Arrays.asList(clazz.getFields()).stream().map(field -> {
+            try {
+                return field.get(locationInfo).toString();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+            return "";
+        }).collect(Collectors.joining(", "));
         return info;
     }
 

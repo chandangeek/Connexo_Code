@@ -203,7 +203,6 @@ public class PublicRestApplication extends Application {
             bind(UserInfoFactory.class).to(UserInfoFactory.class);
             bind(IssueCommentInfoFactory.class).to(IssueCommentInfoFactory.class);
             bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class);
-            bind(LocationShortInfoFactory.class).to(LocationShortInfoFactory.class);
             bind(UsagePointShortInfoFactory.class).to(UsagePointShortInfoFactory.class);
             bind(AlarmStatusInfoFactory.class).to(AlarmStatusInfoFactory.class);
         }
