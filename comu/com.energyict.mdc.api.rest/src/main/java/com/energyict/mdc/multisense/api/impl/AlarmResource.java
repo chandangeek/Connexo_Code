@@ -85,6 +85,7 @@ public class AlarmResource {
                                                  @BeanParam JsonQueryParameters queryParameters) {
         //validateMandatory(params, START, LIMIT);
         List<AlarmInfo> infos = deviceAlarmService.findAlarms(new DeviceAlarmFilter()).stream()
+                .filter(alm-> !alm.getStatus().isHistorical())
                 .map(isu -> alarmInfoFactory.from(isu, uriInfo, fieldSelection.getFields()))
                 .collect(toList());
         UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
@@ -122,7 +123,7 @@ public class AlarmResource {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "version");
         }
         DeviceAlarm lockedAlarm = deviceAlarmService.findAndLockDeviceAlarmByIdAndVersion(alarmId, alarmShortInfo.version)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.ALARM_LOCK_ATTEMPT_FAILED, alarmId));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.ALARM_LOCK_ATTEMPT_FAILED, String.valueOf(alarmId)));
         if (alarmShortInfo.status == null || alarmShortInfo.status.id == null || alarmShortInfo.status.id.isEmpty()) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.FIELD_MISSING, "status.id");
         }
