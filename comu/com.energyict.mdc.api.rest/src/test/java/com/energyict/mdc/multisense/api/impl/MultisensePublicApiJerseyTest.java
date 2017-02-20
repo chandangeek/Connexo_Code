@@ -44,10 +44,12 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.interval.PartialTime;
+import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -170,6 +172,10 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     MetrologyConfigurationService metrologyConfigurationService;
     @Mock
     PropertyValueInfoService propertyValueInfoService;
+    @Mock
+    DeviceAlarmService deviceAlarmService;
+    @Mock
+    ThreadPrincipalService threadPrincipalService;
 
     @Override
     protected Application getApplication() {
@@ -181,6 +187,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         application.setTopologyService(topologyService);
         application.setBatchService(batchService);
         application.setIssueService(issueService);
+        application.setDeviceAlarmService(deviceAlarmService);
         application.setDeviceLifeCycleService(deviceLifeCycleService);
         application.setFiniteStateMachineService(finiteStateMachineService);
         application.setConnectionTaskService(connectionTaskService);
@@ -196,6 +203,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         application.setMeteringService(meteringService);
         application.setMetrologyConfigurationService(metrologyConfigurationService);
         application.setPropertyValueInfoService(propertyValueInfoService);
+        application.setThreadPrincipalService(threadPrincipalService);
         return application;
     }
 
