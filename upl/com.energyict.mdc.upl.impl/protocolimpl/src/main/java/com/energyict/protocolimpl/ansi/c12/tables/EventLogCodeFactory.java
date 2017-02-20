@@ -60,8 +60,8 @@ abstract public class EventLogCodeFactory {
         // C12.21 addendum
         stdList.add(new EventLogCode(30, "Metering mode started",""));
         stdList.add(new EventLogCode(31, "Metering mode stopped",""));
-        stdList.add(new EventLogCode(32, "Test mode started",""));
-        stdList.add(new EventLogCode(33, "Test mode stopped",""));
+        stdList.add(new EventLogCode(32, "Test mode started","", MeterEvent.TEST_MODE_START));
+        stdList.add(new EventLogCode(33, "Test mode stopped","", MeterEvent.TEST_MODE_STOP));
         stdList.add(new EventLogCode(34, "Meter shop mode started",""));
         stdList.add(new EventLogCode(35, "Meter shop mode stopped",""));
         stdList.add(new EventLogCode(36, "Meter reprogrammed","",MeterEvent.CONFIGURATIONCHANGE));
@@ -77,8 +77,7 @@ abstract public class EventLogCodeFactory {
         stdList.add(new EventLogCode(46, "Demand overload detected","",MeterEvent.REGISTER_OVERFLOW));
         stdList.add(new EventLogCode(47, "Tamper attempt detected",""));
         stdList.add(new EventLogCode(48, "Reverse rotation detected",""));
-        stdList.add(new EventLogCode(32, "Test mode started","", MeterEvent.TEST_MODE_START));
-        stdList.add(new EventLogCode(33, "Test mode stopped","", MeterEvent.TEST_MODE_STOP));
+
     }
     
     /** Creates a new instance of EventLogCodeFactory */
