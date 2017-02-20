@@ -40,7 +40,6 @@ Ext.define('Dal.controller.Main', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             alarms = null,
-            alarmManagement = null,
             historian = me.getController('Dal.controller.history.Workspace'); // Forces route registration.
 
         if (Dal.privileges.Alarm.canViewAdmimAlarm()) {
@@ -89,25 +88,9 @@ Ext.define('Dal.controller.Main', {
                 ]
             });
         }
-        if (Dal.privileges.Alarm.canViewAdminAlarmCreationRule()){
-            alarmManagement = Ext.create('Uni.model.PortalItem', {
-                title: Uni.I18n.translate('general.alarm.managemnet', 'DAL', 'Alarm management'),
-                portal: 'administration',
-                route: 'alarmmanagement',
-                items: [
-                    {
-                        text: Uni.I18n.translate('general.alarmCreationRules','DAL','Alarm creation rules'),
-                        href: router.getRoute('administration/alarmcreationrules').buildUrl()
-                    }
-                ]
-            });
-        }
 
         if (alarms !== null) {
             Uni.store.PortalItems.add(alarms);
-        }
-        if (alarmManagement !== null){
-            Uni.store.PortalItems.add(alarmManagement);
         }
     }
 });

@@ -27,7 +27,7 @@ Ext.define('Dal.model.Alarm', {
                 if (rec.get('clearedStatus'))
                     return Ext.String.format(Uni.I18n.translate('device.alarms.statusDetail', 'DAL', '{0} has been cleared on {1}'),
                         rec.get('alarmId'), Uni.DateTime.formatDateTimeShort(new Date(rec.get('dueDate'))));
-                return null;
+                return '';
             }
         },
         {
