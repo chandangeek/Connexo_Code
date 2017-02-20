@@ -73,4 +73,8 @@ public interface EstimationTask extends HasName, HasAuditInfo {
     void triggerNow();
 
     void updateLastRun(Instant triggerTime);
+
+    int getLogLevel();
+
+    void setLogLevel(int newLevel);
 }

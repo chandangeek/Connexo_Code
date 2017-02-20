@@ -29,6 +29,7 @@ class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
     private UsagePointGroup usagePointGroup;
     private MetrologyPurpose metrologyPurpose;
     private QualityCodeSystem qualityCodeSystem;
+    private int logLevel;
 
     public EstimationTaskBuilderImpl(DataModel dataModel) {
         this.dataModel = dataModel;
@@ -59,8 +60,14 @@ class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
     }
 
     @Override
+    public EstimationTaskBuilder setLogLevel(int logLevel) {
+        this.logLevel = logLevel;
+        return this;
+    }
+
+    @Override
     public EstimationTask create() {
-        IEstimationTask task = EstimationTaskImpl.from(dataModel, name, endDeviceGroup, usagePointGroup, scheduleExpression, nextExecution, qualityCodeSystem);
+        IEstimationTask task = EstimationTaskImpl.from(dataModel, name, endDeviceGroup, usagePointGroup, scheduleExpression, nextExecution, qualityCodeSystem, logLevel);
         task.setScheduleImmediately(scheduleImmediately);
         if (period != null) {
             task.setPeriod(period);
