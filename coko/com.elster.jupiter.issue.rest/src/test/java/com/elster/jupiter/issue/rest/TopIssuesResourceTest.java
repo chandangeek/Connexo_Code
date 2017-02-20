@@ -90,6 +90,7 @@ public class TopIssuesResourceTest extends IssueRestApplicationJerseyTest{
         when(issue.getAssignee()).thenReturn(assignee);
         when(issue.getDevice()).thenReturn(meter);
         when(issue.getCreateTime()).thenReturn(Instant.EPOCH);
+        when(issue.getCreateDateTime()).thenReturn(Instant.EPOCH);
         when(issue.getModTime()).thenReturn(Instant.EPOCH);
         when(issue.getVersion()).thenReturn(1L);
     }

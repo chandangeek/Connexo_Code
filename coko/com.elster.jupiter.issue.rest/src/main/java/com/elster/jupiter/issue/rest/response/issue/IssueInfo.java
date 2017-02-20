@@ -59,7 +59,7 @@ public class IssueInfo<T extends DeviceInfo, I extends Issue> {
             }
             this.title = issue.getTitle();
             this.issueType = new IssueTypeInfo(issue.getReason().getIssueType());
-            this.creationDate = issue.getCreateTime().toEpochMilli();
+            this.creationDate = issue.getCreateDateTime().toEpochMilli();
             this.modTime = issue.getModTime().toEpochMilli();
             this.version = issue.getVersion();
         }

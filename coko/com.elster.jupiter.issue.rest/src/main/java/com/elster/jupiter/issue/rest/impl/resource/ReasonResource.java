@@ -47,10 +47,14 @@ public class ReasonResource extends BaseResource {
         if (params.getFirst(ISSUE_TYPE) != null) {
             IssueType issueType = getIssueService().findIssueType(params.getFirst(ISSUE_TYPE)).orElse(null);
             condition = where("issueType").isEqualTo(issueType);
+        }else {
+            IssueType issueType = getIssueService().findIssueType("devicealarm").orElse(null);
+            condition = where("issueType").isNotEqual(issueType);
         }
+
         Query<IssueReason> query = getIssueService().query(IssueReason.class);
         List<IssueReason> reasons = query.select(condition);
-
+        reasons = reasons.stream().sorted((r1, r2) -> r1.getName().toLowerCase().compareTo(r2.getName().toLowerCase())).collect(Collectors.toList());
         if (params.getFirst(LIKE) != null) {
             reasons = reasons.stream().filter(reason -> reason.getName().toLowerCase().contains(params.getFirst(LIKE).toLowerCase())).collect(Collectors.toList());
         }
