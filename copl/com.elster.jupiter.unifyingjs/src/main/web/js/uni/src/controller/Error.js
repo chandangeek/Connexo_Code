@@ -136,6 +136,11 @@ Ext.define('Uni.controller.Error', {
         }
 
         switch (response.status) {
+            case 0: // timeout.
+                if (!(options.notHandleTimeout || (options.operation && options.operation.notHandleTimeout))) {
+                    me.showError(title, message);
+                }
+                break;
             case 400: // Bad request.
                 if (decoded && decoded.message) {
                     title = Uni.I18n.translate(
