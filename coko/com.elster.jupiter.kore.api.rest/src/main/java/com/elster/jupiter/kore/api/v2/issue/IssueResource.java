@@ -46,6 +46,7 @@ import java.net.URI;
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static java.util.stream.Collectors.toList;
@@ -111,9 +112,15 @@ public class IssueResource {
         if (issueShortInfo == null || issueShortInfo.version == null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "version");
         }
-        Issue issue = issueService.findAndLockIssueByIdAndVersion(issueId, issueShortInfo.version)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, String.valueOf(issueId)));
-        if (issue.getStatus().isHistorical()) {
+        Optional<? extends Issue> issue = issueService.findIssue(issueId);
+        if (!issue.isPresent()) {
+            throw exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, String.valueOf(issueId));
+        } else if (issue.get().getStatus().isHistorical()) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.ISSUE_ALREADY_CLOSED, String.valueOf(issueId));
+        }
+        Issue lockedIssue = issueService.findAndLockIssueByIdAndVersion(issueId, issueShortInfo.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.ISSUE_LOCK_ATTEMPT_FAILED, String.valueOf(issueId)));
+        if (lockedIssue.getStatus().isHistorical()) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.ISSUE_ALREADY_CLOSED, String.valueOf(issueId));
         }
         if (issueShortInfo.status == null || issueShortInfo.status.id == null || issueShortInfo.status.id.isEmpty()) {
@@ -123,7 +130,7 @@ public class IssueResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_STATUS, issueShortInfo.status.id));
         HistoricalIssue closedIssue = null;
         if (status.isHistorical()) {
-            closedIssue = ((OpenIssue) issue).close(status);
+            closedIssue = ((OpenIssue) lockedIssue).close(status);
         } else {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.BAD_FIELD_VALUE, "status.id");
         }
