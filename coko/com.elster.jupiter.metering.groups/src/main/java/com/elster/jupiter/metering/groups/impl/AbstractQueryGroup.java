@@ -207,9 +207,9 @@ abstract class AbstractQueryGroup<T extends HasId & IdentifiedObject> extends Ab
                 this.getDataModel()
                         .getInstance(getConditionApiClass())
                         .init(this,
-                                searchablePropertyValue.getValueBean().propertyName,
-                                searchablePropertyValue.getValueBean().operator,
-                                searchablePropertyValue.getValueBean().values);
+                                searchablePropertyValue.getValueBean().getPropertyName(),
+                                searchablePropertyValue.getValueBean().getOperator(),
+                                searchablePropertyValue.getValueBean().getValues());
         Save.CREATE.validate(this.getDataModel(), condition);
         this.getDataModel().persist(condition);
         this.conditions.add(condition);

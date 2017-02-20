@@ -270,12 +270,8 @@ public class QueryEndDeviceGroupImplIT {
     }
 
     private SearchablePropertyValue mockSearchablePropertyValue(String property, SearchablePropertyOperator operator, List<String> values) {
-        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
-        valueBean.propertyName = property;
-        valueBean.operator = operator;
-        valueBean.values = values;
         SearchableProperty searchableProperty = mock(SearchableProperty.class);
         when(searchableProperty.getName()).thenReturn(property);
-        return new SearchablePropertyValue(searchableProperty, valueBean);
+        return new SearchablePropertyValue(searchableProperty, new SearchablePropertyValue.ValueBean(property, operator, values));
     }
 }
