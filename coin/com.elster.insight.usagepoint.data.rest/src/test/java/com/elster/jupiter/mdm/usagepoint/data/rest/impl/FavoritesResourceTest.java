@@ -6,8 +6,10 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.mdm.usagepoint.data.favorites.FavoriteUsagePoint;
 import com.elster.jupiter.mdm.usagepoint.data.favorites.FavoriteUsagePointGroup;
+import com.elster.jupiter.mdm.usagepoint.data.rest.impl.favorites.FavoriteUsagePointGroupDetailsInfo;
 import com.elster.jupiter.mdm.usagepoint.data.rest.impl.favorites.FavoriteUsagePointGroupInfo;
 import com.elster.jupiter.mdm.usagepoint.data.rest.impl.favorites.FavoriteUsagePointInfo;
+import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.rest.util.ConcurrentModificationInfo;
@@ -18,6 +20,7 @@ import com.jayway.jsonpath.JsonModel;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -411,4 +414,62 @@ public class FavoritesResourceTest extends UsagePointDataRestApplicationJerseyTe
         assertThat(concurrentModificationInfo.parent.id.toString()).isEqualTo(Long.toString(usagePoint.getId()));
         assertThat(concurrentModificationInfo.parent.version).isEqualTo(usagePoint.getVersion());
     }
+
+    @Test
+    public void testGetUsagePointFavoriteFlag(){
+        FavoriteUsagePoint favoriteUsagePoint = mock(FavoriteUsagePoint.class);
+        when(favoritesService.getFavoriteUsagePoints()).thenReturn(Collections.singletonList(favoriteUsagePoint));
+        when(favoriteUsagePoint.getCreationDate()).thenReturn(Instant.now());
+        when(favoriteUsagePoint.getComment()).thenReturn("Comment1");
+        when(favoriteUsagePoint.getUsagePoint()).thenReturn(usagePoint);
+        ServiceCategory serviceCategory = mock(ServiceCategory.class);
+        when(serviceCategory.getDisplayName()).thenReturn("ServiceCategory");
+        when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
+        when(usagePoint.getCurrentConnectionState()).thenReturn(Optional.empty());
+        when(usagePoint.getCreateDate()).thenReturn(Instant.now());
+
+        Response response = target("/favorites/usagepoints").request().get();
+        assertThat(response.getStatus()).isEqualTo(200);
+
+    }
+
+    @Test
+    public void testGetUsagePointGroupsFavorite(){
+        FavoriteUsagePointGroup favoriteUsagePointGroup = mock(FavoriteUsagePointGroup.class);
+        UsagePointGroup usagePointGroup = mock(UsagePointGroup.class);
+        when(favoritesService.getFavoriteUsagePointGroups()).thenReturn(Collections.singletonList(favoriteUsagePointGroup));
+        when(favoriteUsagePointGroup.getComment()).thenReturn("Comment");
+        when(favoriteUsagePointGroup.getCreationDate()).thenReturn(Instant.now());
+        when(favoriteUsagePointGroup.getUsagePointGroup()).thenReturn(usagePointGroup);
+        when(usagePointGroup.getId()).thenReturn(1L);
+        when(usagePointGroup.getName()).thenReturn("UPG name");
+        when(usagePointGroup.isDynamic()).thenReturn(false);
+        when(usagePointGroup.getVersion()).thenReturn(1L);
+        Response response = target("/favorites/usagepointgroups").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testUpdateUsagePointGroupsFavorite(){
+        FavoriteUsagePointGroup favoriteUsagePointGroup = mock(FavoriteUsagePointGroup.class);
+        UsagePointGroup usagePointGroup = mock(UsagePointGroup.class);
+        when(favoritesService.getFavoriteUsagePointGroups()).thenReturn(Collections.singletonList(favoriteUsagePointGroup));
+        when(favoriteUsagePointGroup.getComment()).thenReturn("Comment");
+        when(favoriteUsagePointGroup.getCreationDate()).thenReturn(Instant.now());
+        when(favoriteUsagePointGroup.getUsagePointGroup()).thenReturn(usagePointGroup);
+        when(usagePointGroup.getId()).thenReturn(1L);
+        when(usagePointGroup.getName()).thenReturn("UPG name");
+        when(usagePointGroup.isDynamic()).thenReturn(false);
+        when(usagePointGroup.getVersion()).thenReturn(1L);
+        when(meteringGroupsService.findAndLockUsagePointGroupByIdAndVersion(1L, 1L)).thenReturn(Optional.of(usagePointGroup));
+
+        FavoriteUsagePointGroupDetailsInfo favInfo = new FavoriteUsagePointGroupDetailsInfo(favoriteUsagePointGroup);
+        FavoriteUsagePointGroupDetailsInfo.FavoriteUsagePointGroups info = new FavoriteUsagePointGroupDetailsInfo.FavoriteUsagePointGroups();
+        info.favoriteUsagePointGroups = Collections.singletonList(favInfo);
+
+        Response response = target("/favorites/usagepointgroups").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
 }
