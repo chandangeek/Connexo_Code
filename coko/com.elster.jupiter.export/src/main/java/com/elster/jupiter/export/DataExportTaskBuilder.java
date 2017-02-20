@@ -24,6 +24,8 @@ public interface DataExportTaskBuilder {
 
     DataExportTaskBuilder setName(String string);
 
+    DataExportTaskBuilder setLogLevel(int logLevel);
+
     DataExportTaskBuilder setDataFormatterFactoryName(String dataFormatter);
 
     MeterReadingSelectorBuilder selectingMeterReadings();
