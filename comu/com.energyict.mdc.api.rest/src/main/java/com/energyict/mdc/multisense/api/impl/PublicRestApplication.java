@@ -8,7 +8,15 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.kore.api.v2.issue.DeviceShortInfoFactory;
+import com.elster.jupiter.kore.api.v2.issue.IssueAssigneeInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssueCommentInfoFactory;
+import com.elster.jupiter.kore.api.v2.issue.IssuePriorityInfoFactory;
+import com.elster.jupiter.kore.api.v2.issue.IssueReasonInfoFactory;
+import com.elster.jupiter.kore.api.v2.issue.IssueTypeInfoFactory;
+import com.elster.jupiter.kore.api.v2.issue.LocationShortInfoFactory;
+import com.elster.jupiter.kore.api.v2.issue.UsagePointShortInfoFactory;
+import com.elster.jupiter.kore.api.v2.issue.UserInfoFactory;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -311,7 +319,6 @@ public class PublicRestApplication extends Application implements TranslationKey
     }
 
 
-
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -375,7 +382,15 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(AlarmStatusInfoFactory.class).to(AlarmStatusInfoFactory.class);
             bind(AlarmInfoFactory.class).to(AlarmInfoFactory.class);
+            bind(IssueAssigneeInfoFactory.class).to(IssueAssigneeInfoFactory.class);
+            bind(IssueTypeInfoFactory.class).to(IssueTypeInfoFactory.class);
+            bind(IssueReasonInfoFactory.class).to(IssueReasonInfoFactory.class);
+            bind(IssuePriorityInfoFactory.class).to(IssuePriorityInfoFactory.class);
+            bind(DeviceShortInfoFactory.class).to(DeviceShortInfoFactory.class);
+            bind(UsagePointShortInfoFactory.class).to(UsagePointShortInfoFactory.class);
             bind(IssueCommentInfoFactory.class).to(IssueCommentInfoFactory.class);
+            bind(UserInfoFactory.class).to(UserInfoFactory.class);
+            bind(LocationShortInfoFactory.class).to(LocationShortInfoFactory.class);
         }
     }
 

@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.multisense.api.impl;
 
-import com.elster.jupiter.kore.api.v2.issue.DeviceSimpleInfoFactory;
+import com.elster.jupiter.kore.api.v2.issue.DeviceShortInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssueAssigneeInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssuePriorityInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssueReasonInfoFactory;
@@ -31,7 +31,7 @@ import static java.util.stream.Collectors.toList;
 
 public class AlarmInfoFactory extends SelectableFieldFactory<AlarmInfo, DeviceAlarm> {
 
-    private final DeviceSimpleInfoFactory deviceSimpleInfoFactory;
+    private final DeviceShortInfoFactory deviceShortInfoFactory;
     private final AlarmStatusInfoFactory alarmStatusInfoFactory;
     private final IssueAssigneeInfoFactory issueAssigneeInfoFactory;
     private final IssueTypeInfoFactory issueTypeInfoFactory;
@@ -39,8 +39,8 @@ public class AlarmInfoFactory extends SelectableFieldFactory<AlarmInfo, DeviceAl
     private final IssueReasonInfoFactory issueReasonInfoFactory;
 
     @Inject
-    public AlarmInfoFactory(DeviceSimpleInfoFactory deviceSimpleInfoFactory, AlarmStatusInfoFactory alarmStatusInfoFactory, IssueAssigneeInfoFactory issueAssigneeInfoFactory, IssueTypeInfoFactory issueTypeInfoFactory, IssuePriorityInfoFactory issuePriorityInfoFactory, IssueReasonInfoFactory issueReasonInfoFactory) {
-        this.deviceSimpleInfoFactory = deviceSimpleInfoFactory;
+    public AlarmInfoFactory(DeviceShortInfoFactory deviceShortInfoFactory, AlarmStatusInfoFactory alarmStatusInfoFactory, IssueAssigneeInfoFactory issueAssigneeInfoFactory, IssueTypeInfoFactory issueTypeInfoFactory, IssuePriorityInfoFactory issuePriorityInfoFactory, IssueReasonInfoFactory issueReasonInfoFactory) {
+        this.deviceShortInfoFactory = deviceShortInfoFactory;
         this.alarmStatusInfoFactory = alarmStatusInfoFactory;
         this.issueAssigneeInfoFactory = issueAssigneeInfoFactory;
         this.issueTypeInfoFactory = issueTypeInfoFactory;
@@ -90,7 +90,7 @@ public class AlarmInfoFactory extends SelectableFieldFactory<AlarmInfo, DeviceAl
         map.put("dueDate", (alarmInfo, alarm, uriInfo) -> alarmInfo.dueDate = alarm.getDueDate() != null ? alarm.getDueDate().toEpochMilli() : 0);
         map.put("workGroupAssignee", (alarmInfo, alarm, uriInfo) -> alarmInfo.workGroupAssignee = issueAssigneeInfoFactory.asInfo("WORKGROUP", alarm.getAssignee()));
         map.put("userAssignee", (alarmInfo, alarm, uriInfo) -> alarmInfo.userAssignee = issueAssigneeInfoFactory.asInfo("USER", alarm.getAssignee()));
-        map.put("device", (alarmInfo, alarm, uriInfo) -> alarmInfo.device = deviceSimpleInfoFactory.from((Meter)alarm.getDevice(),uriInfo,null));
+        map.put("device", (alarmInfo, alarm, uriInfo) -> alarmInfo.device = deviceShortInfoFactory.from((Meter)alarm.getDevice(),uriInfo,null));
         map.put("alarmType", (alarmInfo, alarm, uriInfo) -> alarmInfo.alarmType = issueTypeInfoFactory.asInfo(alarm.getReason().getIssueType()));
         map.put("creationDate", (alarmInfo, alarm, uriInfo) -> alarmInfo.creationDate = alarm.getCreateTime().toEpochMilli());
         map.put("modTime", (alarmInfo, alarm, uriInfo) -> alarmInfo.modTime = alarm.getModTime().toEpochMilli());

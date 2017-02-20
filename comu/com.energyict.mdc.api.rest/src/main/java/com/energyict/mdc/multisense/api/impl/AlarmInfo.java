@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.multisense.api.impl;
 
-import com.elster.jupiter.kore.api.v2.issue.DeviceSimpleInfo;
+import com.elster.jupiter.kore.api.v2.issue.DeviceShortInfo;
 import com.elster.jupiter.kore.api.v2.issue.IssueAssigneeInfo;
 import com.elster.jupiter.kore.api.v2.issue.IssueReasonInfo;
 import com.elster.jupiter.kore.api.v2.issue.IssueTypeInfo;
@@ -21,7 +21,7 @@ public class AlarmInfo extends LinkInfo<Long> {
     public long dueDate;
     public IssueAssigneeInfo workGroupAssignee;
     public IssueAssigneeInfo userAssignee;
-    public DeviceSimpleInfo device;
+    public DeviceShortInfo device;
     public String title;
     public IssueTypeInfo alarmType;
     public long creationDate;

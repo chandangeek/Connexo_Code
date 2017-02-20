@@ -156,7 +156,8 @@ public class AlarmResource {
         URI uri = uriInfo.getBaseUriBuilder().
                 path(AlarmResource.class).
                 path(AlarmResource.class, "getComments").
-                build(alarm.getId());
+                resolveTemplate("id", alarm.getId()).
+                build();
         return Response.created(uri).build();
     }
 
@@ -174,7 +175,7 @@ public class AlarmResource {
         DeviceAlarm alarm = deviceAlarmService.findAlarm(alarmId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ALARM, String.valueOf(alarmId)));
         Query<IssueComment> query = issueService.query(IssueComment.class, User.class);
-        Condition condition = where("issueId").isEqualTo(alarm.getIssueId());
+        Condition condition = where("issueId").isEqualTo(alarm.getId());
         List<IssueComment> commentsList = query.select(condition, Order.ascending("createTime"));
         List<IssueCommentInfo> infos = commentsList.stream().map(isu -> issueCommentInfoFactory.from(isu, uriInfo, fieldSelection.getFields()))
                 .collect(toList());
