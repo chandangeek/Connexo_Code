@@ -155,12 +155,6 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
-                <artifactId>slp</artifactId>
-                <version>1.0.0${revision}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
                 <artifactId>slp.importers</artifactId>
                 <version>1.0.0${revision}</version>
                 <scope>provided</scope>
@@ -338,7 +332,6 @@
                 <module>../com.elster.jupiter.issue.rest</module>
                 <module>../com.elster.jupiter.kore.api.rest</module>
                 <module>../com.elster.jupiter.kpi</module>
-                <module>../com.elster.jupiter.slp</module>
                 <module>../com.elster.jupiter.slp.importers</module>
                 <module>../com.elster.jupiter.metering</module>
                 <module>../com.elster.jupiter.metering.bpm</module>
