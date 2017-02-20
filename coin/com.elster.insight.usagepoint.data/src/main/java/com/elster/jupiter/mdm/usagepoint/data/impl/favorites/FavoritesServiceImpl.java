@@ -20,6 +20,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.elster.jupiter.util.conditions.Where.where;
+
 public class FavoritesServiceImpl implements FavoritesService {
     private final DataModel dataModel;
     private final ThreadPrincipalService threadPrincipalService;
@@ -34,8 +36,10 @@ public class FavoritesServiceImpl implements FavoritesService {
     @Override
     public List<FavoriteUsagePoint> getFavoriteUsagePoints() {
         User user = getUser();
-        return user == null ? Collections.emptyList() : dataModel.mapper(FavoriteUsagePoint.class).find("user", user);
+        return user == null ? Collections.emptyList() : dataModel.query(FavoriteUsagePoint.class, UsagePoint.class)
+                .select(where("user").isEqualTo(user).and(where("usagePoint.obsoleteTime").isNull()));
     }
+
 
     @Override
     public List<FavoriteUsagePointGroup> getFavoriteUsagePointGroups() {
