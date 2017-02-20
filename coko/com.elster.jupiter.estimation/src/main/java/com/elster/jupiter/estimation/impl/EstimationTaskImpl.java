@@ -32,6 +32,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.logging.Level;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -57,6 +58,7 @@ final class EstimationTaskImpl implements IEstimationTask {
     private transient ScheduleExpression scheduleExpression;
     private transient boolean recurrentTaskDirty;
     private transient Instant nextExecution;
+    private transient int logLevel;
 
     private long version;
     private Instant createTime;
@@ -71,14 +73,16 @@ final class EstimationTaskImpl implements IEstimationTask {
         this.taskService = taskService;
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
+        this.logLevel = Level.WARNING.intValue();
     }
 
-    static IEstimationTask from(DataModel dataModel, String name, EndDeviceGroup endDeviceGroup, UsagePointGroup usagePointGroup, ScheduleExpression scheduleExpression, Instant nextExecution, QualityCodeSystem qualityCodeSystem) {
-        return dataModel.getInstance(EstimationTaskImpl.class).init(name, endDeviceGroup, usagePointGroup, scheduleExpression, nextExecution, qualityCodeSystem);
+    static IEstimationTask from(DataModel dataModel, String name, EndDeviceGroup endDeviceGroup, UsagePointGroup usagePointGroup, ScheduleExpression scheduleExpression, Instant nextExecution, QualityCodeSystem qualityCodeSystem, int logLevel) {
+        return dataModel.getInstance(EstimationTaskImpl.class).init(name, endDeviceGroup, usagePointGroup, scheduleExpression, nextExecution, qualityCodeSystem, logLevel);
     }
 
-    private EstimationTaskImpl init(String name, EndDeviceGroup endDeviceGroup, UsagePointGroup usagePointGroup, ScheduleExpression scheduleExpression, Instant nextExecution, QualityCodeSystem qualityCodeSystem) {
+    private EstimationTaskImpl init(String name, EndDeviceGroup endDeviceGroup, UsagePointGroup usagePointGroup, ScheduleExpression scheduleExpression, Instant nextExecution, QualityCodeSystem qualityCodeSystem, int logLevel) {
         this.name = name;
+        this.logLevel = logLevel;
         this.endDeviceGroup.set(endDeviceGroup);
         this.usagePointGroup.set(usagePointGroup);
         this.scheduleExpression = scheduleExpression;
@@ -150,7 +154,9 @@ final class EstimationTaskImpl implements IEstimationTask {
                 .setDestination(estimationService.getDestination())
                 .setPayLoad(getName())
                 .scheduleImmediately(scheduleImmediately)
-                .setFirstExecution(nextExecution).build();
+                .setFirstExecution(nextExecution)
+                .setLogLevel(logLevel)
+                .build();
         recurrentTask.set(task);
         Save.CREATE.save(dataModel, this);
     }
@@ -160,6 +166,7 @@ final class EstimationTaskImpl implements IEstimationTask {
             if (!recurrentTask.get().getName().equals(this.name)) {
                 recurrentTask.get().setName(name);
             }
+            recurrentTask.get().setLogLevel(this.logLevel);
             recurrentTask.get().save();
         }
         Save.UPDATE.save(dataModel, this);
@@ -359,5 +366,16 @@ final class EstimationTaskImpl implements IEstimationTask {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public int getLogLevel() {
+        return recurrentTask.isPresent() ? getRecurrentTask().getLogLevel() : logLevel;
+    }
+
+    public void setLogLevel(int newLevel) {
+        this.logLevel = newLevel;
+        if (recurrentTask.isPresent()) {
+            recurrentTaskDirty = true;
+        }
     }
 }
