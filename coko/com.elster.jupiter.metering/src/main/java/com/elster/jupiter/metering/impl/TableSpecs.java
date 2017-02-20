@@ -1937,14 +1937,14 @@ public enum TableSpecs {
                     .add();
         }
     },
-    MTR_SLP_SYNTHETICLOADPROFILE{
+    MTR_SLP_SYNTHLOADPROFILE{
         @Override
         void addTo(DataModel dataModel) {
             Table<SyntheticLoadProfile> table = dataModel.addTable(name(), SyntheticLoadProfile.class);
             table.since(Version.version(10, 3));
             table.map(SyntheticLoadProfileImpl.class);
             table.cache();
-            table.setJournalTableName("MTR_SLP_SYNTHETICLOADPROFILEJRNL");
+            table.setJournalTableName("MTR_SLP_SYNTHLOADPROFILEJRNL");
             Column idColumn = table.addAutoIdColumn();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
