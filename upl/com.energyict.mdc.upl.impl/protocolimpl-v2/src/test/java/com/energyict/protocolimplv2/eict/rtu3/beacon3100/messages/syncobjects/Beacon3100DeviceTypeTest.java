@@ -95,8 +95,8 @@ public class Beacon3100DeviceTypeTest {
         Beacon3100ProtocolConfiguration beaconProtocol1 = new Beacon3100ProtocolConfiguration("com.beacon.2", new TypedProperties());
 
         List<Object> lpObisCodes= new ArrayList<>();
-        lpObisCodes.add(new LoadProfileItem(new ObisCode(0,0,99,1,0,255), new Unsigned32(100)));
-        lpObisCodes.add(new LoadProfileItem(new ObisCode(0,0,99,2,0,255), new Unsigned32(100)));
+        lpObisCodes.add(new LoadProfileItem(new ObisCode(0,0,99,1,0,255)));
+        lpObisCodes.add(new LoadProfileItem(new ObisCode(0,0,99,2,0,255)));
 
 
         List<Object> registersObisCodes= new ArrayList<>();
@@ -107,8 +107,8 @@ public class Beacon3100DeviceTypeTest {
 
 
         List<Object> eventLogsObisCodes= new ArrayList<>();
-        eventLogsObisCodes.add(new EventLogItem(new ObisCode(0,0,99,98,0,255), new Unsigned32(100)));
-        eventLogsObisCodes.add(new EventLogItem(new ObisCode(0,0,99,98,1,255), new Unsigned32(100)));
+        eventLogsObisCodes.add(new EventLogItem(new ObisCode(0,0,99,98,0,255)));
+        eventLogsObisCodes.add(new EventLogItem(new ObisCode(0,0,99,98,1,255)));
 
 
         Beacon3100Schedulable schedulable1 = new Beacon3100Schedulable(new ComTaskEnablementImpl(), 1, 2, 3, lpObisCodes, registersObisCodes, eventLogsObisCodes, false );

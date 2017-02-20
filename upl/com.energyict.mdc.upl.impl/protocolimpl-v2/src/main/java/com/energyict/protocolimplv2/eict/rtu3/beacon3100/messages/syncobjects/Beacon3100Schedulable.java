@@ -98,7 +98,7 @@ public class Beacon3100Schedulable {
         for (Object item : getProfiles()) {
             LoadProfileItem loadProfileItem = null;
             if( item instanceof LinkedHashMap) {
-                loadProfileItem = new LoadProfileItem(getObisCodeFromLinkedHashMap((LinkedHashMap) item), new Unsigned32(1));
+                loadProfileItem = new LoadProfileItem(getObisCodeFromLinkedHashMap((LinkedHashMap) item));
             }else if(item instanceof LoadProfileItem){
                 loadProfileItem = (LoadProfileItem)item;
             }
@@ -122,7 +122,7 @@ public class Beacon3100Schedulable {
         for (Object item : getEventLogs()) {
             EventLogItem eventLogItem = null;
             if(item instanceof LinkedHashMap) {
-                eventLogItem = new EventLogItem(getObisCodeFromLinkedHashMap((LinkedHashMap) item), new Unsigned32(1));
+                eventLogItem = new EventLogItem(getObisCodeFromLinkedHashMap((LinkedHashMap) item));
             }else{
                 eventLogItem = (EventLogItem)item;
             }

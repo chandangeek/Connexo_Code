@@ -15,6 +15,8 @@ import com.energyict.mdw.amr.RegisterGroup;
 import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.amr.RegisterSpec;
 import com.energyict.mdw.core.*;
+import com.energyict.mdw.coreimpl.DeviceImpl;
+import com.energyict.mdw.coreimpl.DeviceTypeImpl;
 import com.energyict.mdwswing.decorators.mdc.NextExecutionSpecsShadowDecorator;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocol;
@@ -194,7 +196,30 @@ public class MasterDataSerializer {
         }
 
         final List<Device> downstreamDevices = masterDevice.getDownstreamDevices();
-        return new Beacon3100MeterDetails[downstreamDevices.size()];
+        Beacon3100MeterDetails[] beacon3100MeterDetails = new Beacon3100MeterDetails[downstreamDevices.size()];
+        for (int index = 0; index < downstreamDevices.size(); index++) {
+            Device device = downstreamDevices.get(index);
+            beacon3100MeterDetails[index] = createMeterDetails(device, masterDevice);;
+        }
+
+        return beacon3100MeterDetails;
+    }
+
+    public Beacon3100MeterDetails getMeterDetails(int slaveDeviceId, int masterId){
+        final Device masterDevice = getMeteringWarehouse().getDeviceFactory().find(masterId);
+        if (masterDevice == null) {
+            throw invalidFormatException("'DC device ID'", String.valueOf(slaveDeviceId), "ID should reference a unique device");
+        }
+        Device slaveDevice = getMeteringWarehouse().getDeviceFactory().find(slaveDeviceId);
+        final List<Device> downstreamDevices = masterDevice.getDownstreamDevices();
+        for (int index = 0; index < downstreamDevices.size(); index++) {
+            Device device = downstreamDevices.get(index);
+            if(slaveDevice.getId() == device.getId()) {
+                return createMeterDetails(device, masterDevice);
+            }
+        }
+
+        return null;
     }
 
     private Beacon3100MeterDetails createMeterDetails(Device device, Device masterDevice) {

@@ -12,6 +12,7 @@ import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NotInObjectListException;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
@@ -398,10 +399,13 @@ public class MasterDataSync {
 
     public CollectedMessage syncOneDeviceData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         int deviceId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.deviceId).getDeviceMessageAttributeValue());
-        Beacon3100MeterDetails[] meterDetails = new MasterDataSerializer().getMeterDetails(deviceId);
+        Beacon3100MeterDetails meterDetails = new MasterDataSerializer().getMeterDetails(deviceId, pendingMessage.getDeviceId());
 
-        if(meterDetails!= null && meterDetails[0] != null) {
-            syncOneDevice(meterDetails[0].toStructureFWVersion10AndAbove(meterDetails[0]));
+        if(meterDetails != null) {
+            syncOneDevice(meterDetails.toStructureFWVersion10AndAbove(meterDetails));
+        }else{
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            collectedMessage.setFailureInformation(ResultType.InCompatible, beacon3100Messaging.createMessageFailedIssue(pendingMessage, new ProtocolException("Device id not found on the master device.")));
         }
 
         return collectedMessage;
@@ -412,11 +416,11 @@ public class MasterDataSync {
         String startTime = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.startDate).getDeviceMessageAttributeValue();
         String endTime = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.endDate).getDeviceMessageAttributeValue();
         int deviceId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.deviceId).getDeviceMessageAttributeValue());
-        Beacon3100MeterDetails[] meterDetails = new MasterDataSerializer().getMeterDetails(deviceId);
+        Beacon3100MeterDetails meterDetails = new MasterDataSerializer().getMeterDetails(deviceId, pendingMessage.getDeviceId());
 
-        if(meterDetails!= null && meterDetails[0] != null) {
+        if(meterDetails!= null) {
             try {
-                syncOneDevice(meterDetails[0], configurationId, startTime, endTime);
+                syncOneDevice(meterDetails, configurationId, startTime, endTime);
             } catch (ParseException e) {
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 collectedMessage.setDeviceProtocolInformation(e.getMessage());
@@ -443,7 +447,7 @@ public class MasterDataSync {
 
         private void syncOneDevice(Beacon3100MeterDetails beacon3100MeterDetails, long configurationId, String startTime, String endTime) throws ParseException, IOException {
         ArrayList deviceTypeAssignements = new ArrayList();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
 
         deviceTypeAssignements.add(new DeviceTypeAssignment(configurationId, dateFormat.parse(startTime), dateFormat.parse(endTime)));
         beacon3100MeterDetails.setDeviceTypeAssignments(deviceTypeAssignements);
