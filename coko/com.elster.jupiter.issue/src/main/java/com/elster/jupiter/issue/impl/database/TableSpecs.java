@@ -41,6 +41,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.ListIterator;
 
@@ -85,6 +86,7 @@ import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_ISSUE_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_PK_NAME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_USER_ID;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_CREATEDATETIME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_DEVICE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_REASON;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_RULE;
@@ -435,7 +437,15 @@ public enum TableSpecs {
                     .alias("priorityTotal")
                     .add()
                     .since(Version.version(10, 3));
-
+            Column createdDateTimeColumn = table.column(ISSUE_CREATEDATETIME)
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2INSTANT)
+                    .map("createDateTime")
+                    .installValue(String.valueOf(Instant.EPOCH.toEpochMilli()))
+                    .add()
+                    .since(Version.version(10, 3));
+            table.partitionOn(createdDateTimeColumn);
             table.primaryKey(pkKey).on(idColumn).add();
             if (fkKeys == null || fkKeys.length != EXPECTED_FK_KEYS_LENGTH) {
                 throw new IllegalArgumentException("Passed arguments don't match foreigen keys");

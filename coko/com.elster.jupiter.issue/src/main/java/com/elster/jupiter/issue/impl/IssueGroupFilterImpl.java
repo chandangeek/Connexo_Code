@@ -24,6 +24,7 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
     private boolean isAsc = true;
     private Class<?> sourceClass;
     private Set<String> statuses;
+    private Set<String> reasons;
     private Set<String> clearedStatuses;
     private String groupBy;
     private List<Long> userAssignees;
@@ -125,6 +126,11 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
     }
 
     @Override
+    public Collection<String> getReasons() {
+        return Collections.unmodifiableSet(reasons);
+    }
+
+    @Override
     public Collection<String> getClearedStatuses() {
         return Collections.unmodifiableSet(clearedStatuses);
     }
@@ -138,6 +144,14 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
     public IssueGroupFilterImpl withStatuses(Collection<String> statuses) {
         if (statuses != null && !statuses.isEmpty()) {
             this.statuses = statuses.stream().map(this::getSafeString).collect(Collectors.toSet());
+        }
+        return this;
+    }
+
+    @Override
+    public IssueGroupFilterImpl withReasons(Collection<String> reasons) {
+        if (reasons != null) {
+            this.reasons = reasons.stream().map(this::getSafeString).collect(Collectors.toSet());
         }
         return this;
     }

@@ -31,6 +31,7 @@ public final class DatabaseConst {
     public static final String ISSUE_COLUMN_URGENCY = "URGENCY";
     public static final String ISSUE_COLUMN_IMPACT = "IMPACT";
     public static final String ISSUE_COLUMN_PRIORITY = "PRIORITYTOTAL";
+    public static final String ISSUE_CREATEDATETIME = "CREATEDATETIME";
 
     public static final String OPEN_ISSUE_PK_NAME = "ISU_OPEN_PK_ISSUE";
     public static final String OPEN_ISSUE_FK_TO_DEVICE = "ISU_OPEN_FK_TO_DEVICE";
