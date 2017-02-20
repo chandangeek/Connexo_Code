@@ -6,8 +6,13 @@ package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Membership;
+import com.elster.jupiter.util.conditions.Subquery;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.topology.G3CommunicationPath;
@@ -1466,6 +1471,34 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(dataLoggerRegisterTimeLine.get(3).getLast()).isEqualTo(Range.openClosed(linkDate1, unLinkDate1));
         assertThat(dataLoggerRegisterTimeLine.get(4).getFirst()).isEqualTo(dataLoggerRegister);
         assertThat(dataLoggerRegisterTimeLine.get(4).getLast()).isEqualTo(Range.openClosed(lower, linkDate1));
+    }
+
+    @Test
+    @Transactional
+    public void isLinkedToMasterTest() {
+        Instant now = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
+        Device slave = createSlaveDevice("Slave2");
+        Device dataLogger = createDataLoggerDevice("Data logger enabled");
+        // Business method
+        Map<Register, Register> slaveDataLoggerRegisterMap = new HashMap<>();
+        slaveDataLoggerRegisterMap.put(slave.getRegisters().get(0), dataLogger.getRegisters().get(0));
+        this.getTopologyService().setDataLogger(slave, dataLogger, now, Collections.emptyMap(), slaveDataLoggerRegisterMap);
+
+        Subquery subquery = this.getTopologyService().IsLinkedToMaster(slave);
+        com.elster.jupiter.util.conditions.Condition notLinkedToMasterDevices = ListOperator.IN.contains(subquery, "id");
+
+        assertThat(getDeviceService().findAllDevices(notLinkedToMasterDevices).stream().count()).isEqualTo(1);
+    }
+
+    @Test
+    @Transactional
+    public void isNotLinkedToMasterTest() {
+        Device slave = createSlaveDevice("Slave1");
+
+        Subquery subquery = this.getTopologyService().IsLinkedToMaster(slave);
+        com.elster.jupiter.util.conditions.Condition notLinkedToMasterDevices = ListOperator.NOT_IN.contains(subquery, "id");
+
+        assertThat(getDeviceService().findAllDevices(notLinkedToMasterDevices).stream().count()).isEqualTo(1);
     }
 
     private ServerDeviceService getDeviceService() {
