@@ -26,6 +26,7 @@ import java.util.Optional;
 public class BatchSearchableProperty extends AbstractSearchableDeviceProperty {
 
     private DeviceSearchDomain domain;
+    private SearchablePropertyGroup group;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
 
@@ -36,8 +37,9 @@ public class BatchSearchableProperty extends AbstractSearchableDeviceProperty {
         this.thesaurus = thesaurus;
     }
 
-    BatchSearchableProperty init(DeviceSearchDomain domain) {
+    BatchSearchableProperty init(DeviceSearchDomain domain, SearchablePropertyGroup group) {
         this.domain = domain;
+        this.group = group;
         return this;
     }
 
@@ -53,7 +55,7 @@ public class BatchSearchableProperty extends AbstractSearchableDeviceProperty {
 
     @Override
     public Optional<SearchablePropertyGroup> getGroup() {
-        return Optional.empty();
+        return Optional.of(this.group);
     }
 
     @Override

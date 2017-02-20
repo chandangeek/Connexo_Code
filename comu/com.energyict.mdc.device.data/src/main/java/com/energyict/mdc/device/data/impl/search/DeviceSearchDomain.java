@@ -107,6 +107,7 @@ public class DeviceSearchDomain implements SearchDomain {
     @Override
     public List<SearchableProperty> getProperties() {
         DataModel injector = this.deviceDataModelService.dataModel();
+        DeviceAttributesPropertyGroup deviceAttributesPropertyGroup = injector.getInstance(DeviceAttributesPropertyGroup.class);
         DeviceTypeSearchableProperty deviceTypeSearchableProperty = injector.getInstance(DeviceTypeSearchableProperty.class).init(this);
         TopologySearchablePropertyGroup topologyGroup = injector.getInstance(TopologySearchablePropertyGroup.class);
         ValidationSearchablePropertyGroup validationGroup = injector.getInstance(ValidationSearchablePropertyGroup.class);
@@ -127,8 +128,11 @@ public class DeviceSearchDomain implements SearchDomain {
                 injector.getInstance(DeviceConfigurationSearchableProperty.class).init(this, deviceTypeSearchableProperty),
                 injector.getInstance(StateNameSearchableProperty.class).init(this, deviceTypeSearchableProperty),
                 injector.getInstance(DeviceGroupSearchableProperty.class).init(this),
-                injector.getInstance(BatchSearchableProperty.class).init(this),
-                injector.getInstance(YearOfCertificationSearchableProperty.class).init(this),
+                injector.getInstance(BatchSearchableProperty.class).init(this, deviceAttributesPropertyGroup),
+                injector.getInstance(YearOfCertificationSearchableProperty.class).init(this, deviceAttributesPropertyGroup),
+                injector.getInstance(ManufacturerSearchableProperty.class).init(this, deviceAttributesPropertyGroup),
+                injector.getInstance(ModelNumberSearchableProperty.class).init(this, deviceAttributesPropertyGroup),
+                injector.getInstance(ModelVersionSearchableProperty.class).init(this, deviceAttributesPropertyGroup),
                 injector.getInstance(ConnectionMethodSearchableProperty.class).init(this),
                 injector.getInstance(SharedScheduleSearchableProperty.class).init(this),
                 injector.getInstance(UsagePointSearchableProperty.class).init(this),
