@@ -95,21 +95,36 @@ public class Beacon3100Schedulable {
 
         final Array profileArray = new Array();
         for (Object item : getProfiles()) {
-            LoadProfileItem loadProfileItem = new LoadProfileItem(getObisCodeFromLinkedHashMap((LinkedHashMap) item), new Unsigned32(0));
+            LoadProfileItem loadProfileItem = null;
+            if( item instanceof LinkedHashMap) {
+                loadProfileItem = new LoadProfileItem(getObisCodeFromLinkedHashMap((LinkedHashMap) item), new Unsigned32(0));
+            }else if(item instanceof LoadProfileItem){
+                loadProfileItem = (LoadProfileItem)item;
+            }
             profileArray.addDataType((loadProfileItem).toStructure());
         }
         structure.addDataType(profileArray);
 
         final Array registerArray = new Array();
         for (Object item : getRegisters()) {
-            RegisterItem registerItem = new RegisterItem(getObisCodeFromLinkedHashMap((LinkedHashMap)item), new Unsigned16(0));
+            RegisterItem registerItem = null;
+            if(item instanceof LinkedHashMap) {
+                registerItem = new RegisterItem(getObisCodeFromLinkedHashMap((LinkedHashMap) item), new Unsigned16(0));
+            }else if (item instanceof RegisterItem){
+                registerItem = (RegisterItem)item;
+            }
             registerArray.addDataType(registerItem.toStructure());
         }
         structure.addDataType(registerArray);
 
         final Array eventLogArray = new Array();
         for (Object item : getEventLogs()) {
-            EventLogItem eventLogItem = new EventLogItem(getObisCodeFromLinkedHashMap((LinkedHashMap)item), new Unsigned32(0));
+            EventLogItem eventLogItem = null;
+            if(item instanceof LinkedHashMap) {
+                eventLogItem = new EventLogItem(getObisCodeFromLinkedHashMap((LinkedHashMap) item), new Unsigned32(0));
+            }else{
+                eventLogItem = (EventLogItem)item;
+            }
             eventLogArray.addDataType(eventLogItem.toStructure());
         }
         structure.addDataType(eventLogArray);
