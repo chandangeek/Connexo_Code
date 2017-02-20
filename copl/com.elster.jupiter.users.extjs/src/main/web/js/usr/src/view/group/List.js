@@ -44,7 +44,7 @@ Ext.define('Usr.view.group.List', {
                         xtype: 'group-action-menu',
                         itemId: 'group-action-action-menu'
                     },
-                    isDisabled: me.fnIsDisabled,
+                    isDisabled: me.fnIsDisabled
                 }
             ]
         };

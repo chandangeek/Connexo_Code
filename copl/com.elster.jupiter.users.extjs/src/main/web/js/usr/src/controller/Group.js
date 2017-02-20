@@ -96,13 +96,34 @@ Ext.define('Usr.controller.Group', {
     selectGroup: function (selectionModel, record) {
         var me = this,
             page = me.getGroupBrowse(),
-            form = page.down('#groupDetailsForm');
+            form = page.down('#groupDetailsForm'),
+            detailsPanel = page.down('groupDetails'),
+            detailsPanelActionButton = detailsPanel.down('uni-button-action'),
+            groupActionMenu = detailsPanel.down('group-action-menu'),
+            canEditRecord = record.get('canEdit');
 
-        page.down('groupDetails').setTitle(Ext.String.htmlEncode(record.get('name')));
-        if (page.down('groupDetails').down('group-action-menu')) {
-            page.down('groupDetails').down('group-action-menu').record = record;
+        detailsPanel.setTitle(Ext.String.htmlEncode(record.get('name')));
+        if (groupActionMenu) {
+            groupActionMenu.record = record;
         }
         form.loadRecord(record);
 
+        detailsPanelActionButton.setDisabled(!canEditRecord);
+        if (!canEditRecord) {
+            // I agree, the next 4 lines are rather dirty code, but I didn't manage to get the same result via (S)CSS
+            detailsPanelActionButton.btnIconEl.dom.style.color = '#d4d4d4';
+            detailsPanelActionButton.btnInnerEl.dom.style.color = '#d4d4d4';
+            detailsPanelActionButton.btnWrap.dom.classList.remove('x-btn-arrow-right');
+            detailsPanelActionButton.btnWrap.dom.classList.remove('x-btn-arrow');
+            detailsPanelActionButton.setTooltip(Uni.I18n.translate('role.uneditable', 'USR', 'No actions available because this role is managed internally by Connexo.'));
+        } else {
+            // I agree, the next 4 lines are rather dirty code, but I didn't manage to get the same result via (S)CSS
+            detailsPanelActionButton.btnIconEl.dom.style.color = '#ffffff';
+            detailsPanelActionButton.btnInnerEl.dom.style.color = '#ffffff';
+            detailsPanelActionButton.btnWrap.dom.classList.add('x-btn-arrow-right');
+            detailsPanelActionButton.btnWrap.dom.classList.add('x-btn-arrow');
+            detailsPanelActionButton.setTooltip(null);
+        }
+        detailsPanel.doLayout();
     }
 });
