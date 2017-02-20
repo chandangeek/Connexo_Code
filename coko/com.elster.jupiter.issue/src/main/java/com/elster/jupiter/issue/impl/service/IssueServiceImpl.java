@@ -398,7 +398,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         if (!issue.isPresent()) {
             issue = findHistoricalIssue(id);
         }
-        return issue;
+        return issue.isPresent() && !issue.get().getReason().getIssueType().getPrefix().equals("ALM") ? issue : Optional.empty();
     }
 
     @Override
