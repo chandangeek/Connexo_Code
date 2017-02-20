@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.kore.api.v2.issue;
 
-import com.elster.jupiter.kore.api.v2.LocationInfoFactory;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
@@ -25,20 +24,20 @@ import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
-public class DeviceSimpleInfoFactory extends SelectableFieldFactory<DeviceSimpleInfo, Meter> {
+public class DeviceShortInfoFactory extends SelectableFieldFactory<DeviceShortInfo, Meter> {
 
-    public final LocationInfoFactory locationInfoFactory;
+    public final LocationShortInfoFactory locationShortInfoFactory;
     public final UsagePointShortInfoFactory usagePointShortInfoFactory;
 
 
     @Inject
-    public DeviceSimpleInfoFactory(LocationInfoFactory locationInfoFactory, UsagePointShortInfoFactory usagePointShortInfoFactory) {
-        this.locationInfoFactory = locationInfoFactory;
+    public DeviceShortInfoFactory(LocationShortInfoFactory locationShortInfoFactory, UsagePointShortInfoFactory usagePointShortInfoFactory) {
+        this.locationShortInfoFactory = locationShortInfoFactory;
         this.usagePointShortInfoFactory = usagePointShortInfoFactory;
     }
 
     public LinkInfo asLink(Meter endDevice, Relation relation, UriInfo uriInfo) {
-        DeviceSimpleInfo info = new DeviceSimpleInfo();
+        DeviceShortInfo info = new DeviceShortInfo();
         copySelectedFields(info, endDevice, uriInfo, Arrays.asList("id", "version"));
         info.link = link(endDevice, relation, uriInfo);
         return info;
@@ -59,20 +58,20 @@ public class DeviceSimpleInfoFactory extends SelectableFieldFactory<DeviceSimple
         return uriInfo.getBaseUriBuilder();
     }
 
-    public DeviceSimpleInfo from(Meter endDevice, UriInfo uriInfo, Collection<String> fields) {
-        DeviceSimpleInfo info = new DeviceSimpleInfo();
+    public DeviceShortInfo from(Meter endDevice, UriInfo uriInfo, Collection<String> fields) {
+        DeviceShortInfo info = new DeviceShortInfo();
         copySelectedFields(info, endDevice, uriInfo, fields);
         return info;
     }
 
     @Override
-    protected Map<String, PropertyCopier<DeviceSimpleInfo, Meter>> buildFieldMap() {
-        Map<String, PropertyCopier<DeviceSimpleInfo, Meter>> map = new HashMap<>();
+    protected Map<String, PropertyCopier<DeviceShortInfo, Meter>> buildFieldMap() {
+        Map<String, PropertyCopier<DeviceShortInfo, Meter>> map = new HashMap<>();
         map.put("id", (deviceInfo, endDevice, uriInfo) -> deviceInfo.id = endDevice.getId());
         map.put("mRID", (deviceInfo, endDevice, uriInfo) -> deviceInfo.mRID = endDevice
                 .getMRID());
         map.put("name", (deviceInfo, endDevice, uriInfo) -> deviceInfo.name = endDevice.getName());
-        map.put("location", (deviceInfo, endDevice, uriInfo) -> deviceInfo.location = locationInfoFactory.asSerializedInfo(endDevice.getLocation().orElse(null)));
+        map.put("location", (deviceInfo, endDevice, uriInfo) -> deviceInfo.location = locationShortInfoFactory.asInfo(endDevice.getLocation().orElse(null)));
         map.put("usagePoint", (deviceInfo, endDevice, uriInfo) -> {
             if (endDevice != null && Meter.class.isInstance(endDevice)) {
                 Meter meter = Meter.class.cast(endDevice);

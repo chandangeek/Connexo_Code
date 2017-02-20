@@ -26,7 +26,7 @@ import static java.util.stream.Collectors.toList;
 
 public class IssueInfoFactory extends SelectableFieldFactory<IssueInfo, Issue> {
 
-    private final DeviceSimpleInfoFactory deviceSimpleInfoFactory;
+    private final DeviceShortInfoFactory deviceShortInfoFactory;
     private final IssueStatusInfoFactory issueStatusInfoFactory;
     private final IssueAssigneeInfoFactory issueAssigneeInfoFactory;
     private final IssueTypeInfoFactory issueTypeInfoFactory;
@@ -34,8 +34,8 @@ public class IssueInfoFactory extends SelectableFieldFactory<IssueInfo, Issue> {
     private final IssueReasonInfoFactory issueReasonInfoFactory;
 
     @Inject
-    public IssueInfoFactory(DeviceSimpleInfoFactory deviceSimpleInfoFactory, IssueStatusInfoFactory issueStatusInfoFactory, IssueAssigneeInfoFactory issueAssigneeInfoFactory, IssueTypeInfoFactory issueTypeInfoFactory, IssuePriorityInfoFactory issuePriorityInfoFactory, IssueReasonInfoFactory issueReasonInfoFactory) {
-        this.deviceSimpleInfoFactory = deviceSimpleInfoFactory;
+    public IssueInfoFactory(DeviceShortInfoFactory deviceShortInfoFactory, IssueStatusInfoFactory issueStatusInfoFactory, IssueAssigneeInfoFactory issueAssigneeInfoFactory, IssueTypeInfoFactory issueTypeInfoFactory, IssuePriorityInfoFactory issuePriorityInfoFactory, IssueReasonInfoFactory issueReasonInfoFactory) {
+        this.deviceShortInfoFactory = deviceShortInfoFactory;
         this.issueStatusInfoFactory = issueStatusInfoFactory;
         this.issueAssigneeInfoFactory = issueAssigneeInfoFactory;
         this.issueTypeInfoFactory = issueTypeInfoFactory;
@@ -86,7 +86,7 @@ public class IssueInfoFactory extends SelectableFieldFactory<IssueInfo, Issue> {
         map.put("dueDate", (issueInfo, issue, uriInfo) -> issueInfo.dueDate = issue.getDueDate() != null ? issue.getDueDate().toEpochMilli() : 0);
         map.put("workGroupAssignee", (issueInfo, issue, uriInfo) -> issueInfo.workGroupAssignee = issueAssigneeInfoFactory.asInfo("WORKGROUP", issue.getAssignee()));
         map.put("userAssignee", (issueInfo, issue, uriInfo) -> issueInfo.userAssignee = issueAssigneeInfoFactory.asInfo("USER", issue.getAssignee()));
-        map.put("device", (issueInfo, issue, uriInfo) -> issueInfo.device = deviceSimpleInfoFactory.from((Meter) issue.getDevice(), uriInfo, null));
+        map.put("device", (issueInfo, issue, uriInfo) -> issueInfo.device = deviceShortInfoFactory.from((Meter) issue.getDevice(), uriInfo, null));
         map.put("issueType", (issueInfo, issue, uriInfo) -> issueInfo.issueType = issueTypeInfoFactory.asInfo(issue.getReason().getIssueType()));
         map.put("creationDate", (issueInfo, issue, uriInfo) -> issueInfo.creationDate = issue.getCreateTime().toEpochMilli());
         map.put("modTime", (issueInfo, issue, uriInfo) -> issueInfo.modTime = issue.getModTime().toEpochMilli());

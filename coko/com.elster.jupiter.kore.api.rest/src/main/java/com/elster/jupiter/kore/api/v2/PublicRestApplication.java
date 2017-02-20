@@ -8,7 +8,7 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kore.api.impl.PublicRestAppServiceImpl;
 import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandHelper;
-import com.elster.jupiter.kore.api.v2.issue.DeviceSimpleInfoFactory;
+import com.elster.jupiter.kore.api.v2.issue.DeviceShortInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssueAssigneeInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssueCommentInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssueInfoFactory;
@@ -17,7 +17,9 @@ import com.elster.jupiter.kore.api.v2.issue.IssueReasonInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssueResource;
 import com.elster.jupiter.kore.api.v2.issue.IssueStatusInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssueTypeInfoFactory;
+import com.elster.jupiter.kore.api.v2.issue.LocationShortInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.UsagePointShortInfoFactory;
+import com.elster.jupiter.kore.api.v2.issue.UserInfoFactory;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
@@ -199,9 +201,11 @@ public class PublicRestApplication extends Application {
             bind(IssueTypeInfoFactory.class).to(IssueTypeInfoFactory.class);
             bind(IssueReasonInfoFactory.class).to(IssueReasonInfoFactory.class);
             bind(IssuePriorityInfoFactory.class).to(IssuePriorityInfoFactory.class);
-            bind(DeviceSimpleInfoFactory.class).to(DeviceSimpleInfoFactory.class);
+            bind(DeviceShortInfoFactory.class).to(DeviceShortInfoFactory.class);
             bind(UsagePointShortInfoFactory.class).to(UsagePointShortInfoFactory.class);
+            bind(UserInfoFactory.class).to(UserInfoFactory.class);
             bind(IssueCommentInfoFactory.class).to(IssueCommentInfoFactory.class);
+            bind(LocationShortInfoFactory.class).to(LocationShortInfoFactory.class);
         }
     }
 }

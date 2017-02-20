@@ -55,21 +55,6 @@ public class LocationInfoFactory {
         return info;
     }
 
-    public SerializedLocationInfo asSerializedInfo(Location location) {
-        SerializedLocationInfo info = new SerializedLocationInfo();
-        LocationInfo locationInfo = asInfo(location);
-        Class<?> clazz = asInfo(location).getClass();
-        info.location = Arrays.asList(clazz.getFields()).stream().map(field -> {
-            try {
-                return field.get(locationInfo).toString();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-            return "";
-        }).collect(Collectors.joining(", "));
-        return info;
-    }
-
     public Location fromInfo(LocationInfo location) {
         if (location != null && location.locationId != null) {
             return locationService.findLocationById(location.locationId)

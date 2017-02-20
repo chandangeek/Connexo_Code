@@ -16,7 +16,7 @@ public class IssueInfo extends LinkInfo<Long> {
     public long dueDate;
     public IssueAssigneeInfo workGroupAssignee;
     public IssueAssigneeInfo userAssignee;
-    public DeviceSimpleInfo device;
+    public DeviceShortInfo device;
     public String title;
     public IssueTypeInfo issueType;
     public long creationDate;
