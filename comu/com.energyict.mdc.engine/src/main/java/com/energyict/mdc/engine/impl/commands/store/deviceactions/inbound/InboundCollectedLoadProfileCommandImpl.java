@@ -20,6 +20,7 @@ import com.energyict.mdc.tasks.LoadProfilesTask;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -81,8 +82,8 @@ public class InboundCollectedLoadProfileCommandImpl extends LoadProfileCommandIm
                     descriptionBuilder.append(
                             MessageFormat.format(
                                     "dataPeriod: [{0,date,yyyy-MM-dd HH:mm:ss} - {1,date,yyy-MM-dd HH:mm:ss}]",
-                                    collectedLoadProfile.getCollectedIntervalDataRange().lowerEndpoint(),
-                                    collectedLoadProfile.getCollectedIntervalDataRange().upperEndpoint()));
+                                    Date.from(collectedLoadProfile.getCollectedIntervalDataRange().lowerEndpoint()),
+                                    Date.from(collectedLoadProfile.getCollectedIntervalDataRange().upperEndpoint())));
                 }
                 descriptionBuilder.append(")");
                 descriptionBuilder.next();
