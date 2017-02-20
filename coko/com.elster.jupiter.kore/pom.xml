@@ -340,7 +340,6 @@
                 <module>../com.elster.jupiter.system.app.help</module>
                 <module>../com.elster.jupiter.systemadmin.extjs</module>
                 <module>../com.elster.jupiter.systemadmin.rest</module>
-                <module>../com.elster.jupiter.usagepoint.calendar</module>
                 <module>../com.elster.jupiter.usagepoint.lifecycle</module>
                 <module>../com.elster.jupiter.usagepoint.lifecycle.config</module>
                 <module>../com.elster.jupiter.usagepoint.lifecycle.rest</module>
