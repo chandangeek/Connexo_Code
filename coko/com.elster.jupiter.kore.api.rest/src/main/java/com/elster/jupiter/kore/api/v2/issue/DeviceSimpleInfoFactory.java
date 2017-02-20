@@ -2,8 +2,9 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.kore.api.v2;
+package com.elster.jupiter.kore.api.v2.issue;
 
+import com.elster.jupiter.kore.api.v2.LocationInfoFactory;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
@@ -24,20 +25,20 @@ import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
-public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo, Meter> {
+public class DeviceSimpleInfoFactory extends SelectableFieldFactory<DeviceSimpleInfo, Meter> {
 
     public final LocationInfoFactory locationInfoFactory;
     public final UsagePointShortInfoFactory usagePointShortInfoFactory;
 
 
     @Inject
-    public DeviceInfoFactory(LocationInfoFactory locationInfoFactory, UsagePointShortInfoFactory usagePointShortInfoFactory) {
+    public DeviceSimpleInfoFactory(LocationInfoFactory locationInfoFactory, UsagePointShortInfoFactory usagePointShortInfoFactory) {
         this.locationInfoFactory = locationInfoFactory;
         this.usagePointShortInfoFactory = usagePointShortInfoFactory;
     }
 
     public LinkInfo asLink(Meter endDevice, Relation relation, UriInfo uriInfo) {
-        DeviceInfo info = new DeviceInfo();
+        DeviceSimpleInfo info = new DeviceSimpleInfo();
         copySelectedFields(info, endDevice, uriInfo, Arrays.asList("id", "version"));
         info.link = link(endDevice, relation, uriInfo);
         return info;
@@ -58,15 +59,15 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo, Meter>
         return uriInfo.getBaseUriBuilder();
     }
 
-    public DeviceInfo from(Meter endDevice, UriInfo uriInfo, Collection<String> fields) {
-        DeviceInfo info = new DeviceInfo();
+    public DeviceSimpleInfo from(Meter endDevice, UriInfo uriInfo, Collection<String> fields) {
+        DeviceSimpleInfo info = new DeviceSimpleInfo();
         copySelectedFields(info, endDevice, uriInfo, fields);
         return info;
     }
 
     @Override
-    protected Map<String, PropertyCopier<DeviceInfo, Meter>> buildFieldMap() {
-        Map<String, PropertyCopier<DeviceInfo, Meter>> map = new HashMap<>();
+    protected Map<String, PropertyCopier<DeviceSimpleInfo, Meter>> buildFieldMap() {
+        Map<String, PropertyCopier<DeviceSimpleInfo, Meter>> map = new HashMap<>();
         map.put("id", (deviceInfo, endDevice, uriInfo) -> deviceInfo.id = endDevice.getId());
         map.put("mRID", (deviceInfo, endDevice, uriInfo) -> deviceInfo.mRID = endDevice
                 .getMRID());

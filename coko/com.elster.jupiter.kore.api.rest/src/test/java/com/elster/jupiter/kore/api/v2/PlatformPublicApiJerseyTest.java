@@ -111,8 +111,6 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
     LocationService locationService;
     @Mock
     IssueService issueService;
-    @Mock
-    UserService userService;
 
     @Override
     protected Application getApplication() {
@@ -129,8 +127,6 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
         application.setThreadPrincipalService(threadPrincipalService);
         application.setLocationService(locationService);
         application.setIssueService(issueService);
-        application.setUserService(userService);
-
         return application;
     }
 

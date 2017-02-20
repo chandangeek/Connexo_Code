@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.kore.api.v2;
+package com.elster.jupiter.kore.api.v2.issue;
 
 import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
 
@@ -14,10 +14,9 @@ public class IssueInfo extends LinkInfo<Long> {
     public int priorityValue;
     public IssueStatusInfo status;
     public long dueDate;
-    public IssueAssigneeInfo assignee;
     public IssueAssigneeInfo workGroupAssignee;
     public IssueAssigneeInfo userAssignee;
-    public DeviceInfo device;
+    public DeviceSimpleInfo device;
     public String title;
     public IssueTypeInfo issueType;
     public long creationDate;

@@ -6,4 +6,5 @@ Private-Package: \
     com.elster.jupiter.kore.api.v1,\
     com.elster.jupiter.kore.api.v2
 Export-Package: \
-    com.elster.jupiter.kore.api.security
+    com.elster.jupiter.kore.api.security,\
+    com.elster.jupiter.kore.api.v2.issue

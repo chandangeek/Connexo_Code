@@ -2,13 +2,11 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.kore.api.v2;
+package com.elster.jupiter.kore.api.v2.issue;
 
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -20,10 +18,9 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -42,10 +39,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
+import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.elster.jupiter.util.conditions.Where.where;
 import static java.util.stream.Collectors.toList;
 
 @Path("/issues")
@@ -55,15 +52,18 @@ public class IssueResource {
     private final IssueStatusInfoFactory issueStatusInfoFactory;
     private final IssueService issueService;
     private final ExceptionFactory exceptionFactory;
-    private final UserService userService;
+    private final ThreadPrincipalService threadPrincipalService;
+    private final IssueCommentInfoFactory issueCommentInfoFactory;
 
     @Inject
-    public IssueResource(IssueInfoFactory issueInfoFactory, IssueStatusInfoFactory issueStatusInfoFactory, IssueService issueService, ExceptionFactory exceptionFactory, UserService userService) {
+    public IssueResource(IssueInfoFactory issueInfoFactory, IssueStatusInfoFactory issueStatusInfoFactory, IssueService issueService, ExceptionFactory exceptionFactory,
+                         ThreadPrincipalService threadPrincipalService, IssueCommentInfoFactory issueCommentInfoFactory) {
         this.issueInfoFactory = issueInfoFactory;
         this.issueStatusInfoFactory = issueStatusInfoFactory;
         this.issueService = issueService;
         this.exceptionFactory = exceptionFactory;
-        this.userService = userService;
+        this.threadPrincipalService = threadPrincipalService;
+        this.issueCommentInfoFactory = issueCommentInfoFactory;
     }
 
     @GET
@@ -92,7 +92,6 @@ public class IssueResource {
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public IssueStatusInfo getStatus(@PathParam("id") long issueId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         IssueStatus issueStatus = issueService.findIssue(issueId)
-                .filter(isu -> !isu.getReason().getIssueType().getPrefix().equals("ALM"))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, String.valueOf(issueId))).getStatus();
         return issueStatusInfoFactory.from(issueStatus, uriInfo, fieldSelection.getFields());
     }
@@ -110,6 +109,9 @@ public class IssueResource {
         Issue issue = issueService.findAndLockIssueByIdAndVersion(issueId, issueShortInfo.version)
                 .filter(isu -> !isu.getStatus().isHistorical() || !isu.getReason().getIssueType().getPrefix().equals("ALM"))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, String.valueOf(issueId)));
+        if (issue.getStatus().isHistorical()) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.ISSUE_ALREADY_CLOSED, String.valueOf(issueId));
+        }
         if (issueShortInfo.status == null || issueShortInfo.status.id == null || issueShortInfo.status.id.isEmpty()) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.FIELD_MISSING, "status.id");
         }
@@ -134,23 +136,14 @@ public class IssueResource {
     public Response addComment(@PathParam("id") long issueId, IssueCommentInfo issueCommentInfo, @Context UriInfo uriInfo) {
         Issue issue = issueService.findIssue(issueId).filter(isu -> !isu.getReason().getIssueType().getPrefix().equals("ALM"))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, String.valueOf(issueId)));
-        User user = userService.findUser(issueCommentInfo.author.name)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USER, issueCommentInfo.author.id));
-        issue.addComment(issueCommentInfo.comment, user).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
-        if (issueCommentInfo == null || issueCommentInfo.version == null) {
-            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.BAD_FIELD_VALUE, "version");
-        } else if (issueCommentInfo.author == null) {
-            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.BAD_FIELD_VALUE, "author");
-        } else if (issueCommentInfo.comment == null) {
+        if (issueCommentInfo == null || issueCommentInfo.comment == null || issueCommentInfo.comment.isEmpty()) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.BAD_FIELD_VALUE, "comment");
-        } else if (issueCommentInfo.creationDate == null) {
-            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.BAD_FIELD_VALUE, "creationDate");
         }
+        issue.addComment(issueCommentInfo.comment, getCurrentUser()).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
         URI uri = uriInfo.getBaseUriBuilder().
                 path(IssueResource.class).
                 path(IssueResource.class, "getComments").
                 build(issue.getId());
-
         return Response.created(uri).build();
     }
 
@@ -160,4 +153,16 @@ public class IssueResource {
     public List<String> getFields() {
         return issueInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
+
+    private User getCurrentUser(){
+        Principal currentUser = threadPrincipalService.getPrincipal();
+        if(currentUser instanceof User){
+            return (User) currentUser;
+        } else {
+            throw exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USER, currentUser.getName());
+        }
+    }
+
+
 }
+
