@@ -101,10 +101,7 @@ public class DemoUsagePointMeterActivationValidatorTest {
         when(metrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(metrologyConfiguration.getUsagePointRequirements()).thenReturn(Collections.singletonList(usagePointRequirement));
 
-        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
-        valueBean.propertyName = "prepay";
-        valueBean.operator = SearchablePropertyOperator.EQUAL;
-        valueBean.values = Collections.singletonList("true");
+        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean("prepay", SearchablePropertyOperator.EQUAL, "true" );
         when(usagePointRequirement.toValueBean()).thenReturn(valueBean);
 
         when(device.getDeviceType()).thenReturn(deviceType);
