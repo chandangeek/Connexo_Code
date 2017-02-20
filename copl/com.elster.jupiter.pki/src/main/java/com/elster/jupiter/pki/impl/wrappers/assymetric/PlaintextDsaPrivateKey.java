@@ -43,6 +43,7 @@ public class PlaintextDsaPrivateKey extends AbstractPlaintextPrivateKeyImpl {
         keyGen.initialize(getKeyType().getKeySize(), new SecureRandom());
         PrivateKey privateKey = keyGen.generateKeyPair().getPrivate();
         setEncryptedPrivateKey(dataVaultService.encrypt(privateKey.getEncoded()));
+        this.save();
     }
 
 

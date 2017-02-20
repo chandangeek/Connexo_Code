@@ -7,9 +7,9 @@ import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
-import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.impl.wrappers.assymetric.DataVaultPrivateKeyFactory;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
+import com.elster.jupiter.pki.impl.wrappers.symmetric.PlaintextSymmetricKey;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -192,7 +192,7 @@ public class PKIServiceImplIT {
         KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
         when(keyAccessorType.getKeyType()).thenReturn(created);
         when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
-        SymmetricKeyWrapper symmetricKeyWrapper = pkiInMemoryPersistence.getPkiService()
+        PlaintextSymmetricKey symmetricKeyWrapper = (PlaintextSymmetricKey) pkiInMemoryPersistence.getPkiService()
                 .newSymmetricKeyWrapper(keyAccessorType);
         symmetricKeyWrapper.renewValue();
 

@@ -48,6 +48,7 @@ public class PlaintextEcdsaPrivateKey extends AbstractPlaintextPrivateKeyImpl {
         keyGen.initialize(parameterSpec, new SecureRandom());
         PrivateKey privateKey = keyGen.generateKeyPair().getPrivate();
         setEncryptedPrivateKey(dataVaultService.encrypt(privateKey.getEncoded()));
+        this.save();
     }
 
 

@@ -8,6 +8,7 @@ import aQute.bnd.annotation.ConsumerType;
 
 import java.security.InvalidKeyException;
 import java.security.PrivateKey;
+import java.time.Instant;
 import java.util.Map;
 
 /**
@@ -18,13 +19,19 @@ import java.util.Map;
 public interface PrivateKeyWrapper extends HasDynamicPropertiesWithUpdatableValues {
 
     /**
+     * The exact date when the value of this element will expire. The value should be renewed by thia date.
+     * @return date until which this element is valid
+     */
+    Instant getExpirationTime();
+
+    /**
      * Defines the method used to store keys by this implementation.
      * @return
      */
     String getKeyEncryptionMethod();
 
     /**
-     * Creates an empty instance of PrivateKey that can be filled in by the caller. How the value for the PrivateKey is determined, depends
+     * Returns the PrivateKey held by this element. How the value for the PrivateKey is determined, depends
      * on the KeyEncryptionType
      * @return The PrivateKey build from the provided properties. Note that java.security.PrivateKey is provided through
      * the Java's SPI.

@@ -28,6 +28,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -50,6 +51,7 @@ abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapp
     @Size(max = Table.MAX_STRING_LENGTH, message = "{"+MessageSeeds.Keys.FIELD_TOO_LONG+"}")
     private String encryptedPrivateKey;
     private Reference<KeyType> keyTypeReference = Reference.empty();
+    private Instant expirationTime;
 
     public static final Map<String, Class<? extends AbstractPlaintextPrivateKeyImpl>> IMPLEMENTERS =
             ImmutableMap.of(
@@ -79,6 +81,15 @@ abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapp
 
     protected KeyType getKeyType() {
         return keyTypeReference.get();
+    }
+
+    @Override
+    public Instant getExpirationTime() {
+        return expirationTime;
+    }
+
+    public void setExpirationTime(Instant expirationTime) {
+        this.expirationTime = expirationTime;
     }
 
     @Override
@@ -149,8 +160,25 @@ abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapp
             InvalidKeySpecException,
             NoSuchProviderException, InvalidAlgorithmParameterException;
 
+    public enum Fields {
+        ENCRYPTED_KEY("encryptedPrivateKey"),
+        KEY_TYPE("keyTypeReference"),
+        EXPIRATION("expirationTime"),
+        ;
+
+        private final String fieldName;
+
+        Fields(String fieldName) {
+            this.fieldName = fieldName;
+        }
+
+        public String fieldName() {
+            return fieldName;
+        }
+    }
+
     public enum Properties {
-        ENCRYPTED_PRIVATE_KEY("encryptedPrivateKey", "privateKey") {
+        ENCRYPTED_PRIVATE_KEY("privateKey") {
             public PropertySpec asPropertySpec(PropertySpecService propertySpecService) {
                 return propertySpecService.stringSpec()
                         .named(getPropertyName(), "Private key")
@@ -174,21 +202,15 @@ abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapp
         },
         ;
 
-        private final String fieldName;
         private final String propertyName;
 
-        Properties(String fieldName, String propertyName) {
-            this.fieldName = fieldName;
+        Properties(String propertyName) {
             this.propertyName = propertyName;
         }
 
         abstract PropertySpec asPropertySpec(PropertySpecService propertySpecService);
         abstract void copyFromMap(Map<String, Object> properties, AbstractPlaintextPrivateKeyImpl privateKey);
         abstract void copyToMap(Map<String, Object> properties, AbstractPlaintextPrivateKeyImpl privateKey);
-
-        public String fieldName() {
-            return fieldName;
-        }
 
         String getPropertyName() {
             return propertyName;

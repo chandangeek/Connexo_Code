@@ -24,6 +24,7 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -42,10 +43,28 @@ public class PlaintextSymmetricKey implements SymmetricKeyWrapper, Renewable {
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
 
+    public enum Fields {
+        ENCRYPTED_KEY("encryptedKey"),
+        KEY_TYPE("keyTypeReference"),
+        EXPIRATION("expirationTime"),
+        ;
+
+        private final String fieldName;
+
+        Fields(String fieldName) {
+            this.fieldName = fieldName;
+        }
+
+        public String fieldName() {
+            return fieldName;
+        }
+    }
+
     private long id;
     @Size(max = Table.MAX_STRING_LENGTH, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
     private String encryptedKey;
     private Reference<KeyType> keyTypeReference = Reference.empty();
+    private Instant expirationTime;
 
     @Inject
     PlaintextSymmetricKey(DataVaultService dataVaultService, PropertySpecService propertySpecService, DataModel dataModel, Thesaurus thesaurus) {
@@ -65,7 +84,6 @@ public class PlaintextSymmetricKey implements SymmetricKeyWrapper, Renewable {
         return DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD;
     }
 
-    @Override
     public SecretKey getKey() {
         byte[] decrypt = dataVaultService.decrypt(this.encryptedKey);
         return new SecretKeySpec(decrypt, getKeyType().getAlgorithm());
@@ -77,6 +95,15 @@ public class PlaintextSymmetricKey implements SymmetricKeyWrapper, Renewable {
 
     public void setKey(SecretKey key) {
         this.encryptedKey=dataVaultService.encrypt(key.getEncoded());
+    }
+
+    @Override
+    public Instant getExpirationTime() {
+        return expirationTime;
+    }
+
+    public void setExpirationTime(Instant expirationTime) {
+        this.expirationTime = expirationTime;
     }
 
     @Override
@@ -92,6 +119,7 @@ public class PlaintextSymmetricKey implements SymmetricKeyWrapper, Renewable {
         KeyGenerator keyGenerator = KeyGenerator.getInstance(getKeyType().getAlgorithm());
         keyGenerator.init(getKeyType().getKeySize());
         setKey(keyGenerator.generateKey());
+        this.save();
     }
 
     @Override
@@ -118,7 +146,7 @@ public class PlaintextSymmetricKey implements SymmetricKeyWrapper, Renewable {
     }
 
     public enum Properties {
-        ENCRYPTED_KEY("encryptedKey", "key") {
+        ENCRYPTED_KEY("key") {
             public PropertySpec asPropertySpec(PropertySpecService propertySpecService) {
                 return propertySpecService.stringSpec()
                         .named(getPropertyName(), "key")
@@ -142,21 +170,15 @@ public class PlaintextSymmetricKey implements SymmetricKeyWrapper, Renewable {
         },
         ;
 
-        private final String fieldName;
         private final String propertyName;
 
-        Properties(String fieldName, String propertyName) {
-            this.fieldName = fieldName;
+        Properties(String propertyName) {
             this.propertyName = propertyName;
         }
 
         abstract PropertySpec asPropertySpec(PropertySpecService propertySpecService);
         abstract void copyFromMap(Map<String, Object> properties, PlaintextSymmetricKey key);
         abstract void copyToMap(Map<String, Object> properties, PlaintextSymmetricKey key);
-
-        public String fieldName() {
-            return fieldName;
-        }
 
         String getPropertyName() {
             return propertyName;
