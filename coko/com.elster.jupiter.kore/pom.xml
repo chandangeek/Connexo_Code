@@ -239,12 +239,6 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
-                <artifactId>usagepoint.calendar</artifactId>
-                <version>1.0.0${revision}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
                 <artifactId>usagepoint.lifecycle</artifactId>
                 <version>1.0.0${revision}</version>
                 <scope>provided</scope>
