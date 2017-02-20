@@ -807,7 +807,6 @@ public class DeviceResource {
     @Path("/{name}/runningservicecalls")
     public PagedInfoList getServiceCallsFor(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
         Set<DefaultState> states = EnumSet.of(
                 DefaultState.CREATED,
                 DefaultState.SCHEDULED,
@@ -816,9 +815,17 @@ public class DeviceResource {
                 DefaultState.ONGOING,
                 DefaultState.WAITING);
 
-        serviceCallService.findServiceCalls(device, states).forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
+        ServiceCallFilter filter = new ServiceCallFilter();
+        filter.targetObject = device;
+        filter.states = states.stream().map(Enum::name).collect(Collectors.toList());
 
-        return PagedInfoList.fromCompleteList("serviceCalls", serviceCallInfos, queryParameters);
+        List<ServiceCallInfo> serviceCallInfos = serviceCallService.getServiceCallFinder(filter)
+                .from(queryParameters)
+                .stream()
+                .map(serviceCallInfoFactory::summarized)
+                .collect(Collectors.toList());
+
+        return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }
 
     @PUT
@@ -841,12 +848,13 @@ public class DeviceResource {
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
 
         ServiceCallFilter filter = serviceCallInfoFactory.convertToServiceCallFilter(jsonQueryFilter);
+        filter.targetObject = device;
         serviceCallService.getServiceCallFinder(filter)
+                .from(queryParameters)
                 .stream()
-                .filter(serviceCall -> serviceCall.getTargetObject().map(device::equals).orElse(false))
                 .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
 
-        return PagedInfoList.fromCompleteList("serviceCalls", serviceCallInfos, queryParameters);
+        return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }
 
     @PUT
