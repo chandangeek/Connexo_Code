@@ -73,12 +73,6 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
     private final Instant now = ZonedDateTime.of(2016, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC")).toInstant();
 
     @Mock
-    IssueActionService issueActionService;
-    @Mock
-    BpmService bpmService;
-    @Mock
-    PropertyValueInfoService propertyValueInfoService;
-    @Mock
     DeviceService deviceService;
     @Mock
     DeviceAlarmService deviceAlarmService;
