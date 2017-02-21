@@ -46,6 +46,8 @@ public interface IssueService {
 
     Optional<IssueReason> findReason(String key);
 
+    IssueReason findOrCreateReason(String key, IssueType issueType);
+
     Optional<IssueComment> findComment(long id);
 
     Optional<IssueType> findIssueType(String key);

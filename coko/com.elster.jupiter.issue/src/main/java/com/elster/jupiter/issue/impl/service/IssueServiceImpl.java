@@ -52,6 +52,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
@@ -419,6 +420,20 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     @Override
     public Optional<IssueReason> findReason(String key) {
         return find(IssueReason.class, key);
+    }
+
+    @Override
+    public IssueReason findOrCreateReason(String key, IssueType issueType) {
+        Optional<IssueReason> reason = find(IssueReason.class, key);
+        if(reason.isPresent()){
+            return reason.get();
+        }else{
+            if(!key.isEmpty()) {
+                return createReason(key, issueType, new SimpleTranslationKey(key, key), null);
+            }else{
+                return null;
+            }
+        }
     }
 
     @Override
