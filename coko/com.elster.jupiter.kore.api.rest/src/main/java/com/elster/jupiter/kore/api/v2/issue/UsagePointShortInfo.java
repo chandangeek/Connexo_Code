@@ -6,6 +6,6 @@ package com.elster.jupiter.kore.api.v2.issue;
 
 
 public class UsagePointShortInfo {
-    public long id;
+    public String id;
     public String name;
 }

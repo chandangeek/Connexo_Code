@@ -15,6 +15,7 @@ import com.elster.jupiter.kore.api.v2.issue.IssueInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssuePriorityInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssueReasonInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssueResource;
+import com.elster.jupiter.kore.api.v2.issue.IssueShortInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssueStatusInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssueTypeInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.LocationShortInfoFactory;
@@ -206,6 +207,7 @@ public class PublicRestApplication extends Application {
             bind(UserInfoFactory.class).to(UserInfoFactory.class);
             bind(IssueCommentInfoFactory.class).to(IssueCommentInfoFactory.class);
             bind(LocationShortInfoFactory.class).to(LocationShortInfoFactory.class);
+            bind(IssueShortInfoFactory.class).to(IssueShortInfoFactory.class);
         }
     }
 }

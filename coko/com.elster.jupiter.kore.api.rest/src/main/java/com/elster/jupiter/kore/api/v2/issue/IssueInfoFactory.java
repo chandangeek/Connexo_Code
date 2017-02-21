@@ -89,7 +89,6 @@ public class IssueInfoFactory extends SelectableFieldFactory<IssueInfo, Issue> {
         map.put("device", (issueInfo, issue, uriInfo) -> issueInfo.device = deviceShortInfoFactory.from((Meter) issue.getDevice(), uriInfo, null));
         map.put("issueType", (issueInfo, issue, uriInfo) -> issueInfo.issueType = issueTypeInfoFactory.asInfo(issue.getReason().getIssueType()));
         map.put("creationDate", (issueInfo, issue, uriInfo) -> issueInfo.creationDate = issue.getCreateTime().toEpochMilli());
-        map.put("modTime", (issueInfo, issue, uriInfo) -> issueInfo.modTime = issue.getModTime().toEpochMilli());
         map.put("version", (issueInfo, issue, uriInfo) -> issueInfo.version = issue.getVersion());
         return map;
     }

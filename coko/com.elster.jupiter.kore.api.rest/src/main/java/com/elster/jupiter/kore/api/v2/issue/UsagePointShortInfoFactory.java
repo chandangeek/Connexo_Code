@@ -13,7 +13,7 @@ public class UsagePointShortInfoFactory {
     public UsagePointShortInfo asInfo(UsagePoint usagePoint) {
         UsagePointShortInfo info = new UsagePointShortInfo();
         if (usagePoint != null) {
-            info.id = usagePoint.getId();
+            info.id = String.valueOf(usagePoint.getId());
             info.name = usagePoint.getName();
         }
         return info;

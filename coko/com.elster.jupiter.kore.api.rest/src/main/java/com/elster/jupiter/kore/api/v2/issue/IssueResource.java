@@ -22,7 +22,6 @@ import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 
@@ -55,17 +54,17 @@ import static java.util.stream.Collectors.toList;
 public class IssueResource {
 
     private final IssueInfoFactory issueInfoFactory;
-    private final IssueStatusInfoFactory issueStatusInfoFactory;
+    private final IssueShortInfoFactory issueShortInfoFactory;
     private final IssueService issueService;
     private final ExceptionFactory exceptionFactory;
     private final ThreadPrincipalService threadPrincipalService;
     private final IssueCommentInfoFactory issueCommentInfoFactory;
 
     @Inject
-    public IssueResource(IssueInfoFactory issueInfoFactory, IssueStatusInfoFactory issueStatusInfoFactory, IssueService issueService, ExceptionFactory exceptionFactory,
+    public IssueResource(IssueInfoFactory issueInfoFactory, IssueShortInfoFactory issueShortInfoFactory, IssueService issueService, ExceptionFactory exceptionFactory,
                          ThreadPrincipalService threadPrincipalService, IssueCommentInfoFactory issueCommentInfoFactory) {
         this.issueInfoFactory = issueInfoFactory;
-        this.issueStatusInfoFactory = issueStatusInfoFactory;
+        this.issueShortInfoFactory = issueShortInfoFactory;
         this.issueService = issueService;
         this.exceptionFactory = exceptionFactory;
         this.threadPrincipalService = threadPrincipalService;
@@ -96,10 +95,9 @@ public class IssueResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{id}/status")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public IssueStatusInfo getStatus(@PathParam("id") long issueId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        IssueStatus issueStatus = issueService.findIssue(issueId)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, String.valueOf(issueId))).getStatus();
-        return issueStatusInfoFactory.from(issueStatus, uriInfo, fieldSelection.getFields());
+    public IssueShortInfo getStatus(@PathParam("id") long issueId) {
+        return issueShortInfoFactory.asInfo(issueService.findIssue(issueId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, String.valueOf(issueId))));
     }
 
     @PUT
