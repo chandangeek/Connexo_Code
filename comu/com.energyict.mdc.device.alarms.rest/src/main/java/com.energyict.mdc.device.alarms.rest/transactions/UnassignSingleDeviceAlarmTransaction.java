@@ -9,7 +9,7 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.Transaction;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
-import com.energyict.mdc.device.alarms.rest.i18n.MessageSeeds;
+import com.energyict.mdc.device.alarms.rest.i18n.DeviceAlarmTranslationKeys;
 
 import java.util.function.Function;
 
@@ -31,7 +31,7 @@ public class UnassignSingleDeviceAlarmTransaction implements Transaction<ActionI
         Long workGroupId = issue.getAssignee().getWorkGroup() != null ? issue.getAssignee().getWorkGroup().getId() : -1L;
         issue.assignTo(-1L, workGroupId);
         issue.update();
-        response.addSuccess(issue.getId(), thesaurus.getFormat(MessageSeeds.ACTION_ALARM_WAS_UNASSIGNED).format());
+        response.addSuccess(issue.getId(), thesaurus.getFormat(DeviceAlarmTranslationKeys.ACTION_ALARM_UNASSIGNED).format());
 
         return response;
     }

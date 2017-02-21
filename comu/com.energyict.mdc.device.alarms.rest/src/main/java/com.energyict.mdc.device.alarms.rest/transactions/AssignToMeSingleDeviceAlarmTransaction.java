@@ -10,7 +10,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
-import com.energyict.mdc.device.alarms.rest.i18n.MessageSeeds;
+import com.energyict.mdc.device.alarms.rest.i18n.DeviceAlarmTranslationKeys;
 
 import java.util.function.Function;
 
@@ -37,7 +37,7 @@ public class AssignToMeSingleDeviceAlarmTransaction implements Transaction<Actio
         Long workGroupId = issue.getAssignee().getWorkGroup() != null ? issue.getAssignee().getWorkGroup().getId() : -1L;
         issue.assignTo(userId, workGroupId);
         issue.update();
-        response.addSuccess(issue.getId(), thesaurus.getFormat(MessageSeeds.ACTION_ALARM_WAS_ASSIGNED_USER).format(issue.getAssignee().getUser().getName()));
+        response.addSuccess(issue.getId(), thesaurus.getFormat(DeviceAlarmTranslationKeys.ACTION_ALARM_ASSIGNED_USER).format(issue.getAssignee().getUser().getName()));
 
         return response;
     }
