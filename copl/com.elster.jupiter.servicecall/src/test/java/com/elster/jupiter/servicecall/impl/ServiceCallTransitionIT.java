@@ -284,7 +284,7 @@ public class ServiceCallTransitionIT {
             context.commit();
         }
 
-        SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME)
+        SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERVICE_CALLS_SUBSCRIBER_NAME)
                 .get();
 
         try (TransactionContext context = transactionService.getContext()) {
@@ -332,7 +332,7 @@ public class ServiceCallTransitionIT {
             context.commit();
         }
 
-        SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME)
+        SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERVICE_CALLS_SUBSCRIBER_NAME)
                 .get();
 
         try (TransactionContext context = transactionService.getContext()) {
@@ -388,7 +388,7 @@ public class ServiceCallTransitionIT {
             context.commit();
         }
 
-        SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME)
+        SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERVICE_CALLS_SUBSCRIBER_NAME)
                 .get();
 
         try (TransactionContext context = transactionService.getContext()) {
@@ -444,7 +444,7 @@ public class ServiceCallTransitionIT {
             context.commit();
         }
 
-        SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME)
+        SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERVICE_CALLS_SUBSCRIBER_NAME)
                 .get();
 
         try (TransactionContext context = transactionService.getContext()) {

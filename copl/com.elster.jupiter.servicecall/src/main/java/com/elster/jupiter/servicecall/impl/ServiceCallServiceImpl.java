@@ -39,7 +39,6 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -85,8 +84,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
 @LiteralSql
 public final class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider {
 
-    static final String SERIVCE_CALLS_DESTINATION_NAME = "SerivceCalls";
-    static final String SERIVCE_CALLS_SUBSCRIBER_NAME = "SerivceCalls";
+    static final String SERVICE_CALLS_DESTINATION_NAME = "SerivceCalls";
+    static final String SERVICE_CALLS_SUBSCRIBER_NAME = "SerivceCalls";
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -361,7 +360,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
 
     @Override
     public DestinationSpec getServiceCallQueue() {
-        return messageService.getDestinationSpec(SERIVCE_CALLS_DESTINATION_NAME).get();
+        return messageService.getDestinationSpec(SERVICE_CALLS_DESTINATION_NAME).get();
     }
 
     @Override
