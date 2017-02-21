@@ -95,7 +95,7 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
                 UserResource.class,
                 DeviceAlarmCreationRuleResource.class,
                 AlarmRuleResource.class,
-                HistoryResource.class
+                HistoryResource.class,
                 ActionResource.class);
     }
 
