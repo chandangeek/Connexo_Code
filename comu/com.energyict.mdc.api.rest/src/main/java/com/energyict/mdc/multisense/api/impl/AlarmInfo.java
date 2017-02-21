@@ -14,17 +14,15 @@ import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
 public class AlarmInfo extends LinkInfo<Long> {
     public long id;
     public String alarmId;
+    public String title;
     public IssueReasonInfo reason;
+    public AlarmStatusInfo status;
     public PriorityInfo priority;
     public int priorityValue;
-    public AlarmStatusInfo status;
-    public long dueDate;
     public IssueAssigneeInfo workGroupAssignee;
     public IssueAssigneeInfo userAssignee;
     public DeviceShortInfo device;
-    public String title;
-    public IssueTypeInfo alarmType;
+    public long dueDate;
     public long creationDate;
-    public long modTime;
     public long version;
 }

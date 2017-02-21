@@ -61,8 +61,9 @@ public class AlarmStatusInfoFactory extends SelectableFieldFactory<AlarmStatusIn
                 .path(AlarmResource.class, "getStatus");
     }
 
-    public AlarmStatusInfo from(IssueStatus alarmStatus, UriInfo uriInfo, Collection<String> fields) {
+    public AlarmStatusInfo from(IssueStatus alarmStatus, boolean isClearedStatus, UriInfo uriInfo, Collection<String> fields) {
         AlarmStatusInfo info = new AlarmStatusInfo();
+        info.clearedStatus = isClearedStatus;
         copySelectedFields(info, alarmStatus, uriInfo, fields);
         return info;
     }
@@ -72,7 +73,6 @@ public class AlarmStatusInfoFactory extends SelectableFieldFactory<AlarmStatusIn
         Map<String, PropertyCopier<AlarmStatusInfo, IssueStatus>> map = new HashMap<>();
         map.put("id", (alarmStatusInfo, alarmStatus, uriInfo) -> alarmStatusInfo.id = alarmStatus.getKey());
         map.put("name", (alarmStatusInfo, alarmStatus, uriInfo) -> alarmStatusInfo.name = alarmStatus.getName());
-        map.put("clearedStatus", (alarmStatusInfo, alarmStatus, uriInfo) -> alarmStatusInfo.clearedStatus = false);
         return map;
     }
 }

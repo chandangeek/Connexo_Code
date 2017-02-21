@@ -383,7 +383,6 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(AlarmStatusInfoFactory.class).to(AlarmStatusInfoFactory.class);
             bind(AlarmInfoFactory.class).to(AlarmInfoFactory.class);
             bind(IssueAssigneeInfoFactory.class).to(IssueAssigneeInfoFactory.class);
-            bind(IssueTypeInfoFactory.class).to(IssueTypeInfoFactory.class);
             bind(IssueReasonInfoFactory.class).to(IssueReasonInfoFactory.class);
             bind(IssuePriorityInfoFactory.class).to(IssuePriorityInfoFactory.class);
             bind(DeviceShortInfoFactory.class).to(DeviceShortInfoFactory.class);
@@ -391,6 +390,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(IssueCommentInfoFactory.class).to(IssueCommentInfoFactory.class);
             bind(UserInfoFactory.class).to(UserInfoFactory.class);
             bind(LocationShortInfoFactory.class).to(LocationShortInfoFactory.class);
+            bind(AlarmShortInfoFactory.class).to(AlarmShortInfoFactory.class);
         }
     }
 

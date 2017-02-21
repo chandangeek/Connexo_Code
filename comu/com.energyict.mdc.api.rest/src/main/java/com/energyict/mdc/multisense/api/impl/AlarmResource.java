@@ -10,8 +10,6 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kore.api.security.Privileges;
 import com.elster.jupiter.kore.api.v2.issue.IssueCommentInfo;
-import static com.elster.jupiter.util.conditions.Where.where;
-
 import com.elster.jupiter.kore.api.v2.issue.IssueCommentInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssueCommentShortInfo;
 import com.elster.jupiter.kore.api.v2.issue.IssueShortInfo;
@@ -53,13 +51,14 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
+import static com.elster.jupiter.util.conditions.Where.where;
 import static java.util.stream.Collectors.toList;
 
 @Path("/alarms")
 public class AlarmResource {
 
     private final AlarmInfoFactory alarmInfoFactory;
-    private final AlarmStatusInfoFactory alarmStatusInfoFactory;
+    private final AlarmShortInfoFactory alarmShortInfoFactory;
     private final IssueService issueService;
     private final DeviceAlarmService deviceAlarmService;
     private final ExceptionFactory exceptionFactory;
@@ -67,9 +66,9 @@ public class AlarmResource {
     private final IssueCommentInfoFactory issueCommentInfoFactory;
 
     @Inject
-    public AlarmResource(AlarmInfoFactory alarmInfoFactory, AlarmStatusInfoFactory alarmStatusInfoFactory, IssueService issueService, DeviceAlarmService deviceAlarmService, ExceptionFactory exceptionFactory, ThreadPrincipalService threadPrincipalService, IssueCommentInfoFactory issueCommentInfoFactory) {
+    public AlarmResource(AlarmInfoFactory alarmInfoFactory, AlarmShortInfoFactory alarmShortInfoFactory, IssueService issueService, DeviceAlarmService deviceAlarmService, ExceptionFactory exceptionFactory, ThreadPrincipalService threadPrincipalService, IssueCommentInfoFactory issueCommentInfoFactory) {
         this.alarmInfoFactory = alarmInfoFactory;
-        this.alarmStatusInfoFactory = alarmStatusInfoFactory;
+        this.alarmShortInfoFactory = alarmShortInfoFactory;
         this.issueService = issueService;
         this.deviceAlarmService = deviceAlarmService;
         this.exceptionFactory = exceptionFactory;
@@ -85,7 +84,7 @@ public class AlarmResource {
                                                  @BeanParam JsonQueryParameters queryParameters) {
         //validateMandatory(params, START, LIMIT);
         List<AlarmInfo> infos = deviceAlarmService.findAlarms(new DeviceAlarmFilter()).stream()
-                .filter(alm-> !alm.getStatus().isHistorical())
+                .filter(alm -> !alm.getStatus().isHistorical())
                 .map(isu -> alarmInfoFactory.from(isu, uriInfo, fieldSelection.getFields()))
                 .collect(toList());
         UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
@@ -99,10 +98,10 @@ public class AlarmResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{id}/status")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public AlarmStatusInfo getStatus(@PathParam("id") long alarmId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        IssueStatus issueStatus = deviceAlarmService.findAlarm(alarmId)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ALARM, String.valueOf(alarmId))).getStatus();
-        return alarmStatusInfoFactory.from(issueStatus, uriInfo, fieldSelection.getFields());
+    public AlarmShortInfo getStatus(@PathParam("id") long alarmId, @BeanParam FieldSelection fieldSelection) {
+        DeviceAlarm alarm = deviceAlarmService.findAlarm(alarmId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ALARM, String.valueOf(alarmId)));
+        return alarmShortInfoFactory.asInfo(alarm);
     }
 
     @PUT
@@ -163,7 +162,6 @@ public class AlarmResource {
     }
 
 
-
     @GET
     @Transactional
     @Path("/{id}/comments")
@@ -193,9 +191,9 @@ public class AlarmResource {
     }
 
 
-    private User getCurrentUser(){
+    private User getCurrentUser() {
         Principal currentUser = threadPrincipalService.getPrincipal();
-        if(currentUser instanceof User){
+        if (currentUser instanceof User) {
             return (User) currentUser;
         } else {
             throw exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USER, currentUser.getName());
