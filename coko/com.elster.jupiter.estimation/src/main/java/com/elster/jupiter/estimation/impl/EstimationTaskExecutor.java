@@ -105,7 +105,6 @@ class EstimationTaskExecutor implements TaskExecutor {
                     .select(ListOperator.IN.contains(estimationTask.getUsagePointGroup()
                             .get()
                             .toSubQuery("id"), "effectiveMetrologyContract.metrologyConfiguration.usagePoint"))
-                    .stream()
                     .forEach(channelsContainer -> doEstimateTransactional(occurrence, channelsContainer, system, relativePeriod, taskLogger));
         }
     }
@@ -129,7 +128,6 @@ class EstimationTaskExecutor implements TaskExecutor {
             if (getEstimationTask(occurrence).getMetrologyPurpose()
                     .isPresent() && metrologyContracts.isPresent()) {
                 metrologyContracts.get()
-                        .stream()
                         .forEach(metrologyContract ->
                                 estimateWithPurpose(metrologyContract, occurrence, system, channelsContainer, relativePeriod, taskLogger));
             } else {

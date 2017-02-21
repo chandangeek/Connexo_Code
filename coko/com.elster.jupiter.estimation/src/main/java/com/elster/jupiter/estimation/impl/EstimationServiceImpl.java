@@ -27,6 +27,7 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -77,6 +78,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -123,7 +125,10 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     }
 
     @Inject
-    EstimationServiceImpl(MeteringService meteringService, OrmService ormService, QueryService queryService, NlsService nlsService, EventService eventService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, TimeService timeService, UserService userService, UpgradeService upgradeService, Clock clock) {
+    EstimationServiceImpl(MeteringService meteringService, OrmService ormService, QueryService queryService,
+                          NlsService nlsService, EventService eventService, TaskService taskService,
+                          MeteringGroupsService meteringGroupsService, MessageService messageService,
+                          TimeService timeService, UserService userService, UpgradeService upgradeService, Clock clock) {
         this();
         setMeteringService(meteringService);
         setOrmService(ormService);
@@ -278,8 +283,19 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
 
     @Override
     public EstimationReport estimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Range<Instant> period, Logger logger) {
-        EstimationReportImpl report = previewEstimate(system, channelsContainer, period, logger);
-        estimationEngine.applyEstimations(system, report);
+        EstimationReportImpl report;
+        if (channelsContainer instanceof MetrologyContractChannelsContainer) {
+            report = new EstimationReportImpl();
+            if (channelsContainer.getRange().isConnected(period)) {
+                ((MetrologyContractChannelsContainer) channelsContainer).getMetrologyContract().sortReadingTypesByDependencyLevel().stream()
+                        .map(readingTypes -> previewEstimate(system, channelsContainer, period, readingTypes, logger))
+                        .peek(subReport -> estimationEngine.applyEstimations(system, subReport))
+                        .forEach(report::add);
+            }
+        } else {
+            report = previewEstimate(system, channelsContainer, period, logger);
+            estimationEngine.applyEstimations(system, report);
+        }
         logEstimationReport(channelsContainer, period, logger, report);
         postEvents(report);
         return report;
@@ -288,12 +304,12 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     private void logEstimationReport(ChannelsContainer channelsContainer, Range<Instant> period, Logger logger, EstimationReportImpl report) {
         long notEstimated = report.getResults().values().stream()
                 .map(EstimationResult::remainingToBeEstimated)
-                .flatMap(Collection::stream)
-                .count();
+                .mapToLong(Collection::size)
+                .sum();
         long estimated = report.getResults().values().stream()
                 .map(EstimationResult::estimated)
-                .flatMap(Collection::stream)
-                .count();
+                .mapToLong(Collection::size)
+                .sum();
         DateTimeFormatter formatter = DefaultDateTimeFormatters.mediumDate()
                 .withLongTime()
                 .build()
@@ -309,7 +325,8 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
         report.getResults().values().stream()
                 .map(EstimationResult::remainingToBeEstimated)
                 .flatMap(Collection::stream)
-                .forEach(estimationBlock -> eventService.postEvent(EventType.ESTIMATIONBLOCK_FAILURE.topic(), EstimationBlockEventInfo.forFailure(estimationBlock)));
+                .forEach(estimationBlock -> eventService.postEvent(EventType.ESTIMATIONBLOCK_FAILURE.topic(),
+                        EstimationBlockEventInfo.forFailure(estimationBlock)));
     }
 
     @Override
@@ -319,11 +336,13 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
 
     @Override
     public EstimationReportImpl previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Range<Instant> period, Logger logger) {
+        return previewEstimate(system, channelsContainer, period, channelsContainer.getReadingTypes(period), logger);
+    }
+
+    private EstimationReportImpl previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer,
+                                                 Range<Instant> period, Set<ReadingType> readingTypes, Logger logger) {
         EstimationReportImpl report = new EstimationReportImpl();
-        channelsContainer.getReadingTypes(period).forEach(readingType -> {
-            EstimationReport subReport = this.previewEstimate(system, channelsContainer, period, readingType, logger);
-            report.add(subReport);
-        });
+        readingTypes.forEach(readingType -> report.add(previewEstimate(system, channelsContainer, period, readingType, logger)));
 
         report.getResults().values().stream()
                 .map(EstimationResult::remainingToBeEstimated)
@@ -337,13 +356,16 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     }
 
     @Override
-    public EstimationReport previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Range<Instant> period, ReadingType readingType) {
+    public EstimationReport previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer,
+                                            Range<Instant> period, ReadingType readingType) {
         return previewEstimate(system, channelsContainer, period, readingType, LOGGER);
     }
 
     @Override
-    public EstimationReportImpl previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Range<Instant> period, ReadingType readingType, Logger logger) {
-        UpdatableHolder<EstimationResult> result = new UpdatableHolder<>(getInitialBlocksToEstimateAsResult(system, channelsContainer, period, readingType));
+    public EstimationReportImpl previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer,
+                                                Range<Instant> period, ReadingType readingType, Logger logger) {
+        UpdatableHolder<EstimationResult> result = new UpdatableHolder<>(
+                getInitialBlocksToEstimateAsResult(system, channelsContainer, period, readingType));
 
         EstimationReportImpl report = new EstimationReportImpl();
 
@@ -357,14 +379,16 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
                         Estimator estimator = rule.createNewEstimator();
                         estimator.init(logger);
                         EstimationResult estimationResult = result.get();
-                        estimationResult.estimated().stream().forEach(block -> report.reportEstimated(readingType, block));
+                        estimationResult.estimated().forEach(block -> report.reportEstimated(readingType, block));
                         EstimationResult newResult = estimator.estimate(estimationResult.remainingToBeEstimated(), system);
-                        newResult.estimated().stream().forEach(block -> loggingContext.info(logger, "Successful estimation with {rule}: block {0}", EstimationBlockFormatter.getInstance().format(block)));
+                        newResult.estimated().forEach(block ->
+                                loggingContext.info(logger, "Successful estimation with {rule}: block {0}",
+                                        EstimationBlockFormatter.getInstance().format(block)));
                         result.update(newResult);
                     }
                 });
-        result.get().estimated().stream().forEach(block -> report.reportEstimated(readingType, block));
-        result.get().remainingToBeEstimated().stream().forEach(block -> report.reportUnableToEstimate(readingType, block));
+        result.get().estimated().forEach(block -> report.reportEstimated(readingType, block));
+        result.get().remainingToBeEstimated().forEach(block -> report.reportUnableToEstimate(readingType, block));
         return report;
     }
 
@@ -512,7 +536,8 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
         return Collections.unmodifiableList(resolvers);
     }
 
-    private EstimationResult getInitialBlocksToEstimateAsResult(QualityCodeSystem system, ChannelsContainer channelsContainer, Range<Instant> period, ReadingType readingType) {
+    private EstimationResult getInitialBlocksToEstimateAsResult(QualityCodeSystem system, ChannelsContainer channelsContainer,
+                                                                Range<Instant> period, ReadingType readingType) {
         return asInitialResult(getBlocksToEstimate(system, channelsContainer, period, readingType));
     }
 
