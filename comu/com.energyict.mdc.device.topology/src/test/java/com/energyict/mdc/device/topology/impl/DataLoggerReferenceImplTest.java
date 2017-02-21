@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
@@ -46,20 +50,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.elster.jupiter.util.streams.Predicates.not;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.when;
-
-/**
- * Test covering the data transfer between channels when slave is linked to data logger, or
- * when slave is unlinked from data logger.
- * <p>
- * Copyrights EnergyICT
- * Date: 25/05/2016
- * Time: 9:04
- */
+@Ignore
 public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
     private final static Unit kiloWattHours = Unit.get("kWh");

@@ -1,12 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.G3Neighbor;
 import com.energyict.mdc.device.topology.Modulation;
 import com.energyict.mdc.device.topology.ModulationScheme;
 import com.energyict.mdc.device.topology.PhaseInfo;
-
-import com.elster.jupiter.orm.DataModel;
 
 import javax.inject.Inject;
 import java.time.Clock;

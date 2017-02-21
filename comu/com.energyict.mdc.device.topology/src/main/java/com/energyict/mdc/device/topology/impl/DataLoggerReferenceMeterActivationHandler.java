@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.events.LocalEvent;
@@ -21,11 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 03.08.16
- * Time: 14:30
- */
 @Component(name = "com.energyict.mdc.device.topology.impl.DataLoggerReferenceMeterActivationHandler", service = TopicHandler.class, immediate = true)
 public class DataLoggerReferenceMeterActivationHandler implements TopicHandler {
 

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.topology.impl;
 
 import javax.validation.Constraint;
@@ -8,13 +12,6 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-/**
- * Constraint that indicates that a Device can not be his own gateway.
- * <p/>
- * Copyrights EnergyICT
- * Date: 3/14/14
- * Time: 3:56 PM
- */
 @Target({java.lang.annotation.ElementType.TYPE})
 @Retention(RUNTIME)
 @Documented
