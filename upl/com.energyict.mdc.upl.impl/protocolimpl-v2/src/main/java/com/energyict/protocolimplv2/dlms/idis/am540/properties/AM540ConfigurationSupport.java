@@ -130,7 +130,7 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
      * @return	The property specification.
      */
     private final PropertySpec<Boolean> supportsHundrethsTimeField() {
-    	return PropertySpecFactory.booleanPropertySpec(AM540ConfigurationSupport.SUPPORTS_HUNDRETHS_TIMEFIELD);
+    	return PropertySpecFactory.notNullableBooleanPropertySpec(AM540ConfigurationSupport.SUPPORTS_HUNDRETHS_TIMEFIELD, Boolean.FALSE);
     }
     
     /**
@@ -139,7 +139,7 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
      * @return	The property specification.
      */
     private final PropertySpec<Boolean> skipFramecounterAuthenticationTagValidation() {
-    	return PropertySpecFactory.booleanPropertySpec(AM540ConfigurationSupport.SKIP_FC_AUTH_TAG_VALIDATION);
+    	return PropertySpecFactory.notNullableBooleanPropertySpec(AM540ConfigurationSupport.SKIP_FC_AUTH_TAG_VALIDATION, Boolean.FALSE);
     }
     
     /**
@@ -148,7 +148,7 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
      * @return	The property specification.
      */
     private final PropertySpec<Boolean> skipSlaveDevices() {
-    	return PropertySpecFactory.booleanPropertySpec(AM540ConfigurationSupport.SKIP_SLAVE_DEVICES);
+    	return PropertySpecFactory.notNullableBooleanPropertySpec(AM540ConfigurationSupport.SKIP_SLAVE_DEVICES, Boolean.TRUE);
     }
     
     /**
@@ -157,7 +157,7 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
      * @return	The property specification.
      */
     private final PropertySpec<Boolean> useUndefinedForClockStatus() {
-    	return PropertySpecFactory.booleanPropertySpec(AM540ConfigurationSupport.USE_UNDEFINED_AS_CLOCK_STATUS);
+    	return PropertySpecFactory.notNullableBooleanPropertySpec(AM540ConfigurationSupport.USE_UNDEFINED_AS_CLOCK_STATUS, Boolean.TRUE);
     }
     
     /**
@@ -166,7 +166,7 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
      * @return	The property specification.
      */
     private final PropertySpec<Boolean> useUndefinedForTimeDeviation() {
-    	return PropertySpecFactory.booleanPropertySpec(AM540ConfigurationSupport.USE_UNDEFINED_AS_TIME_DEVIATION);
+    	return PropertySpecFactory.notNullableBooleanPropertySpec(AM540ConfigurationSupport.USE_UNDEFINED_AS_TIME_DEVIATION, Boolean.TRUE);
     }
     
     /**
@@ -175,7 +175,7 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
      * @return	Whether or not to use a fixed object list.
      */
     private final PropertySpec<Boolean> useFixedObjectList() {
-    	return PropertySpecFactory.booleanPropertySpec(AM540ConfigurationSupport.USE_FIXED_OBJECT_LIST);
+    	return PropertySpecFactory.notNullableBooleanPropertySpec(AM540ConfigurationSupport.USE_FIXED_OBJECT_LIST, Boolean.FALSE);
     }
     
     /**
