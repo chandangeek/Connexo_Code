@@ -86,7 +86,7 @@ public class SerialDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
     private PropertySpec roundTripCorrectionPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(ROUND_TRIP_CORRECTION, false, PropertyTranslationKeys.V2_TASKS_TIMEOUT, this.propertySpecService::bigDecimalSpec)
+                .specBuilder(ROUND_TRIP_CORRECTION, false, PropertyTranslationKeys.V2_TASKS_ROUNDTRIPCORRECTION, this.propertySpecService::bigDecimalSpec)
                 .setDefaultValue(DEFAULT_ROUND_TRIP_CORRECTION)
                 .finish();
     }
