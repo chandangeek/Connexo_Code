@@ -126,7 +126,7 @@ public class ConnectionMethodResource {
         pauseOrResumeTask(info, task);
         if (info.isDefault && !wasConnectionTaskDefault) {
             connectionTaskService.setDefaultConnectionTask(task);
-        } else if (wasConnectionTaskDefault) {
+        } else if (!info.isDefault && wasConnectionTaskDefault) {
             connectionTaskService.clearDefaultConnectionTask(device);
         }
         return Response.status(Response.Status.OK).entity(connectionMethodInfoFactory.asInfo(task, uriInfo)).build();
