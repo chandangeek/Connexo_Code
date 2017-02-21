@@ -27,8 +27,19 @@ public class ChannelValidationContainer {
         channelValidations.stream()
                 .filter(ChannelValidation::hasActiveRules)
                 .forEach(channelValidation -> {
-                    channelValidation.updateLastChecked(date);
-                    channelValidation.getChannelsContainerValidation().save();
+                    if (channelValidation.updateLastChecked(date)) {
+                        channelValidation.getChannelsContainerValidation().save();
+                    }
+                });
+    }
+
+    void moveLastCheckedBefore(Instant date) {
+        channelValidations.stream()
+                .filter(ChannelValidation::hasActiveRules)
+                .forEach(channelValidation -> {
+                    if (channelValidation.moveLastCheckedBefore(date)) {
+                        channelValidation.getChannelsContainerValidation().save();
+                    }
                 });
     }
 
@@ -36,7 +47,6 @@ public class ChannelValidationContainer {
         return channelValidations.stream().anyMatch(ChannelValidation::hasActiveRules);
     }
 
-    // TODO: think of lastChecked, if it should be common for MDC & MDM, or calculated and set independently
     Optional<Instant> getLastChecked() {
         return getLastChecked(stream());
     }

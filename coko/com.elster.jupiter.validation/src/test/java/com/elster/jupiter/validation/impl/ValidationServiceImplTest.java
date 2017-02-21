@@ -200,8 +200,6 @@ public class ValidationServiceImplTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ReadingQualityWithTypeFetcher fetcher;
     @Mock
-    private ReadingQualityRecord readingQuality1, readingQuality2, readingQuality3;
-    @Mock
     private QueryExecutor<ChannelValidation> channelValidationQuery;
     @Mock
     private ValidatorCreator validatorCreator;
@@ -213,10 +211,6 @@ public class ValidationServiceImplTest {
     private SubscriberSpec subscriberSpec;
     @Mock
     private RecurrentTask recurrentTask;
-    @Mock
-    private Query<DataValidationOccurrence> dataValidationOccurrenceQuery;
-    @Mock
-    private DataValidationOccurrence dataValidationOccurrence;
     @Mock
     private QueryExecutor<DataValidationTask> dataValidationTaskQueryExecutor;
     @Mock
@@ -260,6 +254,7 @@ public class ValidationServiceImplTest {
         doReturn(channel1).when(cimChannel1).getChannel();
         doReturn(channel2).when(cimChannel2).getChannel();
         when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channelsContainer.getStart()).thenReturn(Instant.EPOCH);
         doReturn(fetcher).when(cimChannel1).findReadingQualities();
 
         validationService = new ValidationServiceImpl(bundleContext, clock, messageService, eventService, taskService, meteringService, meteringGroupsService, ormService, queryService, nlsService, mock(UserService.class), mock(Publisher.class), upgradeService, kpiService, metrologyConfigurationService, searchService);
@@ -283,6 +278,7 @@ public class ValidationServiceImplTest {
         when(dataModel.getInstance(ValidationRuleSetVersionImpl.class)).thenAnswer(invocationOnMock -> new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider, clock));
         when(dataModel.getInstance(DataValidationTaskImpl.class)).thenAnswer(invocationOnMock -> newDataValidationTask);
         when(dataModel.getInstance(ChannelsContainerValidationImpl.class)).thenReturn(new ChannelsContainerValidationImpl(dataModel, clock));
+        when(dataModel.getInstance(ChannelsContainerValidationList.class)).thenReturn(new ChannelsContainerValidationList(validationService, eventService));
         when(dataModel.query(ChannelsContainerValidation.class, ChannelValidation.class)).thenReturn(queryExecutor);
         when(queryExecutor.select(any())).thenReturn(Collections.emptyList());
         when(thesaurus.getFormat(any(MessageSeeds.class))).thenReturn(nlsMessageFormat);
@@ -435,7 +431,7 @@ public class ValidationServiceImplTest {
         when(validationRuleSetResolver.resolve(any(ValidationContext.class))).thenReturn(Collections.singletonList(validationRuleSet));
         Map<Channel, Range<Instant>> changeScope = ImmutableMap.of(channel1, Range.atLeast(Instant.EPOCH));
         validationService.validate(channelsContainer, changeScope);
-        verify(channelsContainerValidation).moveLastCheckedBefore(changeScope);
+        verify(channelsContainerValidation).moveLastCheckedBefore(ImmutableMap.of(channel1.getId(), Range.atLeast(Instant.EPOCH)));
     }
 
     @Test
@@ -893,7 +889,6 @@ public class ValidationServiceImplTest {
 
     @Test
     public void testOnlyRuleSetsWithSpecificQualitySystemsAreExecuted() {
-        ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
         when(channelsContainer.getMeter()).thenReturn(Optional.empty());
         IValidationRuleSet mdcValidationRuleSet = mock(IValidationRuleSet.class);
         when(mdcValidationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
@@ -902,7 +897,7 @@ public class ValidationServiceImplTest {
         when(validationRuleSetResolver.resolve(any(ValidationContext.class))).thenReturn(Arrays.asList(mdcValidationRuleSet, mdmValidationRuleSet));
         ChannelsContainerValidationImpl channelsContainerValidation = mock(ChannelsContainerValidationImpl.class);
         when(dataModel.getInstance(ChannelsContainerValidationImpl.class)).thenReturn(channelsContainerValidation);
-        when(channelsContainerValidation.init(any(ChannelsContainer.class))).thenReturn(channelsContainerValidation);
+        when(channelsContainerValidation.init(channelsContainer)).thenReturn(channelsContainerValidation);
         when(channelsContainerValidation.getChannelsContainer()).thenReturn(channelsContainer);
         when(channelsContainerValidation.getRuleSet()).thenReturn(mdcValidationRuleSet);
 
@@ -914,7 +909,6 @@ public class ValidationServiceImplTest {
 
     @Test
     public void testRuleSetsWithAnyQualitySystemsAreExecuted() {
-        ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
         when(channelsContainer.getMeter()).thenReturn(Optional.empty());
         IValidationRuleSet mdcValidationRuleSet = mock(IValidationRuleSet.class);
         when(mdcValidationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
@@ -923,7 +917,7 @@ public class ValidationServiceImplTest {
         when(validationRuleSetResolver.resolve(any(ValidationContext.class))).thenReturn(Arrays.asList(mdcValidationRuleSet, mdmValidationRuleSet));
         ChannelsContainerValidationImpl channelsContainerValidation = mock(ChannelsContainerValidationImpl.class);
         when(dataModel.getInstance(ChannelsContainerValidationImpl.class)).thenReturn(channelsContainerValidation);
-        when(channelsContainerValidation.init(any(ChannelsContainer.class))).thenReturn(channelsContainerValidation);
+        when(channelsContainerValidation.init(channelsContainer)).thenReturn(channelsContainerValidation);
         when(channelsContainerValidation.getChannelsContainer()).thenReturn(channelsContainer);
         when(channelsContainerValidation.getRuleSet()).thenReturn(mdcValidationRuleSet);
 

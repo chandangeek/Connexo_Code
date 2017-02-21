@@ -21,6 +21,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
+import com.elster.jupiter.validation.EventType;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRuleProperties;
@@ -40,7 +41,13 @@ import javax.validation.constraints.Size;
 import javax.validation.groups.Default;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Currying.test;
@@ -128,6 +135,7 @@ public final class ValidationRuleImpl implements IValidationRule {
         return newProperty;
     }
 
+    @Override
     public void setProperties(Map<String, Object> propertyMap) {
         DiffList<ValidationRuleProperties> entryDiff = ArrayDiffList.fromOriginal(getProperties());
         entryDiff.clear();
@@ -145,9 +153,7 @@ public final class ValidationRuleImpl implements IValidationRule {
         for (ValidationRuleProperties property : entryDiff.getRemaining()) {
             property.setValue(propertyMap.get(property.getName()));
             Optional<ValidationRuleProperties> any = properties.stream().filter(aProperty -> aProperty.getName().equals(property.getName())).findAny();
-            if (any.isPresent()) {
-                properties.remove(any.get());
-            }
+            any.ifPresent(properties::remove);
             properties.add(property);
         }
         for (ValidationRuleProperties property : entryDiff.getAdditions()) {
@@ -183,9 +189,10 @@ public final class ValidationRuleImpl implements IValidationRule {
         setActive(false);
     }
 
+    @Override
     public void delete() {
-        this.setObsoleteTime(Instant.now(clock)); // mark obsolete
-        doUpdate();
+        setObsoleteTime(Instant.now(clock)); // mark obsolete
+        Save.UPDATE.save(dataModel, this);
         eventService.postEvent(EventType.VALIDATIONRULE_DELETED.topic(), this);
     }
 
@@ -311,6 +318,7 @@ public final class ValidationRuleImpl implements IValidationRule {
         return getValidator().getPropertySpecs();
     }
 
+    @Override
     public PropertySpec getPropertySpec(final String name) {
         return getValidator().getPropertySpecs().stream()
                 .filter(p -> name.equals(p.getName()))
@@ -323,22 +331,26 @@ public final class ValidationRuleImpl implements IValidationRule {
         return getObsoleteDate() != null;
     }
 
+    @Override
     public void save() {
         if (getId() == 0) {
             doPersist();
-            return;
+        } else {
+            doUpdate();
         }
-        doUpdate();
     }
 
+    @Override
     public void rename(String name) {
         this.name = name == null ? null : name.trim();
     }
 
+    @Override
     public void setAction(ValidationAction action) {
         this.action = action;
     }
 
+    @Override
     public void setPosition(int position) {
         this.position = position;
     }
@@ -402,10 +414,12 @@ public final class ValidationRuleImpl implements IValidationRule {
 
     private void doPersist() {
         Save.CREATE.save(dataModel, this);
+        eventService.postEvent(EventType.VALIDATIONRULE_CREATED.topic(), this);
     }
 
     private void doUpdate() {
         Save.UPDATE.save(dataModel, this);
+        eventService.postEvent(EventType.VALIDATIONRULE_UPDATED.topic(), this);
     }
 
     private DataMapper<ValidationRuleProperties> rulePropertiesFactory() {

@@ -4,15 +4,16 @@
 
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -50,16 +51,18 @@ public interface ChannelsContainerValidation extends HasId {
 
     void validate();
 
-    void validate(ReadingType readingType);
+    void validate(Collection<Channel> channels);
 
     void updateLastChecked(Instant lastChecked);
 
     /**
-     * Only updates the lastChecked in memory !!! for performance optimisation COPL-882
+     * Only updates the lastChecked in memory!!! For performance optimization COPL-882.
      *
-     * @param ranges: Map of channel-range to update the last checked to
+     * @param rangeByChannelIdMap: Map of channelId-range to move the last checked before.
+     * Channel must be identified by id here because there can be {@link AggregatedChannel}
+     * that is just a wrapping on {@link Channel} with the same id.
      */
-    void moveLastCheckedBefore(Map<Channel, Range<Instant>> ranges);
+    void moveLastCheckedBefore(Map<Long, Range<Instant>> rangeByChannelIdMap);
 
     void moveLastCheckedBefore(Instant date);
 

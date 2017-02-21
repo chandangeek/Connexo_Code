@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -20,6 +21,7 @@ import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.validation.DataValidationTask;
+import com.elster.jupiter.validation.EventType;
 import com.elster.jupiter.validation.ValidationService;
 
 import javax.inject.Inject;
@@ -46,14 +48,21 @@ public class UpgraderV10_3 implements Upgrader {
     private final MeteringGroupsService meteringGroupsService;
     private final ValidationService validationService;
     private final SearchService searchService;
+    private final EventService eventService;
 
     @Inject
-    public UpgraderV10_3(DataModel dataModel, MetrologyConfigurationService metrologyConfigurationService, MeteringGroupsService meteringGroupsService, ValidationService validationService, SearchService searchService) {
+    public UpgraderV10_3(DataModel dataModel,
+                         MetrologyConfigurationService metrologyConfigurationService,
+                         MeteringGroupsService meteringGroupsService,
+                         ValidationService validationService,
+                         SearchService searchService,
+                         EventService eventService) {
         this.dataModel = dataModel;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.meteringGroupsService = meteringGroupsService;
         this.validationService = validationService;
         this.searchService = searchService;
+        this.eventService = eventService;
     }
 
     @Override
@@ -105,6 +114,8 @@ public class UpgraderV10_3 implements Upgrader {
                 sql.forEach(sqlCommand -> execute(statement, sqlCommand));
             }
         });
+
+        installNewEventTypes();
     }
 
     private SearchablePropertyValue createSearchablePropertyValue(String searchableProperty, List<String> values) {
@@ -113,5 +124,10 @@ public class UpgraderV10_3 implements Upgrader {
         valueBean.operator = SearchablePropertyOperator.EQUAL;
         valueBean.values = values;
         return new SearchablePropertyValue(null, valueBean);
+    }
+
+    private void installNewEventTypes() {
+        EventType.VALIDATION_PERFORMED.install(eventService);
+        EventType.VALIDATION_RESET.install(eventService);
     }
 }

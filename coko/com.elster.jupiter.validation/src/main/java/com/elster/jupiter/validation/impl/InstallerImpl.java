@@ -21,6 +21,7 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.validation.EventType;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.kpi.DataValidationKpiCalculatorHandlerFactory;
 import com.elster.jupiter.validation.security.Privileges;

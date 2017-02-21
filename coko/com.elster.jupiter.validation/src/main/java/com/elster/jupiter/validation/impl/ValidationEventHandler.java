@@ -7,7 +7,6 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
-import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.StorerProcess;
@@ -21,15 +20,14 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.validation.validationeventhandler", service = Subscriber.class, immediate = true)
 public class ValidationEventHandler extends EventHandler<LocalEvent> {
-
-    private static final String CREATEDTOPIC = EventType.READINGS_CREATED.topic();
-    private static final String REMOVEDTOPIC = EventType.READINGS_DELETED.topic();
-    private static final String ADVANCEDTOPIC = EventType.METER_ACTIVATION_ADVANCED.topic();
+    private static final String CREATED_TOPIC = EventType.READINGS_CREATED.topic();
+    private static final String REMOVED_TOPIC = EventType.READINGS_DELETED.topic();
+    private static final String ADVANCED_TOPIC = EventType.METER_ACTIVATION_ADVANCED.topic();
 
     private volatile ValidationServiceImpl validationService;
 
@@ -44,78 +42,52 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
 
     @Override
     protected void onEvent(LocalEvent event, Object... eventDetails) {
-        if (event.getType().getTopic().equals(CREATEDTOPIC)) {
+        if (event.getType().getTopic().equals(CREATED_TOPIC)) {
             ReadingStorer storer = (ReadingStorer) event.getSource();
-            if (!StorerProcess.ESTIMATION.equals(storer.getStorerProcess()) && !StorerProcess.CONFIRM.equals(storer.getStorerProcess())) {
-                handleReadingStorer(storer);
+            StorerProcess action = storer.getStorerProcess();
+            if (StorerProcess.CONFIRM != action) {
+                Map<ChannelsContainer, Map<Channel, Range<Instant>>> scopePerChannelPerChannelsContainer
+                        = determineScopePerChannelPerChannelsContainer(storer);
+                if (StorerProcess.ESTIMATION != action) {
+                    scopePerChannelPerChannelsContainer.entrySet()
+                            .forEach(containerAndScopeByChannel -> validationService.validate(containerAndScopeByChannel.getKey(),
+                                    containerAndScopeByChannel.getValue()));
+                }
+                Map<Channel, Range<Instant>> dependentScope = scopePerChannelPerChannelsContainer.entrySet().stream()
+                        .flatMap(containerAndScopeByChannelMap -> containerAndScopeByChannelMap.getKey()
+                                .findDependentChannelScope(containerAndScopeByChannelMap.getValue())
+                                .entrySet()
+                                .stream())
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Range::span));
+                validationService.validate(dependentScope);
             }
-        }
-        if (event.getType().getTopic().equals(REMOVEDTOPIC)) {
-        	Channel.ReadingsDeletedEvent deleteEvent = (Channel.ReadingsDeletedEvent) event.getSource();
-        	handleDeleteEvent(deleteEvent);
-        }
-        if (event.getType().getTopic().equals(ADVANCEDTOPIC)) {
-            EventType.MeterActivationAdvancedEvent advanceEvent = (EventType.MeterActivationAdvancedEvent) event.getSource();
-            handleAdvanceEvent(advanceEvent);
+        } else if (event.getType().getTopic().equals(REMOVED_TOPIC)) {
+            Channel.ReadingsDeletedEvent deleteEvent = (Channel.ReadingsDeletedEvent) event.getSource();
+            Channel channel = deleteEvent.getChannel();
+            ChannelsContainer channelsContainer = channel.getChannelsContainer();
+            Map<Channel, Range<Instant>> scope = ImmutableMap.of(channel, deleteEvent.getRange());
+            validationService.validate(channelsContainer, scope);
+            validationService.validate(channelsContainer.findDependentChannelScope(scope));
+        } else if (event.getType().getTopic().equals(ADVANCED_TOPIC)) {
+            handleAdvancedMeterActivation((EventType.MeterActivationAdvancedEvent) event.getSource());
         }
     }
 
-    private void handleAdvanceEvent(EventType.MeterActivationAdvancedEvent advanceEvent) {
+    private static Map<ChannelsContainer, Map<Channel, Range<Instant>>> determineScopePerChannelPerChannelsContainer(ReadingStorer storer) {
+        return storer.getScope().entrySet().stream()
+                .collect(Collectors.groupingBy(entry -> entry.getKey().getChannelContainer(),
+                        Collectors.toMap(entry -> entry.getKey().getChannel(), Map.Entry::getValue, Range::span)));
+    }
+
+    private void handleAdvancedMeterActivation(EventType.MeterActivationAdvancedEvent advanceEvent) {
         validationService.getPersistedChannelsContainerValidations(advanceEvent.getAdvanced().getChannelsContainer())
-                .stream()
-                .forEach(channelsContainerValidation -> {
-                    channelsContainerValidation.getChannelValidations()
-                            .forEach(channelValidation -> channelValidation.updateLastChecked(advanceEvent.getAdvanced().getStart()));
-                    channelsContainerValidation.save();
-                });
+                .forEach(channelsContainerValidation -> channelsContainerValidation
+                        .updateLastChecked(advanceEvent.getAdvanced().getStart()));
         if (advanceEvent.getShrunk() != null) {
+            Instant rightAfterNewLastChecked = advanceEvent.getShrunk().getEnd().plusMillis(1);
             validationService.getPersistedChannelsContainerValidations(advanceEvent.getShrunk().getChannelsContainer())
-                    .stream()
-                    .forEach(channelsContainerValidation -> {
-                        channelsContainerValidation.getChannelValidations()
-                                .forEach(channelValidation -> {
-                                    Instant end = advanceEvent.getShrunk().getEnd();
-                                    if (channelValidation.getLastChecked() != null && end.isBefore(channelValidation.getLastChecked())) {
-                                        channelValidation.updateLastChecked(end);
-                                    }
-                                });
-                        channelsContainerValidation.save();
-                    });
+                    .forEach(channelsContainerValidation -> channelsContainerValidation
+                            .moveLastCheckedBefore(rightAfterNewLastChecked));
         }
     }
-
-    private void handleReadingStorer(ReadingStorer storer) {
-        Map<ChannelsContainer, Map<Channel, Range<Instant>>> map = determineScopePerChannelContainer(storer);
-        map.entrySet().forEach(entry -> validationService.validate(entry.getKey(), entry.getValue()));
-    }
-
-    private Map<ChannelsContainer, Map<Channel, Range<Instant>>> determineScopePerChannelContainer(ReadingStorer storer) {
-        Map<CimChannel, Range<Instant>> scope = storer.getScope();
-
-        //Collector<Map.Entry<CimChannel, Range<Instant>>, Range<Instant>, Range<Instant>> merger =
-        Map<Channel, Range<Instant>> byChannel = scope.entrySet().stream().collect(
-                HashMap::new,
-                (map, entry) -> {
-                    map.computeIfPresent(entry.getKey().getChannel(), (channel, range) -> range.span(entry.getValue()));
-                    map.computeIfAbsent(entry.getKey().getChannel(), channel -> entry.getValue());
-                },
-                (map1, map2) -> {/* no combiner, since we don't do this in parallel */}
-        );
-        return byChannel.entrySet().stream().collect(
-                HashMap::new,
-                (map, entry) -> {
-                    map.computeIfAbsent(entry.getKey().getChannelsContainer(), channelsContainer -> new HashMap<>());
-                    map.computeIfPresent(entry.getKey().getChannelsContainer(), (channelsContainer, map1) -> {
-                        map1.put(entry.getKey(), entry.getValue());
-                        return map1;
-                    });
-                },
-                (map1, map2) -> {/* no combiner, since we don't do this in parallel */}
-        );
-    }
-
-    private void handleDeleteEvent(Channel.ReadingsDeletedEvent deleteEvent) {
-        validationService.validate(deleteEvent.getChannel().getChannelsContainer(), ImmutableMap.of(deleteEvent.getChannel(), deleteEvent.getRange()));
-    }
-
 }

@@ -24,13 +24,14 @@ import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.mockito.Matchers.anyMap;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -75,12 +76,15 @@ public class ValidationEventHandlerTest {
 
         when(eventType.getTopic()).thenReturn("com/elster/jupiter/metering/reading/CREATED");
         Map<CimChannel, Range<Instant>> map = new HashMap<>();
-        map.put(cimChannel1, interval(date1, date2));
-        map.put(cimChannel2, interval(date3, date5));
-        map.put(cimChannel3, interval(date4, date5));
+        map.put(cimChannel1, Range.openClosed(date1, date2));
+        map.put(cimChannel2, Range.openClosed(date3, date5));
+        map.put(cimChannel3, Range.openClosed(date4, date5));
         when(channel1.getChannelsContainer()).thenReturn(channelsContainer1);
         when(channel2.getChannelsContainer()).thenReturn(channelsContainer1);
         when(channel3.getChannelsContainer()).thenReturn(channelsContainer2);
+        when(cimChannel1.getChannelContainer()).thenReturn(channelsContainer1);
+        when(cimChannel2.getChannelContainer()).thenReturn(channelsContainer1);
+        when(cimChannel3.getChannelContainer()).thenReturn(channelsContainer2);
         when(channel1.getMainReadingType()).thenReturn(readingType);
         when(channel2.getMainReadingType()).thenReturn(readingType);
         when(channel3.getMainReadingType()).thenReturn(readingType);
@@ -91,25 +95,18 @@ public class ValidationEventHandlerTest {
 
         when(localEvent.getSource()).thenReturn(readingStorer);
         when(localEvent.getType()).thenReturn(eventType);
-        when(readingStorer.getStorerProcess()).thenReturn(StorerProcess.DEFAULT);
 
         when(readingStorer.getScope()).thenReturn(map);
     }
 
-    private Range<Instant> interval(Instant from, Instant to) {
-        return Range.openClosed(from, to);
-    }
-
-    @After
-    public void tearDown() {
-    }
-
     @Test
-    public void testOnEvent() {
+    public void testOnEventDoesValidateOnReadingsCreated() {
+        when(readingStorer.getStorerProcess()).thenReturn(StorerProcess.DEFAULT);
+
         handler.handle(localEvent);
 
-        verify(validationService).validate(channelsContainer1, ImmutableMap.of(channel1, interval(date1, date2), channel2, interval(date3, date5)));
-        verify(validationService).validate(channelsContainer2, ImmutableMap.of(channel3, interval(date4, date5)));
+        verify(validationService).validate(channelsContainer1, ImmutableMap.of(channel1, Range.openClosed(date1, date2), channel2, Range.openClosed(date3, date5)));
+        verify(validationService).validate(channelsContainer2, ImmutableMap.of(channel3, Range.openClosed(date4, date5)));
     }
 
     @Test
@@ -118,8 +115,8 @@ public class ValidationEventHandlerTest {
 
         handler.handle(localEvent);
 
-        verify(validationService, never()).validate(channelsContainer1, ImmutableMap.of(channel1, interval(date1, date2), channel2, interval(date3, date5)));
-        verify(validationService, never()).validate(channelsContainer2, ImmutableMap.of(channel3, interval(date4, date5)));
+        verify(validationService, never()).validate(eq(channelsContainer1), anyMap());
+        verify(validationService, never()).validate(eq(channelsContainer2), anyMap());
     }
 
     @Test
@@ -128,9 +125,7 @@ public class ValidationEventHandlerTest {
 
         handler.handle(localEvent);
 
-        verify(validationService).validate(channelsContainer1, ImmutableMap.of(channel1, interval(date1, date2), channel2, interval(date3, date5)));
-        verify(validationService).validate(channelsContainer2, ImmutableMap.of(channel3, interval(date4, date5)));
+        verify(validationService).validate(channelsContainer1, ImmutableMap.of(channel1, Range.openClosed(date1, date2), channel2, Range.openClosed(date3, date5)));
+        verify(validationService).validate(channelsContainer2, ImmutableMap.of(channel3, Range.openClosed(date4, date5)));
     }
-
-
 }
