@@ -9,7 +9,6 @@ import com.elster.jupiter.properties.ListReadingQualityFactory;
 import com.elster.jupiter.properties.ListValueFactory;
 import com.elster.jupiter.properties.LongFactory;
 import com.elster.jupiter.properties.RelativePeriodFactory;
-import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ThreeStateFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.units.Quantity;
@@ -23,7 +22,7 @@ public enum SimplePropertyType implements PropertyType {
     BOOLEAN(Boolean.class),
     NULLABLE_BOOLEAN(ThreeStateFactory.class),
     TEXT(String.class),
-    TEXTAREA(StringFactory.class),
+    TEXTAREA(String.class),
     TIMESTAMP(Instant.class),
     LONG(LongFactory.class),
     IDWITHNAME(HasIdAndName.class),
@@ -42,6 +41,9 @@ public enum SimplePropertyType implements PropertyType {
     }
 
     public static SimplePropertyType getTypeFrom(ValueFactory valueFactory) {
+        if (valueFactory instanceof StringAreaFactory) {
+            return TEXTAREA;
+        }
         for (SimplePropertyType simplePropertyType : values()) {
             if (simplePropertyType.matches(valueFactory)) {
                 return simplePropertyType;
