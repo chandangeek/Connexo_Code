@@ -9,6 +9,9 @@ import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am130.properties.AM130ConfigurationSupport;
 
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_MAX_REC_PDU_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
+
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
@@ -60,7 +63,7 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
     public static final String SKIP_SLAVE_DEVICES = "SkipSlaveDevices";
    
     /** The default max-apdu-size when using G3. */
-    public static final BigDecimal DEFAULT_MAX_REC_PDU_SIZE = new BigDecimal(1224);
+    private static final BigDecimal DEFAULT_MAX_REC_PDU_SIZE = new BigDecimal(1224);
     
     public static final boolean USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE = false;
     public static final BigDecimal DEFAULT_SERVER_LOWER_MAC_ADDRESS = BigDecimal.valueOf(17);
@@ -256,6 +259,15 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
 
     public PropertySpec deviceSystemTitlePropertySpec() {
         return PropertySpecFactory.stringPropertySpec(DlmsProtocolProperties.DEVICE_SYSTEM_TITLE);
+    }
+    
+    /**
+     * Overriding this one for the max-apdu-size.
+     * 
+     * {@inheritDoc}
+     */
+    protected final PropertySpec<BigDecimal> maxRecPduSizePropertySpec() {
+        return PropertySpecFactory.bigDecimalPropertySpec(MAX_REC_PDU_SIZE, DEFAULT_MAX_REC_PDU_SIZE);
     }
 
 }
