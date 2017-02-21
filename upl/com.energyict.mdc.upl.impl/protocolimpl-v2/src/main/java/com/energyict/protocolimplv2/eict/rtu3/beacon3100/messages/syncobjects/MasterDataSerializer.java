@@ -222,6 +222,7 @@ public class MasterDataSerializer {
         return null;
     }
 
+
     private Beacon3100MeterDetails createMeterDetails(Device device, Device masterDevice) {
         final String callHomeId = parseCallHomeId(device);
 
