@@ -96,6 +96,7 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         when(readingRecord1.getValue()).thenReturn(BigDecimal.valueOf(200, 0));
         when(readingRecord1.getTimeStamp()).thenReturn(readingTimeStamp1);
         when(readingRecord1.getReportedDateTime()).thenReturn(readingTimeStamp1);
+        when(readingRecord1.getTimePeriod()).thenReturn(Optional.empty());
         when(readingRecord2.getValue()).thenReturn(BigDecimal.valueOf(206, 0));
         when(readingRecord2.getTimeStamp()).thenReturn(readingTimeStamp2);
         when(readingRecord2.getReportedDateTime()).thenReturn(readingTimeStamp2);
