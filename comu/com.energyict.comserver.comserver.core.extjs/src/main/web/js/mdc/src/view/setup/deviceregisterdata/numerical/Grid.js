@@ -99,13 +99,17 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
             {
                 xtype: 'validation-flag-column',
                 dataIndex: 'deltaValue',
+                header: '',
                 align: 'right',
                 minWidth: 150,
                 hidden: true,
-             //   flex: 1,
+                flex: 1,
                 renderer: function (data) {
+                    debugger;
                     if (!Ext.isEmpty(data)) {
                         return Uni.Number.formatNumber(data, -1);
+                    } else {
+                        return '-';
                     }
                 }
             },
