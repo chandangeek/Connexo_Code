@@ -108,7 +108,6 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
                 this.frameCounterRecoveryRetries(),
                 this.frameCounterRecoveryStep(),
                 this.deviceSystemTitlePropertySpec(),
-                this.supportsHundrethsTimeField(),
                 this.useCachedFrameCounter(),
                 this.useGeneralBlockTransferPropertySpec(),
                 this.generalBlockTransferWindowSizePropertySpec(),
