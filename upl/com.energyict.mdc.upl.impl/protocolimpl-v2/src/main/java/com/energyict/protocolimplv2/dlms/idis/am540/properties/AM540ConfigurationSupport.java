@@ -35,9 +35,30 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
     public static final String FRAME_COUNTER_RECOVERY_RETRIES = "FrameCounterRecoveryRetries";
     public static final String FRAME_COUNTER_RECOVERY_STEP = "FrameCounterRecoveryStep"; 
     
-    /** Indicates whether the meter supports hundreths or not. */
+    /** 
+     * Indicates whether the meter supports hundreths or not.
+     * 
+     * For example SAG meters will generate an other-reason if this field is included.
+     */
     public static final String SUPPORTS_HUNDRETHS_TIMEFIELD = "SupportsHundredthsTimeField";
+    
+    /**
+     * Indicates whether the meter does not accept a time deviation other than undefined. (SAG again).
+     */
+    public static final String USE_UNDEFINED_AS_TIME_DEVIATION = "UseUndefinedAsTimeDeviation";
+    
+    /** Indicates whether the meter will accept anything else but undefined as clock status. */
+    public static final String USE_UNDEFINED_AS_CLOCK_STATUS = "UseUndefinedAsClockStatus";
+    
+    /** Indicates whether or not to skip the authentication tag validation. */
+    public static final String SKIP_FC_AUTH_TAG_VALIDATION = "SkipFrameCounterAuthenticationTag";
 
+    /** Indicates whether or not to use a static object list. */
+    public static final String USE_FIXED_OBJECT_LIST = "UseFixedObjectList";
+    
+    /** Skips slave devices. */
+    public static final String SKIP_SLAVE_DEVICES = "SkipSlaveDevices";
+    
     public static final boolean USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE = false;
     public static final BigDecimal DEFAULT_SERVER_LOWER_MAC_ADDRESS = BigDecimal.valueOf(17);
     public static final int NOT_USED_AARQ_TIMEOUT = 0;
@@ -79,9 +100,19 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
                 this.frameCounterRecoveryRetries(),
                 this.frameCounterRecoveryStep(),
                 this.deviceSystemTitlePropertySpec(),
-                this.supportsHundrethsTimeField()
+                this.supportsHundrethsTimeField(),
+                this.useCachedFrameCounter(),
+                this.useGeneralBlockTransferPropertySpec(),
+                this.generalBlockTransferWindowSizePropertySpec(),
+                this.supportsHundrethsTimeField(),
+                this.useUndefinedForClockStatus(),
+                this.useUndefinedForTimeDeviation(),
+                this.skipFramecounterAuthenticationTagValidation(),
+                this.useFixedObjectList(),
+                this.skipSlaveDevices()
         );
     }
+    
     private PropertySpec frameCounterRecoveryRetries() {
         return PropertySpecFactory.bigDecimalPropertySpec(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_RETRIES, BigDecimal.valueOf(100));
     }
@@ -101,7 +132,57 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
     private final PropertySpec<Boolean> supportsHundrethsTimeField() {
     	return PropertySpecFactory.booleanPropertySpec(AM540ConfigurationSupport.SUPPORTS_HUNDRETHS_TIMEFIELD);
     }
-
+    
+    /**
+     * Returns the "UseUndefinedAsClockStatus" property spec.
+     * 
+     * @return	The property specification.
+     */
+    private final PropertySpec<Boolean> skipFramecounterAuthenticationTagValidation() {
+    	return PropertySpecFactory.booleanPropertySpec(AM540ConfigurationSupport.SKIP_FC_AUTH_TAG_VALIDATION);
+    }
+    
+    /**
+     * Returns the "SkipSlaveDecives" property spec.
+     * 
+     * @return	The property specification.
+     */
+    private final PropertySpec<Boolean> skipSlaveDevices() {
+    	return PropertySpecFactory.booleanPropertySpec(AM540ConfigurationSupport.SKIP_SLAVE_DEVICES);
+    }
+    
+    /**
+     * Returns the "UseUndefinedAs" property spec.
+     * 
+     * @return	The property specification.
+     */
+    private final PropertySpec<Boolean> useUndefinedForClockStatus() {
+    	return PropertySpecFactory.booleanPropertySpec(AM540ConfigurationSupport.USE_UNDEFINED_AS_CLOCK_STATUS);
+    }
+    
+    /**
+     * Returns the "UseUndefinedAsTimeDeviation" property spec.
+     * 
+     * @return	The property specification.
+     */
+    private final PropertySpec<Boolean> useUndefinedForTimeDeviation() {
+    	return PropertySpecFactory.booleanPropertySpec(AM540ConfigurationSupport.USE_UNDEFINED_AS_TIME_DEVIATION);
+    }
+    
+    /**
+     * Indicates whether or not to use a fixed object list.
+     * 
+     * @return	Whether or not to use a fixed object list.
+     */
+    private final PropertySpec<Boolean> useFixedObjectList() {
+    	return PropertySpecFactory.booleanPropertySpec(AM540ConfigurationSupport.USE_FIXED_OBJECT_LIST);
+    }
+    
+    /**
+     * Indicates whether or not to use a cached frame counter.
+     * 
+     * @return	<code>true</code> for a cached frame counter, <code>false</code> if not.
+     */
     private PropertySpec useCachedFrameCounter() {
         return PropertySpecFactory.booleanPropertySpec(AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER);
     }
