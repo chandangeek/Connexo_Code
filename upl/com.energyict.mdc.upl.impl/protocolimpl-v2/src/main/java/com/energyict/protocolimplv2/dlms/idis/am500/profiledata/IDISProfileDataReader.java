@@ -309,12 +309,14 @@ public class IDISProfileDataReader {
                     throw new ProtocolRuntimeException(ProtocolExceptionReference.UNEXPECTED_RESPONSE);
                 }
             } else {
-                //TODO: see https://jira.eict.vpdc/browse/COMMUNICATION-1672
-                // this will throw up an exception if in the LP capture objects (from the meter) is found an obis code
-                // which is not supported by the (same) meter - that's illogical!
-                // we might want in the future to add a new parameter to skip this check (the storage works fine)
-                throw new ProtocolException("The OBIS code "+channelObisCode+" found in the meter load profile capture objects list, is NOT supported by the meter itself." +
-                        " If ReadCache property is not active, try again with this property enabled. Otherwise, please reprogram the meter with a valid set of capture objects.");
+                String message = "The OBIS code " + channelObisCode + " found in the meter load profile capture objects list, is NOT supported by the meter itself." +
+                        " If ReadCache property is not active, try again with this property enabled. Otherwise, please reprogram the meter with a valid set of capture objects.";
+
+                if (protocol.getDlmsSessionProperties().validateLoadProfileChannels()) {
+                    throw new ProtocolException(message);
+                } else {
+                    protocol.getLogger().warning(message);
+                }
             }
         }
         return result;

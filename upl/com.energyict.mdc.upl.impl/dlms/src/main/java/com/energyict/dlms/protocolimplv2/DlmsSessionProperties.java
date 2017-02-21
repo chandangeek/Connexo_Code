@@ -215,4 +215,16 @@ public interface DlmsSessionProperties extends CommunicationSessionProperties {
      * @return		<code>true</code> if the public client is pre-established, false if not.
      */
     boolean isPublicClientPreEstablished();
+
+
+    /**
+     * Will validate the load profile channels before decoding.
+     *
+     * If some of the load profiled captured objects is not supported by the meter, the validation will fail.
+     * This might cause issues for single-phase vs poly-phase configurations, where the poly-phase objects might be
+     * captured in single-phase objects (ex. voltage/current on phase 2, 3).
+     *
+     * @return
+     */
+    boolean validateLoadProfileChannels();
 }

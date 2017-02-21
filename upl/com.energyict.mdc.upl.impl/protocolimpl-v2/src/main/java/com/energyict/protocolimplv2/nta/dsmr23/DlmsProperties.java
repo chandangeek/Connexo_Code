@@ -399,4 +399,9 @@ public class DlmsProperties implements DlmsSessionProperties {
 	public final boolean isPublicClientPreEstablished() {
 		return this.properties.getTypedProperty(PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED, PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED_DEFAULT);
 	}
+
+    @Override
+    public boolean validateLoadProfileChannels(){
+        return this.properties.getTypedProperty(VALIDATE_LOAD_PROFILE_CHANNELS, false);
+    }
 }

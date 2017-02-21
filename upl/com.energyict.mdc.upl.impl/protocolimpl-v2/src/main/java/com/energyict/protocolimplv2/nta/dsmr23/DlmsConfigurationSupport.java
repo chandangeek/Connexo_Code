@@ -4,7 +4,6 @@ import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dlms.DlmsSessionProperties;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 
@@ -50,7 +49,8 @@ public class DlmsConfigurationSupport implements ConfigurationSupport {
                 this.validateInvokeIdPropertySpec(),
                 this.serverUpperMacAddressPropertySpec(),
                 this.serverLowerMacAddressPropertySpec(),
-                this.deviceId());
+                this.deviceId(),
+                this.validateLoadProfileChannelsPropertySpec());
     }
 
     protected PropertySpec serverUpperMacAddressPropertySpec() {
@@ -118,5 +118,10 @@ public class DlmsConfigurationSupport implements ConfigurationSupport {
      */
     protected final PropertySpec<Boolean> publicClientPreEstablishedPropertySpec() {
     	return PropertySpecFactory.notNullableBooleanPropertySpec(com.energyict.dlms.protocolimplv2.DlmsSessionProperties.PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED);
+    }
+
+
+    protected PropertySpec validateLoadProfileChannelsPropertySpec() {
+        return PropertySpecFactory.notNullableBooleanPropertySpec(VALIDATE_LOAD_PROFILE_CHANNELS);
     }
 }
