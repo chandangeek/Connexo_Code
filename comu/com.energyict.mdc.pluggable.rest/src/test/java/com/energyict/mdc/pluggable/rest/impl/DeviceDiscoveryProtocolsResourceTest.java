@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.pluggable.rest.impl;
 
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 
@@ -18,7 +17,6 @@ import org.junit.Test;
 import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.in;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
