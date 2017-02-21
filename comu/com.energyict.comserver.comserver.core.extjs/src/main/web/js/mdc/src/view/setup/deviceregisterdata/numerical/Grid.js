@@ -22,10 +22,14 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                 header: Uni.I18n.translate('general.measurementPeriod', 'MDC', 'Measurement period'),
                 dataIndex: 'interval',
                 renderer: function (value) {
-                    if (!Ext.isEmpty(value)) {
-                        var startDate = new Date(value.start),
-                            endDate = new Date(value.end);
-                        return Uni.DateTime.formatDateTimeShort(startDate) + ' - ' + Uni.DateTime.formatDateTimeShort(endDate);
+                    if(!Ext.isEmpty(value)) {
+                        var endDate = new Date(value.end);
+                        if (!!value.start && !!value.end) {
+                            var startDate = new Date(value.start);
+                            return Uni.DateTime.formatDateTimeShort(startDate) + ' - ' + Uni.DateTime.formatDateTimeShort(endDate);
+                        } else {
+                            return Uni.DateTime.formatDateTimeShort(endDate);
+                        }
                     }
                     return '-';
                 },
@@ -99,18 +103,15 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
             {
                 xtype: 'validation-flag-column',
                 dataIndex: 'deltaValue',
-                header: '',
                 align: 'right',
                 minWidth: 150,
                 hidden: true,
                 flex: 1,
                 renderer: function (data) {
-                    debugger;
                     if (!Ext.isEmpty(data)) {
                         return Uni.Number.formatNumber(data, -1);
-                    } else {
-                        return '-';
                     }
+                    return '-';
                 }
             },
             {

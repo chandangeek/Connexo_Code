@@ -24,10 +24,14 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Grid', {
                 header: Uni.I18n.translate('general.measurementPeriod', 'MDC', 'Measurement period'),
                 dataIndex: 'interval',
                 renderer: function (value) {
-                    if (!Ext.isEmpty(value)) {
-                        var startDate = new Date(value.start),
-                            endDate = new Date(value.end);
-                        return Uni.DateTime.formatDateTimeShort(startDate) + ' - ' + Uni.DateTime.formatDateTimeShort(endDate);
+                    if(!Ext.isEmpty(value)) {
+                        var endDate = new Date(value.end);
+                        if (!!value.start && !!value.end) {
+                            var startDate = new Date(value.start);
+                            return Uni.DateTime.formatDateTimeShort(startDate) + ' - ' + Uni.DateTime.formatDateTimeShort(endDate);
+                        } else {
+                            return Uni.DateTime.formatDateTimeShort(endDate);
+                        }
                     }
                     return '-';
                 },
