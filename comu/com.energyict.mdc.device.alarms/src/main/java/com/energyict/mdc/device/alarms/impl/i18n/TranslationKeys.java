@@ -20,12 +20,17 @@ public enum TranslationKeys implements TranslationKey {
     CLOSE_ACTION_PROPERTY_CLOSE_STATUS(CloseDeviceAlarmAction.CLOSE_STATUS, "Close status"),
     CLOSE_ACTION_PROPERTY_COMMENT(CloseDeviceAlarmAction.COMMENT, "Comment"),
     CLOSE_ACTION_WRONG_STATUS("action.wrong.status", "You are trying to apply the incorrect status"),
-    CLOSE_ACTION_ALARM_WAS_CLOSED("action.alarm.was.closed", "Alarm was closed"),
+    CLOSE_ACTION_ALARM_CLOSED("action.alarm.closed", "Alarm closed"),
     CLOSE_ACTION_ALARM_ALREADY_CLOSED("action.alarm.already.closed", "Alarm already closed"),
     CLOSE_ACTION_CLOSE_ISSUE("alarm.action.closeAlarm", "Close alarm"),
     ALARM_REASON(ModuleConstants.ALARM_REASON, "Alarm reason"),
     ALARM_REASON_DESCRIPTION(ModuleConstants.ALARM_REASON_DESCRIPTION, "Alarm reason {0}"),
-    ACTION_ASSIGN_ALARM("alarm.action.assignAlarm", "Assign alarm")
+    ACTION_ASSIGN_ALARM("alarm.action.assignAlarm", "Assign alarm"),
+    ACTION_ALARM_ASSIGNED_USER_AND_WORKGROUP("action.alarm.assigned.user.workgorup", "Alarm assigned to user {0} and workgroup {1}"),
+    ACTION_ALARM_ASSIGNED_USER("action.alarm.assigned.user", "Alarm assigned to user {0}"),
+    ACTION_ALARM_ASSIGNED_WORKGROUP("action.alarm.assigned.workgorup", "Alarm assigned to workgroup {0}"),
+    ACTION_ALARM_UNASSIGNED("action.alarm.unassigned", "Alarm unassigned"),
+
     //TODO - update list
 ;
     private final String key;
