@@ -23,6 +23,10 @@ public class SearchCriteriaVisualizationInfo extends PropertyInfo {
         public List<String> criteria;
     }
 
+    public SearchCriteriaVisualizationInfo() {
+
+    }
+
     public SearchCriteriaVisualizationInfo(SearchableProperty property, SearchablePropertyValue.ValueBean valueBean) {
         super(property);
         super.withSpecDetails();  // Initialize spec details
