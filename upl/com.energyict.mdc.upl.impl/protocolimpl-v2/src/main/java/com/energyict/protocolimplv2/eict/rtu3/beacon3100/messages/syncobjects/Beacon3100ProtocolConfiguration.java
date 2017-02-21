@@ -4,6 +4,11 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.protocolimpl.dlms.idis.IDIS;
+
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -16,7 +21,26 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 public class Beacon3100ProtocolConfiguration {
+	
+	/** The {@link Set} of {@link Properties} we don't sync. */
+	private static final Set<String> IGNORED_PROPERTY_NAMES = new HashSet<>();
 
+	/** Setup the ignores property names set. */
+	static {
+		IGNORED_PROPERTY_NAMES.add(IDIS.CALLING_AP_TITLE);
+	}
+	
+	/**
+	 * Indicates whether the given property should be synced to the DC.
+	 * 
+	 * @param 		propertyName		The name of the property.
+	 * 
+	 * @return		<code>true</code> if the prop should be passed, <code>false</code> if not.
+	 */
+	private static final boolean shouldSync(final String propertyName) {
+		return !IGNORED_PROPERTY_NAMES.contains(propertyName);
+	}
+	
     private String className;
 
     /**
@@ -43,10 +67,14 @@ public class Beacon3100ProtocolConfiguration {
             final Object value = getProperties().getProperty(name);
 
             //Only add if the type of the value is supported
-            if (value != null && Beacon3100ProtocolTypedProperty.isSupportedType(value)) {
+            if (name != null && 
+            	shouldSync(name) &&
+            	value != null && 
+            	Beacon3100ProtocolTypedProperty.isSupportedType(value)) {
                 protocolTypedProperties.addDataType(new Beacon3100ProtocolTypedProperty(name, value).toStructure());
             }
         }
+        
         structure.addDataType(protocolTypedProperties);
 
         return structure;
