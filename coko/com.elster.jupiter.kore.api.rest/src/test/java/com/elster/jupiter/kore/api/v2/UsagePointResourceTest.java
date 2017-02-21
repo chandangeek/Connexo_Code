@@ -82,7 +82,6 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
-
     @Test
     public void testUsagePointFields() throws Exception {
         Response response = target("/usagepoints").request("application/json").method("PROPFIND", Response.class);
@@ -550,7 +549,7 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         UsagePointInfo info = new UsagePointInfo();
         info.version = 2L;
         info.location = new LocationInfo();
-        info.location.locationId = 123123L;
+        info.location.locationId = 123L;
 
         // Business method
         Response response = target("/usagepoints/" + MRID).request().put(Entity.json(info));
@@ -560,7 +559,7 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Boolean>get("$.success")).isFalse();
         assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.NO_SUCH_LOCATION.getKey());
-        assertThat(jsonModel.<String>get("$.message")).isEqualTo(thesaurus.getFormat(MessageSeeds.NO_SUCH_LOCATION).format(123123L));
+        assertThat(jsonModel.<String>get("$.message")).isEqualTo(thesaurus.getFormat(MessageSeeds.NO_SUCH_LOCATION).format(info.location.locationId));
 
         verify(usagePoint, never()).update();
     }
