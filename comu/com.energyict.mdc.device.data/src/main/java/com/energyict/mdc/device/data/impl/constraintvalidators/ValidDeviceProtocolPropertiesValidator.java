@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.constraintvalidators;
 
 import com.elster.jupiter.properties.InvalidValueException;
@@ -7,12 +11,6 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.text.MessageFormat;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 8/01/2016 - 13:31
- */
 public class ValidDeviceProtocolPropertiesValidator implements ConstraintValidator<ValidDeviceProtocolProperties, ServerDeviceProtocolPropertyForValidation> {
 
     @Override

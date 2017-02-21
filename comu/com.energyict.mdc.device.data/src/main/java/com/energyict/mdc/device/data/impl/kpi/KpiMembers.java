@@ -1,10 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.kpi;
 
 import com.elster.jupiter.kpi.KpiEntry;
 import com.elster.jupiter.kpi.KpiMember;
-import com.google.common.collect.Range;
-
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
+
+import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.ArrayList;

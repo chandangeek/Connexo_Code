@@ -1,10 +1,13 @@
-package com.energyict.mdc.device.data.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.data.FlagsReading;
+package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.FlagsReading;
 
 /**
  * Provides an implementation for the {@link FlagsReading} interface.

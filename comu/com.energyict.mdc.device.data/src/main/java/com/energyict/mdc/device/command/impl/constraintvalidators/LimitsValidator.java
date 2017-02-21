@@ -1,6 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.command.impl.constraintvalidators;
 
-import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.ServerCommandRule;
 import com.energyict.mdc.device.command.impl.CommandRuleImpl;
 import com.energyict.mdc.device.command.impl.MessageSeeds;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.events;
 
 import com.elster.jupiter.events.EventService;
@@ -7,10 +11,11 @@ import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.device.data.impl.ScheduledComTaskExecutionIdRange;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
-import java.util.Optional;
+
 import org.osgi.service.event.EventConstants;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Handles the background process that completes the obsoletion of

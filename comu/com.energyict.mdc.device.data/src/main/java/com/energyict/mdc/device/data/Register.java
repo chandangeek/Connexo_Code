@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.metering.ReadingType;
@@ -13,26 +17,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Defines the non-persistent representation of a Register.
- * A <i>Register</i> for a {@link Device} will be a wrapper around
- * the {@link com.energyict.mdc.device.config.RegisterSpec} of
- * the {@link com.energyict.mdc.device.config.DeviceConfiguration}
- * of the {@link Device} and the actual storage area
- * provided by the Jupiter Kore metering bundle.
- * <p/>
- * The following types of registers are currently identified
- * and will have their proper interface:
- * <ul>
- * <li>Numerical: stores strictly numerical data</li>
- * <li>Event based: stores numerical data as a result of an event that occurred in the Device.</li>
- * <li>Text based: stores alphanumerical data (String)</li>
- * <li>Flags: stores a collection of bit flags</li>
- * </ul>
- * Copyrights EnergyICT
- * Date: 11/03/14
- * Time: 10:32
- */
 @ProviderType
 public interface Register<R extends Reading, RS extends RegisterSpec> extends BaseRegister {
 

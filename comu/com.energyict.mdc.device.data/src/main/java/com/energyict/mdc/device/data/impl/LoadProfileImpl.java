@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -37,13 +41,6 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
-/**
- * Provides an implementation of a LoadProfile of a {@link com.energyict.mdc.device.data.Device}
- * <p>
- * Copyrights EnergyICT
- * Date: 3/17/14
- * Time: 3:57 PM
- */
 public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
 
     private final DataModel dataModel;

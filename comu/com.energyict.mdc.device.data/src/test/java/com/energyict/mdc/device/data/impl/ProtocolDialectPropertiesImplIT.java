@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -60,13 +64,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-/**
- * Integration test for the {@link ProtocolDialectPropertiesImpl} component.
- *
- * Copyrights EnergyICT
- * Date: 26/04/13
- * Time: 16:46
- */
 @RunWith(MockitoJUnitRunner.class)
 public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest {
 

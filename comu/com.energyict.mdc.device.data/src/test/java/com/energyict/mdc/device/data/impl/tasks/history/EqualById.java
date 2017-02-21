@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.tasks.history;
 
 import com.elster.jupiter.util.HasId;
 
 import java.util.Objects;
 
-/**
- * Copyrights EnergyICT
- * Date: 7/05/2014
- * Time: 10:12
- */
 public class EqualById<T extends HasId> {
 
     private final T decorated;

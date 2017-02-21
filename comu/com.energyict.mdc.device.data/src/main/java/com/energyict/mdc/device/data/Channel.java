@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.metering.ReadingType;
@@ -14,11 +18,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 3/14/14
- * Time: 11:43 AM
- */
 @ProviderType
 public interface Channel extends BaseChannel {
 

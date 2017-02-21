@@ -1,24 +1,20 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data;
 
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 
-import com.elster.jupiter.util.HasId;
-import com.elster.jupiter.time.TimeDuration;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Models a LoadProfile on a Device. It <i>bundles</i> channels
- * with the same interval.
- * <p/>
- * Copyrights EnergyICT
- * Date: 3/17/14
- * Time: 3:30 PM
- */
 public interface LoadProfile extends BaseLoadProfile<Channel>, HasId {
 
     @Override

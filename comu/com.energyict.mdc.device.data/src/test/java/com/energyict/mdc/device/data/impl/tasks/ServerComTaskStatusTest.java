@@ -1,10 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
+
 import org.joda.time.DateTime;
-import org.junit.Test;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -12,16 +16,12 @@ import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Optional;
 
+import org.junit.Test;
+
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 12/08/2016 - 10:49
- */
 public class ServerComTaskStatusTest {
 
     public static final int DEFAULT_MAX_NUMBER_OF_TRIES = 3;

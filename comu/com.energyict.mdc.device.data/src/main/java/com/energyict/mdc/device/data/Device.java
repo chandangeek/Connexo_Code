@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.fsm.State;
@@ -59,11 +63,6 @@ import java.util.Optional;
 import java.util.TimeZone;
 import java.util.function.Consumer;
 
-/**
- * Copyrights EnergyICT
- * Date: 19/12/12
- * Time: 10:35
- */
 @ProviderType
 public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasId, HasName {
 

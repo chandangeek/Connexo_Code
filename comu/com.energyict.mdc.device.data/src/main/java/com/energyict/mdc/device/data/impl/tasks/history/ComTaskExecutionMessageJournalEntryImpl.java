@@ -1,12 +1,15 @@
-package com.energyict.mdc.device.data.impl.tasks.history;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionMessageJournalEntry;
-import com.energyict.mdc.device.data.tasks.history.JournalEntryVisitor;
-import com.energyict.mdc.engine.config.ComServer;
+package com.energyict.mdc.device.data.impl.tasks.history;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionMessageJournalEntry;
+import com.energyict.mdc.device.data.tasks.history.JournalEntryVisitor;
+import com.energyict.mdc.engine.config.ComServer;
 
 import javax.inject.Inject;
 import java.time.Instant;

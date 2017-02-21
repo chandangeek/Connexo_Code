@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.command.impl;
 
 import com.elster.jupiter.datavault.DataVaultService;
@@ -16,10 +20,9 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.concurrent.DelayedRegistrationHandler;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.time.DayMonthTime;
 import com.energyict.mdc.device.command.CommandRule;
-import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.command.CommandRulePendingUpdate;
+import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.command.ICommandRuleCounter;
 import com.energyict.mdc.device.command.ServerCommandRule;
 import com.energyict.mdc.device.command.impl.exceptions.ExceededCommandRule;
@@ -31,6 +34,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import org.osgi.framework.BundleContext;
@@ -50,15 +54,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import com.google.common.collect.Range;
 
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -104,6 +105,11 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
 
     @Override
     public List<CommandRule> findAllCommandRules() {
+        checkCommandRuleStatsAndThrowException();
+        return dataModel.mapper(CommandRule.class).find();
+    }
+
+    private List<CommandRule> findAllCommandRulesWithoutStatCheck() {
         return dataModel.mapper(CommandRule.class).find();
     }
 
@@ -266,7 +272,6 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
     }
 
     private List<ExceededCommandRule> limitsExceededForCommand(DeviceMessage deviceMessage, Instant oldReleaseDate) {
-        checkCommandRuleStatsAndThrowException();
         List<CommandRule> commandRulesByDeviceMessageId = this.getActiveCommandRulesByDeviceMessageId(deviceMessage.getDeviceMessageId());
         if (commandRulesByDeviceMessageId.isEmpty()) {
             return Collections.emptyList();
@@ -289,7 +294,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
 
     private void checkCommandRuleStatsAndThrowException() {
         if (areCountersInValid()) {
-            throw new InvalidCommandRuleStatsException(thesaurus, MessageSeeds.INVALID_STATS);
+            throw new InvalidCommandRuleStatsException(thesaurus, MessageSeeds.MAC_COMMAND_RULES_FAILED);
         }
     }
 
@@ -301,7 +306,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
 
     private boolean areCountersInValid() {
         CommandRuleStats commandRuleStats = getCommandRuleStats();
-        int numberOfCommandRules = findAllCommandRules().size();
+        int numberOfCommandRules = findAllCommandRulesWithoutStatCheck().size();
         int numberOfCounters = dataModel.mapper(CommandRuleCounter.class).find().size();
         return commandRuleStats.getNrOfCounters() != numberOfCounters || commandRuleStats.getNrOfMessageRules() != numberOfCommandRules;
     }

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
@@ -38,13 +42,6 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-/**
- * Tests the persistent {@link LoadProfileImpl} component.
- * <p>
- * Copyrights EnergyICT
- * Date: 3/18/14
- * Time: 9:36 AM
- */
 public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol {
 
     private static final ObisCode loadProfileObisCode = ObisCode.fromString("1.0.99.1.0.255");

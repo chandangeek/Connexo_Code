@@ -1,12 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data;
 
 import com.energyict.mdc.common.ImplField;
 
-/**
- * Copyrights EnergyICT
- * Date: 17/04/14
- * Time: 15:01
- */
 public enum DeviceFields implements ImplField {
 
     NAME("name"),

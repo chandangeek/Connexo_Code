@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.domain.util.Save;
@@ -6,14 +10,14 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.device.data.impl.configchange.ServerLogBookForConfigChange;
-import com.google.common.collect.Range;
-
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.impl.configchange.ServerLogBookForConfigChange;
 import com.energyict.mdc.masterdata.LogBookType;
+
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -21,11 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 25/03/14
- * Time: 15:50
- */
 public class LogBookImpl implements ServerLogBookForConfigChange {
 
     private final DataModel dataModel;

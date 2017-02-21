@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.events.EventService;
@@ -37,13 +41,6 @@ import com.google.inject.Scopes;
 
 import java.time.Clock;
 
-/**
- * Module intended for use by integration tests.
- * <p>
- * Copyrights EnergyICT
- * Date: 26/02/14
- * Time: 11:30
- */
 public class DeviceDataModule extends AbstractModule {
 
     @Override

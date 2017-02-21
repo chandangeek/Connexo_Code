@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.constraintvalidators;
 
 import com.energyict.mdc.common.ObisCode;
@@ -12,11 +16,6 @@ import javax.validation.ConstraintValidatorContext;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Copyrights EnergyICT
- * Date: 30.05.16
- * Time: 10:56
- */
 public class OverruledAttributesValidator implements ConstraintValidator<ValidOverruledAttributes, Device> {
     @Override
     public void initialize(ValidOverruledAttributes validOverruledAttributes) {

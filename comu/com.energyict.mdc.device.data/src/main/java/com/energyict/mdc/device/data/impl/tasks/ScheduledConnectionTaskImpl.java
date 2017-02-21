@@ -1,10 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.domain.util.Range;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
@@ -14,13 +16,11 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
@@ -44,7 +44,6 @@ import com.energyict.mdc.scheduling.SchedulingService;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
-import java.security.Timestamp;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Calendar;
@@ -263,8 +262,14 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     public void scheduledComTaskRescheduled(ComTaskExecution comTask) {
         if(this.connectionStrategy.equals(ConnectionStrategy.MINIMIZE_CONNECTIONS)) {
             calledByComtaskExecution = true;
+            if(comTask.getNextExecutionTimestamp() == null) {
+                updateNextExecutionTimeStampBasedOnComTask();
+            } else {
+                this.schedule(comTask.getNextExecutionTimestamp().minusMillis(1));
+            }
+        }else {
+            this.schedule(comTask.getNextExecutionTimestamp());
         }
-        this.schedule(comTask.getNextExecutionTimestamp());
     }
 
     @Override
@@ -313,6 +318,8 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
             this.schedule(this.calculateNextPlannedExecutionTimestamp());
             updatedFields.add(ConnectionTaskFields.NEXT_EXECUTION_TIMESTAMP.fieldName());
             updatedFields.add(ConnectionTaskFields.PRIORITY.fieldName());
+        } else {
+            updateNextExecutionTimeStampBasedOnComTask();
         }
     }
 
@@ -342,21 +349,6 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
             }
         }
     }
-//
-//    @Override
-//    protected boolean doWeNeedToRetryTheConnectionTask() {
-//        if (!(getLastSuccessIndicator().isPresent() && getLastSuccessIndicator().get().equals(ComSession.SuccessIndicator.SetupError))
-//                && getConnectionStrategy().equals(ConnectionStrategy.AS_SOON_AS_POSSIBLE)) {
-//            Condition condition =
-//                    where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isNotNull().
-//                            and(comTaskNotExecutingCondition()).
-//                            and(comTaskIsRetrying()).
-//                            and(connectionTaskIsThisOne());
-//            return !this.getDataModel().mapper(ComTaskExecution.class).select(condition).isEmpty();
-//        } else {
-//            return super.doWeNeedToRetryTheConnectionTask();
-//        }
-//    }
 
     private Condition comTaskNotExecutingCondition() {
         return where(ComTaskExecutionFields.COMPORT.fieldName()).isNull();
@@ -393,6 +385,8 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         this.resetCurrentRetryCount();
         if (ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(getConnectionStrategy())) {
             this.schedule(this.now());
+        } else {
+            updateNextExecutionTimeStampBasedOnComTask();
         }
     }
 

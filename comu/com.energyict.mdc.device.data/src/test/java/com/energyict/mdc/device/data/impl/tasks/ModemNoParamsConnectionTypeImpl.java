@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -15,11 +19,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-/**
- * Copyrights EnergyICT
- * Date: 7/4/14
- * Time: 2:56 PM
- */
 public class ModemNoParamsConnectionTypeImpl implements ConnectionType {
 
     private static final int HASH_CODE = 91153; // Random prime number
