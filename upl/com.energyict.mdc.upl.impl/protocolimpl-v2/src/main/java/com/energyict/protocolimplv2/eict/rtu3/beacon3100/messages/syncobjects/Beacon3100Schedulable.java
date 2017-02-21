@@ -1,11 +1,8 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
-import com.energyict.dlms.DLMSObis;
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.Register;
 import com.energyict.mdc.tasks.ComTaskEnablement;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocolimplv2.abnt.common.structure.field.EventField;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -101,6 +98,8 @@ public class Beacon3100Schedulable {
                 loadProfileItem = new LoadProfileItem(getObisCodeFromLinkedHashMap((LinkedHashMap) item));
             }else if(item instanceof LoadProfileItem){
                 loadProfileItem = (LoadProfileItem)item;
+            }else if (item instanceof ObisCode){
+                loadProfileItem = new LoadProfileItem((ObisCode) item);
             }
             profileArray.addDataType((loadProfileItem).toStructure());
         }
@@ -113,6 +112,8 @@ public class Beacon3100Schedulable {
                 registerItem = new RegisterItem(getObisCodeFromLinkedHashMap((LinkedHashMap) item), new Unsigned16(1));
             }else if (item instanceof RegisterItem){
                 registerItem = (RegisterItem)item;
+            }else if (item instanceof ObisCode){
+                registerItem = new RegisterItem((ObisCode) item, new Unsigned16(1));
             }
             registerArray.addDataType(registerItem.toStructure());
         }
@@ -123,8 +124,10 @@ public class Beacon3100Schedulable {
             EventLogItem eventLogItem = null;
             if(item instanceof LinkedHashMap) {
                 eventLogItem = new EventLogItem(getObisCodeFromLinkedHashMap((LinkedHashMap) item));
-            }else{
+            }else if(item instanceof EventLogItem){
                 eventLogItem = (EventLogItem)item;
+            }else if(item instanceof ObisCode){
+                eventLogItem = new EventLogItem((ObisCode) item);
             }
             eventLogArray.addDataType(eventLogItem.toStructure());
         }
@@ -187,8 +190,16 @@ public class Beacon3100Schedulable {
     }
 
     public void updateBufferSizeForAllRegisters(Unsigned16 bufferSize) {
-        for(Object registerItem : registers){
-            ((RegisterItem)registerItem).setBufferSize(bufferSize);
+        int index = 0;
+        List<Object> registersCopy = registers;
+        for(Object register : registersCopy){
+            if(register instanceof ObisCode) {
+                register = new RegisterItem((ObisCode) register, bufferSize);
+                registers.set(index, register);
+                index++;
+            }else if (register instanceof RegisterItem){
+                ((RegisterItem)register).setBufferSize(bufferSize);
+            }
         }
     }
 
@@ -202,8 +213,16 @@ public class Beacon3100Schedulable {
     }
 
     public void updateBufferSizeForAllLoadProfiles(Unsigned32 bufferSize) {
-        for(Object loadProfileItem : profiles){
-            ((LoadProfileItem)loadProfileItem).setBufferSize(bufferSize);
+        int index = 0;
+        List<Object> loadProfiles = profiles;
+        for(Object loadProfileItem : loadProfiles){
+            if(loadProfileItem instanceof ObisCode) {
+                loadProfileItem = new LoadProfileItem((ObisCode) loadProfileItem, bufferSize);
+                profiles.set(index, loadProfileItem);
+                index++;
+            }else if (loadProfileItem instanceof LoadProfileItem){
+                ((LoadProfileItem)loadProfileItem).setBufferSize(bufferSize);
+            }
         }
     }
 
@@ -217,9 +236,16 @@ public class Beacon3100Schedulable {
     }
 
     public void updateBufferSizeForAllEventLogs(Unsigned32 bufferSize) {
-        for(Object eventLogItem : eventLogs){
-            ((EventLogItem)eventLogItem).setBufferSize(bufferSize);
+        int index = 0;
+        List<Object> eventLogsCopy = eventLogs;
+        for(Object eventLogItem : eventLogsCopy){
+            if(eventLogItem instanceof ObisCode) {
+                eventLogItem = new EventLogItem((ObisCode) eventLogItem, bufferSize);
+                eventLogs.set(index, eventLogItem);
+                index++;
+            }else if (eventLogItem instanceof EventLogItem){
+                ((EventLogItem)eventLogItem).setBufferSize(bufferSize);
+            }
         }
     }
-
 }

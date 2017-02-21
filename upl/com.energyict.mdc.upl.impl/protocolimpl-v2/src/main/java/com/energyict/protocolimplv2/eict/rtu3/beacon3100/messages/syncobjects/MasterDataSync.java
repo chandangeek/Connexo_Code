@@ -120,6 +120,8 @@ public class MasterDataSync {
 
     public List<Beacon3100DeviceType> getDeviceTypes(AllMasterData allMasterData) throws IOException {
         MasterDataAnalyser masterDataAnalyser = new MasterDataAnalyser();
+
+
         masterDataAnalyser.analyseDeviceTypes(getDeviceTypeManager().readDeviceTypes(),
                 allMasterData.getDeviceTypes());
         return allMasterData.getDeviceTypes();
@@ -445,7 +447,7 @@ public class MasterDataSync {
         info.append("*** UPDATING DeviceType " + beacon3100DeviceType.getId() + " ***\n");
 
         try {
-            deviceTypeManager.updateDeviceType(beacon3100DeviceType.toStructure(true));
+            deviceTypeManager.updateDeviceType(beacon3100DeviceType.toStructure(false));
             info.append("- DeviceType UPDATED: [").append(beacon3100DeviceType.getId()).append("]: ").append(beacon3100DeviceType.getName()).append("\n");
         } catch (IOException ex) {
             info.append("- Could not update DeviceType [" + beacon3100DeviceType.getId() + "]: " + ex.getMessage() + "\n");
@@ -488,7 +490,7 @@ public class MasterDataSync {
 
         for(Beacon3100DeviceType beacon3100DeviceType : deviceTypes){
             if(beacon3100DeviceType.updateBufferSizeForAllRegisters(new Unsigned16(bufferSize))) {
-                collectedMessage.setDeviceProtocolInformation("Setting buffer size for device : " + pendingMessage.getDeviceId());
+                collectedMessage.setDeviceProtocolInformation("Setting buffer size for all registers from device with id: " + pendingMessage.getDeviceId());
                 updateDeviceTypeForNewFW(beacon3100DeviceType);
                 break;
             }
@@ -518,12 +520,11 @@ public class MasterDataSync {
     public CollectedMessage setBufferForAllEventLogs(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         long bufferSize = Long.parseLong(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.bufferSize).getDeviceMessageAttributeValue());
 
-        AllMasterData allMasterData = new AllMasterData();
-        List<Beacon3100DeviceType> deviceTypes = getDeviceTypes(allMasterData);
+        List<Beacon3100DeviceType> deviceTypes =  new MasterDataSerializer().getDeviceTypes(pendingMessage.getDeviceId());
 
         for(Beacon3100DeviceType beacon3100DeviceType : deviceTypes){
             if(beacon3100DeviceType.updateBufferSizeForAllEventLogs(new Unsigned32(bufferSize))) {
-                collectedMessage.setDeviceProtocolInformation("Setting buffer size for device : " + pendingMessage.getDeviceId());
+                collectedMessage.setDeviceProtocolInformation("Setting buffer size for all event logs for device with id : " + pendingMessage.getDeviceId());
                 updateDeviceTypeForNewFW(beacon3100DeviceType);
                 break;
             }
@@ -554,14 +555,11 @@ public class MasterDataSync {
     public CollectedMessage setBufferForAllLoadProfiles(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         long bufferSize = Long.parseLong(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.bufferSize).getDeviceMessageAttributeValue());
 
-        AllMasterData allMasterData = new AllMasterData();
-        analyseWhatToSync(allMasterData);
-
-        List<Beacon3100DeviceType> beacon3100DeviceTypes = getDeviceTypes(allMasterData);
+        List<Beacon3100DeviceType> beacon3100DeviceTypes =  new MasterDataSerializer().getDeviceTypes(pendingMessage.getDeviceId());
 
         for(Beacon3100DeviceType beacon3100DeviceType : beacon3100DeviceTypes){
             if(beacon3100DeviceType.updateBufferSizeForAllLoadProfiles(new Unsigned32(bufferSize))) {
-                collectedMessage.setDeviceProtocolInformation("Setting buffer size for device : " + pendingMessage.getDeviceId());
+                collectedMessage.setDeviceProtocolInformation("Setting buffer size for all load profiles from device : " + pendingMessage.getDeviceId());
                 updateDeviceTypeForNewFW(beacon3100DeviceType);
                 break;
             }

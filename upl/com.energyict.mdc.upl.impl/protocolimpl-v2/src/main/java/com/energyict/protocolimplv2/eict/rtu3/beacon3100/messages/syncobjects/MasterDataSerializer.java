@@ -205,6 +205,23 @@ public class MasterDataSerializer {
         return beacon3100MeterDetails;
     }
 
+    public List<Beacon3100DeviceType> getDeviceTypes(int deviceId){
+        final Device masterDevice = getMeteringWarehouse().getDeviceFactory().find(deviceId);
+        if (masterDevice == null) {
+            throw invalidFormatException("'DC device ID'", String.valueOf(deviceId), "ID should reference a unique device");
+        }
+
+        final AllMasterData allMasterData = new AllMasterData();
+        for (Device device : masterDevice.getDownstreamDevices()) {
+            //Add all information about the device type config. (only once per device type config)
+            final DeviceConfiguration deviceConfiguration = device.getConfiguration();
+            if (!deviceTypeAlreadyExists(allMasterData.getDeviceTypes(), deviceConfiguration)) {
+                addDeviceConfiguration(masterDevice, allMasterData, device, deviceConfiguration, true);
+            }
+        }
+        return allMasterData.getDeviceTypes();
+    }
+
     public Beacon3100MeterDetails getMeterDetails(int slaveDeviceId, int masterId){
         final Device masterDevice = getMeteringWarehouse().getDeviceFactory().find(masterId);
         if (masterDevice == null) {
