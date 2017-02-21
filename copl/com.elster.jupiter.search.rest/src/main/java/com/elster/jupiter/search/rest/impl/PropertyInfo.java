@@ -47,6 +47,7 @@ public class PropertyInfo {
     public SearchableProperty.Visibility visibility; // Indicates if the property should always be displayed as filter property (sticky) or is removable
     public List<String> constraints; // List of other properties who's value will be used to narrow down possible values for this property
     public List<IdWithDisplayValueInfo> values; // List of all available variants for this property
+    public long total; //FE needs this
 
     @JsonIgnore
     private SearchableProperty property;
