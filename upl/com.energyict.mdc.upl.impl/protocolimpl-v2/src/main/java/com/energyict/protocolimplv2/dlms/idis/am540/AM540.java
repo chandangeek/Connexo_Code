@@ -4,6 +4,7 @@ import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.FrameCounterProvider;
@@ -582,5 +583,27 @@ public class AM540 extends AM130 implements SerialNumberSupport {
         );
 
         return super.getDeviceTopology();
+    }
+    
+    /**
+     * Method to check whether the cache needs to be read out or not, if so the read will be forced
+     */
+    @Override
+    protected final void checkCacheObjects() {
+        boolean readCache = getDlmsSessionProperties().isReadCache();
+        final int clientId = this.getDlmsSessionProperties().getClientMacAddress();
+        
+        if ((getDeviceCache().getObjectList(clientId) == null) || (readCache)) {
+            getLogger().info(readCache ? "ReReadCache property is true, reading cache!" : "The cache was empty, reading out the object list!");
+            
+            readObjectList();
+            
+            final UniversalObject[] objectList = this.getDlmsSession().getMeterConfig().getInstantiatedObjectList();
+            this.getDeviceCache().setObjectList(clientId, objectList);
+        } else {
+            getLogger().info("Cache exist, will not be read!");
+        }
+        
+        this.getDlmsSession().getMeterConfig().setInstantiatedObjectList(getDeviceCache().getObjectList(clientId));
     }
 }
