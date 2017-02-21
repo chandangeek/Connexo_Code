@@ -4,6 +4,15 @@
 
 package com.energyict.mdc.rest.impl;
 
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.rest.impl.comserver.*;
+
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -56,6 +65,7 @@ public class MdcApplication extends Application implements TranslationKeyProvide
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile License license;
+    private PropertyValueInfoService propertyValueInfoService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -84,6 +94,11 @@ public class MdcApplication extends Application implements TranslationKeyProvide
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
+        this.propertyValueInfoService = propertyValueInfoService;
     }
 
     @Reference
@@ -139,9 +154,11 @@ public class MdcApplication extends Application implements TranslationKeyProvide
             bind(transactionService).to(TransactionService.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             bind(protocolPluggableService).to(ProtocolPluggableService.class);
+            bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(nlsService).to(NlsService.class);
             bind(thesaurus).to(Thesaurus.class);
+            bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(ComPortInfoFactory.class).to(ComPortInfoFactory.class);
             bind(ComPortPoolInfoFactory.class).to(ComPortPoolInfoFactory.class);

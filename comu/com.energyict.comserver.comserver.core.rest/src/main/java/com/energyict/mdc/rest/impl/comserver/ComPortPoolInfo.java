@@ -7,10 +7,12 @@ package com.energyict.mdc.rest.impl.comserver;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Instant;
@@ -34,6 +36,7 @@ public abstract class ComPortPoolInfo<S extends ComPortPool> {
     public List<OutboundComPortInfo> outboundComPorts;
     public TimeDurationInfo taskExecutionTimeout;
     public long version;
+    public List<PropertyInfo> properties;
 
     public ComPortPoolInfo() {
     }
@@ -64,10 +67,10 @@ public abstract class ComPortPoolInfo<S extends ComPortPool> {
         return aString != null && !aString.isEmpty();
     }
 
-    protected S writeTo(S target, ProtocolPluggableService protocolPluggableService) {
+    protected S writeTo(S target, ProtocolPluggableService protocolPluggableService, MdcPropertyUtils mdcPropertyUtils) {
         return this.writeTo(target);
     };
 
-    protected abstract S createNew(EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService);
+    protected abstract S createNew(EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, MdcPropertyUtils mdcPropertyUtils);
 
 }

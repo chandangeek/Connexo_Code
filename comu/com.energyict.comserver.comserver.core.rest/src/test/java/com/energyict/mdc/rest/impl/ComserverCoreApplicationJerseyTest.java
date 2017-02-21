@@ -9,6 +9,9 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
+import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+
 import javax.ws.rs.core.Application;
 
 import org.mockito.Mock;
@@ -23,6 +26,8 @@ public class ComserverCoreApplicationJerseyTest extends FelixRestApplicationJers
     ProtocolPluggableService protocolPluggableService;
     @Mock
     DeviceConfigurationService deviceConfigurationService;
+    @Mock
+    PropertyValueInfoService propertyValueInfoService;
 
     @Override
     protected Application getApplication() {
@@ -32,6 +37,7 @@ public class ComserverCoreApplicationJerseyTest extends FelixRestApplicationJers
         application.setEngineConfigurationService(engineConfigurationService);
         application.setDeviceConfigurationService(deviceConfigurationService);
         application.setProtocolPluggableService(protocolPluggableService);
+        application.setPropertyValueInfoService(propertyValueInfoService);
         return application;
     }
 }
