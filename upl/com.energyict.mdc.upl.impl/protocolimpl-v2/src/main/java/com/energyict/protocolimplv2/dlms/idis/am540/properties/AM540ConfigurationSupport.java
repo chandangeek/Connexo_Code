@@ -58,6 +58,9 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
     
     /** Skips slave devices. */
     public static final String SKIP_SLAVE_DEVICES = "SkipSlaveDevices";
+   
+    /** The default max-apdu-size when using G3. */
+    public static final BigDecimal DEFAULT_MAX_REC_PDU_SIZE = new BigDecimal(1224);
     
     public static final boolean USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE = false;
     public static final BigDecimal DEFAULT_SERVER_LOWER_MAC_ADDRESS = BigDecimal.valueOf(17);
