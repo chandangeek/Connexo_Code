@@ -26,6 +26,7 @@ public interface FiniteStateMachineBuilder {
      * @param name The name of the new custom State
      * @return The StateBuilder
      * @see State#isCustom()
+     * @throws IllegalStateException When the {@link FiniteStateMachineBuilder} has a {@link StageSet}
      */
     StateBuilder newCustomState(String name);
 
@@ -35,6 +36,7 @@ public interface FiniteStateMachineBuilder {
      * @param symbolicName The symbolic name of the new State
      * @return The StateBuilder
      * @see State#isCustom()
+     * @throws IllegalStateException When the {@link FiniteStateMachineBuilder} has a {@link StageSet}
      */
     StateBuilder newStandardState(String symbolicName);
 
@@ -45,6 +47,7 @@ public interface FiniteStateMachineBuilder {
      * @param stage The {@link Stage} of the new custom Stage
      * @return The StateBuilder
      * @see State#isCustom()
+     * @throws IllegalStateException When the {@link FiniteStateMachineBuilder} has no {@link StageSet} or the given Stage is not in the StageSet
      */
     StateBuilder newCustomState(String name, Stage stage);
 
@@ -55,6 +58,7 @@ public interface FiniteStateMachineBuilder {
      * @param stage The {@link Stage} of the new State
      * @return The StateBuilder
      * @see State#isCustom()
+     * @throws IllegalStateException When the {@link FiniteStateMachineBuilder} has no {@link StageSet} or the given Stage is not in the StageSet
      */
     StateBuilder newStandardState(String symbolicName, Stage stage);
 
