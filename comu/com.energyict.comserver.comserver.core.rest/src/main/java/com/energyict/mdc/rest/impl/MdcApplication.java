@@ -4,15 +4,6 @@
 
 package com.energyict.mdc.rest.impl;
 
-import com.elster.jupiter.nls.MessageSeedProvider;
-import com.elster.jupiter.properties.rest.PropertyValueInfoService;
-import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.rest.impl.comserver.*;
-
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -20,11 +11,13 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.rest.impl.comserver.ComPortInfoFactory;
 import com.energyict.mdc.rest.impl.comserver.ComPortPoolComPortResource;
