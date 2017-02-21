@@ -9,6 +9,7 @@ import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityValueFactory;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
@@ -31,10 +32,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 class ReadingQualitiesValidator extends AbstractValidator {
-
     static final String READING_QUALITIES = "readingQualities";
     private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
 
@@ -85,48 +86,39 @@ class ReadingQualitiesValidator extends AbstractValidator {
 
     @Override
     public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
-        initParameters(properties);
+        selectedReadingQualities = getSelectedReadingQualities(properties);
     }
 
     /**
      * The received properties contain the CIM code(s) of the selected reading qualities.
      */
-    @SuppressWarnings("unchecked")
-    private void initParameters(Map<String, Object> properties) {
-        Object value = properties.get(READING_QUALITIES);
-        if (value != null) {
-            if (value instanceof Collection) {
-                ((Collection<Object>) value).stream().forEach((e) -> addToSelectedReadingQualities(String.valueOf(e)));
-            } else {
-                addToSelectedReadingQualities(String.valueOf(value));
-            }
-        }
-    }
-
-    private void addToSelectedReadingQualities(String cimCode){
-        getSelectedReadingQualities().add(new ReadingQualityPropertyValue(cimCode));
-    }
-
-    private List<ReadingQualityPropertyValue> getSelectedReadingQualities() {
-        if (selectedReadingQualities == null) {
-            selectedReadingQualities = new ArrayList<>();
-        }
-        return selectedReadingQualities;
+    static List<ReadingQualityPropertyValue> getSelectedReadingQualities(Map<String, Object> properties) {
+        return Optional.ofNullable(properties.get(READING_QUALITIES))
+                .map(value -> value instanceof Collection<?> ? ((Collection<?>) value).stream() : Stream.of(value))
+                .orElse(Stream.empty())
+                .map(Object::toString)
+                .map(ReadingQualityPropertyValue::new)
+                .collect(Collectors.toList());
     }
 
     @Override
     public ValidationResult validate(IntervalReadingRecord intervalReadingRecord) {
-        return validate(intervalReadingRecord.getReadingQualities().stream().map(readingQualityRecord -> new ReadingQualityPropertyValue(readingQualityRecord.getType().getCode())));
-     }
+        return validate(intervalReadingRecord.getReadingQualities());
+    }
 
     @Override
     public ValidationResult validate(ReadingRecord readingRecord) {
-        return validate (readingRecord.getReadingQualities().stream().map(readingQualityRecord -> new ReadingQualityPropertyValue(readingQualityRecord.getType().getCode())));
+        return validate(readingRecord.getReadingQualities());
     }
 
-    private ValidationResult validate(Stream<ReadingQualityPropertyValue> readingQualityPropertyValueStream){
-        Optional<ReadingQualityPropertyValue> selected = readingQualityPropertyValueStream.filter((rq) -> selectedReadingQualities.contains(rq)).findFirst();
-        return selected.isPresent() ? ValidationResult.SUSPECT : ValidationResult.VALID;
+    private ValidationResult validate(Collection<? extends ReadingQualityRecord> readingQualities) {
+        return readingQualities.stream()
+                .map(ReadingQualityRecord::getTypeCode)
+                .map(ReadingQualityPropertyValue::new)
+                .filter(selectedReadingQualities::contains)
+                .findFirst()
+                .map(rq -> ValidationResult.SUSPECT)
+                .orElse(ValidationResult.VALID);
     }
 
     @Override
