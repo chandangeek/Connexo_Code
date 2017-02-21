@@ -580,8 +580,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     }
 
     List<? extends ChannelValidation> getChannelValidations(Channel channel) {
-        return dataModel.query(ChannelValidation.class, ChannelsContainerValidation.class)
-                .select(where("channel").isEqualTo(channel).and(where("channelsContainerValidation.obsoleteTime").isNull()));
+        return dataModel.mapper(ChannelValidation.class).find("channel", channel);
     }
 
     @Override
