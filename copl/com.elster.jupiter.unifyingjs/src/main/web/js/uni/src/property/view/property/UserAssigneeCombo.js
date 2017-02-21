@@ -75,11 +75,19 @@ Ext.define('Uni.property.view.property.UserAssigneeCombo', {
             };
         },
 
-        render: function () {
+        render1: function () {
             var me = this;
 
-            me.store.on('load', function () {
+            me.store.on('load', function (store, records) {
                 var checkShowAll = Ext.get('cboxShowAll');
+                var users = records.filter(function (record) {
+                    return record.id == me.getRawValue();
+                });
+                if ((users.length == 0) && (checkShowAll == false)) {
+                    me.checked = true;
+                    me.setCheckTemplate();
+                    me.loadStore();
+                }
                 if (checkShowAll) {
                     checkShowAll.el.dom.onclick = function (e) {
                         me.handleShowAll(me);
@@ -89,7 +97,7 @@ Ext.define('Uni.property.view.property.UserAssigneeCombo', {
             me.loadStore();
         },
 
-        change: function (combo, newValue) {
+        change1: function (combo, newValue) {
             var me = this;
 
             Ext.Ajax.request({
@@ -130,6 +138,25 @@ Ext.define('Uni.property.view.property.UserAssigneeCombo', {
 
     setWorkgroupId: function (workgroupId) {
         this.workgroupId = workgroupId;
+        var me = this;
+
+        me.store.on('load', function (store, records) {
+            var checkShowAll = Ext.get('cboxShowAll');
+            var users = records.filter(function (record) {
+                return record.get('id') == me.getValue();
+            });
+            if ((users.length == 0) && (me.checked == false)) {
+                me.checked = true;
+                me.setCheckTemplate();
+                me.loadStore();
+            }
+            if (checkShowAll) {
+                checkShowAll.el.dom.onclick = function (e) {
+                    me.handleShowAll(me);
+                };
+            }
+        });
+        me.loadStore();
     },
 
     initComponent: function () {
