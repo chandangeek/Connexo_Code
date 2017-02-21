@@ -107,7 +107,8 @@ public class UPLConnectionTypeAdapter implements com.energyict.mdc.protocol.api.
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
-        uplConnectionType.setUPLProperties(properties);
+        TypedProperties adaptedProperties = TypedPropertiesValueAdapter.adaptToUPLValues(properties);
+        uplConnectionType.setUPLProperties(adaptedProperties);
     }
 
     public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
@@ -122,7 +123,8 @@ public class UPLConnectionTypeAdapter implements com.energyict.mdc.protocol.api.
     @Override
     public void copyProperties(com.energyict.mdc.common.TypedProperties properties) {
         try {
-            uplConnectionType.setUPLProperties(properties);
+            TypedProperties adaptedProperties = TypedPropertiesValueAdapter.adaptToUPLValues(properties);
+            uplConnectionType.setUPLProperties(adaptedProperties);
         } catch (PropertyValidationException e) {
             throw new NestedPropertyValidationException(e);
         }

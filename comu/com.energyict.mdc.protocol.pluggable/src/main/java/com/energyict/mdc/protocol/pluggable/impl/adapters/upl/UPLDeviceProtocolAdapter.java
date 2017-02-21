@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationException;
 import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLConnectionTypeAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.cps.SecurityCustomPropertySetNameDetective;
@@ -229,12 +230,15 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdap
 
     @Override
     public void addDeviceProtocolDialectProperties(com.energyict.mdc.upl.properties.TypedProperties dialectProperties) {
-        deviceProtocol.addDeviceProtocolDialectProperties(dialectProperties);
+        com.energyict.mdc.upl.properties.TypedProperties adaptedProperties = TypedPropertiesValueAdapter.adaptToUPLValues(dialectProperties);
+        deviceProtocol.addDeviceProtocolDialectProperties(adaptedProperties);
     }
 
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        deviceProtocol.setSecurityPropertySet(deviceProtocolSecurityPropertySet);
+        com.energyict.mdc.upl.properties.TypedProperties adaptedProperties = TypedPropertiesValueAdapter.adaptToUPLValues(deviceProtocolSecurityPropertySet.getSecurityProperties());
+        DeviceProtocolSecurityPropertySetImpl adaptedSecurityPropertySet = new DeviceProtocolSecurityPropertySetImpl(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel(), deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel(), adaptedProperties);
+        deviceProtocol.setSecurityPropertySet(adaptedSecurityPropertySet);
     }
 
     @Override
@@ -291,8 +295,9 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdap
 
     @Override
     public void copyProperties(TypedProperties properties) {
+        com.energyict.mdc.upl.properties.TypedProperties adaptedProperties = TypedPropertiesValueAdapter.adaptToUPLValues(properties);
         try {
-            deviceProtocol.setUPLProperties(properties);
+            deviceProtocol.setUPLProperties(adaptedProperties);
         } catch (PropertyValidationException e) {
             throw new NestedPropertyValidationException(e);
         }
@@ -310,7 +315,8 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdap
 
     @Override
     public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
-        deviceProtocol.setUPLProperties(properties);
+        com.energyict.mdc.upl.properties.TypedProperties adaptedProperties = TypedPropertiesValueAdapter.adaptToUPLValues(properties);
+        deviceProtocol.setUPLProperties(adaptedProperties);
     }
 
     @Override
