@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
@@ -86,7 +90,6 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.NumericalRegisterImpl;
 import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.rest.DevicePrivileges;
-import com.energyict.mdc.device.data.rest.ReadingQualitiesTranslationKeys;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;

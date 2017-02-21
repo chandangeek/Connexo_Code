@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.ReadingType;
@@ -17,11 +21,6 @@ import java.util.List;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 2/05/2016
- * Time: 14:03
- */
 public class ResourceHelperTest extends DeviceDataRestApplicationJerseyTest {
 
     private final static String DATA_LOGGER_DEVICE_TYPE_NAME = "dataLogger.DeviceTypeName";
