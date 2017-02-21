@@ -18,8 +18,8 @@ import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.slp.SyntheticLoadProfile;
-import com.elster.jupiter.slp.SyntheticLoadProfileService;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
