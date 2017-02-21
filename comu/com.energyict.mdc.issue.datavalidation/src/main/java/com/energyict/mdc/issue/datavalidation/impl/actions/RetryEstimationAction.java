@@ -89,7 +89,7 @@ public class RetryEstimationAction extends AbstractIssueAction {
         IssueDataValidation dviIssue = (IssueDataValidation) issue;
 
         List<EstimationBlock> nonEstimatedBlocks = new ArrayList<>();
-        dviIssue.getNotEstimatedBlocks().stream().forEach(block -> {
+        dviIssue.getNotEstimatedBlocks().forEach(block -> {
             Channel channel = block.getChannel();
             Optional<Meter> meter = channel.getChannelsContainer().getMeter();
             if (meter.isPresent()) {
