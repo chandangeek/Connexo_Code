@@ -138,17 +138,15 @@ public class UsagePointOutputResource {
     @Transactional
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     public PagedInfoList getUsagePointPurposes(@PathParam("name") String name, @QueryParam("withValidationTasks") boolean withValidationTasks, @BeanParam JsonQueryParameters queryParameters) {
-        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-        Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration();
-        List<PurposeInfo> purposeInfoList;
-        if (effectiveMetrologyConfiguration.isPresent()) {
-            purposeInfoList = effectiveMetrologyConfiguration.get().getMetrologyConfiguration().getContracts().stream()
-                    .map(metrologyContract -> purposeInfoFactory.asInfo(effectiveMetrologyConfiguration.get(), metrologyContract, withValidationTasks))
-                    .sorted(Comparator.comparing(info -> info.name))
-                    .collect(Collectors.toList());
-        } else {
-            purposeInfoList = Collections.emptyList();
-        }
+        List<PurposeInfo> purposeInfoList = resourceHelper.findUsagePointByNameOrThrowException(name)
+                .getCurrentEffectiveMetrologyConfiguration()
+                .map(effectiveMetrologyConfigurationOnUsagePoint -> effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()
+                        .getContracts()
+                        .stream()
+                        .map(metrologyContract -> purposeInfoFactory.asInfo(effectiveMetrologyConfigurationOnUsagePoint, metrologyContract, withValidationTasks))
+                        .sorted(Comparator.comparing(info -> info.name))
+                        .collect(Collectors.toList()))
+                .orElseGet(Collections::emptyList);
         return PagedInfoList.fromCompleteList("purposes", purposeInfoList, queryParameters);
     }
 
@@ -222,9 +220,8 @@ public class UsagePointOutputResource {
         if (filter.hasProperty(INTERVAL_START) && filter.hasProperty(INTERVAL_END)) {
             Range<Instant> requestedInterval = getRequestedInterval(usagePoint, filter);
             if (requestedInterval != null) {
-                EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().get();
-                ChannelsContainer channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get();
-                AggregatedChannel channel = effectiveMetrologyConfiguration.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType()).get();
+                ChannelsContainer channelsContainer = effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract).get();
+                AggregatedChannel channel = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType()).get();
                 ValidationEvaluator evaluator = validationService.getEvaluator();
                 ReadingWithValidationStatusFactory readingWithValidationStatusFactory = new ReadingWithValidationStatusFactory(
                         clock, channel,
@@ -317,27 +314,15 @@ public class UsagePointOutputResource {
             }
         });
 
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().get();
-        ChannelsContainer channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get();
+        ChannelsContainer channelsContainer = effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract).get();
         Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
 
-        Optional<Instant> currentLastChecked = validationService.getLastChecked(channel);
         channel.editReadings(QualityCodeSystem.MDM, editedReadings);
         channel.confirmReadings(QualityCodeSystem.MDM, confirmedReadings);
         channel.removeReadings(QualityCodeSystem.MDM, removeCandidates.stream()
                 .map(channel::getReading)
                 .flatMap(Functions.asStream())
                 .collect(Collectors.toList()));
-        if (!editedReadings.isEmpty() || !removeCandidates.isEmpty()) {
-            Instant lastChecked = Stream.concat(editedReadings.stream().map(BaseReading::getTimeStamp), removeCandidates
-                    .stream())
-                    .min(Instant::compareTo)
-                    .map(r -> r.minusSeconds(1L))
-                    .get();
-            if (currentLastChecked.filter(instant -> lastChecked.isBefore(instant.plus(channel.getIntervalLength().get()))).isPresent()) {
-                validationService.updateLastChecked(channel, lastChecked);
-            }
-        }
         return Response.status(Response.Status.OK).build();
     }
 
@@ -384,8 +369,7 @@ public class UsagePointOutputResource {
             throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, outputId);
         }
 
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().get();
-        ChannelsContainer channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get();
+        ChannelsContainer channelsContainer = effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract).get();
         Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
 
         return previewEstimate(QualityCodeSystem.MDM, channelsContainer, channel, estimateChannelDataInfo);
@@ -547,7 +531,7 @@ public class UsagePointOutputResource {
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
         ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
-        ChannelsContainer channelsContainer = usagePoint.getCurrentEffectiveMetrologyConfiguration().get()
+        ChannelsContainer channelsContainer = effectiveMetrologyConfigurationOnUsagePoint
                 .getChannelsContainer(metrologyContract).get();
         Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
         if (registerDataInfo instanceof BillingOutputRegisterDataInfo && ((BillingOutputRegisterDataInfo) registerDataInfo).interval.start > ((BillingOutputRegisterDataInfo) registerDataInfo).interval.end) {
@@ -558,12 +542,7 @@ public class UsagePointOutputResource {
                 .cast(registerDataInfo).isConfirmed)) {
             channel.confirmReadings(QualityCodeSystem.MDM, Collections.singletonList(reading));
         } else {
-            Optional<Instant> currentLastChecked = validationService.getLastChecked(channel);
             channel.editReadings(QualityCodeSystem.MDM, Collections.singletonList(reading));
-            Instant lastChecked = reading.getTimeStamp().minusSeconds(1L);
-            if (currentLastChecked.filter(lastChecked::isBefore).isPresent()) {
-                validationService.updateLastChecked(channel, lastChecked);
-            }
         }
 
         return registerDataInfo;
@@ -580,18 +559,12 @@ public class UsagePointOutputResource {
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
         ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
-        ChannelsContainer channelsContainer = usagePoint.getCurrentEffectiveMetrologyConfiguration()
-                .get()
+        ChannelsContainer channelsContainer = effectiveMetrologyConfigurationOnUsagePoint
                 .getChannelsContainer(metrologyContract)
                 .get();
         Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
-        Optional<Instant> currentLastChecked = validationService.getLastChecked(channel);
         channel.getReading(Instant.ofEpochMilli(timeStamp))
                 .ifPresent(reading -> channel.removeReadings(QualityCodeSystem.MDM, Collections.singletonList(reading)));
-        Instant lastChecked = Instant.ofEpochMilli(timeStamp).minusSeconds(1L);
-        if (currentLastChecked.filter(lastChecked::isBefore).isPresent()) {
-            validationService.updateLastChecked(channel, lastChecked);
-        }
         return Response.status(Response.Status.OK).build();
     }
 

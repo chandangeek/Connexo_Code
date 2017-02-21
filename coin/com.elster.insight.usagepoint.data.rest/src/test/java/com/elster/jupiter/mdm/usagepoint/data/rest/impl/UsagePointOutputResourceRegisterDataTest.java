@@ -107,8 +107,6 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         when(validationService.getEvaluator()).thenReturn(evaluator);
         when(evaluator.getValidationStatus(eq(EnumSet.of(QualityCodeSystem.MDM)), any(Channel.class), any(), eq(Range.openClosed(readingTimeStamp1, readingTimeStamp3))))
                 .thenReturn(Collections.emptyList());
-
-        when(validationService.getLastChecked(any(Channel.class))).thenReturn(Optional.of(readingTimeStamp3));
     }
 
     private String defaultFilter() throws UnsupportedEncodingException {
@@ -374,7 +372,6 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         List<BaseReadingRecord> record = Collections.singletonList(channel.getReading(readingTimeStamp3).get());
         verify(channel).removeReadings(eq(QualityCodeSystem.MDM), eq(record));
-        verify(validationService).updateLastChecked(eq(channel), eq(readingTimeStamp3.minusSeconds(1L)));
     }
 
     @Test
