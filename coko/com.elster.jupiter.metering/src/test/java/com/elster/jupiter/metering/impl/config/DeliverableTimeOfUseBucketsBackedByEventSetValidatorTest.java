@@ -21,9 +21,15 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.util.exception.MessageSeed;
 
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorFactory;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import java.time.Clock;
@@ -39,6 +45,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -87,11 +95,17 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidatorTest {
     private Event peak;
     @Mock
     private Event offpeak;
+    @Mock
+    private Thesaurus thesaurus;
 
     private MetrologyConfigurationImpl metrologyConfiguration;
 
     @Before
     public void setup() {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit testing");
+        when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
+        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
         this.metrologyConfiguration = new MetrologyConfigurationImpl(this.dataModel, this.metrologyConfigurationService, this.eventService, this.cpsService, this.clock, this.publisher);
 
         when(deliverableWithTimeOfUse.getReadingType()).thenReturn(this.readingTypeWithTimeOfUse);
@@ -141,7 +155,7 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidatorTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(property = "deliverables[0.0.2.1.4.2.12.0.0.0.0.3.0.0.0.3.72.0].tou", messageId = "{" + MessageSeeds.Constants.DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET + "}", strict = true)
+    @ExpectedConstraintViolation(property = "deliverables[0.0.2.1.4.2.12.0.0.0.0.3.0.0.0.3.72.0].tou", messageId = "Translation not supported in unit testing", strict = true)
     public void noEventsSetsButOneDeliverableWithTimeOfUseProducesOneConstraintViolation() {
         this.metrologyConfiguration.doAddReadingTypeDeliverable(this.deliverableWithTimeOfUse);
         when(this.metrologyContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithTimeOfUse));
@@ -152,10 +166,11 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidatorTest {
         this.testValidation(this.metrologyConfiguration, 1);
 
         // Asserts: see expected constraint violation rule
+        this.thesaurus.getFormat(MessageSeeds.DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET);
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET + "}", strict = false)
+    @ExpectedConstraintViolation(messageId = "Translation not supported in unit testing", strict = false)
     public void noEventsSetsButMultipleDeliverablesWithTimeOfUseProducesMultipleConstraintViolations() {
         this.metrologyConfiguration.doAddReadingTypeDeliverable(this.deliverableWithTimeOfUse);
         ReadingTypeDeliverable readingTypeDeliverable = mock(ReadingTypeDeliverable.class);
@@ -171,6 +186,7 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidatorTest {
         this.testValidation(this.metrologyConfiguration, 2);
 
         // Asserts: see expected constraint violation rule
+        this.thesaurus.getFormat(MessageSeeds.DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET);
     }
 
     @Test
@@ -210,7 +226,7 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidatorTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(property = "deliverables[0.0.2.1.4.2.12.0.0.0.0.33.0.0.0.3.72.0].tou", messageId = "{" + MessageSeeds.Constants.DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET + "}", strict = true)
+    @ExpectedConstraintViolation(property = "deliverables[0.0.2.1.4.2.12.0.0.0.0.33.0.0.0.3.72.0].tou", messageId = "Translation not supported in unit testing", strict = true)
     public void oneEventsSetsButOneDeliverableWithIncompatibleTimeOfUseProducesOneConstraintViolation() {
         this.metrologyConfiguration.doAddEventSet(this.eventSetOnMetrologyConfiguration);
         when(this.eventSet.getEvents()).thenReturn(Arrays.asList(this.peak, this.offpeak));
@@ -224,6 +240,7 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidatorTest {
         this.testValidation(this.metrologyConfiguration, 1);
 
         // Asserts: see expected constraint violation rule
+        this.thesaurus.getFormat(MessageSeeds.DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET);
     }
 
     private void testValidation(MetrologyConfiguration configuration) {
@@ -233,6 +250,7 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidatorTest {
     private void testValidation(MetrologyConfiguration configuration, int expectedViolations) {
         Set<ConstraintViolation<MetrologyConfiguration>> failures = Validation.byDefaultProvider()
                 .configure()
+                .constraintValidatorFactory(new ConstraintValidatorFactoryImpl())
                 .buildValidatorFactory()
                 .getValidator()
                 .validate(configuration, MetrologyConfigurationImpl.Activation.class);
@@ -242,4 +260,19 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidatorTest {
         }
     }
 
+    private class ConstraintValidatorFactoryImpl implements ConstraintValidatorFactory {
+
+        @Override
+        public <T extends ConstraintValidator<?, ?>> T getInstance(Class<T> aClass) {
+            if (aClass.equals(DeliverableTimeOfUseBucketsBackedByEventSetValidator.class)) {
+                return (T) new DeliverableTimeOfUseBucketsBackedByEventSetValidator(thesaurus);
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        public void releaseInstance(ConstraintValidator<?, ?> constraintValidator) {
+        }
+    }
 }

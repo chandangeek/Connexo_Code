@@ -103,6 +103,7 @@ import java.util.stream.Stream;
         "osgi.command.function=addUsagePointLocation",
         "osgi.command.function=addUsagePointGeoCoordinates",
         "osgi.command.function=activateMetrologyConfig",
+        "osgi.command.function=deactivateMetrologyConfig",
         "osgi.command.function=addCustomPropertySet"
 }, immediate = true)
 @SuppressWarnings("unused")
@@ -829,6 +830,16 @@ public class MeteringConsoleCommands {
             metrologyConfigurationService.findMetrologyConfiguration(name)
                     .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"))
                     .activate();
+            context.commit();
+        }
+    }
+
+    public void deactivateMetrologyConfig(String name) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            metrologyConfigurationService.findMetrologyConfiguration(name)
+                    .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"))
+                    .deactivate();
             context.commit();
         }
     }

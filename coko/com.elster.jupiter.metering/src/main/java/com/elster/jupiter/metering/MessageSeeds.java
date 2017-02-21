@@ -64,7 +64,7 @@ public enum MessageSeeds implements MessageSeed {
     SEARCHABLE_PROPERTY_NOT_FOUND(4021, Constants.SEARCHABLE_PROPERTY_NOT_FOUND, "The ''{0}'' searchable property can not be used as usage point requirement."),
     BAD_USAGE_POINT_REQUIREMENT_VALUE(4022, Constants.BAD_USAGE_POINT_REQUIREMENT_VALUE, "Bad usage point requirement value: {0}."),
     FAILED_TO_DEACTIVATE_METROLOGY_CONFIGURATION(4023, Constants.FAILED_TO_DEACTIVATE_METROLOGY_CONFIGURATION, "The metrology configuration is still used by at least one usage point. Use search to find the usage points with such metrology configuration."),
-    DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET(4024, Constants.DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET, "The time of use bucket of the deliverable {0} is not backed by one of the event sets of the metrology configuration."),
+    DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET(4024, Constants.DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET, "The time of use bucket {0} of the deliverable {1} is not backed by one of the event sets of the metrology configuration."),
 
     INVALID_DIMENSION(5000, Constants.INVALID_DIMENSION, "Invalid dimension"),
     INVALID_ARGUMENTS_FOR_MULTIPLICATION(5001, Constants.INVALID_ARGUMENTS_FOR_MULTIPLICATION, "Dimensions from multiplication arguments do not result in a valid dimension."),

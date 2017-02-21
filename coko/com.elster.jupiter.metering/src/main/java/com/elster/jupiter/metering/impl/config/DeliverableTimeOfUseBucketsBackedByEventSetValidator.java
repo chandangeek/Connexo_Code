@@ -6,17 +6,19 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.EventSet;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.nls.Thesaurus;
 
+import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link DeliverableTimeOfUseBucketsBackedByEventSet} constraint
@@ -26,6 +28,13 @@ import java.util.stream.Stream;
  * @since 2017-02-20 (12:57)
  */
 public class DeliverableTimeOfUseBucketsBackedByEventSetValidator implements ConstraintValidator<DeliverableTimeOfUseBucketsBackedByEventSet, MetrologyConfiguration> {
+
+    private final Thesaurus thesaurus;
+
+    @Inject
+    public DeliverableTimeOfUseBucketsBackedByEventSetValidator(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
+    }
 
     @Override
     public void initialize(DeliverableTimeOfUseBucketsBackedByEventSet annotation) {
@@ -42,7 +51,9 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidator implements Con
                 .map(Event::getCode)
                 .collect(Collectors.toSet());
         List<ReadingTypeDeliverable> deliverables =
-            mandatoryContracts(metrologyConfiguration)
+            metrologyConfiguration
+                .getContracts()
+                .stream()
                 .map(MetrologyContract::getDeliverables)
                 .flatMap(Collection::stream)
                 .distinct()
@@ -62,8 +73,9 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidator implements Con
     private boolean validate(ConstraintValidatorContext context, ReadingTypeDeliverable deliverable, Set<Long> eventCodes) {
         long eventCode = deliverable.getReadingType().getTou();
         if (!eventCodes.contains(eventCode)){
+            String message = this.thesaurus.getFormat(MessageSeeds.DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET).format(Long.toString(eventCode), deliverable.getName());
             context
-                .buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
+                .buildConstraintViolationWithTemplate(message)
                 .addPropertyNode("deliverables")
                 .addPropertyNode("tou")
                     .inIterable().atKey(deliverable.getReadingType().getMRID())
@@ -75,10 +87,4 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidator implements Con
         }
     }
 
-    private Stream<MetrologyContract> mandatoryContracts(MetrologyConfiguration metrologyConfiguration) {
-        return metrologyConfiguration
-                .getContracts()
-                .stream()
-                .filter(MetrologyContract::isMandatory);
-    }
 }

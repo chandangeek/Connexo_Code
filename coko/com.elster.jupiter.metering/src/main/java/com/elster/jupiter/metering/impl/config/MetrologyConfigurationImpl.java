@@ -209,7 +209,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     public void activate() {
         if (MetrologyConfigurationStatus.INACTIVE == status) {
             this.status = MetrologyConfigurationStatus.ACTIVE;
-            this.dataModel.getValidatorFactory().getValidator().validate(this, Activation.class);
+            Save.UPDATE.validate(this.dataModel, this, Activation.class);
             this.update();
         }
     }

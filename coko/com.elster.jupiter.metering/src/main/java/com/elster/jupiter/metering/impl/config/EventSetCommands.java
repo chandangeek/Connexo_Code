@@ -13,11 +13,14 @@ import com.elster.jupiter.transaction.TransactionService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.util.stream.Stream;
+
 @Component(
         name = "com.elster.jupiter.usagepoint.calendar",
         service = {EventSetCommands.class},
         property = {
                 "osgi.command.scope=mce",   // mce is short for metering.config.eventsets
+                "osgi.command.function=createEventSet",
                 "osgi.command.function=linkEventSet",
                 "osgi.command.function=listLinkEventSets",
                 "osgi.command.function=listAvailableEventSets",
@@ -42,6 +45,72 @@ public class EventSetCommands {
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @SuppressWarnings("unused")
+    public void createEventSet(String name) {
+        System.out.println("Usage: createEventSet <name> [<event name> <event code>]{1,5}");
+    }
+
+    @SuppressWarnings("unused")
+    public void createEventSet(String name, String event1Name, long event1Code) {
+        this.createEventSet(name, new EventSpecification(event1Name, event1Code));
+    }
+
+    @SuppressWarnings("unused")
+    public void createEventSet(String name, String event1Name, long event1Code, String event2Name, long event2Code) {
+        this.createEventSet(
+                name,
+                new EventSpecification(event1Name, event1Code),
+                new EventSpecification(event2Name, event2Code));
+    }
+
+    @SuppressWarnings("unused")
+    public void createEventSet(String name, String event1Name, long event1Code, String event2Name, long event2Code, String event3Name, long event3Code) {
+        this.createEventSet(
+                name,
+                new EventSpecification(event1Name, event1Code),
+                new EventSpecification(event2Name, event2Code),
+                new EventSpecification(event3Name, event3Code));
+    }
+
+    @SuppressWarnings("unused")
+    public void createEventSet(String name, String event1Name, long event1Code, String event2Name, long event2Code, String event3Name, long event3Code, String event4Name, long event4Code) {
+        this.createEventSet(
+                name,
+                new EventSpecification(event1Name, event1Code),
+                new EventSpecification(event2Name, event2Code),
+                new EventSpecification(event3Name, event3Code),
+                new EventSpecification(event4Name, event4Code));
+    }
+
+    @SuppressWarnings("unused")
+    public void createEventSet(String name, String event1Name, long event1Code, String event2Name, long event2Code, String event3Name, long event3Code, String event4Name, long event4Code, String event5Name, long event5Code) {
+        this.createEventSet(
+                name,
+                new EventSpecification(event1Name, event1Code),
+                new EventSpecification(event2Name, event2Code),
+                new EventSpecification(event3Name, event3Code),
+                new EventSpecification(event4Name, event4Code),
+                new EventSpecification(event5Name, event5Code));
+    }
+
+    private void createEventSet(String name, EventSpecification... eventSpecifications) {
+        transactionService.builder()
+                .principal(() -> "Console")
+                .run(() -> this.doCreateEventSet(name, eventSpecifications));
+    }
+
+    private void doCreateEventSet(String name, EventSpecification... eventSpecifications) {
+        CalendarService.EventSetBuilder builder = calendarService.newEventSet(name);
+        Stream.of(eventSpecifications).forEach(each -> each.addTo(builder));
+        EventSet eventSet = builder.add();
+        System.out.println("EventSet created with id " + eventSet.getId());
+    }
+
+    @SuppressWarnings("unused")
+    public void linkEventSet() {
+        System.out.println("Usage: linkEventSet <metrology configuration id> <event set id>");
     }
 
     @SuppressWarnings("unused")
@@ -98,4 +167,18 @@ public class EventSetCommands {
                 });
     }
 
+    private static class EventSpecification {
+        private final String name;
+        private final long code;
+
+        EventSpecification(String name, long code) {
+            this.name = name;
+            this.code = code;
+        }
+
+        void addTo(CalendarService.EventSetBuilder eventSetBuilder) {
+            eventSetBuilder.addEvent(this.name).withCode(this.code);
+        }
+
+    }
 }
