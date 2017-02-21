@@ -6,6 +6,7 @@ package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
+import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.fsm.StateTransitionEventType;
@@ -51,13 +52,51 @@ public class FiniteStateMachineBuilderImpl implements FiniteStateMachineBuilder 
         return this.state.newState(false, symbolicName);
     }
 
+    @Override
+    public StateBuilder newCustomState(String name, Stage stage) {
+        return this.state.newState(true, name, stage);
+    }
+
+    @Override
+    public StateBuilder newStandardState(String symbolicName, Stage stage) {
+        return this.state.newState(false, symbolicName, stage);
+    }
+
     private StateBuilder doNewState(boolean custom, String name) {
         StateImpl underConstruction = this.newInitializedState(custom, name);
         return new StateBuilderImpl(underConstruction);
     }
 
+    private StateBuilder doNewState(boolean custom, String name, Stage stage) {
+        StateImpl underConstruction = this.newInitializedState(custom, name, stage);
+        return new StateBuilderImpl(underConstruction);
+    }
+
     protected StateImpl newInitializedState(boolean custom, String name) {
         return this.dataModel.getInstance(StateImpl.class).initialize(this.underConstruction, custom, name);
+    }
+
+    protected StateImpl newInitializedState(boolean custom, String name, Stage stage) {
+        return this.dataModel.getInstance(StateImpl.class).initialize(this.underConstruction, custom, name, stage);
+    }
+
+
+    private void checkStageRequired(boolean stageGiven) {
+        if((!underConstruction.getStageSet().isPresent() && stageGiven) || (underConstruction.getStageSet().isPresent() && !stageGiven)) {
+            throw new IllegalStateException();
+        }
+    }
+
+
+    private void checkIfStageExistsInFSMUnderContruction(Stage stage) {
+        Optional<Stage> optionalStage = underConstruction.getStageSet().get().getStages()
+                .stream()
+                .filter(stage::equals)
+                .findFirst();
+
+        if(!optionalStage.isPresent()) {
+            throw new IllegalArgumentException("The StageSet of the FiniteStateMachine does not contain the given stage");
+        }
     }
 
     @Override
@@ -71,13 +110,22 @@ public class FiniteStateMachineBuilderImpl implements FiniteStateMachineBuilder 
 
     protected interface BuildState {
         StateBuilder newState(boolean custom, String name);
+        StateBuilder newState(boolean custom, String name, Stage stage);
         FiniteStateMachine complete();
     }
 
     private class UnderConstruction implements BuildState {
         @Override
         public StateBuilder newState(boolean custom, String name) {
+            checkStageRequired(false);
             return doNewState(custom, name);
+        }
+
+        @Override
+        public StateBuilder newState(boolean custom, String name, Stage stage) {
+            checkStageRequired(true);
+            checkIfStageExistsInFSMUnderContruction(stage);
+            return doNewState(custom, name, stage);
         }
 
         @Override
@@ -90,6 +138,12 @@ public class FiniteStateMachineBuilderImpl implements FiniteStateMachineBuilder 
     protected class Complete implements BuildState {
         @Override
         public StateBuilder newState(boolean custom, String name) {
+            illegalStateException();
+            return null;
+        }
+
+        @Override
+        public StateBuilder newState(boolean custom, String name, Stage stage) {
             illegalStateException();
             return null;
         }

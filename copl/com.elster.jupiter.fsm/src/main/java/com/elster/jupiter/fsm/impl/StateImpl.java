@@ -9,6 +9,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.ProcessReference;
+import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.fsm.StateTransition;
@@ -23,11 +24,13 @@ import com.elster.jupiter.orm.associations.Reference;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import java.sql.Ref;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -46,7 +49,8 @@ public final class StateImpl implements State {
         INITIAL("initial"),
         CUSTOM("custom"),
         FINITE_STATE_MACHINE("finiteStateMachine"),
-        PROCESS_REFERENCES("processReferences");
+        PROCESS_REFERENCES("processReferences"),
+        STAGE("stage");
 
         private final String javaFieldName;
 
@@ -75,6 +79,7 @@ public final class StateImpl implements State {
     private Reference<FiniteStateMachine> finiteStateMachine = Reference.empty();
     @Valid
     private List<ProcessReferenceImpl> processReferences = new ArrayList<>();
+    private Reference<Stage> stage = Reference.empty();
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -99,6 +104,12 @@ public final class StateImpl implements State {
         return this;
     }
 
+    public StateImpl initialize(FiniteStateMachine finiteStateMachine, boolean custom, String name, Stage stage) {
+        this.initialize(finiteStateMachine, custom, name);
+        this.stage.set(stage);
+        return this;
+    }
+
     @Override
     public long getId() {
         return id;
@@ -117,6 +128,11 @@ public final class StateImpl implements State {
     @Override
     public Instant getModifiedTimestamp() {
         return modTime;
+    }
+
+    @Override
+    public Optional<Stage> getStage() {
+        return stage.getOptional();
     }
 
     @Override

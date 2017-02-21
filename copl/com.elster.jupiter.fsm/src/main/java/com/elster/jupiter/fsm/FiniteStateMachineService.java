@@ -121,6 +121,16 @@ public interface FiniteStateMachineService {
      */
     List<StateTransitionEventType> getStateTransitionEventTypes(String... context);
 
+
+    /**
+     * Starts the building process for a new {@link StageSet}
+     * with the specified name. The name must be unique across the system
+     *
+     * @param name The name of the {@link StageSet}
+     * @return The {@link StageSetBuilder}
+     */
+    StageSetBuilder newStageSet(String name);
+
     /**
      * Starts the building process for a new {@link FiniteStateMachine}
      * with the specified name. The name must be unique across the system,
@@ -130,6 +140,17 @@ public interface FiniteStateMachineService {
      * @return The FiniteStateMachineBuilder
      */
     FiniteStateMachineBuilder newFiniteStateMachine(String name);
+
+    /**
+     * Starts the building process for a new {@link FiniteStateMachine}
+     * with the specified name and the specified {@link StageSet}. The name must be unique across the system,
+     * i.e. no two FiniteStateMachines can have the same name.
+     *
+     * @param name The name
+     * @param stageSet The {@link StageSet} for the FiniteStateMachine
+     * @return The FiniteStateMachineBuilder
+     */
+    FiniteStateMachineBuilder newFiniteStateMachine(String name, StageSet stageSet);
 
     /**
      * Clones the specified {@link FiniteStateMachine} with the specified name.
@@ -160,6 +181,15 @@ public interface FiniteStateMachineService {
      * @return The FiniteStateMachine
      */
     Optional<FiniteStateMachine> findFiniteStateMachineByName(String name);
+
+    /**
+     * Finds the {@link StageSet} with the specified name
+     * if such a StageSet exists.
+     *
+     * @param name The name
+     * @return The optional StageSet
+     */
+    Optional<StageSet> findStageSetByName(String name);
 
     /**
      * Finds the {@link State} that is uniquely identified

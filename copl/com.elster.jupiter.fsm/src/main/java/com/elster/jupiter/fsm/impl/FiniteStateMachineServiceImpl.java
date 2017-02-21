@@ -13,6 +13,8 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.Privileges;
 import com.elster.jupiter.fsm.ProcessReference;
+import com.elster.jupiter.fsm.StageSet;
+import com.elster.jupiter.fsm.StageSetBuilder;
 import com.elster.jupiter.fsm.StandardEventPredicate;
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.fsm.State;
@@ -341,8 +343,19 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     }
 
     @Override
+    public StageSetBuilder newStageSet(String name) {
+        return new StageSetBuilderImpl(name, dataModel);
+    }
+
+    @Override
     public FiniteStateMachineBuilder newFiniteStateMachine(String name) {
         FiniteStateMachineImpl stateMachine = this.dataModel.getInstance(FiniteStateMachineImpl.class).initialize(name);
+        return new FiniteStateMachineBuilderImpl(dataModel, stateMachine);
+    }
+
+    @Override
+    public FiniteStateMachineBuilder newFiniteStateMachine(String name, StageSet stageSet) {
+        FiniteStateMachineImpl stateMachine = this.dataModel.getInstance(FiniteStateMachineImpl.class).initialize(name, stageSet);
         return new FiniteStateMachineBuilderImpl(dataModel, stateMachine);
     }
 
@@ -491,6 +504,22 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
         @Override
         public String getDefaultFormat() {
             return this.key;
+        }
+    }
+
+    @Override
+    public Optional<StageSet> findStageSetByName(String name) {
+        Condition condition = where(StageSetImpl.Fields.NAME.fieldName()).isEqualTo(name);
+        List<StageSet> stageSets = this.dataModel.query(StageSet.class).select(condition);
+        // Expecting at most one
+        if (stageSets.isEmpty()) {
+            return Optional.empty();
+        }
+        else if (stageSets.size() > 1) {
+            throw new NotUniqueException(name);
+        }
+        else {
+            return Optional.of(stageSets.get(0));
         }
     }
 }

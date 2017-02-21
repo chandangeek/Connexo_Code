@@ -39,6 +39,26 @@ public interface FiniteStateMachineBuilder {
     StateBuilder newStandardState(String symbolicName);
 
     /**
+     * Starts the building process of a new custom {@link State}.
+     *
+     * @param name The name of the new custom State
+     * @param stage The {@link Stage} of the new custom Stage
+     * @return The StateBuilder
+     * @see State#isCustom()
+     */
+    StateBuilder newCustomState(String name, Stage stage);
+
+    /**
+     * Starts the building process of a new standard {@link State}.
+     *
+     * @param symbolicName The symbolic name of the new State
+     * @param stage The {@link Stage} of the new State
+     * @return The StateBuilder
+     * @see State#isCustom()
+     */
+    StateBuilder newStandardState(String symbolicName, Stage stage);
+
+    /**
      * Completes the building process, marking the specified {@link State}
      * as the initial State and returning the {@link FiniteStateMachine}
      * that was built from the instructions.

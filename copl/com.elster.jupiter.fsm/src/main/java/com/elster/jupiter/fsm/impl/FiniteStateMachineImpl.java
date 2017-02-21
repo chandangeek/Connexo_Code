@@ -10,6 +10,7 @@ import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.MessageSeeds;
+import com.elster.jupiter.fsm.StageSet;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
@@ -21,6 +22,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.streams.Predicates;
@@ -53,7 +55,8 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
         NAME("name"),
         OBSOLETE_TIMESTAMP("obsoleteTimestamp"),
         STATES("states"),
-        TRANSITIONS("transitions");
+        TRANSITIONS("transitions"),
+        STAGE_SET("stageSet");
 
         private final String javaFieldName;
 
@@ -80,6 +83,8 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
     private List<StateImpl> states = new ArrayList<>();
     @Valid
     private List<StateTransitionImpl> transitions = new ArrayList<>();
+    @Valid
+    private Reference<StageSet> stageSet = Reference.empty();
     private Instant obsoleteTimestamp;
     @SuppressWarnings("unused")
     private String userName;
@@ -101,6 +106,12 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
 
     public FiniteStateMachineImpl initialize(String name) {
         setName(name);
+        return this;
+    }
+
+    public FiniteStateMachineImpl initialize(String name, StageSet stageSet) {
+        setName(name);
+        setStageSet(stageSet);
         return this;
     }
 
@@ -291,6 +302,15 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
     private void deleteAllStates() {
         this.states.forEach(StateImpl::prepareDelete);
         this.states.clear();
+    }
+
+    @Override
+    public Optional<StageSet> getStageSet() {
+        return stageSet.getOptional();
+    }
+
+    private void setStageSet(StageSet stageSet) {
+        this.stageSet.set(stageSet);
     }
 
     @Override

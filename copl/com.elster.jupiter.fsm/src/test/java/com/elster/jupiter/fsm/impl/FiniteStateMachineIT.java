@@ -8,11 +8,14 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.ProcessReference;
+import com.elster.jupiter.fsm.StageSet;
+import com.elster.jupiter.fsm.StageSetBuilder;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.fsm.StateChangeBusinessProcessInUseException;
@@ -2232,6 +2235,43 @@ public class FiniteStateMachineIT {
         FiniteStateMachine updated = stateMachineUpdater.complete();
 
         // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @Test(expected = IllegalStateException.class)
+    public void createStateMachineWithStageSetWithOneStandardStateWithoutStage() {
+        String expectedName = "createStateMachineWithStageSetWithOneStandardStateWithoutStage";
+        StageSetBuilder stageSetbuilder = this.getTestService().newStageSet("StageSet");
+        StageSet stageSet = stageSetbuilder.stage("Stage").add();
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName, stageSet);
+        String expectedStateName = "Initial";
+        builder.complete(builder.newStandardState(expectedStateName).complete());
+    }
+
+    @Transactional
+    @Test(expected = IllegalStateException.class)
+    public void createStateMachineWithoutStageSetWithOneStandardStateWithStage() {
+        String expectedName = "createStateMachineWithoutStageSetWithOneStandardStateWithStage";
+        StageSetBuilder stageSetbuilder = this.getTestService().newStageSet("StageSet");
+        StageSet stageSet = stageSetbuilder.stage("Stage").add();
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        String expectedStateName = "Initial";
+        builder.complete(builder.newStandardState(expectedStateName, stageSet.getStages().get(0)).complete());
+    }
+
+    @Transactional
+    @Test
+    public void createStateMachineWithStageSetWithOneStandardStateWithStage() {
+        String expectedName = "createStateMachineWithStageSetWithOneStandardStateWithStage";
+        StageSetBuilder stageSetbuilder = this.getTestService().newStageSet("StageSet");
+        StageSet stageSet = stageSetbuilder.stage("Stage").add();
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName, stageSet);
+        String expectedStateName = "Initial";
+        FiniteStateMachine fsm = builder.complete(builder.newStandardState(expectedStateName, stageSet.getStages().get(0)).complete());
+
+        assertThat(fsm.getStageSet()).isPresent();
+        assertThat(fsm.getInitialState().getStage()).isPresent();
+
     }
 
     private StateTransitionEventType createNewStateTransitionEventType(String symbol) {

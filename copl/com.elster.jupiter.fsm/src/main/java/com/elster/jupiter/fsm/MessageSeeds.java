@@ -98,6 +98,9 @@ public enum MessageSeeds implements MessageSeed {
         public static final String UNKNOWN_STATE_TRANSITION = "finite.state.machine.unknown.state.transition";
         public static final String NO_SUCH_PROCESS_ON_STATE = "finite.state.machine.unknown.state.process";
         public static final String DUPLICATE_STATE_TRANSITION = "finite.state.machine.duplicate.state.transition";
+        public static final String AT_LEAST_ONE_STAGE = "stage.set.min1stage";
+        public static final String UNIQUE_STAGE_SET_NAME = "stage.set.unique.name";
+        public static final String NO_DUPLICATE_STAGE_NAME = "stage.set.no.duplicate.stage.name";
     }
 
 }

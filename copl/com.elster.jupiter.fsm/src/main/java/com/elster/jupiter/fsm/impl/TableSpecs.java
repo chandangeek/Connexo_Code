@@ -6,6 +6,8 @@ package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.ProcessReference;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.StageSet;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.fsm.StateTransition;
@@ -15,6 +17,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
@@ -27,6 +30,41 @@ import static com.elster.jupiter.orm.Version.version;
  * @since 2015-03-02 (15:25)
  */
 public enum TableSpecs {
+
+    FSM_STAGE_SET {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<StageSet> table = dataModel.addTable(this.name(), StageSet.class).since(Version.version(10, 3));
+            table.map(StageSetImpl.class);
+            Column id = table.addAutoIdColumn();
+            table.addAuditColumns();
+            Column name = table.column("NAME").varChar().notNull().map(StageSetImpl.Fields.NAME.fieldName()).add();
+            table.primaryKey("PK_FSM_STAGE_SET").on(id).add();
+            table.unique("UK_FSM_STAGE_SET_NAME").on(name).add();
+        }
+    },
+
+    FSM_STAGE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<Stage> table = dataModel.addTable(this.name(), Stage.class).since(Version.version(10, 3));
+            table.map(StageImpl.class);
+            Column id = table.addAutoIdColumn();
+            table.addAuditColumns();
+            Column name = table.column("NAME").varChar().notNull().map(StageImpl.Fields.NAME.fieldName()).add();
+            Column stageSet = table.column("STAGE_SET").notNull().number().add();
+            table.foreignKey("FK_FSM_STAGE_STAGE_SET")
+                    .on(stageSet)
+                    .references(FSM_STAGE_SET.name())
+                    .map(StageImpl.Fields.STAGE_SET.fieldName())
+                    .reverseMap(StageSetImpl.Fields.STAGES.fieldName())
+                    .composition()
+                    .onDelete(DeleteRule.CASCADE)
+                    .add();
+            table.primaryKey("PK_FSM_STAGE").on(id).add();
+            table.unique("UK_FSM_STAGE").on(name, stageSet).add();
+        }
+    },
 
     FSM_FINITE_STATE_MACHINE {
         @Override
@@ -42,7 +80,14 @@ public enum TableSpecs {
             table.addAuditColumns();
             Column name = table.column("NAME").varChar().notNull().map(FiniteStateMachineImpl.Fields.NAME.fieldName()).add();
             Column obsoleteTimestamp = table.column("OBSOLETE_TIMESTAMP").number().conversion(ColumnConversion.NUMBER2INSTANT).map(FiniteStateMachineImpl.Fields.OBSOLETE_TIMESTAMP.fieldName()).add();
+            Column stageSet = table.column("STAGE_SET").number().add().since(Version.version(10, 3));
             table.primaryKey("PK_FSM_FINITESTATEMACHINE").on(id).add();
+            table.foreignKey("FK_FSM_STAGE_SET")
+                    .references(FSM_STAGE_SET.name())
+                    .on(stageSet)
+                    .map(FiniteStateMachineImpl.Fields.STAGE_SET.fieldName())
+                    .since(Version.version(10, 3))
+                    .add();
             table.unique("UK_FSM_FINITESTATEMACHINE").on(name, obsoleteTimestamp).add();
         }
     },
@@ -83,6 +128,7 @@ public enum TableSpecs {
             table.column("ISINITIAL").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map(StateImpl.Fields.INITIAL.fieldName()).add();
             table.column("CUSTOM").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map(StateImpl.Fields.CUSTOM.fieldName()).add();
             Column finiteStateMachine = table.column("FSM").number().notNull().add();
+            Column stage = table.column("STAGE").since(Version.version(10, 3)).number().add();
             table.unique("UK_FSM_STATE").on(finiteStateMachine, name, obsolete).add();
             table.foreignKey("FK_FSM_STATE_FSM")
                     .on(finiteStateMachine)
@@ -91,6 +137,12 @@ public enum TableSpecs {
                     .reverseMap(FiniteStateMachineImpl.Fields.STATES.fieldName())
                     .composition()
                     .onDelete(DeleteRule.CASCADE)
+                    .add();
+            table.foreignKey("FK_FSM_STATE_STAGE")
+                    .on(stage)
+                    .references(FSM_STAGE.name())
+                    .map(StateImpl.Fields.STAGE.fieldName())
+                    .since(Version.version(10, 3))
                     .add();
             table.primaryKey("PK_FSM_STATE").on(id).add();
         }
