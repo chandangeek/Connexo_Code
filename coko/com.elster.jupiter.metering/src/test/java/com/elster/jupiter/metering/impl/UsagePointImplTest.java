@@ -16,6 +16,7 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
+import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.impl.aggregation.ServerDataAggregationService;
@@ -123,6 +124,8 @@ public class UsagePointImplTest {
     @Mock
     private ServerMeteringService meteringService;
     @Mock
+    private DataAggregationService aggregationService;
+    @Mock
     private MeterImpl meter;
     @Mock
     private MeterRole meterRole;
@@ -143,7 +146,7 @@ public class UsagePointImplTest {
         when(meter.getHeadEndInterface()).thenReturn(Optional.empty());
         when(dataModel.getInstance(UsagePointAccountabilityImpl.class)).thenAnswer(invocationOnMock -> new UsagePointAccountabilityImpl(clock));
         final Provider<ChannelBuilder> channelBuilderProvider = () -> channelBuilder;
-        when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, channelBuilderProvider));
+        when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, aggregationService, channelBuilderProvider));
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(dataModel.getInstance(UsagePointConnectionStateImpl.class)).thenReturn(new UsagePointConnectionStateImpl());
         when(validatorFactory.getValidator()).thenReturn(validator);

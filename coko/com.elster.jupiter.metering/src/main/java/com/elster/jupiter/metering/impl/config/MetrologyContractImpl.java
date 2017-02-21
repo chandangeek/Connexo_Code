@@ -7,6 +7,7 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
@@ -27,10 +28,14 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 public class MetrologyContractImpl implements MetrologyContract {
@@ -257,5 +262,17 @@ public class MetrologyContractImpl implements MetrologyContract {
                 .map(Formula::getExpressionNode)
                 .forEach(expressionNode -> expressionNode.accept(readingTypeRequirementsCollector));
         return readingTypeRequirementsCollector.getReadingTypeRequirements().stream().collect(Collectors.toSet());
+    }
+
+    @Override
+    public Collection<Set<ReadingType>> sortReadingTypesByDependencyLevel() {
+        List<ReadingTypeDeliverable> deliverables = getDeliverables();
+        Map<ReadingType, Integer> readingTypesWithDependencyLevels = new HashMap<>(deliverables.size(), 1);
+        deliverables.forEach(deliverable -> readingTypesWithDependencyLevels.computeIfAbsent(deliverable.getReadingType(),
+                readingType -> deliverable.getFormula().getExpressionNode()
+                        .accept(new DeliverableDependencyLevelRetriever(readingTypesWithDependencyLevels))));
+        return readingTypesWithDependencyLevels.entrySet().stream()
+                .collect(Collectors.groupingBy(Map.Entry::getValue, TreeMap::new, Collectors.mapping(Map.Entry::getKey, Collectors.toSet())))
+                .values();
     }
 }

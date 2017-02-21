@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
+import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -79,6 +80,8 @@ public class MeterActivationChannelCreationTest {
     @Mock
     private ServerMeteringService meteringService;
     @Mock
+    private DataAggregationService aggregationService;
+    @Mock
     private Clock clock;
     @Mock
     private EventService eventService;
@@ -119,7 +122,7 @@ public class MeterActivationChannelCreationTest {
 
         Provider<ChannelImpl> channelFactory = () -> new ChannelImpl(dataModel, idsService, meteringService, clock, eventService);
         channelBuilder = () -> new ChannelBuilderImpl(dataModel, channelFactory);
-        when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, channelBuilder));
+        when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, aggregationService, channelBuilder));
         when(usagePoint.getId()).thenReturn(USAGEPOINT_ID);
         when(meter.getId()).thenReturn(METER_ID);
         when(meter.getHeadEndInterface()).thenReturn(Optional.of(headEndInterface));

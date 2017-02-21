@@ -16,7 +16,7 @@ import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
-import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverablesCollector;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -28,7 +28,6 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
-import java.util.List;
 
 
 @ValidDeliverable(groups = { Save.Create.class, Save.Update.class })
@@ -143,20 +142,14 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
 
     private void setReadingType(ReadingType readingType) {
         doSetReadingType(readingType);
-        ReadingTypeDeliverable deliverableToUpdate =  this.getMetrologyConfiguration().getDeliverables().stream().filter(del -> del.equals(this)).findAny().orElse(null);
         // following code is necessary because to be able check for invalid formulas where this deliverable is used (check is done by the ValidDeliverable class)
         // we also need to set the new readingtype in the expression nodes (ReadingTypeDeliveryNodes) in the formulas that use the deliverable that is updated.
         // Otherwise they still contains the old readingtypes, because the nodes contains copies of the deliverables, no references (ORM framework)
-        if (deliverableToUpdate != null) {
-            //((ReadingTypeDeliverableImpl) deliverableToUpdate).doSetReadingType(readingType);
-        }
         for (ReadingTypeDeliverable deliverable : this.getMetrologyConfiguration().getDeliverables()) {
-            List<ReadingTypeDeliverableNode> deliverableNodes = deliverable.getFormula().getExpressionNode().accept(new DeliverableNodesFromExpressionNode());
-            for (ReadingTypeDeliverableNode deliverableNode : deliverableNodes) {
-                if (deliverableNode.getReadingTypeDeliverable().equals(this)) {
-                    ((ReadingTypeDeliverableImpl) deliverableNode.getReadingTypeDeliverable()).doSetReadingType(readingType);
-                }
-            }
+            deliverable.getFormula().getExpressionNode().accept(ReadingTypeDeliverablesCollector.flat()).stream()
+                    .filter(this::equals)
+                    .map(ReadingTypeDeliverableImpl.class::cast)
+                    .forEach(deliverableImpl -> deliverableImpl.doSetReadingType(readingType));
         }
     }
 

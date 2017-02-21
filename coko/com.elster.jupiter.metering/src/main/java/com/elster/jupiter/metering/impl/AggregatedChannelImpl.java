@@ -355,6 +355,19 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
         return new ArrayList<>(getCalculatedReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record)).values());
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return this == o
+                || o != null
+                && getClass() == o.getClass()
+                && persistedChannel.equals(((AggregatedChannelImpl) o).persistedChannel);
+    }
+
+    @Override
+    public int hashCode() {
+        return persistedChannel.hashCode();
+    }
+
     private static class CalculatedReadingRecordImpl implements IntervalReadingRecord, ReadingRecord {
 
         private final BaseReadingRecord record;
