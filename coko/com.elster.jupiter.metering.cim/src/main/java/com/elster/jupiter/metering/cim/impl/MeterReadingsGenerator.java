@@ -29,6 +29,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -71,8 +72,8 @@ public class MeterReadingsGenerator {
     }
 
     private List<ReadingQualityRecord> getValidationQualities(Channel channel, Range<Instant> range) {
-        List<ReadingQualityRecord> qualities = channel.findReadingQualities().inTimeInterval(range).collect();
-        Collections.sort(qualities, Comparator.comparing(ReadingQualityRecord::getTimestamp));
+        List<ReadingQualityRecord> qualities = new ArrayList<>(channel.findReadingQualities().inTimeInterval(range).collect());
+        Collections.sort(qualities, Comparator.comparing(ReadingQualityRecord::getReadingTimestamp));
         return qualities;
     }
 
