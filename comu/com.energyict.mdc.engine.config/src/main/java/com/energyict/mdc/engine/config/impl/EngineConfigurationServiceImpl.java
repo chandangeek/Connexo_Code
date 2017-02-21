@@ -18,6 +18,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -59,6 +60,7 @@ import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -180,7 +182,9 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     @Activate
     public void activate() {
         dataModel.register(getModule());
-        upgradeService.register(identifier("MultiSense", EngineConfigurationService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(version(10, 2), UpgraderV10_2.class));
+        upgradeService.register(identifier("MultiSense", EngineConfigurationService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
+                version(10, 2), UpgraderV10_2.class,
+                version(10, 3), V10_3SimpleUpgrader.class));
     }
 
     public DataModel getDataModel() {
@@ -429,8 +433,10 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Override
-    public InboundComPortPool newInboundComPortPool(String name, ComPortType comPortType, InboundDeviceProtocolPluggableClass discoveryProtocol) {
+    public InboundComPortPool newInboundComPortPool(String name, ComPortType comPortType, InboundDeviceProtocolPluggableClass discoveryProtocol, Map<String, Object> properties) {
         final InboundComPortPoolImpl inboundComPortPool = this.dataModel.getInstance(InboundComPortPoolImpl.class).initialize(name, comPortType, discoveryProtocol);
+        properties.entrySet()
+                .forEach(entry -> inboundComPortPool.setProperty(entry.getKey(), entry.getValue()));
         inboundComPortPool.save();
         return inboundComPortPool;
     }

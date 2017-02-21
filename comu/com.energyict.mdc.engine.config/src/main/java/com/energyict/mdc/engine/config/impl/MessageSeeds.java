@@ -37,6 +37,8 @@ public enum MessageSeeds implements MessageSeed {
     VETO_DISCOVERYPROTOCOLPLUGGABLECLASS_DELETION(114, Keys.DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_XSTILL_IN_USE_BY_DEVICE_TYPES_Y, "The device protocol pluggable class {0} is still used by the following device types: {1}", Level.SEVERE),
     PORT_NUMBER_MAX_VALUE(115, Keys.PORT_NUMBER_MAX_VALUE, "Maximum acceptable value is {value}", Level.SEVERE),
     DUPLICATE_COMSERVER_URI(116, Keys.MDC_DUPLICATE_COM_SERVER_URI, "There is already another communication server defined with the same server name and port", Level.SEVERE),
+    COM_PORT_POOL_PROPERTY_HAS_NO_SPEC(117, Keys.COM_PORT_POOL_PROPERTY_HAS_NO_SPEC, "There is no spec for communication port pool property with name {0}", Level.SEVERE),
+    COM_PORT_PPOOL_PROPERTY_VALUE_OF_WRONG_TYPE(118, Keys.COM_PORT_PPOOL_PROPERTY_VALUE_OF_WRONG_TYPE, "The value for property {0} is of the wrong type", Level.SEVERE),
     ;
 
     private final int number;
@@ -106,6 +108,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String MDC_COM_PORT_POOL_PLUGGABLE_CLASS_INVALID = "ComPortPool.pluggableClass.invalid";
         public static final String DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_XSTILL_IN_USE_BY_DEVICE_TYPES_Y = "discoveryProtocolPluggableClass.XstillInUseByDeviceTypesY";
         public static final String PORT_NUMBER_MAX_VALUE = "PortNumberMaxValue";
+        public static final String COM_PORT_POOL_PROPERTY_HAS_NO_SPEC = "comportPoolProperty.hasNoSpec";
+        public static final String COM_PORT_PPOOL_PROPERTY_VALUE_OF_WRONG_TYPE = "comportPoolProperty.wrongValueType";
     }
 
 }

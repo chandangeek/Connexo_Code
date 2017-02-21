@@ -19,6 +19,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.inject.Provider;
 
 import java.sql.SQLException;
+import java.util.Collections;
 
 import org.junit.Test;
 import org.mockito.Mock;
@@ -245,7 +246,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
 
     private int comPortPoolIndex=1;
     private InboundComPortPool createComPortPool() {
-        return getEngineModelService().newInboundComPortPool("ComPortPool "+comPortPoolIndex++, ComPortType.TCP, inboundDeviceProtocolPluggableClass);
+        return getEngineModelService().newInboundComPortPool("ComPortPool "+comPortPoolIndex++, ComPortType.TCP, inboundDeviceProtocolPluggableClass, Collections.emptyMap());
     }
 
     private TCPBasedInboundComPort createSimpleComPort() {

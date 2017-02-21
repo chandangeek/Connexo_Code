@@ -14,7 +14,7 @@
     </parent>
 
     <artifactId>mdc.engine.config</artifactId>
-    <version>3.2.0${revision}</version>
+    <version>4.0.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.engine.config [init MDC]</name>
     <description>contains the configuration aspects of the components that implement the engine of data collection</description>
@@ -41,6 +41,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>events</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>properties</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -136,11 +140,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>security.thread</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>properties</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

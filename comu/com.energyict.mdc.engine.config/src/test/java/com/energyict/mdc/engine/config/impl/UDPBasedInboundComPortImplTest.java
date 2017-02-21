@@ -16,6 +16,7 @@ import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 
 import java.sql.SQLException;
+import java.util.Collections;
 
 import org.junit.Test;
 import org.mockito.Mock;
@@ -271,7 +272,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
 
     private int comPortPoolIndex=1;
     private InboundComPortPool createComPortPool() {
-        return getEngineModelService().newInboundComPortPool("comPortPool "+comPortPoolIndex++, ComPortType.UDP, inboundDeviceProtocolPluggableClass);
+        return getEngineModelService().newInboundComPortPool("comPortPool "+comPortPoolIndex++, ComPortType.UDP, inboundDeviceProtocolPluggableClass, Collections.emptyMap());
     }
 
     private UDPBasedInboundComPort createSimpleComPort() {

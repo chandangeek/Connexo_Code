@@ -29,6 +29,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -446,7 +447,7 @@ public class ComServerComPortTest extends PersistenceTest {
 
     private int comPortPoolIndex=1;
     private InboundComPortPool newInboundComPortPool(ComPortType comPortType) {
-        InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool("Unique comPortPool "+comPortPoolIndex++, comPortType, inboundDeviceProtocolPluggableClass);
+        InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool("Unique comPortPool "+comPortPoolIndex++, comPortType, inboundDeviceProtocolPluggableClass, Collections.emptyMap());
         inboundComPortPool.setDescription("description");
         inboundComPortPool.update();
         return inboundComPortPool;
