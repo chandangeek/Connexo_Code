@@ -8,7 +8,6 @@ import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

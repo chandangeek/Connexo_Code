@@ -5,6 +5,7 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
@@ -23,20 +24,20 @@ class TcpDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
 
     private BigDecimal retries;
     private TimeDuration timeoutMillis;
-    private TimeDuration delayAfterError;
+    private BigDecimal roundTripCorrection;
 
     @Override
     protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
         this.retries = (BigDecimal) propertyValues.getProperty(ActualFields.RETRIES.propertySpecName());
         this.timeoutMillis = (TimeDuration) propertyValues.getProperty(ActualFields.TIMEOUT_PROPERTY.propertySpecName());
-        this.delayAfterError = (TimeDuration) propertyValues.getProperty(ActualFields.DELAY_AFTER_ERROR.propertySpecName());
+        this.roundTripCorrection = (BigDecimal) propertyValues.getProperty(ActualFields.ROUND_TRIP_CORRECTION.propertySpecName());
     }
 
     @Override
     protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
         this.setPropertyIfNotNull(propertySetValues, ActualFields.RETRIES.propertySpecName(), this.retries);
         this.setPropertyIfNotNull(propertySetValues, ActualFields.TIMEOUT_PROPERTY.propertySpecName(), this.timeoutMillis);
-        this.setPropertyIfNotNull(propertySetValues, ActualFields.DELAY_AFTER_ERROR.propertySpecName(), this.delayAfterError);
+        this.setPropertyIfNotNull(propertySetValues, ActualFields.ROUND_TRIP_CORRECTION.propertySpecName(), this.roundTripCorrection);
     }
 
     @Override
@@ -57,10 +58,18 @@ class TcpDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
                 this.addAsTimeDurationColumnTo(table);
             }
         },
+        //Legacy column, removed in 10.3
         DELAY_AFTER_ERROR("delayAfterError", DlmsProtocolProperties.DELAY_AFTER_ERROR, CommonV2TranslationKeys.DELAY_AFTER_ERROR, "DELAY_AFTER_ERROR") {
             @Override
             public void addTo(Table table) {
-                this.addAsTimeDurationColumnTo(table);
+                this.addAsTimeDurationColumnToWithVersionUpTo(table, Version.version(10, 3));
+            }
+        },
+        //New column, added in 10.3
+        ROUND_TRIP_CORRECTION("roundTripCorrection", DlmsProtocolProperties.ROUND_TRIP_CORRECTION, CommonV2TranslationKeys.ROUNDTRIP_CORRECTION, "ROUND_TRIP_CORRECTION") {
+            @Override
+            public void addTo(Table table) {
+                this.addAsBigDecimalColumnToWithVersionSince(table, Version.version(10, 3));
             }
         };
 
@@ -98,6 +107,15 @@ class TcpDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
                     .add();
         }
 
+        protected void addAsBigDecimalColumnToWithVersionSince(Table table, Version since) {
+            table
+                    .column(this.databaseName())
+                    .number()
+                    .map(this.javaName())
+                    .since(since)
+                    .add();
+        }
+
         protected void addAsTimeDurationColumnTo(Table table) {
             table
                     .column(this.databaseName() + "VALUE")
@@ -112,6 +130,22 @@ class TcpDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
                     .map(this.javaName() + ".timeUnitCode")
                     .add();
         }
-    }
 
+        protected void addAsTimeDurationColumnToWithVersionUpTo(Table table, Version upTo) {
+            table
+                    .column(this.databaseName() + "VALUE")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INT)
+                    .map(this.javaName() + ".count")
+                    .upTo(upTo)
+                    .add();
+            table
+                    .column(this.databaseName() + "UNIT")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INT)
+                    .map(this.javaName() + ".timeUnitCode")
+                    .upTo(upTo)
+                    .add();
+        }
+    }
 }

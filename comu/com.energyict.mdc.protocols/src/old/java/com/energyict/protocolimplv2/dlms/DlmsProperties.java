@@ -18,7 +18,6 @@ import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
-import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
