@@ -9,18 +9,27 @@ import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
+import com.elster.jupiter.issue.rest.request.EntityReference;
 import com.elster.jupiter.issue.rest.request.IssueDueDateInfo;
 import com.elster.jupiter.issue.rest.request.IssueDueDateInfoAdapter;
 import com.elster.jupiter.issue.rest.request.PerformActionRequest;
+import com.elster.jupiter.issue.rest.resource.IssueRestModuleConst;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
+import com.elster.jupiter.issue.rest.response.IssueGroupInfo;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
+import com.elster.jupiter.issue.share.IssueGroupFilter;
+import com.elster.jupiter.issue.share.entity.HistoricalIssue;
+import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueComment;
+import com.elster.jupiter.issue.share.entity.IssueGroup;
 import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
@@ -33,11 +42,16 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
+import com.energyict.mdc.device.alarms.rest.i18n.DeviceAlarmTranslationKeys;
 import com.energyict.mdc.device.alarms.rest.i18n.MessageSeeds;
+import com.energyict.mdc.device.alarms.rest.request.AssignDeviceAlarmRequest;
+import com.energyict.mdc.device.alarms.rest.request.BulkDeviceAlarmRequest;
+import com.energyict.mdc.device.alarms.rest.request.CloseDeviceAlarmRequest;
 import com.energyict.mdc.device.alarms.rest.response.AlarmProcessInfos;
 import com.energyict.mdc.device.alarms.rest.response.DeviceAlarmActionInfo;
 import com.energyict.mdc.device.alarms.rest.response.DeviceAlarmInfo;
 import com.energyict.mdc.device.alarms.rest.response.DeviceAlarmInfoFactory;
+import com.energyict.mdc.device.alarms.rest.transactions.AssignDeviceAlarmTransaction;
 import com.energyict.mdc.device.alarms.rest.transactions.AssignToMeSingleDeviceAlarmTransaction;
 import com.energyict.mdc.device.alarms.rest.transactions.UnassignSingleDeviceAlarmTransaction;
 import com.energyict.mdc.device.alarms.security.Privileges;
@@ -62,7 +76,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -252,6 +268,164 @@ public class DeviceAlarmResource extends BaseAlarmResource{
 
     }
 
+    @GET
+    @Path("/groupedlist")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ALARM, Privileges.Constants.ASSIGN_ALARM, Privileges.Constants.CLOSE_ALARM, Privileges.Constants.COMMENT_ALARM, Privileges.Constants.ACTION_ALARM})
+    public PagedInfoList getGroupedList(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+        IssueGroupFilter groupFilter = getIssueService().newIssueGroupFilter();
+        String id = null;
+        List<IssueType> issueTypes = getIssueService().query(IssueType.class)
+                .select(Condition.TRUE)
+                .stream()
+                .filter(issueType -> issueType.getPrefix().equals("ALM"))
+                .collect(Collectors.toList());
+        List<String> issueTypesKeys = issueTypes.stream()
+                .map(IssueType::getKey)
+                .collect(Collectors.toList());
+        if(filter.getString(IssueRestModuleConst.ID) != null) {
+            String[] issueIdPart = filter.getString(IssueRestModuleConst.ID).split("-");
+            if (issueIdPart.length == 2) {
+                if (isNumericValue(issueIdPart[1])) {
+                    if (issueTypes.stream()
+                            .anyMatch(type -> type.getPrefix().toLowerCase().equals(issueIdPart[0].toLowerCase()))) {
+                        issueTypesKeys = issueTypes.stream()
+                                .filter(type -> type.getPrefix().toLowerCase().equals(issueIdPart[0].toLowerCase()))
+                                .map(IssueType::getKey)
+                                .collect(Collectors.toList());
+                        id = issueIdPart[1];
+                    } else{
+                        id = "-1";
+                    }
+                } else{
+                    id = "-1";
+                }
+            } else{
+                id = "-1";
+            }
+        }
+        groupFilter.using(getQueryApiClass(filter))
+                .onlyGroupWithKey(filter.getString(IssueRestModuleConst.REASON))
+                .withId(id)
+                .withIssueTypes(issueTypesKeys)
+                .withStatuses(filter.getStringList(IssueRestModuleConst.STATUS))
+                .withClearedStatuses(filter.getStringList("cleared"))
+                .withMeterName(filter.getString(IssueRestModuleConst.METER))
+                .groupBy(filter.getString(IssueRestModuleConst.FIELD))
+                .setAscOrder(false)
+                .from(params.getFrom()).to(params.getTo());
+        filter.getLongList(IssueRestModuleConst.ASSIGNEE).stream().filter(el -> el != null).forEach(groupFilter::withUserAssignee);
+        filter.getLongList(IssueRestModuleConst.WORKGROUP).stream().filter(el -> el != null).forEach(groupFilter::withWorkGroupAssignee);
+        getDueDates(filter).stream().forEach(dd -> groupFilter.withDueDate(dd.startTime, dd.endTime));
+        List<IssueGroup> resultList = getIssueService().getIssueGroupList(groupFilter);
+        List<IssueGroupInfo> infos = resultList.stream().map(IssueGroupInfo::new).collect(Collectors.toList());
+        return PagedInfoList.fromPagedList("alarmGroups", infos, queryParameters);
+    }
+
+    @PUT
+    @Path("/assign")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ASSIGN_ALARM)
+    public Response assignDeviceAlarm(AssignDeviceAlarmRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) {
+        User performer = (User) securityContext.getUserPrincipal();
+        Function<ActionInfo, List<? extends Issue>> alarmProvider;
+        if (request.allAlarms) {
+            alarmProvider = bulkResults -> getDeviceAlarmForBulk(filter);
+        } else {
+            alarmProvider = bulkResult -> getUserSelectedIssues(request, bulkResult);
+        }
+        ActionInfo info = getTransactionService().execute(new AssignDeviceAlarmTransaction(request, performer, alarmProvider));
+        return Response.ok().entity(info).build();
+    }
+
+    @PUT @Transactional
+    @Path("/close")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.CLOSE_ALARM)
+    public Response closeIssues(CloseDeviceAlarmRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) {
+        User performer = (User) securityContext.getUserPrincipal();
+        Function<ActionInfo, List<? extends Issue>> alarmProvider;
+        if (request.allAlarms) {
+            alarmProvider = bulkResults -> getDeviceAlarmForBulk(filter);
+        } else {
+            alarmProvider = bulkResult -> getUserSelectedIssues(request, bulkResult);
+        }
+        ActionInfo info = doBulkClose(request, performer, alarmProvider);
+        return Response.ok().entity(info).build();
+    }
+
+    private ActionInfo doBulkClose(CloseDeviceAlarmRequest request, User performer, Function<ActionInfo, List<? extends Issue>> issueProvider) {
+        ActionInfo response = new ActionInfo();
+        Optional<IssueStatus> status = getIssueService().findStatus(request.status);
+        if (status.isPresent() && status.get().isHistorical()) {
+            for (Issue issue : issueProvider.apply(response)) {
+                if (issue.getStatus().isHistorical()) {
+                    response.addFail(getThesaurus().getFormat(DeviceAlarmTranslationKeys.ALARM_ALREADY_CLOSED).format(), issue.getId(), issue.getTitle());
+                } else {
+                    issue.addComment(request.comment, performer);
+                    if (issue instanceof OpenIssue) {
+                        ((OpenIssue) issue).close(status.get());
+                    }
+                    response.addSuccess(issue.getId());
+                }
+            }
+        } else {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
+        return response;
+    }
+
+    private List<? extends Issue> getUserSelectedIssues(BulkDeviceAlarmRequest request, ActionInfo bulkResult) {
+        List<Issue> alarmsForBulk = new ArrayList<>(request.alarms.size());
+        for (EntityReference alarmRef : request.alarms) {
+            Optional<? extends Issue> alarm = getDeviceAlarmService().findAlarm(alarmRef.getId());
+            if (alarm.isPresent()) {
+                alarmsForBulk.add(alarm.get());
+            } else {
+                bulkResult.addFail(getThesaurus().getFormat(MessageSeeds.ALARM_DOES_NOT_EXIST).format(), alarmRef.getId(), "Alarm (id = " + alarmRef.getId() + ")");
+            }
+        }
+        return alarmsForBulk;
+    }
+
+    private List<? extends Issue> getDeviceAlarmForBulk(JsonQueryFilter filter) {
+        return getDeviceAlarmService().findAlarms(buildFilterFromQueryParameters(filter))
+                .find().stream().map(alarm -> {
+            if(alarm.getStatus().isHistorical()){
+                return getIssueService().findHistoricalIssue(alarm.getId());
+            }else{
+                return getIssueService().findOpenIssue(alarm.getId());
+            }
+        }).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
+    }
+
+    private boolean isNumericValue(String id){
+        try {
+            long number = Long.parseLong(id);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    private Class<? extends Issue> getQueryApiClass(JsonQueryFilter filter) {
+        List<IssueStatus> statuses = filter.hasProperty(IssueRestModuleConst.STATUS)
+                ? filter.getStringList(IssueRestModuleConst.STATUS).stream().map(s -> getIssueService().findStatus(s).get()).collect(Collectors.toList())
+                : Collections.EMPTY_LIST;
+        if (statuses.isEmpty()) {
+            return Issue.class;
+        }
+        if (statuses.stream().allMatch(status -> !status.isHistorical())) {
+            return OpenIssue.class;
+        }
+        if (statuses.stream().allMatch(IssueStatus::isHistorical)) {
+            return HistoricalIssue.class;
+        }
+        return Issue.class;
+    }
+
     private DeviceAlarm getDeviceAlarm(Long id, ActionInfo result) {
         DeviceAlarm deviceAlarm = getDeviceAlarmService().findAlarm(id).orElse(null);
         if (deviceAlarm == null) {
@@ -334,6 +508,7 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         for (Order order : orders) {
             finder.sorted("baseIssue." + order.getName(), order.ascending());
         }
+        finder.sorted("baseIssue.id", false);
         return finder;
     }
 

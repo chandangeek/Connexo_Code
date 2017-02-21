@@ -11,6 +11,7 @@ import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.issue.rest.TranslationKeys;
+import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -58,6 +59,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.mockito.Matchers;
 import org.mockito.Mock;
 
 import static org.mockito.Matchers.anyLong;
@@ -249,6 +251,7 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
         when(alarm.getDevice()).thenReturn(meter);
         when(alarm.getAssignee()).thenReturn(assingee);
         when(alarm.getCreateTime()).thenReturn(Instant.EPOCH);
+        when(alarm.getCreateDateTime()).thenReturn(Instant.EPOCH);
         when(alarm.getModTime()).thenReturn(Instant.EPOCH);
         when(alarm.getVersion()).thenReturn(1L);
         when(alarm.getDeviceAlarmRelatedEvents()).thenReturn(events);
@@ -280,4 +283,12 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
         return Collections.singletonList(event);
     }
 
+    protected IssueGroupFilter mockIssueGroupFilter() {
+        IssueGroupFilter issueGroupFilter = mock(IssueGroupFilter.class);
+        when(issueGroupFilter.using(Matchers.<Class>anyObject())).thenReturn(issueGroupFilter);
+        when(issueGroupFilter.withReasons(Matchers.<List<String>>anyObject())).thenReturn(issueGroupFilter);
+        when(issueGroupFilter.groupBy(Matchers.<String>anyObject())).thenReturn(issueGroupFilter);
+        when(issueGroupFilter.to(2L)).thenReturn(issueGroupFilter);
+        return issueGroupFilter;
+    }
 }

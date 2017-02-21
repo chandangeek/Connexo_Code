@@ -34,10 +34,13 @@ public class ReasonResource extends BaseAlarmResource {
     public Response getReasons(@BeanParam StandardParametersBean params) {
         Condition condition = Condition.TRUE;
         Query<IssueReason> query = getIssueService().query(IssueReason.class);
-        List<IssueReason> reasons = query.select(condition).stream().filter(reason -> reason.getIssueType().getKey().toLowerCase().equals("devicealarm")).collect(Collectors.toList());
+        List<IssueReason> reasons = query.select(condition).stream()
+                .filter(reason -> reason.getIssueType().getKey().toLowerCase().equals("devicealarm"))
+                .sorted((first, second) -> first.getName().toLowerCase().compareToIgnoreCase(second.getName().toLowerCase()))
+                .collect(Collectors.toList());
         if (params.getFirst("like") != null) {
-            reasons = reasons.stream().filter(reason -> reason.getName().toLowerCase().contains(params.getFirst("like").toLowerCase())).collect(Collectors
-                    .toList());
+            reasons = reasons.stream().filter(reason -> reason.getName().toLowerCase().contains(params.getFirst("like").toLowerCase()))
+                    .collect(Collectors.toList());
         }
         return Response.ok().entity(reasons.stream().map(IssueReasonInfo::new).collect(Collectors.toList())).build();
     }

@@ -10,7 +10,8 @@ import com.elster.jupiter.nls.TranslationKey;
 public enum DeviceAlarmTranslationKeys implements TranslationKey {
 
     ALARM_ASSIGNEE_UNASSIGNED ("AlarmAssigneeUnassigned", "Unassigned"),
-    ALARM_DOES_NOT_EXIT("AlarmDoesNotExist", "Alarm doesn't exist")
+    ALARM_DOES_NOT_EXIT("AlarmDoesNotExist", "Alarm doesn't exist"),
+    ALARM_ALREADY_CLOSED("AlarmAlreadyClosed", "Alarm already closed")
             ;
 
     private final String value;
