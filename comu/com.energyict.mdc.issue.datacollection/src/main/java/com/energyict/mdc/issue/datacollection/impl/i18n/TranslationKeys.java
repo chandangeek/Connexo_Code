@@ -45,7 +45,7 @@ public enum TranslationKeys implements TranslationKey {
     CLOSE_ACTION_PROPERTY_CLOSE_STATUS(CloseIssueAction.CLOSE_STATUS, "Close status"),
     CLOSE_ACTION_PROPERTY_COMMENT(CloseIssueAction.COMMENT, "Comment"),
     CLOSE_ACTION_WRONG_STATUS("action.wrong.status", "You are trying to apply the incorrect status"),
-    CLOSE_ACTION_ISSUE_WAS_CLOSED("action.issue.was.closed", "Issue was closed"),
+    CLOSE_ACTION_ISSUE_CLOSED("action.issue.closed", "Issue closed"),
     CLOSE_ACTION_ISSUE_ALREADY_CLOSED("action.issue.already.closed", "Issue already closed"),
     CLOSE_ACTION_CLOSE_ISSUE("issue.action.closeIssue", "Close issue"),
 
