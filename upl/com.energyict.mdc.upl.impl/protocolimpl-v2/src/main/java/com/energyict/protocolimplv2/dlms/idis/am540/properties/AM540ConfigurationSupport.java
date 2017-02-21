@@ -33,7 +33,10 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
     public static final String USE_CACHED_FRAME_COUNTER = "UseCachedFrameCounter";
     public static final String VALIDATE_CACHED_FRAMECOUNTER = "ValidateCachedFrameCounterAndFallback";
     public static final String FRAME_COUNTER_RECOVERY_RETRIES = "FrameCounterRecoveryRetries";
-    public static final String FRAME_COUNTER_RECOVERY_STEP = "FrameCounterRecoveryStep";
+    public static final String FRAME_COUNTER_RECOVERY_STEP = "FrameCounterRecoveryStep"; 
+    
+    /** Indicates whether the meter supports hundreths or not. */
+    public static final String SUPPORTS_HUNDRETHS_TIMEFIELD = "SupportsHundredthsTimeField";
 
     public static final boolean USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE = false;
     public static final BigDecimal DEFAULT_SERVER_LOWER_MAC_ADDRESS = BigDecimal.valueOf(17);
@@ -75,7 +78,8 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
                 this.validateCachedFrameCounter(),
                 this.frameCounterRecoveryRetries(),
                 this.frameCounterRecoveryStep(),
-                this.deviceSystemTitlePropertySpec()
+                this.deviceSystemTitlePropertySpec(),
+                this.supportsHundrethsTimeField()
         );
     }
     private PropertySpec frameCounterRecoveryRetries() {
@@ -87,6 +91,15 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
 
     private PropertySpec validateCachedFrameCounter() {
         return PropertySpecFactory.booleanPropertySpec(AM540ConfigurationSupport.VALIDATE_CACHED_FRAMECOUNTER);
+    }
+    
+    /**
+     * Returns the "SupportsHundrethsTimefield" property spec.
+     * 
+     * @return	The property specification.
+     */
+    private final PropertySpec<Boolean> supportsHundrethsTimeField() {
+    	return PropertySpecFactory.booleanPropertySpec(AM540ConfigurationSupport.SUPPORTS_HUNDRETHS_TIMEFIELD);
     }
 
     private PropertySpec useCachedFrameCounter() {
