@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Validates the {@link AtLeastOneState} constraint against a {@link FiniteStateMachine}.
+ * Validates the {@link NoDuplicateStageName} constraint against a {@link StageSet}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-03 (11:08)

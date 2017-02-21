@@ -13,10 +13,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 /**
- * Validates the {@link AtLeastOneState} constraint against a {@link FiniteStateMachine}.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-03-03 (11:08)
+ * Validates the {@link AtLeastOneStage} constraint against a {@link StageSet}.
  */
 public class AtLeastOneStageValidator implements ConstraintValidator<AtLeastOneStage, StageSet> {
 

@@ -6,6 +6,8 @@ package com.elster.jupiter.fsm.impl.constraints;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.MessageSeeds;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.StageSet;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -16,11 +18,8 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Models the constraint that a {@link FiniteStateMachine}
- * should have at least one {@link com.elster.jupiter.fsm.State}.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-03-03 (10:33)
+ * Models the constraint that a {@link StageSet}
+ * should have at least one {@link Stage}.
  */
 @Target({ java.lang.annotation.ElementType.TYPE })
 @Retention(RUNTIME)

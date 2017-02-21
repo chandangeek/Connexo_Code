@@ -16,11 +16,8 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Models the constraint that a {@link FiniteStateMachine}
- * should have at least one {@link com.elster.jupiter.fsm.State}.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-03-03 (10:33)
+ * Models the constraint that a {@link com.elster.jupiter.fsm.StageSet}
+ * cannot have a {@Link Stage} with a duplicate name.
  */
 @Target({ java.lang.annotation.ElementType.TYPE })
 @Retention(RUNTIME)
