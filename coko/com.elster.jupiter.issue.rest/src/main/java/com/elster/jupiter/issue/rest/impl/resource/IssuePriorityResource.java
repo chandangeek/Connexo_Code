@@ -5,7 +5,7 @@
 package com.elster.jupiter.issue.rest.impl.resource;
 
 
-import com.elster.jupiter.issue.rest.MessageSeeds;
+import com.elster.jupiter.issue.rest.TranslationKeys;
 import com.elster.jupiter.issue.rest.request.SetPriorityRequest;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.security.Privileges;
@@ -49,7 +49,7 @@ public class IssuePriorityResource extends BaseResource{
                         .supplier());
         issue.setPriority(Priority.get(request.priority.urgency, request.priority.impact));
         issue.update();
-        actionInfo.addSuccess(issue.getId(), getThesaurus().getFormat(MessageSeeds.ACTION_ISSUE_PRIORITY_WAS_CHANGED).format());
+        actionInfo.addSuccess(issue.getId(), getThesaurus().getFormat(TranslationKeys.ISSUE_ACTION_PRIORITY_CHANGED).format());
         return actionInfo;
     }
 

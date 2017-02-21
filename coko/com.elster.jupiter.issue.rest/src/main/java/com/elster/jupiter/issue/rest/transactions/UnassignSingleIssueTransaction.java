@@ -4,7 +4,7 @@
 
 package com.elster.jupiter.issue.rest.transactions;
 
-import com.elster.jupiter.issue.rest.MessageSeeds;
+import com.elster.jupiter.issue.rest.TranslationKeys;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.nls.Thesaurus;
@@ -31,7 +31,7 @@ public class UnassignSingleIssueTransaction implements Transaction<ActionInfo> {
         Long workGroupId = issue.getAssignee().getWorkGroup() != null ? issue.getAssignee().getWorkGroup().getId() : -1L;
         issue.assignTo(userId, workGroupId);
         issue.update();
-        response.addSuccess(issue.getId(), thesaurus.getFormat(MessageSeeds.ACTION_ISSUE_WAS_UNASSIGNED).format());
+        response.addSuccess(issue.getId(), thesaurus.getFormat(TranslationKeys.ISSUE_ACTION_UNASSIGNED).format());
 
         return response;
     }
