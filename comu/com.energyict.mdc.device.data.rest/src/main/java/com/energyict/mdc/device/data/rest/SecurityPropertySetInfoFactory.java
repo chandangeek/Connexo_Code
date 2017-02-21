@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data.rest;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
@@ -21,6 +22,8 @@ import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.PrivilegePresence.WITH_PRIVILEGES;
@@ -80,6 +83,14 @@ public class SecurityPropertySetInfoFactory {
         info.properties = new ArrayList<>();
         MdcPropertyUtils.ValueVisibility valueVisibility = info.userHasViewPrivilege && info.userHasEditPrivilege? SHOW_VALUES: HIDE_VALUES;
         mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, securityPropertySet.getPropertySpecs(), typedProperties, info.properties, valueVisibility, WITH_PRIVILEGES);
+
+        // Sort the properties by their (translated) name
+        Collections.sort(info.properties, new Comparator<PropertyInfo>() {
+            @Override
+            public int compare(PropertyInfo o1, PropertyInfo o2) {
+                return o1.name.compareToIgnoreCase(o2.name);
+            }
+        });
 
         info.status = new IdWithNameInfo();
         CompletionState status = getStatus(device, securityPropertySet);
