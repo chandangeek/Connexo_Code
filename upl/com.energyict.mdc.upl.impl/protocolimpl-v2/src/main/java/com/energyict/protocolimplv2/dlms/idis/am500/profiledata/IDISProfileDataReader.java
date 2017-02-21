@@ -25,6 +25,7 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -120,7 +121,7 @@ public class IDISProfileDataReader {
                                 value = new IntervalValue(structure.getBigDecimalValue(channel + offset), status, getEiServerStatus(status));
                             } else {
                                 // unwanted channel (like a date), will be removed by com.energyict.comserver.commands.core.SimpleComCommand.removeUnwantedChannels()
-                                value = new IntervalValue(null, 0, 0);
+                                value = new IntervalValue(BigDecimal.ZERO, 0, 0);
                             }
 
                             values.add(value);
