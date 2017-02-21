@@ -76,13 +76,6 @@ Ext.define('Dal.controller.CreationRuleActionEdit', {
                     }
                 });
             } else {
-                /*me.getStore('Dal.store.IssueTypes').load(function (records) {
-                 var rule = Ext.create('Dal.model.CreationRule');
-
-                 rule.setIssueType(records[0]);
-                 clipboard.set('alarmsCreationRuleState', rule);
-                 dependenciesOnLoad();
-                 });*/
                 var rule = Ext.create('Dal.model.CreationRule');
                 clipboard.set('alarmsCreationRuleState', rule);
                 dependenciesOnLoad();
