@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
@@ -31,10 +35,6 @@ public enum ReadingModificationFlag {
         return Arrays.stream(ReadingModificationFlag.values())
                 .filter(flag -> flag.matchingIndex.equals(index))
                 .findFirst();
-    }
-
-    public static Pair<ReadingModificationFlag, ReadingQualityRecord> getModificationFlagWithQualityRecord(BaseReadingRecord reading, Optional<? extends BaseReadingRecord> calculatedReading) {
-        return getModificationFlagWithQualityRecord(reading, reading.getReadingQualities(), calculatedReading);
     }
 
     public static Pair<ReadingModificationFlag, ReadingQualityRecord> getModificationFlagWithQualityRecord(BaseReadingRecord reading, Collection<? extends ReadingQualityRecord> readingQualities, Optional<? extends BaseReadingRecord> calculatedReading) {

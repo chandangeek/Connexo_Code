@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.appserver.AppService;
@@ -27,6 +31,7 @@ import com.elster.jupiter.mdm.usagepoint.data.favorites.FavoritesService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
@@ -142,6 +147,8 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     @Mock
     MessageService messageService;
     @Mock
+    MeteringTranslationService meteringTranslationService;
+    @Mock
     UsagePointLifeCycleService usagePointLifeCycleService;
 
     @Override
@@ -187,6 +194,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setAppService(appService);
         application.setSearchService(searchService);
         application.setMessageService(messageService);
+        application.setMeteringTranslationService(meteringTranslationService);
         application.setUsagePointLifeCycleService(usagePointLifeCycleService);
         return application;
     }

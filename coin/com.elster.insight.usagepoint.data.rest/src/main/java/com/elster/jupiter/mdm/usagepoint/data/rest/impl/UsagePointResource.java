@@ -1,6 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -22,7 +25,6 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
-import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -32,9 +34,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.UnsatisfiedReadingTypeRequirements;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -61,14 +61,9 @@ import com.elster.jupiter.time.DefaultRelativePeriodDefinition;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.TemporalAmountComparator;
-import com.elster.jupiter.validation.DataValidationTask;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.rest.DataValidationTaskInfo;
-import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
 
 import com.google.common.collect.Range;
 
@@ -132,7 +127,6 @@ public class UsagePointResource {
     private final RestQueryService queryService;
     private final TimeService timeService;
     private final MeteringService meteringService;
-    private final ValidationService validationService;
     private final Clock clock;
     private final CustomPropertySetService customPropertySetService;
     private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
@@ -155,14 +149,12 @@ public class UsagePointResource {
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final UsagePointDataCompletionService usagePointDataCompletionService;
     private final ReadingTypeDeliverableFactory readingTypeDeliverableFactory;
-    private final DataValidationTaskInfoFactory dataValidationTaskInfoFactory;
 
     @Inject
     public UsagePointResource(RestQueryService queryService,
                               MeteringService meteringService,
                               TimeService timeService,
                               Clock clock,
-                              ValidationService validationService,
                               ServiceCallService serviceCallService,
                               ServiceCallInfoFactory serviceCallInfoFactory,
                               Provider<UsagePointCustomPropertySetResource> usagePointCustomPropertySetResourceProvider,
@@ -181,12 +173,10 @@ public class UsagePointResource {
                               UsagePointDataCompletionService usagePointDataCompletionService,
                               Provider<GoingOnResource> goingOnResourceProvider,
                               Provider<UsagePointOutputResource> usagePointOutputResourceProvider,
-                              ReadingTypeDeliverableFactory readingTypeDeliverableFactory,
-                              DataValidationTaskInfoFactory dataValidationTaskInfoFactory) {
+                              ReadingTypeDeliverableFactory readingTypeDeliverableFactory) {
         this.queryService = queryService;
         this.timeService = timeService;
         this.meteringService = meteringService;
-        this.validationService = validationService;
         this.clock = clock;
         this.serviceCallService = serviceCallService;
         this.serviceCallInfoFactory = serviceCallInfoFactory;
@@ -207,7 +197,6 @@ public class UsagePointResource {
         this.usagePointDataCompletionService = usagePointDataCompletionService;
         this.usagePointOutputResourceProvider = usagePointOutputResourceProvider;
         this.readingTypeDeliverableFactory = readingTypeDeliverableFactory;
-        this.dataValidationTaskInfoFactory = dataValidationTaskInfoFactory;
     }
 
     @GET
@@ -317,7 +306,19 @@ public class UsagePointResource {
     public Response getMetersOnUsagePoint(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @HeaderParam("Authorization") String auth) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         return Response.ok()
-                .entity(PagedInfoList.fromCompleteList("meterActivations", usagePointInfoFactory.getMetersOnUsagePointInfo(usagePoint, auth), queryParameters))
+                .entity(PagedInfoList.fromCompleteList("meterActivations", usagePointInfoFactory.getMetersOnUsagePointFullInfo(usagePoint, auth), queryParameters))
+                .build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @Transactional
+    @Path("/{name}/meterroles")
+    public Response getMeterRolesOnUsagePoint(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @HeaderParam("Authorization") String auth) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        return Response.ok()
+                .entity(PagedInfoList.fromCompleteList("meterActivations", usagePointInfoFactory.getMetersOnUsagePointInfo(usagePoint), queryParameters))
                 .build();
     }
 
@@ -644,7 +645,6 @@ public class UsagePointResource {
     @Path("{name}/runningservicecalls")
     public PagedInfoList getServiceCallsFor(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-        List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
         Set<DefaultState> states = EnumSet.of(
                 DefaultState.CREATED,
                 DefaultState.SCHEDULED,
@@ -653,12 +653,17 @@ public class UsagePointResource {
                 DefaultState.ONGOING,
                 DefaultState.WAITING);
 
-        serviceCallService.findServiceCalls(usagePoint, states)
+        ServiceCallFilter filter = new ServiceCallFilter();
+        filter.targetObject = usagePoint;
+        filter.states = states.stream().map(Enum::name).collect(Collectors.toList());
+
+        List<ServiceCallInfo> serviceCallInfos = serviceCallService.getServiceCallFinder(filter)
+                .from(queryParameters)
                 .stream()
                 .map(serviceCallInfoFactory::summarized)
-                .forEach(serviceCallInfos::add);
+                .collect(Collectors.toList());
 
-        return PagedInfoList.fromCompleteList("serviceCalls", serviceCallInfos, queryParameters);
+        return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }
 
     @PUT
@@ -683,13 +688,14 @@ public class UsagePointResource {
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
 
         ServiceCallFilter filter = serviceCallInfoFactory.convertToServiceCallFilter(jsonQueryFilter);
+        filter.targetObject = usagePoint;
         serviceCallService.getServiceCallFinder(filter)
+                .from(queryParameters)
                 .stream()
-                .filter(serviceCall -> serviceCall.getTargetObject().map(usagePoint::equals).orElse(false))
                 .map(serviceCallInfoFactory::summarized)
                 .forEach(serviceCallInfos::add);
 
-        return PagedInfoList.fromCompleteList("serviceCalls", serviceCallInfos, queryParameters);
+        return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }
 
     @PUT
@@ -741,8 +747,9 @@ public class UsagePointResource {
             if (!interval.isEmpty()) {
                 interval = UsagePointOutputResource.getUsagePointAdjustedDataRange(usagePoint, interval).orElse(Range.openClosed(now, now));
                 List<ChannelDataValidationSummaryInfo> result = usagePointDataCompletionService
-                        .getValidationSummary(effectiveMC, metrologyContract, interval).entrySet().stream()
+                        .getDataCompletionStatistics(effectiveMC, metrologyContract, interval).entrySet().stream()
                         .map(channelEntry -> validationSummaryInfoFactory.from(channelEntry.getKey(), channelEntry.getValue()))
+                        .sorted(Comparator.comparing(info -> info.name))
                         .collect(Collectors.toList());
                 return PagedInfoList.fromCompleteList("outputs", result, queryParameters);
             }
@@ -852,45 +859,9 @@ public class UsagePointResource {
                 .filter(mc -> usagePoint.getCurrentEffectiveMetrologyConfiguration().flatMap(emc -> emc.getChannelsContainer(mc, clock.instant())).isPresent())
                 .map(MetrologyContract::getDeliverables)
                 .flatMap(List::stream)
+                .sorted((a, b) -> a.getName().compareTo(b.getName()))
                 .map(readingTypeDeliverableFactory::asInfo)
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("deliverables", deliverables, queryParameters);
-    }
-
-    @GET
-    @Path("/{name}/validationtasks")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
-            Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList getValidationTasksOnUsagePoint(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
-        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-
-        List<DataValidationTask> validationTasks = validationService.findValidationTasks()
-                .stream()
-                .filter(task -> task.getQualityCodeSystem().equals(QualityCodeSystem.MDM))
-                .collect(Collectors.toList());
-
-        List<DataValidationTaskInfo> dataValidationTasks = validationTasks
-                .stream()
-                .map(DataValidationTask::getUsagePointGroup)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .distinct()
-                .filter(usagePointGroup -> isMember(usagePoint, usagePointGroup))
-                .flatMap(usagePointGroup -> validationTasks.stream()
-                        .filter(dataValidationTask -> dataValidationTask.getUsagePointGroup()
-                                .filter(usagePointGroup::equals)
-                                .isPresent()))
-                .map(dataValidationTaskInfoFactory::asInfo)
-                .collect(Collectors.toList());
-
-        return PagedInfoList.fromCompleteList("dataValidationTasks", dataValidationTasks, queryParameters);
-    }
-
-    private boolean isMember(UsagePoint usagePoint, UsagePointGroup usagePointGroup) {
-        return !meteringService.getUsagePointQuery()
-                .select(Where.where("id").isEqualTo(usagePoint.getId())
-                        .and(ListOperator.IN.contains(usagePointGroup.toSubQuery("id"), "id")), 1, 1)
-                .isEmpty();
     }
 }

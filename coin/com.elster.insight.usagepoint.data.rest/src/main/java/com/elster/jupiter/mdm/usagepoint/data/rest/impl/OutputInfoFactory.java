@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.MacroPeriod;
@@ -5,16 +9,25 @@ import com.elster.jupiter.cbo.ReadingTypeUnitConversion;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.mdm.common.rest.TimeDurationInfo;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
+import com.elster.jupiter.mdm.usagepoint.data.IChannelDataCompletionSummary;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
+import com.elster.jupiter.mdm.usagepoint.data.exceptions.MessageSeeds;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
 
+import com.google.common.collect.Range;
+
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static com.elster.jupiter.mdm.usagepoint.data.rest.impl.OutputInfo.ChannelOutputInfo;
@@ -25,21 +38,31 @@ public class OutputInfoFactory {
     private final ValidationStatusFactory validationStatusFactory;
     private final ReadingTypeDeliverableFactory readingTypeDeliverableFactory;
     private final ReadingTypeInfoFactory readingTypeInfoFactory;
+    private final Thesaurus thesaurus;
+    private final UsagePointDataCompletionService usagePointDataCompletionService;
+    private final ChannelDataValidationSummaryInfoFactory validationSummaryInfoFactory;
 
     @Inject
     public OutputInfoFactory(ValidationStatusFactory validationStatusFactory,
                              ReadingTypeDeliverableFactory readingTypeDeliverableFactory,
-                             ReadingTypeInfoFactory readingTypeInfoFactory) {
+                             ReadingTypeInfoFactory readingTypeInfoFactory,
+                             UsagePointDataCompletionService usagePointDataCompletionService,
+                             ChannelDataValidationSummaryInfoFactory validationSummaryInfoFactory,
+                             Thesaurus thesaurus) {
         this.validationStatusFactory = validationStatusFactory;
         this.readingTypeInfoFactory = readingTypeInfoFactory;
         this.readingTypeDeliverableFactory = readingTypeDeliverableFactory;
+        this.thesaurus = thesaurus;
+        this.usagePointDataCompletionService = usagePointDataCompletionService;
+        this.validationSummaryInfoFactory = validationSummaryInfoFactory;
     }
 
-    public OutputInfo asInfo(ReadingTypeDeliverable readingTypeDeliverable, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract) {
+    public OutputInfo asInfo(ReadingTypeDeliverable readingTypeDeliverable, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration,
+                                     MetrologyContract metrologyContract, Range<Instant> interval) {
         if (readingTypeDeliverable.getReadingType().isRegular()) {
-            return asChannelOutputInfo(readingTypeDeliverable, effectiveMetrologyConfiguration, metrologyContract);
+            return asChannelOutputInfo(readingTypeDeliverable, effectiveMetrologyConfiguration, metrologyContract, interval);
         } else {
-            return asRegisterOutputInfo(readingTypeDeliverable, effectiveMetrologyConfiguration, metrologyContract);
+            return asRegisterOutputInfo(readingTypeDeliverable, effectiveMetrologyConfiguration, metrologyContract, interval);
         }
     }
 
@@ -58,20 +81,35 @@ public class OutputInfoFactory {
         outputInfo.formula = readingTypeDeliverable.getFormula() != null ? FormulaInfo.asInfo(readingTypeDeliverableFactory.asInfo(readingTypeDeliverable).formula.description) : null;
     }
 
-    private RegisterOutputInfo asRegisterOutputInfo(ReadingTypeDeliverable readingTypeDeliverable, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract) {
+    private RegisterOutputInfo asRegisterOutputInfo(ReadingTypeDeliverable readingTypeDeliverable, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration,
+                                                    MetrologyContract metrologyContract, Range<Instant> interval) {
         RegisterOutputInfo outputInfo = new RegisterOutputInfo();
         setCommonFields(outputInfo, readingTypeDeliverable);
-        Optional<ChannelsContainer> channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract);
         outputInfo.deliverableType = readingTypeDeliverable.getType().getName();
-        channelsContainer
-                .flatMap(container -> container.getChannel(readingTypeDeliverable.getReadingType()))
-                .ifPresent(outputChannel -> {
-                    outputInfo.validationInfo = new UsagePointValidationStatusInfo();
-                    outputInfo.validationInfo.hasSuspects = validationStatusFactory.hasSuspects(Collections.singletonList(outputChannel), channelsContainer
-                            .get()
-                            .getRange());
-                });
+        setValidationFields(outputInfo, readingTypeDeliverable, effectiveMetrologyConfiguration, metrologyContract, interval);
         return outputInfo;
+    }
+
+    private void setValidationFields(OutputInfo outputInfo, ReadingTypeDeliverable readingTypeDeliverable, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration,
+                                     MetrologyContract metrologyContract, Range<Instant> interval) {
+        ChannelsContainer container = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)
+                .orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.METROLOGYCONTRACT_IS_NOT_LINKED_TO_USAGEPOINT,
+                        metrologyContract.getId(), effectiveMetrologyConfiguration.getUsagePoint().getName()) {
+                });
+        Optional.of(container).flatMap(channelContainer -> channelContainer.getChannel(readingTypeDeliverable.getReadingType()))
+                .ifPresent(outputChannel -> {
+                    if (interval != null) {
+                        List<IChannelDataCompletionSummary> channelDataCompletionSummaryList = container.getChannel(readingTypeDeliverable.getReadingType())
+                                // channel cannot be unfound
+                                .map(channel -> usagePointDataCompletionService.getDataCompletionStatistics(channel, interval))
+                                .orElse(Collections.singletonList(usagePointDataCompletionService.getGeneralUsagePointDataCompletionSummary(interval)));
+                        outputInfo.validationInfo = validationStatusFactory.getValidationStatusInfo(effectiveMetrologyConfiguration, metrologyContract, Collections.singletonList(outputChannel), interval);
+                        outputInfo.summary = validationSummaryInfoFactory.from(readingTypeDeliverable, channelDataCompletionSummaryList);
+                    } else {
+                        outputInfo.validationInfo = new UsagePointValidationStatusInfo();
+                        outputInfo.validationInfo.hasSuspects = validationStatusFactory.hasSuspects(Collections.singletonList(outputChannel), container.getRange());
+                    }
+                });
     }
 
     private RegisterOutputInfo asFullRegisterOutputInfo(ReadingTypeDeliverable readingTypeDeliverable, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract) {
@@ -81,7 +119,7 @@ public class OutputInfoFactory {
         effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)
                 .flatMap(container -> container.getChannel(readingTypeDeliverable.getReadingType()))
                 .ifPresent(outputChannel ->
-                        outputInfo.validationInfo = validationStatusFactory.getValidationStatusInfo(effectiveMetrologyConfiguration, metrologyContract, Collections.singletonList(outputChannel))
+                        outputInfo.validationInfo = validationStatusFactory.getValidationStatusInfo(effectiveMetrologyConfiguration, metrologyContract, Collections.singletonList(outputChannel), null)
                 );
         return outputInfo;
     }
@@ -108,16 +146,10 @@ public class OutputInfoFactory {
         return outputInfo;
     }
 
-    private OutputInfo asChannelOutputInfo(ReadingTypeDeliverable readingTypeDeliverable, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract) {
+    private OutputInfo asChannelOutputInfo(ReadingTypeDeliverable readingTypeDeliverable, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration,
+                                           MetrologyContract metrologyContract, Range<Instant> interval) {
         ChannelOutputInfo channelOutputInfo = asChannelCommonOutputInfo(readingTypeDeliverable);
-        Optional<ChannelsContainer> channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract);
-        channelsContainer
-                .flatMap(container -> container.getChannel(readingTypeDeliverable.getReadingType()))
-                .ifPresent(outputChannel -> {
-                    channelOutputInfo.validationInfo = new UsagePointValidationStatusInfo();
-                    channelOutputInfo.validationInfo.hasSuspects = validationStatusFactory.hasSuspects(Collections.singletonList(outputChannel), channelsContainer.get()
-                            .getRange());
-                });
+        setValidationFields(channelOutputInfo, readingTypeDeliverable, effectiveMetrologyConfiguration, metrologyContract, interval);
         return channelOutputInfo;
     }
 
@@ -126,7 +158,7 @@ public class OutputInfoFactory {
         effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)
                 .flatMap(container -> container.getChannel(readingTypeDeliverable.getReadingType()))
                 .ifPresent(outputChannel ->
-                        channelOutputInfo.validationInfo = validationStatusFactory.getValidationStatusInfo(effectiveMetrologyConfiguration, metrologyContract, Collections.singletonList(outputChannel))
+                        channelOutputInfo.validationInfo = validationStatusFactory.getValidationStatusInfo(effectiveMetrologyConfiguration, metrologyContract, Collections.singletonList(outputChannel), null)
                 );
         return channelOutputInfo;
     }

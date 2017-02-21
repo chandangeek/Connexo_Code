@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -42,7 +46,7 @@ public class PurposeInfoFactory {
         status.name = metrologyContractStatus.getName();
         purposeInfo.status = status;
         effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).ifPresent(channelsContainer ->
-                purposeInfo.validationInfo = validationStatusFactory.getValidationStatusInfo(effectiveMetrologyConfiguration, metrologyContract, channelsContainer.getChannels()));
+                purposeInfo.validationInfo = validationStatusFactory.getValidationStatusInfo(effectiveMetrologyConfiguration, metrologyContract, channelsContainer.getChannels(), null));
         if (withValidationTasks) {
             purposeInfo.dataValidationTasks = validationService.findValidationTasksQuery()
                     .select(where("metrologyContract").isEqualTo(metrologyContract))

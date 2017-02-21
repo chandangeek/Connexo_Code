@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import java.time.Instant;
@@ -9,4 +13,6 @@ public class UsagePointValidationStatusInfo {
     public boolean hasSuspects;
     public Instant lastChecked;
     public Set<ValidationRuleInfoWithNumber> suspectReason;
+    public Set<ValidationRuleInfoWithNumber> informativeReason;
+    public Set<EstimationRuleInfoWithNumber> estimateReason;
 }
