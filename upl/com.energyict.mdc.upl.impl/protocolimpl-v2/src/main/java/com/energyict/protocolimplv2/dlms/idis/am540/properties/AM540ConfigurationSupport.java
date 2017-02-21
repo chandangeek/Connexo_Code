@@ -17,6 +17,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static com.energyict.dlms.common.DlmsProtocolProperties.VALIDATE_LOAD_PROFILE_CHANNELS;
+
 /**
  * @author sva
  * @since 11/08/2015 - 15:15
@@ -115,7 +117,8 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
                 this.useUndefinedForTimeDeviation(),
                 this.skipFramecounterAuthenticationTagValidation(),
                 this.useFixedObjectList(),
-                this.skipSlaveDevices()
+                this.skipSlaveDevices(),
+                this.validateLoadProfileChannelsPropertySpec()
         );
     }
     
@@ -268,6 +271,10 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
      */
     protected final PropertySpec<BigDecimal> maxRecPduSizePropertySpec() {
         return PropertySpecFactory.bigDecimalPropertySpec(MAX_REC_PDU_SIZE, DEFAULT_MAX_REC_PDU_SIZE);
+    }
+
+    protected PropertySpec validateLoadProfileChannelsPropertySpec() {
+        return PropertySpecFactory.notNullableBooleanPropertySpec(VALIDATE_LOAD_PROFILE_CHANNELS);
     }
 
 }
