@@ -128,8 +128,10 @@ public class Beacon3100DeviceType {
     }
 
     public boolean updateBufferSizeForAllRegisters(Unsigned16 bufferSize) {
+        boolean updated = false;
         for(Beacon3100Schedulable schedulable: schedulables){
            schedulable.updateBufferSizeForAllRegisters(bufferSize);
+           updated = updated || schedulable.getRegisters().size() != 0;
         }
         return false;
     }
@@ -143,10 +145,12 @@ public class Beacon3100DeviceType {
     }
 
     public boolean updateBufferSizeForAllLoadProfiles(Unsigned32 bufferSize) {
+        boolean updated = false;
         for(Beacon3100Schedulable schedulable: schedulables){
             schedulable.updateBufferSizeForAllLoadProfiles(bufferSize);
+            updated = updated || schedulable.getProfiles().size() != 0;
         }
-        return false;
+        return updated;
     }
 
     public boolean updateBufferSizeForEventLogs(ObisCode obisCode, Unsigned32 bufferSize) {
@@ -158,8 +162,10 @@ public class Beacon3100DeviceType {
     }
 
     public boolean updateBufferSizeForAllEventLogs(Unsigned32 bufferSize) {
+        boolean updated = false;
         for(Beacon3100Schedulable schedulable: schedulables){
             schedulable.updateBufferSizeForAllEventLogs(bufferSize);
+            updated = updated || schedulable.getEventLogs().size()!= 0;
         }
         return false;
     }

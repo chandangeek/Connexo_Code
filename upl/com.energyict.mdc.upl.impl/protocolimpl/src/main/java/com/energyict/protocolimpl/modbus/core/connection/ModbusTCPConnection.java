@@ -76,6 +76,8 @@ public class ModbusTCPConnection extends ModbusConnection {
                 if (retry++ >= getMaxRetries()) {
                     throw new ProtocolConnectionException("ModbusConnection, sendRequest(), error maxRetries (" + getMaxRetries() + "), " + e.getMessage(), MAX_RETRIES_ERROR);
                 }
+            } finally {
+                flushOutputStream();
             }
         }
     }

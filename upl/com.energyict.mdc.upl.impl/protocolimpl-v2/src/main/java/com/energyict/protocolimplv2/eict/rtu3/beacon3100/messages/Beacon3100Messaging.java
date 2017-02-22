@@ -2108,7 +2108,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void configureAPNs(OfflineDeviceMessage pendingMessage) throws IOException {
-        final long activeApn = Long.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.activeAPN).getDeviceMessageAttributeValue());
+        final int activeApn = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.activeAPN).getDeviceMessageAttributeValue());
         final String apnConfigurations = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.apnConfigurations).getDeviceMessageAttributeValue();
         if(firmareVersionLowerThan10) {
             getCosemObjectFactory().getData(MULTI_APN_COFIG_OLD_OBISCODE).setValueAttr(createApnConfigs(activeApn, apnConfigurations));
@@ -2116,8 +2116,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             getCosemObjectFactory().getData(MULTI_APN_COFIG_NEW_OBISCODE).setValueAttr(createApnConfigs(activeApn, apnConfigurations));
         }
     }
-
-    private Structure createApnConfigs(final long activeApn, final String providedAPNConfigurations) throws ProtocolException {
+    
+    private Structure createApnConfigs(final int activeApn, final String providedAPNConfigurations) throws ProtocolException {
         Structure apnConfiguration = new Structure();
         Array apnConfigs = new Array();
         List<String> apnConfigList = Arrays.asList(providedAPNConfigurations.trim().split(";"));
@@ -2132,6 +2132,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             String apnName = configEntries[0].trim();
             String userName = configEntries[1].trim();
             String password = configEntries[2].trim();
+            
             Structure apnConfigStructure = new Structure();
             apnConfigStructure.addDataType(OctetString.fromString(apnName));
             apnConfigStructure.addDataType(OctetString.fromString(userName));
@@ -2139,7 +2140,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             apnConfigs.addDataType(apnConfigStructure);
         }
 
-        apnConfiguration.addDataType(new Unsigned32(activeApn));
+        apnConfiguration.addDataType(new Unsigned8(activeApn));
         apnConfiguration.addDataType(apnConfigs);
         return apnConfiguration;
     }

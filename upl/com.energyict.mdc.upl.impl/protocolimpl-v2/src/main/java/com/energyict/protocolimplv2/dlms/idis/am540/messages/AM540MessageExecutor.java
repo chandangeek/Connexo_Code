@@ -416,15 +416,14 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
         String newKey = getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName);
         changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId(), newWrappedEncryptionKeyAttributeName);
 
-        //Update the key in the security provider, it is used instantly
-        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(newKey, ""));
-
         int clientInUse = getProtocol().getDlmsSession().getProperties().getClientMacAddress();
         int clientToChangeKeyFor = getClientId(pendingMessage);
 
         SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
+        
         if(clientInUse == clientToChangeKeyFor){
             securityContext.setFrameCounter(1);
+            getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(newKey, ""));
         } else {
             ((AM540Cache)getProtocol().getDeviceCache()).setTXFrameCounter(clientToChangeKeyFor, 1);
         }
