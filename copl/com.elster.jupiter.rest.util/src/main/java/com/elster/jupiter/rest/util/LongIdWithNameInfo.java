@@ -4,10 +4,11 @@
 
 package com.elster.jupiter.rest.util;
 
-/**
- * Created by bvn on 12/17/14.
- */
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasName;
+
 public class LongIdWithNameInfo {
+
     public Long id;
     public String name;
 
@@ -17,5 +18,10 @@ public class LongIdWithNameInfo {
     public LongIdWithNameInfo(Long id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    public <H extends HasId & HasName> LongIdWithNameInfo(H hasIdAndName) {
+        this.id = hasIdAndName.getId();
+        this.name = hasIdAndName.getName();
     }
 }
