@@ -12,8 +12,6 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
@@ -77,18 +75,18 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     private static final String SEPARATOR = ":";
     private static final int DEFAULT_NUMERICAL_VALUE = 0;
     private static final String RAISE_EVENT_PROPS_DEFAULT_VALUE = "0:0:0";
+    private static final String EMPTY_EVENT_TYPE_CODE = "-1";
 
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile TimeService timeService;
-    private volatile MeteringService meteringService;
 
     //for OSGI
     public BasicDeviceAlarmRuleTemplate() {
     }
 
     @Inject
-    public BasicDeviceAlarmRuleTemplate(DeviceAlarmService deviceAlarmService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TimeService timeService, MeteringService meteringService) {
+    public BasicDeviceAlarmRuleTemplate(DeviceAlarmService deviceAlarmService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TimeService timeService) {
         this();
         setDeviceAlarmService(deviceAlarmService);
         setNlsService(nlsService);
@@ -137,11 +135,6 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     @Reference
     public void setTimeService(TimeService timeService) {
         this.timeService = timeService;
-    }
-
-    @Reference
-    public void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
     }
 
     @Override
@@ -214,7 +207,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 .specForValuesOf(new EventTypeInfoValueFactory())
                 .named(TRIGGERING_EVENTS, TranslationKeys.TRIGGERING_EVENTS)
                 .fromThesaurus(this.getThesaurus())
-                //.markRequired()
+                .markRequired()
                 .markMultiValued(",")
                 .finish());
         builder.add(propertySpecService
@@ -291,11 +284,12 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     private class EventTypeInfoValueFactory implements ValueFactory<HasIdAndName>, EndDeviceEventTypePropertyFactory {
         @Override
         public HasIdAndName fromStringValue(String stringValue) {
+            if(stringValue.equals(EMPTY_EVENT_TYPE_CODE)){
+                return new EventTypeInfo(EMPTY_EVENT_TYPE_CODE, ANY);
+            }
             List<String> splitEventTypeAndDeviceCode = Arrays.asList(stringValue.split(SEPARATOR));
             if (splitEventTypeAndDeviceCode.size() == 2) {
-                return meteringService.getEndDeviceEventType(splitEventTypeAndDeviceCode.get(0))
-                        .map(type -> new EventTypeInfo(type, splitEventTypeAndDeviceCode.get(1)))
-                        .orElse(null);
+                return new EventTypeInfo(splitEventTypeAndDeviceCode.get(0), splitEventTypeAndDeviceCode.get(1));
             } else {
                 return null;
             }
@@ -343,69 +337,22 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     @XmlRootElement
     static class EventTypeInfo extends HasIdAndName {
 
-        private transient EndDeviceEventType eventType;
-
+        private String eventType;
         private String deviceCode;
 
-        EventTypeInfo(EndDeviceEventType eventType, String deviceCode) {
+        EventTypeInfo(String eventType, String deviceCode) {
             this.eventType = eventType;
             this.deviceCode = deviceCode;
         }
 
-        public int getTypeCode() {
-            return eventType.getType().getCode();
-        }
-
-        public String getTypeName() {
-            return eventType.getType().getMnemonic();
-        }
-
-        public int getDomainCode() {
-            return eventType.getDomain().getCode();
-        }
-
-        public String getDomainName() {
-            return eventType.getDomain().getMnemonic();
-        }
-
-        public int getSubDomainCode() {
-            return eventType.getSubDomain().getCode();
-        }
-
-        public String getSubDomainName() {
-            return eventType.getSubDomain().getMnemonic();
-        }
-
-        public int getEventOrActionCode() {
-            return eventType.getEventOrAction().getCode();
-        }
-
-        public String getEventOrActionName() {
-            return eventType.getEventOrAction().getMnemonic();
-        }
-
-        public String getDeviceCode() {
-            return deviceCode;
-        }
-
-
         @Override
         public String getId() {
-            return eventType.getMRID().concat(SEPARATOR).concat(deviceCode);
-            /*
-            return Stream.<HasNumericCode>of(type, domain, subDomain, eventOrAction)
-                .map(hasNumericCode -> Optional.ofNullable(hasNumericCode)
-                        .map(HasNumericCode::getCode)
-                        .map(String::valueOf)
-                        .orElse("*")
-                )
-                .collect(Collectors.joining("."));
-             */
+            return eventType.concat(SEPARATOR).concat(deviceCode);
         }
 
         @Override
         public String getName() {
-            return eventType.getAliasName() != null ? eventType.getAliasName() : "end device event type " + getId();
+            return eventType;
         }
     }
 
