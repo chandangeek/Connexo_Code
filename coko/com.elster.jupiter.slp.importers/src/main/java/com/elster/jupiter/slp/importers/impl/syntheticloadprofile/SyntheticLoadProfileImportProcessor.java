@@ -33,7 +33,7 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
     public void process(SyntheticLoadProfileImportRecord data, FileImportLogger logger) throws ProcessorException {
         try {
             validateTimeStamps(data);
-            data.getSyntheticLoadProfiles().entrySet().forEach(e -> addSyntheticLoadProfile(data.getTimeStamp(), e.getKey(), e.getValue()));
+            data.getSyntheticLoadProfiles().entrySet().forEach(e -> addSyntheticLoadProfile(data, e.getKey(), e.getValue()));
         } catch (Exception e) {
             throw e;
         } finally {
@@ -79,12 +79,15 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
         }
     }
 
-    private void addSyntheticLoadProfile(Instant timeStamp, String syntheticLoadProfileName, BigDecimal syntheticLoadProfileValue) {
+    private void addSyntheticLoadProfile(SyntheticLoadProfileImportRecord data, String syntheticLoadProfileName, BigDecimal syntheticLoadProfileValue) {
+        if(syntheticLoadProfileValue==null){
+            throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_WRONG_VALUE, data.getLineNumber());
+        }
         if (values.containsKey(syntheticLoadProfileName)) {
-            values.get(syntheticLoadProfileName).put(timeStamp, syntheticLoadProfileValue);
+            values.get(syntheticLoadProfileName).put(data.getTimeStamp(), syntheticLoadProfileValue);
         } else {
             Map<Instant, BigDecimal> syntheticLoadProfileValues = new HashMap<>();
-            syntheticLoadProfileValues.put(timeStamp, syntheticLoadProfileValue);
+            syntheticLoadProfileValues.put(data.getTimeStamp(), syntheticLoadProfileValue);
             values.put(syntheticLoadProfileName, syntheticLoadProfileValues);
         }
     }
