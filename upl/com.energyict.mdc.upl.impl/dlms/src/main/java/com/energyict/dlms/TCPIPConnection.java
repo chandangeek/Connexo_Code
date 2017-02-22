@@ -330,6 +330,8 @@ public class TCPIPConnection extends Connection implements DLMSConnection, Retry
                 } else {
                     data = getRetryRequestPreparationHandler().prepareRetryRequest(data);
                 }
+            } finally {
+                flushOutputStream();
             }
         }
     }
@@ -362,6 +364,8 @@ public class TCPIPConnection extends Connection implements DLMSConnection, Retry
                 } else {
                     data = getRetryRequestPreparationHandler().prepareRetryRequest(data);
                 }
+            } finally {
+                flushOutputStream();
             }
         }
 
