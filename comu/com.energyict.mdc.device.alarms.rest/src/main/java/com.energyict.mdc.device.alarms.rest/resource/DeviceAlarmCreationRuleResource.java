@@ -175,12 +175,10 @@ public class DeviceAlarmCreationRuleResource extends BaseAlarmResource {
                 .setComment(rule.comment)
                 .setDueInTime(DueInType.fromString(rule.dueIn.type), rule.dueIn.number)
                 .setPriority(Priority.get(rule.priority.urgency, rule.priority.impact));
-        if (rule.issueType != null) {
-            getIssueService().findIssueType(rule.issueType.uid).ifPresent(builder::setIssueType);
-            if (rule.reason != null) {
-                builder.setReason(getIssueService().findOrCreateReason(rule.reason.id, getIssueService().findIssueType(rule.issueType.uid)
-                        .get()));
-            }
+        if (rule.reason != null) {
+            builder.setReason(getIssueService().findOrCreateReason(rule.reason.id, getIssueService().findIssueType("devicealarm")
+                    .get()));
+            builder.setIssueType(getIssueService().findIssueType("devicealarm").get());
         }
     }
 
