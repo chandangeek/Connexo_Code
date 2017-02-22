@@ -4,11 +4,8 @@
 
 package com.elster.jupiter.validation.impl;
 
-import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.LiteralSql;
@@ -16,8 +13,6 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.upgrade.Upgrader;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.impl.kpi.DataQualityKpiCalculatorHandlerFactory;
 
 import javax.inject.Inject;
 import java.sql.Connection;
@@ -62,7 +57,6 @@ public class UpgraderV10_2 implements Upgrader {
 
         sql.add("UPDATE VAL_VALIDATIONRULE SET IMPLEMENTATION = 'com.elster.jupiter.validators.impl.ReadingQualitiesValidator' where IMPLEMENTATION = 'com.elster.jupiter.validators.impl.IntervalStateValidator'");
         sql.add("UPDATE VAL_VALIDATIONRULEPROPS SET NAME = 'readingQualities' where NAME = 'intervalFlags'");
-        sql.add("create or replace function utc2date(utcms number, tz varchar2) return timestamp with time zone deterministic is begin return from_tz(cast(date'1970-1-1' + (utcms/86400000) as timestamp),'UTC') at time zone tz; end;");
 
         dataModel.useConnectionRequiringTransaction(connection -> {
             try (Statement statement = connection.createStatement()) {
@@ -71,9 +65,7 @@ public class UpgraderV10_2 implements Upgrader {
         });
 
         dataModelUpgrader.upgrade(dataModel, VERSION);
-        this.upgradeSubscriberSpecs();
 
-        createMessageHandler(DataQualityKpiCalculatorHandlerFactory.TASK_DESTINATION, TranslationKeys.KPICALCULATOR_DISPLAYNAME);
         sql.add("UPDATE VAL_VALIDATIONRULESET set quality_system=2 where quality_system is null");
         sql.add("UPDATE VAL_DATAVALIDATIONTASK set quality_system=2 where quality_system is null");
 
@@ -82,15 +74,6 @@ public class UpgraderV10_2 implements Upgrader {
                 sql.forEach(sqlCommand -> execute(statement, sqlCommand));
             }
         });
-    }
-
-    private void createMessageHandler(String destinationName, TranslationKey subscriberName) {
-        Optional<DestinationSpec> destinationSpecOptional = messageService.getDestinationSpec(destinationName);
-        if (!destinationSpecOptional.isPresent()) {
-            DestinationSpec queue = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get().createDestinationSpec(destinationName, 60);
-            queue.activate();
-            queue.subscribe(subscriberName, ValidationService.COMPONENTNAME, Layer.DOMAIN);
-        }
     }
 
     private String convertToCIMCodes(String oldValues) {
@@ -107,31 +90,6 @@ public class UpgraderV10_2 implements Upgrader {
             }
         }
         return result.toString();
-    }
-
-    private void upgradeSubscriberSpecs() {
-        try (Connection connection = this.dataModel.getConnection(true)) {
-            this.upgradeSubscriberSpecs(connection);
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
-    }
-
-    private void upgradeSubscriberSpecs(Connection connection) {
-        try (PreparedStatement statement = this.upgradeSubscriberSpecsStatement(connection)) {
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
-    }
-
-    private PreparedStatement upgradeSubscriberSpecsStatement(Connection connection) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("UPDATE MSG_SUBSCRIBERSPEC SET nls_component = ?, nls_layer = ? WHERE name in (?, ?)");
-        statement.setString(1, ValidationService.COMPONENTNAME);
-        statement.setString(2, Layer.DOMAIN.name());
-        statement.setString(3, TranslationKeys.KPICALCULATOR_DISPLAYNAME.getKey());
-        statement.setString(4, TranslationKeys.MESSAGE_SPEC_SUBSCRIBER.getKey());
-        return statement;
     }
 
     /**

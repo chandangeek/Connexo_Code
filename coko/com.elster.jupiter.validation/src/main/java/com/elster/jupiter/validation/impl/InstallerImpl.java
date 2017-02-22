@@ -12,7 +12,6 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
-import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
@@ -22,7 +21,6 @@ import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.impl.kpi.DataQualityKpiCalculatorHandlerFactory;
 import com.elster.jupiter.validation.security.Privileges;
 
 import javax.inject.Inject;
@@ -69,11 +67,6 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
                 this::createValidationUser,
                 logger
         );
-        doTry(
-                "Create Validation KPI Sql Aggregation function",
-                this::createKpiAggregationFunction,
-                logger
-        );
         userService.addModulePrivileges(this);
     }
 
@@ -108,7 +101,6 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
     }
     private void createMessageHandlers() {
         QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-        this.createMessageHandler(defaultQueueTableSpec, DataQualityKpiCalculatorHandlerFactory.TASK_DESTINATION, TranslationKeys.KPICALCULATOR_DISPLAYNAME);
         this.createMessageHandler(defaultQueueTableSpec, ValidationServiceImpl.DESTINATION_NAME, TranslationKeys.MESSAGE_SPEC_SUBSCRIBER);
     }
 
@@ -124,19 +116,6 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
                 destinationSpecOptional.get().activate();
                 destinationSpecOptional.get().subscribe(subscriberName, ValidationService.COMPONENTNAME, Layer.DOMAIN);
             }
-        }
-    }
-
-    private void createKpiAggregationFunction() {
-        List<String> sql = new ArrayList<>();
-        sql.add("create or replace function utc2date(utcms number, tz varchar2) return timestamp with time zone deterministic is begin return from_tz(cast(date'1970-1-1' + (utcms/86400000) as timestamp),'UTC') at time zone tz; end;");
-
-        if (!SqlDialect.H2.equals(dataModel.getSqlDialect())) {
-            dataModel.useConnectionRequiringTransaction(connection -> {
-                try (Statement statement = connection.createStatement()) {
-                    sql.forEach(sqlCommand -> execute(statement, sqlCommand));
-                }
-            });
         }
     }
 

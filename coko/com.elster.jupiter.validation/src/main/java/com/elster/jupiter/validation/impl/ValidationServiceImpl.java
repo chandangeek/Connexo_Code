@@ -7,7 +7,6 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -61,8 +60,6 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
-import com.elster.jupiter.validation.impl.kpi.DataValidationKpiServiceImpl;
-import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
@@ -121,12 +118,10 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     private volatile UserService userService;
     private volatile UpgradeService upgradeService;
     private volatile KpiService kpiService;
-    private volatile EstimationService estimationService;
 
     private final List<ValidatorFactory> validatorFactories = new CopyOnWriteArrayList<>();
     private final List<ValidationRuleSetResolver> ruleSetResolvers = new CopyOnWriteArrayList<>();
     private DestinationSpec destinationSpec;
-    private DataValidationKpiService dataValidationKpiService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
     public ValidationServiceImpl() {
@@ -161,7 +156,6 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
 
     @Activate
     public final void activate(BundleContext context) {
-        this.dataValidationKpiService = new DataValidationKpiServiceImpl(this);
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -177,17 +171,14 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(KpiService.class).toInstance(kpiService);
                 bind(MessageService.class).toInstance(messageService);
-                bind(DataValidationKpiService.class).toInstance(dataValidationKpiService);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UserService.class).toInstance(userService);
                 bind(DestinationSpec.class).toProvider(ValidationServiceImpl.this::getDestination);
                 bind(MessageService.class).toInstance(messageService);
                 bind(SearchService.class).toInstance(searchService);
                 bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
-                bind(EstimationService.class).toInstance(estimationService);
             }
         });
-        this.registerDataValidationKpiService(context);
         upgradeService.register(
                 InstallIdentifier.identifier("Pulse", COMPONENTNAME),
                 dataModel,
@@ -827,14 +818,5 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
 
     private Optional<DataValidationTask> getDataValidationTaskForRecurrentTask(RecurrentTask recurrentTask) {
         return dataModel.mapper(DataValidationTask.class).getUnique("recurrentTask", recurrentTask);
-    }
-
-    private void registerDataValidationKpiService(BundleContext bundleContext) {
-        this.serviceRegistrations.add(bundleContext.registerService(DataValidationKpiService.class, this.dataValidationKpiService, null));
-    }
-
-    @Reference
-    public void setEstimationService(EstimationService estimationService) {
-        this.estimationService = estimationService;
     }
 }
