@@ -48,19 +48,19 @@ import java.util.Optional;
 import static java.util.stream.Collectors.toList;
 
 @Path("/alarms")
-public class AlarmResource {
+public class DeviceAlarmResource {
 
-    private final AlarmInfoFactory alarmInfoFactory;
-    private final AlarmShortInfoFactory alarmShortInfoFactory;
+    private final DeviceAlarmInfoFactory deviceAlarmInfoFactory;
+    private final DeviceAlarmShortInfoFactory deviceAlarmShortInfoFactory;
     private final IssueService issueService;
     private final DeviceAlarmService deviceAlarmService;
     private final ExceptionFactory exceptionFactory;
     private final ThreadPrincipalService threadPrincipalService;
 
     @Inject
-    public AlarmResource(AlarmInfoFactory alarmInfoFactory, AlarmShortInfoFactory alarmShortInfoFactory, IssueService issueService, DeviceAlarmService deviceAlarmService, ExceptionFactory exceptionFactory, ThreadPrincipalService threadPrincipalService) {
-        this.alarmInfoFactory = alarmInfoFactory;
-        this.alarmShortInfoFactory = alarmShortInfoFactory;
+    public DeviceAlarmResource(DeviceAlarmInfoFactory deviceAlarmInfoFactory, DeviceAlarmShortInfoFactory deviceAlarmShortInfoFactory, IssueService issueService, DeviceAlarmService deviceAlarmService, ExceptionFactory exceptionFactory, ThreadPrincipalService threadPrincipalService) {
+        this.deviceAlarmInfoFactory = deviceAlarmInfoFactory;
+        this.deviceAlarmShortInfoFactory = deviceAlarmShortInfoFactory;
         this.issueService = issueService;
         this.deviceAlarmService = deviceAlarmService;
         this.exceptionFactory = exceptionFactory;
@@ -70,16 +70,17 @@ public class AlarmResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public PagedInfoList<AlarmInfo> getAllAlarms(@BeanParam FieldSelection fieldSelection,
-                                                 @Context UriInfo uriInfo,
-                                                 @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList<DeviceAlarmInfo> getAllOpenAlarms(@BeanParam FieldSelection fieldSelection,
+                                                           @Context UriInfo uriInfo,
+                                                           @BeanParam JsonQueryParameters queryParameters) {
         //validateMandatory(params, START, LIMIT);
-        List<AlarmInfo> infos = deviceAlarmService.findAlarms(new DeviceAlarmFilter()).stream()
+        List<DeviceAlarmInfo> infos = deviceAlarmService.findAlarms(new DeviceAlarmFilter())
+                .from(queryParameters).stream()
                 .filter(alm -> !alm.getStatus().isHistorical())
-                .map(isu -> alarmInfoFactory.from(isu, uriInfo, fieldSelection.getFields()))
+                .map(isu -> deviceAlarmInfoFactory.from(isu, uriInfo, fieldSelection.getFields()))
                 .collect(toList());
         UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
-                .path(AlarmResource.class);
+                .path(DeviceAlarmResource.class);
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
         //addSorting(finder, params);
 
@@ -89,10 +90,10 @@ public class AlarmResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{id}/status")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public AlarmShortInfo getStatus(@PathParam("id") long alarmId, @BeanParam FieldSelection fieldSelection) {
+    public DeviceAlarmShortInfo getStatus(@PathParam("id") long alarmId, @BeanParam FieldSelection fieldSelection) {
         DeviceAlarm alarm = deviceAlarmService.findAlarm(alarmId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ALARM, String.valueOf(alarmId)));
-        return alarmShortInfoFactory.asInfo(alarm);
+        return deviceAlarmShortInfoFactory.asInfo(alarm);
     }
 
     @PUT
@@ -101,7 +102,7 @@ public class AlarmResource {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{id}/close")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public AlarmInfo closeIssue(@PathParam("id") long alarmId, IssueShortInfo alarmShortInfo, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+    public DeviceAlarmInfo closeAlarm(@PathParam("id") long alarmId, DeviceAlarmShortInfo alarmShortInfo, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         Optional<? extends DeviceAlarm> alarm = deviceAlarmService.findAlarm(alarmId);
         if (!alarm.isPresent()) {
             throw exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ALARM, String.valueOf(alarmId));
@@ -125,7 +126,7 @@ public class AlarmResource {
         } else {
             throw exceptionFactory.newException(MessageSeeds.BAD_FIELD_VALUE, "status.id");
         }
-        return closedAlarm != null ? alarmInfoFactory.from(closedAlarm, uriInfo, fieldSelection.getFields()) : null;
+        return closedAlarm != null ? deviceAlarmInfoFactory.from(closedAlarm, uriInfo, fieldSelection.getFields()) : null;
     }
 
 
@@ -135,19 +136,17 @@ public class AlarmResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public Response addComment(@PathParam("id") long alarmId, IssueCommentShortInfo issueCommentShortInfo, @Context UriInfo uriInfo) {
+    public Response addComment(@PathParam("id") long alarmId, IssueCommentShortInfo commentShortInfo, @Context UriInfo uriInfo) {
 
         DeviceAlarm alarm = deviceAlarmService.findAlarm(alarmId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ALARM, String.valueOf(alarmId)));
-        if (issueCommentShortInfo == null || issueCommentShortInfo.comment == null || issueCommentShortInfo.comment.isEmpty()) {
+        if (commentShortInfo == null || commentShortInfo.comment == null || commentShortInfo.comment.isEmpty()) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.BAD_FIELD_VALUE, "comment");
         }
-        alarm.addComment(issueCommentShortInfo.comment, getCurrentUser()).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
+        alarm.addComment(commentShortInfo.comment, getCurrentUser()).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
 
         URI uri = uriInfo.getBaseUriBuilder().
-                path(AlarmResource.class).
-                path(AlarmResource.class, "getComments").
-                resolveTemplate("id", alarm.getId()).
+                path(DeviceAlarmResource.class).
                 build();
         return Response.created(uri).build();
     }
@@ -156,7 +155,7 @@ public class AlarmResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public List<String> getFields() {
-        return alarmInfoFactory.getAvailableFields().stream().sorted().collect(toList());
+        return deviceAlarmInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
 
 

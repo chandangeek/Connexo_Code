@@ -22,15 +22,15 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
-public class AlarmStatusInfoFactory extends SelectableFieldFactory<AlarmStatusInfo, IssueStatus> {
+public class DeviceAlarmStatusInfoFactory extends SelectableFieldFactory<DeviceAlarmStatusInfo, IssueStatus> {
 
 
     @Inject
-    public AlarmStatusInfoFactory() {
+    public DeviceAlarmStatusInfoFactory() {
     }
 
     public LinkInfo asLink(IssueStatus alarmStatus, Relation relation, UriInfo uriInfo) {
-        AlarmStatusInfo info = new AlarmStatusInfo();
+        DeviceAlarmStatusInfo info = new DeviceAlarmStatusInfo();
         copySelectedFields(info, alarmStatus, uriInfo, Arrays.asList("id", "version"));
         info.link = link(alarmStatus, relation, uriInfo);
         return info;
@@ -57,20 +57,20 @@ public class AlarmStatusInfoFactory extends SelectableFieldFactory<AlarmStatusIn
 
     private UriBuilder getUriBuilder(UriInfo uriInfo) {
         return uriInfo.getBaseUriBuilder()
-                .path(AlarmResource.class)
-                .path(AlarmResource.class, "getStatus");
+                .path(DeviceAlarmResource.class)
+                .path(DeviceAlarmResource.class, "getStatus");
     }
 
-    public AlarmStatusInfo from(IssueStatus alarmStatus, boolean isClearedStatus, UriInfo uriInfo, Collection<String> fields) {
-        AlarmStatusInfo info = new AlarmStatusInfo();
+    public DeviceAlarmStatusInfo from(IssueStatus alarmStatus, boolean isClearedStatus, UriInfo uriInfo, Collection<String> fields) {
+        DeviceAlarmStatusInfo info = new DeviceAlarmStatusInfo();
         info.clearedStatus = isClearedStatus;
         copySelectedFields(info, alarmStatus, uriInfo, fields);
         return info;
     }
 
     @Override
-    protected Map<String, PropertyCopier<AlarmStatusInfo, IssueStatus>> buildFieldMap() {
-        Map<String, PropertyCopier<AlarmStatusInfo, IssueStatus>> map = new HashMap<>();
+    protected Map<String, PropertyCopier<DeviceAlarmStatusInfo, IssueStatus>> buildFieldMap() {
+        Map<String, PropertyCopier<DeviceAlarmStatusInfo, IssueStatus>> map = new HashMap<>();
         map.put("id", (alarmStatusInfo, alarmStatus, uriInfo) -> alarmStatusInfo.id = alarmStatus.getKey());
         map.put("name", (alarmStatusInfo, alarmStatus, uriInfo) -> alarmStatusInfo.name = alarmStatus.getName());
         return map;

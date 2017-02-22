@@ -8,7 +8,6 @@ import com.elster.jupiter.kore.api.v2.issue.DeviceShortInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssueAssigneeInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssuePriorityInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssueReasonInfoFactory;
-import com.elster.jupiter.kore.api.v2.issue.IssueTypeInfoFactory;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PropertyCopier;
@@ -29,25 +28,25 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
-public class AlarmInfoFactory extends SelectableFieldFactory<AlarmInfo, DeviceAlarm> {
+public class DeviceAlarmInfoFactory extends SelectableFieldFactory<DeviceAlarmInfo, DeviceAlarm> {
 
     private final DeviceShortInfoFactory deviceShortInfoFactory;
-    private final AlarmStatusInfoFactory alarmStatusInfoFactory;
+    private final DeviceAlarmStatusInfoFactory deviceAlarmStatusInfoFactory;
     private final IssueAssigneeInfoFactory issueAssigneeInfoFactory;
     private final IssuePriorityInfoFactory issuePriorityInfoFactory;
     private final IssueReasonInfoFactory issueReasonInfoFactory;
 
     @Inject
-    public AlarmInfoFactory(DeviceShortInfoFactory deviceShortInfoFactory, AlarmStatusInfoFactory alarmStatusInfoFactory, IssueAssigneeInfoFactory issueAssigneeInfoFactory, IssuePriorityInfoFactory issuePriorityInfoFactory, IssueReasonInfoFactory issueReasonInfoFactory) {
+    public DeviceAlarmInfoFactory(DeviceShortInfoFactory deviceShortInfoFactory, DeviceAlarmStatusInfoFactory deviceAlarmStatusInfoFactory, IssueAssigneeInfoFactory issueAssigneeInfoFactory, IssuePriorityInfoFactory issuePriorityInfoFactory, IssueReasonInfoFactory issueReasonInfoFactory) {
         this.deviceShortInfoFactory = deviceShortInfoFactory;
-        this.alarmStatusInfoFactory = alarmStatusInfoFactory;
+        this.deviceAlarmStatusInfoFactory = deviceAlarmStatusInfoFactory;
         this.issueAssigneeInfoFactory = issueAssigneeInfoFactory;
         this.issuePriorityInfoFactory = issuePriorityInfoFactory;
         this.issueReasonInfoFactory = issueReasonInfoFactory;
     }
 
     public LinkInfo asLink(DeviceAlarm alarm, Relation relation, UriInfo uriInfo) {
-        AlarmInfo info = new AlarmInfo();
+        DeviceAlarmInfo info = new DeviceAlarmInfo();
         copySelectedFields(info, alarm, uriInfo, Arrays.asList("id", "version"));
         info.link = link(alarm, relation, uriInfo);
         return info;
@@ -65,26 +64,26 @@ public class AlarmInfoFactory extends SelectableFieldFactory<AlarmInfo, DeviceAl
 
     private UriBuilder getUriBuilder(UriInfo uriInfo) {
         return uriInfo.getBaseUriBuilder()
-                .path(AlarmResource.class)
-                .path(AlarmResource.class, "getAllAlarms");
+                .path(DeviceAlarmResource.class)
+                .path(DeviceAlarmResource.class, "getAllOpenAlarms");
     }
 
-    public AlarmInfo from(DeviceAlarm alarm, UriInfo uriInfo, Collection<String> fields) {
-        AlarmInfo info = new AlarmInfo();
+    public DeviceAlarmInfo from(DeviceAlarm alarm, UriInfo uriInfo, Collection<String> fields) {
+        DeviceAlarmInfo info = new DeviceAlarmInfo();
         copySelectedFields(info, alarm, uriInfo, fields);
         return info;
     }
 
     @Override
-    protected Map<String, PropertyCopier<AlarmInfo, DeviceAlarm>> buildFieldMap() {
-        Map<String, PropertyCopier<AlarmInfo, DeviceAlarm>> map = new HashMap<>();
+    protected Map<String, PropertyCopier<DeviceAlarmInfo, DeviceAlarm>> buildFieldMap() {
+        Map<String, PropertyCopier<DeviceAlarmInfo, DeviceAlarm>> map = new HashMap<>();
         map.put("title", (alarmInfo, alarm, uriInfo) -> alarmInfo.title = alarm.getTitle());
         map.put("id", (alarmInfo, alarm, uriInfo) -> alarmInfo.id = alarm.getId());
         map.put("alarmId", (alarmInfo, alarm, uriInfo) -> alarmInfo.alarmId = alarm.getIssueId());
         map.put("reason", (alarmInfo, alarm, uriInfo) -> alarmInfo.reason = issueReasonInfoFactory.asInfo(alarm.getReason()));
         map.put("priority", (alarmInfo, alarm, uriInfo) -> alarmInfo.priority = issuePriorityInfoFactory.asInfo(alarm.getPriority()));
         map.put("priorityValue", (alarmInfo, alarm, uriInfo) -> alarmInfo.priorityValue = issuePriorityInfoFactory.getValue(alarm.getPriority()));
-        map.put("status", (alarmInfo, alarm, uriInfo) -> alarmInfo.status = alarmStatusInfoFactory.from(alarm.getStatus(), alarm.isStatusCleared(), uriInfo, null));
+        map.put("status", (alarmInfo, alarm, uriInfo) -> alarmInfo.status = deviceAlarmStatusInfoFactory.from(alarm.getStatus(), alarm.isStatusCleared(), uriInfo, null));
         map.put("dueDate", (alarmInfo, alarm, uriInfo) -> alarmInfo.dueDate = alarm.getDueDate() != null ? alarm.getDueDate().toEpochMilli() : 0);
         map.put("workGroupAssignee", (alarmInfo, alarm, uriInfo) -> alarmInfo.workGroupAssignee = issueAssigneeInfoFactory.asInfo("WORKGROUP", alarm.getAssignee()));
         map.put("userAssignee", (alarmInfo, alarm, uriInfo) -> alarmInfo.userAssignee = issueAssigneeInfoFactory.asInfo("USER", alarm.getAssignee()));

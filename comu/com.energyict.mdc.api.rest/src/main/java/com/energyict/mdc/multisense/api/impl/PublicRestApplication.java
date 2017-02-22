@@ -14,7 +14,6 @@ import com.elster.jupiter.kore.api.v2.issue.IssuePriorityInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssueReasonInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.LocationShortInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.UsagePointShortInfoFactory;
-import com.elster.jupiter.kore.api.v2.issue.UserInfoFactory;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -135,7 +134,7 @@ public class PublicRestApplication extends Application implements TranslationKey
                 PartialConnectionTaskResource.class,
                 ProtocolDialectConfigurationPropertiesResource.class,
                 ProtocolTaskResource.class,
-                AlarmResource.class,
+                DeviceAlarmResource.class,
 
                 RestExceptionMapper.class,
                 DeviceLifeCycleActionViolationExceptionMapper.class
@@ -378,16 +377,15 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(DeviceMessageEnablementInfoFactory.class).to(DeviceMessageEnablementInfoFactory.class);
             bind(DeviceSecurityPropertySetInfoFactory.class).to(DeviceSecurityPropertySetInfoFactory.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
-            bind(AlarmStatusInfoFactory.class).to(AlarmStatusInfoFactory.class);
-            bind(AlarmInfoFactory.class).to(AlarmInfoFactory.class);
+            bind(DeviceAlarmStatusInfoFactory.class).to(DeviceAlarmStatusInfoFactory.class);
+            bind(DeviceAlarmInfoFactory.class).to(DeviceAlarmInfoFactory.class);
             bind(IssueAssigneeInfoFactory.class).to(IssueAssigneeInfoFactory.class);
             bind(IssueReasonInfoFactory.class).to(IssueReasonInfoFactory.class);
             bind(IssuePriorityInfoFactory.class).to(IssuePriorityInfoFactory.class);
             bind(DeviceShortInfoFactory.class).to(DeviceShortInfoFactory.class);
             bind(UsagePointShortInfoFactory.class).to(UsagePointShortInfoFactory.class);
-            bind(UserInfoFactory.class).to(UserInfoFactory.class);
             bind(LocationShortInfoFactory.class).to(LocationShortInfoFactory.class);
-            bind(AlarmShortInfoFactory.class).to(AlarmShortInfoFactory.class);
+            bind(DeviceAlarmShortInfoFactory.class).to(DeviceAlarmShortInfoFactory.class);
         }
     }
 

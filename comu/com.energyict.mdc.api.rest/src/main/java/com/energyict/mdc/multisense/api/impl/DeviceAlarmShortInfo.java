@@ -4,10 +4,10 @@
 
 package com.energyict.mdc.multisense.api.impl;
 
-public class AlarmShortInfo {
+public class DeviceAlarmShortInfo {
     public long id;
     public String title;
-    public AlarmStatusInfo status;
+    public DeviceAlarmStatusInfo status;
     public Long version;
 }
 
