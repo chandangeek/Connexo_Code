@@ -17,6 +17,7 @@ import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.issue.share.IssueCreationValidator;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -94,6 +95,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     private volatile FiniteStateMachineService stateMachineService;
     private volatile EventService eventService;
     private volatile UpgradeService upgradeService;
+    private volatile MeteringService meteringService;
     private Thesaurus thesaurus;
     private final Set<Privilege> privileges = new HashSet<>();
 
@@ -104,7 +106,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
     // For testing purposes
     @Inject
-    public DeviceLifeCycleConfigurationServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, FiniteStateMachineService stateMachineService, EventService eventService, UpgradeService upgradeService) {
+    public DeviceLifeCycleConfigurationServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, FiniteStateMachineService stateMachineService, EventService eventService, UpgradeService upgradeService, MeteringService meteringService) {
         this();
         setOrmService(ormService);
         setUserService(userService);
@@ -112,6 +114,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
         setStateMachineService(stateMachineService);
         setEventService(eventService);
         setUpgradeService(upgradeService);
+        setMeteringService(meteringService);
         activate();
         initializeTestPrivileges();
     }
@@ -218,6 +221,11 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     @Override
@@ -426,5 +434,4 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     public String getDisplayName(DefaultState state) {
         return this.thesaurus.getFormat(state).format();
     }
-
 }

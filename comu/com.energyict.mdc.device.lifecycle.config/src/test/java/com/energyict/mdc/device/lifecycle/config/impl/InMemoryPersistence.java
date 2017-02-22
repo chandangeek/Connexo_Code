@@ -5,24 +5,36 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.impl.MeteringDataModelService;
+import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
@@ -63,6 +75,11 @@ public class InMemoryPersistence {
     private EventAdmin eventAdmin;
     private DataModel dataModel;
     private DeviceLifeCycleConfigurationServiceImpl lifeCycleService;
+    private MeteringDataModelService meteringDataModelService;
+    private LicenseService licenseService;
+    private PropertySpecService propertySpecService;
+    private SearchService searchService;
+    private TimeService timeService;
 
     /**
      * Returns a new InMemoryPersistence that uses all the defaults
@@ -78,15 +95,20 @@ public class InMemoryPersistence {
         return Arrays.asList(
                 new InMemoryMessagingModule(),
                 new DataVaultModule(),
+                new PartyModule(),
                 new TransactionModule(),
                 new OrmModule(),
+                new IdsModule(),
                 new EventsModule(),
+                new MeteringModule(),
                 new PubSubModule(),
+                new CustomPropertySetsModule(),
                 new UserModule(),
                 new UtilModule(),
                 new DomainUtilModule(),
                 new NlsModule(),
-                new FiniteStateMachineModule()
+                new FiniteStateMachineModule(),
+                new UsagePointLifeCycleConfigurationModule()
         );
     }
 
@@ -105,6 +127,9 @@ public class InMemoryPersistence {
             this.injector.getInstance(UserService.class);
             this.injector.getInstance(NlsService.class);
             this.injector.getInstance(EventService.class);
+            this.injector.getInstance(CustomPropertySetService.class);
+            this.injector.getInstance(PartyService.class);
+            this.injector.getInstance(MeteringDataModelService.class);
             this.lifeCycleService = this.injector.getInstance(DeviceLifeCycleConfigurationServiceImpl.class);
             this.dataModel = this.lifeCycleService.getDataModel();
             ctx.commit();
@@ -123,6 +148,11 @@ public class InMemoryPersistence {
         this.bundleContext = mock(BundleContext.class);
         this.eventAdmin = mock(EventAdmin.class);
         this.principal = mock(Principal.class);
+        this.meteringDataModelService = mock(MeteringDataModelService.class);
+        this.licenseService = mock(LicenseService.class);
+        this.propertySpecService = mock(PropertySpecService.class);
+        this.searchService = mock(SearchService.class);
+        this.timeService = mock(TimeService.class);
         when(this.principal.getName()).thenReturn(testName);
     }
 
@@ -149,6 +179,10 @@ public class InMemoryPersistence {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(DataModel.class).toProvider(() -> dataModel);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(SearchService.class).toInstance(searchService);
+            bind(TimeService.class).toInstance(timeService);
+            bind(LicenseService.class).toInstance(licenseService);
+            bind(PropertySpecService.class).toInstance(propertySpecService);
         }
 
     }

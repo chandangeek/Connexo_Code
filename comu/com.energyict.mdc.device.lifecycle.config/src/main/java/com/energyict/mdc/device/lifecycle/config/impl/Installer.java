@@ -9,9 +9,13 @@ import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.StageSet;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.metering.EndDeviceStage;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
@@ -33,8 +37,10 @@ import javax.inject.Inject;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -139,6 +145,8 @@ class Installer implements FullInstaller, PrivilegesProvider {
     }
 
     private FiniteStateMachine createDefaultFiniteStateMachine(String name, Map<String, CustomStateTransitionEventType> eventTypes, Logger logger) {
+        StageSet stageSet = stateMachineService.findStageSetByName(MeteringService.END_DEVICE_STAGE_SET_NAME)
+                .orElseThrow(getStageSetExceptionProvider());
         StateTransitionEventType commissioningEventType = eventTypes.get(DefaultCustomStateTransitionEventType.COMMISSIONING
                 .getSymbol());
         StateTransitionEventType activated = eventTypes.get(DefaultCustomStateTransitionEventType.ACTIVATED.getSymbol());
@@ -146,18 +154,20 @@ class Installer implements FullInstaller, PrivilegesProvider {
         StateTransitionEventType decommissionedEventType = eventTypes.get(DefaultCustomStateTransitionEventType.DECOMMISSIONED
                 .getSymbol());
         StateTransitionEventType deletedEventType = eventTypes.get(DefaultCustomStateTransitionEventType.REMOVED.getSymbol());
-
-        FiniteStateMachineBuilder builder = this.stateMachineService.newFiniteStateMachine(name);
+        Stage preOperational = stageSet.getStageByName(EndDeviceStage.PRE_OPERATIONAL.name()).orElseThrow(getStageSetExceptionProvider());
+        Stage operational = stageSet.getStageByName(EndDeviceStage.OPERATIONAL.name()).orElseThrow(getStageSetExceptionProvider());
+        Stage postOperational = stageSet.getStageByName(EndDeviceStage.POST_OPERATIONAL.name()).orElseThrow(getStageSetExceptionProvider());
+        FiniteStateMachineBuilder builder = this.stateMachineService.newFiniteStateMachine(name, stageSet);
         // Create default States
-        State removed = builder.newStandardState(DefaultState.REMOVED.getKey()).complete();
-        FiniteStateMachineBuilder.StateBuilder inStockBuilder = builder.newStandardState(DefaultState.IN_STOCK.getKey());
+        State removed = builder.newStandardState(DefaultState.REMOVED.getKey(), postOperational).complete();
+        FiniteStateMachineBuilder.StateBuilder inStockBuilder = builder.newStandardState(DefaultState.IN_STOCK.getKey(), preOperational);
         State decommissioned = builder
-                .newStandardState(DefaultState.DECOMMISSIONED.getKey())
+                .newStandardState(DefaultState.DECOMMISSIONED.getKey(), postOperational)
                 .on(deletedEventType)
                 .transitionTo(removed, DefaultLifeCycleTranslationKey.TRANSITION_FROM_DECOMMISSIONED_TO_REMOVED)
                 .complete();
-        FiniteStateMachineBuilder.StateBuilder activeBuilder = builder.newStandardState(DefaultState.ACTIVE.getKey());
-        FiniteStateMachineBuilder.StateBuilder inactiveBuilder = builder.newStandardState(DefaultState.INACTIVE.getKey());
+        FiniteStateMachineBuilder.StateBuilder activeBuilder = builder.newStandardState(DefaultState.ACTIVE.getKey(), operational);
+        FiniteStateMachineBuilder.StateBuilder inactiveBuilder = builder.newStandardState(DefaultState.INACTIVE.getKey(), operational);
         State active = activeBuilder
                 .on(decommissionedEventType)
                 .transitionTo(decommissioned, DefaultLifeCycleTranslationKey.TRANSITION_FROM_ACTIVE_TO_DECOMMISSIONED)
@@ -171,7 +181,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
                 .transitionTo(decommissioned, DefaultLifeCycleTranslationKey.TRANSITION_FROM_INACTIVE_TO_DECOMMISSIONED)
                 .complete();
         State commissioning = builder
-                .newStandardState(DefaultState.COMMISSIONING.getKey())
+                .newStandardState(DefaultState.COMMISSIONING.getKey(), preOperational)
                 .on(activated)
                 .transitionTo(active, DefaultLifeCycleTranslationKey.TRANSITION_FROM_COMMISSIONING_TO_ACTIVE)
                 .on(deactivated)
@@ -191,6 +201,10 @@ class Installer implements FullInstaller, PrivilegesProvider {
         FiniteStateMachine stateMachine = builder.complete(inStock);
         logger.fine(() -> "Created default finite state machine");
         return stateMachine;
+    }
+
+    private Supplier<IllegalStateException> getStageSetExceptionProvider() {
+        return () -> new IllegalStateException("Default stage set not installed correctly");
     }
 
     private void addAsAction(StateTransition transition, DeviceLifeCycleBuilder builder) {
