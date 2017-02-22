@@ -64,7 +64,7 @@ public class IssueInfoFactory extends SelectableFieldFactory<IssueInfo, Issue> {
     private UriBuilder getUriBuilder(UriInfo uriInfo) {
         return uriInfo.getBaseUriBuilder()
                 .path(IssueResource.class)
-                .path(IssueResource.class, "getAllIssues");
+                .path(IssueResource.class, "getAllOpenIssues");
     }
 
     public IssueInfo from(Issue issue, UriInfo uriInfo, Collection<String> fields) {

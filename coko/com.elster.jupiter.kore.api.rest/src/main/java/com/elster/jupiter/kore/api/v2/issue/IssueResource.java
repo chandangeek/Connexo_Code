@@ -67,12 +67,12 @@ public class IssueResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public PagedInfoList<IssueInfo> getAllIssues(@BeanParam FieldSelection fieldSelection,
+    public PagedInfoList<IssueInfo> getAllOpenIssues(@BeanParam FieldSelection fieldSelection,
                                                  @Context UriInfo uriInfo,
                                                  @BeanParam JsonQueryParameters queryParameters) {
         IssueFilter filter = issueService.newIssueFilter();
         Arrays.asList("datacollection", "datavalidation").stream().forEach(listItem -> issueService.findIssueType(listItem).ifPresent(filter::addIssueType));
-        List<IssueInfo> infos = issueService.findIssues(filter).find().stream()
+        List<IssueInfo> infos = issueService.findIssues(filter).from(queryParameters).stream()
                 .filter(isu -> !isu.getStatus().isHistorical())
                 .map(isu -> issueInfoFactory.from(isu, uriInfo, fieldSelection.getFields()))
                 .collect(toList());
@@ -142,8 +142,6 @@ public class IssueResource {
         issue.addComment(issueCommentShortInfo.comment, getCurrentUser()).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
         URI uri = uriInfo.getBaseUriBuilder().
                 path(IssueResource.class).
-                path(IssueResource.class, "getComments").
-                resolveTemplate("id", issue.getId()).
                 build();
         return Response.created(uri).build();
     }
