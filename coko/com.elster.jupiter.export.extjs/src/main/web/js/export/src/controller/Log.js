@@ -17,15 +17,6 @@ Ext.define('Dxp.controller.Log', {
         'Dxp.model.DataExportTaskHistory'
     ],
 
-    requires: [
-        'Uni.util.LogLevel'
-    ],
-
-    init: function () {
-        Uni.util.LogLevel.loadLogLevels();
-        this.callParent(arguments);
-    },
-
     showLogWorkspace: function (occurrenceId) {
         this.showLog(null, occurrenceId, true);
     },

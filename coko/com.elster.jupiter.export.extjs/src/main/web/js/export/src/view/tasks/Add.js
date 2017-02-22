@@ -16,7 +16,7 @@ Ext.define('Dxp.view.tasks.Add', {
         'Uni.grid.column.EventType',
         'Dxp.view.tasks.DestinationsGrid',
         'Uni.grid.column.RemoveAction',
-        'Uni.store.LogLevels'
+        'Ldr.store.LogLevels'
     ],
 
     edit: false,
