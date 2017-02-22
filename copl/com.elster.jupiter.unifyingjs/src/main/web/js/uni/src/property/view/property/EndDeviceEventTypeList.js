@@ -121,45 +121,47 @@ Ext.define('Uni.property.view.property.EndDeviceEventTypeList', {
 
         if(value && value.length > 0){
             Ext.Array.forEach(value, function (code) {
-                var eventCode = code.split(':')[0];
-                var deviceCode = code.split(':')[1];
-                var deviceTypeName = '';
-                var deviceDomainName = '';
-                var deviceSubDomainName = '';
-                var deviceEventOrActionNameName = '';
-                me.deviceTypesStore.each(function(item){
-                    if(item.get('value') == eventCode.split('.')[0]){
-                        deviceTypeName = item.get('displayName');
-                    }
-                });
-                me.deviceDomainsStore.each(function(item){
-                    if(item.get('value') == eventCode.split('.')[1]){
-                        deviceDomainName = item.get('displayName');
-                    }
-                });
-                me.deviceSubDomainsStore.each(function(item){
-                    if(item.get('value') == eventCode.split('.')[2]){
-                        deviceSubDomainName = item.get('displayName');
-                    }
-                });
-                me.deviceEventOrActionsStore.each(function(item){
-                    if(item.get('value') == eventCode.split('.')[3]){
-                        deviceEventOrActionNameName = item.get('displayName');
-                    }
-                });
+                if(code !== '-1:-1') {
+                    var eventCode = code.split(':')[0];
+                    var deviceCode = code.split(':')[1];
+                    var deviceTypeName = '';
+                    var deviceDomainName = '';
+                    var deviceSubDomainName = '';
+                    var deviceEventOrActionNameName = '';
+                    me.deviceTypesStore.each(function (item) {
+                        if (item.get('value') == eventCode.split('.')[0]) {
+                            deviceTypeName = item.get('displayName');
+                        }
+                    });
+                    me.deviceDomainsStore.each(function (item) {
+                        if (item.get('value') == eventCode.split('.')[1]) {
+                            deviceDomainName = item.get('displayName');
+                        }
+                    });
+                    me.deviceSubDomainsStore.each(function (item) {
+                        if (item.get('value') == eventCode.split('.')[2]) {
+                            deviceSubDomainName = item.get('displayName');
+                        }
+                    });
+                    me.deviceEventOrActionsStore.each(function (item) {
+                        if (item.get('value') == eventCode.split('.')[3]) {
+                            deviceEventOrActionNameName = item.get('displayName');
+                        }
+                    });
 
-                var model = {
-                    eventFilterCode: deviceCode != '*' ? eventCode + ' (' + deviceCode + ')' : eventCode,
-                    eventFilterCodeUnformatted: eventCode,
-                    deviceTypeName: deviceTypeName,
-                    deviceDomainName: deviceDomainName,
-                    deviceSubDomainName: deviceSubDomainName,
-                    deviceEventOrActionName: deviceEventOrActionNameName,
-                    deviceCode: deviceCode == '*' ? '' : deviceCode
-                };
+                    var model = {
+                        eventFilterCode: deviceCode != '*' ? eventCode + ' (' + deviceCode + ')' : eventCode,
+                        eventFilterCodeUnformatted: eventCode,
+                        deviceTypeName: deviceTypeName,
+                        deviceDomainName: deviceDomainName,
+                        deviceSubDomainName: deviceSubDomainName,
+                        deviceEventOrActionName: deviceEventOrActionNameName,
+                        deviceCode: deviceCode == '*' ? '' : deviceCode
+                    };
 
-                var eventTypeModel = Ext.create('Uni.property.model.EventTypeForAddAlarmRuleGrid', model);
-                eventTypePanel.getStore().add(eventTypeModel);
+                    var eventTypeModel = Ext.create('Uni.property.model.EventTypeForAddAlarmRuleGrid', model);
+                    eventTypePanel.getStore().add(eventTypeModel);
+                }
             });
 
         }
@@ -198,12 +200,16 @@ Ext.define('Uni.property.view.property.EndDeviceEventTypeList', {
             eventTypePanel = me.down('#eventTypesGridPanel');
 
         var items = [];
-        eventTypePanel.getStore().each(function(item) {
-            var eventCode = '';
-            eventCode += item.get('eventFilterCodeUnformatted') + ':';
-            eventCode += item.get('deviceCode') == '' ? '*' : item.get('deviceCode');
-            items.push(eventCode);
-        });
+        if(eventTypePanel.getStore().count() > 0) {
+            eventTypePanel.getStore().each(function (item) {
+                var eventCode = '';
+                eventCode += item.get('eventFilterCodeUnformatted') + ':';
+                eventCode += item.get('deviceCode') == '' ? '*' : item.get('deviceCode');
+                items.push(eventCode);
+            });
+        }else{
+            items.push('-1:-1');
+        }
 
         return items;
     }
