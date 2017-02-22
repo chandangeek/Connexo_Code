@@ -9,7 +9,7 @@ Ext.define('Cfg.view.validationtask.Add', {
         'Uni.form.field.DateTime',
         'Uni.util.FormErrorMessage',
         'Cfg.view.validationtask.DataSourcesContainer',
-        'Uni.store.LogLevels'
+        'Ldr.store.LogLevels'
     ],
 
     edit: false,
