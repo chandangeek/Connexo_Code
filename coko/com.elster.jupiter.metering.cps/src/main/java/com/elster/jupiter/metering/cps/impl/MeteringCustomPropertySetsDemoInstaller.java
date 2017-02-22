@@ -330,7 +330,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
 
 
         contractBilling.addDeliverable(builder.build(builder.multiply(builder.requirement(requirementAplus), lossFactor)));
-        contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingTypeDailyAplusWh, requirementAplus, "Daily A+ kWh"));
+        contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingTypeDailyAplusWh, requirementAplus, "Daily A+ Wh"));
     }
 
     private SearchablePropertyValue.ValueBean getUsagePointRequirement(String property, SearchablePropertyOperator operator, String... values) {
