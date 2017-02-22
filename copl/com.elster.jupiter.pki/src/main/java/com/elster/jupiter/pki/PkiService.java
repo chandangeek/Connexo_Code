@@ -20,6 +20,30 @@ public interface PkiService {
     String COMPONENTNAME = "PKI";
 
     /**
+     * Creates a blank placeholder/wrapper for a TrustedCertificate. A TrustedCertificate is
+     * @return
+     */
+    TrustedCertificate newTrustedCertificateWrapper(TrustStore trustStore); // TODO remove method
+
+    CertificateWrapper newCertificateWrapper();
+
+    ClientCertificate newClientCertificateWrapper(KeyAccessorType keyAccessorType);
+
+    /**
+     * Creates a new, empty trust store in Connexo.
+     * @param name unique identifier for trust store
+     * @return Empty TrustStore
+     */
+    TrustStoreBuilder newTrustStore(String name);
+
+    /**
+     * Find trust store identified by name
+     * @param name The trust store's unique name
+     * @return TrustStore if found, if not: Optional.empty()
+     */
+    Optional<TrustStore> findTrustStore(String name);
+
+    /**
      * Get a list of names of all KeyEncryptionMethods that registered through whiteboard.
      * @return List of key encryption method names
      */
@@ -39,7 +63,7 @@ public interface PkiService {
      * @param keySize The size in bytes, e.g. 1024
      * @return The newly created, persisted KeyType
      */
-    KeyType newSymmetricKeyType(String name, String keyAlgorithmName, int keySize);
+    KeyTypeBuilder newSymmetricKeyType(String name, String keyAlgorithmName, int keySize);
 
     /**
      * Creates a new KeyType describing an asymmetric key.
@@ -47,10 +71,12 @@ public interface PkiService {
      * @param name The name given to this key type. The name will be a unique identifier.
      * @return A builder guiding you through the creation of an asymmetric key definition
      */
-    PkiService.AsyncBuilder newAsymmetricKeyType(String name);
+    AsyncKeyTypeBuilder newAsymmetricKeyType(String name);
 
-    PkiService.AsyncBuilder newCertificateWithPrivateKeyType(String name); // TODO Fix
-    KeyType newCertificateType(String name); // TODO fix
+    AsyncKeyTypeBuilder newClientCertificateType(String name);
+    KeyType newCertificateType(String name);
+
+    KeyType newTrustedCertificateType(String name);
 
     /**
      * Get an existing KeyType by name.
@@ -78,7 +104,8 @@ public interface PkiService {
      */
     SymmetricKeyWrapper newSymmetricKeyWrapper(KeyAccessorType keyAccessorType);
 
-    public interface AsyncBuilder {
+    public interface AsyncKeyTypeBuilder {
+        AsyncKeyTypeBuilder description(String description);
         AsyncKeySizeBuilder RSA();
         AsyncKeySizeBuilder DSA();
         AsyncCurveBuilder ECDSA();
@@ -91,6 +118,16 @@ public interface PkiService {
 
     public interface AsyncCurveBuilder {
         AsyncCurveBuilder curve(String curveName);
+        KeyType add();
+    }
+
+    public interface TrustStoreBuilder {
+        TrustStoreBuilder description(String description);
+        TrustStore add();
+    }
+
+    public interface KeyTypeBuilder {
+        KeyTypeBuilder description(String description);
         KeyType add();
     }
 

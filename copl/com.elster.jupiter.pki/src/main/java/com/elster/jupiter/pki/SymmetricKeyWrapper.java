@@ -1,7 +1,5 @@
 package com.elster.jupiter.pki;
 
-import com.elster.jupiter.pki.impl.Renewable;
-
 import java.time.Instant;
 
 /**

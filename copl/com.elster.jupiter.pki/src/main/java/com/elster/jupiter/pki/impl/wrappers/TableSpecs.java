@@ -10,6 +10,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.PrivateKeyWrapper;
+import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.impl.wrappers.assymetric.AbstractPlaintextPrivateKeyImpl;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.PlaintextSymmetricKey;
 
@@ -17,9 +19,9 @@ public enum TableSpecs {
     SSM_PLAINTEXTPK {
         @Override
         void addTo(DataModel dataModel) {
-            Table<AbstractPlaintextPrivateKeyImpl> table = dataModel.addTable(this.name(), AbstractPlaintextPrivateKeyImpl.class).since(Version.version(10,3));
+            Table<PrivateKeyWrapper> table = dataModel.addTable(this.name(), PrivateKeyWrapper.class).since(Version.version(10,3));
             table.map(AbstractPlaintextPrivateKeyImpl.IMPLEMENTERS);
-            Column id = table.addAutoIdColumn().since(Version.version(10,3));
+            Column id = table.addAutoIdColumn();
             table.column("KEY")
                     .varChar()
                     .map(AbstractPlaintextPrivateKeyImpl.Fields.ENCRYPTED_KEY.fieldName())
@@ -34,20 +36,25 @@ public enum TableSpecs {
                     .notNull()
                     .conversion(ColumnConversion.NUMBER2LONG)
                     .add();
-            table.foreignKey("SSM_FK_PRIKEY_KT").on(keyTypeColumn).references(KeyType.class).map(AbstractPlaintextPrivateKeyImpl.Fields.KEY_TYPE.fieldName()).add();
-            table.primaryKey("PK_PKI_PRIKEY").on(id).add();
+            table.foreignKey("SSM_FK_PRIKEY_KT")
+                    .on(keyTypeColumn)
+                    .references(KeyType.class)
+                    .map(AbstractPlaintextPrivateKeyImpl.Fields.KEY_TYPE.fieldName())
+                    .add();
+            table.primaryKey("PK_SSM_PLAINTEXTPK")
+                    .on(id)
+                    .add();
         }
     },
     SSM_PLAINTEXTSK {
         @Override
         void addTo(DataModel dataModel) {
-            Table<PlaintextSymmetricKey> table = dataModel.addTable(this.name(), PlaintextSymmetricKey.class).since(Version.version(10, 3));
+            Table<SymmetricKeyWrapper> table = dataModel.addTable(this.name(), SymmetricKeyWrapper.class).since(Version.version(10, 3));
             table.map(PlaintextSymmetricKey.class);
-            Column id = table.addAutoIdColumn().since(Version.version(10,3));
+            Column id = table.addAutoIdColumn();
             table.column("KEY")
                     .varChar()
                     .map(PlaintextSymmetricKey.Fields.ENCRYPTED_KEY.fieldName())
-                    .since(Version.version(10,3))
                     .add();
             Column keyTypeColumn = table.column("KEYTYPE")
                     .number()
@@ -63,9 +70,10 @@ public enum TableSpecs {
                     .references(KeyType.class)
                     .map(PlaintextSymmetricKey.Fields.KEY_TYPE.fieldName())
                     .add();
-            table.primaryKey("PK_PKI_SYMKEY").on(id).add();
+            table.primaryKey("PK_SSM_PLAINTEXTSK").on(id).add();
         }
-    };
+    },
+    ;
 
     abstract void addTo(DataModel component);
 

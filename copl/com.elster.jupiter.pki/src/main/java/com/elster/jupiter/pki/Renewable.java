@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell Inc. All rights reserved.
  */
 
-package com.elster.jupiter.pki.impl;
+package com.elster.jupiter.pki;
 
 /**
  * Interface to all cryptographic elements that allow renewal. This would be private keys, symmetric keys and certificates.

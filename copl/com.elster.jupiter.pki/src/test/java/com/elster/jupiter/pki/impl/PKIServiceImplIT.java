@@ -7,6 +7,7 @@ import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
+import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.impl.wrappers.assymetric.DataVaultPrivateKeyFactory;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.PlaintextSymmetricKey;
@@ -34,51 +35,53 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class PKIServiceImplIT {
 
-    private static PkiInMemoryPersistence pkiInMemoryPersistence = new PkiInMemoryPersistence();
+    private static PkiInMemoryPersistence inMemoryPersistence = new PkiInMemoryPersistence();
 
     @Rule
     public TestRule expectedRule = new ExpectedExceptionRule();
     @Rule
-    public TestRule transactionalRule = new TransactionalRule(pkiInMemoryPersistence.getTransactionService());
+    public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
 
     @BeforeClass
     public static void initialize() {
-        pkiInMemoryPersistence.activate();
+        inMemoryPersistence.activate();
     }
 
     @Before
     public void setUp() throws Exception {
-        ((PkiServiceImpl)pkiInMemoryPersistence.getPkiService()).addPrivateKeyFactory(pkiInMemoryPersistence.getDataVaultPrivateKeyFactory());
-        ((PkiServiceImpl)pkiInMemoryPersistence.getPkiService()).addSymmetricKeyFactory(pkiInMemoryPersistence.getDataVaultSymmetricKeyFactory());
+        ((PkiServiceImpl) inMemoryPersistence.getPkiService()).addPrivateKeyFactory(inMemoryPersistence.getDataVaultPrivateKeyFactory());
+        ((PkiServiceImpl) inMemoryPersistence.getPkiService()).addSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
     }
 
     @After
     public void tearDown() throws Exception {
-        ((PkiServiceImpl)pkiInMemoryPersistence.getPkiService()).removePrivateKeyFactory(pkiInMemoryPersistence.getDataVaultPrivateKeyFactory());
-        ((PkiServiceImpl)pkiInMemoryPersistence.getPkiService()).removeSymmetricKeyFactory(pkiInMemoryPersistence.getDataVaultSymmetricKeyFactory());
+        ((PkiServiceImpl) inMemoryPersistence.getPkiService()).removePrivateKeyFactory(inMemoryPersistence.getDataVaultPrivateKeyFactory());
+        ((PkiServiceImpl) inMemoryPersistence.getPkiService()).removeSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
     }
 
     @Test
     @Transactional
     public void testCreateSymmetricKey() {
-        KeyType created = pkiInMemoryPersistence.getPkiService().newSymmetricKeyType("AES128", "AES", 128);
-        Optional<KeyType> keyType = pkiInMemoryPersistence.getPkiService().getKeyType("AES128");
+        KeyType created = inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128", "AES", 128).description("hello").add();
+        Optional<KeyType> keyType = inMemoryPersistence.getPkiService().getKeyType("AES128");
         assertThat(keyType).isPresent();
         assertThat(keyType.get().getName()).isEqualTo("AES128");
         assertThat(keyType.get().getAlgorithm()).isEqualTo("AES");
         assertThat(keyType.get().getCryptographicType()).isEqualTo(CryptographicType.SymmetricKey);
         assertThat(keyType.get().getKeySize()).isEqualTo(128);
+        assertThat(keyType.get().getDescription()).isEqualTo("hello");
         assertThat(keyType.get().getCurve()).isNull();
     }
 
     @Test
     @Transactional
     public void testCreateRSAKey() {
-        KeyType created = pkiInMemoryPersistence.getPkiService().newAsymmetricKeyType("RSA2048").RSA().keySize(2048).add();
-        Optional<KeyType> keyType = pkiInMemoryPersistence.getPkiService().getKeyType("RSA2048");
+        KeyType created = inMemoryPersistence.getPkiService().newAsymmetricKeyType("RSA2048").description("boe").RSA().keySize(2048).add();
+        Optional<KeyType> keyType = inMemoryPersistence.getPkiService().getKeyType("RSA2048");
         assertThat(keyType).isPresent();
         assertThat(keyType.get().getName()).isEqualTo("RSA2048");
         assertThat(keyType.get().getAlgorithm()).isEqualTo("RSA");
+        assertThat(keyType.get().getDescription()).isEqualTo("boe");
         assertThat(keyType.get().getCryptographicType()).isEqualTo(CryptographicType.AsymmetricKey);
         assertThat(keyType.get().getKeySize()).isEqualTo(2048);
         assertThat(keyType.get().getCurve()).isNull();
@@ -87,8 +90,8 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testCreateDSAKey() {
-        KeyType created = pkiInMemoryPersistence.getPkiService().newAsymmetricKeyType("DSA1024").DSA().keySize(1024).add();
-        Optional<KeyType> keyType = pkiInMemoryPersistence.getPkiService().getKeyType("DSA1024");
+        KeyType created = inMemoryPersistence.getPkiService().newAsymmetricKeyType("DSA1024").DSA().keySize(1024).add();
+        Optional<KeyType> keyType = inMemoryPersistence.getPkiService().getKeyType("DSA1024");
         assertThat(keyType).isPresent();
         assertThat(keyType.get().getName()).isEqualTo("DSA1024");
         assertThat(keyType.get().getAlgorithm()).isEqualTo("DSA");
@@ -100,11 +103,12 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testCreateECKey() {
-        KeyType created = pkiInMemoryPersistence.getPkiService().newAsymmetricKeyType("NIST P-256").ECDSA().curve("secp256r1").add();
-        Optional<KeyType> keyType = pkiInMemoryPersistence.getPkiService().getKeyType("NIST P-256");
+        KeyType created = inMemoryPersistence.getPkiService().newAsymmetricKeyType("NIST P-256").description("check").ECDSA().curve("secp256r1").add();
+        Optional<KeyType> keyType = inMemoryPersistence.getPkiService().getKeyType("NIST P-256");
         assertThat(keyType).isPresent();
         assertThat(keyType.get().getName()).isEqualTo("NIST P-256");
         assertThat(keyType.get().getAlgorithm()).isEqualTo("ECDSA");
+        assertThat(keyType.get().getDescription()).isEqualTo("check");
         assertThat(keyType.get().getCryptographicType()).isEqualTo(CryptographicType.AsymmetricKey);
         assertThat(keyType.get().getKeySize()).isEqualTo(0); // CXO-5375, I expect null here
         assertThat(keyType.get().getCurve()).isEqualTo("secp256r1");
@@ -116,12 +120,12 @@ public class PKIServiceImplIT {
             NoSuchAlgorithmException,
             InvalidAlgorithmParameterException,
             InvalidKeyException, NoSuchProviderException {
-        KeyType keyType = pkiInMemoryPersistence.getPkiService().newAsymmetricKeyType("NIST P-256K").ECDSA().curve("secp256k1").add();
+        KeyType keyType = inMemoryPersistence.getPkiService().newAsymmetricKeyType("NIST P-256K").ECDSA().curve("secp256k1").add();
 
         KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
         when(keyAccessorType.getKeyType()).thenReturn(keyType);
         when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPrivateKeyFactory.KEY_ENCRYPTION_METHOD);
-        PrivateKeyWrapper privateKeyWrapper = pkiInMemoryPersistence.getPkiService().newPrivateKeyWrapper(keyAccessorType);
+        PrivateKeyWrapper privateKeyWrapper = inMemoryPersistence.getPkiService().newPrivateKeyWrapper(keyAccessorType);
         privateKeyWrapper.renewValue();
 
         assertThat(privateKeyWrapper.getPrivateKey().getEncoded()).isNotEmpty();
@@ -141,12 +145,12 @@ public class PKIServiceImplIT {
             NoSuchAlgorithmException,
             InvalidAlgorithmParameterException,
             InvalidKeyException, NoSuchProviderException {
-        KeyType keyType = pkiInMemoryPersistence.getPkiService().newAsymmetricKeyType("Some RSA key").RSA().keySize(2048).add();
+        KeyType keyType = inMemoryPersistence.getPkiService().newAsymmetricKeyType("Some RSA key").RSA().keySize(2048).add();
 
         KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
         when(keyAccessorType.getKeyType()).thenReturn(keyType);
         when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPrivateKeyFactory.KEY_ENCRYPTION_METHOD);
-        PrivateKeyWrapper privateKeyWrapper = pkiInMemoryPersistence.getPkiService().newPrivateKeyWrapper(keyAccessorType);
+        PrivateKeyWrapper privateKeyWrapper = inMemoryPersistence.getPkiService().newPrivateKeyWrapper(keyAccessorType);
         privateKeyWrapper.renewValue();
 
         assertThat(privateKeyWrapper.getPrivateKey().getEncoded()).isNotEmpty();
@@ -166,12 +170,12 @@ public class PKIServiceImplIT {
             NoSuchAlgorithmException,
             InvalidAlgorithmParameterException,
             InvalidKeyException, NoSuchProviderException {
-        KeyType keyType = pkiInMemoryPersistence.getPkiService().newAsymmetricKeyType("Some DSA key").DSA().keySize(512).add();
+        KeyType keyType = inMemoryPersistence.getPkiService().newAsymmetricKeyType("Some DSA key").DSA().keySize(512).add();
 
         KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
         when(keyAccessorType.getKeyType()).thenReturn(keyType);
         when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPrivateKeyFactory.KEY_ENCRYPTION_METHOD);
-        PrivateKeyWrapper privateKeyWrapper = pkiInMemoryPersistence.getPkiService().newPrivateKeyWrapper(keyAccessorType);
+        PrivateKeyWrapper privateKeyWrapper = inMemoryPersistence.getPkiService().newPrivateKeyWrapper(keyAccessorType);
         privateKeyWrapper.renewValue();
 
         assertThat(privateKeyWrapper.getPrivateKey().getEncoded()).isNotEmpty();
@@ -188,11 +192,11 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testCreatePlaintextSymmetricAesKey() {
-        KeyType created = pkiInMemoryPersistence.getPkiService().newSymmetricKeyType("AES128B", "AES", 128);
+        KeyType created = inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128B", "AES", 128).add();
         KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
         when(keyAccessorType.getKeyType()).thenReturn(created);
         when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
-        PlaintextSymmetricKey symmetricKeyWrapper = (PlaintextSymmetricKey) pkiInMemoryPersistence.getPkiService()
+        PlaintextSymmetricKey symmetricKeyWrapper = (PlaintextSymmetricKey) inMemoryPersistence.getPkiService()
                 .newSymmetricKeyWrapper(keyAccessorType);
         symmetricKeyWrapper.renewValue();
 
@@ -205,6 +209,20 @@ public class PKIServiceImplIT {
         Assertions.assertThat(symmetricKeyWrapper.getPropertySpecs().get(0).getDisplayName()).isEqualTo("key");
         Assertions.assertThat(symmetricKeyWrapper.getPropertySpecs().get(0).getDescription()).isEqualTo("Plaintext view of key");
         Assertions.assertThat(symmetricKeyWrapper.getPropertySpecs().get(0).getValueFactory().getValueType()).isEqualTo(String.class);
+    }
+
+    @Test
+    @Transactional
+    public void testCreateCertificate() {
+        KeyType tls = inMemoryPersistence.getPkiService().newCertificateType("TLS");
+        TrustStore main = inMemoryPersistence.getPkiService()
+                .newTrustStore("main")
+                .description("Main trust store")
+                .add();
+
+        Optional<TrustStore> reloaded = inMemoryPersistence.getPkiService().findTrustStore("main");
+        assertThat(reloaded).isPresent();
+
     }
 
 

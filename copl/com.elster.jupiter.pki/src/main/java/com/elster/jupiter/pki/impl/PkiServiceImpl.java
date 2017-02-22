@@ -7,6 +7,8 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.ClientCertificate;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
@@ -15,6 +17,12 @@ import com.elster.jupiter.pki.PrivateKeyFactory;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.SymmetricKeyFactory;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
+import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.TrustedCertificate;
+import com.elster.jupiter.pki.impl.wrappers.assymetric.AbstractPlaintextPrivateKeyImpl;
+import com.elster.jupiter.pki.impl.wrappers.certificate.ClientCertificateImpl;
+import com.elster.jupiter.pki.impl.wrappers.certificate.RenewableCertificateImpl;
+import com.elster.jupiter.pki.impl.wrappers.certificate.TrustedCertificateImpl;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 
@@ -136,35 +144,63 @@ public class PkiServiceImpl implements PkiService {
                 bind(UpgradeService.class).toInstance(upgradeService);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(PkiService.class).toInstance(PkiServiceImpl.this);
             }
         };
     }
 
     @Override
-    public KeyType newSymmetricKeyType(String name, String keyAlgorithmName, int keySize) {
+    public TrustStoreBuilder newTrustStore(String name) {
+        TrustStoreImpl instance = dataModel.getInstance(TrustStoreImpl.class);
+        instance.setName(name);
+        return new TrustStoreBuilderImpl(instance);
+    }
+
+    @Override
+    public Optional<TrustStore> findTrustStore(String name) {
+        return getDataModel().mapper(TrustStore.class).getUnique("name", name);
+    }
+
+    @Override
+    public KeyTypeBuilder newSymmetricKeyType(String name, String keyAlgorithmName, int keySize) {
         KeyTypeImpl keyType = dataModel.getInstance(KeyTypeImpl.class);
         keyType.setName(name);
         keyType.setAlgorithm(keyAlgorithmName);
         keyType.setCryptographicType(CryptographicType.SymmetricKey);
         keyType.setKeySize(keySize);
+        return new KeyTypeBuilderImpl(keyType);
+    }
+
+    @Override
+    public AsyncKeyTypeBuilder newAsymmetricKeyType(String name) {
+        KeyTypeImpl instance = dataModel.getInstance(KeyTypeImpl.class);
+        instance.setCryptographicType(CryptographicType.AsymmetricKey);
+        return new AsyncKeyTypeBuilderImpl(name, instance);
+    }
+
+    @Override
+    public AsyncKeyTypeBuilder newClientCertificateType(String name) {
+        KeyTypeImpl instance = dataModel.getInstance(KeyTypeImpl.class);
+        instance.setCryptographicType(CryptographicType.ClientCertificate);
+        return new AsyncKeyTypeBuilderImpl(name, instance);
+    }
+
+    @Override
+    public KeyType newCertificateType(String name) {
+        KeyTypeImpl keyType = new KeyTypeImpl(dataModel);
+        keyType.setCryptographicType(CryptographicType.Certificate);
+        keyType.setName(name);
         keyType.save();
         return keyType;
     }
 
     @Override
-    public AsyncBuilder newAsymmetricKeyType(String name) {
-        KeyTypeImpl instance = dataModel.getInstance(KeyTypeImpl.class);
-        return new AsyncBuilderImpl(name, instance);
-    }
-
-    @Override
-    public AsyncBuilder newCertificateWithPrivateKeyType(String name) {
-        return null; // TODO complete
-    }
-
-    @Override
-    public KeyType newCertificateType(String name) {
-        return null; // TODO complete
+    public KeyType newTrustedCertificateType(String name) {
+        KeyTypeImpl keyType = new KeyTypeImpl(dataModel);
+        keyType.setCryptographicType(CryptographicType.TrustedCertificate);
+        keyType.setName(name);
+        keyType.save();
+        return keyType;
     }
 
     @Override
@@ -193,13 +229,42 @@ public class PkiServiceImpl implements PkiService {
         return symmetricKeyFactories.get(keyAccessorType.getKeyEncryptionMethod()).newSymmetricKey(keyAccessorType);
     }
 
-    private class AsyncBuilderImpl implements AsyncBuilder {
-        private final KeyTypeImpl underConstruction;
+    @Override
+    public TrustedCertificate newTrustedCertificateWrapper(TrustStore trustStore) {
+        TrustedCertificateImpl trustedCertificate = getDataModel().getInstance(TrustedCertificateImpl.class);
+        trustedCertificate.save();
+        trustedCertificate.init(trustStore);
+        return trustedCertificate;
+    }
 
-        AsyncBuilderImpl(String name, KeyTypeImpl instance) {
+    @Override
+    public CertificateWrapper newCertificateWrapper() {
+        RenewableCertificateImpl renewableCertificate = getDataModel().getInstance(RenewableCertificateImpl.class);
+        renewableCertificate.save();
+        return renewableCertificate;
+    }
+
+    @Override
+    public ClientCertificate newClientCertificateWrapper(KeyAccessorType keyAccessorType) {
+        AbstractPlaintextPrivateKeyImpl privateKeyWrapper = (AbstractPlaintextPrivateKeyImpl) this.newPrivateKeyWrapper(keyAccessorType);
+        privateKeyWrapper.save();
+        ClientCertificateImpl clientCertificate = getDataModel().getInstance(ClientCertificateImpl.class).init(privateKeyWrapper);
+        clientCertificate.save();
+        return clientCertificate;
+    }
+
+    private class AsyncKeyTypeBuilderImpl implements AsyncKeyTypeBuilder {
+
+        private final KeyTypeImpl underConstruction;
+        AsyncKeyTypeBuilderImpl(String name, KeyTypeImpl instance) {
             this.underConstruction = instance;
             this.underConstruction.setName(name);
-            this.underConstruction.setCryptographicType(CryptographicType.AsymmetricKey);
+        }
+
+        @Override
+        public AsyncKeyTypeBuilder description(String description) {
+            this.underConstruction.setDescription(description);
+            return this;
         }
 
         @Override
@@ -237,17 +302,59 @@ public class PkiServiceImpl implements PkiService {
         }
 
         private class AsyncCurveBuilderImpl implements AsyncCurveBuilder {
+
             @Override
             public AsyncCurveBuilder curve(String curveName) {
                 underConstruction.setCurve(curveName);
                 return this;
             }
-
             @Override
             public KeyType add() {
                 underConstruction.save();
                 return underConstruction;
             }
+
+        }
+    }
+
+    class KeyTypeBuilderImpl implements KeyTypeBuilder {
+        private final KeyTypeImpl underConstruction;
+
+        KeyTypeBuilderImpl(KeyTypeImpl underConstruction) {
+            this.underConstruction = underConstruction;
+        }
+
+        @Override
+        public KeyTypeBuilder description(String description) {
+            underConstruction.setDescription(description);
+            return this;
+        }
+
+        @Override
+        public KeyType add() {
+            this.underConstruction.save();
+            return underConstruction;
+        }
+    }
+
+    class TrustStoreBuilderImpl implements TrustStoreBuilder {
+
+        private final TrustStoreImpl underConstruction;
+
+        TrustStoreBuilderImpl(TrustStoreImpl underConstruction) {
+            this.underConstruction = underConstruction;
+        }
+
+        @Override
+        public TrustStoreBuilder description(String description) {
+            underConstruction.setDescription(description);
+            return this;
+        }
+
+        @Override
+        public TrustStore add() {
+            this.underConstruction.save();
+            return underConstruction;
         }
     }
 }

@@ -17,6 +17,8 @@ public class KeyTypeImpl implements KeyType {
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private String name;
+    @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String description;
     private CryptographicType cryptographicType;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String algorithm;
@@ -29,6 +31,7 @@ public class KeyTypeImpl implements KeyType {
         CRYPTOGRAPHIC_TYPE("cryptographicType"),
         ALGORITHM("algorithm"),
         KEY_SIZE("keySize"),
+        DESCRIPTION("description"),
         CURVE("curve"),
         ;
 
@@ -50,6 +53,16 @@ public class KeyTypeImpl implements KeyType {
 
     public long getId() {
         return id;
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
+    }
+
+    @Override
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Override

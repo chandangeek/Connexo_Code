@@ -1,14 +1,17 @@
 package com.elster.jupiter.pki;
 
 /**
- * Created by bvn on 1/18/17.
+ * This enum allows identification of the actual element stored in a KeyAccessor.
+ *
  */
 public enum CryptographicType {
     Certificate(false),
-    CertificateWithPrivateKey(false),
+    ClientCertificate(true),
+    TrustedCertificate(false),
     SymmetricKey(true),
     Passphrase(true),
-    AsymmetricKey(true);
+    AsymmetricKey(true),
+    ;
 
     CryptographicType(boolean durationMandatory) {
         this.durationMandatory = durationMandatory;

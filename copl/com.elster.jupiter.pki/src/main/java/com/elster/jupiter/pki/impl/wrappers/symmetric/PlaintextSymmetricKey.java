@@ -11,10 +11,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.Renewable;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.impl.MessageSeeds;
-import com.elster.jupiter.pki.impl.Renewable;
-import com.elster.jupiter.pki.impl.wrappers.PkiLocalException;
+import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
@@ -111,7 +111,7 @@ public class PlaintextSymmetricKey implements SymmetricKeyWrapper, Renewable {
         try {
             doRenewValue();
         } catch (NoSuchAlgorithmException e) {
-            throw new PkiLocalException(thesaurus, MessageSeeds.ALGORITHM_NOT_SUPPORTED, e);
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.ALGORITHM_NOT_SUPPORTED, e);
         }
     }
 

@@ -22,6 +22,10 @@ public interface KeyType {
 
     void setName(String name);
 
+    String getDescription();
+
+    void setDescription(String description);
+
     /**
      * The cryptographic type identifies the actual stored value. This can be a X509Certificate with or without private
      * key, or a symmetric key.

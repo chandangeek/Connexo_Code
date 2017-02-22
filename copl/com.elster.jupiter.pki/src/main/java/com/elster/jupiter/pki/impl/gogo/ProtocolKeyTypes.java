@@ -19,7 +19,7 @@ public enum ProtocolKeyTypes {
             return "AES 128";
         }
         public KeyType createKeyType(PkiService pkiService) {
-            return pkiService.newSymmetricKeyType(getName(), "AES", 128);
+            return pkiService.newSymmetricKeyType(getName(), "AES", 128).description("Created by test class").add();
         }
     },
     AES_192 {
@@ -27,7 +27,7 @@ public enum ProtocolKeyTypes {
             return "AES 192";
         }
         public KeyType createKeyType(PkiService pkiService) {
-            return pkiService.newSymmetricKeyType(getName(), "AES", 192);
+            return pkiService.newSymmetricKeyType(getName(), "AES", 192).description("Created by test class").add();
         }
     },
     AES_256 {
@@ -35,7 +35,7 @@ public enum ProtocolKeyTypes {
             return "AES 256";
         }
         public KeyType createKeyType(PkiService pkiService) {
-            return pkiService.newSymmetricKeyType(getName(), "AES", 256);
+            return pkiService.newSymmetricKeyType(getName(), "AES", 256).description("Created by test class").add();
         }
     },
     DES {
@@ -43,7 +43,7 @@ public enum ProtocolKeyTypes {
             return "DES";
         }
         public KeyType createKeyType(PkiService pkiService) {
-            return pkiService.newSymmetricKeyType(getName(), "DES", 64);
+            return pkiService.newSymmetricKeyType(getName(), "DES", 64).description("Created by test class").add();
         }
     },
     SECP256R1 {

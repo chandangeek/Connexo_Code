@@ -13,9 +13,9 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
+import com.elster.jupiter.pki.Renewable;
 import com.elster.jupiter.pki.impl.MessageSeeds;
-import com.elster.jupiter.pki.impl.Renewable;
-import com.elster.jupiter.pki.impl.wrappers.PkiLocalException;
+import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
@@ -53,7 +53,7 @@ abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapp
     private Reference<KeyType> keyTypeReference = Reference.empty();
     private Instant expirationTime;
 
-    public static final Map<String, Class<? extends AbstractPlaintextPrivateKeyImpl>> IMPLEMENTERS =
+    public static final Map<String, Class<? extends PrivateKeyWrapper>> IMPLEMENTERS =
             ImmutableMap.of(
                     "RSA", PlaintextRsaPrivateKey.class,
                     "DSA", PlaintextDsaPrivateKey.class,
@@ -115,7 +115,7 @@ abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapp
                 .stream().map(properties -> properties.asPropertySpec(propertySpecService)).collect(toList());
     }
 
-    protected void save() {
+    public void save() {
         Save.action(id).save(dataModel, this);
     }
 
@@ -124,13 +124,13 @@ abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapp
         try {
             return doGetPrivateKey();
         } catch (InvalidKeyException e) {
-            throw new PkiLocalException(thesaurus, MessageSeeds.INVALID_KEY, e);
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.INVALID_KEY, e);
         } catch (NoSuchAlgorithmException e) {
-            throw new PkiLocalException(thesaurus, MessageSeeds.ALGORITHM_NOT_SUPPORTED, e);
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.ALGORITHM_NOT_SUPPORTED, e);
         } catch (InvalidKeySpecException e) {
-            throw new PkiLocalException(thesaurus, MessageSeeds.INVALID_KEY_SPECIFICATION, e);
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.INVALID_KEY_SPECIFICATION, e);
         } catch (NoSuchProviderException e) {
-            throw new PkiLocalException(thesaurus, MessageSeeds.UNKNOWN_PROVIDER, e);
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.UNKNOWN_PROVIDER, e);
         }
     }
 
@@ -142,15 +142,15 @@ abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapp
         try {
             doRenewValue();
         } catch (InvalidKeyException e) {
-            throw new PkiLocalException(thesaurus, MessageSeeds.INVALID_KEY, e);
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.INVALID_KEY, e);
         } catch (NoSuchAlgorithmException e) {
-            throw new PkiLocalException(thesaurus, MessageSeeds.ALGORITHM_NOT_SUPPORTED, e);
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.ALGORITHM_NOT_SUPPORTED, e);
         } catch (InvalidKeySpecException e) {
-            throw new PkiLocalException(thesaurus, MessageSeeds.INVALID_KEY_SPECIFICATION, e);
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.INVALID_KEY_SPECIFICATION, e);
         } catch (InvalidAlgorithmParameterException e) {
-            throw new PkiLocalException(thesaurus, MessageSeeds.INVALID_ALGORITHM_PARAMETERS, e);
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.INVALID_ALGORITHM_PARAMETERS, e);
         } catch (NoSuchProviderException e) {
-            throw new PkiLocalException(thesaurus, MessageSeeds.UNKNOWN_PROVIDER, e);
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.UNKNOWN_PROVIDER, e);
         }
     }
 

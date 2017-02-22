@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.impl.Installer;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
@@ -39,22 +40,29 @@ public class SoftwareSecurityDataModel {
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile UpgradeService upgradeService;
+    private PkiService pkiService;
 
     @Inject
-    public SoftwareSecurityDataModel(OrmService ormService, UpgradeService upgradeService, NlsService nlsService, DataVaultService dataVaultService, PropertySpecService propertySpecService) {
+    public SoftwareSecurityDataModel(OrmService ormService, UpgradeService upgradeService, NlsService nlsService,
+                                     DataVaultService dataVaultService, PropertySpecService propertySpecService,
+                                     PkiService pkiService) {
         this.setOrmService(ormService);
         this.setUpGradeService(upgradeService);
         this.setNlsService(nlsService);
         this.setPropertySpecService(propertySpecService);
         this.setDataVaultService(dataVaultService);
+        this.setPkiService(pkiService);
         activate();
     }
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        DataModel dataModel = ormService.newDataModel(COMPONENTNAME, "Plaintext keys");
-        Stream.of(TableSpecs.values()).forEach(tableSpec -> tableSpec.addTo(dataModel));
-        this.dataModel = dataModel;
+        this.dataModel = ormService.newDataModel(COMPONENTNAME, "Plaintext keys");
+    }
+
+    @Reference
+    public void setPkiService(PkiService pkiService) {
+        this.pkiService = pkiService;
     }
 
     @Reference
@@ -79,8 +87,13 @@ public class SoftwareSecurityDataModel {
 
     @Activate
     public void activate() {
+        registerDataModel();
         registerInjector();
         upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+    }
+
+    private void registerDataModel() {
+        Stream.of(TableSpecs.values()).forEach(tableSpec -> tableSpec.addTo(dataModel));
     }
 
     private void registerInjector() {
@@ -96,6 +109,7 @@ public class SoftwareSecurityDataModel {
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
+                bind(PkiService.class).toInstance(pkiService);
             }
         };
     }
