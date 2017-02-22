@@ -129,7 +129,10 @@ public class MdmAppInstaller {
                     //estimation
                     com.elster.jupiter.estimation.security.Privileges.Constants.RUN_ESTIMATION_TASK,
                     com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
-                    com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_TASK
+                    com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_TASK,
+
+                    //data quality kpi
+                    com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_KPI_CONFIGURATION
             };
         }
     }
