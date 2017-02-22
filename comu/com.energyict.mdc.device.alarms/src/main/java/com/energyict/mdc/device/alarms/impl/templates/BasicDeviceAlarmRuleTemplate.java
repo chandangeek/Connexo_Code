@@ -75,7 +75,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     private static final String SEPARATOR = ":";
     private static final int DEFAULT_NUMERICAL_VALUE = 0;
     private static final String RAISE_EVENT_PROPS_DEFAULT_VALUE = "0:0:0";
-    private static final String EMPTY_EVENT_TYPE_CODE = "-1";
+    private static final String EMPTY_CODE = "-1";
 
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
@@ -284,8 +284,8 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     private class EventTypeInfoValueFactory implements ValueFactory<HasIdAndName>, EndDeviceEventTypePropertyFactory {
         @Override
         public HasIdAndName fromStringValue(String stringValue) {
-            if(stringValue.equals(EMPTY_EVENT_TYPE_CODE)){
-                return new EventTypeInfo(EMPTY_EVENT_TYPE_CODE, ANY);
+            if(stringValue.equals(EMPTY_CODE.concat(SEPARATOR).concat(EMPTY_CODE))){
+                return new EventTypeInfo(EMPTY_CODE, EMPTY_CODE);
             }
             List<String> splitEventTypeAndDeviceCode = Arrays.asList(stringValue.split(SEPARATOR));
             if (splitEventTypeAndDeviceCode.size() == 2) {
