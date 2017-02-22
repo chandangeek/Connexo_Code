@@ -25,6 +25,7 @@ import java.util.Optional;
 @ProviderType
 public interface MeteringService {
     String COMPONENTNAME = "MTR";
+    String END_DEVICE_STAGE_SET_NAME = "END_DEVICE_STAGE_SET";
 
     ServiceLocationBuilder newServiceLocation();
 

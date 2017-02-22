@@ -253,6 +253,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 bind(UsagePointLifeCycleConfigurationService.class).toInstance(usagePointLifeCycleConfigurationService);
                 bind(TimeService.class).toInstance(timeService);
                 bind(Publisher.class).toInstance(publisher);
+                bind(FiniteStateMachineService.class).toInstance(finiteStateMachineService);
             }
         });
     }

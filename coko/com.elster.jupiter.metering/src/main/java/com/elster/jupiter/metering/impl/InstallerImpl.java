@@ -75,7 +75,7 @@ public class InstallerImpl implements FullInstaller {
     private final DataModel dataModel;
     private final BundleContext bundleContext;
     private final InstallerV10_2Impl installerV10_2;
-    private final PrivilegesProviderV10_3 installerV10_3;
+    private final InstallerV10_3 installerV10_3;
 
     @Inject
     public InstallerImpl(BundleContext bundleContext,
@@ -90,7 +90,7 @@ public class InstallerImpl implements FullInstaller {
                          Clock clock,
                          MeteringDataModelServiceImpl meteringDataModelService,
                          InstallerV10_2Impl installerV10_2,
-                         PrivilegesProviderV10_3 installerV10_3) {
+                         InstallerV10_3 installerV10_3) {
         this.bundleContext = bundleContext;
         this.dataModel = dataModel;
         this.meteringService = meteringService;
@@ -187,6 +187,11 @@ public class InstallerImpl implements FullInstaller {
         doTry(
                 "Create Gas Day Relative periods",
                 () -> GasDayRelativePeriodCreator.createAll(this.meteringService, this.timeService),
+                logger
+        );
+        doTry(
+                "Create default stages",
+                installerV10_3::installEndDeviceStageSet,
                 logger
         );
         userService.addModulePrivileges(installerV10_2);
