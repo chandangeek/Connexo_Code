@@ -8,7 +8,6 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.kore.api.security.Privileges;
 import com.elster.jupiter.kore.api.v2.issue.IssueCommentInfo;
 import com.elster.jupiter.kore.api.v2.issue.IssueCommentInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssueCommentShortInfo;
@@ -29,6 +28,7 @@ import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
+import com.energyict.mdc.multisense.api.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
