@@ -45,7 +45,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
@@ -132,7 +131,6 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile CommunicationTaskReportService communicationTaskReportService;
     private volatile FavoritesService favoritesService;
     private volatile DataCollectionKpiService dataCollectionKpiService;
-    private volatile DataValidationKpiService dataValidationKpiService;
     private volatile License license;
     private volatile FirmwareService firmwareService;
     private volatile DeviceLifeCycleService deviceLifeCycleService;
@@ -482,11 +480,6 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     }
 
     @Reference
-    public void setDataValidationKpiService(DataValidationKpiService dataValidationKpiService) {
-        this.dataValidationKpiService = dataValidationKpiService;
-    }
-
-    @Reference
     public void setFirmwareService(FirmwareService firmwareService) {
         this.firmwareService = firmwareService;
     }
@@ -560,7 +553,6 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(DataCollectionKpiInfoFactory.class).to(DataCollectionKpiInfoFactory.class);
             bind(DeviceGroupInfoFactory.class).to(DeviceGroupInfoFactory.class);
             bind(dataCollectionKpiService).to(DataCollectionKpiService.class);
-            bind(dataValidationKpiService).to(DataValidationKpiService.class);
             bind(firmwareService).to(FirmwareService.class);
             bind(DeviceLifeCycleStateFactory.class).to(DeviceLifeCycleStateFactory.class);
             bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class);
