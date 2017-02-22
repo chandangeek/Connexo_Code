@@ -17,7 +17,6 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.elster.jupiter.validation.rest.impl.ValidationApplication;
 
 import javax.ws.rs.core.Application;
@@ -38,8 +37,6 @@ public class BaseValidationRestTest extends FelixRestApplicationJerseyTest {
     protected ValidationService validationService;
     @Mock
     private MeteringGroupsService meteringGroupsService;
-    @Mock
-    private DataValidationKpiService dataValidationKpiService;
     @Mock
     private MetrologyConfigurationService metrologyConfigurationService;
     @Mock
@@ -93,7 +90,6 @@ public class BaseValidationRestTest extends FelixRestApplicationJerseyTest {
         app.setRestQueryService(restQueryService);
         app.setTransactionService(transactionService);
         app.setMeteringGroupsService(meteringGroupsService);
-        app.setDataValidationKpiService(dataValidationKpiService);
         app.setKpiService(kpiService);
         app.setMetrologyConfigurationService(metrologyConfigurationService);
         app.setNlsService(nlsService);
@@ -101,5 +97,4 @@ public class BaseValidationRestTest extends FelixRestApplicationJerseyTest {
         app.setPropertyValueInfoService(propertyValueInfoService);
         return app;
     }
-
 }

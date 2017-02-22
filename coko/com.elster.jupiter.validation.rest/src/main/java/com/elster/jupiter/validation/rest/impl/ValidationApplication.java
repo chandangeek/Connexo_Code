@@ -23,11 +23,8 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
-import com.elster.jupiter.validation.rest.kpi.rest.DataValidationKpiInfoFactory;
-import com.elster.jupiter.validation.rest.kpi.rest.KpiResource;
 import com.elster.jupiter.validation.security.Privileges;
 
 import com.google.common.collect.ImmutableSet;
@@ -58,7 +55,6 @@ public class ValidationApplication extends Application implements TranslationKey
     private volatile RestQueryService restQueryService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
-    private volatile DataValidationKpiService dataValidationKpiService;
     private volatile KpiService kpiService;
 
     private volatile NlsService nlsService;
@@ -67,11 +63,10 @@ public class ValidationApplication extends Application implements TranslationKey
     private volatile PropertyValueInfoService propertyValueInfoService;
 
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.<Class<?>> of(
+        return ImmutableSet.of(
                 ValidationResource.class,
                 DataValidationTaskResource.class,
-                DeviceGroupAndMetrologyContractResource.class,
-                KpiResource.class);
+                DeviceGroupAndMetrologyContractResource.class);
     }
 
     @Override
@@ -93,12 +88,7 @@ public class ValidationApplication extends Application implements TranslationKey
     }
 
     @Reference
-    public void setDataValidationKpiService(DataValidationKpiService dataValidationKpiService){
-        this.dataValidationKpiService = dataValidationKpiService;
-    }
-
-    @Reference
-    public void setKpiService(KpiService kpiService){
+    public void setKpiService(KpiService kpiService) {
         this.kpiService = kpiService;
     }
 
@@ -148,8 +138,6 @@ public class ValidationApplication extends Application implements TranslationKey
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
             bind(thesaurus).to(Thesaurus.class);
-            bind(DataValidationKpiInfoFactory.class).to(DataValidationKpiInfoFactory.class);
-            bind(dataValidationKpiService).to(DataValidationKpiService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(timeService).to(TimeService.class);
             bind(kpiService).to(KpiService.class);
@@ -181,6 +169,5 @@ public class ValidationApplication extends Application implements TranslationKey
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
-
 }
 
