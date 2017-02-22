@@ -62,7 +62,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>issue</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.masterdata</artifactId>
@@ -167,7 +166,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>upgrade</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.common</artifactId>
@@ -205,6 +203,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>datavault</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>dataquality</artifactId>
         </dependency>
 
         <!-- Testing -->

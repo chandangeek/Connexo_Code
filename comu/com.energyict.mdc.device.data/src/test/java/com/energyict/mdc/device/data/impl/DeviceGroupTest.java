@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.dataquality.DataQualityKpiService;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.events.impl.EventServiceImpl;
@@ -18,7 +19,6 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.events.EndDeviceGroupDeletionVetoEventHandler;
 import com.energyict.mdc.device.data.impl.events.VetoDeleteDeviceGroupException;
@@ -111,10 +111,10 @@ public class DeviceGroupTest extends PersistenceIntegrationTest {
     @Expected(value = VetoDeleteDeviceGroupException.class)
     public void testVetoDeletionOfDeviceGroupInKpi() throws Exception {
         DataCollectionKpiService kpiService = inMemoryPersistence.getDataCollectionKpiService();
-        DataValidationKpiService dataValidationKpi = inMemoryPersistence.getDataValidationKpiService();
+        DataQualityKpiService dataQualityKpiService = inMemoryPersistence.getDataQualityKpiService();
         Thesaurus thesaurus = inMemoryPersistence.getThesaurusFromDeviceDataModel();
         MeteringGroupsService meteringGroupsService = inMemoryPersistence.getMeteringGroupsService();
-        ((EventServiceImpl)inMemoryPersistence.getEventService()).addTopicHandler(new EndDeviceGroupDeletionVetoEventHandler(kpiService, thesaurus, dataValidationKpi));
+        ((EventServiceImpl) inMemoryPersistence.getEventService()).addTopicHandler(new EndDeviceGroupDeletionVetoEventHandler(kpiService, thesaurus, dataQualityKpiService));
 
         QueryEndDeviceGroup queryEndDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup()
                 .setMRID("mine")
