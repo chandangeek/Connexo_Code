@@ -50,6 +50,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     public static final String BASIC_DEVICE_ALARM_RULE_TEMPLATE = "BasicDeviceAlarmRuleTemplate";
 
     private static final String SEPARATOR = ":";
+    private static final String ANY = "*";
     private final IssueCreationService issueCreationService;
     private final IssueService issueService;
     private final DeviceConfigurationService deviceConfigurationService;
@@ -208,7 +209,13 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                     }))
                     .limit(10)
                     .map(EndDeviceEventTypeMapping::getEndDeviceEventTypeMRID)
-                    .map(type -> type.concat(SEPARATOR).concat(String.valueOf(new Random().nextInt(65))))
+                    .map(type -> {
+                        if (type.equals(EndDeviceEventTypeMapping.OTHER.getEndDeviceEventTypeMRID())) {
+                            return type.concat(SEPARATOR).concat(String.valueOf(new Random().nextInt(65)));
+                        } else {
+                            return type.concat(SEPARATOR).concat(ANY);
+                        }
+                    })
                     .collect(Collectors.toList());
             rawList.stream().forEach(value ->
                     listValue.add((new HasIdAndName() {
@@ -232,7 +239,13 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                     }))
                     .limit(10)
                     .map(EndDeviceEventTypeMapping::getEndDeviceEventTypeMRID)
-                    .map(type -> type.concat(SEPARATOR).concat(String.valueOf(new Random().nextInt(65))))
+                    .map(type -> {
+                        if (type.equals(EndDeviceEventTypeMapping.OTHER.getEndDeviceEventTypeMRID())) {
+                            return type.concat(SEPARATOR).concat(String.valueOf(new Random().nextInt(65)));
+                        } else {
+                            return type.concat(SEPARATOR).concat(ANY);
+                        }
+                    })
                     .collect(Collectors.toList());
             rawList.stream().forEach(value ->
                     listValue.add((new HasIdAndName() {
@@ -246,7 +259,6 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                             return "end device event " + value;
                         }
                     })));
-
         }
         return listValue;
     }
@@ -293,6 +305,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             public String getId() {
                 return occurrenceCount + SEPARATOR + relativePeriod.getId();
             }
+
             @Override
             public String getName() {
                 try {
