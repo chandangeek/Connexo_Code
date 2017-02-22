@@ -194,7 +194,11 @@ class MdcAppPrivileges {
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_METROLOGY_CONFIGURATION,
 
                 //service category
-                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_SERVICECATEGORY);
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_SERVICECATEGORY,
 
+                //data quality kpi
+                com.elster.jupiter.dataquality.security.Privileges.Constants.ADMINISTER_DATA_QUALITY_KPI_CONFIGURATION,
+                com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_KPI_CONFIGURATION
+        );
     }
 }

@@ -71,7 +71,15 @@ public class MdcAppInstaller {
                 bind(UserService.class).toInstance(userService);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", "MDA"), dataModel, Installer.class, ImmutableMap.of(version(10, 2), UpgraderV10_2.class));
+        upgradeService.register(
+                InstallIdentifier.identifier("MultiSense", "MDA"),
+                dataModel,
+                Installer.class,
+                ImmutableMap.of(
+                        version(10, 2), UpgraderV10_2.class,
+                        version(10, 3), UpgraderV10_3.class
+                )
+        );
     }
 
     public static class Installer implements FullInstaller {
@@ -225,7 +233,10 @@ public class MdcAppInstaller {
                     com.elster.jupiter.metering.security.Privileges.Constants.VIEW_METROLOGY_CONFIGURATION,
 
                     //Service calls
-                    com.elster.jupiter.servicecall.security.Privileges.Constants.CHANGE_SERVICE_CALL_STATE
+                    com.elster.jupiter.servicecall.security.Privileges.Constants.CHANGE_SERVICE_CALL_STATE,
+
+                    //data quality kpi
+                    com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_KPI_CONFIGURATION
             };
         }
     }
