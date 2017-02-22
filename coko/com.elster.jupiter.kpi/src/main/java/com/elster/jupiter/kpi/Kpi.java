@@ -53,4 +53,11 @@ public interface Kpi extends HasName {
      * @since 2.2
      */
     void store(Map<KpiMember, Map<Instant, BigDecimal>> memberScores);
+
+    /**
+     * Starts the update of this Kpi
+     *
+     * @return an updater
+     */
+    KpiUpdater startUpdate();
 }

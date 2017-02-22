@@ -22,7 +22,6 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -68,9 +67,11 @@ public class KpiServiceImplIT {
     public static final String KPI_NAME = "kpiName";
     public static final String READ_METERS = "readMeters";
     public static final String NON_COMMUNICATING_METERS = "nonCommunicatingMeters";
+
     Instant date = ZonedDateTime.of(2000, 2, 11, 20, 0, 0, 0, ZoneId.of("Europe/Brussels")).toInstant();
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+
     private Injector injector;
 
     @Mock
@@ -81,7 +82,6 @@ public class KpiServiceImplIT {
     private EventAdmin eventAdmin;
     private KpiService kpiService;
     private TransactionService transactionService;
-
 
     private class MockModule extends AbstractModule {
 
@@ -117,13 +117,9 @@ public class KpiServiceImplIT {
         }
 
         transactionService = injector.getInstance(TransactionService.class);
-        transactionService.execute(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                kpiService = injector.getInstance(KpiService.class);
-                return null;
-            }
-        });
+        transactionService.execute(() ->
+                kpiService = injector.getInstance(KpiService.class)
+        );
     }
 
     @Test
@@ -158,7 +154,6 @@ public class KpiServiceImplIT {
         assertThat(second.getTarget(date)).isEqualTo(BigDecimal.valueOf(1, 2));
         assertThat(second.targetIsMinimum()).isFalse();
         assertThat(second.targetIsMaximum()).isTrue();
-
     }
 
     @Test
@@ -186,14 +181,14 @@ public class KpiServiceImplIT {
         Kpi kpi = found.get();
 
         {
-            List<? extends KpiEntry> entries =  kpi.getMembers().get(0).getScores(Range.atLeast(date));
+            List<? extends KpiEntry> entries = kpi.getMembers().get(0).getScores(Range.atLeast(date));
             assertThat(entries).hasSize(1);
             assertThat(entries.get(0).getScore()).isEqualTo(BigDecimal.valueOf(8, 0));
             assertThat(entries.get(0).meetsTarget()).isTrue();
         }
 
         {
-            List<? extends KpiEntry> entries =  kpi.getMembers().get(1).getScores(Range.atLeast(date));
+            List<? extends KpiEntry> entries = kpi.getMembers().get(1).getScores(Range.atLeast(date));
             assertThat(entries).hasSize(1);
             KpiEntry entry = entries.get(0);
             assertThat(entry.getScore()).isEqualTo(BigDecimal.valueOf(2, 2));
@@ -284,7 +279,7 @@ public class KpiServiceImplIT {
 
         Kpi kpi = found.get();
 
-        List<? extends KpiEntry> entries =  kpi.getMembers().get(0).getScores(Range.atLeast(Instant.EPOCH));
+        List<? extends KpiEntry> entries = kpi.getMembers().get(0).getScores(Range.atLeast(Instant.EPOCH));
         assertThat(entries).hasSize(1);
         KpiEntry entry = entries.get(0);
         assertThat(entry.getScore()).isEqualTo(BigDecimal.valueOf(87, 0));
@@ -380,7 +375,6 @@ public class KpiServiceImplIT {
         assertThat(event.getMember().getName()).isEqualTo(NON_COMMUNICATING_METERS);
         assertThat(event.getEntry().getScore()).isEqualTo(BigDecimal.valueOf(2, 2));
         assertThat(event.getEntry().getTarget()).isEqualTo(BigDecimal.valueOf(1, 2));
-
     }
 
     @Test
@@ -404,35 +398,94 @@ public class KpiServiceImplIT {
             context.commit();
         }
 
-
         Optional<Kpi> found = kpiService.getKpi(id);
         assertThat(found).isPresent();
 
         Kpi kpi = found.get();
 
         {
-            List<? extends KpiEntry> entries =  kpi.getMembers().get(0).getScores(Range.closed(date, date2));
+            List<? extends KpiEntry> entries = kpi.getMembers().get(0).getScores(Range.closed(date, date2));
             assertThat(entries).hasSize(2);
             assertThat(entries.get(0).getScore()).isEqualTo(BigDecimal.valueOf(8, 0));
             assertThat(entries.get(0).meetsTarget()).isTrue();
         }
 
         {
-            List<? extends KpiEntry> entries =  kpi.getMembers().get(1).getScores(Range.closed(date, date2));
+            List<? extends KpiEntry> entries = kpi.getMembers().get(1).getScores(Range.closed(date, date2));
             assertThat(entries).hasSize(2);
             KpiEntry entry = entries.get(0);
             assertThat(entry.getScore()).isEqualTo(BigDecimal.valueOf(2, 2));
             assertThat(entry.getTarget()).isEqualTo(BigDecimal.valueOf(1, 2));
             assertThat(entry.meetsTarget()).isFalse();
         }
-
     }
-
-
 
     @After
     public void tearDown() {
         inMemoryBootstrapModule.deactivate();
     }
 
+    @Test
+    public void testUpdateKpiMembers() {
+        try (TransactionContext context = transactionService.getContext()) {
+            Kpi kpi = kpiService.newKpi()
+                    .named(KPI_NAME)
+                    .interval(Period.ofDays(1))
+                    .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
+                    .create();
+            kpi = kpiService.getKpi(kpi.getId()).get();
+
+            assertThat(kpi.getMembers()).hasSize(1);
+            assertThat(kpi.getMembers().get(0).getName()).isEqualTo(READ_METERS);
+
+            kpi.startUpdate()
+                    .member().named("Member_1").withTargetSetAt(BigDecimal.ONE).asMinimum().add()
+                    .member().named("Member_2").withTargetSetAt(BigDecimal.TEN).asMaximum().add()
+                    .member().named("Member_3").withDynamicTarget().asMinimum().add()
+                    .member().named("Member_4").withDynamicTarget().asMaximum().add()
+                    .update();
+
+            kpi = kpiService.getKpi(kpi.getId()).get();
+
+            assertThat(kpi.getMembers()).hasSize(5);
+
+            IKpiMember member_1 = (IKpiMember) kpi.getMembers().stream()
+                    .filter(kpiMember -> "Member_1".equals(kpiMember.getName()))
+                    .findFirst().get();
+            assertThat(member_1.hasDynamicTarget()).isFalse();
+            assertThat(member_1.getKpi()).isEqualTo(kpi);
+            assertThat(member_1.targetIsMinimum()).isTrue();
+            assertThat(member_1.targetIsMaximum()).isFalse();
+            assertThat(member_1.getTarget(Instant.now())).isEqualTo(BigDecimal.ONE);
+            assertThat(member_1.hasTimeSeries()).isTrue();
+
+            IKpiMember member_2 = (IKpiMember) kpi.getMembers().stream()
+                    .filter(kpiMember -> "Member_2".equals(kpiMember.getName()))
+                    .findFirst().get();
+            assertThat(member_2.hasDynamicTarget()).isFalse();
+            assertThat(member_2.getKpi()).isEqualTo(kpi);
+            assertThat(member_2.targetIsMinimum()).isFalse();
+            assertThat(member_2.targetIsMaximum()).isTrue();
+            assertThat(member_2.getTarget(Instant.now())).isEqualTo(BigDecimal.TEN);
+            assertThat(member_2.hasTimeSeries()).isTrue();
+
+            IKpiMember member_3 = (IKpiMember) kpi.getMembers().stream()
+                    .filter(kpiMember -> "Member_3".equals(kpiMember.getName()))
+                    .findFirst().get();
+            assertThat(member_3.hasDynamicTarget()).isTrue();
+            assertThat(member_3.getKpi()).isEqualTo(kpi);
+            assertThat(member_3.targetIsMinimum()).isTrue();
+            assertThat(member_3.targetIsMaximum()).isFalse();
+            assertThat(member_3.hasTimeSeries()).isTrue();
+
+            IKpiMember member_4 = (IKpiMember) kpi.getMembers().stream()
+                    .filter(kpiMember -> "Member_4".equals(kpiMember.getName()))
+                    .findFirst().get();
+            assertThat(member_4.hasDynamicTarget()).isTrue();
+            assertThat(member_4.getKpi()).isEqualTo(kpi);
+            assertThat(member_4.targetIsMinimum()).isFalse();
+            assertThat(member_4.targetIsMaximum()).isTrue();
+            assertThat(member_4.hasTimeSeries()).isTrue();
+        }
+    }
 }

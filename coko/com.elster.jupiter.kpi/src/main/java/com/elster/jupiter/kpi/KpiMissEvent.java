@@ -4,9 +4,12 @@
 
 package com.elster.jupiter.kpi;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Event triggered upon registering a score that does not meet its target.
  */
+@ProviderType
 public interface KpiMissEvent {
 
     /**

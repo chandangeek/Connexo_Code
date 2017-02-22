@@ -16,6 +16,8 @@ import java.util.Map;
 
 interface IKpiMember extends KpiMember {
 
+    boolean hasTimeSeries();
+
     TimeSeries getTimeSeries();
 
     void setTimeSeries(TimeSeries timeSeries);

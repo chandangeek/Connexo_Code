@@ -12,6 +12,7 @@ import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiMember;
+import com.elster.jupiter.kpi.KpiUpdater;
 import com.elster.jupiter.orm.DataModel;
 
 import com.google.common.collect.Range;
@@ -28,6 +29,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.TimeZone;
+
+import static com.elster.jupiter.util.streams.Predicates.not;
 
 class KpiImpl implements Kpi {
 
@@ -80,20 +83,36 @@ class KpiImpl implements Kpi {
 
     void doSave() {
         if (hasId()) {
-            dataModel.mapper(Kpi.class).update(this);
-            return;
+            throw new IllegalStateException("The entity already persisted");
         }
-        Vault vault = kpiService.getVault();
-        RecordSpec recordSpec = kpiService.getRecordSpec();
         members.forEach(member -> {
-            TimeSeries timeSeries = vault.createRegularTimeSeries(recordSpec, getTimeZone(), getIntervalLength(), 0);
+            TimeSeries timeSeries = createKpiMemberTimeSeries();
             member.setTimeSeries(timeSeries);
         });
         dataModel.mapper(Kpi.class).persist(this);
     }
 
+    void doUpdate() {
+        if (!hasId()) {
+            this.doSave();
+            return;
+        }
+        members.stream().filter(not(IKpiMember::hasTimeSeries)).forEach(member -> {
+            TimeSeries timeSeries = createKpiMemberTimeSeries();
+            member.setTimeSeries(timeSeries);
+            dataModel.mapper(IKpiMember.class).update(member, "timeSeries");
+        });
+        dataModel.mapper(Kpi.class).update(this);
+    }
+
     private boolean hasId() {
         return id != 0L;
+    }
+
+    private TimeSeries createKpiMemberTimeSeries() {
+        Vault vault = kpiService.getVault();
+        RecordSpec recordSpec = kpiService.getRecordSpec();
+        return vault.createRegularTimeSeries(recordSpec, getTimeZone(), getIntervalLength(), 0);
     }
 
     @Override
@@ -147,8 +166,12 @@ class KpiImpl implements Kpi {
 
     @Override
     public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof KpiImpl)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof KpiImpl)) {
+            return false;
+        }
         KpiImpl kpi = (KpiImpl) o;
         return Objects.equals(id, kpi.id);
     }
@@ -177,5 +200,10 @@ class KpiImpl implements Kpi {
 
     private Optional<IKpiMember> getIKpiMember(KpiMember member) {
         return members.stream().filter(iKpiMember -> iKpiMember.equals(member)).findFirst();
+    }
+
+    @Override
+    public KpiUpdater startUpdate() {
+        return new KpiUpdaterImpl(this);
     }
 }

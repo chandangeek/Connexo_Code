@@ -261,4 +261,9 @@ class KpiMemberImpl implements IKpiMember {
         targetIsMinimum = false;
         return this;
     }
+
+    @Override
+    public boolean hasTimeSeries() {
+        return this.timeSeries.isPresent();
+    }
 }

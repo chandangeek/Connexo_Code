@@ -16,7 +16,6 @@
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.kpi</name>
 
-
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -58,7 +57,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>upgrade</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cbo</artifactId>
@@ -67,9 +65,16 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>ids</artifactId>
         </dependency>
+
+        <!-- Test dependencies -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>devtools.persistence</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
