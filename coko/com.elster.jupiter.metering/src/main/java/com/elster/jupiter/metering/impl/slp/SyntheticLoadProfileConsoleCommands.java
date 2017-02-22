@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl.slp;
 
+import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfileBuilder;
@@ -11,6 +12,7 @@ import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 
 import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
@@ -89,9 +91,10 @@ public class SyntheticLoadProfileConsoleCommands {
     public void viewSyntheticLoadProfiles(){
         syntheticLoadProfileService.findSyntheticLoadProfiles().stream()
                 .map(cf -> "" + cf.getName()
-                        + ", started: " + DateTimeFormatter.ofPattern("dd/MMM/YYYY-HH:mm", Locale.ENGLISH).format(LocalDateTime.ofInstant(cf.getStartTime(), ZoneId.systemDefault()))
+                        + ", started: " + DefaultDateTimeFormatters.shortDate().withShortTime().build().format(cf.getStartTime())
                         + ", interval: " + cf.getInterval()
-                        + ", duration: " + cf.getDuration()).forEach(System.out::println);
+                        + ", duration: " + cf.getDuration()
+                        + ", readingtype: " + cf.getReadingType().map(IdentifiedObject::getMRID).orElse("-")).forEach(System.out::println);
     }
 
     public void viewSyntheticLoadProfileValues(String name){
@@ -100,7 +103,7 @@ public class SyntheticLoadProfileConsoleCommands {
         if(correctionFactor.isPresent()){
             Map<Instant, BigDecimal> returnedValues = correctionFactor.get().getValues(Range.atLeast(correctionFactor.get().getStartTime()));
             returnedValues.entrySet().stream()
-                    .map(e -> "" + DateTimeFormatter.ofPattern("dd MMM ''YY - HH:mm", Locale.ENGLISH).format(LocalDateTime.ofInstant(e.getKey(), ZoneId.systemDefault())) + " : " + e.getValue())
+                    .map(e -> "" + DefaultDateTimeFormatters.shortDate().withShortTime().build().format(e.getKey()) + " : " + e.getValue())
                     .forEach(System.out::println);
         }
     }
