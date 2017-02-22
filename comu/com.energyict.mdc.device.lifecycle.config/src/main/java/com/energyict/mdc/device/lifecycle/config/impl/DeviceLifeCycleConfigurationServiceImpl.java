@@ -153,7 +153,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     @Activate
     public void activate() {
         dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", DeviceLifeCycleConfigurationService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(Version.version(10, 2), UpgraderV10_2.class));
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", DeviceLifeCycleConfigurationService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(Version.version(10, 2), UpgraderV10_2.class, Version.version(10, 3), UpgraderV10_3.class));
     }
 
     // For integration testing components only
