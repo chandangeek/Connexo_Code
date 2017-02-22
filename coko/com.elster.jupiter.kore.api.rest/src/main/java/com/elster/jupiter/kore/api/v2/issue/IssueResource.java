@@ -4,11 +4,9 @@
 
 package com.elster.jupiter.kore.api.v2.issue;
 
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -22,8 +20,6 @@ import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -47,7 +43,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static com.elster.jupiter.util.conditions.Where.where;
 import static java.util.stream.Collectors.toList;
 
 @Path("/issues")
@@ -58,17 +53,15 @@ public class IssueResource {
     private final IssueService issueService;
     private final ExceptionFactory exceptionFactory;
     private final ThreadPrincipalService threadPrincipalService;
-    private final IssueCommentInfoFactory issueCommentInfoFactory;
 
     @Inject
     public IssueResource(IssueInfoFactory issueInfoFactory, IssueShortInfoFactory issueShortInfoFactory, IssueService issueService, ExceptionFactory exceptionFactory,
-                         ThreadPrincipalService threadPrincipalService, IssueCommentInfoFactory issueCommentInfoFactory) {
+                         ThreadPrincipalService threadPrincipalService) {
         this.issueInfoFactory = issueInfoFactory;
         this.issueShortInfoFactory = issueShortInfoFactory;
         this.issueService = issueService;
         this.exceptionFactory = exceptionFactory;
         this.threadPrincipalService = threadPrincipalService;
-        this.issueCommentInfoFactory = issueCommentInfoFactory;
     }
 
     @GET
@@ -77,7 +70,6 @@ public class IssueResource {
     public PagedInfoList<IssueInfo> getAllIssues(@BeanParam FieldSelection fieldSelection,
                                                  @Context UriInfo uriInfo,
                                                  @BeanParam JsonQueryParameters queryParameters) {
-        //validateMandatory(params, START, LIMIT);
         IssueFilter filter = issueService.newIssueFilter();
         Arrays.asList("datacollection", "datavalidation").stream().forEach(listItem -> issueService.findIssueType(listItem).ifPresent(filter::addIssueType));
         List<IssueInfo> infos = issueService.findIssues(filter).find().stream()
@@ -87,7 +79,6 @@ public class IssueResource {
         UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
                 .path(IssueResource.class);
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
-        //addSorting(finder, params);
     }
 
 
@@ -126,7 +117,7 @@ public class IssueResource {
         }
         IssueStatus status = issueService.findStatus(issueShortInfo.status.id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_STATUS, issueShortInfo.status.id));
-        HistoricalIssue closedIssue = null;
+        HistoricalIssue closedIssue;
         if (status.isHistorical()) {
             closedIssue = ((OpenIssue) lockedIssue).close(status);
         } else {
@@ -142,40 +133,19 @@ public class IssueResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public Response addComment(@PathParam("id") long issueId, IssueCommentInfo issueCommentInfo, @Context UriInfo uriInfo) {
+    public Response addComment(@PathParam("id") long issueId, IssueCommentShortInfo issueCommentShortInfo, @Context UriInfo uriInfo) {
         Issue issue = issueService.findIssue(issueId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, String.valueOf(issueId)));
-        if (issueCommentInfo == null || issueCommentInfo.comment == null || issueCommentInfo.comment.isEmpty()) {
+        if (issueCommentShortInfo == null || issueCommentShortInfo.comment == null || issueCommentShortInfo.comment.isEmpty()) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.BAD_FIELD_VALUE, "comment");
         }
-        issue.addComment(issueCommentInfo.comment, getCurrentUser()).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
+        issue.addComment(issueCommentShortInfo.comment, getCurrentUser()).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
         URI uri = uriInfo.getBaseUriBuilder().
                 path(IssueResource.class).
                 path(IssueResource.class, "getComments").
                 resolveTemplate("id", issue.getId()).
                 build();
         return Response.created(uri).build();
-    }
-
-    @GET
-    @Transactional
-    @Path("/{id}/comments")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public PagedInfoList<IssueCommentInfo> getComments(@PathParam("id") long issueId,
-                                                       @BeanParam FieldSelection fieldSelection,
-                                                       @Context UriInfo uriInfo,
-                                                       @BeanParam JsonQueryParameters queryParameters) {
-        Issue issue = issueService.findIssue(issueId)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, String.valueOf(issueId)));
-        Query<IssueComment> query = issueService.query(IssueComment.class, User.class);
-        Condition condition = where("issueId").isEqualTo(issue.getId());
-        List<IssueComment> commentsList = query.select(condition, Order.ascending("createTime"));
-        List<IssueCommentInfo> infos = commentsList.stream().map(isu -> issueCommentInfoFactory.from(isu, uriInfo, fieldSelection.getFields()))
-                .collect(toList());
-        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
-                .path(IssueResource.class);
-        return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
     }
 
     @PROPFIND
@@ -185,9 +155,9 @@ public class IssueResource {
         return issueInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
 
-    private User getCurrentUser(){
+    private User getCurrentUser() {
         Principal currentUser = threadPrincipalService.getPrincipal();
-        if(currentUser instanceof User){
+        if (currentUser instanceof User) {
             return (User) currentUser;
         } else {
             throw exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USER, currentUser.getName());

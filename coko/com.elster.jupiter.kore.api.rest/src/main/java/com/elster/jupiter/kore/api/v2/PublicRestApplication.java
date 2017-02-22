@@ -10,7 +10,6 @@ import com.elster.jupiter.kore.api.impl.PublicRestAppServiceImpl;
 import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandHelper;
 import com.elster.jupiter.kore.api.v2.issue.DeviceShortInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssueAssigneeInfoFactory;
-import com.elster.jupiter.kore.api.v2.issue.IssueCommentInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssueInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssuePriorityInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssueReasonInfoFactory;
@@ -205,7 +204,6 @@ public class PublicRestApplication extends Application {
             bind(DeviceShortInfoFactory.class).to(DeviceShortInfoFactory.class);
             bind(UsagePointShortInfoFactory.class).to(UsagePointShortInfoFactory.class);
             bind(UserInfoFactory.class).to(UserInfoFactory.class);
-            bind(IssueCommentInfoFactory.class).to(IssueCommentInfoFactory.class);
             bind(LocationShortInfoFactory.class).to(LocationShortInfoFactory.class);
             bind(IssueShortInfoFactory.class).to(IssueShortInfoFactory.class);
         }
