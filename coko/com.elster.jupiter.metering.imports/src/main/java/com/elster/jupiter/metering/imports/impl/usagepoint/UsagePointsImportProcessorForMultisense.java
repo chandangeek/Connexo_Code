@@ -19,6 +19,7 @@ import javax.validation.ConstraintViolationException;
 import java.util.Arrays;
 import java.util.Optional;
 
+
 public class UsagePointsImportProcessorForMultisense extends AbstractImportProcessor<UsagePointImportRecord> {
 
     UsagePointsImportProcessorForMultisense(MeteringDataImporterContext context) {
@@ -54,7 +55,7 @@ public class UsagePointsImportProcessorForMultisense extends AbstractImportProce
             if (usagePoint.get().getServiceCategory().getId() != serviceCategory.get().getId()) {
                 throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICECATEGORY_CHANGE, data.getLineNumber(), serviceKindString);
             }
-            return usagePoint.get();
+            return updateUsagePoint(usagePoint.get(), data);
         } else {
             return createUsagePoint(serviceCategory.get().newUsagePoint(identifier, data.getInstallationTime().orElse(getClock().instant())), data);
         }
@@ -66,6 +67,7 @@ public class UsagePointsImportProcessorForMultisense extends AbstractImportProce
         UsagePoint usagePoint = usagePointBuilder.create();
         usagePoint.addDetail(usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, getClock().instant()));
         setMetrologyConfigurationForUsagePoint(data, usagePoint);
+        setLocation(usagePointBuilder, data);
         usagePoint.update();
         return usagePoint;
     }
@@ -85,5 +87,12 @@ public class UsagePointsImportProcessorForMultisense extends AbstractImportProce
             }
             usagePoint.apply(metrologyConfiguration, data.getMetrologyConfigurationApplyTime().get());
         });
+    }
+
+    @Override
+    protected UsagePoint updateUsagePoint(UsagePoint usagePoint, UsagePointImportRecord data) {
+        usagePoint = super.updateUsagePoint(usagePoint, data);
+        usagePoint.update();
+        return usagePoint;
     }
 }
