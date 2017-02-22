@@ -35,6 +35,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.concurrent.DelayedRegistrationHandler;
 import com.elster.jupiter.util.concurrent.RegistrationHandler;
@@ -137,7 +138,8 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     public void activate() {
         dataModel.register(this.getModule());
         upgradeService.register(identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
-                version(10, 2), UpgraderV10_2.class
+                version(10, 2), UpgraderV10_2.class,
+                version(10, 3), V10_3SimpleUpgrader.class
         ));
         registrationHandler.ready();
     }

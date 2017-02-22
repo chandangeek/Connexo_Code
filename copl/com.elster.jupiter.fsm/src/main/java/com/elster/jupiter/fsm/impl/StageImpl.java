@@ -33,23 +33,23 @@ public class StageImpl implements Stage {
         }
 
     }
-    private long id;
 
+    private long id;
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
     private String name;
+
     @IsPresent
     private Reference<StageSet> stageSet = Reference.empty();
     @SuppressWarnings("unused")
     private String userName;
-
     @SuppressWarnings("unused")
     private long version;
+
     @SuppressWarnings("unused")
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
-
     public StageImpl() {
 
     }
@@ -57,6 +57,11 @@ public class StageImpl implements Stage {
     protected StageImpl(String name, StageSet stageSet) {
         this.name = name;
         this.stageSet.set(stageSet);
+    }
+
+    @Override
+    public long getId() {
+        return id;
     }
 
     @Override
