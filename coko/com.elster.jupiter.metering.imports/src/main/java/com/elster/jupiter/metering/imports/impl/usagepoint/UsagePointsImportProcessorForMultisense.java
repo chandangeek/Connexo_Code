@@ -64,10 +64,10 @@ public class UsagePointsImportProcessorForMultisense extends AbstractImportProce
     private UsagePoint createUsagePoint(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data) {
         usagePointBuilder.withIsSdp(false);
         usagePointBuilder.withIsVirtual(true);
+        setLocation(usagePointBuilder, data);
         UsagePoint usagePoint = usagePointBuilder.create();
         usagePoint.addDetail(usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, getClock().instant()));
         setMetrologyConfigurationForUsagePoint(data, usagePoint);
-        setLocation(usagePointBuilder, data);
         usagePoint.update();
         return usagePoint;
     }
