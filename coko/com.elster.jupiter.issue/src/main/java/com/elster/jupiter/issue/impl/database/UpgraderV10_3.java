@@ -35,8 +35,8 @@ public class UpgraderV10_3 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        dataModelUpgrader.upgrade(dataModel, version(10, 3));
         this.upgradeOpenIssue();
+        dataModelUpgrader.upgrade(dataModel, version(10, 3));
         this.updateActiontypes();
     }
 
