@@ -18,7 +18,7 @@ import com.elster.jupiter.demo.impl.templates.ComServerTpl;
 import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
 import com.elster.jupiter.demo.impl.templates.CreationRuleTpl;
 import com.elster.jupiter.demo.impl.templates.DataCollectionKpiTpl;
-import com.elster.jupiter.demo.impl.templates.DataValidationKpiTpl;
+import com.elster.jupiter.demo.impl.templates.DataQualityKpiTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceGroupTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
@@ -301,7 +301,7 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
     }
 
     private void createDataValidationKpi() {
-        Builders.from(DataValidationKpiTpl.ALL_ELECTRICITY_DEVICES).get();
+        Builders.from(DataQualityKpiTpl.ALL_ELECTRICITY_DEVICES).get();
     }
 
     private void processDevices() {

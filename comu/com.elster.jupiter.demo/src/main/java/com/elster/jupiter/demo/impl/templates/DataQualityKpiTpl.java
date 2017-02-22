@@ -4,31 +4,32 @@
 
 package com.elster.jupiter.demo.impl.templates;
 
+import com.elster.jupiter.dataquality.DeviceDataQualityKpi;
 import com.elster.jupiter.demo.impl.Builders;
-import com.elster.jupiter.demo.impl.builders.DataValidationKpiBuilder;
-import com.elster.jupiter.validation.kpi.DataValidationKpi;
+import com.elster.jupiter.demo.impl.builders.DeviceDataQualityKpiBuilder;
 
 import java.time.Duration;
 import java.time.temporal.TemporalAmount;
 
-public enum DataValidationKpiTpl implements Template<DataValidationKpi, DataValidationKpiBuilder> {
+public enum DataQualityKpiTpl implements Template<DeviceDataQualityKpi, DeviceDataQualityKpiBuilder> {
+
     ALL_ELECTRICITY_DEVICES(DeviceGroupTpl.ALL_ELECTRICITY_DEVICES, Duration.ofHours(1L));
 
     private final DeviceGroupTpl deviceGroupTpl;
     private final TemporalAmount frequency;
 
-    DataValidationKpiTpl(DeviceGroupTpl deviceGroupTpl, TemporalAmount frequency) {
+    DataQualityKpiTpl(DeviceGroupTpl deviceGroupTpl, TemporalAmount frequency) {
         this.deviceGroupTpl = deviceGroupTpl;
         this.frequency = frequency;
     }
 
     @Override
-    public Class<DataValidationKpiBuilder> getBuilderClass() {
-        return DataValidationKpiBuilder.class;
+    public Class<DeviceDataQualityKpiBuilder> getBuilderClass() {
+        return DeviceDataQualityKpiBuilder.class;
     }
 
     @Override
-    public DataValidationKpiBuilder get(DataValidationKpiBuilder builder) {
+    public DeviceDataQualityKpiBuilder get(DeviceDataQualityKpiBuilder builder) {
         return builder.withEndDeviceGroup(Builders.from(this.deviceGroupTpl).get()).withFrequency(this.frequency);
     }
 }
