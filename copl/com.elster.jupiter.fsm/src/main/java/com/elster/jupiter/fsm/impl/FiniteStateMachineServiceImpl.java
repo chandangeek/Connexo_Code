@@ -361,7 +361,12 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
 
     @Override
     public FiniteStateMachine cloneFiniteStateMachine(FiniteStateMachine source, String name) {
-        FiniteStateMachineBuilder builder = this.newFiniteStateMachine(name);
+        FiniteStateMachineBuilder builder;
+        if(!source.getStageSet().isPresent()) {
+            builder = this.newFiniteStateMachine(name);
+        } else {
+            builder = this.newFiniteStateMachine(name, source.getStageSet().get());
+        }
         Map<Long, FiniteStateMachineBuilder.StateBuilder> stateBuilderMap = this.cloneStateAndTransitions(source, builder);
         List<State> initialState = source.getStates().stream()
                 .map(sourceState -> this.completeCloning(sourceState, stateBuilderMap, builder))
@@ -395,11 +400,29 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     }
 
     private FiniteStateMachineBuilder.StateBuilder startCloning(State source, FiniteStateMachineBuilder builder) {
+        boolean hasStage = source.getStage().isPresent();
+        if(!hasStage) {
+            return addStateWithoutStage(source, builder);
+        } else {
+            return addStageWithStage(source, builder);
+        }
+    }
+
+    private FiniteStateMachineBuilder.StateBuilder addStateWithoutStage(State source, FiniteStateMachineBuilder builder) {
         if (source.isCustom()) {
             return builder.newCustomState(source.getName());
         }
         else {
             return builder.newStandardState(source.getName());
+        }
+    }
+
+    private FiniteStateMachineBuilder.StateBuilder addStageWithStage(State source, FiniteStateMachineBuilder builder) {
+        if (source.isCustom()) {
+            return builder.newCustomState(source.getName(), source.getStage().get());
+        }
+        else {
+            return builder.newStandardState(source.getName(), source.getStage().get());
         }
     }
 

@@ -21,6 +21,7 @@ import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Unique(message = "{" + MessageSeeds.Keys.UNIQUE_STAGE_SET_NAME + "}", groups = { Save.Create.class, Save.Update.class })
 @AtLeastOneStage(groups = { Save.Create.class, Save.Update.class })
@@ -72,6 +73,13 @@ public class StageSetImpl implements StageSet {
     @Override
     public List<Stage> getStages() {
         return stages;
+    }
+
+    @Override
+    public Optional<Stage> getStageByName(String name) {
+        return stages.stream()
+                .filter(stage -> stage.getName().equals(name))
+                .findAny();
     }
 
     protected void setName(String name) {
