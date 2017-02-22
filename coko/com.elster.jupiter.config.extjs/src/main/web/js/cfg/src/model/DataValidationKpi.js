@@ -5,7 +5,6 @@
 Ext.define('Cfg.model.DataValidationKpi', {
     extend: 'Uni.model.Version',
     fields: [
-        {name: 'type', defaultValue: 'deviceDataQualityKpi'},
         {name: 'id', type: 'integer', useNull: true},
         {name: 'deviceGroup', type: 'auto', defaultValue: null},
         {name: 'frequency', type: 'auto', defaultValue: null},
@@ -13,6 +12,6 @@ Ext.define('Cfg.model.DataValidationKpi', {
     ],
     proxy: {
         type: 'rest',
-        url: '/api/dqk/kpis'
+        url: '/api/dqk/deviceKpis'
     }
 });

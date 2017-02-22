@@ -7,7 +7,7 @@ Ext.define('Cfg.insight.dataqualitykpi.store.UsagePointGroups', {
     fields: ['id', 'displayValue'],
     proxy: {
         type: 'rest',
-        url: '/api/val/field/usagepointgroups',
+        url: '/api/dqk/fields/usagePointGroups',
         reader: {
             type: 'json',
             root: 'usagePointGroups'

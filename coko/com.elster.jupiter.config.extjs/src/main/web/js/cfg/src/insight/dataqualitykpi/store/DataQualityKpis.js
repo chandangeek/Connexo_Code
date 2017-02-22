@@ -7,10 +7,10 @@ Ext.define('Cfg.insight.dataqualitykpi.store.DataQualityKpis', {
     model: 'Cfg.insight.dataqualitykpi.model.DataQualityKpi',
     proxy: {
         type: 'rest',
-        url: '/api/dqk/kpis',
+        url: '/api/dqk/usagePointKpis',
         reader: {
             type: 'json',
-            root: 'kpis'
+            root: 'usagePointKpis'
         }
     }
 });

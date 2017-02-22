@@ -11,10 +11,10 @@ Ext.define('Cfg.store.DataValidationKpis', {
     storeId: 'DataValidationKpis',
     proxy: {
         type: 'rest',
-        url: '/api/dqk/kpis',
+        url: '/api/dqk/deviceKpis',
         reader: {
             type: 'json',
-            root: 'kpis'
+            root: 'deviceKpis'
         }
     }
 });
