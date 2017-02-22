@@ -8,7 +8,7 @@ Ext.define('Est.estimationtasks.view.AddEdit', {
         'Uni.form.field.DateTime',
         'Uni.util.FormErrorMessage',
         'Est.estimationtasks.view.DataSourcesContainer',
-        'Uni.store.LogLevels'
+        'Ldr.store.LogLevels'
     ],
     alias: 'widget.estimationtasks-addedit',
 
