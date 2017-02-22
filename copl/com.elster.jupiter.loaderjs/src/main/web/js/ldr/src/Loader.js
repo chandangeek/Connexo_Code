@@ -5,8 +5,8 @@
 /**
  * @class Ldr.Loader
  *
- * Class responsible for loading in an application after the privileges and
- * translations have finished loading.
+ * Class responsible for loading in an application after the privileges,
+ * translations and log levels have finished loading.
  */
 Ext.define('Ldr.Loader', {
     appScript: 'app.js',
@@ -15,13 +15,15 @@ Ext.define('Ldr.Loader', {
         'Ldr.store.Preferences',
         'Ldr.store.Privileges',
         'Ldr.store.Translations',
-        'Ldr.store.Pluggable'
+        'Ldr.store.Pluggable',
+        'Ldr.store.LogLevels'
     ],
 
     /**
-     * Used to count if both preferences and translations have been loaded.
+     * Used to count if both preferences, translations and log levels have been loaded.
      */
     loadCallbackCounter: 0,
+    numberOfStoresToBeLoaded: 3,
 
     /**
      * Called whenever Ext has finished loading. Loads the privileges and then
@@ -48,6 +50,7 @@ Ext.define('Ldr.Loader', {
 
         scope.loadPreferences(scope.checkAppLoadable, scope);
         scope.loadTranslations(scope.checkAppLoadable, scope);
+        scope.loadLogLevels(scope.checkAppLoadable, scope);
 
         // TODO Enable again whenever pluggable classes are supported again at the back-end.
         //scope.loadPlugins(scope.checkAppLoadable, scope);
@@ -59,9 +62,9 @@ Ext.define('Ldr.Loader', {
      * @param {Object} scope Scope
      */
     checkAppLoadable: function (scope) {
-        if (scope.loadCallbackCounter > 1 && !scope.isAppScriptLoaded(scope)) {
+        if (scope.loadCallbackCounter >= scope.numberOfStoresToBeLoaded && !scope.isAppScriptLoaded(scope)) {
             scope.loadApp(scope);
-        } else if (scope.loadCallbackCounter > 1 && scope.isAppScriptLoaded(scope)) {
+        } else if (scope.loadCallbackCounter >= scope.numberOfStoresToBeLoaded && scope.isAppScriptLoaded(scope)) {
             Ldr.store.Pluggable.each(function (pluginScript) {
                 Ext.Loader.setPath(pluginScript.get('name'), pluginScript.get('basePath') + '/src');
                 _.each(pluginScript.get('scripts'),function(script){
@@ -162,6 +165,31 @@ Ext.define('Ldr.Loader', {
                 //<debug>
                 if (!success) {
                     console.warn('Translations could not be loaded, continuing anyways.');
+                }
+                //</debug>
+
+                callback(scope);
+            }
+        });
+    },
+
+    /**
+     * Loads the log levels for the current user.
+     *
+     * @param {Function} callback Callback after loading
+     * @param {Object} scope Scope
+     */
+    loadLogLevels: function (callback, scope) {
+        callback = (typeof callback !== 'undefined') ? callback : function () {
+        };
+
+        Ldr.store.LogLevels.load({
+            callback: function (records, operation, success) {
+                scope.loadCallbackCounter++;
+
+                //<debug>
+                if (!success) {
+                    console.warn('Log levels could not be loaded, continuing anyway.');
                 }
                 //</debug>
 

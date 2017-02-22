@@ -1,8 +1,4 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
-$image-search-path: 'C:/repositorysvn/connexo/copl/com.elster.jupiter.loaderjs/target/web/resources' !default;
+$image-search-path: 'C:/Development/repo/connexo/copl/com.elster.jupiter.loaderjs/src/main/web/js/ldr/build/resources' !default;
 $theme-name:  'com.elster.jupiter.loaderjs' !default;
 $include-ext-abstractcomponent: true;
 $include-ext-abstractmanager: true;
@@ -513,14 +509,16 @@ $include-ext-view-view: true;
 $include-ext-window-messagebox: true;
 $include-ext-window-window: true;
 $include-ldr-loader: true;
+$include-ldr-model-loglevel: true;
 $include-ldr-model-pluggable: true;
 $include-ldr-model-preference: true;
 $include-ldr-model-privilege: true;
 $include-ldr-model-translation: true;
+$include-ldr-store-loglevels: true;
 $include-ldr-store-pluggable: true;
 $include-ldr-store-preferences: true;
 $include-ldr-store-privileges: true;
 $include-ldr-store-translations: true;
 $include-uni-override-form-field-combobox: true;
 /* including package com.elster.jupiter.loaderjs */
-@import '../../src/main/web/js/ldr/sass/etc/all';
+@import '../sass/etc/all';
