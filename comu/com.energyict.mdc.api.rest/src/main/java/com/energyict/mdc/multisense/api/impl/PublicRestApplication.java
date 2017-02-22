@@ -10,10 +10,8 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kore.api.v2.issue.DeviceShortInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssueAssigneeInfoFactory;
-import com.elster.jupiter.kore.api.v2.issue.IssueCommentInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssuePriorityInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssueReasonInfoFactory;
-import com.elster.jupiter.kore.api.v2.issue.IssueTypeInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.LocationShortInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.UsagePointShortInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.UserInfoFactory;
@@ -387,7 +385,6 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(IssuePriorityInfoFactory.class).to(IssuePriorityInfoFactory.class);
             bind(DeviceShortInfoFactory.class).to(DeviceShortInfoFactory.class);
             bind(UsagePointShortInfoFactory.class).to(UsagePointShortInfoFactory.class);
-            bind(IssueCommentInfoFactory.class).to(IssueCommentInfoFactory.class);
             bind(UserInfoFactory.class).to(UserInfoFactory.class);
             bind(LocationShortInfoFactory.class).to(LocationShortInfoFactory.class);
             bind(AlarmShortInfoFactory.class).to(AlarmShortInfoFactory.class);

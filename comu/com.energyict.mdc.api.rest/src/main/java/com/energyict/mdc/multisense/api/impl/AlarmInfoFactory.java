@@ -89,7 +89,7 @@ public class AlarmInfoFactory extends SelectableFieldFactory<AlarmInfo, DeviceAl
         map.put("workGroupAssignee", (alarmInfo, alarm, uriInfo) -> alarmInfo.workGroupAssignee = issueAssigneeInfoFactory.asInfo("WORKGROUP", alarm.getAssignee()));
         map.put("userAssignee", (alarmInfo, alarm, uriInfo) -> alarmInfo.userAssignee = issueAssigneeInfoFactory.asInfo("USER", alarm.getAssignee()));
         map.put("device", (alarmInfo, alarm, uriInfo) -> alarmInfo.device = deviceShortInfoFactory.from((Meter)alarm.getDevice(),uriInfo,null));
-        map.put("creationDate", (alarmInfo, alarm, uriInfo) -> alarmInfo.creationDate = alarm.getCreateTime().toEpochMilli());
+        map.put("creationDate", (alarmInfo, alarm, uriInfo) -> alarmInfo.creationDate = alarm.getCreateDateTime().toEpochMilli());
         map.put("version", (alarmInfo, alarm, uriInfo) -> alarmInfo.version = alarm.getVersion());
         return map;
     }
