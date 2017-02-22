@@ -8,9 +8,12 @@ import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.ProcessReference;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.StageSet;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.fsm.StateTransition;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -41,6 +44,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class DeviceLifeCycleStateResource {
@@ -95,8 +99,9 @@ public class DeviceLifeCycleStateResource {
     public Response addDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, DeviceLifeCycleStateInfo stateInfo) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
         FiniteStateMachineUpdater fsmUpdater = deviceLifeCycle.getFiniteStateMachine().startUpdate();
-
-        FiniteStateMachineUpdater.StateBuilder stateUpdater = fsmUpdater.newCustomState(stateInfo.name);
+        StageSet stageSet = deviceLifeCycle.getFiniteStateMachine().getStageSet().orElseThrow(getDefaultStageSetException());
+        Stage operationalStage = stageSet.getStageByName(EndDeviceStage.OPERATIONAL.name()).orElseThrow(getDefaultStageSetException());
+        FiniteStateMachineUpdater.StateBuilder stateUpdater = fsmUpdater.newCustomState(stateInfo.name, operationalStage);
         stateInfo.onEntry.stream().map(this::findStateChangeBusinessProcess).forEach(stateUpdater::onEntry);
         stateInfo.onExit.stream().map(this::findStateChangeBusinessProcess).forEach(stateUpdater::onExit);
 
@@ -108,6 +113,10 @@ public class DeviceLifeCycleStateResource {
             fsmUpdater.complete();
         }
         return Response.status(Response.Status.CREATED).entity(deviceLifeCycleStateFactory.from(deviceLifeCycle, newState)).build();
+    }
+
+    private Supplier<IllegalStateException> getDefaultStageSetException() {
+        return () -> new IllegalStateException("Default stage set not installed correctly");
     }
 
     @PUT @Transactional

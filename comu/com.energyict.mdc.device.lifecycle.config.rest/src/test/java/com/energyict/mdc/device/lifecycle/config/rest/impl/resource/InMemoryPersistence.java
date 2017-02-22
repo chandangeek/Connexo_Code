@@ -5,32 +5,45 @@
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.ids.TimeSeries;
+import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.impl.MeteringDataModelService;
+import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
+import com.elster.jupiter.usagepoint.lifecycle.impl.UsagePointLifeCycleModule;
 import com.elster.jupiter.users.GrantPrivilege;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
@@ -59,6 +72,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -86,8 +100,6 @@ public class InMemoryPersistence {
     private TransactionService transactionService;
     private BundleContext bundleContext;
     private EventAdmin eventAdmin;
-    private PartyService partyService;
-    private MeteringService meteringService;
     private MeteringGroupsService meteringGroupService;
     private ValidationService validationService;
     private EstimationService estimationService;
@@ -103,7 +115,10 @@ public class InMemoryPersistence {
     private PropertySpecService propertySpecService;
     private TopologyService topologyService;
     private DataVaultService dataVaultService;
-    private MetrologyConfigurationService metrologyConfigurationService;
+    private CustomPropertySetService customPropertySetService;
+    private LicenseService licenseService;
+    private SearchService searchService;
+    private TimeService timeService;
 
     /**
      * Returns a new InMemoryPersistence that uses all the defaults
@@ -119,16 +134,22 @@ public class InMemoryPersistence {
         return Arrays.asList(
                 new InMemoryMessagingModule(),
                 new TransactionModule(),
+                new PartyModule(),
                 new OrmModule(),
                 new EventsModule(),
+                new IdsModule(),
                 new PubSubModule(),
                 new UserModule(),
+                new MeteringModule(),
                 new UtilModule(),
                 new DomainUtilModule(),
+                new CustomPropertySetsModule(),
                 new NlsModule(),
                 new FiniteStateMachineModule(),
                 new DeviceLifeCycleConfigurationModule(),
-                new DeviceLifeCycleModule()
+                new DeviceLifeCycleModule(),
+                new UsagePointLifeCycleConfigurationModule(),
+                new UsagePointLifeCycleModule()
         );
     }
 
@@ -147,7 +168,10 @@ public class InMemoryPersistence {
             this.injector.getInstance(UserService.class);
             this.injector.getInstance(NlsService.class);
             this.injector.getInstance(EventService.class);
+            this.injector.getInstance(CustomPropertySetService.class);
             this.injector.getInstance(FiniteStateMachineService.class);
+            this.injector.getInstance(PartyService.class);
+            this.injector.getInstance(MeteringDataModelService.class);
             this.injector.getInstance(DeviceLifeCycleConfigurationService.class);
             this.injector.getInstance(DeviceLifeCycleService.class);
             ctx.commit();
@@ -172,8 +196,6 @@ public class InMemoryPersistence {
         when(superUser.getPrivileges()).thenReturn(ImmutableMap.of("", asList(superGrant)));
         when(this.principal.getGroups()).thenReturn(asList(superUser));
         when(this.principal.getName()).thenReturn(testName);
-        this.partyService = mock(PartyService.class);
-        this.meteringService = mock(MeteringService.class);
         this.meteringGroupService = mock(MeteringGroupsService.class);
         this.validationService = mock(ValidationService.class);
         this.estimationService = mock(EstimationService.class);
@@ -189,7 +211,9 @@ public class InMemoryPersistence {
         this.propertySpecService = mock(PropertySpecService.class);
         this.topologyService = mock(TopologyService.class);
         this.dataVaultService = mock(DataVaultService.class);
-        this.metrologyConfigurationService = mock(MetrologyConfigurationService.class);
+        this.licenseService = mock(LicenseService.class);
+        this.searchService = mock(SearchService.class);
+        this.timeService = mock(TimeService.class);
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -209,8 +233,6 @@ public class InMemoryPersistence {
         protected void configure() {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
-            bind(PartyService.class).toInstance(partyService);
-            bind(MeteringService.class).toInstance(meteringService);
             bind(MeteringGroupsService.class).toInstance(meteringGroupService);
             bind(ValidationService.class).toInstance(validationService);
             bind(EstimationService.class).toInstance(estimationService);
@@ -226,8 +248,10 @@ public class InMemoryPersistence {
             bind(PropertySpecService.class).toInstance(propertySpecService);
             bind(TopologyService.class).toInstance(topologyService);
             bind(DataVaultService.class).toInstance(dataVaultService);
+            bind(SearchService.class).toInstance(searchService);
+            bind(TimeService.class).toInstance(timeService);
+            bind(LicenseService.class).toInstance(licenseService);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-            bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
         }
 
     }
