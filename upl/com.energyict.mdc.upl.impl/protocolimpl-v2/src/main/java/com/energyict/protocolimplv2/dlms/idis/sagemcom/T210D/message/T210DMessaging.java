@@ -61,6 +61,7 @@ public class T210DMessaging extends AM540Messaging {
         supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE);
         supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE);
         supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE);
+        supportedMessages.add(ContactorDeviceMessage.CONTACTOR_ACTION_WITH_ACTIVATION);
         supportedMessages.add(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE);
         supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_DATA_PROTECTION);
         supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_DATA_PROTECTION);
@@ -71,6 +72,8 @@ public class T210DMessaging extends AM540Messaging {
         supportedMessages.add(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_WITH_GIVEN_TABLE_OBIS_FROM_XML);
         supportedMessages.add(MBusSetupDeviceMessage.ScanAndInstallWiredMbusDevices);
         supportedMessages.add(MBusSetupDeviceMessage.InstallWirelessMbusDevices);
+        supportedMessages.add(MBusSetupDeviceMessage.ScanAndInstallWiredMbusDeviceForGivenMeterIdentification);
+        supportedMessages.add(MBusSetupDeviceMessage.InstallWirelessMbusDeviceForGivenMeterIdentification);
     }
 
     @Override

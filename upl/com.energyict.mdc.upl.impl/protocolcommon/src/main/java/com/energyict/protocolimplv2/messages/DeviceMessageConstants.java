@@ -783,5 +783,7 @@ public class DeviceMessageConstants {
     public static final String configurationId = "DeviceActionMessage.configurationId";
     public static final String bufferSize = "DeviceActionMessage.bufferSize";
     public static final String obisCode = "DeviceActionMessage.obisCode";
+    public static final String gMeterIdentificationAttributeName = "MBusSetupDeviceMessage.gMeterIdentificationAttributeName";
+    public static final String scriptNumber = "ContactorDeviceMessage.scriptNumber";
 
 }

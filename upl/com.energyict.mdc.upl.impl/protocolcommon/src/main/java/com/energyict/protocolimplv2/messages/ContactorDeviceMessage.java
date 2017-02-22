@@ -59,7 +59,11 @@ public enum ContactorDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.dateTimePropertySpec(contactorActivationDateAttributeName)),
     CONTACTOR_OPEN_WITH_DATA_PROTECTION(14),
     CONTACTOR_CLOSE_WITH_DATA_PROTECTION(15),
-    ;
+    CONTACTOR_ACTION_WITH_ACTIVATION(16,
+            PropertySpecFactory.dateTimePropertySpec(contactorActivationDateAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(scriptNumber)
+    );
+
     private static final DeviceMessageCategory contactorCategory = DeviceMessageCategories.CONTACTOR;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
