@@ -7,7 +7,6 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.ElectricityDetail;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -25,23 +24,23 @@ import java.time.Clock;
 public class ElectricityDetailImpl extends UsagePointDetailImpl implements ElectricityDetail {
 
     private YesNoAnswer grounded;
-    @HasQuantityMultiplier(min = 0, max = 9, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_MULTIPLIER + "}")
-    @HasQuantityUnit(units =  {Unit.VOLT}, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_UNIT + "}")
+    @HasQuantityMultiplier(min = 0, max = 9, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.INVALID_MULTIPLIER + "}")
+    @HasQuantityUnit(units =  {Unit.VOLT}, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.INVALID_UNIT + "}")
     private Quantity nominalServiceVoltage;
     private PhaseCode phaseCode;
-    @HasQuantityMultiplier(min = -3, max = 6, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_MULTIPLIER + "}")
-    @HasQuantityUnit(units =  {Unit.AMPERE}, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_UNIT + "}")
+    @HasQuantityMultiplier(min = -3, max = 6, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.INVALID_MULTIPLIER + "}")
+    @HasQuantityUnit(units =  {Unit.AMPERE}, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.INVALID_UNIT + "}")
     private Quantity ratedCurrent;
-    @HasQuantityMultiplier(min = -3, max = 12, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_MULTIPLIER + "}")
-    @HasQuantityUnit(units =  {Unit.WATT, Unit.VOLT_AMPERE}, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_UNIT + "}")
+    @HasQuantityMultiplier(min = -3, max = 12, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.INVALID_MULTIPLIER + "}")
+    @HasQuantityUnit(units =  {Unit.WATT, Unit.VOLT_AMPERE}, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.INVALID_UNIT + "}")
     private Quantity ratedPower;
-    @HasQuantityMultiplier(min = -3, max = 9, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_MULTIPLIER + "}")
-    @HasQuantityUnit(units =  {Unit.AMPERE, Unit.VOLT_AMPERE}, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_UNIT + "}")
+    @HasQuantityMultiplier(min = -3, max = 9, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.INVALID_MULTIPLIER + "}")
+    @HasQuantityUnit(units =  {Unit.AMPERE, Unit.VOLT_AMPERE}, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.INVALID_UNIT + "}")
     private Quantity estimatedLoad;
     private YesNoAnswer limiter;
-    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String loadLimiterType;
-    @HasQuantityUnit(units =  {Unit.WATT, Unit.VOLT_AMPERE}, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_UNIT + "}")
+    @HasQuantityUnit(units =  {Unit.WATT, Unit.VOLT_AMPERE}, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.INVALID_UNIT + "}")
     private Quantity loadLimit;
     private YesNoAnswer interruptible;
 

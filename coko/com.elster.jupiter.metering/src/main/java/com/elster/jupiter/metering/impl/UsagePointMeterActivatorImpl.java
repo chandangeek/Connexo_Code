@@ -9,13 +9,12 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.Location;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeterHasUnsatisfiedRequirements;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointManagementException;
-import com.elster.jupiter.metering.UsagePointMeterActivationException;
+import com.elster.jupiter.metering.UsagePointHasMeterOnThisRole;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.Formula;
@@ -369,20 +368,20 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         private MeterRole meterRole;
         private UsagePoint usagePoint;
 
-        public VirtualActivation(Instant start, UsagePoint usagePoint, MeterRole meterRole) {
+        VirtualActivation(Instant start, UsagePoint usagePoint, MeterRole meterRole) {
             this.start = start;
             this.meterRole = meterRole;
             this.usagePoint = usagePoint;
         }
 
-        public VirtualActivation(Instant start, UsagePoint usagePoint, Meter meter, MeterRole meterRole) {
+        VirtualActivation(Instant start, UsagePoint usagePoint, Meter meter, MeterRole meterRole) {
             this.start = start;
             this.meterRole = meterRole;
             this.usagePoint = usagePoint;
             this.meter = meter;
         }
 
-        public VirtualActivation(Activation activation) {
+        VirtualActivation(Activation activation) {
             this.start = activation.getStart();
             this.meterRole = activation.getMeterRole();
             this.usagePoint = activation.getUsagePoint();
@@ -390,7 +389,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             this.end = activation.getEnd();
         }
 
-        public VirtualActivation(MeterActivation meterActivation) {
+        VirtualActivation(MeterActivation meterActivation) {
             this.start = meterActivation.getStart();
             this.meterRole = meterActivation.getMeterRole().orElse(null);
             this.usagePoint = meterActivation.getUsagePoint().orElse(null);
@@ -458,7 +457,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     private static final class WrappedActivation implements Activation {
         private final MeterActivationImpl meterActivation;
 
-        public WrappedActivation(MeterActivation meterActivation) {
+        WrappedActivation(MeterActivation meterActivation) {
             this.meterActivation = (MeterActivationImpl) meterActivation;
         }
 
@@ -563,7 +562,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         private final Comparator<T> comparator;
         private final List<T> ranges;
 
-        public TimeLine(Function<T, Range<I>> rangeExtractor, Comparator<Range<I>> comparator) {
+        TimeLine(Function<T, Range<I>> rangeExtractor, Comparator<Range<I>> comparator) {
             this.rangeExtractor = rangeExtractor;
             this.ranges = new ArrayList<>();
             this.comparator = (t1, t2) -> comparator.compare(rangeExtractor.apply(t1), rangeExtractor.apply(t2));
@@ -636,7 +635,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     private static class MeterActivationModificationVisitor implements ElementVisitor<Activation> {
         private final DataModel dataModel;
 
-        public MeterActivationModificationVisitor(DataModel dataModel) {
+        MeterActivationModificationVisitor(DataModel dataModel) {
             this.dataModel = dataModel;
         }
 
@@ -801,7 +800,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         private final Thesaurus thesaurus;
         private boolean valid = true;
 
-        public FormValidationReport(ConstraintValidatorContext context, Thesaurus thesaurus) {
+        FormValidationReport(ConstraintValidatorContext context, Thesaurus thesaurus) {
             this.context = context;
             this.thesaurus = thesaurus;
             this.context.disableDefaultConstraintViolation();
@@ -815,7 +814,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         @Override
         public void meterActiveOnDifferentUsagePoint(Meter meter, MeterRole currentRole, MeterRole desiredRole, UsagePoint meterCurrentUsagePoint, Range<Instant> conflictActivationRange) {
             this.valid = false;
-            String errorMessage = this.thesaurus.getFormat(MessageSeeds.METER_ALREADY_LINKED_TO_USAGEPOINT)
+            String errorMessage = this.thesaurus.getFormat(PrivateMessageSeeds.METER_ALREADY_LINKED_TO_USAGEPOINT)
                     .format(meter.getName(), meterCurrentUsagePoint.getName(), currentRole.getDisplayName());
             this.context.buildConstraintViolationWithTemplate(errorMessage).addPropertyNode(desiredRole.getKey()).addConstraintViolation();
         }
@@ -823,14 +822,14 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         @Override
         public void meterActiveWithDifferentMeterRole(Meter meter, MeterRole currentRole, MeterRole desiredRole, Range<Instant> conflictActivationRange) {
             this.valid = false;
-            this.context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT + "}")
+            this.context.buildConstraintViolationWithTemplate("{" + PrivateMessageSeeds.Constants.THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT + "}")
                     .addPropertyNode(desiredRole.getKey()).addConstraintViolation();
         }
 
         @Override
         public void usagePointHasMeterOnThisRole(Meter meterActiveOnRole, MeterRole meterRole, Range<Instant> conflictActivationRange) {
             this.valid = false;
-            String message = this.thesaurus.getFormat(MessageSeeds.USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE).format(meterActiveOnRole.getName(), meterRole.getDisplayName());
+            String message = this.thesaurus.getFormat(PrivateMessageSeeds.USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE).format(meterActiveOnRole.getName(), meterRole.getDisplayName());
             this.context.buildConstraintViolationWithTemplate(message).addPropertyNode(meterRole.getKey()).addConstraintViolation();
         }
 
@@ -839,7 +838,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             this.valid = false;
             String errorMessage =
                     this.thesaurus
-                            .getFormat(MessageSeeds.UNSATISFIED_METROLOGY_REQUIREMENT)
+                            .getFormat(PrivateMessageSeeds.UNSATISFIED_METROLOGY_REQUIREMENT)
                             .format(unsatisfiedRequirements
                                     .values()
                                     .stream()
@@ -862,7 +861,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         @Override
         public void usagePointIncorrectStage() {
             this.valid = false;
-            String errorMessage = this.thesaurus.getFormat(MessageSeeds.USAGE_POINT_INCORRECT_STAGE).format();
+            String errorMessage = this.thesaurus.getFormat(PrivateMessageSeeds.USAGE_POINT_INCORRECT_STAGE).format();
             this.context.buildConstraintViolationWithTemplate(errorMessage)
                     .addPropertyNode("usagepoint")
                     .addConstraintViolation();
@@ -871,7 +870,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
     private static class FormValidationReportWhenDefineMetrologyConfiguration extends FormValidationReport {
 
-        public FormValidationReportWhenDefineMetrologyConfiguration(ConstraintValidatorContext context, Thesaurus thesaurus) {
+        private FormValidationReportWhenDefineMetrologyConfiguration(ConstraintValidatorContext context, Thesaurus thesaurus) {
             super(context, thesaurus);
         }
 
@@ -893,7 +892,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                         .forEach(metrologyPurposeEntry -> {
                             String errorMessage =
                                     super.thesaurus
-                                            .getFormat(MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENT_FOR_METER)
+                                            .getFormat(PrivateMessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENT_FOR_METER)
                                             .format(meter.getName(), metrologyPurposeEntry.getKey().getName());
                             super.context.buildConstraintViolationWithTemplate(errorMessage)
                                     .addPropertyNode("id")
@@ -916,7 +915,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     private static class ThrowingValidationReport implements ValidationReport {
         private final Thesaurus thesaurus;
 
-        public ThrowingValidationReport(Thesaurus thesaurus) {
+        ThrowingValidationReport(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 
@@ -926,27 +925,27 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
         @Override
         public void meterActiveOnDifferentUsagePoint(Meter meter, MeterRole currentRole, MeterRole desiredRole, UsagePoint meterCurrentUsagePoint, Range<Instant> conflictActivationRange) {
-            throw UsagePointMeterActivationException.meterActiveOnDifferentUsagePoint(this.thesaurus, meter, currentRole, desiredRole, meterCurrentUsagePoint, conflictActivationRange);
+            throw UsagePointMeterActivationException.meterActiveOnDifferentUsagePoint(this.thesaurus, meter, currentRole, meterCurrentUsagePoint);
         }
 
         @Override
         public void meterActiveWithDifferentMeterRole(Meter meter, MeterRole currentRole, MeterRole desiredRole, Range<Instant> conflictActivationRange) {
-            throw UsagePointMeterActivationException.meterActiveWithDifferentMeterRole(this.thesaurus, meter, currentRole, desiredRole, conflictActivationRange);
+            throw UsagePointMeterActivationException.meterActiveWithDifferentMeterRole(this.thesaurus);
         }
 
         @Override
         public void usagePointHasMeterOnThisRole(Meter meterActiveOnRole, MeterRole meterRole, Range<Instant> conflictActivationRange) {
-            throw UsagePointMeterActivationException.usagePointHasMeterOnThisRole(this.thesaurus, meterActiveOnRole, meterRole, conflictActivationRange);
+            throw new UsagePointHasMeterOnThisRole(this.thesaurus, PrivateMessageSeeds.USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE, meterActiveOnRole, meterRole, conflictActivationRange);
         }
 
         @Override
         public void meterHasUnsatisfiedRequirements(Meter meter, UsagePoint usagePoint, MeterRole meterRole, Map<UsagePointMetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements) {
-            throw UsagePointMeterActivationException.meterHasUnsatisfiedRequirements(this.thesaurus, meter, meterRole, unsatisfiedRequirements);
+            throw new MeterHasUnsatisfiedRequirements(this.thesaurus, PrivateMessageSeeds.UNSATISFIED_METROLOGY_REQUIREMENT, unsatisfiedRequirements);
         }
 
         @Override
         public void activationWasFailedByCustomValidator(Meter meter, MeterRole meterRole, UsagePoint usagePoint, CustomUsagePointMeterActivationValidationException ex) {
-            throw UsagePointMeterActivationException.activationWasFailedByCustomValidator(this.thesaurus, meter, meterRole, usagePoint, ex);
+            throw UsagePointMeterActivationException.activationFailedByCustomValidator(this.thesaurus, ex);
         }
 
         @Override
@@ -959,7 +958,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         private final ValidationReport report;
         private final Set<Activation> processed = new HashSet<>();
 
-        public ValidateActivationsForSingleMeterVisitor(ValidationReport report) {
+        ValidateActivationsForSingleMeterVisitor(ValidationReport report) {
             super(null);
             this.report = report;
         }
@@ -1007,7 +1006,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     private static class ValidateOverlappingUsagePointActivationsVisitor implements ElementVisitor<Activation> {
         private final ValidationReport report;
 
-        public ValidateOverlappingUsagePointActivationsVisitor(ValidationReport report) {
+        ValidateOverlappingUsagePointActivationsVisitor(ValidationReport report) {
             this.report = report;
         }
 

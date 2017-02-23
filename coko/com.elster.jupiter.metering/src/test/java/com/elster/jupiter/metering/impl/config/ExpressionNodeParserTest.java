@@ -7,7 +7,6 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.ConstantNode;
@@ -21,6 +20,7 @@ import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BigDecimalFactory;
@@ -368,7 +368,7 @@ public class ExpressionNodeParserTest {
 
             // Asserts: see expected exception rule
         } catch (InvalidNodeException e) {
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CUSTOM_PROPERTY_SET_NOT_VERSIONED);
+            assertThat(e.getMessageSeed()).isEqualTo(PrivateMessageSeeds.CUSTOM_PROPERTY_SET_NOT_VERSIONED);
             throw e;
         }
     }
@@ -422,7 +422,7 @@ public class ExpressionNodeParserTest {
 
             // Asserts: see expected exception rule
         } catch (InvalidNodeException e) {
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CUSTOM_PROPERTY_MUST_BE_NUMERICAL);
+            assertThat(e.getMessageSeed()).isEqualTo(PrivateMessageSeeds.CUSTOM_PROPERTY_MUST_BE_NUMERICAL);
             throw e;
         }
     }
@@ -452,7 +452,7 @@ public class ExpressionNodeParserTest {
 
             // Asserts: see expected exception rule
         } catch (InvalidNodeException e) {
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CUSTOM_PROPERTY_MUST_BE_SLP);
+            assertThat(e.getMessageSeed()).isEqualTo(PrivateMessageSeeds.CUSTOM_PROPERTY_MUST_BE_SLP);
             throw e;
         }
     }

@@ -16,7 +16,6 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -43,6 +42,7 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.metering.impl.TableSpecs;
 import com.elster.jupiter.metering.impl.aggregation.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
@@ -359,7 +359,7 @@ public class FormulaCrudTest {
         try {
             new ExpressionNodeParser(service.getThesaurus(), service, inMemoryBootstrapModule.getCustomPropertySetService(), config, myMode).parse("maxOf(max(constant(1), constant(2)), plus(constant(2), constant(3)))");
         } catch (InvalidNodeException e) {
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.FUNCTION_NOT_ALLOWED_IN_AUTOMODE);
+            assertThat(e.getMessageSeed()).isEqualTo(PrivateMessageSeeds.FUNCTION_NOT_ALLOWED_IN_AUTOMODE);
             assertThat(e.get("Function")).isEqualTo(Function.MAX_AGG);
             throw e;
         }
@@ -787,7 +787,7 @@ public class FormulaCrudTest {
             builder.build(builder.requirement(regularRequirement));
         } catch (ConstraintViolationException e) {
             // Asserts
-            assertThat(e.getMessage()).contains(MessageSeeds.IRREGULAR_READING_TYPE_DELIVERABLE_ONLY_SUPPORTS_SIMPLE_FORMULAS.getDefaultFormat());
+            assertThat(e.getMessage()).contains(PrivateMessageSeeds.IRREGULAR_READING_TYPE_DELIVERABLE_ONLY_SUPPORTS_SIMPLE_FORMULAS.getDefaultFormat());
             throw e;
         }
     }
@@ -820,7 +820,7 @@ public class FormulaCrudTest {
             builder.build(builder.requirement(regularRequirement));
         } catch (ConstraintViolationException e) {
             // Asserts
-            assertThat(e.getMessage()).contains(MessageSeeds.REGULAR_READING_TYPE_DELIVERABLE_DOES_NOT_SUPPORT_IRREGULAR_REQUIREMENTS.getDefaultFormat());
+            assertThat(e.getMessage()).contains(PrivateMessageSeeds.REGULAR_READING_TYPE_DELIVERABLE_DOES_NOT_SUPPORT_IRREGULAR_REQUIREMENTS.getDefaultFormat());
             throw e;
         }
     }
@@ -1365,7 +1365,7 @@ public class FormulaCrudTest {
         try {
             builder.build(builder.requirement(req));
         } catch (InvalidNodeException e) {
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.INVALID_READINGTYPE_UNIT_IN_REQUIREMENT);
+            assertThat(e.getMessageSeed()).isEqualTo(PrivateMessageSeeds.INVALID_READINGTYPE_UNIT_IN_REQUIREMENT);
             throw e;
         }
     }
@@ -1395,7 +1395,7 @@ public class FormulaCrudTest {
         try {
             new ExpressionNodeParser(service.getThesaurus(), service, inMemoryBootstrapModule.getCustomPropertySetService(), config, Formula.Mode.AUTO).parse("R(" + req.getId() + ")");
         } catch (InvalidNodeException e) {
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.INVALID_READINGTYPE_UNIT_IN_REQUIREMENT);
+            assertThat(e.getMessageSeed()).isEqualTo(PrivateMessageSeeds.INVALID_READINGTYPE_UNIT_IN_REQUIREMENT);
             throw e;
         }
     }
@@ -1421,7 +1421,7 @@ public class FormulaCrudTest {
         try {
             builder.build(builder.requirement(bulkRequirement));
         } catch (VerboseConstraintViolationException e) {
-            assertThat(e.getConstraintViolations().iterator().next().getMessage()).isEqualTo(MessageSeeds.BULK_READINGTYPE_NOT_ALLOWED.getDefaultFormat());
+            assertThat(e.getConstraintViolations().iterator().next().getMessage()).isEqualTo(PrivateMessageSeeds.BULK_READINGTYPE_NOT_ALLOWED.getDefaultFormat());
             throw e;
         }
     }
@@ -1447,7 +1447,7 @@ public class FormulaCrudTest {
         try {
             builder.build(builder.requirement(deltaRequirement));
         } catch (VerboseConstraintViolationException e) {
-            assertThat(e.getConstraintViolations().iterator().next().getMessage()).isEqualTo(MessageSeeds.BULK_DELIVERABLES_CAN_ONLY_USE_BULK_READINGTYPES.getDefaultFormat());
+            assertThat(e.getConstraintViolations().iterator().next().getMessage()).isEqualTo(PrivateMessageSeeds.BULK_DELIVERABLES_CAN_ONLY_USE_BULK_READINGTYPES.getDefaultFormat());
             throw e;
         }
     }
@@ -1474,7 +1474,7 @@ public class FormulaCrudTest {
         try {
             builder.build(builder.deliverable(bulkDeliverable));
         } catch (VerboseConstraintViolationException e) {
-            assertThat(e.getConstraintViolations().iterator().next().getMessage()).isEqualTo(MessageSeeds.BULK_READINGTYPE_NOT_ALLOWED.getDefaultFormat());
+            assertThat(e.getConstraintViolations().iterator().next().getMessage()).isEqualTo(PrivateMessageSeeds.BULK_READINGTYPE_NOT_ALLOWED.getDefaultFormat());
             throw e;
         }
     }
@@ -1507,7 +1507,7 @@ public class FormulaCrudTest {
         try {
             new ExpressionNodeParser(service.getThesaurus(), service, inMemoryBootstrapModule.getCustomPropertySetService(), config, Formula.Mode.AUTO).parse("R(" + req.getId() + ")");
         } catch (InvalidNodeException e) {
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.INVALID_READINGTYPE_UNIT_IN_REQUIREMENT);
+            assertThat(e.getMessageSeed()).isEqualTo(PrivateMessageSeeds.INVALID_READINGTYPE_UNIT_IN_REQUIREMENT);
             throw e;
         }
     }
@@ -1989,7 +1989,7 @@ public class FormulaCrudTest {
         try {
             builder2.build(builder2.constant(10));
         } catch (ReadingTypeAlreadyUsedOnMetrologyConfiguration e) {
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.READING_TYPE_FOR_DELIVERABLE_ALREADY_USED);
+            assertThat(e.getMessageSeed()).isEqualTo(PrivateMessageSeeds.READING_TYPE_FOR_DELIVERABLE_ALREADY_USED);
             throw e;
         }
     }
@@ -2210,7 +2210,7 @@ public class FormulaCrudTest {
             builder.minimum(null, Collections.emptyList()).create();
         } catch (InvalidNodeException e) {
             // Asserts
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.AGGREGATION_FUNCTION_REQUIRES_AGGREGATION_LEVEL);
+            assertThat(e.getMessageSeed()).isEqualTo(PrivateMessageSeeds.AGGREGATION_FUNCTION_REQUIRES_AGGREGATION_LEVEL);
             throw e;
         }
     }
@@ -2233,7 +2233,7 @@ public class FormulaCrudTest {
             builder.minimum(AggregationLevel.HOUR, Collections.emptyList()).create();
         } catch (InvalidNodeException e) {
             // Asserts
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.INVALID_ARGUMENTS_AT_LEAST_ONE_CHILD_REQUIRED);
+            assertThat(e.getMessageSeed()).isEqualTo(PrivateMessageSeeds.INVALID_ARGUMENTS_AT_LEAST_ONE_CHILD_REQUIRED);
             throw e;
         }
     }
@@ -2269,7 +2269,7 @@ public class FormulaCrudTest {
             builder.property(customPropertySet, propertySpec);
         } catch (InvalidNodeException e) {
             // Asserts
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CUSTOM_PROPERTY_SET_NOT_CONFIGURED_ON_METROLOGY_CONFIGURATION);
+            assertThat(e.getMessageSeed()).isEqualTo(PrivateMessageSeeds.CUSTOM_PROPERTY_SET_NOT_CONFIGURED_ON_METROLOGY_CONFIGURATION);
             throw e;
         }
     }
@@ -2317,7 +2317,7 @@ public class FormulaCrudTest {
             builder.property(customPropertySet, propertySpec);
         } catch (InvalidNodeException e) {
             // Asserts
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CUSTOM_PROPERTY_SET_NO_LONGER_ACTIVE);
+            assertThat(e.getMessageSeed()).isEqualTo(PrivateMessageSeeds.CUSTOM_PROPERTY_SET_NO_LONGER_ACTIVE);
             throw e;
         }
     }
@@ -2362,7 +2362,7 @@ public class FormulaCrudTest {
             builder.property(customPropertySet, propertySpec);
         } catch (InvalidNodeException e) {
             // Asserts
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CUSTOM_PROPERTY_SET_NOT_VERSIONED);
+            assertThat(e.getMessageSeed()).isEqualTo(PrivateMessageSeeds.CUSTOM_PROPERTY_SET_NOT_VERSIONED);
             throw e;
         }
     }
@@ -2496,7 +2496,7 @@ public class FormulaCrudTest {
             ReadingTypeDeliverable deliverable = builder.build(property);
         } catch (InvalidNodeException e) {
             // Asserts
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CUSTOM_PROPERTY_MUST_BE_NUMERICAL);
+            assertThat(e.getMessageSeed()).isEqualTo(PrivateMessageSeeds.CUSTOM_PROPERTY_MUST_BE_NUMERICAL);
             throw e;
         }
     }
@@ -2546,7 +2546,7 @@ public class FormulaCrudTest {
             ReadingTypeDeliverable deliverable = builder.build(property);
         } catch (InvalidNodeException e) {
             // Asserts
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CUSTOM_PROPERTY_MUST_BE_SLP);
+            assertThat(e.getMessageSeed()).isEqualTo(PrivateMessageSeeds.CUSTOM_PROPERTY_MUST_BE_SLP);
             throw e;
         }
     }

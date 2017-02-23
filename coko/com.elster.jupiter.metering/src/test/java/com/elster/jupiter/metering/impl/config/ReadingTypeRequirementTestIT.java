@@ -15,7 +15,6 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
@@ -26,6 +25,7 @@ import com.elster.jupiter.metering.config.PartiallySpecifiedReadingTypeRequireme
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.transaction.TransactionContext;
 
 import org.assertj.core.api.Assertions;
@@ -129,7 +129,7 @@ public class ReadingTypeRequirementTestIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.READING_TYPE_ATTRIBUTE_CODE_IS_NOT_WITHIN_LIMITS + "}", property = "code", strict = true)
+    @ExpectedConstraintViolation(messageId = "{" + PrivateMessageSeeds.Constants.READING_TYPE_ATTRIBUTE_CODE_IS_NOT_WITHIN_LIMITS + "}", property = "code", strict = true)
     public void validBadCodeFromPossibleValuesForPartiallySpecified() {
         ReadingTypeTemplate readingTypeTemplate = inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .createReadingTypeTemplate("Zero reading type template")
@@ -154,7 +154,7 @@ public class ReadingTypeRequirementTestIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.READING_TYPE_ATTRIBUTE_CODE_IS_NOT_WITHIN_LIMITS + "}", property = "code", strict = true)
+    @ExpectedConstraintViolation(messageId = "{" + PrivateMessageSeeds.Constants.READING_TYPE_ATTRIBUTE_CODE_IS_NOT_WITHIN_LIMITS + "}", property = "code", strict = true)
     public void validBadCodeFromSystemValuesForPartiallySpecified() {
         ReadingTypeTemplate readingTypeTemplate = inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .createReadingTypeTemplate("Zero reading type template")
@@ -166,7 +166,7 @@ public class ReadingTypeRequirementTestIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.REQUIRED + "}", property = "name", strict = true)
+    @ExpectedConstraintViolation(messageId = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}", property = "name", strict = true)
     public void validNameForPartiallySpecified() {
         ReadingTypeTemplate readingTypeTemplate = inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .createReadingTypeTemplate("Zero reading type template")
@@ -178,14 +178,14 @@ public class ReadingTypeRequirementTestIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.REQUIRED + "}", property = "readingTypeTemplateId", strict = true)
+    @ExpectedConstraintViolation(messageId = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}", property = "readingTypeTemplateId", strict = true)
     public void validReadingTypeTemplateTemplateForPartiallySpecified() {
         metrologyConfiguration.newReadingTypeRequirement("Some name").withReadingTypeTemplate(null);
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.REQUIRED + "}", property = "name", strict = true)
+    @ExpectedConstraintViolation(messageId = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}", property = "name", strict = true)
     public void validNameForFullySpecified() {
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
         metrologyConfiguration.newReadingTypeRequirement(null).withReadingType(readingType);
@@ -193,7 +193,7 @@ public class ReadingTypeRequirementTestIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.REQUIRED + "}", property = "readingType", strict = true)
+    @ExpectedConstraintViolation(messageId = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}", property = "readingType", strict = true)
     public void validReadingTypeForFullySpecified() {
         metrologyConfiguration.newReadingTypeRequirement("Some name").withReadingType(null);
     }
@@ -336,7 +336,7 @@ public class ReadingTypeRequirementTestIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}", property = "name", strict = true)
+    @ExpectedConstraintViolation(messageId = "{" + PrivateMessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}", property = "name", strict = true)
     public void testCanNotCreateRequirementsWithTheSameName() {
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
         ReadingType weeklyReadingType = inMemoryBootstrapModule.getMeteringService().createReadingType("24.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Weekly reading type");
@@ -362,7 +362,7 @@ public class ReadingTypeRequirementTestIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.REQUIREMENT_MUST_HAVE_UNIQUE_RT + "}", property = "readingType", strict = true)
+    @ExpectedConstraintViolation(messageId = "{" + PrivateMessageSeeds.Constants.REQUIREMENT_MUST_HAVE_UNIQUE_RT + "}", property = "readingType", strict = true)
     public void testCanNotCreateRequirementsWithTheSameReadingType() {
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
         metrologyConfiguration.newReadingTypeRequirement("Name").withReadingType(readingType);

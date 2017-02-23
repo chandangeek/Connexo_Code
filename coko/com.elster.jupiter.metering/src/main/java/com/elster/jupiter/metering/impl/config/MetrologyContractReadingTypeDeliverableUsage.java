@@ -4,9 +4,9 @@
 
 package com.elster.jupiter.metering.impl.config;
 
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -32,9 +32,9 @@ public class MetrologyContractReadingTypeDeliverableUsage implements SelfObjectV
         }
     }
 
-    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Reference<MetrologyContract> metrologyContract = ValueReference.absent();
-    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingTypeDeliverable> deliverable = ValueReference.absent();
 
     @SuppressWarnings("unused")
@@ -57,7 +57,7 @@ public class MetrologyContractReadingTypeDeliverableUsage implements SelfObjectV
         if (getMetrologyContract() != null && getDeliverable() != null
                 && !getMetrologyContract().getMetrologyConfiguration().equals(getDeliverable().getMetrologyConfiguration())) {
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.DELIVERABLE_MUST_HAVE_THE_SAME_CONFIGURATION + "}")
+            context.buildConstraintViolationWithTemplate("{" + PrivateMessageSeeds.Constants.DELIVERABLE_MUST_HAVE_THE_SAME_CONFIGURATION + "}")
                     .addPropertyNode(Fields.DELIVERABLE.fieldName())
                     .addConstraintViolation();
             return false;

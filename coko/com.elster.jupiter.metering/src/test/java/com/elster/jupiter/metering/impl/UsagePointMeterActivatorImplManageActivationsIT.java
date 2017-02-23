@@ -21,7 +21,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointMeterActivationException;
+import com.elster.jupiter.metering.UsagePointHasMeterOnThisRole;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.impl.config.TestHeadEndInterface;
@@ -386,7 +386,7 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         assertThat(usagePointActivations.get(0).getMeter().get()).isEqualTo(meter);
     }
 
-    @Test(expected = UsagePointMeterActivationException.UsagePointHasMeterOnThisRole.class)
+    @Test(expected = UsagePointHasMeterOnThisRole.class)
     @Transactional
     public void testCanNotLinkTwoMetersOnTheSameMeterRole() {
         AmrSystem system = inMemoryBootstrapModule.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();

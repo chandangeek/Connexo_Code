@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -19,7 +21,6 @@ import com.elster.jupiter.metering.HeatDetailBuilder;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationBuilder;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
@@ -32,7 +33,6 @@ import com.elster.jupiter.metering.UsagePointConnectionState;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
-import com.elster.jupiter.metering.UsagePointManagementException;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.metering.ami.CompletionOptions;
@@ -96,6 +96,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -105,42 +106,43 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Currying.test;
 
-@UniqueMRID(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_USAGE_POINT_MRID + "}")
-@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_USAGE_POINT_NAME + "}")
+@UniqueMRID(groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.DUPLICATE_USAGE_POINT_MRID + "}")
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.DUPLICATE_USAGE_POINT_NAME + "}")
 @AllRequiredCustomPropertySetsHaveValues(groups = {Save.Update.class})
 public class UsagePointImpl implements ServerUsagePoint {
     // persistent fields
     @SuppressWarnings("unused")
     private long id;
-    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String aliasName;
-    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String description;
-    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String serviceLocationString;
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String mRID;
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String name;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private boolean isSdp;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private boolean isVirtual;
-    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String outageRegion;
-    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String readRoute;
-    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String servicePriority;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Instant installationTime;
-    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String serviceDeliveryRemark;
     private TemporalReference<UsagePointConnectionState> connectionState = Temporals.absent();
     private TemporalReference<UsagePointStateTemporalImpl> state = Temporals.absent();
@@ -553,6 +555,7 @@ public class UsagePointImpl implements ServerUsagePoint {
         validateEffectiveMetrologyConfigurationInterval(start, end);
         validateAndClosePreviousMetrologyConfigurationIfExists(start);
         Range<Instant> effectiveInterval = end != null ? Range.closedOpen(start, end) : Range.atLeast(start);
+        this.validateCalendarIfAny(metrologyConfiguration, effectiveInterval);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration =
                 createEffectiveMetrologyConfigurationWithContracts(metrologyConfiguration, optionalContractsToActivate, effectiveInterval);
         this.metrologyConfigurations.add(effectiveMetrologyConfiguration);
@@ -597,6 +600,46 @@ public class UsagePointImpl implements ServerUsagePoint {
         if (latestEndDate != null && nextStartDate.isBefore(latestEndDate)) {
             throw new UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd(thesaurus);
         }
+    }
+
+    private void validateCalendarIfAny(UsagePointMetrologyConfiguration metrologyConfiguration, Range<Instant> period) {
+        Set<Long> requestedEventCodes =
+                mandatoryReadingTypes(metrologyConfiguration)
+                    .map(ReadingType::getTou)
+                    .map(Long::new)
+                    .collect(Collectors.toSet());
+        requestedEventCodes.remove(0L);  // zero is used when time of use in not active on the ReadingType
+        Set<Long> providedEventCodes = this.calendarUsages
+                .stream()
+                .filter(calendarUsage -> calendarUsage.overlaps(period))
+                .map(ServerCalendarUsage::getCalendar)
+                .map(Calendar::getEvents)
+                .flatMap(Collection::stream)
+                .map(Event::getCode)
+                .collect(Collectors.toSet());
+        Set<Long> missingEventCodes = new HashSet<>();
+        for (Long requestedEventCode : requestedEventCodes) {
+            if (!providedEventCodes.contains(requestedEventCode)) {
+                missingEventCodes.add(requestedEventCode);
+            }
+        }
+        if (!missingEventCodes.isEmpty()) {
+            throw new UnsatisfiedTimeOfUseBucketsException(this.thesaurus, missingEventCodes);
+        }
+    }
+
+    private Stream<ReadingType> mandatoryReadingTypes(UsagePointMetrologyConfiguration configuration) {
+        return mandatoryContracts(configuration)
+                .map(MetrologyContract::getDeliverables)
+                .flatMap(Collection::stream)
+                .map(ReadingTypeDeliverable::getReadingType);
+    }
+
+    private Stream<MetrologyContract> mandatoryContracts(UsagePointMetrologyConfiguration configuration) {
+        return configuration
+                .getContracts()
+                .stream()
+                .filter(MetrologyContract::isMandatory);
     }
 
     private EffectiveMetrologyConfigurationOnUsagePointImpl createEffectiveMetrologyConfigurationWithContracts(UsagePointMetrologyConfiguration metrologyConfiguration, Set<MetrologyContract> optionalContractsToActivate, Range<Instant> effectiveInterval) {
@@ -1298,7 +1341,7 @@ public class UsagePointImpl implements ServerUsagePoint {
 
     @Override
     public UsedCalendars getUsedCalendars() {
-        return new UsedCalendarsImpl(this.dataModel, this);
+        return new UsedCalendarsImpl(this.dataModel, this.clock, this);
     }
 
     @Override

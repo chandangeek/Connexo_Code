@@ -11,10 +11,8 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.CannotDeleteMeter;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeterAlreadyActive;
 import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingContainer;
@@ -196,8 +194,8 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
 
     @Override
     public void delete() {
-        if (meterActivations.size() > 0) {
-            throw new CannotDeleteMeter(thesaurus, MessageSeeds.CANNOT_DELETE_METER_METER_ACTIVATIONS_EXIST, getName());
+        if (!meterActivations.isEmpty()) {
+            throw new CannotDeleteMeter(thesaurus, PrivateMessageSeeds.CANNOT_DELETE_METER_METER_ACTIVATIONS_EXIST, getName());
         }
         super.delete();
     }

@@ -10,7 +10,6 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ViewPrivilege;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetValuesManageException;
@@ -254,7 +253,7 @@ class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomProper
                         ? Range.open(usagePoint.getInstallationTime(), valuesRange.upperEndpoint())
                         : Range.atLeast(usagePoint.getInstallationTime());
             } else if (usagePoint.getInstallationTime().isAfter(valuesRange.lowerEndpoint())) {
-                throw new UsagePointCustomPropertySetVersionIncorrectStartDateException(thesaurus, MessageSeeds.START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE);
+                throw new UsagePointCustomPropertySetVersionIncorrectStartDateException(thesaurus, PrivateMessageSeeds.START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE);
             }
             if (anyTimeInVersionInterval == null) {
                 // create new version

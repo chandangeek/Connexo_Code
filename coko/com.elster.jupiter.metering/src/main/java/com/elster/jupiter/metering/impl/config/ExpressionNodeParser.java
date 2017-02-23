@@ -7,7 +7,6 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.Function;
@@ -15,6 +14,7 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -124,11 +124,11 @@ public class ExpressionNodeParser {
         Optional<ReadingTypeDeliverable> readingTypeDeliverable = metrologyConfigurationService.findReadingTypeDeliverable(id);
         if (readingTypeDeliverable.isPresent()) {
             if (!readingTypeDeliverable.get().getMetrologyConfiguration().equals(metrologyConfiguration)) {
-                throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE, (int) readingTypeDeliverable.get().getId());
+                throw new InvalidNodeException(thesaurus, PrivateMessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE, (int) readingTypeDeliverable.get().getId());
             }
             if ((isAutoMode() && readingTypeDeliverable.get().getFormula().getMode().equals(Formula.Mode.EXPERT)) ||
                     (isExpertMode() && readingTypeDeliverable.get().getFormula().getMode().equals(Formula.Mode.AUTO))) {
-                throw new InvalidNodeException(thesaurus, MessageSeeds.AUTO_AND_EXPERT_MODE_CANNOT_BE_COMBINED);
+                throw new InvalidNodeException(thesaurus, PrivateMessageSeeds.AUTO_AND_EXPERT_MODE_CANNOT_BE_COMBINED);
             }
             nodes.add(new ReadingTypeDeliverableNodeImpl(readingTypeDeliverable.get()));
         } else {
@@ -146,10 +146,10 @@ public class ExpressionNodeParser {
         Optional<ReadingTypeRequirement> readingTypeRequirement = metrologyConfigurationService.findReadingTypeRequirement(id);
         if (readingTypeRequirement.isPresent()) {
             if (!readingTypeRequirement.get().getMetrologyConfiguration().equals(metrologyConfiguration)) {
-                throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT, (int) readingTypeRequirement.get().getId());
+                throw new InvalidNodeException(thesaurus, PrivateMessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT, (int) readingTypeRequirement.get().getId());
             }
             if ((mode.equals(Formula.Mode.AUTO) && (!UnitConversionSupport.isValidForAggregation(readingTypeRequirement.get().getUnits())))) {
-                throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_READINGTYPE_UNIT_IN_REQUIREMENT);
+                throw new InvalidNodeException(thesaurus, PrivateMessageSeeds.INVALID_READINGTYPE_UNIT_IN_REQUIREMENT);
             }
 
             nodes.add(new ReadingTypeRequirementNodeImpl(readingTypeRequirement.get()));

@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 
@@ -13,6 +12,6 @@ import com.elster.jupiter.nls.Thesaurus;
  */
 public class RemoveCurrentEffectiveMetrologyConfigurationException extends LocalizedException {
     protected RemoveCurrentEffectiveMetrologyConfigurationException(Thesaurus thesaurus) {
-        super(thesaurus, MessageSeeds.CURRENT_EFFECTIVE_METROLOGY_CONFIG_CANT_BE_REMOVED);
+        super(thesaurus, PrivateMessageSeeds.CURRENT_EFFECTIVE_METROLOGY_CONFIG_CANT_BE_REMOVED);
     }
 }

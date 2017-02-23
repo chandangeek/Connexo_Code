@@ -8,7 +8,6 @@ import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.orm.DataModel;
@@ -34,7 +33,7 @@ public class ElectricityDetailBuilderImpl implements ElectricityDetailBuilder {
     private Quantity ratedPower;
     private Quantity estimatedLoad;
     private YesNoAnswer limiter;
-    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String loadLimiterType;
     private Quantity loadLimit;
     private YesNoAnswer interruptible;

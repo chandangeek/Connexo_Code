@@ -4,7 +4,7 @@
 
 package com.elster.jupiter.metering.impl.config;
 
-import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -29,7 +29,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Constraint(validatedBy = {DeliverableTimeOfUseBucketsBackedByEventSetValidator.class })
 public @interface DeliverableTimeOfUseBucketsBackedByEventSet {
 
-    String message() default "{" + MessageSeeds.Constants.DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET + "}";
+    String message() default "{" + PrivateMessageSeeds.Constants.DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET + "}";
 
     Class<?>[] groups() default { };
 

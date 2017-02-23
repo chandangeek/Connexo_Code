@@ -8,12 +8,12 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.orm.Table;
@@ -92,7 +92,7 @@ public class MetrologyPurposeImplTestIT {
     }
 
     @Test
-    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     @Transactional
     public void testCreateMetrologyPurposeWithEmptyName() {
         inMemoryBootstrapModule.getMetrologyConfigurationService().createMetrologyPurpose(
@@ -101,7 +101,7 @@ public class MetrologyPurposeImplTestIT {
     }
 
     @Test
-    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     @Transactional
     public void testCreateMetrologyPurposeWithTooLongName() {
         String[] name = new String[Table.NAME_LENGTH + 1];
@@ -113,7 +113,7 @@ public class MetrologyPurposeImplTestIT {
     }
 
     @Test
-    @ExpectedConstraintViolation(property = "description", messageId = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @ExpectedConstraintViolation(property = "description", messageId = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     @Transactional
     public void testCreateMetrologyPurposeWithTooLongDescription() {
         String[] description = new String[Table.DESCRIPTION_LENGTH + 1];

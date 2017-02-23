@@ -16,10 +16,10 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.impl.AggregatedChannelImpl;
 import com.elster.jupiter.metering.impl.ChannelContract;
-import com.elster.jupiter.metering.impl.ChannelImpl;
 import com.elster.jupiter.metering.impl.ChannelsContainerImpl;
 import com.elster.jupiter.metering.impl.IReadingType;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.impl.SimpleChannelContract;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.util.time.Interval;
 
@@ -54,12 +54,12 @@ public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImp
         }
     }
 
-    private final Provider<ChannelImpl> channelFactory;
+    private final Provider<SimpleChannelContract> channelFactory;
     private List<EffectiveMetrologyContractOnUsagePoint> effectiveMetrologyContract = new ArrayList<>();
     private List<Channel> mappedChannels;
 
     @Inject
-    public MetrologyContractChannelsContainerImpl(ServerMeteringService meteringService, EventService eventService, Provider<ChannelImpl> channelFactory) {
+    public MetrologyContractChannelsContainerImpl(ServerMeteringService meteringService, EventService eventService, Provider<SimpleChannelContract> channelFactory) {
         super(meteringService, eventService, null);
         this.channelFactory = channelFactory;
     }

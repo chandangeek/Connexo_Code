@@ -5,7 +5,6 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
@@ -18,6 +17,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -53,17 +53,21 @@ public class MetrologyContractImpl implements MetrologyContract {
 
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
-    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private final Reference<ServerMetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
-    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private final Reference<MetrologyPurpose> metrologyPurpose = ValueReference.absent();
     private boolean mandatory;
     private List<MetrologyContractReadingTypeDeliverableUsage> deliverables = new ArrayList<>();
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
 
     @Inject
@@ -191,12 +195,16 @@ public class MetrologyContractImpl implements MetrologyContract {
 
             boolean allMeterRolesHasMeters = true;
             for (MeterRole meterRole : meterRoles) {
-                MeterActivation meterActivation = !usagePoint.getMeterActivations(meterRole)
-                        .isEmpty() ? usagePoint.getMeterActivations(meterRole)
-                        .stream()
-                        .filter(meterActivationToCheck -> meterActivationToCheck.getEnd() == null)
-                        .findFirst()
-                        .orElse(null) : null;
+                MeterActivation meterActivation;
+                if (!usagePoint.getMeterActivations(meterRole).isEmpty()) {
+                    meterActivation = usagePoint.getMeterActivations(meterRole)
+                            .stream()
+                            .filter(meterActivationToCheck -> meterActivationToCheck.getEnd() == null)
+                            .findFirst()
+                            .orElse(null);
+                } else {
+                    meterActivation = null;
+                }
                 allMeterRolesHasMeters &= meterActivation != null;
             }
             return allMeterRolesHasMeters ? MetrologyContractStatusKey.COMPLETE : MetrologyContractStatusKey.INCOMPLETE;

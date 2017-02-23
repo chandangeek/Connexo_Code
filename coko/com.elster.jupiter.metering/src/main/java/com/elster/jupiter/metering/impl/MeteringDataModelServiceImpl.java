@@ -93,6 +93,8 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
@@ -258,6 +260,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 bind(TimeService.class).toInstance(timeService);
                 bind(Publisher.class).toInstance(publisher);
                 bind(CalendarService.class).toInstance(calendarService);
+                bind(SimpleChannelContract.class).to(ChannelImpl.class);
             }
         });
     }
@@ -379,7 +382,10 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
 
     @Override
     public List<MessageSeed> getSeeds() {
-        return Arrays.asList(MessageSeeds.values());
+        return Stream.concat(
+                    Stream.of(MessageSeeds.values()),
+                    Stream.of(PrivateMessageSeeds.values()))
+                .collect(Collectors.toList());
     }
 
     @Override

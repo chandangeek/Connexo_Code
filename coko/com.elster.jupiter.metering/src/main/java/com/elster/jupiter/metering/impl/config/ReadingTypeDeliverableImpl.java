@@ -9,7 +9,6 @@ import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EventType;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.metering.config.Formula;
@@ -17,6 +16,7 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -32,7 +32,7 @@ import java.util.List;
 
 
 @ValidDeliverable(groups = { Save.Create.class, Save.Update.class })
-@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
 public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUniqueName {
 
     public enum Fields {
@@ -63,17 +63,17 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
     // Managed by ORM
     @SuppressWarnings("unused")
     private long id;
-    @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @NotEmpty(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
+    @Size(max = Table.NAME_LENGTH, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String name;
-    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Reference<ServerMetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
-    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingType> readingType = ValueReference.absent();
-    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     @ValidExpression
     private Reference<ServerFormula> formula = ValueReference.absent();
-    @NotNull(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @NotNull(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private DeliverableType deliverableType;
 
     // Managed by ORM

@@ -4,7 +4,7 @@
 
 package com.elster.jupiter.metering.impl.config;
 
-import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.InvalidValueException;
@@ -16,10 +16,11 @@ public class BadUsagePointRequirementException extends LocalizedException {
     }
 
     public static BadUsagePointRequirementException underlyingSearchablePropertyNotFound(Thesaurus thesaurus, String propertyName) {
-        return new BadUsagePointRequirementException(thesaurus, MessageSeeds.SEARCHABLE_PROPERTY_NOT_FOUND, propertyName);
+        return new BadUsagePointRequirementException(thesaurus, PrivateMessageSeeds.SEARCHABLE_PROPERTY_NOT_FOUND, propertyName);
     }
 
     public static BadUsagePointRequirementException badValue(Thesaurus thesaurus, InvalidValueException ex) {
-        return new BadUsagePointRequirementException(thesaurus, MessageSeeds.SEARCHABLE_PROPERTY_NOT_FOUND, ex.getLocalizedMessage());
+        return new BadUsagePointRequirementException(thesaurus, PrivateMessageSeeds.SEARCHABLE_PROPERTY_NOT_FOUND, ex.getLocalizedMessage());
     }
+
 }

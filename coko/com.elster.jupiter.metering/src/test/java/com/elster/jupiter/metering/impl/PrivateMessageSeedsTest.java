@@ -2,15 +2,11 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.metering;
+package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
-import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,40 +15,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MessageSeedsTest {
-
-    @Test
-    public void noOverlapBetweenPublicAndPrivateMessageSeeds() {
-        Set<Integer> publicIds = Stream.of(MessageSeeds.values()).map(MessageSeed::getNumber).collect(Collectors.toSet());
-        for (PrivateMessageSeeds messageSeed : PrivateMessageSeeds.values()) {
-            assertThat(publicIds)
-                .as(messageSeed.name() + " overlaps with public MessageSeeds enum value " + publicWithNumber(messageSeed.getNumber()))
-                .doesNotContain(messageSeed.getNumber());
-        }
-    }
-
-    private String publicWithNumber(int number) {
-        return Stream.of(MessageSeeds.values()).filter(each -> each.getNumber() == number).findAny().map(MessageSeeds::name).orElse("");
-    }
-
-    @Test
-    public void noOverlapBetweenPrivateAndPublicMessageSeeds() {
-        Set<Integer> privateIds = Stream.of(PrivateMessageSeeds.values()).map(MessageSeed::getNumber).collect(Collectors.toSet());
-        for (MessageSeeds messageSeed : MessageSeeds.values()) {
-            assertThat(privateIds)
-                .as(messageSeed.name() + " overlaps with private MessageSeeds enum value " + privateWithNumber(messageSeed.getNumber()))
-                .doesNotContain(messageSeed.getNumber());
-        }
-    }
-
-    private String privateWithNumber(int number) {
-        return Stream.of(PrivateMessageSeeds.values()).filter(each -> each.getNumber() == number).findAny().map(PrivateMessageSeeds::name).orElse("");
-    }
+public class PrivateMessageSeedsTest {
 
     @Test
     public void testAllSeedsHaveUniqueNumber() {
         Set<Integer> uniqueIds = new HashSet<>();
-        for (MessageSeeds messageSeed : MessageSeeds.values()) {
+        for (PrivateMessageSeeds messageSeed : PrivateMessageSeeds.values()) {
             assertThat(uniqueIds).as(messageSeed.name() + " does not have a unique number")
                     .doesNotContain(messageSeed.getNumber());
             uniqueIds.add(messageSeed.getNumber());
@@ -62,7 +30,7 @@ public class MessageSeedsTest {
     @Test
     public void testAllMessageSeedsHaveUniqueKeys() {
         Set<String> uniqueKeys = new HashSet<>();
-        for (MessageSeeds messageSeed : MessageSeeds.values()) {
+        for (PrivateMessageSeeds messageSeed : PrivateMessageSeeds.values()) {
             assertThat(uniqueKeys.add(messageSeed.getKey())).as(messageSeed.name() + " does not have a unique key")
                     .isEqualTo(true);
         }
@@ -70,7 +38,7 @@ public class MessageSeedsTest {
 
     @Test
     public void testAllSeedsHaveNonNullKey() {
-        for (MessageSeeds messageSeed : MessageSeeds.values()) {
+        for (PrivateMessageSeeds messageSeed : PrivateMessageSeeds.values()) {
             assertThat(messageSeed.getKey()).as(messageSeed.name() + " has null key")
                     .isNotNull();
         }
@@ -78,7 +46,7 @@ public class MessageSeedsTest {
 
     @Test
     public void testKeyDoesntStartOrEndWithANonPrintableChar() {
-        for (MessageSeeds messageSeed : MessageSeeds.values()) {
+        for (PrivateMessageSeeds messageSeed : PrivateMessageSeeds.values()) {
             String key = messageSeed.getKey();
             assertThat(key.trim().length())
                     .as(messageSeed.name() + " has empty key")
@@ -90,7 +58,7 @@ public class MessageSeedsTest {
 
     @Test
     public void testAllMessageSeedKeysAreWithinLengthLimit() {
-        for (MessageSeeds messageSeed : MessageSeeds.values()) {
+        for (PrivateMessageSeeds messageSeed : PrivateMessageSeeds.values()) {
             assertThat(messageSeed.getKey().length()).as(messageSeed.name() + " key is longer than max of 256")
                     .isLessThanOrEqualTo(256);
         }
@@ -98,7 +66,7 @@ public class MessageSeedsTest {
 
     @Test
     public void testAllSeedsHaveNonNullDefaultFormat() {
-        for (MessageSeeds messageSeed : MessageSeeds.values()) {
+        for (PrivateMessageSeeds messageSeed : PrivateMessageSeeds.values()) {
             assertThat(messageSeed.getDefaultFormat()).as(messageSeed.name() + " has null default format")
                     .isNotNull();
         }
@@ -106,7 +74,7 @@ public class MessageSeedsTest {
 
     @Test
     public void testDefaultFormatDoesntStartOrEndWithANonPrintableChar() {
-        for (MessageSeeds messageSeed : MessageSeeds.values()) {
+        for (PrivateMessageSeeds messageSeed : PrivateMessageSeeds.values()) {
             String defaultFormat = messageSeed.getDefaultFormat();
             assertThat(defaultFormat.trim().length())
                     .as(messageSeed.name() + " has empty default format")

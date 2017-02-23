@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Effectivity;
@@ -24,9 +23,9 @@ public class UsagePointStateTemporalImpl implements Effectivity {
 
     private final DataModel dataModel;
 
-    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
-    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Reference<UsagePointState> state = ValueReference.absent();
     private Interval interval;
     @SuppressWarnings("unused")

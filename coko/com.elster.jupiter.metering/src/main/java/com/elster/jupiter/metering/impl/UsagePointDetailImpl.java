@@ -5,7 +5,6 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.orm.DataModel;
@@ -25,7 +24,7 @@ import java.util.Objects;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 
-@HasUniqueDetailsForInterval(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.UNIQUE_DETAILS + "}")
+@HasUniqueDetailsForInterval(groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.UNIQUE_DETAILS + "}")
 public abstract class UsagePointDetailImpl implements UsagePointDetail {
 
     static final Map<String, Class<? extends UsagePointDetail>> IMPLEMENTERS = createImplementers();

@@ -14,13 +14,13 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.DefaultReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.conditions.Condition;
 
@@ -154,7 +154,7 @@ public class ReadingTypeTemplateImplTestIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(property = "code", messageId = "{" + MessageSeeds.Constants.READING_TYPE_ATTRIBUTE_CODE_IS_NOT_WITHIN_LIMITS + "}", strict = true)
+    @ExpectedConstraintViolation(property = "code", messageId = "{" + PrivateMessageSeeds.Constants.READING_TYPE_ATTRIBUTE_CODE_IS_NOT_WITHIN_LIMITS + "}", strict = true)
     public void createAttributeWithCodeIsNotWithinPossibleValues() {
         inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .createReadingTypeTemplate("Bad time code")
@@ -265,7 +265,7 @@ public class ReadingTypeTemplateImplTestIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.READING_TYPE_TEMPLATE_UNITS_SHOULD_HAVE_THE_SAME_DIMENSION + "}", property = "values", strict = true)
+    @ExpectedConstraintViolation(messageId = "{" + PrivateMessageSeeds.Constants.READING_TYPE_TEMPLATE_UNITS_SHOULD_HAVE_THE_SAME_DIMENSION + "}", property = "values", strict = true)
     public void testValidPossibleValuesHaveTheSameDimension() {
         inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("Valid possible units dimension")
                 .setAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, null, ReadingTypeUnit.AMPERE.getId(), ReadingTypeUnit.LITRE.getId())
@@ -274,7 +274,7 @@ public class ReadingTypeTemplateImplTestIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}", property = "name", strict = true)
+    @ExpectedConstraintViolation(messageId = "{" + PrivateMessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}", property = "name", strict = true)
     public void testValidTemplateHasUniqueNameDuringCreation() {
         inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("Name").done();
         inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("Name").done();

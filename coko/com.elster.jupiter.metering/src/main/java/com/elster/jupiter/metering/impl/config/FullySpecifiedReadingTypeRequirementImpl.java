@@ -5,10 +5,10 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.metering.impl.aggregation.IntervalLength;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -25,7 +25,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 class FullySpecifiedReadingTypeRequirementImpl extends ReadingTypeRequirementImpl implements FullySpecifiedReadingTypeRequirement {
     public static final String TYPE_IDENTIFIER = "FUL";
 
-    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingType> readingType = ValueReference.absent();
 
     @Inject
@@ -55,7 +55,7 @@ class FullySpecifiedReadingTypeRequirementImpl extends ReadingTypeRequirementImp
                 && getReadingType() != null
                 && hasRequirementsWithTheSameReadingType()) {
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.REQUIREMENT_MUST_HAVE_UNIQUE_RT + "}")
+            context.buildConstraintViolationWithTemplate("{" + PrivateMessageSeeds.Constants.REQUIREMENT_MUST_HAVE_UNIQUE_RT + "}")
                     .addPropertyNode(Fields.READING_TYPE.fieldName())
                     .addConstraintViolation();
             return false;

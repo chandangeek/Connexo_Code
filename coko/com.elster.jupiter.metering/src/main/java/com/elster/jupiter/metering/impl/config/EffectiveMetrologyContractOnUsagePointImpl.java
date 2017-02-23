@@ -56,8 +56,8 @@ public class EffectiveMetrologyContractOnUsagePointImpl implements EffectiveMetr
         this.metrologyConfiguration.set(metrologyConfiguration);
         this.metrologyContract.set(metrologyContract);
         this.interval = metrologyConfiguration.getInterval();
-        MetrologyContractChannelsContainerImpl channelsContainer = this.dataModel.getInstance(MetrologyContractChannelsContainerImpl.class)
-                .init(this);
+        MetrologyContractChannelsContainerImpl channelsContainer =
+                this.dataModel.getInstance(MetrologyContractChannelsContainerImpl.class).init(this);
         dataModel.persist(channelsContainer);
         this.channelsContainer.set(channelsContainer);
         return this;

@@ -11,7 +11,6 @@ import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EventType;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -26,6 +25,7 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.metering.impl.TableSpecs;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.InvalidateCacheRequest;
@@ -57,7 +57,7 @@ import static com.elster.jupiter.domain.util.Save.CREATE;
 import static com.elster.jupiter.domain.util.Save.UPDATE;
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
 @DeliverableTimeOfUseBucketsBackedByEventSet(groups = MetrologyConfigurationImpl.Activation.class)
 public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration, HasUniqueName {
     public static final String TYPE_IDENTIFIER = "B";
@@ -103,14 +103,14 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @SuppressWarnings("unused")
     private long id;
-    @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @NotEmpty(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
+    @Size(max = Table.NAME_LENGTH, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String name;
-    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String description;
     @NotNull
     private MetrologyConfigurationStatus status = MetrologyConfigurationStatus.INACTIVE;
-    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Reference<ServiceCategory> serviceCategory = ValueReference.absent();
     @Valid
     private List<MetrologyConfigurationCustomPropertySetUsage> customPropertySets = new ArrayList<>();

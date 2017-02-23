@@ -6,10 +6,10 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.EventSet;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.nls.Thesaurus;
 
 import javax.inject.Inject;
@@ -73,7 +73,7 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidator implements Con
     private boolean validate(ConstraintValidatorContext context, ReadingTypeDeliverable deliverable, Set<Long> eventCodes) {
         long eventCode = deliverable.getReadingType().getTou();
         if (!eventCodes.contains(eventCode)){
-            String message = this.thesaurus.getFormat(MessageSeeds.DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET).format(Long.toString(eventCode), deliverable.getName());
+            String message = this.thesaurus.getFormat(PrivateMessageSeeds.DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET).format(Long.toString(eventCode), deliverable.getName());
             context
                 .buildConstraintViolationWithTemplate(message)
                 .addPropertyNode("deliverables")

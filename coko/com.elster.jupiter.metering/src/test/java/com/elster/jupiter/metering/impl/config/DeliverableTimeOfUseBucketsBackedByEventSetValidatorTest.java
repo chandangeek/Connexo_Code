@@ -16,11 +16,11 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -166,7 +166,7 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidatorTest {
         this.testValidation(this.metrologyConfiguration, 1);
 
         // Asserts: see expected constraint violation rule
-        this.thesaurus.getFormat(MessageSeeds.DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET);
+        this.thesaurus.getFormat(PrivateMessageSeeds.DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET);
     }
 
     @Test
@@ -186,7 +186,7 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidatorTest {
         this.testValidation(this.metrologyConfiguration, 2);
 
         // Asserts: see expected constraint violation rule
-        this.thesaurus.getFormat(MessageSeeds.DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET);
+        this.thesaurus.getFormat(PrivateMessageSeeds.DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET);
     }
 
     @Test
@@ -240,7 +240,7 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidatorTest {
         this.testValidation(this.metrologyConfiguration, 1);
 
         // Asserts: see expected constraint violation rule
-        this.thesaurus.getFormat(MessageSeeds.DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET);
+        this.thesaurus.getFormat(PrivateMessageSeeds.DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET);
     }
 
     private void testValidation(MetrologyConfiguration configuration) {

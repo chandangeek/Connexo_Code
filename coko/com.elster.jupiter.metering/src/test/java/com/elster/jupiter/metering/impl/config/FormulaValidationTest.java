@@ -4,10 +4,10 @@
 
 package com.elster.jupiter.metering.impl.config;
 
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.util.units.Dimension;
 
 import java.math.BigDecimal;
@@ -351,7 +351,7 @@ public class FormulaValidationTest {
             node.validate();
         } catch (InvalidNodeException e) {
             // Asserts
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.SAFE_DIVISION_REQUIRES_NON_ZERO_NUMERICAL_CONSTANT);
+            assertThat(e.getMessageSeed()).isEqualTo(PrivateMessageSeeds.SAFE_DIVISION_REQUIRES_NON_ZERO_NUMERICAL_CONSTANT);
             throw e;
         }
     }
@@ -377,7 +377,7 @@ public class FormulaValidationTest {
             node.validate();
         } catch (InvalidNodeException e) {
             // Asserts
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.SAFE_DIVISION_REQUIRES_NUMERICAL_CONSTANT);
+            assertThat(e.getMessageSeed()).isEqualTo(PrivateMessageSeeds.SAFE_DIVISION_REQUIRES_NUMERICAL_CONSTANT);
             throw e;
         }
     }

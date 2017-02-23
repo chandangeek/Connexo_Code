@@ -4,8 +4,8 @@
 
 package com.elster.jupiter.metering.impl.config;
 
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.UsagePointRequirement;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -31,9 +31,9 @@ public class UsagePointRequirementValue {
         }
     }
 
-    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Reference<UsagePointRequirement> usagePointRequirement = ValueReference.absent();
-    @NotNull(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @NotNull(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     @Size(min = 1, max = Table.SHORT_DESCRIPTION_LENGTH)
     private String value;
 

@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.DataModel;
 
 import com.google.common.collect.Range;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -26,10 +27,12 @@ import static com.elster.jupiter.util.streams.Functions.map;
 public class UsedCalendarsImpl implements UsagePoint.UsedCalendars {
 
     private final DataModel dataModel;
+    private final Clock clock;
     private final UsagePointImpl usagePoint;
 
-    public UsedCalendarsImpl(DataModel dataModel, UsagePointImpl usagePoint) {
+    public UsedCalendarsImpl(DataModel dataModel, Clock clock, UsagePointImpl usagePoint) {
         this.dataModel = dataModel;
+        this.clock = clock;
         this.usagePoint = usagePoint;
     }
 
@@ -56,7 +59,7 @@ public class UsedCalendarsImpl implements UsagePoint.UsedCalendars {
     @Override
     public UsagePoint.CalendarUsage addCalendar(Instant startAt, Calendar calendar) {
         if (calendar != null) {
-            if (startAt.isBefore(Instant.now())) {
+            if (startAt.isBefore(this.clock.instant())) {
                 throw new CannotStartCalendarBeforeNow();
             }
             if (getCalendarUsages().stream()
@@ -76,7 +79,7 @@ public class UsedCalendarsImpl implements UsagePoint.UsedCalendars {
 
     @Override
     public UsagePoint.CalendarUsage addCalendar(Calendar calendar) {
-        Instant now = Instant.now();
+        Instant now = this.clock.instant();
         if (calendar != null) {
             if (getCalendarUsages().stream()
                     .filter(test(this::hasCategory).with(calendar.getCategory()))

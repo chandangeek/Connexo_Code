@@ -17,7 +17,6 @@ import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeterAlreadyLinkedToUsagePoint;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.nls.NlsMessageFormat;

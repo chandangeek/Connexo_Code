@@ -8,13 +8,13 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.PartiallySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.metering.impl.aggregation.IntervalLength;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.units.Dimension;
@@ -38,7 +38,7 @@ class PartiallySpecifiedReadingTypeRequirementImpl extends ReadingTypeRequiremen
 
     private final DataModel dataModel;
 
-    @NotNull(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @NotNull(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Long readingTypeTemplateId;
     private transient ReadingTypeTemplate cachedReadingTypeTemplate;
     private List<PartiallySpecifiedReadingTypeAttributeValueImpl> overriddenAttributes = new ArrayList<>(ReadingTypeTemplateAttributeName.values().length);

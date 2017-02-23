@@ -8,7 +8,6 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
@@ -23,6 +22,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.transaction.TransactionContext;
 
@@ -91,7 +91,7 @@ public class ReadingTypeDeliverableImplTestIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     public void testCreateReadingTypeDeliverableWithoutName() {
         ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable(null, readingType, Formula.Mode.AUTO);
 
@@ -101,7 +101,7 @@ public class ReadingTypeDeliverableImplTestIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     public void testCreateReadingTypeDeliverableWithEmptyName() {
         ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("", readingType, Formula.Mode.AUTO);
 
@@ -110,7 +110,7 @@ public class ReadingTypeDeliverableImplTestIT {
     }
 
     @Test
-    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     @Transactional
     public void testCreateReadingTypeDeliverableWithTooLongName() {
         String[] name = new String[Table.NAME_LENGTH + 1];
@@ -124,7 +124,7 @@ public class ReadingTypeDeliverableImplTestIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(property = "readingType", messageId = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @ExpectedConstraintViolation(property = "readingType", messageId = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     public void testCreateReadingTypeDeliverableWithoutReadingType() {
         ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("deliverable", null, Formula.Mode.AUTO);
 
@@ -134,7 +134,7 @@ public class ReadingTypeDeliverableImplTestIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + PrivateMessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
     public void testCreateReadingTypeDeliverableWithTheSameName() {
         ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("name", readingType, Formula.Mode.AUTO);
         builder.build(builder.constant(10));
@@ -167,7 +167,7 @@ public class ReadingTypeDeliverableImplTestIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + PrivateMessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
     public void testUPdateNonUniqueReadingTypeDeliverableName() {
         ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("name", readingType, Formula.Mode.AUTO);
         builder.build(builder.constant(10));
@@ -335,7 +335,7 @@ public class ReadingTypeDeliverableImplTestIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.DELIVERABLE_MUST_HAVE_THE_SAME_CONFIGURATION + "}", property = "deliverable", strict = true)
+    @ExpectedConstraintViolation(messageId = "{" + PrivateMessageSeeds.Constants.DELIVERABLE_MUST_HAVE_THE_SAME_CONFIGURATION + "}", property = "deliverable", strict = true)
     public void testCanNotAddDeliverableFromAnotherMetrologyConfigurationToMetrologyContract() {
         ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         MetrologyConfiguration anotherConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService()

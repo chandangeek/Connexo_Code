@@ -10,7 +10,6 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.EventType;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -182,7 +181,7 @@ public class MeterReadingStorer {
                     toCreate.add(eventRecord);
                 }
             } else {
-                MessageSeeds.METER_EVENT_IGNORED.log(logger, thesaurus, sourceEvent.getEventTypeCode(), meter.getName());
+                PrivateMessageSeeds.METER_EVENT_IGNORED.log(logger, thesaurus, sourceEvent.getEventTypeCode(), meter.getName());
             }
         }
         getEventMapper().persist(toCreate);
@@ -265,7 +264,7 @@ public class MeterReadingStorer {
         } else {
             try {
                 ReadingType readingType = meteringService.createReadingType(code, "");
-                MessageSeeds.READINGTYPE_ADDED.log(logger, thesaurus, code, meter.getName());
+                PrivateMessageSeeds.READINGTYPE_ADDED.log(logger, thesaurus, code, meter.getName());
                 return readingType;
             } catch (UnderlyingSQLFailedException e) {
                 // maybe some other thread beat us in the race, if not rethrow exception
@@ -292,7 +291,7 @@ public class MeterReadingStorer {
                     return channelsContainer.createChannel(readingType);
                 }
             }
-            MessageSeeds.NOMETERACTIVATION.log(logger, thesaurus, meter.getName(), reading.getTimeStamp());
+            PrivateMessageSeeds.NOMETERACTIVATION.log(logger, thesaurus, meter.getName(), reading.getTimeStamp());
             return null;
         } else {
             return channel;

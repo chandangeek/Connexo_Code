@@ -15,7 +15,6 @@ import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeterAlreadyLinkedToUsagePoint;
 import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.MultiplierUsage;
@@ -508,7 +507,7 @@ public final class MeterActivationImpl implements IMeterActivation {
 
     private class ChannelDataPresentException extends LocalizedException {
         ChannelDataPresentException() {
-            super(thesaurus, MessageSeeds.CHANNEL_DATA_PRESENT);
+            super(thesaurus, PrivateMessageSeeds.CHANNEL_DATA_PRESENT);
         }
     }
 

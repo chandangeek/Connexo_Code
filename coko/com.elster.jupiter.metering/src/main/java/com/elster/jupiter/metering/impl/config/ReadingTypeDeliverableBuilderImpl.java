@@ -7,7 +7,6 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.DeliverableType;
@@ -16,6 +15,7 @@ import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -68,11 +68,11 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     @Override
     public FormulaBuilder deliverable(ReadingTypeDeliverable readingTypeDeliverable) {
         if (!readingTypeDeliverable.getMetrologyConfiguration().equals(metrologyConfiguration)) {
-            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE, (int) readingTypeDeliverable.getId());
+            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), PrivateMessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE, (int) readingTypeDeliverable.getId());
         }
         if ((isAutoMode() && readingTypeDeliverable.getFormula().getMode().equals(Formula.Mode.EXPERT)) ||
                 (isExpertMode() && readingTypeDeliverable.getFormula().getMode().equals(Formula.Mode.AUTO))) {
-            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.AUTO_AND_EXPERT_MODE_CANNOT_BE_COMBINED);
+            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), PrivateMessageSeeds.AUTO_AND_EXPERT_MODE_CANNOT_BE_COMBINED);
         }
         return new FormulaAndExpressionNodeBuilder(formulaBuilder.deliverable(readingTypeDeliverable));
     }
@@ -80,10 +80,10 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     @Override
     public FormulaBuilder requirement(ReadingTypeRequirement requirement) {
         if (!requirement.getMetrologyConfiguration().equals(metrologyConfiguration)) {
-            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT, (int) requirement.getId());
+            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), PrivateMessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT, (int) requirement.getId());
         }
         if ((isAutoMode()) && (!UnitConversionSupport.isValidForAggregation(requirement.getUnits()))) {
-            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_READINGTYPE_UNIT_IN_REQUIREMENT);
+            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), PrivateMessageSeeds.INVALID_READINGTYPE_UNIT_IN_REQUIREMENT);
         }
         return new FormulaAndExpressionNodeBuilder(formulaBuilder.requirement(requirement));
     }

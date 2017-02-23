@@ -7,7 +7,6 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
@@ -16,6 +15,7 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UnsatisfiedReadingTypeRequirements;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointRequirement;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.metering.impl.search.UsagePointRequirementsSearchDomain;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pubsub.Publisher;
@@ -131,7 +131,7 @@ class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl im
 
     @Override
     public UsagePointMetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder newReadingTypeRequirement(String name) {
-        throw new UnsupportedOperationException(MessageSeeds.Constants.REQUIRED);
+        throw new UnsupportedOperationException(PrivateMessageSeeds.Constants.REQUIRED);
     }
 
     @Override

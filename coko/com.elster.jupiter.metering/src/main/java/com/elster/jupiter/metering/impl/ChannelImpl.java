@@ -84,7 +84,7 @@ import static com.elster.jupiter.util.streams.Predicates.not;
 import static com.elster.jupiter.util.streams.Predicates.on;
 import static com.elster.jupiter.util.streams.Predicates.self;
 
-public final class ChannelImpl implements ChannelContract {
+public final class ChannelImpl implements SimpleChannelContract {
 
     static final int INTERVALVAULTID = 1;
     static final int IRREGULARVAULTID = 2;
@@ -127,6 +127,7 @@ public final class ChannelImpl implements ChannelContract {
         this.eventService = eventService;
     }
 
+    @Override
     public ChannelImpl init(ChannelsContainer channelsContainer, List<IReadingType> readingTypes) {
         return init(channelsContainer, readingTypes, this::determineRule);
     }

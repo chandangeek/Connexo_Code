@@ -6,13 +6,13 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.DefaultReadingTypeTemplate;
+import com.elster.jupiter.metering.config.ReadingTypeRestriction;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
-import com.elster.jupiter.metering.config.ReadingTypeRestriction;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@UniqueName(groups = {Save.Create.class}, message = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
+@UniqueName(groups = {Save.Create.class}, message = "{" + PrivateMessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
 public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, PersistenceAware, HasUniqueName {
     public enum Fields {
         ID("id"),
@@ -55,16 +55,21 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
-    @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @NotEmpty(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private String name;
     @Valid
     private List<ReadingTypeTemplateAttribute> persistedAttributes = new ArrayList<>(ReadingTypeTemplateAttributeName.values().length);
     private DefaultReadingTypeTemplate defaultTemplate;
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
 
     private ReadingTypeRestriction equidistant;

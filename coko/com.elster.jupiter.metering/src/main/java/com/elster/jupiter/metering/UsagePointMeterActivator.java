@@ -5,6 +5,7 @@
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.impl.UsagePointMeterActivationException;
 
 import aQute.bnd.annotation.ProviderType;
 

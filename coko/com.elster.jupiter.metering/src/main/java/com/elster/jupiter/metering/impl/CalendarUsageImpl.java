@@ -6,7 +6,6 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -45,7 +44,7 @@ public class CalendarUsageImpl implements ServerCalendarUsage {
     @SuppressWarnings("unused") // Managed by ORM
     private long id;
     private Reference<ServerUsagePoint> usagePoint = ValueReference.absent();
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Reference<Calendar> calendar = ValueReference.absent();
     private Interval interval;
 

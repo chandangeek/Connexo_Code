@@ -4,12 +4,12 @@
 
 package com.elster.jupiter.metering.impl.config;
 
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.NullNode;
 import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.Operator;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.metering.impl.aggregation.IntermediateDimension;
 import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.nls.Thesaurus;
@@ -93,29 +93,29 @@ public class OperationNodeImpl extends AbstractNode implements OperationNode {
             if (operator.equals(Operator.MINUS) || operator.equals(Operator.PLUS)) {
                 if (!UnitConversionSupport.areCompatibleForAutomaticUnitConversion(
                         left.getDimension(), right.getDimension())) {
-                    throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_ARGUMENTS_FOR_SUM_OR_SUBSTRACTION);
+                    throw new InvalidNodeException(thesaurus, PrivateMessageSeeds.INVALID_ARGUMENTS_FOR_SUM_OR_SUBSTRACTION);
                 }
             }
             if ((operator.equals(Operator.MULTIPLY)) &&
                     (!UnitConversionSupport.isAllowedMultiplication(left.getIntermediateDimension(), right.getIntermediateDimension()))) {
-                throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_ARGUMENTS_FOR_MULTIPLICATION);
+                throw new InvalidNodeException(thesaurus, PrivateMessageSeeds.INVALID_ARGUMENTS_FOR_MULTIPLICATION);
             }
             if ((operator.equals(Operator.DIVIDE)) &&
                     (!UnitConversionSupport.isAllowedDivision(left.getIntermediateDimension(), right.getIntermediateDimension()))) {
-                throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_ARGUMENTS_FOR_DIVISION);
+                throw new InvalidNodeException(thesaurus, PrivateMessageSeeds.INVALID_ARGUMENTS_FOR_DIVISION);
             }
             if (this.operator.equals(Operator.SAFE_DIVIDE)) {
                 if (this.getChildren().size() != 3) {
-                    throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS_FOR_SAFE_DIVISION);
+                    throw new InvalidNodeException(thesaurus, PrivateMessageSeeds.INVALID_NUMBER_OF_ARGUMENTS_FOR_SAFE_DIVISION);
                 }
                 else {
                     ExpressionNode constantReplacingZero = this.getChildren().get(2);
                     if ((!this.isConstantNode(constantReplacingZero)) && (!this.isNullNode(constantReplacingZero))) {
-                        throw new InvalidNodeException(thesaurus, MessageSeeds.SAFE_DIVISION_REQUIRES_NUMERICAL_CONSTANT);
+                        throw new InvalidNodeException(thesaurus, PrivateMessageSeeds.SAFE_DIVISION_REQUIRES_NUMERICAL_CONSTANT);
                     } else if (this.isConstantNode(constantReplacingZero)) {
                         ConstantNode constant = (ConstantNode) constantReplacingZero;
                         if (constant.getValue().equals(BigDecimal.ZERO)) {
-                            throw new InvalidNodeException(thesaurus, MessageSeeds.SAFE_DIVISION_REQUIRES_NON_ZERO_NUMERICAL_CONSTANT);
+                            throw new InvalidNodeException(thesaurus, PrivateMessageSeeds.SAFE_DIVISION_REQUIRES_NON_ZERO_NUMERICAL_CONSTANT);
                         }
                     }
                 }
@@ -135,7 +135,7 @@ public class OperationNodeImpl extends AbstractNode implements OperationNode {
      public Dimension getDimension() {
         IntermediateDimension intermediateDimension = getIntermediateDimension();
         if (!intermediateDimension.exists()) {
-            throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_ARGUMENTS_FOR_DIVISION);
+            throw new InvalidNodeException(thesaurus, PrivateMessageSeeds.INVALID_ARGUMENTS_FOR_DIVISION);
         }
         return intermediateDimension.getDimension().get();
     }

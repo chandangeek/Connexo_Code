@@ -4,11 +4,11 @@
 
 package com.elster.jupiter.metering.impl.config;
 
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.PartiallySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 
@@ -35,7 +35,7 @@ public class PartiallySpecifiedReadingTypeAttributeValueImpl implements SelfObje
         }
     }
 
-    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Reference<PartiallySpecifiedReadingTypeRequirement> readingTypeRequirement = Reference.empty();
     private ReadingTypeTemplateAttributeName attributeName;
     private int code;
@@ -76,7 +76,7 @@ public class PartiallySpecifiedReadingTypeAttributeValueImpl implements SelfObje
         if (!isCodeInAttributePossibleValues(attributePossibleValues)
                 || !isCodeInSystemPossibleValues(templateAttribute, attributePossibleValues)) {
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.READING_TYPE_ATTRIBUTE_CODE_IS_NOT_WITHIN_LIMITS + "}")
+            context.buildConstraintViolationWithTemplate("{" + PrivateMessageSeeds.Constants.READING_TYPE_ATTRIBUTE_CODE_IS_NOT_WITHIN_LIMITS + "}")
                     .addPropertyNode(Fields.CODE.fieldName())
                     .addConstraintViolation();
             return false;

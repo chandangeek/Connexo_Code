@@ -4,8 +4,6 @@
 
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.MessageSeeds;
-
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.Documented;
@@ -28,7 +26,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Constraint(validatedBy = UniqueTranslationValidator.class)
 @Documented
 @interface UniqueTranslation {
-    String message() default "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}";
+    String message() default "{" + PrivateMessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}";
 
     Class<?>[] groups() default {};
 

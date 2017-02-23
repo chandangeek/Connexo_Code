@@ -8,7 +8,6 @@ import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeterAlreadyActive;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.ami.HeadEndInterface;

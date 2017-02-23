@@ -131,8 +131,8 @@ public interface MeteringService {
     /**
      * Creates a new EndDeviceEventType based on the mRID input.
      * mRID should have the format &lt;EndDeviceEventType&gt;.&lt;EndDeviceEventDomain&gt;.&lt;EndDeviceEventSubDomain&gt;.&lt;EndDeviceEventEventOrAction&gt;
-     * with each field a valid (according to the CIM spec) number.
-     * Will throw a {@link IllegalMRIDFormatException} if mRID has not the correct format
+     * with a valid (according to the CIM spec) number for each field.
+     * Will throw a {@link IllegalMRIDFormatException} if mRID does not have the correct format
      *
      * @since 2.0
      */

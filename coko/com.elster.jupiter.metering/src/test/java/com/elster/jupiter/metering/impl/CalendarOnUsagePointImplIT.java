@@ -19,7 +19,6 @@ import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
@@ -270,7 +269,7 @@ public class CalendarOnUsagePointImplIT {
             throw new AssertionError("Expected exception");
         } catch (LocalizedFieldValidationException e) {
             // expected
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CANNOT_START_PRIOR_TO_LATEST_CALENDAR_OF_SAME_CATEGORY);
+            assertThat(e.getMessageSeed()).isEqualTo(PrivateMessageSeeds.CANNOT_START_PRIOR_TO_LATEST_CALENDAR_OF_SAME_CATEGORY);
         }
     }
 

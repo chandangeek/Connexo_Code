@@ -6,7 +6,6 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.BypassStatus;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.orm.DataModel;
@@ -25,15 +24,15 @@ import java.time.Clock;
 public class WaterDetailImpl extends UsagePointDetailImpl implements WaterDetail {
 
     private YesNoAnswer grounded;
-    @HasQuantityMultiplier(min = 0, max = 6, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_MULTIPLIER + "}")
-    @HasQuantityUnit(units =  {Unit.PASCAL}, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_UNIT + "}")
+    @HasQuantityMultiplier(min = 0, max = 6, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.INVALID_MULTIPLIER + "}")
+    @HasQuantityUnit(units =  {Unit.PASCAL}, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.INVALID_UNIT + "}")
     private Quantity pressure;
-    @HasQuantityUnit(units =  {Unit.CUBIC_METER_PER_HOUR}, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_UNIT + "}")
+    @HasQuantityUnit(units =  {Unit.CUBIC_METER_PER_HOUR}, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.INVALID_UNIT + "}")
     private Quantity physicalCapacity;
     private YesNoAnswer limiter;
-    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String loadLimiterType;
-    @HasQuantityUnit(units =  {Unit.CUBIC_METER_PER_HOUR}, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_UNIT + "}")
+    @HasQuantityUnit(units =  {Unit.CUBIC_METER_PER_HOUR}, groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.INVALID_UNIT + "}")
     private Quantity loadLimit;
     private YesNoAnswer bypass;
     private BypassStatus bypassStatus;

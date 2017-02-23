@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.util.exception.BaseException;
 
 import java.io.IOException;
@@ -17,6 +16,6 @@ import java.io.IOException;
  */
 public class UnderlyingIOException extends BaseException {
     protected UnderlyingIOException(IOException cause) {
-        super(MessageSeeds.UNDERLYING_IO_EXCEPTION, cause);
+        super(PrivateMessageSeeds.UNDERLYING_IO_EXCEPTION, cause);
     }
 }
