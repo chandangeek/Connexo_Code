@@ -5,6 +5,7 @@ import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocols.mdc.services.impl.TranslationKeys;
@@ -50,7 +51,13 @@ public abstract class AbstractDialectCustomPropertySet {
 
     public List<PropertySpec> getPropertySpecs() {
         //The property specs of this dialect are provided by the 9.1 protocol code.
-        return getDeviceProtocolDialect().getUPLPropertySpecs().stream().map(UPLToConnexoPropertySpecAdapter::new).collect(Collectors.toList());
+        return getDeviceProtocolDialect().getUPLPropertySpecs()
+                .stream()
+                .map(propertySpec -> (propertySpec instanceof ConnexoToUPLPropertSpecAdapter ?
+                        ((ConnexoToUPLPropertSpecAdapter) propertySpec).getConnexoPropertySpec() :
+                        new UPLToConnexoPropertySpecAdapter(propertySpec)
+                ))
+                .collect(Collectors.toList());
     }
 
     public String getId() {
