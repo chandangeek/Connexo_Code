@@ -37,13 +37,14 @@ import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterConfiguration;
+import com.elster.jupiter.metering.MeterHasUnsatisfiedRequirements;
 import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointMeterActivationException;
+import com.elster.jupiter.metering.UsagePointHasMeterOnThisRole;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
@@ -1723,10 +1724,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
         try {
             usagePoint.linkMeters().activate(start, getMeter().get(), meterRole).throwingValidation().complete();
-        } catch (UsagePointMeterActivationException.MeterHasUnsatisfiedRequirements badRequirementsEx) {
+        } catch (MeterHasUnsatisfiedRequirements badRequirementsEx) {
             throw new UnsatisfiedReadingTypeRequirementsOfUsagePointException(this.thesaurus, badRequirementsEx.getUnsatisfiedRequirements());
-        } catch (UsagePointMeterActivationException.UsagePointHasMeterOnThisRole upActiveEx) {
-            throw new UsagePointAlreadyLinkedToAnotherDeviceException(this.thesaurus, getLongDateFormatForCurrentUser(),
+        } catch (UsagePointHasMeterOnThisRole upActiveEx) {
+            throw new UsagePointAlreadyLinkedToAnotherDeviceException(
+                    this.thesaurus,
+                    getLongDateFormatForCurrentUser(),
                     upActiveEx.getMeter().getMeterActivations(upActiveEx.getConflictActivationRange()).get(0));
         }
         this.koreHelper.reloadCurrentMeterActivation();
