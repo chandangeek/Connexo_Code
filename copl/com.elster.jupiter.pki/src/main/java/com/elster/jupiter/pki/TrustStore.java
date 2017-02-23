@@ -35,7 +35,7 @@ public interface TrustStore {
      * can be used to build a chain of trust.
      * @param x509Certificate to be trusted certificate, typically a Certifying Authority.
      */
-    public void addCertificate(X509Certificate x509Certificate);
+    public void setCertificate(X509Certificate x509Certificate);
 
     /**
      * Removes the provided certificate from the trust store.

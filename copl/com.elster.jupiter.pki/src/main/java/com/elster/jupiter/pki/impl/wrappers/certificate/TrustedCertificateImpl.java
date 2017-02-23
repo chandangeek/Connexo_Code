@@ -57,7 +57,6 @@ public class TrustedCertificateImpl extends AbstractCertificateWrapperImpl imple
 
     public TrustedCertificateImpl init(TrustStore trustStore) {
         trustStoreReference.set(trustStore);
-        this.save();
         return this;
     }
 }

@@ -232,8 +232,8 @@ public class PkiServiceImpl implements PkiService {
     @Override
     public TrustedCertificate newTrustedCertificateWrapper(TrustStore trustStore) {
         TrustedCertificateImpl trustedCertificate = getDataModel().getInstance(TrustedCertificateImpl.class);
-        trustedCertificate.save();
         trustedCertificate.init(trustStore);
+        trustedCertificate.save();
         return trustedCertificate;
     }
 

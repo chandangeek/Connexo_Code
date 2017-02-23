@@ -28,7 +28,6 @@ public class ClientCertificateImpl extends RenewableCertificateImpl implements C
 
     public ClientCertificateImpl init(PrivateKeyWrapper privateKeyWrapper) {
         this.privateKeyReference.set(privateKeyWrapper);
-        this.save();
         return this;
     }
 }

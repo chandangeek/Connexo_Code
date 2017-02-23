@@ -34,6 +34,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import javax.validation.MessageInterpolator;
+import java.time.Clock;
 
 import static org.mockito.Mockito.mock;
 
@@ -41,6 +42,7 @@ public class PkiInMemoryPersistence {
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
+    private static Clock clock = Clock.systemDefaultZone();
 
     public void activate() {
         injector = Guice.createInjector(
@@ -96,6 +98,10 @@ public class PkiInMemoryPersistence {
         return injector.getInstance(DataVaultSymmetricKeyFactory.class);
     }
 
+    public Clock getClock() {
+        return clock;
+    }
+
     private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {
@@ -104,5 +110,6 @@ public class PkiInMemoryPersistence {
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(Thesaurus.class).toInstance(mock(Thesaurus.class));
             bind(MessageInterpolator.class).toInstance(mock(Thesaurus.class));
+            bind(Clock.class).toInstance(clock);
         }
     }}

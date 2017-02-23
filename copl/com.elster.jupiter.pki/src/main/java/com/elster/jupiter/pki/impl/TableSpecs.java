@@ -11,6 +11,7 @@ import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapperImpl;
 
+import static com.elster.jupiter.orm.ColumnConversion.BLOB2BYTE;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 
@@ -55,20 +56,24 @@ public enum TableSpecs {
                     .since(Version.version(10, 3));
             table.map(AbstractCertificateWrapperImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
+            table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             Column privateKeyColumn = table.column("PRIVATEKEY")
                     .number()
                     .conversion(ColumnConversion.NUMBER2LONG)
                     .add();
             table.column("CERTIFICATE")
-                    .blob()
+                    .type("blob")
+                    .conversion(BLOB2BYTE)
                     .map(AbstractCertificateWrapperImpl.Fields.CERTIFICATE.fieldName())
                     .add();
             table.column("CRL")
-                    .blob()
+                    .type("blob")
+                    .conversion(BLOB2BYTE)
                     .map(AbstractCertificateWrapperImpl.Fields.CRL.fieldName())
                     .add();
             table.column("CSR")
-                    .blob()
+                    .type("blob")
+                    .conversion(BLOB2BYTE)
                     .map(AbstractCertificateWrapperImpl.Fields.CSR.fieldName())
                     .add();
             table.column("EXPIRATION")
@@ -78,7 +83,6 @@ public enum TableSpecs {
                     .add();
             Column trustStoreColumn = table.column("TRUSTSTORE")
                     .number()
-                    .conversion(ColumnConversion.NUMBER2LONG)
                     .add();
 
             table.foreignKey("PKI_FK_CERT_PK").on(privateKeyColumn)
@@ -89,7 +93,6 @@ public enum TableSpecs {
                     .references(TrustStoreImpl.class)
                     .map(AbstractCertificateWrapperImpl.Fields.TRUST_STORE.fieldName())
                     .reverseMap(TrustStoreImpl.Fields.CERTIFICATES.fieldName())
-                    .composition()
                     .onDelete(DeleteRule.CASCADE)
                     .add();
             table.primaryKey("PK_PKI_CERTIFICATE").on(id).add();

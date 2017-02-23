@@ -34,9 +34,10 @@ public interface KeyType {
     CryptographicType getCryptographicType();
 
     /**
-     * Identifier of the algorithm to generate a new value or reconstruct current value, e.g. for a symmetric key: "AES/CBC/PKCS5Padding/128", or
+     * Identifier of the algorithm to generate a new value or reconstruct current value
      * for an async keypair: "EC", "DSA", "RSA"
      * for a sym key: "AES", "Blowfish", ...
+     * for certificates: Signing Algorithm, e.g. SHA256withRSA
      * @return
      */
     String getAlgorithm();

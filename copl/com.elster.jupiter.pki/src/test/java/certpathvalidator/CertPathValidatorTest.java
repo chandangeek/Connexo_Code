@@ -1,4 +1,8 @@
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
+/*
+ * Copyright (c) 2017 by Honeywell Inc. All rights reserved.
+ */
+
+package certpathvalidator;import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.IOException;
 import java.security.Security;
@@ -44,9 +48,9 @@ public class CertPathValidatorTest {
 
     @Test
     public void testValidValidateCertChain() throws Exception {
-        X509Certificate root = loadCertificate("certpathvalidator/myRootCA.cert");
-        X509Certificate subCa = loadCertificate("certpathvalidator/mySubCA.cert");
-        X509Certificate device = loadCertificate("certpathvalidator/myDevice.cert");
+        X509Certificate root = loadCertificate("myRootCA.cert");
+        X509Certificate subCa = loadCertificate("mySubCA.cert");
+        X509Certificate device = loadCertificate("myDevice.cert");
 
         TrustAnchor rootTrustAnchor = new TrustAnchor(root, null);
         TrustAnchor subCaTrustAnchor = new TrustAnchor(subCa, null);
@@ -68,9 +72,9 @@ public class CertPathValidatorTest {
      */
     @Test
     public void testValidOpenSSLCAGeneratedCertificateValidateCertChain() throws Exception {
-        X509Certificate root = loadCertificate("certpathvalidator/myRootCA.cert");
-        X509Certificate subCa = loadCertificate("certpathvalidator/mySubCA.cert");
-        X509Certificate device = loadCertificate("certpathvalidator/myDevice.2.cert");
+        X509Certificate root = loadCertificate("myRootCA.cert");
+        X509Certificate subCa = loadCertificate("mySubCA.cert");
+        X509Certificate device = loadCertificate("myDevice.2.cert");
 
         TrustAnchor rootTrustAnchor = new TrustAnchor(root, null);
         TrustAnchor subCaTrustAnchor = new TrustAnchor(subCa, null);
@@ -92,11 +96,11 @@ public class CertPathValidatorTest {
      */
     @Test
     public void testRevokedCertificateValidateCertChain() throws Exception {
-        X509Certificate root = loadCertificate("certpathvalidator/myRootCA.cert");
-        X509Certificate subCa = loadCertificate("certpathvalidator/mySubCA.cert");
-        X509Certificate device = loadCertificate("certpathvalidator/myDevice.2.cert");
+        X509Certificate root = loadCertificate("myRootCA.cert");
+        X509Certificate subCa = loadCertificate("mySubCA.cert");
+        X509Certificate device = loadCertificate("myDevice.2.cert");
         CRL crl = certificateFactory.generateCRL(this.getClass()
-                .getResourceAsStream("certpathvalidator/mySubCA.revoked.crl.pem"));
+                .getResourceAsStream("mySubCA.revoked.crl.pem"));
 
         TrustAnchor rootTrustAnchor = new TrustAnchor(root, null);
         TrustAnchor subCaTrustAnchor = new TrustAnchor(subCa, null);
@@ -124,9 +128,9 @@ public class CertPathValidatorTest {
 
     @Test(expected = CertPathValidatorException.class)
     public void testInvalidValidateCertChain() throws Exception {
-        X509Certificate root = loadCertificate("certpathvalidator/myRootCA.cert");
-        X509Certificate subCa = loadCertificate("certpathvalidator/mySubCA.cert");
-        X509Certificate device = loadCertificate("certpathvalidator/fakeDevice.cert");
+        X509Certificate root = loadCertificate("myRootCA.cert");
+        X509Certificate subCa = loadCertificate("mySubCA.cert");
+        X509Certificate device = loadCertificate("fakeDevice.cert");
 
         TrustAnchor rootTrustAnchor = new TrustAnchor(root, null);
         TrustAnchor subCaTrustAnchor = new TrustAnchor(subCa, null);

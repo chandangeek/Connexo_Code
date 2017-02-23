@@ -21,7 +21,7 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
-@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_UNIQUE + "}")
 public class TrustStoreImpl implements TrustStore {
 
     private final DataModel dataModel;
@@ -89,10 +89,12 @@ public class TrustStoreImpl implements TrustStore {
     }
 
     @Override
-    public void addCertificate(X509Certificate x509Certificate) {
+    public void setCertificate(X509Certificate x509Certificate) {
         TrustedCertificateImpl trustedCertificate = (TrustedCertificateImpl) pkiService.newTrustedCertificateWrapper(this);
         trustedCertificate.setCertificate(x509Certificate);
         trustedCertificate.save();
+        this.trustedCertificates.add(trustedCertificate);
+        this.save();
     }
 
     @Override

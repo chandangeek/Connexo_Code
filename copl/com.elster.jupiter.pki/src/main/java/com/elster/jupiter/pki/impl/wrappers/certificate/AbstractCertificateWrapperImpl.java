@@ -30,9 +30,9 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
 
     public static final Map<String, Class<? extends CertificateWrapper>> IMPLEMENTERS =
             ImmutableMap.of(
-                    "CLIENT", ClientCertificateImpl.class,
-                    "TRUSTED", TrustedCertificateImpl.class,
-                    "SIMPLE", RenewableCertificateImpl.class);
+                    "C", ClientCertificateImpl.class,
+                    "T", TrustedCertificateImpl.class,
+                    "R", RenewableCertificateImpl.class);
 
     public enum Fields {
         CERTIFICATE("certificate"),
