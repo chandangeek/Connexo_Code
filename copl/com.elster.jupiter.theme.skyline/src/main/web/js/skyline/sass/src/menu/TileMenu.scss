@@ -6,17 +6,18 @@
     border: none;
 
     .#{$prefix}menu-item {
-        background-image: url('images/menu/bullet.png');
-        background-repeat: no-repeat;
-        background-position: left center;
 
         &:first-child {
             padding-top: 0;
         }
 
+        &:last-child {
+            padding-bottom: 0;
+        }
+
         .#{$prefix}menu-item-text {
             font-size: 14px;
-            color: #686868;
+            color: $color-grey;
         }
 
         .#{$prefix}menu-item-link {
@@ -28,7 +29,7 @@
         }
 
         .#{$prefix}menu-item-indent-no-separator {
-            margin-left: 16px;
+            margin-left: 0px;
         }
     }
 

@@ -27,22 +27,8 @@ Ext.define('ExtThemeNeptune.Component', {
 });
 
 /*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2014 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2014-09-02 11:12:40 (ef1fa70924f51a26dacbe29644ca3f31501a5fce)
-*/
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 Ext.define('ExtThemeNeptune.panel.Panel', {
     override: 'Ext.panel.Panel',
     border: false,
@@ -62,22 +48,8 @@ Ext.define('ExtThemeNeptune.panel.Panel', {
 });
 
 /*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2014 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2014-09-02 11:12:40 (ef1fa70924f51a26dacbe29644ca3f31501a5fce)
-*/
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 Ext.define('ExtThemeNeptune.toolbar.Toolbar', {
     override: 'Ext.toolbar.Toolbar',
     usePlainButtons: false,
@@ -85,22 +57,8 @@ Ext.define('ExtThemeNeptune.toolbar.Toolbar', {
 });
 
 /*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2014 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2014-09-02 11:12:40 (ef1fa70924f51a26dacbe29644ca3f31501a5fce)
-*/
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 Ext.define('ExtThemeNeptune.layout.component.Dock', {
     override: 'Ext.layout.component.Dock',
 
@@ -371,44 +329,16 @@ Ext.define('ExtThemeNeptune.layout.component.Dock', {
 });
 
 /*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2014 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2014-09-02 11:12:40 (ef1fa70924f51a26dacbe29644ca3f31501a5fce)
-*/
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 Ext.define('ExtThemeNeptune.container.ButtonGroup', {
     override: 'Ext.container.ButtonGroup',
     usePlainButtons: false
 });
 
 /*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2014 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2014-09-02 11:12:40 (ef1fa70924f51a26dacbe29644ca3f31501a5fce)
-*/
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 Ext.define('ExtThemeNeptune.toolbar.Paging', {
     override: 'Ext.toolbar.Paging',
     defaultButtonUI: 'plain-toolbar',
@@ -417,22 +347,8 @@ Ext.define('ExtThemeNeptune.toolbar.Paging', {
 });
 
 /*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2014 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2014-09-02 11:12:40 (ef1fa70924f51a26dacbe29644ca3f31501a5fce)
-*/
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 Ext.define('ExtThemeNeptune.picker.Month', {
     override:  'Ext.picker.Month',
     
@@ -449,66 +365,24 @@ Ext.define('ExtThemeNeptune.picker.Month', {
 });
 
 /*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2014 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2014-09-02 11:12:40 (ef1fa70924f51a26dacbe29644ca3f31501a5fce)
-*/
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 Ext.define('ExtThemeNeptune.form.field.HtmlEditor', {
     override: 'Ext.form.field.HtmlEditor',
     defaultButtonUI: 'plain-toolbar'
 });
 
 /*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2014 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2014-09-02 11:12:40 (ef1fa70924f51a26dacbe29644ca3f31501a5fce)
-*/
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 Ext.define('ExtThemeNeptune.panel.Table', {
     override: 'Ext.panel.Table',
     bodyBorder: true
 });
 
 /*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2014 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2014-09-02 11:12:40 (ef1fa70924f51a26dacbe29644ca3f31501a5fce)
-*/
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 Ext.define('ExtThemeNeptune.grid.RowEditor', {
     override: 'Ext.grid.RowEditor',
     buttonUI: 'default-toolbar'
@@ -516,88 +390,32 @@ Ext.define('ExtThemeNeptune.grid.RowEditor', {
 
 
 /*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2014 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2014-09-02 11:12:40 (ef1fa70924f51a26dacbe29644ca3f31501a5fce)
-*/
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 Ext.define('ExtThemeNeptune.grid.column.RowNumberer', {
     override: 'Ext.grid.column.RowNumberer',
     width: 25
 });
 
 /*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2014 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2014-09-02 11:12:40 (ef1fa70924f51a26dacbe29644ca3f31501a5fce)
-*/
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 Ext.define('ExtThemeNeptune.resizer.Splitter', {
     override: 'Ext.resizer.Splitter',
     size: 8
 });
 
 /*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2014 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2014-09-02 11:12:40 (ef1fa70924f51a26dacbe29644ca3f31501a5fce)
-*/
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 Ext.define('ExtThemeNeptune.menu.Menu', {
     override: 'Ext.menu.Menu',
     showSeparator: false
 });
 
 /*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2014 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2014-09-02 11:12:40 (ef1fa70924f51a26dacbe29644ca3f31501a5fce)
-*/
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 Ext.define('ExtThemeNeptune.menu.Separator', {
     override: 'Ext.menu.Separator',
     border: true
@@ -605,22 +423,8 @@ Ext.define('ExtThemeNeptune.menu.Separator', {
     
 
 /*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2014 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2014-09-02 11:12:40 (ef1fa70924f51a26dacbe29644ca3f31501a5fce)
-*/
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 Ext.define('ExtThemeNeptune.panel.Tool', {
     override: 'Ext.panel.Tool',
     height: 16,
@@ -628,22 +432,8 @@ Ext.define('ExtThemeNeptune.panel.Tool', {
 });
 
 /*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2014 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2014-09-02 11:12:40 (ef1fa70924f51a26dacbe29644ca3f31501a5fce)
-*/
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 Ext.define('ExtThemeNeptune.tab.Tab', {
     override: 'Ext.tab.Tab',
     border: false
