@@ -11,6 +11,12 @@ Ext.define('Uni.form.field.DisplayFieldWithInfoIcon', {
     emptyText: '-',
 
     /**
+     * @cfg {String} iconColor
+     * Info icon color.
+     */
+    iconColor: undefined, // as a string
+
+    /**
      * @cfg {String} infoTooltip
      * Info icon tooltip text.
      */
@@ -36,7 +42,9 @@ Ext.define('Uni.form.field.DisplayFieldWithInfoIcon', {
         }
 
         if (me.infoTooltip) {
-            icon = '<span class="icon-info" style="font-size: 16px; width: 16px; height: 16px; display: inline-block;float: none;margin-left: 10px;vertical-align: top" data-qtip="' + me.infoTooltip + '"></span>'
+            icon = '<span class="icon-info" style="font-size: 16px;'
+                    + (!Ext.isEmpty(me.iconColor) ? 'color:' + me.iconColor + ';' : '')
+                    + ' width: 16px; height: 16px; display: inline-block;float: none;margin-left: 10px;vertical-align: top" data-qtip="' + me.infoTooltip + '"></span>'
         }
 
         return !me.onlyIcon ? Ext.String.htmlEncode(value) + icon : icon;
