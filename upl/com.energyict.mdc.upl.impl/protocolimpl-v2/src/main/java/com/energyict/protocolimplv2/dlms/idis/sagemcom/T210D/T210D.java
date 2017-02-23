@@ -109,6 +109,6 @@ public class T210D extends AM130 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2017-02-06 10:24:41 +0200 (Mon, 06 Feb 2017)$";
+        return "$Date: 2017-02-23 16:53:05 +0200 (Thu, 23 Feb 2017)$";
     }
 }
