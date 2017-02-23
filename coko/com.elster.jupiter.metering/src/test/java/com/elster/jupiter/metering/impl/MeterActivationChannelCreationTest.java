@@ -19,7 +19,10 @@ import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
 import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -27,6 +30,10 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 
 import javax.inject.Provider;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorFactory;
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -116,12 +123,19 @@ public class MeterActivationChannelCreationTest {
         deltaRt1 = new ReadingTypeImpl(dataModel, thesaurus).init(DELTADELTA_RT, "deltaRT1");
         readingType2 = new ReadingTypeImpl(dataModel, thesaurus).init(RT2, "readingType2");
         readingType3 = new ReadingTypeImpl(dataModel, thesaurus).init(RT3, "readingType3");
-
+        MeterActivationContraintValidatorFactory contraintValidatorFactory = new MeterActivationContraintValidatorFactory(dataModel, thesaurus);
+        ValidatorFactory validatorFactory = Validation.byDefaultProvider()
+                .configure()
+                .constraintValidatorFactory(contraintValidatorFactory)
+                .messageInterpolator(thesaurus)
+                .buildValidatorFactory();
         Provider<ChannelImpl> channelFactory = () -> new ChannelImpl(dataModel, idsService, meteringService, clock, eventService);
         channelBuilder = () -> new ChannelBuilderImpl(dataModel, channelFactory);
         when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, channelBuilder));
+        when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(usagePoint.getId()).thenReturn(USAGEPOINT_ID);
         when(meter.getId()).thenReturn(METER_ID);
+        when(meter.getUsagePoint(any())).thenReturn(Optional.empty());
         when(meter.getHeadEndInterface()).thenReturn(Optional.of(headEndInterface));
         when(meter.getConfiguration(any())).thenReturn(Optional.empty());
         when(idsService.getVault(anyString(), anyInt())).thenReturn(Optional.of(vault));
@@ -134,6 +148,13 @@ public class MeterActivationChannelCreationTest {
         when(usagePoint.getConfiguration(any())).thenReturn(Optional.empty());
         when(dataModel.getInstance(ReadingTypeInChannel.class)).thenAnswer(invocation -> new ReadingTypeInChannel(dataModel, meteringService));
         when(meteringService.getClock()).thenReturn(clock);
+
+        //make sure the meteractivation is valid
+        EffectiveMetrologyConfigurationOnUsagePoint effMetrologyConf = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(usagePoint.getEffectiveMetrologyConfigurations(any())).thenReturn(Collections.singletonList(effMetrologyConf));
+        UsagePointMetrologyConfiguration metrologyConfigiruation = mock(UsagePointMetrologyConfiguration.class);
+        when(effMetrologyConf.getMetrologyConfiguration()).thenReturn(metrologyConfigiruation);
+        when(metrologyConfigiruation.getMeterRoles()).thenReturn(Collections.singletonList(meterRole));
     }
 
     private MeterActivationImpl createMeterActivationOnMeter() {

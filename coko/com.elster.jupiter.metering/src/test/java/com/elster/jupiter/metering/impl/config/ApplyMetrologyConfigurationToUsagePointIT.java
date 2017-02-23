@@ -180,10 +180,10 @@ public class ApplyMetrologyConfigurationToUsagePointIT {
         when(name.getLayer()).thenReturn(Layer.DOMAIN);
 
         UsagePointMetrologyConfiguration metrologyConfiguration = createMetrologyConfiguration(METROLOGY_CONFIGURATION_NAME);
-
+        metrologyConfiguration.addMeterRole(getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT));
         ServiceCategory serviceCategory = getElectricityServiceCategory();
         UsagePoint usagePoint = serviceCategory.newUsagePoint(USAGE_POINT_NAME, INSTALLATION_TIME).create();
-
+        usagePoint.apply(metrologyConfiguration, INSTALLATION_TIME.minusSeconds(20));
         Meter meterConsunption = setupMeter("meterConsunption");
         activateMeter(meterConsunption, usagePoint, findMeterRole(DefaultMeterRole.CONSUMPTION), fifteenMinuteskWhForward);
 
@@ -230,7 +230,7 @@ public class ApplyMetrologyConfigurationToUsagePointIT {
 
 
         // Asserts that usage point has no linked metrology configuration before installation time
-        effectiveMetrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration(INSTALLATION_TIME.minusMillis(1));
+        effectiveMetrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration(INSTALLATION_TIME.minusSeconds(21));
         assertThat(effectiveMetrologyConfiguration).isEmpty();
     }
 

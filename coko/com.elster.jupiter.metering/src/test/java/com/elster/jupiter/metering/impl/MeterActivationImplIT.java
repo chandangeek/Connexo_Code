@@ -61,6 +61,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyChar;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -132,12 +133,13 @@ public class MeterActivationImplIT {
             meteringService.addHeadEndInterface(heMock);
 
             Meter meter = system.newMeter("testPersistence", "myName").create();
-
+            Instant activationTime = ZonedDateTime.of(2012, 12, 18, 14, 15, 54, 0, ZoneId.systemDefault()).toInstant();
             UsagePoint usagePoint = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                     .orElseThrow(IllegalArgumentException::new)
-                    .newUsagePoint("random name", ZonedDateTime.of(2012, 12, 18, 14, 15, 54, 0, ZoneId.systemDefault()).toInstant()).create();
-
-            MeterActivation meterActivation = usagePoint.activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService()
+                    .newUsagePoint("random name", activationTime).create();
+            ServerMetrologyConfigurationService metrologyConfigurationService = inMemoryBootstrapModule.getMetrologyConfigurationService();
+            usagePoint.apply(getUsagePointMetrologyConfigurationWithDefaultRole("testPersistenceWithChannelCreationThroughUpActivation"), activationTime);
+            MeterActivation meterActivation = usagePoint.activate(meter, metrologyConfigurationService
                     .findDefaultMeterRole(DefaultMeterRole.DEFAULT), ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault()).toInstant());
 
             MeterActivation loaded = meteringService.findMeterActivation(meterActivation.getId()).get();
@@ -146,7 +148,6 @@ public class MeterActivationImplIT {
             meteringService.removeHeadEndInterface(heMock);
         }
     }
-
 
     @Test
     public void testCOPL854() {
@@ -162,6 +163,7 @@ public class MeterActivationImplIT {
             UsagePoint up = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                     .orElseThrow(IllegalArgumentException::new).newUsagePoint("abcd", Instant.EPOCH)
                     .create();
+            up.apply(getUsagePointMetrologyConfigurationWithDefaultRole("testCOPL854"), start1);
             usagePointId = up.getId();
 
             meter.activate(up, start1);
@@ -186,6 +188,7 @@ public class MeterActivationImplIT {
         }
         assertMeterActivations(meterId, usagePointId, start1, start2, start3);
     }
+
 
     private void assertMeterActivations(long meterId, long usagePointId, Instant... startTimes) {
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
@@ -412,11 +415,28 @@ public class MeterActivationImplIT {
                 .create();
         MeterRole meterRole = inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .findDefaultMeterRole(DefaultMeterRole.DEFAULT);
+        usagePoint.apply(getUsagePointMetrologyConfiguration(serviceCategory, meterRole), inMemoryBootstrapModule.getClock().instant());
         MeterActivation meterActivation = meter.activate(usagePoint, meterRole, inMemoryBootstrapModule.getClock().instant());
 
         Optional<MeterRole> meterRoleRef = meterActivation.getMeterRole();
         assertThat(meterRoleRef.isPresent()).isTrue();
         assertThat(meterRoleRef.get()).isEqualTo(meterRole);
+    }
+
+    private UsagePointMetrologyConfiguration getUsagePointMetrologyConfiguration(ServiceCategory serviceCategory, MeterRole meterRole) {
+        ServerMetrologyConfigurationService metrologyConfigurationService = inMemoryBootstrapModule.getMetrologyConfigurationService();
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = metrologyConfigurationService.newUsagePointMetrologyConfiguration("UP", serviceCategory).create();
+        usagePointMetrologyConfiguration.addMeterRole(meterRole);
+        return usagePointMetrologyConfiguration;
+    }
+
+    private UsagePointMetrologyConfiguration getUsagePointMetrologyConfigurationWithDefaultRole(String name) {
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        ServerMetrologyConfigurationService metrologyConfigurationService = inMemoryBootstrapModule.getMetrologyConfigurationService();
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = metrologyConfigurationService.newUsagePointMetrologyConfiguration(name, meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get()).create();
+        usagePointMetrologyConfiguration.addMeterRole(metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT));
+        usagePointMetrologyConfiguration.addMeterRole(metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.MAIN));
+        return usagePointMetrologyConfiguration;
     }
 
     @Test
@@ -447,7 +467,7 @@ public class MeterActivationImplIT {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         Instant now = inMemoryBootstrapModule.getClock().instant();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
-
+        usagePoint.apply(getUsagePointMetrologyConfigurationWithDefaultRole("testMeterCanNotBeAssignedTwiceForTheSameUsagePointCase2"), now);
         usagePoint.linkMeters()
                 .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
                 .complete();
@@ -503,6 +523,7 @@ public class MeterActivationImplIT {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         Instant now = inMemoryBootstrapModule.getClock().instant();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
+        usagePoint.apply(getUsagePointMetrologyConfigurationWithDefaultRole("testActivateAlreadyActiveMeter"), now);
         meter.activate(now);
 
         try {
@@ -525,6 +546,7 @@ public class MeterActivationImplIT {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         Instant now = inMemoryBootstrapModule.getClock().instant();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
+        usagePoint.apply(getUsagePointMetrologyConfigurationWithDefaultRole("testMeterCanBeLinkedToUsagePoint"), now);
 
         usagePoint.linkMeters()
                 .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
@@ -546,7 +568,7 @@ public class MeterActivationImplIT {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         Instant now = inMemoryBootstrapModule.getClock().instant();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
-
+        usagePoint.apply(getUsagePointMetrologyConfigurationWithDefaultRole("testTwoMetersCanBeLinkedToUsagePoint"), inMemoryBootstrapModule.getClock().instant());
         usagePoint.linkMeters()
                 .activate(meter1, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
                 .activate(meter2, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.MAIN))
@@ -572,7 +594,7 @@ public class MeterActivationImplIT {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         Instant now = inMemoryBootstrapModule.getClock().instant();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
-
+        usagePoint.apply(getUsagePointMetrologyConfigurationWithDefaultRole("testMeterCanBeRemovedFromMeterRoleOnUsagePoint"), now);
         usagePoint.linkMeters()
                 .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
                 .complete();

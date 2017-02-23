@@ -265,6 +265,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE = "can.not.delete.active.life.cycle";
         public static final String CAN_NOT_DELETE_ACTIVE_STATE = "can.not.delete.active.state";
         public static final String REQUIRED_CAS_MISSING = "required.cas.missing";
+        public static final String METER_NOT_IN_OPERATIONAL_STAGE = "meter.not.in.operational.stage";
     }
 
 }

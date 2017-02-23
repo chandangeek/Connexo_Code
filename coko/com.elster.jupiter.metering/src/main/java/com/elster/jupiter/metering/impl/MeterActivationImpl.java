@@ -62,8 +62,9 @@ import static com.elster.jupiter.util.Ranges.does;
 import static com.elster.jupiter.util.streams.Currying.test;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
-@MeterRolePartOfMetrologyConfigurationIfAny(
-        message = "{" + MessageSeeds.Constants.METER_ROLE_NOT_IN_CONFIGURATION + "}",
+@MeterRolePartOfMetrologyConfigurationIfAny(message = "{" + MessageSeeds.Constants.METER_ROLE_NOT_IN_CONFIGURATION + "}",
+        groups = {Save.Create.class, Save.Update.class})
+@MeterInCorrectStage(message = "{" + MessageSeeds.Constants.METER_NOT_IN_OPERATIONAL_STAGE + "}",
         groups = {Save.Create.class, Save.Update.class})
 public final class MeterActivationImpl implements IMeterActivation {
     @SuppressWarnings("unused") // Managed by ORM
@@ -245,10 +246,12 @@ public final class MeterActivationImpl implements IMeterActivation {
 
     public void save() {
         if (id == 0) {
-            this.dataModel.persist(this);
+            Save.CREATE.save(dataModel, this);
+//            this.dataModel.persist(this);
             initChannelContainerWithChannels();
         } else {
-            this.dataModel.update(this);
+            Save.UPDATE.save(dataModel, this);
+//            this.dataModel.update(this);
         }
     }
 

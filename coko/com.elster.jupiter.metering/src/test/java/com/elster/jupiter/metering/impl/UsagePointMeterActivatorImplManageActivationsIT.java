@@ -30,6 +30,8 @@ import com.elster.jupiter.metering.ami.EndDeviceCommand;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.config.TestHeadEndInterface;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
@@ -96,6 +98,9 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
             ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
             usagePoint = serviceCategory.newUsagePoint("UsagePoint", INSTALLATION_TIME).create();
             meterRole = inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
+            UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP", meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get()).create();
+            usagePointMetrologyConfiguration.addMeterRole(meterRole);
+            usagePoint.apply(usagePointMetrologyConfiguration, THREE_DAYS_BEFORE);
             context.commit();
         }
     }
@@ -360,9 +365,14 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         Meter meter2 = system.newMeter("Meter2", "myName2").create();
         MeterRole meterRole2 = inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.MAIN);
 
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP2", serviceCategory).create();
+        usagePointMetrologyConfiguration.addMeterRole(meterRole);
+        usagePointMetrologyConfiguration.addMeterRole(meterRole2);
+        usagePoint2.apply(usagePointMetrologyConfiguration, THREE_DAYS_BEFORE);
         usagePoint2.linkMeters().activate(meter, meterRole).complete();
         usagePoint2.linkMeters().clear(ONE_DAY_AFTER, meterRole).complete();
         reloadObjects();
+        usagePoint.apply(usagePointMetrologyConfiguration, TWO_DAYS_BEFORE);
         usagePoint.linkMeters().activate(ONE_DAY_AFTER, meter, meterRole)
                 .activate(INSTALLATION_TIME, meter2, meterRole2).complete();
         UsagePointMeterActivatorImpl activator = (UsagePointMeterActivatorImpl) usagePoint.linkMeters();
