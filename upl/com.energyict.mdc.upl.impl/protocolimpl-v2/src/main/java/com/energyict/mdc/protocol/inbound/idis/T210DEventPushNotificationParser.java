@@ -47,7 +47,7 @@ import java.util.logging.Logger;
  */
 public class T210DEventPushNotificationParser extends DataPushNotificationParser {
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     public static final String IP_ADDRESS_PROPERTY_NAME = "host";
     private static final ObisCode LOGICAL_NAME_OBIS = ObisCode.fromString("0.0.42.0.0.255");
     private static final ObisCode LOAD_PROFILE_1_OBIS = ObisCode.fromString("1.0.99.1.0.255");
@@ -226,23 +226,25 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         DeviceOfflineFlags offlineContext = new DeviceOfflineFlags(DeviceOfflineFlags.ALL_LOAD_PROFILES_FLAG);
         OfflineDevice offlineDevice = inboundDAO.goOfflineDevice(deviceIdentifier, offlineContext);
         List<OfflineLoadProfile> allOfflineLoadProfiles = offlineDevice.getAllOfflineLoadProfiles();
-        for(int i = dataObjectsOffset; i <= pushObjectList.size() - 1; i++){
+        for(int i = getElementOffset(); i <= pushObjectList.size() - 1; i++){
             ObisCode obisCode = pushObjectList.get(i).getObisCode();
-            getColectedLoadProfile(structure.getNextDataType(), obisCode, getOfflineLoadProfile(allOfflineLoadProfiles, obisCode), false);
+            getColectedLoadProfile(structure.getDataType(i), obisCode, getOfflineLoadProfile(allOfflineLoadProfiles, obisCode), false);
         }
     }
 
     private void parsePushOnInterval2(Structure structure) {
-        for(int i = 2; i <= pushObjectList.size() - 1; i++){
-            ObisCode obisCode = pushObjectList.get(i).getObisCode();
-            DataContainer dataContainer = new DataContainer();
-            dataContainer.parseObjectList(structure.getNextDataType().getBEREncodedByteArray(), Logger.getLogger(this.getClass().getName()));
-            List<MeterProtocolEvent> meterProtocolEventList = parseEvents(dataContainer, obisCode);
-            log("Received "+meterProtocolEventList.size()+" events for logbook with obiscode: "+obisCode);
-            if(meterProtocolEventList.size() > 0){
-                CollectedLogBook collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, obisCode));
-                collectedLogBook.addCollectedMeterEvents(meterProtocolEventList);
-                getCollectedLogBooks().add(collectedLogBook);
+        for(int i = getElementOffset(); i <= pushObjectList.size() - 1; i++){//we start from the getElementOffset() because we already readout some data from the structure and we should continue from there
+            if(pushObjectList.get(i).getClassId() == 7){
+                ObisCode obisCode = pushObjectList.get(i).getObisCode();
+                DataContainer dataContainer = new DataContainer();
+                dataContainer.parseObjectList(structure.getDataType(i).getBEREncodedByteArray(), getContext().getLogger());
+                List<MeterProtocolEvent> meterProtocolEventList = parseEvents(dataContainer, obisCode);
+                log("Received "+meterProtocolEventList.size()+" events for logbook with obiscode: "+obisCode);
+                if(meterProtocolEventList.size() > 0){
+                    CollectedLogBook collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, obisCode));
+                    collectedLogBook.addCollectedMeterEvents(meterProtocolEventList);
+                    getCollectedLogBooks().add(collectedLogBook);
+                }
             }
         }
     }
@@ -398,7 +400,9 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         }
         Unsigned32 mbusValueChannel = dataType.getUnsigned32();
         log("MBus Channel " + channel + " value 1 = " + mbusValueChannel.getValue());
-        Date dateTime = Calendar.getInstance().getTime();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeZone(getDeviceTimeZone());
+        Date dateTime = calendar.getTime();
         addCollectedRegister(obisCode, mbusValueChannel.longValue(), null, dateTime, null);
         //TODO: see if we should store Mbus Channel values
     }
@@ -572,8 +576,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     }
 
     private List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode) {
-        Calendar calendar = Calendar.getInstance();
-        TimeZone timeZone = calendar.getTimeZone(); //TODO: use proper timezone
+        TimeZone timeZone = getDeviceTimeZone();
         List<MeterEvent> meterEvents;
         if (logBookObisCode.equals(POWER_QUALITY_LOG)) {
             meterEvents = new AM130PowerQualityEventLog(timeZone, dataContainer).getMeterEvents();
@@ -821,8 +824,9 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     }
 
     protected void log(String message) {
-        log(message, Level.FINE);
-        System.out.println(message);
+        if(DEBUG){
+            log(message, Level.INFO);
+        }
     }
 
 }
