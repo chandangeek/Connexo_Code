@@ -21,7 +21,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
     columns: [
         {
             header: Uni.I18n.translate('general.comServer', 'MDC', 'Communication server'),
-            flex: 1,
+            flex: 2,
             dataIndex: 'name',
             renderer: function (value, b, record) {
                 return '<a href="#/administration/comservers/' + record.get('id') + '/overview">' + Ext.String.htmlEncode(value) + '</a>';
@@ -30,12 +30,12 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
         {
             header: Uni.I18n.translate('general.type', 'MDC', 'Type'),
             dataIndex: 'displayComServerType',
-            flex: 1
+            flex: 2
         },
         {
             header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
             dataIndex: 'active',
-            width: 100,
+            flex: 1,
             renderer: function (value) {
                 if (value === true) {
                     return Uni.I18n.translate('general.active', 'MDC', 'Active');
