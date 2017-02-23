@@ -30,7 +30,9 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
@@ -91,7 +93,12 @@ public class T210DMessageExecutor extends AM540MessageExecutor {
         } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.ENABLE_PUSH_ON_INTERVAL_OBJECTS)) {
             enablePushOnInterval();
         } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_RESUME_AND_IMAGE_IDENTIFIER)) {
-            firmwareUpgrade();
+            firmwareUpgrade(false);
+        } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER_AND_RESUME)) {
+            firmwareUpgrade(true);
+        } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.VerifyAndActivateFirmware) ||
+                pendingMessage.getSpecification().equals(FirmwareDeviceMessage.VerifyAndActivateFirmwareAtGivenDate)) {
+            verifyAndActivateFirmwareAtGivenActivationDate();
         } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.ScanAndInstallWiredMbusDevices) ||
                 pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.ScanAndInstallWiredMbusDeviceForGivenMeterIdentification)) {
             scanAndInstallWiredMbusDevices();
@@ -331,11 +338,11 @@ public class T210DMessageExecutor extends AM540MessageExecutor {
 
     }
 
-    @Override
-    protected CollectedMessage verifyAndActivateFirmware(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+    private CollectedMessage verifyAndActivateFirmwareAtGivenActivationDate() throws IOException {
         ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
-
+        String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateActivationDateAttributeName).getDeviceMessageAttributeValue();
         ImageTransferStatus imageTransferStatus = imageTransfer.readImageTransferStatus();
+
         if (imageTransferStatus.equals(ImageTransferStatus.TRANSFER_INITIATED)) {
             try {
                 imageTransfer.verifyAndPollForSuccess();
@@ -349,9 +356,14 @@ public class T210DMessageExecutor extends AM540MessageExecutor {
 
         if (imageTransferStatus.equals(ImageTransferStatus.VERIFICATION_SUCCESSFUL)) {
             try {
-                imageTransfer.setUsePollingVerifyAndActivate(false);    //Don't use polling for the activation, the meter reboots immediately!
-                imageTransfer.imageActivation();
-                collectedMessage.setDeviceProtocolInformation("Image has been activated.");
+                if (activationDate.isEmpty()) {
+                    imageTransfer.setUsePollingVerifyAndActivate(false);    //Don't use polling for the activation, the meter reboots immediately!
+                    imageTransfer.imageActivation();
+                    collectedMessage.setDeviceProtocolInformation("Image has been activated.");
+                } else {
+                    SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
+                    sas.writeExecutionTime(convertLongDateToDlmsArray(Long.valueOf(activationDate)));
+                }
             } catch (IOException e) {
                 if (isTemporaryFailure(e) || isTemporaryFailure(e.getCause())) {
                     collectedMessage.setDeviceProtocolInformation("Image activation returned 'temporary failure'. The activation is in progress, moving on.");
@@ -373,13 +385,14 @@ public class T210DMessageExecutor extends AM540MessageExecutor {
         return collectedMessage;
     }
 
-    private void firmwareUpgrade() throws IOException {
+    private void firmwareUpgrade(boolean doActivation) throws IOException {
 
         OfflineDeviceMessageAttribute imageAttribute = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName);
         byte[] binaryImage = ProtocolTools.getBytesFromHexString(imageAttribute.getDeviceMessageAttributeValue(), "");
         boolean resume = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, resumeFirmwareUpdateAttributeName).getDeviceMessageAttributeValue());
         String firmwareIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getDeviceMessageAttributeValue();
-        int length = binaryImage[0];
+        String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateActivationDateAttributeName).getDeviceMessageAttributeValue();
+
         ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
         if (resume) {
             int lastTransferredBlockNumber = imageTransfer.readFirstNotTransferedBlockNumber().intValue();
@@ -390,6 +403,31 @@ public class T210DMessageExecutor extends AM540MessageExecutor {
 
         imageTransfer.setUsePollingVerifyAndActivate(true);    //Poll verification
         imageTransfer.upgrade(binaryImage, false, firmwareIdentifier, true);
+
+        if(doActivation){
+            if (activationDate.isEmpty()) {
+                try {
+                    imageTransfer.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
+                    imageTransfer.imageActivation();
+                } catch (DataAccessResultException e) {
+                    if (isTemporaryFailure(e)) {
+                        getProtocol().getLogger().log(Level.INFO, "Received temporary failure. Meter will activate the image when this communication session is closed, moving on.");
+                    } else {
+                        throw e;
+                    }
+                }
+            } else {
+                SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
+                sas.writeExecutionTime(convertLongDateToDlmsArray(Long.valueOf(activationDate)));
+            }
+        }
+    }
+
+    private Array convertLongDateToDlmsArray(Long epoch){
+        Date actionTime = new Date(epoch);
+        Calendar cal = Calendar.getInstance(getProtocol().getTimeZone());
+        cal.setTime(actionTime);
+        return convertDateToDLMSArray(cal);
     }
 
     private void disablePushOnInstallation() {
