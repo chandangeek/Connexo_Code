@@ -736,7 +736,7 @@ public class BpmResource {
 
             List<Group> groups = this.userService.getGroups();
             if (bpmProcessDefinition.isPresent()) {
-                processDefinitionInfo = new ProcessDefinitionInfo(bpmProcessDefinition.get(), groups);
+                processDefinitionInfo = new ProcessDefinitionInfo(bpmProcessDefinition.get(), groups, this.thesaurus);
             } else {
                 processDefinitionInfo = getBpmProcessDefinitions(auth).processes.stream()
                         .filter(s -> s.name.equals(id) && s.version.equals(version)).findFirst()
@@ -1081,7 +1081,7 @@ public class BpmResource {
         if (resource.isPresent()) {
             List<Group> groups = this.userService.getGroups();
             proc = resource.get().getPrivileges().stream()
-                    .map(s -> new ProcessesPrivilegesInfo(s.getName(), Privileges.getDescriptionForKey(s.getName()), resource.get().getComponentName(), groups))
+                    .map(s -> new ProcessesPrivilegesInfo(s.getName(), Privileges.getDescriptionForKey(s.getName(), this.thesaurus), resource.get().getComponentName(), groups))
                     .collect(Collectors.toList());
         }
         return PagedInfoList.fromCompleteList("privileges", proc, queryParameters);

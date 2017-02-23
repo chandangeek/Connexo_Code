@@ -6,6 +6,7 @@ package com.elster.jupiter.bpm.rest;
 
 import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.security.Privileges;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.users.Group;
 
@@ -58,7 +59,7 @@ public class ProcessDefinitionInfo {
         this.versionDB = bpmProcessDefinition.getVersionDB();
     }
 
-    public ProcessDefinitionInfo(BpmProcessDefinition bpmProcessDefinition, List<Group> groups){
+    public ProcessDefinitionInfo(BpmProcessDefinition bpmProcessDefinition, List<Group> groups, Thesaurus thesaurus){
         this.version = bpmProcessDefinition.getVersion();
         this.name = bpmProcessDefinition.getProcessName();
         this.type = bpmProcessDefinition.getAssociationProvider()
@@ -69,7 +70,7 @@ public class ProcessDefinitionInfo {
                 .isPresent() ? bpmProcessDefinition.getAssociationProvider().get().getAppKey() : "";
         this.active = bpmProcessDefinition.getStatus();
         this.privileges = bpmProcessDefinition.getPrivileges().stream()
-                .map(s -> new ProcessesPrivilegesInfo(s.getPrivilegeName(), Privileges.getDescriptionForKey(s.getPrivilegeName()), s.getApplication(), groups))
+                .map(s -> new ProcessesPrivilegesInfo(s.getPrivilegeName(), Privileges.getDescriptionForKey(s.getPrivilegeName(), thesaurus), s.getApplication(), groups))
                 .collect(Collectors.toList());
         this.versionDB = bpmProcessDefinition.getVersionDB();
     }
