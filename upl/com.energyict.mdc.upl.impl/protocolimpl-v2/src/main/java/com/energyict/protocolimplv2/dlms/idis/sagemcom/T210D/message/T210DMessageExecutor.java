@@ -406,7 +406,7 @@ public class T210DMessageExecutor extends AM540MessageExecutor {
         imageTransfer.setUsePollingVerifyAndActivate(true);    //Poll verification
         imageTransfer.upgrade(binaryImage, false, firmwareIdentifier, true);
 
-        if(doActivation){
+        if (doActivation) {
             if (activationDate.isEmpty()) {
                 try {
                     imageTransfer.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
@@ -425,7 +425,7 @@ public class T210DMessageExecutor extends AM540MessageExecutor {
         }
     }
 
-    private Array convertLongDateToDlmsArray(Long epoch){
+    private Array convertLongDateToDlmsArray(Long epoch) {
         Date actionTime = new Date(epoch);
         Calendar cal = Calendar.getInstance(getProtocol().getTimeZone());
         cal.setTime(actionTime);
@@ -477,21 +477,6 @@ public class T210DMessageExecutor extends AM540MessageExecutor {
             executionTimes.addDataType(timeDate);
         }
         writeExecutionTime(executionTimes, pushSetupObisCode);
-    }
-
-    public static void main(String[] args){
-        String executionTimeDateArray = "ff0cffff, FFFFFFFFFF; ff16ffff, FFFFFFFFFF;0135ffff,FFFFFFFFFF";
-        Array executionTimes = new Array();
-        String[] executionDateTimes = executionTimeDateArray.trim().split(";");
-        for (String timeDateValueInHex : executionDateTimes) {
-            String[] timeDateInHex = timeDateValueInHex.trim().split(",");
-            String timeInHex = timeDateInHex[0].trim();
-            String dateInHex = timeDateInHex[1].trim();
-            Structure timeDate = new Structure();
-            timeDate.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(timeInHex, "")));
-            timeDate.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(dateInHex, "")));
-            executionTimes.addDataType(timeDate);
-        }
     }
 
     private String getMinuteValueInHex(String minuteValue) {
