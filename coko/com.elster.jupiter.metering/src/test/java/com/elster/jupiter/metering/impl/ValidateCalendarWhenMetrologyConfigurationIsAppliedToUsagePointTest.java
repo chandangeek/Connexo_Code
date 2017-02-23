@@ -26,6 +26,7 @@ import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresentReferenceValidator;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
@@ -37,7 +38,11 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorFactory;
 import javax.validation.MessageInterpolator;
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -166,6 +171,31 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
         when(this.dataModel.getInstance(UsagePointMeterActivatorImpl.class)).thenReturn(this.injector.getInstance(UsagePointMeterActivatorImpl.class));
         when(this.dataModel.getInstance(MetrologyContractChannelsContainerImpl.class)).thenReturn(this.injector.getInstance(MetrologyContractChannelsContainerImpl.class));
         when(this.dataModel.getInstance(CalendarUsageImpl.class)).thenReturn(this.injector.getInstance(CalendarUsageImpl.class));
+        when(this.dataModel.getInstance(SupportsEventsFromEffectiveMetrologyConfigurationsValidator.class)).thenReturn(this.injector.getInstance(SupportsEventsFromEffectiveMetrologyConfigurationsValidator.class));
+        when(this.dataModel.getInstance(IsPresentReferenceValidator.class)).thenReturn(this.injector.getInstance(IsPresentReferenceValidator.class));
+        when(this.dataModel.getValidatorFactory()).thenReturn(this.getValidatorFactory());
+    }
+
+    public ValidatorFactory getValidatorFactory() {
+        return Validation.byDefaultProvider()
+                .configure()
+                .constraintValidatorFactory(this.getConstraintValidatorFactory())
+                .messageInterpolator(this.thesaurus)
+                .buildValidatorFactory();
+    }
+
+    private ConstraintValidatorFactory getConstraintValidatorFactory() {
+        return new ConstraintValidatorFactory() {
+
+            @Override
+            public void releaseInstance(ConstraintValidator<?, ?> arg0) {
+            }
+
+            @Override
+            public <T extends ConstraintValidator<?, ?>> T getInstance(Class<T> clazz) {
+                return dataModel.getInstance(clazz);
+            }
+        };
     }
 
     private Module getModule() {

@@ -20,6 +20,7 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import java.time.Instant;
 
+@SupportsEventsFromEffectiveMetrologyConfigurations(message = PrivateMessageSeeds.Constants.UNSATISFIED_TOU, groups = {Save.Create.class, Save.Update.class})
 public class CalendarUsageImpl implements ServerCalendarUsage {
 
     enum Fields {

@@ -6,6 +6,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.Category;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
 
@@ -57,49 +58,37 @@ public class UsedCalendarsImpl implements UsagePoint.UsedCalendars {
     }
 
     @Override
-    public UsagePoint.CalendarUsage addCalendar(Instant startAt, Calendar calendar) {
-        if (calendar != null) {
-            if (startAt.isBefore(this.clock.instant())) {
-                throw new CannotStartCalendarBeforeNow();
-            }
-            if (getCalendarUsages().stream()
-                    .filter(test(this::hasCategory).with(calendar.getCategory()))
-                    .anyMatch(calendarOnUsagePoint -> calendarOnUsagePoint.getRange().lowerEndpoint().isAfter(startAt))) {
-                throw new CannotStartCalendarPriorToLatest();
-            }
-            getCalendarUsages().stream()
-                    .filter(test(this::hasCategory).with(calendar.getCategory()))
-                    .max(Comparator.comparing(map(UsagePoint.CalendarUsage::getRange).andThen(Range::lowerEndpoint)))
-                    .ifPresent(latest -> latest.end(startAt));
-        }
-        CalendarUsageImpl calendarOnUsagePoint = CalendarUsageImpl.create(this.dataModel, startAt, this.usagePoint, calendar);
-        calendarOnUsagePoint.save();
-        return calendarOnUsagePoint;
+    public UsagePoint.CalendarUsage addCalendar(Calendar calendar) {
+        return this.doAddCalendar(this.clock.instant(), calendar);
     }
 
     @Override
-    public UsagePoint.CalendarUsage addCalendar(Calendar calendar) {
-        Instant now = this.clock.instant();
-        if (calendar != null) {
-            if (getCalendarUsages().stream()
-                    .filter(test(this::hasCategory).with(calendar.getCategory()))
-                    .anyMatch(calendarOnUsagePoint -> calendarOnUsagePoint.getRange().lowerEndpoint().isAfter(now))) {
-                throw new CannotStartCalendarPriorToLatest();
-            }
-            getCalendarUsages().stream()
-                    .filter(test(this::hasCategory).with(calendar.getCategory()))
-                    .max(Comparator.comparing(map(UsagePoint.CalendarUsage::getRange).andThen(Range::lowerEndpoint)))
-                    .ifPresent(latest -> latest.end(now));
+    public UsagePoint.CalendarUsage addCalendar(Instant startAt, Calendar calendar) {
+        if (startAt.isBefore(this.clock.instant())) {
+            throw new CannotStartCalendarBeforeNow();
         }
-        CalendarUsageImpl calendarOnUsagePoint = CalendarUsageImpl.create(dataModel, now, usagePoint, calendar);
+        return this.doAddCalendar(startAt, calendar);
+    }
+
+    private UsagePoint.CalendarUsage doAddCalendar(Instant startAt, Calendar calendar) {
+        if (getCalendarUsages().stream()
+                .filter(test(this::hasCategory).with(calendar.getCategory()))
+                .anyMatch(calendarOnUsagePoint -> calendarOnUsagePoint.getRange().lowerEndpoint().isAfter(startAt))) {
+            throw new CannotStartCalendarPriorToLatest();
+        }
+        getCalendarUsages().stream()
+                .filter(test(this::hasCategory).with(calendar.getCategory()))
+                .max(Comparator.comparing(map(UsagePoint.CalendarUsage::getRange).andThen(Range::lowerEndpoint)))
+                .ifPresent(latest -> latest.end(startAt));
+        CalendarUsageImpl calendarOnUsagePoint = CalendarUsageImpl.create(this.dataModel, startAt, this.usagePoint, calendar);
+        Save.CREATE.validate(this.dataModel, calendarOnUsagePoint);
         calendarOnUsagePoint.save();
         return calendarOnUsagePoint;
     }
 
     @Override
     public List<Calendar> getCalendars(Instant instant) {
-        return calendarsActiveOn(instant)
-                .collect(Collectors.toList());
+        return calendarsActiveOn(instant).collect(Collectors.toList());
     }
 
     private Stream<Calendar> calendarsActiveOn(Instant instant) {

@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 public enum PrivateMessageSeeds implements MessageSeed {
 
     UNDERLYING_IO_EXCEPTION(10000, "io.failed", "Underlying IO Exception"),
-    UNSATISFIED_TOU(10001, "usagepoint.tou.unsatisfied", "Not all the time of use buckets of required contract deliverables are satisfied. The following are missing {0}"),
+    UNSATISFIED_TOU(10001, Constants.UNSATISFIED_TOU, "Not all the time of use buckets of required contract deliverables are satisfied. The following are missing {0}"),
     ILLEGAL_CURRENCY_CODE(10002, "currency.illegalcode", "Invalid currency code : ''{0}''"),
 
     METER_EVENT_IGNORED(2001, "meter.event.ignored", "Ignored event {0} on meter {1}, since it is not defined in the system", Level.INFO),
@@ -228,12 +228,12 @@ public enum PrivateMessageSeeds implements MessageSeed {
         public static final String BULK_DELIVERABLES_CAN_ONLY_USE_BULK_READINGTYPES = "bulk.deliverable.can.only.use.other.bulk.reading";
         public static final String THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT = "the.same.meter.activated.twice.on.usage.point";
         public static final String UNSATISFIED_METROLOGY_REQUIREMENT = "unsatisfied.metrology.requirement";
-        public static final String UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE = "unsatisfied.reading.type.requirements.for.device";
         public static final String CURRENT_EFFECTIVE_METROLOGY_CONFIG_CANT_BE_REMOVED = "Remove.current.effectve.mc";
         public static final String START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE = "version.start.should.be.greater.than.up.creation.date";
         public static final String UNIQUE_DETAILS = "usage.point.details.not.unique.for.interval";
         public static final String ACTIVATION_FAILED_BY_CUSTOM_VALIDATORS = "activation.failed.by.custom.validators";
         public static final String USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE = "usage.point.already.active.with.given.role";
+        public static final String UNSATISFIED_TOU = "usagepoint.tou.unsatisfied";
     }
 
 }
