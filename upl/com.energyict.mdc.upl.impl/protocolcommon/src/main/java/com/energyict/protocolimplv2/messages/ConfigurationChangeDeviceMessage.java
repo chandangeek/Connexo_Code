@@ -367,6 +367,9 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.activeAPN),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.apnConfigurations)
     ),
+    ENABLE_PUSH_ON_INTERVAL_OBJECTS_WITH_TIME_DATE_ARRAY(90,
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.typeAttributeName, PushType.getTypes()),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.executionTimeDateArray)),
     ;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;

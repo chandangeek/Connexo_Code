@@ -92,6 +92,8 @@ public class T210DMessageExecutor extends AM540MessageExecutor {
             disablePushOnInstallation();
         } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.ENABLE_PUSH_ON_INTERVAL_OBJECTS)) {
             enablePushOnInterval();
+        } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.ENABLE_PUSH_ON_INTERVAL_OBJECTS_WITH_TIME_DATE_ARRAY)) {
+            enablePushOnIntervalWithFlexibleDates();
         } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_RESUME_AND_IMAGE_IDENTIFIER)) {
             firmwareUpgrade(false);
         } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER_AND_RESUME)) {
@@ -456,6 +458,40 @@ public class T210DMessageExecutor extends AM540MessageExecutor {
             executionTimes.addDataType(timeDate);
         }
         writeExecutionTime(executionTimes, pushSetupObisCode);
+    }
+
+    private void enablePushOnIntervalWithFlexibleDates() {
+        String executionTimeDateArray = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.executionTimeDateArray).getDeviceMessageAttributeValue();
+        String setupType = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.typeAttributeName).getDeviceMessageAttributeValue();
+        ObisCode pushSetupObisCode = PUSH_ACTION_SCHEDULER_OBISCODE;
+        pushSetupObisCode.setB(ConfigurationChangeDeviceMessage.PushType.valueOf(setupType).getId());
+        Array executionTimes = new Array();
+        String[] executionDateTimes = executionTimeDateArray.trim().split(";");
+        for (String timeDateValueInHex : executionDateTimes) {
+            String[] timeDateInHex = timeDateValueInHex.trim().split(",");
+            String timeInHex = timeDateInHex[0].trim();
+            String dateInHex = timeDateInHex[1].trim();
+            Structure timeDate = new Structure();
+            timeDate.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(timeInHex, "")));
+            timeDate.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(dateInHex, "")));
+            executionTimes.addDataType(timeDate);
+        }
+        writeExecutionTime(executionTimes, pushSetupObisCode);
+    }
+
+    public static void main(String[] args){
+        String executionTimeDateArray = "ff0cffff, FFFFFFFFFF; ff16ffff, FFFFFFFFFF;0135ffff,FFFFFFFFFF";
+        Array executionTimes = new Array();
+        String[] executionDateTimes = executionTimeDateArray.trim().split(";");
+        for (String timeDateValueInHex : executionDateTimes) {
+            String[] timeDateInHex = timeDateValueInHex.trim().split(",");
+            String timeInHex = timeDateInHex[0].trim();
+            String dateInHex = timeDateInHex[1].trim();
+            Structure timeDate = new Structure();
+            timeDate.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(timeInHex, "")));
+            timeDate.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(dateInHex, "")));
+            executionTimes.addDataType(timeDate);
+        }
     }
 
     private String getMinuteValueInHex(String minuteValue) {

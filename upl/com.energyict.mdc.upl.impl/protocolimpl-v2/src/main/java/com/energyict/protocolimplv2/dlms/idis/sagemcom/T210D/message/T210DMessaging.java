@@ -57,6 +57,7 @@ public class T210DMessaging extends AM540Messaging {
         //Configuration for ConfigureGeneralLocalPortReadout captured_objects
         supportedMessages.add(ConfigurationChangeDeviceMessage.DISABLE_PUSH_ON_INSTALLATION);
         supportedMessages.add(ConfigurationChangeDeviceMessage.ENABLE_PUSH_ON_INTERVAL_OBJECTS);
+        supportedMessages.add(ConfigurationChangeDeviceMessage.ENABLE_PUSH_ON_INTERVAL_OBJECTS_WITH_TIME_DATE_ARRAY);
         supportedMessages.add(ConfigurationChangeDeviceMessage.ConfigureGeneralLocalPortReadout);
         //Contactor
         supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN);
