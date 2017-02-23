@@ -91,6 +91,7 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("PKI_FK_CERT_TS").on(trustStoreColumn)
                     .references(TrustStoreImpl.class)
+                    .composition()
                     .map(AbstractCertificateWrapperImpl.Fields.TRUST_STORE.fieldName())
                     .reverseMap(TrustStoreImpl.Fields.CERTIFICATES.fieldName())
                     .onDelete(DeleteRule.CASCADE)

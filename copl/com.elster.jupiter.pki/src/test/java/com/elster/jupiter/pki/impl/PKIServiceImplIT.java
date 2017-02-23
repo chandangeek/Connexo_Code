@@ -286,7 +286,7 @@ public class PKIServiceImplIT {
                 .description("Main trust store")
                 .add();
         X509Certificate certificate = loadCertificate("myRootCA.cert");
-        main.setCertificate(certificate);
+        main.addCertificate(certificate);
 
         Optional<TrustStore> reloaded = inMemoryPersistence.getPkiService().findTrustStore("main");
         assertThat(reloaded).isPresent();

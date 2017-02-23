@@ -18,11 +18,9 @@ import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.SymmetricKeyFactory;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.TrustStore;
-import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.impl.wrappers.assymetric.AbstractPlaintextPrivateKeyImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.ClientCertificateImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.RenewableCertificateImpl;
-import com.elster.jupiter.pki.impl.wrappers.certificate.TrustedCertificateImpl;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 
@@ -227,14 +225,6 @@ public class PkiServiceImpl implements PkiService {
             throw new NoSuchKeyEncryptionMethod(thesaurus);
         }
         return symmetricKeyFactories.get(keyAccessorType.getKeyEncryptionMethod()).newSymmetricKey(keyAccessorType);
-    }
-
-    @Override
-    public TrustedCertificate newTrustedCertificateWrapper(TrustStore trustStore) {
-        TrustedCertificateImpl trustedCertificate = getDataModel().getInstance(TrustedCertificateImpl.class);
-        trustedCertificate.init(trustStore);
-        trustedCertificate.save();
-        return trustedCertificate;
     }
 
     @Override

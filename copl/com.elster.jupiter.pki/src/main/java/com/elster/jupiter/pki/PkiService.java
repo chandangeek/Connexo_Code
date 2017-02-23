@@ -19,12 +19,6 @@ public interface PkiService {
 
     String COMPONENTNAME = "PKI";
 
-    /**
-     * Creates a blank placeholder/wrapper for a TrustedCertificate. A TrustedCertificate is
-     * @return
-     */
-    TrustedCertificate newTrustedCertificateWrapper(TrustStore trustStore);
-
     CertificateWrapper newCertificateWrapper();
 
     ClientCertificate newClientCertificateWrapper(KeyAccessorType keyAccessorType); // TODO needs 2 Keytypes!! 1 for Cert and 1 for PK

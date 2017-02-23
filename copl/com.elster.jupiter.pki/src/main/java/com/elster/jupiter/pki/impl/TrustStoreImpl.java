@@ -89,12 +89,12 @@ public class TrustStoreImpl implements TrustStore {
     }
 
     @Override
-    public void setCertificate(X509Certificate x509Certificate) {
-        TrustedCertificateImpl trustedCertificate = (TrustedCertificateImpl) pkiService.newTrustedCertificateWrapper(this);
-        trustedCertificate.setCertificate(x509Certificate);
-        trustedCertificate.save();
+    public TrustedCertificate addCertificate(X509Certificate x509Certificate) {
+        TrustedCertificateImpl trustedCertificate = dataModel.getInstance(TrustedCertificateImpl.class);
+        trustedCertificate.init(this, x509Certificate);
         this.trustedCertificates.add(trustedCertificate);
         this.save();
+        return trustedCertificate;
     }
 
     @Override

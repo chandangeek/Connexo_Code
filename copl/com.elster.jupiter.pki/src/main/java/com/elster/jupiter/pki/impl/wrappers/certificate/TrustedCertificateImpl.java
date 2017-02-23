@@ -20,6 +20,7 @@ import java.security.cert.CRL;
 import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.Optional;
 
 public class TrustedCertificateImpl extends AbstractCertificateWrapperImpl implements TrustedCertificate {
@@ -55,8 +56,9 @@ public class TrustedCertificateImpl extends AbstractCertificateWrapperImpl imple
         return trustStoreReference.get();
     }
 
-    public TrustedCertificateImpl init(TrustStore trustStore) {
-        trustStoreReference.set(trustStore);
+    public TrustedCertificateImpl init(TrustStore trustStore, X509Certificate x509Certificate) {
+        this.trustStoreReference.set(trustStore);
+        this.setCertificate(x509Certificate);
         return this;
     }
 }
