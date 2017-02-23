@@ -39,36 +39,6 @@
             <artifactId>connexo.filter</artifactId>
             <version>1.2.0${revision}</version>
         </dependency>
-        <!--dependency>
-            <groupId>com.yellowfin</groupId>
-            <artifactId>yellowfin-i4-adapter</artifactId>
-            <version>7.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.yellowfin</groupId>
-            <artifactId>yellowfin-i4-content</artifactId>
-            <version>7.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.yellowfin</groupId>
-            <artifactId>yellowfin-i4-core</artifactId>
-            <version>7.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.yellowfin</groupId>
-            <artifactId>yellowfin-i4-ip</artifactId>
-            <version>7.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.yellowfin</groupId>
-            <artifactId>yellowfin-i4-jsps</artifactId>
-            <version>7.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.yellowfin</groupId>
-            <artifactId>yellowfin-i4-mi</artifactId>
-            <version>7.1</version>
-        </dependency-->
         <dependency>
             <groupId>com.yellowfin</groupId>
             <artifactId>yellowfin-ws</artifactId>
