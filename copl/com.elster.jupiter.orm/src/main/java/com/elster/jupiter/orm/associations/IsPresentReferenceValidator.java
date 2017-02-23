@@ -14,7 +14,7 @@ import javax.validation.ConstraintValidatorContext;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-15 (12:26)
  */
-class IsPresentReferenceValidator implements ConstraintValidator<IsPresent, Reference> {
+public class IsPresentReferenceValidator implements ConstraintValidator<IsPresent, Reference> {
 
     @Override
     public void initialize(IsPresent constraintAnnotation) {
