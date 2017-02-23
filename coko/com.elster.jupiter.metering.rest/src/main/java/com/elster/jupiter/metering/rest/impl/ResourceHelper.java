@@ -120,6 +120,7 @@ public class ResourceHelper {
 
     public UsagePoint findUsagePointByNameOrThrowException(String name) {
         return meteringService.findUsagePointByName(name)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(com.elster.jupiter.metering.MessageSeeds.NO_USAGE_POINT_WITH_NAME, name));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_USAGE_POINT_WITH_NAME, name));
     }
+
 }

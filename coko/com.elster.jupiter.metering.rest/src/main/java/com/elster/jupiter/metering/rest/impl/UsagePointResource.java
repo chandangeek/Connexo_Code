@@ -7,7 +7,6 @@ package com.elster.jupiter.metering.rest.impl;
 import com.elster.jupiter.domain.util.FormValidationException;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -377,7 +376,7 @@ public class UsagePointResource {
     }
 
     // TODO: delete implementation must not depend on a request body! And path param name is ignored...
-    // See as well other 'metrologyconfigurationversion' methods
+    // See also other 'metrologyconfigurationversion' methods
     @DELETE
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Path("/{name}/metrologyconfigurationversion/{configVersionId}")
