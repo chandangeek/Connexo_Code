@@ -137,7 +137,8 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpec {
 
     public enum TransportType {
         TCP(0),
-        UDP(1);
+        UDP(1),
+        UDP_VIA_G3_PLC(200);
 
         private final int id;
 

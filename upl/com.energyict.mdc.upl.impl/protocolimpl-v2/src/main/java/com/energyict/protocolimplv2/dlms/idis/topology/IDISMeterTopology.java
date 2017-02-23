@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.dlms.idis.topology;
 
 import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.meterdata.CollectedTopology;
@@ -31,6 +32,7 @@ public class IDISMeterTopology extends AbstractMeterTopology {
 
     private static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
     private static final int MAX_MBUS_CHANNELS = 4;
+    private static final long CHANNEL_NOT_USED = 4294967295l;
     private final AbstractDlmsProtocol protocol;
     List<DeviceMapping> deviceMapping = null;
 
@@ -50,8 +52,10 @@ public class IDISMeterTopology extends AbstractMeterTopology {
             for (int i = 1; i <= getMaxMBusChannels(); i++) {
                 try {
                     obisCode = ProtocolTools.setObisCodeField(obisCode, 1, (byte) i);
-                    long serialNumberValue = protocol.getDlmsSession().getCosemObjectFactory().getMbusClient(obisCode, MbusClientAttributes.VERSION10).getIdentificationNumber().getValue();
-                    if (serialNumberValue != 0) {
+                    MBusClient mbusClient = protocol.getDlmsSession().getCosemObjectFactory().getMbusClient(obisCode, MbusClientAttributes.VERSION10);
+                    int primaryAddress = mbusClient.getPrimaryAddress().getValue();
+                    long serialNumberValue = mbusClient.getIdentificationNumber().getValue();
+                    if (serialNumberValue != 0 && serialNumberValue != CHANNEL_NOT_USED && primaryAddress != 0) {
                         String serialNumber = String.valueOf(serialNumberValue);
                         deviceMapping.add(new DeviceMapping(serialNumber, i, false));
                     }

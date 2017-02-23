@@ -81,6 +81,8 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.MBusSetupDeviceMessage_mBusClientShortId)),
     ScanAndInstallWiredMbusDevices(15),
     InstallWirelessMbusDevices(16),
+    ScanAndInstallWiredMbusDeviceForGivenMeterIdentification(17, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.gMeterIdentificationAttributeName)),
+    InstallWirelessMbusDeviceForGivenMeterIdentification(18, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.gMeterIdentificationAttributeName)),
             ;
 
 

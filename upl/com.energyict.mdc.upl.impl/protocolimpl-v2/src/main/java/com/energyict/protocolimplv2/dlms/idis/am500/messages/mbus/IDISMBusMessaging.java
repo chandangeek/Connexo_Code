@@ -42,7 +42,6 @@ public class IDISMBusMessaging extends AbstractDlmsMessaging implements DeviceMe
 
         supportedMessages.add(MBusSetupDeviceMessage.Decommission);
         supportedMessages.add(MBusSetupDeviceMessage.SetEncryptionKeys);
-        supportedMessages.add(MBusSetupDeviceMessage.WriteCaptureDefinitionForAllInstances);
         supportedMessages.add(MBusSetupDeviceMessage.WriteMBusCapturePeriod);
     }
 
