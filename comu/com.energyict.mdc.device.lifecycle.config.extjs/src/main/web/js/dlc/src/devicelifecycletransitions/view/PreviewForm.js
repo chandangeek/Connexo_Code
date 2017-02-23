@@ -129,15 +129,10 @@ Ext.define('Dlc.devicelifecycletransitions.view.PreviewForm', {
                                             margin: '6 0 15 0'
                                         },
                                         {
-                                            xtype: 'button',
-                                            tooltip: extraCategoryTooltip,
-                                            margin: '5 0 0 0',
-                                            iconCls: 'uni-icon-info-small',
-                                            cls: 'uni-btn-transparent',
-                                            style: {
-                                                display: 'inline-block',
-                                                "text-decoration": 'none !important'
-                                            }
+                                            xtype: 'displayfield-with-info-icon',
+                                            fieldLabel: undefined,
+                                            onlyIcon: true,
+                                            infoTooltip: extraCategoryTooltip
                                         }
                                     ]
                                 }
@@ -161,6 +156,7 @@ Ext.define('Dlc.devicelifecycletransitions.view.PreviewForm', {
                             fieldLabel: undefined,
                             value: property.name,
                             infoTooltip: property.description,
+                            iconColor: '#828282',
                             style: 'margin-top: -10px'
                         });
                     });
