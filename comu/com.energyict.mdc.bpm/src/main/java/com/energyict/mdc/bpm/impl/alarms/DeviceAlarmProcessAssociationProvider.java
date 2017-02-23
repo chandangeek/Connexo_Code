@@ -113,7 +113,7 @@ public class DeviceAlarmProcessAssociationProvider implements ProcessAssociation
     }
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(com.energyict.mdc.bpm.impl.device.TranslationKeys.values());
+        return Arrays.asList(TranslationKeys.values());
     }
 
     @Override

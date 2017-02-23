@@ -144,7 +144,7 @@ public class IssueProcessAssociationProvider implements ProcessAssociationProvid
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(com.energyict.mdc.bpm.impl.device.TranslationKeys.values());
+        return Arrays.asList(TranslationKeys.values());
     }
 
     @XmlRootElement
