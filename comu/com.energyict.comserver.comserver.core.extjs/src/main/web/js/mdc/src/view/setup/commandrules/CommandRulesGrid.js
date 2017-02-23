@@ -36,7 +36,7 @@ Ext.define('Mdc.view.setup.commandrules.CommandRulesGrid', {
                 renderer: function (value, metaData, record) {
                     var pendingChanges = record.get('statusMessage'),
                         icon = Ext.isEmpty(pendingChanges) ? '' :
-                                '<span class="icon-info" style="margin-left:10px; position:absolute;" data-qtip="' + pendingChanges + '"></span>',
+                                '<span class="icon-info" style="margin-left:10px; font-size:16px; color:#A9A9A9; position:absolute;" data-qtip="' + pendingChanges + '"></span>',
                         text = value ? Uni.I18n.translate('general.active', 'MDC', 'Active') : Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
                     return text + icon;
                 }
