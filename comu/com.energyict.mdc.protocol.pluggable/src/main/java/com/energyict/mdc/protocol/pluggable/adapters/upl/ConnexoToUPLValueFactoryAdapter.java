@@ -1,6 +1,5 @@
-package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
+package com.energyict.mdc.protocol.pluggable.adapters.upl;
 
-import com.energyict.mdc.protocol.pluggable.adapters.upl.ValueType;
 import com.energyict.mdc.upl.properties.ValueFactory;
 
 /**
@@ -17,7 +16,7 @@ public class ConnexoToUPLValueFactoryAdapter implements ValueFactory {
         this.actual = actual;
     }
 
-    static ConnexoToUPLValueFactoryAdapter adapt(com.elster.jupiter.properties.ValueFactory actual) {
+    public static ConnexoToUPLValueFactoryAdapter adapt(com.elster.jupiter.properties.ValueFactory actual) {
         return new ConnexoToUPLValueFactoryAdapter(actual);
     }
 

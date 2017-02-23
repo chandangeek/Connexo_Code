@@ -5,8 +5,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.ValueRequiredException;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoToUPLPropertSpecAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoToUPLValueFactoryAdapter;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 

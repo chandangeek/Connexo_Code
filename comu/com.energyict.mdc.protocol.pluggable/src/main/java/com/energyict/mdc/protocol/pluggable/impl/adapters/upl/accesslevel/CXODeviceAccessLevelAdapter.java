@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.upl.accesslevel;
 
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoToUPLPropertSpecAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.DeviceAccessLevel;
 

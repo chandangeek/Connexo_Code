@@ -2,8 +2,8 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.upl.accesslevel;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 
 import java.util.List;
 import java.util.stream.Collectors;
