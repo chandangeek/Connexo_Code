@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.metering.rest.impl;
 
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
@@ -178,10 +177,10 @@ public class ReadingTypeResource {
         for (String mRIDvalidation : mRIDs) {
             String[] mRIDtokens = mRIDvalidation.split("[.]");
             if (mRIDtokens.length == MRID_FIELD_COUNT) {
-                if (!mRIDtokens[INTER_HARMONIC_NUMERATOR_INDEX].equals("0") && mRIDtokens[INTER_HARMONIC_DENOMINATOR_INDEX].equals("0")) {
+                if (!"0".equals(mRIDtokens[INTER_HARMONIC_NUMERATOR_INDEX]) && "0".equals(mRIDtokens[INTER_HARMONIC_DENOMINATOR_INDEX])) {
                     validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.DENOMINATOR_CANNOT_BE_ZERO, "interHarmonicDenominator"));
                 }
-                if (!mRIDtokens[ARGUMENT_NUMERATOR_INDEX].equals("0") && mRIDtokens[ARGUMENT_DENOMINATOR_INDEX].equals("0")) {
+                if (!"0".equals(mRIDtokens[ARGUMENT_NUMERATOR_INDEX]) && "0".equals(mRIDtokens[ARGUMENT_DENOMINATOR_INDEX])) {
                     validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.DENOMINATOR_CANNOT_BE_ZERO, "argumentDenominator"));
                 }
             }

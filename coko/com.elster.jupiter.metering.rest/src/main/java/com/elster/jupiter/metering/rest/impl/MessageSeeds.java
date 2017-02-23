@@ -17,8 +17,12 @@ public enum MessageSeeds implements MessageSeed {
     YOU_CANNOT_REMOVE_ACTIVE_METROLOGY_CONFIGURATION(5, "you.cannot.remove.active.metrology.configuration", "You can not remove active metrology configuration"),
     METROLOGY_CONFIG_VERSION_CONCURRENCY_ERROR_ON_USAGE_POINT_TITLE(6, "failed.to.save.metrology.config.version.body", "Failed to save metrology configuration version on ''{0}''."),
     METROLOGY_CONFIG_VERSION_CONCURRENCY_ERROR_ON_USAGE_POINT_BODY(7, "failed.to.save.metrology.config.version.title", "Usage point ''{0}'' has been modified since the page was last updated."),
-    NO_METROLOGY_CONFIG_VERSION_WITH_START(8, "no.metrology.config.found", "No metrology configuration version were found with start ''{0}''");
-
+    NO_METROLOGY_CONFIG_VERSION_WITH_START(8, "no.metrology.config.found", "No metrology configuration version were found with start ''{0}''"),
+    READINGTYPE_ALREADY_EXISTS(9, "readingtype.alreadyExists", "Reading type {0} already exists."),
+    TOO_MANY_READINGTYPES(10, "readingtype.tooManyReadingTypes", "You are going to add {0} reading types. The limit is 1000."),
+    READINGTYPE_CREATING_FAIL(11, "readingtype.creatingFail", "Failed creating reading types."),
+    DENOMINATOR_CANNOT_BE_ZERO(12, "denominator.cannot.be.zero", "Denominator cannot be 0"),
+    NO_USAGE_POINT_WITH_NAME(13, "NoUsagePointWithName", "No usage point with name {0}");
 
     private final int number;
     private final String key;
