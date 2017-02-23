@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.search.rest.impl;
 
-
 import com.elster.jupiter.search.SearchableProperty;
 
 import javax.ws.rs.core.Link;
@@ -35,9 +34,8 @@ public class SearchCriterionInfoFactory {
     }
 
     public PropertyInfo asSingleObjectWithValues(SearchableProperty property, UriInfo uriInfo, Map<Long, String> locations) {
-        return new PropertyInfo(property).withLink(Link.fromUri(getCriteriaDetailsUri(property, uriInfo)).build())
+         return new PropertyInfo(property).withLink(Link.fromUri(getCriteriaDetailsUri(property, uriInfo)).build())
                 .withSpecDetails()
-                .withPossibleValues(locations);
+                .withPossibleValues(locations, true);
     }
-
 }

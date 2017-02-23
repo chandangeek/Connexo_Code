@@ -116,8 +116,9 @@ public class PropertyInfo {
         return this;
     }
 
-    protected PropertyInfo withPossibleValues(Map<?, String> possibleValueMap) {
+    protected PropertyInfo withPossibleValues(Map<?, String> possibleValueMap, boolean exhaustive) {
         this.values = possibleValueMap.entrySet().stream().map(v -> new IdWithDisplayValueInfo<>(v.getKey(), v.getValue())).collect(Collectors.toList());
+        this.exhaustive = exhaustive;
         return this;
     }
 
