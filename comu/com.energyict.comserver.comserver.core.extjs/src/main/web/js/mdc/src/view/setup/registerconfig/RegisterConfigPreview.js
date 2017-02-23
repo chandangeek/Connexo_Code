@@ -51,7 +51,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                         },
                         defaults: {
                             xtype: 'displayfield',
-                            labelWidth: 160
+                            labelWidth: 200
                         },
                         items: [
                             {
@@ -75,7 +75,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                         },
                         defaults: {
                             xtype: 'displayfield',
-                            labelWidth: 160
+                            labelWidth: 200
                         },
                         items: [
                             {
