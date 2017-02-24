@@ -4,12 +4,14 @@
 
 package com.energyict.mdc.device.alarms.rest.resource;
 
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.issue.share.IssueProvider;
-import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.WorkGroup;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.device.alarms.rest.response.TopAlarmsInfo;
 import com.energyict.mdc.device.alarms.security.Privileges;
 
@@ -20,17 +22,16 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.SecurityContext;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Path("/topalarms")
-public class TopAlarmsResource extends BaseAlarmResource{
+import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
+import static com.elster.jupiter.util.conditions.Where.where;
 
-    public TopAlarmsResource(){
+@Path("/topalarms")
+public class TopAlarmsResource extends BaseAlarmResource {
+
+    public TopAlarmsResource() {
 
     }
 
@@ -41,52 +42,23 @@ public class TopAlarmsResource extends BaseAlarmResource{
     @RolesAllowed({Privileges.Constants.VIEW_ALARM, Privileges.Constants.ASSIGN_ALARM, Privileges.Constants.CLOSE_ALARM, Privileges.Constants.COMMENT_ALARM, Privileges.Constants.ACTION_ALARM})
     public TopAlarmsInfo getTopAlarms(@Context SecurityContext securityContext) {
         User currentUser = (User) securityContext.getUserPrincipal();
-        Comparator<Issue> dueDateComparator = Comparator.comparing(Issue::getDueDate, Comparator.nullsLast(Instant::compareTo));
-        Comparator<Issue> priorityComparator = (alarm1, alarm2) -> Integer.compare(alarm2.getPriority().getImpact() + alarm2.getPriority().getUrgency(), alarm1.getPriority().getImpact() + alarm1.getPriority().getUrgency());
-        Comparator<Issue> nameComparator = (alarm1, alarm2) -> alarm1.getTitle().toLowerCase().compareTo(alarm2.getTitle());
-        Finder<? extends Issue> finder = getIssueService().findAlarms();
-        List<? extends Issue> alarms = finder.find();
-        List<Issue> items = getItems(alarms, currentUser);
-        return new TopAlarmsInfo(items.stream()
-                .sorted(priorityComparator.thenComparing(dueDateComparator).thenComparing(nameComparator))
-                .limit(5)
-                .collect(Collectors.toList()), getTotalUserAssigned(items, currentUser), getTotalWorkGroupAssigned(items, currentUser));
-    }
-
-    private List<Issue> getItems(List<? extends Issue> issues, User currentUser){
-        List<Issue> items = new ArrayList<>();
-        for (Issue baseIssue : issues) {
-            for (IssueProvider issueProvider : getIssueService().getIssueProviders()) {
-                Optional<? extends Issue> issueRef = issueProvider.findIssue(baseIssue.getId());
-                if (issueRef.isPresent()) {
-                    items.add(issueRef.get());
-                }
-            }
-        }
-        return items.stream()
-                .filter(item -> (item.getAssignee().getUser() != null && item.getAssignee().getUser().equals(currentUser)) ||
-                        (item.getAssignee().getWorkGroup() != null && currentUser.getWorkGroups()
-                                .stream()
-                                .map(WorkGroup::getName)
-                                .anyMatch(workGroupName -> workGroupName.equals(item.getAssignee().getWorkGroup().getName()))
-                                && item.getAssignee().getUser() == null))
+        IssueType alarmType = getIssueService().findIssueType("devicealarm").orElse(null);
+        List<IssueReason> issueReasons = getIssueService().query(IssueReason.class)
+                .select(where(ISSUE_TYPE).isEqualTo(alarmType))
+                .stream()
                 .collect(Collectors.toList());
-    }
+        Query<OpenIssue> alarmQuery = getIssueService().query(OpenIssue.class, IssueReason.class, IssueType.class);
+        Condition conditionAlarm = where("reason").in(issueReasons);
+        Condition conditionUser = where("user").isEqualTo(currentUser);
+        Condition conditionNullUser = where("user").isNull();
+        Condition conditionWG = where("workGroup").in(currentUser.getWorkGroups());
+        List<OpenIssue> alarms = alarmQuery.select(conditionAlarm.and(conditionUser.or(conditionNullUser.and(conditionWG))), 1, 5, Order.ascending("priorityTotal")
+                .ascending("dueDate")
+                .ascending("reason"));
+        long alarmTotalUserAssignedCount = getIssueService().getUserIssueCount(currentUser, issueReasons);
+        long alarmTotalWorkGroupAssignedCount = getIssueService().getWorkGroupIssueWithoutUserCount(currentUser, issueReasons);
 
-    private long getTotalUserAssigned(List<Issue> items, User currentUser){
-        return items.stream()
-                .filter(item ->item.getAssignee().getUser() != null && item.getAssignee().getUser().equals(currentUser))
-                .count();
-    }
-
-    private long getTotalWorkGroupAssigned(List<Issue> items, User currentUser){
-        return items.stream()
-                .filter(item -> item.getAssignee().getWorkGroup() != null && currentUser.getWorkGroups()
-                        .stream()
-                        .map(WorkGroup::getName)
-                        .anyMatch(workGroupName -> workGroupName.equals(item.getAssignee().getWorkGroup().getName()))
-                        && item.getAssignee().getUser() == null)
-                .count();
+        return new TopAlarmsInfo(alarms, alarmTotalUserAssignedCount, alarmTotalWorkGroupAssignedCount);
     }
 
 }
