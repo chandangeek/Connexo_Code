@@ -638,14 +638,7 @@ public class UsagePointOutputResource {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, purposeInfo.parent.version);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
 
-        MetrologyContract metrologyContract = effectiveMC.getMetrologyConfiguration().getContracts()
-                .stream()
-                .filter(mc -> !effectiveMC.getChannelsContainer(mc, clock.instant()).isPresent())
-                .filter(mc -> !mc.getDeliverables().isEmpty())
-                .filter(mc -> mc.getId() == contractId)
-                .filter(mc -> !mc.isMandatory())
-                .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.CANNOT_ACTIVATE_METROLOGY_PURPOSE));
+        MetrologyContract metrologyContract = resourceHelper.findInactiveMetrologyContractOrThrowException(effectiveMC, contractId);
 
         resourceHelper.checkMeterRequirements(usagePoint, metrologyContract);
 
@@ -678,8 +671,7 @@ public class UsagePointOutputResource {
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(usagePoint, contractId);
         List<DataValidationTask> validationTasks = validationService.findValidationTasks()
                 .stream()
-                .filter(task -> task.getMetrologyPurpose().isPresent())
-                .filter(task -> task.getQualityCodeSystem().equals(QualityCodeSystem.MDM) && task.getMetrologyPurpose().get().equals(metrologyContract.getMetrologyPurpose()))
+                .filter(task -> !task.getMetrologyPurpose().isPresent() || task.getQualityCodeSystem().equals(QualityCodeSystem.MDM) && task.getMetrologyPurpose().get().equals(metrologyContract.getMetrologyPurpose()))
                 .collect(Collectors.toList());
 
         List<DataValidationTaskInfo> dataValidationTasks = validationTasks
@@ -709,8 +701,7 @@ public class UsagePointOutputResource {
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(usagePoint, contractId);
         List<EstimationTask> estimationTasks = estimationService.findEstimationTasks(QualityCodeSystem.MDM)
                 .stream()
-                .filter(estimationTask -> estimationTask.getMetrologyPurpose().isPresent())
-                .filter(task -> task.getMetrologyPurpose().get().equals(metrologyContract.getMetrologyPurpose()))
+                .filter(task -> !task.getMetrologyPurpose().isPresent() || task.getMetrologyPurpose().get().equals(metrologyContract.getMetrologyPurpose()))
                 .collect(Collectors.toList());
 
         List<EstimationTaskShortInfo> dataEstimationTasks = estimationTasks

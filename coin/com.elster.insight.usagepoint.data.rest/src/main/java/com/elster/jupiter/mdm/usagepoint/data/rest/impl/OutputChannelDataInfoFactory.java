@@ -5,6 +5,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -82,7 +83,9 @@ public class OutputChannelDataInfoFactory {
         readingWithValidationStatus.getReadingModificationFlag().ifPresent(modificationFlag -> {
             outputChannelDataInfo.modificationFlag = modificationFlag.getFirst();
             outputChannelDataInfo.editedInApp = modificationFlag.getLast().getType().system().map(ReadingModificationFlag::getApplicationInfo).orElse(null);
-            outputChannelDataInfo.modificationDate = modificationFlag.getLast().getTimestamp();
+            if(modificationFlag.getLast() instanceof ReadingQualityRecord){
+                outputChannelDataInfo.modificationDate = ((ReadingQualityRecord)modificationFlag.getLast()).getTimestamp();
+            }
         });
     }
 

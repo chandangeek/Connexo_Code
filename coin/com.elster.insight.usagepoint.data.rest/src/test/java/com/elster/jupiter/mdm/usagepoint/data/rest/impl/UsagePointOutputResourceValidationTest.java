@@ -171,6 +171,7 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         ReadingQualityRecord readingQualityInformative = mockReadingQuality(informativeReadingQualityType);
         when(readingQualityEstimated.hasEstimatedCategory()).thenReturn(true);
         when(estimationRule.getId()).thenReturn(13L);
+        when(estimationRule.getName()).thenReturn("EstimationRule");
         when(estimationRule.getDisplayName()).thenReturn("EstimationRule");
         EstimationRuleSet estimationRuleSet = mock(EstimationRuleSet.class);
         when(estimationRuleSet.getId()).thenReturn(15L);
@@ -250,6 +251,7 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
 
     private void setValidationRulesStub() {
         when(validationRule.getId()).thenReturn(1L);
+        when(validationRule.getName()).thenReturn("Validation Rule");
         when(validationRule.getDisplayName()).thenReturn("Validation Rule");
         when(validationRule.getAction()).thenReturn(ValidationAction.FAIL);
         when(validationRule.getRuleSetVersion()).thenReturn(validationRuleSetVersion);
@@ -257,6 +259,7 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         when(validationRule.isActive()).thenReturn(true);
         when(validationRule.appliesTo(readingType)).thenReturn(true);
         when(informativeRule.getId()).thenReturn(2L);
+        when(informativeRule.getName()).thenReturn("Informative Validation Rule");
         when(informativeRule.getDisplayName()).thenReturn("Informative Validation Rule");
         when(informativeRule.getAction()).thenReturn(ValidationAction.WARN_ONLY);
         when(informativeRule.getRuleSetVersion()).thenReturn(validationRuleSetVersion);
