@@ -35,7 +35,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Grid', {
                     }
                     return '-';
                 },
-                flex: 1
+                flex: 2
             },
             {
                 header: Uni.I18n.translate('device.registerData.eventTime', 'MDC', 'Event time'),
