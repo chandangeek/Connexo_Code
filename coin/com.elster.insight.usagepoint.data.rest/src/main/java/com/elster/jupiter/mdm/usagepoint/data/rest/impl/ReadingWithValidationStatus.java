@@ -31,6 +31,8 @@ public abstract class ReadingWithValidationStatus<T extends BaseReadingRecord> {
 
     private T persistedReadingRecord;
     private T calculatedReadingRecord;
+    private T previousPersistedReadingRecord;
+    private T previousCalculatedReadingRecord;
     private DataValidationStatus validationStatus;
 
     public ReadingWithValidationStatus(ZonedDateTime readingTimeStamp, ChannelGeneralValidation channelGeneralValidation) {
@@ -54,6 +56,14 @@ public abstract class ReadingWithValidationStatus<T extends BaseReadingRecord> {
         this.calculatedReadingRecord = readingRecord;
     }
 
+    public void setPreviousPersistedReadingRecord(T previousReadingRecord) {
+        this.previousPersistedReadingRecord = previousReadingRecord;
+    }
+
+    public void setPreviousCalculatedReadingRecord(T previousReadingRecord) {
+        this.previousCalculatedReadingRecord = previousReadingRecord;
+    }
+
     public Instant getTimeStamp() {
         return this.readingTimeStamp.toInstant();
     }
@@ -66,6 +76,19 @@ public abstract class ReadingWithValidationStatus<T extends BaseReadingRecord> {
         return getReading().map(BaseReading::getValue).orElse(null);
     }
 
+    public BigDecimal getPreviousValue(){
+        return getPreviousReading().map(BaseReading::getValue).orElse(null);
+    }
+
+    public BigDecimal getDeltaValue(){
+        BigDecimal value = getValue();
+        BigDecimal previousValue = getPreviousValue();
+        if(value != null && previousValue != null) {
+            return value.subtract(previousValue);
+        }
+        return null;
+    }
+
     private Optional<T> getReading() {
         if (this.persistedReadingRecord != null) {
             return Optional.of(this.persistedReadingRecord);
@@ -76,10 +99,23 @@ public abstract class ReadingWithValidationStatus<T extends BaseReadingRecord> {
         return Optional.empty();
     }
 
+    private Optional<T> getPreviousReading() {
+        if (this.previousPersistedReadingRecord != null) {
+            return Optional.of(this.previousPersistedReadingRecord);
+        }
+        if (this.previousCalculatedReadingRecord != null) {
+            return Optional.of(this.previousCalculatedReadingRecord);
+        }
+        return Optional.empty();
+    }
+
     public Optional<BigDecimal> getCalculatedValue() {
         return Optional.ofNullable(this.calculatedReadingRecord).map(T::getValue);
     }
 
+    public Optional<Instant> getEventDate() {
+        return Optional.of(this.getTimeStamp());
+    }
     public boolean isChannelValidationActive() {
         return this.channelGeneralValidation.isValidationActive;
     }

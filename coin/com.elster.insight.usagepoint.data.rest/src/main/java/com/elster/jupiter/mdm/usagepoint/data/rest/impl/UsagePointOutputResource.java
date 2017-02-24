@@ -53,6 +53,7 @@ import com.google.common.collect.TreeRangeSet;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.swing.text.html.Option;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -74,6 +75,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -292,6 +294,7 @@ public class UsagePointOutputResource {
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     public Response editChannelDataOfOutput(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
                                             @BeanParam JsonQueryParameters queryParameters, List<OutputChannelDataInfo> channelDataInfos) {
+
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
@@ -444,17 +447,26 @@ public class UsagePointOutputResource {
                         Stream.concat(persistedReadings.keySet().stream(), calculatedReadings.keySet().stream())
                                 .distinct()
                                 .collect(Collectors.toMap(Function.identity(), readingWithValidationStatusFactory::createRegisterReading, (a, b) -> a));
-
-                for (Map.Entry<Instant, RegisterReadingWithValidationStatus> entry : preFilledRegisterDataMap.entrySet()) {
+                TreeMap<Instant, RegisterReadingWithValidationStatus> sortedPreFilledRegisterDataMap = new TreeMap<>();
+                sortedPreFilledRegisterDataMap.putAll(preFilledRegisterDataMap);
+                ReadingRecord previousPersistent = null;
+                ReadingRecord previousCalculated = null;
+                for (Map.Entry<Instant, RegisterReadingWithValidationStatus> entry : sortedPreFilledRegisterDataMap.entrySet()) {
                     Instant readingTimestamp = entry.getKey();
+
+
                     RegisterReadingWithValidationStatus readingWithValidationStatus = entry.getValue();
                     ReadingRecord persistedReading = persistedReadings.get(readingTimestamp);
                     if (persistedReading != null && (persistedReading.getValue() != null || persistedReading.getText() != null)) {
                         readingWithValidationStatus.setPersistedReadingRecord(persistedReading);
+                        readingWithValidationStatus.setPreviousPersistedReadingRecord(previousPersistent);
+                        previousPersistent = persistedReading;
                     }
                     ReadingRecord calculatedReading = calculatedReadings.get(readingTimestamp);
                     if (calculatedReading != null) {
                         readingWithValidationStatus.setCalculatedReadingRecord(calculatedReading);
+                        readingWithValidationStatus.setPreviousCalculatedReadingRecord(previousCalculated);
+                        previousCalculated = calculatedReading;
                     }
                 }
 
@@ -465,13 +477,13 @@ public class UsagePointOutputResource {
                         Stream.concat(persistedReadings.values().stream(), calculatedReadings.values().stream()).collect(Collectors.toList()),
                         effectiveInterval);
                 for (DataValidationStatus dataValidationStatus : dataValidationStatuses) {
-                    ReadingWithValidationStatus<ReadingRecord> readingWithValidationStatus = preFilledRegisterDataMap.get(dataValidationStatus.getReadingTimestamp());
+                    ReadingWithValidationStatus<ReadingRecord> readingWithValidationStatus = sortedPreFilledRegisterDataMap.get(dataValidationStatus.getReadingTimestamp());
                     if (readingWithValidationStatus != null) {
                         readingWithValidationStatus.setValidationStatus(dataValidationStatus);
                     }
                 }
 
-                outputRegisterData = preFilledRegisterDataMap.entrySet().stream()
+                outputRegisterData = sortedPreFilledRegisterDataMap.entrySet().stream()
                         .sorted(Collections.reverseOrder(Comparator.comparing(Map.Entry::getKey)))
                         .map(Map.Entry::getValue)
                         .filter(getSuspectsFilter(filter, this::hasSuspects))

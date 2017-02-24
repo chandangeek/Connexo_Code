@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
+import java.time.Instant;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class NumericalOutputRegisterDataInfo extends OutputRegisterDataInfo {
@@ -30,6 +31,13 @@ public class NumericalOutputRegisterDataInfo extends OutputRegisterDataInfo {
     public IntervalInfo interval;
 
     public Boolean isConfirmed;
+
+    @JsonProperty("deltaValue")
+    @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
+    public BigDecimal deltaValue;
+
+    @JsonProperty("eventDate")
+    public Instant eventDate;
 
     @Override
     public BaseReading createNew(ReadingType readingType) {

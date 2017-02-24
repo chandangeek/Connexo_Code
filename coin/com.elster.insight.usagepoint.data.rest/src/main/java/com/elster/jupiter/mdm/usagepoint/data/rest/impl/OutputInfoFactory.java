@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.ReadingTypeUnitConversion;
 import com.elster.jupiter.cbo.TimeAttribute;
@@ -26,6 +27,7 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +43,8 @@ public class OutputInfoFactory {
     private final Thesaurus thesaurus;
     private final UsagePointDataCompletionService usagePointDataCompletionService;
     private final ChannelDataValidationSummaryInfoFactory validationSummaryInfoFactory;
+    private final List<Aggregate> aggregatesWithEventDate = Arrays.asList(Aggregate.MAXIMUM, Aggregate.FIFTHMAXIMIMUM,
+            Aggregate.FOURTHMAXIMUM, Aggregate.MINIMUM, Aggregate.SECONDMAXIMUM, Aggregate.SECONDMINIMUM, Aggregate.THIRDMAXIMUM);
 
     @Inject
     public OutputInfoFactory(ValidationStatusFactory validationStatusFactory,
@@ -79,6 +83,8 @@ public class OutputInfoFactory {
         outputInfo.name = readingTypeDeliverable.getName();
         outputInfo.readingType = readingTypeInfoFactory.from(readingTypeDeliverable.getReadingType());
         outputInfo.formula = readingTypeDeliverable.getFormula() != null ? FormulaInfo.asInfo(readingTypeDeliverableFactory.asInfo(readingTypeDeliverable).formula.description) : null;
+        outputInfo.hasEvent = aggregatesWithEventDate.contains(readingTypeDeliverable.getReadingType().getAggregate());
+        outputInfo.isCummulative = readingTypeDeliverable.getReadingType().isCumulative();
     }
 
     private RegisterOutputInfo asRegisterOutputInfo(ReadingTypeDeliverable readingTypeDeliverable, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration,
