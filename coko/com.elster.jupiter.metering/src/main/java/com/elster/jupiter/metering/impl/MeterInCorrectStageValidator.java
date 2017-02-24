@@ -47,21 +47,28 @@ public class MeterInCorrectStageValidator implements ConstraintValidator<MeterIn
     private boolean isValid(Meter meter, Optional<EffectiveMetrologyConfigurationOnUsagePoint> metrologyConfiguration, Instant activationTime) {
         Optional<State> state = meter.getState(activationTime);
         if(!state.isPresent()) {
-            //ERROR HIER
             return true;
         }
         if (!state.get().getStage().isPresent()) {
-            //ERROR HIER
+            addContextValidationError("No stage present");
             return false;
         }
         Stage stage = state.get().getStage().get();
         if(metrologyConfiguration.isPresent() && !stage.getName().equals(EndDeviceStage.OPERATIONAL.name())) {
-            //ERROR HIER
+            addContextValidationError("Metrology configuration is active but stage is not operational");
             return false;
         } else if(!metrologyConfiguration.isPresent() && stage.getName().equals(EndDeviceStage.POST_OPERATIONAL.name())) {
-            //ERROR HIER
+            addContextValidationError("Metrology configuration is not active but stage is post-operational");
             return false;
         }
         return true;
+    }
+
+    private void addContextValidationError(String message) {
+        context.disableDefaultConstraintViolation();
+        context
+                .buildConstraintViolationWithTemplate(message)
+                .addPropertyNode("state")
+                .addConstraintViolation();
     }
 }
