@@ -7,12 +7,11 @@ package com.energyict.mdc.device.alarms.impl.i18n;
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.alarms.impl.ModuleConstants;
 import com.energyict.mdc.device.alarms.impl.actions.CloseDeviceAlarmAction;
-import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
 
 public enum TranslationKeys implements TranslationKey {
     AQ_DEVICE_ALARM_EVENT_SUBSC(ModuleConstants.AQ_DEVICE_ALARM_EVENT_SUBSC, ModuleConstants.AQ_DEVICE_ALARM_EVENT_DISPLAYNAME),
     END_DEVICE_EVENT_CREATED(ModuleConstants.END_DEVICE_EVENT_CREATED, "EndDeviceEvent"),
-    BASIC_TEMPLATE_DEVICE_ALARM_DESCRIPTION(ModuleConstants.BASIC_TEMPLATE_DEVICE_ALARM_DESCRIPTION, ModuleConstants.BASIC_TEMPLATE_DEVICE_ALARM_DESCRIPTION),
+    BASIC_TEMPLATE_DEVICE_ALARM_DESCRIPTION(ModuleConstants.BASIC_TEMPLATE_DEVICE_ALARM_DESCRIPTION, "Create an alarm based on device events"),
     BASIC_TEMPLATE_DEVICE_ALARM_NAME(ModuleConstants.BASIC_TEMPLATE_DEVICE_ALARM_NAME, "Device Alarm Template"),
     ISSUE_TYPE_DEVICE_ALARM(ModuleConstants.ISSUE_TYPE_DEVICE_ALARM, "Device Alarm"),
     CLOSE_ACTION_PROPERTY_CLOSE_STATUS(CloseDeviceAlarmAction.CLOSE_STATUS, "Close status"),
@@ -26,8 +25,8 @@ public enum TranslationKeys implements TranslationKey {
     ACTION_ASSIGN_ALARM("alarm.action.assignAlarm", "Assign alarm"),
     EVENT_TEMPORAL_THRESHOLD(ModuleConstants.EVENT_TEMPORAL_THRESHOLD, "Event time threshold"),
     RAISE_EVENT_PROPS(ModuleConstants.RAISE_EVENT_PROPS, "On new raise event"),
-    TRIGGERING_EVENTS(ModuleConstants.TRIGGERING_EVENTS, "Alarm triggering events"),
-    CLEARING_EVENTS(ModuleConstants.CLEARING_EVENTS, "Alarm clearing events"),
+    TRIGGERING_EVENTS(ModuleConstants.TRIGGERING_EVENTS, "Raised on event types"),
+    CLEARING_EVENTS(ModuleConstants.CLEARING_EVENTS, "Cleared on event types"),
     DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES(ModuleConstants.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, "Device lifecycle state in device type "),
     ALARM_RELATIVE_PERIOD_CATEGORY(ModuleConstants.ALARM_RELATIVE_PERIOD_CATEGORY, "Alarms")
     ;

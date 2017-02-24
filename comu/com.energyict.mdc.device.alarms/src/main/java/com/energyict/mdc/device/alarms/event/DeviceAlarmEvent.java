@@ -141,20 +141,18 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
             return false;
         }
         if (getEndDeviceEventTypes(clearingEndDeviceEventTypes).contains(this.getEventTypeMrid())) {
-            if (raiseEventProps != null && !raiseEventProps.isEmpty() && logOnSameAlarm(raiseEventProps) &&
-                    // issueService.getIssueCreationService().findCreationRuleById(Long.parseLong(ruleId)).isPresent() &&
-                    issueService.findOpenIssuesForDevice(getDevice().getName()).find().stream().filter(issue -> issue.getRule().getId() == ruleId).findAny().isPresent()) {
-                return true;
-            } else {
-                return false;
-            }
+            return raiseEventProps != null && !raiseEventProps.isEmpty() && logOnSameAlarm(raiseEventProps) &&
+                    issueService.findOpenIssuesForDevice(getDevice().getName())
+                            .find()
+                            .stream()
+                            .anyMatch(issue -> issue.getRule().getId() == ruleId);
         }
-        return getOccurenceCount(getLoggedEvents(relativePeriod.get()), getEndDeviceEventTypes(triggeringEndDeviceEventTypes), getDeviceCodes(triggeringEndDeviceEventTypes)) > eventCountThreshold;
+        return getOccurenceCount(getLoggedEvents(relativePeriod.get()), getEndDeviceEventTypes(triggeringEndDeviceEventTypes), getDeviceCodes(triggeringEndDeviceEventTypes)) >= eventCountThreshold;
     }
 
 
     private List<String> parseCommaSeparatedStringToList(String rawInput) {
-        return Arrays.asList(rawInput.split(",")).stream().collect(Collectors.toList());
+        return Arrays.stream(rawInput.split(",")).collect(Collectors.toList());
     }
 
     private List<String> getEndDeviceEventTypes(String endDeviceEventTypes) {
