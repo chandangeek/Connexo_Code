@@ -64,15 +64,22 @@ public class InboundComPortPoolInfo extends ComPortPoolInfo<InboundComPortPool> 
         Map<String, Object> properties = new HashMap<>();
         if(this.properties!=null) {
             try {
-                discoveryProtocolPluggableClass.getInboundDeviceProtocol().getPropertySpecs()
-                        .stream()
-                        .forEach(spec -> {
-                            Object propertyValue = mdcPropertyUtils.findPropertyValue(spec, this.properties);
-                            if(propertyValue != null) {
-                                properties.put(spec.getName(), propertyValue);
-                            }
-                        });
+                if(discoveryProtocolPluggableClass != null) {
+                    discoveryProtocolPluggableClass.getInboundDeviceProtocol().getPropertySpecs()
+                            .stream()
+                            .forEach(spec -> {
+                                Object propertyValue = mdcPropertyUtils.findPropertyValue(spec, this.properties);
+                                if(propertyValue != null) {
+                                    properties.put(spec.getName(), propertyValue);
+                                }
+                            });
+                } else {
+                    throw new LocalizedFieldValidationException(MessageSeeds.FIELD_REQUIRED, "discoveryProtocolPluggableClassId");
+                }
             } catch (LocalizedFieldValidationException e) {
+                if(e.getViolatingProperty().equals("discoveryProtocolPluggableClassId")) {
+                    throw e;
+                }
                 throw new LocalizedFieldValidationException(e.getMessageSeed(), "properties."+e.getViolatingProperty());
             }
         }
