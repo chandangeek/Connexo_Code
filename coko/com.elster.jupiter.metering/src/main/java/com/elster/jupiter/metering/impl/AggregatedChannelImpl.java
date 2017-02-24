@@ -32,6 +32,7 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
@@ -46,6 +47,7 @@ import java.util.stream.Collectors;
 public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel {
 
     private final DataAggregationService dataAggregationService;
+    private Clock clock;
 
     private ChannelContract persistedChannel;
     private ReadingTypeDeliverable deliverable;
@@ -54,8 +56,9 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
     private ChannelsContainer channelsContainer;
 
     @Inject
-    public AggregatedChannelImpl(DataAggregationService dataAggregationService) {
+    public AggregatedChannelImpl(DataAggregationService dataAggregationService, Clock clock) {
         this.dataAggregationService = dataAggregationService;
+        this.clock = clock;
     }
 
     public AggregatedChannelImpl init(ChannelContract channel,
@@ -136,7 +139,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
 
     @Override
     public List<IntervalReadingRecord> getIntervalReadings(Range<Instant> interval) {
-        Map<Instant, IntervalReadingRecord> calculatedReadings = getCalculatedReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record));
+        Map<Instant, IntervalReadingRecord> calculatedReadings = getCalculatedReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record, clock));
         Map<Instant, IntervalReadingRecord> persistedReadings = getPersistedIntervalReadings(interval).stream()
                 .collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, Function.identity()));
         calculatedReadings.putAll(persistedReadings);
@@ -153,7 +156,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
 
     @Override
     public List<ReadingRecord> getRegisterReadings(Range<Instant> interval) {
-        Map<Instant, ReadingRecord> calculatedReadings = getCalculatedReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record));
+        Map<Instant, ReadingRecord> calculatedReadings = getCalculatedReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record, clock));
         Map<Instant, ReadingRecord> persistedReadings = getPersistedRegisterReadings(interval).stream()
                 .collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, Function.identity()));
         calculatedReadings.putAll(persistedReadings);
@@ -342,7 +345,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
 
     @Override
     public List<IntervalReadingRecord> getCalculatedIntervalReadings(Range<Instant> interval) {
-        return new ArrayList<>(getCalculatedReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record)).values());
+        return new ArrayList<>(getCalculatedReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record, clock)).values());
     }
 
     @Override
@@ -352,16 +355,18 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
 
     @Override
     public List<ReadingRecord> getCalculatedRegisterReadings(Range<Instant> interval) {
-        return new ArrayList<>(getCalculatedReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record)).values());
+        return new ArrayList<>(getCalculatedReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record, clock)).values());
     }
 
     private static class CalculatedReadingRecordImpl implements IntervalReadingRecord, ReadingRecord {
 
         private final BaseReadingRecord record;
+        private Clock clock;
         private final Channel persistedChannel;
 
-        public CalculatedReadingRecordImpl(Channel persistedChannel, BaseReadingRecord record) {
+        public CalculatedReadingRecordImpl(Channel persistedChannel, BaseReadingRecord record, Clock clock) {
             this.record = record;
+            this.clock = clock;
             this.persistedChannel = persistedChannel;
         }
 
@@ -428,7 +433,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
 
         @Override
         public Instant getReportedDateTime() {
-            return record.getReportedDateTime();
+            return this.clock.instant();
         }
 
         @Override
