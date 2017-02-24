@@ -30,6 +30,7 @@ import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -105,6 +106,7 @@ public class InMemoryPersistence {
                 new MasterDataModule(),
                 new CustomPropertySetsModule(),
                 new BasicPropertiesModule(),
+                new TaskModule(),
                 new TimeModule()
         );
         this.transactionService = injector.getInstance(TransactionService.class);
