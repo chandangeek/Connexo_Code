@@ -16,12 +16,14 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Preview', {
                 xtype: 'fieldcontainer',
                 fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
                 layout: {
-                    type: 'hbox'
+                    type: 'hbox',
+                    align : 'stretch'
                 },
                 items: [
                     {
                         xtype: 'displayfield',
                         margin: '0 10 0 0',
+                        width: 450,
                         name: 'value'
                     },
                     {
