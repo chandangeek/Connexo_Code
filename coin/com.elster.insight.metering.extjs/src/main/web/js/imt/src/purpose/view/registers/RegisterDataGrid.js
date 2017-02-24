@@ -25,6 +25,30 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
                 }
             },
             {
+                header: Uni.I18n.translate('general.measurementPeriod', 'IMT', 'Measurement period'),
+                flex: 1,
+                dataIndex: 'interval',
+                renderer: function (value) {
+                    if(!Ext.isEmpty(value)) {
+                        var endDate = new Date(value.end);
+                        if (!!value.start && !!value.end) {
+                            var startDate = new Date(value.start);
+                            return Uni.DateTime.formatDateTimeShort(startDate) + ' - ' + Uni.DateTime.formatDateTimeShort(endDate);
+                        } else {
+                            return Uni.DateTime.formatDateTimeShort(endDate);
+                        }
+                    }
+                    return '-';
+                }
+            },
+            {
+                header: Uni.I18n.translate('device.registerData.eventTime', 'IMT', 'Event time'),
+                dataIndex: 'eventDate',
+                itemId: 'eventTime',
+                renderer: me.renderMeasurementTime,
+                flex: 1
+            },
+            {
                 header: unit
                     ? Uni.I18n.translate('general.valueOf', 'IMT', 'Value ({0})', unit)
                     : Uni.I18n.translate('general.value.empty', 'IMT', 'Value'),
@@ -32,6 +56,13 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
                 align: 'right',
                 width: 200,
                 dataIndex: 'value'
+            },
+            {
+                header: Uni.I18n.translate('device.registerData.deltaValue', 'IMT', 'Delta value'),
+                dataIndex: 'deltaValue',
+                align: 'right',
+                minWidth: 150,
+                flex: 1
             },
             {
                 xtype: 'edited-column',
@@ -110,5 +141,34 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
                 + Uni.I18n.translate('reading.validationResult.confirmed', 'IMT', 'Confirmed') + '"></span>';
         }
         return value + icon;
+    },
+
+    renderMeasurementTime: function (value, metaData, record) {
+        if (Ext.isEmpty(value)) {
+            return '-';
+        }
+        var date = new Date(value),
+            showDeviceQualityIcon = false,
+            tooltipContent = '',
+            icon = '';
+
+        if (!Ext.isEmpty(record.get('readingQualities'))) {
+            Ext.Array.forEach(record.get('readingQualities'), function (readingQualityObject) {
+                if (readingQualityObject.cimCode.startsWith('1.')) {
+                    showDeviceQualityIcon |= true;
+                    tooltipContent += readingQualityObject.indexName + '<br>';
+                }
+            });
+            if (tooltipContent.length > 0) {
+                tooltipContent += '<br>';
+                tooltipContent += Uni.I18n.translate('general.deviceQuality.tooltip.moreMessage', 'IMT', 'View reading quality details for more information.');
+            }
+            if (showDeviceQualityIcon) {
+                icon = '<span class="icon-price-tags" style="margin-left:10px; position:absolute;" data-qtitle="'
+                    + Uni.I18n.translate('general.deviceQuality', 'MDC', 'Device quality') + '" data-qtip="'
+                    + tooltipContent + '"></span>';
+            }
+        }
+        return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)]) + icon;
     }
 });
