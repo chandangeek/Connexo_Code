@@ -261,10 +261,10 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             view = me.getRegisterConfigEditForm(),
             registerType = undefined,
             useMultiplier = undefined;
-
         if (field.name === 'registerType') {
             view.down('#multiplierRadioGroup').setDisabled(false);
-            registerType = me.getAvailableRegisterTypesForDeviceConfigurationStore().findRecord('id', value);
+            var registerTypeId = me.getAvailableRegisterTypesForDeviceConfigurationStore().findExact('id', value);
+            registerType = me.getAvailableRegisterTypesForDeviceConfigurationStore().getAt(registerTypeId);
             useMultiplier = view.down('#multiplierRadioGroup').getValue().useMultiplier;
             me.updateReadingTypeFields(registerType, useMultiplier);
             me.registerTypesObisCode = registerType.get('obisCode');
@@ -569,7 +569,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             overflowField = form.down('#editOverflowValueField'),
             possibleCalculatedReadingTypes = dataContainer.get('possibleCalculatedReadingTypes'),
             isCumulative = dataContainer.get('isCumulative');
-
         if (dataContainer.get('collectedReadingType') !== undefined) {
             collectedReadingTypeField.setValue(dataContainer.get('collectedReadingType'));
         } else {
