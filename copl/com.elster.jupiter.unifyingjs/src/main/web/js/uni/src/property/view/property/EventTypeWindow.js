@@ -287,6 +287,7 @@ Ext.define('Uni.property.view.property.EventTypeWindow', {
         me.down('#uni-device-domain-combo').setDisabled(!partsSelected);
         me.down('#uni-device-subdomain-combo').setDisabled(!partsSelected);
         me.down('#uni-device-eventoraction-combo').setDisabled(!partsSelected);
+        me.down('#uni-eventtype-device-code-part').setDisabled(!partsSelected);
         fieldToFocus.focus(false, 200);
         me.down('#form-errors').hide();
     },
