@@ -59,15 +59,19 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.WorkGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -83,6 +87,10 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -618,6 +626,37 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         return true;
     }
 
+    @Override
+    public long getUserIssueCount(User user, List<IssueReason> reasons){
+        SqlBuilder userIssueCountBuilder = getReasonBuilder(reasons);
+        userIssueCountBuilder.append(" AND ");
+        userIssueCountBuilder.append(" isu.ASSIGNEE_USER_ID =  ");
+        userIssueCountBuilder.addLong(user.getId());
+        return this.count(userIssueCountBuilder);
+    }
+
+    @Override
+    public long getWorkGroupIssueWithoutUserCount(User user, List<IssueReason> reasons){
+        SqlBuilder workGroupIssueWithoutUserCountBuilder = getReasonBuilder(reasons);
+        workGroupIssueWithoutUserCountBuilder.append(" AND ");
+        workGroupIssueWithoutUserCountBuilder.append(" isu.ASSIGNEE_USER_ID = NULL ");
+        workGroupIssueWithoutUserCountBuilder.append(" AND ");
+        workGroupIssueWithoutUserCountBuilder.append(" isu.ASSIGNEE_WORKGROUP_ID IN ( ");
+        workGroupIssueWithoutUserCountBuilder.append(user.getWorkGroups().stream().map(WorkGroup::getId).map(String::valueOf).collect(Collectors.joining(", ")));
+        workGroupIssueWithoutUserCountBuilder.append(" ) ");
+        return this.count(workGroupIssueWithoutUserCountBuilder);
+    }
+
+
+    private SqlBuilder getReasonBuilder(List<IssueReason> reasons){
+        SqlBuilder reasonBuilder = new SqlBuilder("SELECT COUNT(*) FROM ");
+        reasonBuilder.append(TableSpecs.ISU_ISSUE_OPEN.name());
+        reasonBuilder.append(" isu WHERE isu.REASON_ID IN ( ");
+        reasonBuilder.append(reasons.stream().map(IssueReason::getKey).map(reason -> "'".concat(reason).concat("'")).collect(Collectors.joining(", ")));
+        reasonBuilder.append(" )");
+        return reasonBuilder;
+    }
+
     private List<Class<?>> determineMainApiClass(IssueFilter filter) {
         List<Class<?>> eagerClasses = new ArrayList<>();
         List<IssueStatus> statuses = filter.getStatuses();
@@ -704,6 +743,18 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
             return Long.parseLong(id);
         } catch (NumberFormatException e) {
             return 0;
+        }
+    }
+
+    private long count(SqlBuilder sqlBuilder) {
+        try (Connection connection = this.dataModel.getConnection(false);
+             PreparedStatement statement = sqlBuilder.prepare(connection)) {
+            try (ResultSet counter = statement.executeQuery()) {
+                counter.next();
+                return counter.getLong(1);
+            }
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
         }
     }
 
