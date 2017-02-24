@@ -351,9 +351,7 @@ Ext.define('Dal.view.creationrules.EditForm', {
             me.down('[name=priority.urgency]').setValue(priority.urgency);
             me.down('[name=priority.impact]').setValue(priority.impact);
         }
-        else {
-            labelPriority.setText(Uni.I18n.translate('alarm.priority.low', 'DAL', 'Low') + ' (' + 30 + ')');
-        }
+        me.changePriority();
 
         if (dueIn.number) {
             me.down('#dueDateTrigger').setValue({dueDate: true});
