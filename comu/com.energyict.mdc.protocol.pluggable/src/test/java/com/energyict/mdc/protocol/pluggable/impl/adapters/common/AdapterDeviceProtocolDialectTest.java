@@ -29,6 +29,7 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -130,6 +131,7 @@ public class AdapterDeviceProtocolDialectTest {
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new ProtocolPluggableModule(),
+                new TaskModule(),
                 new CustomPropertySetsModule()
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
