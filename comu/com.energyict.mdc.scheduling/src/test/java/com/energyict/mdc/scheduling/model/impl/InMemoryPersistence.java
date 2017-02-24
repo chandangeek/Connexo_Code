@@ -32,6 +32,7 @@ import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -115,6 +116,7 @@ public class InMemoryPersistence {
                 new MdcDynamicModule(),
                 new ProtocolApiModule(),
                 new TasksModule(),
+                new TaskModule(),// TaskService from c.e.j.tasks
                 new SchedulingModule(),
                 new CustomPropertySetsModule()
         );
