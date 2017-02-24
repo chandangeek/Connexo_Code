@@ -1,0 +1,290 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+package com.energyict.mdc.device.alarms.rest;
+
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.issue.rest.TranslationKeys;
+import com.elster.jupiter.issue.rest.response.IssueReasonInfo;
+import com.elster.jupiter.issue.rest.response.PriorityInfo;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfo;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionPhaseInfo;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfo;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleTemplateInfo;
+import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
+import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.IssueAction;
+import com.elster.jupiter.issue.share.Priority;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.CreationRuleAction;
+import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
+import com.elster.jupiter.issue.share.entity.DueInType;
+import com.elster.jupiter.issue.share.entity.IssueActionType;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.service.IssueCreationService;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfo;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+
+import com.jayway.jsonpath.JsonModel;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.junit.Test;
+import org.mockito.Matchers;
+
+import static com.elster.jupiter.issue.rest.request.RequestHelper.LIMIT;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.START;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+public class DeviceAlarmCreationRuleResourceTest extends DeviceAlarmApplicationTest {
+
+    @Test
+    public void testGetCreationRulesWOParams() {
+        IssueType issueType = mock(IssueType.class);
+        when(issueService.findIssueType(any())).thenReturn(Optional.of(issueType));
+        @SuppressWarnings(value = { "unchecked" })
+        Query<IssueReason> issueTypeQuery = mock(Query.class);
+        when(issueService.query(IssueReason.class)).thenReturn(issueTypeQuery);
+        @SuppressWarnings(value = { "unchecked" })
+        Query<CreationRule> query = mock(Query.class);
+        List<CreationRule> rules = Arrays.asList(mockCreationRule(1, "rule 1"), mockCreationRule(2, "rule 2"));
+        when(query.select(Matchers.any(Condition.class), Matchers.anyInt(), Matchers.anyInt())).thenReturn(rules);
+        when(issueCreationService.getCreationRuleQuery(IssueReason.class, IssueType.class)).thenReturn(query);
+
+        Response response = target("/creationrules").request().get();
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testGetCreationRulesEmpty() {
+        IssueType issueType = mock(IssueType.class);
+        when(issueService.findIssueType(any())).thenReturn(Optional.of(issueType));
+        @SuppressWarnings(value = { "unchecked" })
+        Query<IssueReason> issueTypeQuery = mock(Query.class);
+        when(issueService.query(IssueReason.class)).thenReturn(issueTypeQuery);
+        @SuppressWarnings(value = { "unchecked" })
+        Query<CreationRule> query = mock(Query.class);
+        when(query.select(Matchers.any(Condition.class), Matchers.anyInt(), Matchers.anyInt())).thenReturn(Collections.<CreationRule> emptyList());
+        when(issueCreationService.getCreationRuleQuery(IssueReason.class, IssueType.class)).thenReturn(query);
+
+        String response = target("/creationrules").queryParam(START, 0).queryParam(LIMIT, 10).request().get(String.class);
+
+        JsonModel json = JsonModel.model(response);
+        assertThat(json.<Number> get("$.total")).isEqualTo(0);
+        assertThat(json.<List<?>> get("$.creationRules")).isEmpty();
+    }
+
+    @Test
+    public void testGetCreationRules() {
+        IssueType issueType = mock(IssueType.class);
+        when(issueService.findIssueType(any())).thenReturn(Optional.of(issueType));
+        @SuppressWarnings(value = { "unchecked" })
+        Query<IssueReason> issueTypeQuery = mock(Query.class);
+        when(issueService.query(IssueReason.class)).thenReturn(issueTypeQuery);
+        @SuppressWarnings(value = { "unchecked" })
+        Query<CreationRule> query = mock(Query.class);
+        List<CreationRule> rules = Arrays.asList(mockCreationRule(1, "rule 1"), mockCreationRule(2, "rule 2"));
+        when(query.select(Matchers.any(Condition.class), Matchers.anyInt(), Matchers.anyInt(), Matchers.any(Order.class))).thenReturn(rules);
+        when(issueCreationService.getCreationRuleQuery(IssueReason.class, IssueType.class)).thenReturn(query);
+
+        String response = target("/creationrules").queryParam(START, 0).queryParam(LIMIT, 10).request().get(String.class);
+
+        JsonModel json = JsonModel.model(response);
+        assertThat(json.<Number> get("$.total")).isEqualTo(2);
+        assertThat(json.<List<?>> get("$.creationRules")).hasSize(2);
+    }
+
+    @Test
+    public void testGetCreationRuleUnexisting() {
+        when(issueCreationService.findCreationRuleById(9999)).thenReturn(Optional.empty());
+
+        Response response = target("/creationrules/9999").request().get();
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+    }
+
+    @Test
+    public void testGetCreationRuleById() {
+        this.mockTranslation(TranslationKeys.ISSUE_ACTION_PHASE_CREATE);
+        this.mockTranslation(TranslationKeys.ISSUE_ACTION_PHASE_CREATE_DESCRIPTION);
+        List<PropertySpec> propertySpecs = mockPropertySpecs();
+        CreationRuleTemplate template = mockCreationRuleTemplate("Template", "Template description", mockIssueType("devicealarm", "Device alarm"), propertySpecs);
+
+        CreationRuleAction action = mock(CreationRuleAction.class);
+
+        IssueActionType actionType = getDefaultIssueActionType();
+        when(action.getAction()).thenReturn(actionType);
+        when(action.getPhase()).thenReturn(CreationRuleActionPhase.CREATE);
+        when(action.getPropertySpecs()).thenReturn(propertySpecs);
+        Map<String, Object> actionProps = new HashMap<>();
+        actionProps.put("property", "value_for_action");
+        when(action.getProperties()).thenReturn(actionProps);
+
+        Instant instant = Instant.now();
+        IssueReason reason = getDefaultReason();
+        CreationRule rule = mock(CreationRule.class);
+        when(rule.getId()).thenReturn(13L);
+        when(rule.getName()).thenReturn("Test rule");
+        when(rule.getComment()).thenReturn("comment");
+        when(rule.getReason()).thenReturn(reason);
+        when(rule.getDueInType()).thenReturn(DueInType.DAY);
+        when(rule.getDueInValue()).thenReturn(5L);
+        when(rule.getActions()).thenReturn(Collections.singletonList(action));
+        when(rule.getPropertySpecs()).thenReturn(propertySpecs);
+        Map<String, Object> ruleProps = new HashMap<>();
+        ruleProps.put("property", "value_for_rule");
+        when(rule.getProperties()).thenReturn(ruleProps);
+        when(rule.getTemplate()).thenReturn(template);
+        when(rule.getModTime()).thenReturn(instant);
+        when(rule.getCreateTime()).thenReturn(instant);
+        when(rule.getPriority()).thenReturn(com.elster.jupiter.issue.share.Priority.DEFAULT);
+        when(rule.getVersion()).thenReturn(2L);
+        when(issueCreationService.findCreationRuleById(1)).thenReturn(Optional.of(rule));
+        PropertyInfo propertyInfo = new PropertyInfo("property", "property", new PropertyValueInfo<>("value_for_rule", null), null, false);
+        PropertyInfo propertyInfo2 = new PropertyInfo("property", "property", new PropertyValueInfo<>("value_for_action", null), null, false);
+        when(propertyValueInfoService.getPropertyInfos(rule.getPropertySpecs(), rule.getProperties())).thenReturn(Collections.singletonList(propertyInfo));
+        when(propertyValueInfoService.getPropertyInfos(template.getPropertySpecs())).thenReturn(Collections.singletonList(propertyInfo));
+        when(propertyValueInfoService.getPropertyInfos(action.getPropertySpecs(), action.getProperties())).thenReturn(Collections.singletonList(propertyInfo2));
+        String response = target("/creationrules/1").request().get(String.class);
+
+        JsonModel json = JsonModel.model(response);
+        assertThat(json.<Number> get("$.id")).isEqualTo(13);
+        assertThat(json.<String> get("$.name")).isEqualTo("Test rule");
+        assertThat(json.<String> get("$.comment")).isEqualTo("comment");
+        assertThat(json.<String> get("$.reason.id")).isEqualTo("1");
+        assertThat(json.<String> get("$.reason.name")).isEqualTo("Reason");
+        assertThat(json.<String> get("$.template.name")).isEqualTo("Template");
+        assertThat(json.<String> get("$.template.description")).isEqualTo("Template description");
+        assertThat(json.<String> get("$.template.properties[0].key")).isEqualTo("property");
+        assertThat(json.<Number> get("$.dueIn.number")).isEqualTo(5);
+        assertThat(json.<String> get("$.dueIn.type")).isEqualTo("days");
+        assertThat(json.<List<?>> get("$.properties")).hasSize(1);
+        assertThat(json.<String> get("$.properties[0].key")).isEqualTo("property");
+        assertThat(json.<String> get("$.properties[0].propertyValueInfo.value")).isEqualTo("value_for_rule");
+
+        assertThat(json.<List<?>> get("$.actions")).hasSize(1);
+        assertThat(json.<String> get("$.actions[0].phase.uuid")).isEqualTo("CREATE");
+        assertThat(json.<String> get("$.actions[0].type.name")).isEqualTo("send");
+        assertThat(json.<List<?>> get("$.actions[0].properties")).hasSize(1);
+        assertThat(json.<String> get("$.actions[0].properties[0].key")).isEqualTo("property");
+        assertThat(json.<String> get("$.actions[0].properties[0].propertyValueInfo.value")).isEqualTo("value_for_action");
+    }
+
+    @Test
+    public void testAddCreationRule() {
+        TransactionContext context = mock(TransactionContext.class);
+        when(transactionService.getContext()).thenReturn(context);
+        CreationRule rule = mock(CreationRule.class);
+        IssueCreationService.CreationRuleBuilder builder = mock(IssueCreationService.CreationRuleBuilder.class);
+        when(issueCreationService.newCreationRule()).thenReturn(builder);
+        when(builder.setName("rule name")).thenReturn(builder);
+        when(builder.setComment("comment")).thenReturn(builder);
+        when(builder.setDueInTime(DueInType.DAY, 5L)).thenReturn(builder);
+        IssueCreationService.CreationRuleActionBuilder actionBuilder = mock(IssueCreationService.CreationRuleActionBuilder.class);
+        when(builder.newCreationRuleAction()).thenReturn(actionBuilder);
+        when(builder.setTemplate("Template")).thenReturn(builder);
+        when(builder.complete()).thenReturn(rule);
+        when(actionBuilder.setPhase(CreationRuleActionPhase.CREATE)).thenReturn(actionBuilder);
+        when(actionBuilder.addProperty("property2", "value")).thenReturn(actionBuilder);
+
+        CreationRuleTemplate template = mock(CreationRuleTemplate.class);
+        List<PropertySpec> propertySpecs = mockPropertySpecs("property1", "property2");
+        when(template.getPropertySpecs()).thenReturn(propertySpecs);
+        when(issueCreationService.findCreationRuleTemplate("Template")).thenReturn(Optional.of(template));
+
+        IssueActionType actionType = mock(IssueActionType.class);
+        when(issueActionService.findActionType(5L)).thenReturn(Optional.of(actionType));
+        IssueAction action = mock(IssueAction.class);
+        when(actionType.createIssueAction()).thenReturn(Optional.of(action));
+        propertySpecs = mockPropertySpecs("property1", "property2");
+        when(action.getPropertySpecs()).thenReturn(propertySpecs);
+
+        when(issueService.findReason("devicealarm")).thenReturn(Optional.empty());
+        IssueReason issueReason = mock(IssueReason.class);
+        IssueType issueType = mockIssueType("devicealarm", "Device alarm");
+        when(issueService.findIssueType(any())).thenReturn(Optional.of(issueType));
+        when(issueService.findOrCreateReason(any(), any())).thenReturn(issueReason);
+
+        CreationRuleInfo info = new CreationRuleInfo();
+        info.name = "rule name";
+        info.comment = "comment";
+        info.dueIn = new CreationRuleInfo.DueInInfo("days", 5L);
+        info.reason = new IssueReasonInfo();
+        info.reason.id = "reason";
+        info.template = new CreationRuleTemplateInfo();
+        info.template.name = "Template";
+        PropertyInfo rulePropertyInfo = new PropertyInfo();
+        rulePropertyInfo.key = "property1";
+        rulePropertyInfo.propertyValueInfo = new PropertyValueInfo<>("value", null);
+        info.properties = Collections.singletonList(rulePropertyInfo);
+        CreationRuleActionInfo actionInfo = new CreationRuleActionInfo();
+        this.mockTranslation(TranslationKeys.ISSUE_ACTION_PHASE_CREATE);
+        this.mockTranslation(TranslationKeys.ISSUE_ACTION_PHASE_CREATE_DESCRIPTION);
+        actionInfo.phase = new CreationRuleActionPhaseInfo(CreationRuleActionPhase.CREATE, thesaurus);
+        actionInfo.type = new IssueActionTypeInfo();
+        actionInfo.type.id = 5L;
+        PropertyInfo actionPropertyInfo = new PropertyInfo();
+        actionPropertyInfo.key = "property2";
+        actionPropertyInfo.propertyValueInfo = new PropertyValueInfo<>("value", null);
+        actionInfo.properties = Collections.singletonList(actionPropertyInfo);
+        info.actions = Collections.singletonList(actionInfo);
+        info.priority = new PriorityInfo(Priority.DEFAULT);
+        Response response = target("/creationrules").request().post(Entity.json(info));
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        verify(actionBuilder).complete();
+        verify(context).commit();
+    }
+
+    @Test
+    public void testDeleteCreationRule() {
+        TransactionContext context = mock(TransactionContext.class);
+        when(transactionService.getContext()).thenReturn(context);
+        CreationRule rule = mock(CreationRule.class);
+        when(issueCreationService.findAndLockCreationRuleByIdAndVersion(15L, 5L)).thenReturn(Optional.of(rule));
+
+        CreationRuleInfo info = new CreationRuleInfo();
+        info.id = 13L;
+        info.version = 5L;
+
+        Response response = target("/creationrules/15").request().method("DELETE", Entity.json(info));
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
+
+        verify(rule).delete();
+        verify(context).commit();
+    }
+
+    protected List<PropertySpec> mockPropertySpecs(String... keys) {
+        List<PropertySpec> propertySpecs = new ArrayList<>();
+        for (String key : keys) {
+            PropertySpec propertySpec = mock(PropertySpec.class);
+            when(propertySpec.getName()).thenReturn(key);
+            when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
+            when(propertySpec.isRequired()).thenReturn(true);
+            propertySpecs.add(propertySpec);
+        }
+        return propertySpecs;
+    }
+}
