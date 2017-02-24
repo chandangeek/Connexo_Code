@@ -50,6 +50,7 @@ import com.elster.jupiter.search.impl.SearchBuilderImpl;
 import com.elster.jupiter.search.impl.SearchMonitor;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -146,6 +147,7 @@ public class UsagePointSearchTest {
                 new FiniteStateMachineModule(),
                 new DataVaultModule(),
                 new NlsModule(),
+                new TaskModule(),
                 new CalendarModule(),
                 new CustomPropertySetsModule(),
                 new BasicPropertiesModule(),

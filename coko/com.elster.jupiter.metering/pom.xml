@@ -173,5 +173,10 @@
             <artifactId>datavault</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>tasks</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

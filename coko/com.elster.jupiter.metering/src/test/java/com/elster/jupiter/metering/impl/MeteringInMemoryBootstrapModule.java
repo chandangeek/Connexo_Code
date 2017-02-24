@@ -35,6 +35,7 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -135,6 +136,7 @@ public class MeteringInMemoryBootstrapModule {
         modules.add(new TimeModule());
         modules.add(new CalendarModule());
         modules.add(new SearchModule());
+        modules.add(new TaskModule());
         modules.add(new UsagePointLifeCycleConfigurationModule());
         if (this.customPropertySetService == null) {
             modules.add(new CustomPropertySetsModule());
