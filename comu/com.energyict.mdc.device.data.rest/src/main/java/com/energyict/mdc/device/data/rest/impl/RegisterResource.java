@@ -62,11 +62,12 @@ public class RegisterResource {
     public PagedInfoList getRegisters(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         final List<ReadingType> filteredReadingTypes = getElegibleReadingTypes(jsonQueryFilter, device);
-        List<RegisterInfo> registerInfos = ListPager.of(device.getRegisters(), this::compareRegisters).from(queryParameters).stream()
+        List<RegisterInfo> registerInfos = ListPager.of(device.getRegisters(), this::compareRegisters).find()
+                .stream()
                 .filter(register -> filteredReadingTypes.size() == 0 || filteredReadingTypes.contains(register.getReadingType()))
                 .map(r -> deviceDataInfoFactory.createRegisterInfo(r, validationInfoHelper.getMinimalRegisterValidationInfo(r), topologyService)).collect(Collectors.toList());
         Collections.sort(registerInfos, this::compareRegisterInfos);
-        return PagedInfoList.fromPagedList("data", registerInfos, queryParameters);
+        return PagedInfoList.fromCompleteList("data", registerInfos, queryParameters);
     }
 
     private int compareRegisterInfos(RegisterInfo ri1, RegisterInfo ri2) {

@@ -347,6 +347,10 @@ public class DeviceDataInfoFactory {
             return info;
         } else if (register instanceof TextRegister) {
             return createTextRegisterInfo((TextRegister) register, topologyService);
+        } else if (register instanceof FlagsRegister){
+            RegisterInfo info = createFlagsRegisterInfo((FlagsRegister) register,topologyService);
+            info.detailedValidationInfo = registerValidationInfo;
+            return info;
         }
         throw new IllegalArgumentException("Unsupported register type: " + register.getClass().getSimpleName());
     }
@@ -397,5 +401,11 @@ public class DeviceDataInfoFactory {
         register.getCalculatedReadingType(timeStamp).ifPresent(calculatedReadingType -> registerInfo.calculatedReadingType = readingTypeInfoFactory.from(calculatedReadingType));
         registerInfo.multiplier = register.getMultiplier(timeStamp).orElseGet(() -> null);
         return registerInfo;
+    }
+
+    private FlagsRegisterInfo createFlagsRegisterInfo(FlagsRegister flagsRegister, TopologyService topologyService) {
+        FlagsRegisterInfo flagsRegisterInfo = new FlagsRegisterInfo();
+        addCommonRegisterInfo(flagsRegister, flagsRegisterInfo, topologyService);
+        return flagsRegisterInfo;
     }
 }
