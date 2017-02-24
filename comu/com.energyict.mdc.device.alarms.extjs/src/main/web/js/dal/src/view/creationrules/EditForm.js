@@ -130,7 +130,7 @@ Ext.define('Dal.view.creationrules.EditForm', {
                         itemId: 'priority-urgency',
                         width: 92,
                         name: 'priority.urgency',
-                        value: 1,
+                        value: 25,
                         minValue: 1,
                         maxValue: 50,
                         listeners: {
@@ -148,7 +148,7 @@ Ext.define('Dal.view.creationrules.EditForm', {
                         width: 157,
                         name: 'priority.impact',
                         fieldLabel: Uni.I18n.translate('general.impact', 'DAL', 'Impact'),
-                        value: 1,
+                        value: 5,
                         minValue: 1,
                         maxValue: 50,
                         margin: '0 0 0 20',
@@ -352,7 +352,7 @@ Ext.define('Dal.view.creationrules.EditForm', {
             me.down('[name=priority.impact]').setValue(priority.impact);
         }
         else {
-            labelPriority.setText(2 + ' - ' + Uni.I18n.translate('alarm.priority.veryLow', 'DAL', 'Very low'));
+            labelPriority.setText(Uni.I18n.translate('alarm.priority.low', 'DAL', 'Low') + ' (' + 30 + ')');
         }
 
         if (dueIn.number) {
@@ -503,7 +503,7 @@ Ext.define('Dal.view.creationrules.EditForm', {
                         Uni.I18n.translate('alarm.priority.veryHigh', 'DAL', 'Very high');
 
 
-        labelPriority.setText(priorityValue + ' - ' + priorityLabel);
+        labelPriority.setText(priorityLabel + ' (' + priorityValue + ')');
 
     },
     numberFieldValidation: function (field) {
