@@ -41,10 +41,10 @@ public class MeterInCorrectStageValidator implements ConstraintValidator<MeterIn
 
     private boolean isValid(Meter meter, UsagePoint usagePoint, Instant activationTime) {
         Optional<EffectiveMetrologyConfigurationOnUsagePoint> metrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration(activationTime);
-        return !metrologyConfiguration.isPresent() || isValid(meter, metrologyConfiguration.get(), activationTime);
+        return isValid(meter, metrologyConfiguration, activationTime);
     }
 
-    private boolean isValid(Meter meter, EffectiveMetrologyConfigurationOnUsagePoint metrologyConfiguration, Instant activationTime) {
+    private boolean isValid(Meter meter, Optional<EffectiveMetrologyConfigurationOnUsagePoint> metrologyConfiguration, Instant activationTime) {
         Optional<State> state = meter.getState(activationTime);
         if(!state.isPresent()) {
             //ERROR HIER
@@ -55,10 +55,10 @@ public class MeterInCorrectStageValidator implements ConstraintValidator<MeterIn
             return false;
         }
         Stage stage = state.get().getStage().get();
-        if(metrologyConfiguration.isActive() && !stage.getName().equals(EndDeviceStage.OPERATIONAL.name())) {
+        if(metrologyConfiguration.isPresent() && !stage.getName().equals(EndDeviceStage.OPERATIONAL.name())) {
             //ERROR HIER
             return false;
-        } else if(!metrologyConfiguration.isActive() && stage.getName().equals(EndDeviceStage.POST_OPERATIONAL.name())) {
+        } else if(!metrologyConfiguration.isPresent() && stage.getName().equals(EndDeviceStage.POST_OPERATIONAL.name())) {
             //ERROR HIER
             return false;
         }
