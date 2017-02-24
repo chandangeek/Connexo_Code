@@ -69,6 +69,7 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.cron.impl.DefaultCronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.util.time.ExecutionTimerService;
@@ -148,7 +149,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -202,6 +203,7 @@ public class InMemoryIntegrationPersistence {
     private ServiceCallService serviceCallService;
     private DeviceMessageService deviceMessageService;
     private Injector injector;
+    private CronExpressionParser cronExpressionParser;
 
     public InMemoryIntegrationPersistence() {
         super();
@@ -371,8 +373,8 @@ public class InMemoryIntegrationPersistence {
         GrantPrivilege superGrant = mock(GrantPrivilege.class);
         when(superGrant.canGrant(any())).thenReturn(true);
         Group superUser = mock(Group.class);
-        when(superUser.getPrivileges()).thenReturn(ImmutableMap.of("", asList(superGrant)));
-        when(this.principal.getGroups()).thenReturn(asList(superUser));
+        when(superUser.getPrivileges()).thenReturn(ImmutableMap.of("", singletonList(superGrant)));
+        when(this.principal.getGroups()).thenReturn(singletonList(superUser));
         when(this.principal.getLocale()).thenReturn(Optional.empty());
         Privilege ePrivilege1 = mockPrivilege(EditPrivilege.LEVEL_1);
         Privilege vPrivilege1 = mockPrivilege(ViewPrivilege.LEVEL_1);
@@ -385,6 +387,7 @@ public class InMemoryIntegrationPersistence {
         this.thesaurus = mock(Thesaurus.class);
         this.issueService = mock(IssueService.class, RETURNS_DEEP_STUBS);
         when(this.issueService.findStatus(any())).thenReturn(Optional.<IssueStatus>empty());
+        cronExpressionParser = new DefaultCronExpressionParser();
     }
 
     private Privilege mockPrivilege(EditPrivilege privilege1) {
@@ -597,7 +600,7 @@ public class InMemoryIntegrationPersistence {
             bind(LicenseService.class).toInstance(licenseService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LogService.class).toInstance(mock(LogService.class));
-            bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
+            bind(CronExpressionParser.class).toInstance(cronExpressionParser);
             bind(IssueService.class).toInstance(issueService);
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(DataModel.class).toProvider(() -> dataModel);
