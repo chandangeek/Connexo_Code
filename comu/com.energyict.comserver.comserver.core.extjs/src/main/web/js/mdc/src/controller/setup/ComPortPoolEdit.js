@@ -177,8 +177,10 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
         record = form.getRecord();
         if(record.get('direction') === 'Inbound') {
             form.down('property-form').updateRecord();
-            record.propertiesStore = form.down('property-form').getRecord().properties();
-            record.set('properties', form.down('property-form').getFieldValues().properties);
+            if(!Ext.isEmpty(form.down('property-form').getRecord())) {
+                record.propertiesStore = form.down('property-form').getRecord().properties();
+                record.set('properties', form.down('property-form').getFieldValues().properties);
+            }
         }
         button.setDisabled(true);
         page.setLoading(Uni.I18n.translate('general.saving', 'MDC', 'Saving...'));
