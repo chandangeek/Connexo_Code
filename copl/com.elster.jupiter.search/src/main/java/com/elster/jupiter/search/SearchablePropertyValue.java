@@ -8,6 +8,7 @@ import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.util.streams.Predicates;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.util.ArrayList;
@@ -82,6 +83,7 @@ public final class SearchablePropertyValue {
             this.setValues(values);
         }
 
+        @JsonIgnore
         public boolean isValid(){
             return (this.operator != null)  && (this.getOperator().isUnary() || !values.isEmpty());
         }
@@ -100,7 +102,6 @@ public final class SearchablePropertyValue {
             return values;
         }
 
-        @JsonSetter
         public void setValues(String... values) {
             setValues(values == null ? Collections.emptyList() : Arrays.asList(values));
         }
