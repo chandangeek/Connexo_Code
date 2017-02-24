@@ -30,6 +30,7 @@ import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -103,6 +104,7 @@ public class PersistenceTest {
                 new ProtocolApiModule(),
                 new TransactionModule(false),
                 new TasksModule(),
+                new TaskModule(),// TaskService from c.e.j.tasks
                 new CustomPropertySetsModule()
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
