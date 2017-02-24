@@ -6,6 +6,7 @@ package com.elster.jupiter.issue.rest;
 
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.Priority;
@@ -14,11 +15,14 @@ import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -31,19 +35,28 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
+import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class TopIssuesResourceTest extends IssueRestApplicationJerseyTest{
+public class TopIssuesResourceTest extends IssueRestApplicationJerseyTest {
 
     @Mock
-    IssueProvider issueProvider;
+    OpenIssue issue;
     @Mock
-    Issue issue;
+    private Query<OpenIssue> issueQuery;
+    @Mock
+    private Query<IssueReason> issueReasonQuery;
+    @Mock
+    private List<IssueReason> issueReasons;
 
     @Before
     public void beforeTest() {
@@ -93,24 +106,28 @@ public class TopIssuesResourceTest extends IssueRestApplicationJerseyTest{
         when(issue.getCreateDateTime()).thenReturn(Instant.EPOCH);
         when(issue.getModTime()).thenReturn(Instant.EPOCH);
         when(issue.getVersion()).thenReturn(1L);
+        when(issueService.query(OpenIssue.class, IssueReason.class, IssueType.class)).thenReturn(issueQuery);
+        doReturn(Collections.singletonList(issue)).when(issueQuery)
+                .select(any(Condition.class), anyInt(), anyInt(), any(Order.class));
+        when(issueService.query(IssueReason.class)).thenReturn(issueReasonQuery);
+        when(issueService.findIssueType(anyString())).thenReturn(Optional.of(issueType));
+        doReturn(Collections.singletonList(issue)).when(issueReasonQuery).select(where(ISSUE_TYPE).isNotEqual(anyObject()));
     }
 
     @Test
-    public void getTopIssues(){
+    public void getTopIssues() {
         Finder<? extends Issue> issueFinder = mock(Finder.class);
         doReturn(issueFinder).when(issueService).findIssues(any(IssueFilter.class), anyVararg());
         List<? extends Issue> issues = Collections.singletonList(issue);
         doReturn(issues).when(issueFinder).find();
-        List<IssueProvider> issueProviders = Arrays.asList(issueProvider);
-        doReturn(issueProviders).when(issueService).getIssueProviders();
-        Optional<? extends Issue> issueRef = Optional.of(issues.get(0));
-        doReturn(issueRef).when(issueProvider).findIssue(1L);
+
+
 
         Map response = target("/topissues/issues").request().get(Map.class);
         defaultTopTaskAsserts(response);
     }
 
-    private void defaultTopTaskAsserts(Map<?, ?> response){
+    private void defaultTopTaskAsserts(Map<?, ?> response) {
         assertThat(response.get("totalUserAssigned")).isEqualTo(1);
         assertThat(response.get("totalWorkGroupAssigned")).isEqualTo(0);
         assertThat(response.get("total")).isEqualTo(1);
