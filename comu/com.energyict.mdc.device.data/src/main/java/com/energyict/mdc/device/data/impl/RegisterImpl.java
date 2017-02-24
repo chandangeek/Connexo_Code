@@ -46,6 +46,7 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
      */
     protected final DeviceImpl device;
 
+
     private final List<Aggregate> aggregatesWithEventDate = Arrays.asList(Aggregate.MAXIMUM, Aggregate.FIFTHMAXIMIMUM,
             Aggregate.FOURTHMAXIMUM, Aggregate.MINIMUM, Aggregate.SECONDMAXIMUM, Aggregate.SECONDMINIMUM, Aggregate.THIRDMAXIMUM);
 
