@@ -59,6 +59,7 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.cron.impl.DefaultCronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.util.time.ExecutionTimerService;
@@ -118,7 +119,6 @@ import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -348,7 +348,7 @@ public class InMemoryIntegrationPersistence {
             bind(LicenseService.class).toInstance(licenseService);
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(ExecutionTimerService.class).to(ExecutionTimerServiceImpl.class);
-            bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
+            bind(CronExpressionParser.class).toInstance(new DefaultCronExpressionParser());
             bind(IssueService.class).toInstance(issueService);
             bind(FileSystem.class).toInstance(FileSystems.getDefault());
             bind(Thesaurus.class).toInstance(mock(Thesaurus.class));
