@@ -54,6 +54,7 @@ import org.mockito.Matchers;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.LIMIT;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.START;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -62,6 +63,11 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
 
     @Test
     public void testGetCreationRulesWOParams() {
+        IssueType issueType = mockIssueType("devicealarm", "Device alarm");
+        when(issueService.findIssueType(any())).thenReturn(Optional.of(issueType));
+        @SuppressWarnings(value = { "unchecked" })
+        Query<IssueReason> issueTypeQuery = mock(Query.class);
+        when(issueService.query(IssueReason.class)).thenReturn(issueTypeQuery);
         @SuppressWarnings(value = { "unchecked" })
         Query<CreationRule> query = mock(Query.class);
         List<CreationRule> rules = Arrays.asList(mockCreationRule(1, "rule 1"), mockCreationRule(2, "rule 2"));
@@ -75,6 +81,11 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
 
     @Test
     public void testGetCreationRulesEmpty() {
+        IssueType issueType = mockIssueType("devicealarm", "Device alarm");
+        when(issueService.findIssueType(any())).thenReturn(Optional.of(issueType));
+        @SuppressWarnings(value = { "unchecked" })
+        Query<IssueReason> issueTypeQuery = mock(Query.class);
+        when(issueService.query(IssueReason.class)).thenReturn(issueTypeQuery);
         @SuppressWarnings(value = { "unchecked" })
         Query<CreationRule> query = mock(Query.class);
         when(query.select(Matchers.any(Condition.class), Matchers.anyInt(), Matchers.anyInt())).thenReturn(Collections.<CreationRule> emptyList());
@@ -89,6 +100,11 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
 
     @Test
     public void testGetCreationRules() {
+        IssueType issueType = mockIssueType("devicealarm", "Device alarm");
+        when(issueService.findIssueType(any())).thenReturn(Optional.of(issueType));
+        @SuppressWarnings(value = { "unchecked" })
+        Query<IssueReason> issueTypeQuery = mock(Query.class);
+        when(issueService.query(IssueReason.class)).thenReturn(issueTypeQuery);
         @SuppressWarnings(value = { "unchecked" })
         Query<CreationRule> query = mock(Query.class);
         List<CreationRule> rules = Arrays.asList(mockCreationRule(1, "rule 1"), mockCreationRule(2, "rule 2"));
