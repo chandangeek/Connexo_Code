@@ -59,6 +59,7 @@ public class SupportsEventsFromEffectiveMetrologyConfigurationsValidator impleme
                 .map(ReadingType::getTou)
                 .map(Long::new)
                 .collect(Collectors.toSet());
+        requestedEventCodes.remove(0);  // Code 0 actually means not applicable
         Set<Long> missingEventCodes = new HashSet<>();
         for (Long requestedEventCode : requestedEventCodes) {
             if (!providedEventCodes.contains(requestedEventCode)) {

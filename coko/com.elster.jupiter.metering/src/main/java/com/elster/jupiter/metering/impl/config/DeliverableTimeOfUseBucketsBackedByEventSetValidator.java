@@ -72,7 +72,7 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidator implements Con
 
     private boolean validate(ConstraintValidatorContext context, ReadingTypeDeliverable deliverable, Set<Long> eventCodes) {
         long eventCode = deliverable.getReadingType().getTou();
-        if (!eventCodes.contains(eventCode)){
+        if (eventCode != 0 && !eventCodes.contains(eventCode)) {
             String message = this.thesaurus.getFormat(PrivateMessageSeeds.DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET).format(Long.toString(eventCode), deliverable.getName());
             context
                 .buildConstraintViolationWithTemplate(message)
