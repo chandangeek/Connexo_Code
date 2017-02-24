@@ -12,6 +12,7 @@ import com.elster.jupiter.calendar.security.Privileges;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
@@ -22,9 +23,12 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 class InstallerImpl implements FullInstaller, PrivilegesProvider {
+
+    private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
     private final ServerCalendarService calendarService;
 
@@ -63,6 +67,16 @@ class InstallerImpl implements FullInstaller, PrivilegesProvider {
                 this::createRecordSpec,
                 logger
         );
+        doTry(
+                "Create message handlers for CAL.",
+                this::createMessageHandlers,
+                logger
+        );
+        doTry(
+                "Create recurrent task for CAL.",
+                this::createRecurrentTask,
+                logger
+        );
     }
 
     private void createCategories() {
@@ -85,6 +99,42 @@ class InstallerImpl implements FullInstaller, PrivilegesProvider {
 
     private void createRecordSpec() {
         this.calendarService.createRecordSpec();
+    }
+
+    private void createMessageHandlers() {
+        QueueTableSpec defaultQueueTableSpec = this.calendarService.getMessageService().getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+        this.createMessageHandler(defaultQueueTableSpec, CalendarTimeSeriesExtenderHandlerFactory.TASK_DESTINATION, TranslationKeys.RECURRENT_TASK);
+    }
+
+    private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, TranslationKey subscriberKey) {
+        Optional<DestinationSpec> destinationSpecOptional = this.calendarService.getMessageService().getDestinationSpec(destinationName);
+        if (!destinationSpecOptional.isPresent()) {
+            DestinationSpec queue = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS);
+            queue.activate();
+            queue.subscribe(subscriberKey, CalendarService.COMPONENTNAME, Layer.DOMAIN);
+        } else {
+            boolean notSubscribedYet = !destinationSpecOptional.get()
+                    .getSubscribers()
+                    .stream()
+                    .anyMatch(spec -> spec.getName().equals(subscriberKey.getKey()));
+            if (notSubscribedYet) {
+                destinationSpecOptional.get().activate();
+                destinationSpecOptional.get().subscribe(subscriberKey, CalendarService.COMPONENTNAME, Layer.DOMAIN);
+            }
+        }
+    }
+
+    private void createRecurrentTask() {
+        DestinationSpec destination = this.calendarService.getMessageService().getDestinationSpec(CalendarTimeSeriesExtenderHandlerFactory.TASK_DESTINATION).get();
+        this.calendarService.getTaskService().newBuilder()
+                //TODO: make this dynamic in 10.3
+                .setApplication("Admin")
+                .setName(CalendarTimeSeriesExtenderHandlerFactory.TASK_NAME)
+                .setScheduleExpressionString("0 0 0 1 12 ? *")  // Every year, Dec 1st at midnight (no matter what day)
+                .setDestination(destination)
+                .setPayLoad(CalendarTimeSeriesExtenderHandler.GLOBAL_START_PAYLOAD)
+                .scheduleImmediately(true)
+                .build();
     }
 
     @Override

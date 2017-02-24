@@ -19,8 +19,8 @@ public enum TranslationKeys implements TranslationKey {
     CALENDAR_IMPORTER_MESSAGE_HANDLER_DISPLAYNAME(CalendarImporterMessageHandler.SUBSCRIBER_NAME, "Handle calendar import"),
     CALENDAR_CATEGORY_TOU("calendar.category.tou", OutOfTheBoxCategory.TOU.getDefaultDisplayName()),
     CALENDAR_CATEGORY_WORKFORCE("calendar.category.workforce", OutOfTheBoxCategory.WORKFORCE.getDefaultDisplayName()),
-    CALENDAR_CATEGORY_COMMANDS("calendar.category.commands", OutOfTheBoxCategory.COMMANDS.getDefaultDisplayName())
-    ;
+    CALENDAR_CATEGORY_COMMANDS("calendar.category.commands", OutOfTheBoxCategory.COMMANDS.getDefaultDisplayName()),
+    RECURRENT_TASK(CalendarTimeSeriesExtenderHandlerFactory.TASK_SUBSCRIBER, CalendarTimeSeriesExtenderHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME);
 
     private final String key;
     private final String defaultFormat;

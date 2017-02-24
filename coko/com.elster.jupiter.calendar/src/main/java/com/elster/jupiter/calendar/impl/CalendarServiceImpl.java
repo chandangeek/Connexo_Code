@@ -17,6 +17,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.FieldType;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
+import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
@@ -28,6 +29,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
@@ -78,6 +80,7 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     private volatile UserService userService;
     private volatile EventService eventService;
     private volatile MessageService messageService;
+    private volatile TaskService taskService;
     private volatile UpgradeService upgradeService;
     private volatile Clock clock;
 
@@ -90,7 +93,7 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     @Inject
-    public CalendarServiceImpl(OrmService ormService, NlsService nlsService, IdsService idsService, UserService userService, EventService eventService, UpgradeService upgradeService, MessageService messageService, Clock clock) {
+    public CalendarServiceImpl(OrmService ormService, NlsService nlsService, IdsService idsService, UserService userService, EventService eventService, UpgradeService upgradeService, MessageService messageService, TaskService taskService, Clock clock) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -99,6 +102,7 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
         setEventService(eventService);
         setUpgradeService(upgradeService);
         setMessageService(messageService);
+        setTaskService(taskService);
         setClock(clock);
         activate();
     }
@@ -162,6 +166,16 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     @Override
+    public TaskService getTaskService() {
+        return taskService;
+    }
+
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    @Override
     public Clock getClock() {
         return clock;
     }
@@ -199,6 +213,7 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
                 bind(IdsService.class).toInstance(idsService);
                 bind(UserService.class).toInstance(userService);
                 bind(MessageService.class).toInstance(messageService);
+                bind(TaskService.class).toInstance(taskService);
                 bind(Clock.class).toInstance(clock);
             }
         };
@@ -257,6 +272,21 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
 
     public List<Calendar> findAllCalendars() {
         return DefaultFinder.of(Calendar.class, getNonObsoleteCalendarsCondition(), this.getDataModel()).defaultSortColumn("lower(name)").find();
+    }
+
+    @Override
+    public List<ServerCalendar> findAllCalendarsForExtension() {
+        Year thisYear = Year.now(this.clock);
+        Condition condition =
+                this.getNonObsoleteCalendarsCondition()
+                .and(   where(CalendarImpl.Fields.ENDYEAR.fieldName()).isEqualTo(thisYear.getValue())
+                    .or(where(CalendarImpl.Fields.ENDYEAR.fieldName()).isNull()));
+        return this.getDataModel()
+                    .query(Calendar.class, CalendarTimeSeriesEntity.class, TimeSeries.class)
+                    .select(condition)
+                    .stream()
+                    .map(ServerCalendar.class::cast)
+                    .collect(Collectors.toList());
     }
 
     @Override

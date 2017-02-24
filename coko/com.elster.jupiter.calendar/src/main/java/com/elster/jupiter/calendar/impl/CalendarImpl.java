@@ -38,6 +38,7 @@ import javax.validation.constraints.Size;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.MonthDay;
 import java.time.Year;
 import java.time.ZoneId;
@@ -266,6 +267,7 @@ public class CalendarImpl implements ServerCalendar {
         savePeriods();
         savePeriodTransitionSpecs();
         saveExceptionalOccurrences();
+        this.regenerateCachedTimeSeries();
         eventService.postEvent(EventType.CALENDAR_UPDATE.topic(), this);
     }
 
@@ -284,7 +286,7 @@ public class CalendarImpl implements ServerCalendar {
     }
 
     @Override
-    public CalendarService.CalendarBuilder redefine(){
+    public CalendarService.CalendarBuilder redefine() {
         if (isActive()) {
             throw new IllegalStateException("Cannot redefine an active calendar; calendar : " + this.getName());
         }
@@ -347,6 +349,7 @@ public class CalendarImpl implements ServerCalendar {
         for (DayType dayType : savedCalendar.getDayTypes()) {
             ((DayTypeImpl) dayType).delete();
         }
+        this.timeSeries.clear();
         calendarService.getDataModel().remove(this);
         eventService.postEvent(EventType.CALENDAR_DELETE.topic(), this);
     }
@@ -511,6 +514,7 @@ public class CalendarImpl implements ServerCalendar {
     @Override
     public void makeObsolete() {
         this.obsoleteTime = this.clock.instant();
+        this.timeSeries.clear();
         calendarService.getDataModel().update(this, Fields.OBSOLETETIME.fieldName());
     }
 
@@ -520,7 +524,8 @@ public class CalendarImpl implements ServerCalendar {
     }
 
     @Override
-    public CalendarTimeSeries toTimeSeries(TemporalAmount interval, ZoneId zoneId) {
+    public synchronized CalendarTimeSeries toTimeSeries(TemporalAmount interval, ZoneId zoneId) {
+        // Synchronize to avoid that two threads create the same time series
         return new CalendarTimeSeriesImpl(
                 this.timeSeries
                     .stream()
@@ -530,18 +535,72 @@ public class CalendarImpl implements ServerCalendar {
     }
 
     private CalendarTimeSeriesEntity createTimeSeries(TemporalAmount interval, ZoneId zoneId) {
+        Year endYear;
+        if (this.endYear == null) {
+            // First time a time series is created
+            Year thisYear = Year.now(this.calendarService.getClock());
+            LocalDate dec1stThisYear = thisYear.atMonthDay(MonthDay.of(Month.DECEMBER, 1));
+            LocalDate now = LocalDate.now(this.calendarService.getClock());
+            if (now.isAfter(dec1stThisYear)) {
+                /* Recurrent task that extends time series has already run
+                 * so generate data until end of next year.*/
+                endYear = thisYear.plusYears(1);
+            } else {
+                endYear = thisYear;
+            }
+        } else {
+            endYear = Year.of(this.endYear);
+        }
         CalendarTimeSeriesEntity generated = this.calendarService
                 .getDataModel()
                 .getInstance(CalendarTimeSeriesEntityImpl.class)
                 .initialize(this, interval, zoneId)
-                .generate();
+                .generate(endYear);
         this.timeSeries.add(generated);
+        if (this.endYear == null) {
+            // First generation
+            this.setEndYear(Year.of(generated.timeSeries().getLastDateTime().atZone(zoneId).getYear()));
+            this.calendarService.getDataModel().update(this, Fields.ENDYEAR.fieldName());
+        }
         return generated;
     }
 
     @Override
     public ZonedView forZone(ZoneId zoneId, Year year) {
         return new ZonedCalenderViewImpl(this, this.clock, zoneId, year);
+    }
+
+    @Override
+    public List<CalendarTimeSeriesEntity> getCachedTimeSeries() {
+        return this.timeSeries;
+    }
+
+    @Override
+    public void extend(long timeSeriesId) {
+        this.timeSeries
+                .stream()
+                .filter(each -> each.timeSeries().getId() == timeSeriesId)
+                .findAny()
+                .ifPresent(CalendarTimeSeriesEntity::extend);
+    }
+
+    @Override
+    public void bumpEndYear() {
+        if (this.endYear == null) {
+            /* Should not occur since bumping is done from the recurring task
+             * that extends all calendars with cached time series
+             * and endYear is initialized on the first creation of a time series
+             * but hey, I am a defensive programmer. */
+            this.endYear = Year.now(this.calendarService.getClock()).plusYears(1).getValue();
+        } else {
+            this.endYear++;
+        }
+        this.calendarService.getDataModel().update(this, Fields.ENDYEAR.fieldName());
+    }
+
+    @Override
+    public void regenerateCachedTimeSeries() {
+        this.timeSeries.forEach(CalendarTimeSeriesEntity::regenerate);
     }
 
 }

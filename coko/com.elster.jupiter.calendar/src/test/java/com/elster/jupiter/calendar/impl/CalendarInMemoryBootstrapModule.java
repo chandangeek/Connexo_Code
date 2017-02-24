@@ -17,6 +17,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -66,6 +67,7 @@ public class CalendarInMemoryBootstrapModule {
                 new InMemoryMessagingModule(),
                 new IdsModule(),
                 new EventsModule(),
+                new TaskModule(),
                 new CalendarModule()
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {

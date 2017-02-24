@@ -21,4 +21,18 @@ public interface CalendarTimeSeriesEntity {
     ServerCalendar calendar();
 
     boolean matches(TemporalAmount interval, ZoneId zoneId);
+
+    /**
+     * Extends the contents of the TimeSeries
+     * with one additional year according
+     * to the specs of the Calendar.
+     */
+    void extend();
+
+    /**
+     * Regenerates the contents of the TimeSeries
+     * according to the specs of the Calendar.
+     */
+    void regenerate();
+
 }

@@ -12,9 +12,11 @@ import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.users.UserService;
 
 import java.time.Clock;
+import java.util.List;
 
 /**
  * Created by igh on 18/04/2016.
@@ -31,7 +33,11 @@ public interface ServerCalendarService extends CalendarService {
 
     MessageService getMessageService();
 
+    TaskService getTaskService();
+
     IdsService getIdsService();
+
+    List<ServerCalendar> findAllCalendarsForExtension();
 
     void createVault();
 

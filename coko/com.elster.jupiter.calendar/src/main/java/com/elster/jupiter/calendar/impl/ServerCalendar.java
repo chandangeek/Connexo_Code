@@ -10,6 +10,7 @@ import com.elster.jupiter.calendar.Event;
 import java.time.Instant;
 import java.time.Year;
 import java.time.ZoneId;
+import java.util.List;
 
 /**
  * Adds behavior to {@link Calendar} that is restricted to server side components.
@@ -18,6 +19,8 @@ import java.time.ZoneId;
  * @since 2017-02-02 (16:24)
  */
 public interface ServerCalendar extends Calendar {
+
+    List<CalendarTimeSeriesEntity> getCachedTimeSeries();
 
     /**
      * Returns a view on this Calendar where all time zone neutral
@@ -34,6 +37,20 @@ public interface ServerCalendar extends Calendar {
      * @return The ZonedView
      */
     ZonedView forZone(ZoneId zoneId, Year year);
+
+    /**
+     * Extends the cached TimeSeries with one additional year.
+     *
+     * @param timeSeriesId The id of the existing cached TimeSeries
+     */
+    void extend(long timeSeriesId);
+
+    /**
+     * Bumps the end year (as part of extending the cached timeseries).
+     */
+    void bumpEndYear();
+
+    void regenerateCachedTimeSeries();
 
     interface ZonedView {
         Event eventFor(Instant instant);

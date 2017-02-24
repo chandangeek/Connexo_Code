@@ -5,7 +5,6 @@
 package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.CalendarService;
-import com.elster.jupiter.calendar.CalendarTimeSeries;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.Status;
 import com.elster.jupiter.events.EventService;
@@ -36,7 +35,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.time.MonthDay;
 import java.time.Year;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -44,7 +42,6 @@ import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAmount;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.TimeZone;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -63,18 +60,20 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link ServerCalendar#toTimeSeries(TemporalAmount, ZoneId)} method.
+ * Tests the {@link ServerCalendar#extend(long)} and {@link ServerCalendar#bumpEndYear()} methods
+ * that are being called from the recurrent task that extends the cached time series of a Calendar.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2017-02-06 (08:45)
+ * @since 2017-02-24 (12:48)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class CalendarTimeSeriesGenerateTest {
+public class CalendarTimeSeriesExtendTest {
+
+    private static final long TIMESERIES_ID = 97L;
 
     @Mock
     private OrmService ormService;
@@ -113,10 +112,14 @@ public class CalendarTimeSeriesGenerateTest {
     @Mock
     private Clock clock;
 
+    private Instant timeSeriesCreationTime;
+    private Instant recurrentTaskExecutionTime;
+
     @Before
     public void initializeMocks() {
-        Instant clockTime = LocalDateTime.of(2017, Month.FEBRUARY, 6, 8, 50, 0).toInstant(ZoneOffset.UTC);
-        when(this.clock.instant()).thenReturn(clockTime);
+        this.timeSeriesCreationTime = LocalDateTime.of(2017, Month.FEBRUARY, 6, 8, 50, 0).toInstant(ZoneOffset.UTC);
+        this.recurrentTaskExecutionTime = LocalDateTime.of(2017, Month.DECEMBER, 1, 0, 0, 1).toInstant(ZoneOffset.UTC);  // Very shortly after midnight of Dec 1st 2017
+        when(this.clock.instant()).thenReturn(this.timeSeriesCreationTime);
         when(this.clock.getZone()).thenReturn(ZoneOffset.UTC);
 
         when(this.nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(this.thesaurus);
@@ -135,7 +138,8 @@ public class CalendarTimeSeriesGenerateTest {
         when(this.generatedTimeSeries
                 .toList(any(Range.class)))
                 .thenReturn(Collections.emptyList());
-        when(this.generatedTimeSeries.getLastDateTime()).thenReturn(clockTime);
+        when(this.generatedTimeSeries.getLastDateTime()).thenReturn(timeSeriesCreationTime);
+        when(this.generatedTimeSeries.getId()).thenReturn(TIMESERIES_ID);
         when(this.idsService.createNonOverrulingStorer()).thenReturn(this.storer);
         when(this.storer.execute()).thenReturn(this.storerStats);
     }
@@ -145,72 +149,44 @@ public class CalendarTimeSeriesGenerateTest {
     }
 
     @Test
-    public void firstCallCreatesTimeSeries() {
+    public void extend() {
         ServerCalendarService calendarService = this.getCalendarService();
         when(this.dataModel.getInstance(CalendarTimeSeriesEntityImpl.class)).thenReturn(new CalendarTimeSeriesEntityImpl(calendarService));
         ServerCalendar calendar = this.createSimplePeakOffPeakCalendar(calendarService, "FirstCall");
-
-        // Business methods
         calendar.toTimeSeries(Duration.ofHours(1L), ZoneOffset.UTC);
-
-        // Asserts
-        verify(this.vault).createRegularTimeSeries(this.recordSpec, ZoneOffset.UTC, Duration.ofHours(1), 0);
-        verify(this.storer).execute();
-        assertThat(calendar.getEndYear()).isEqualTo(Year.now(this.clock));
-    }
-
-    @Test
-    public void firstCallAfterRecurrentTaskRunCreatesTimeSeriesThatRunsUntilNextYear() {
-        Instant clockTime = LocalDateTime.of(2017, Month.DECEMBER, 2, 8, 50, 0).toInstant(ZoneOffset.UTC);  // Somewhere after Dec 1st
-        when(this.clock.instant()).thenReturn(clockTime);
-        ServerCalendarService calendarService = this.getCalendarService();
-        when(this.dataModel.getInstance(CalendarTimeSeriesEntityImpl.class)).thenReturn(new CalendarTimeSeriesEntityImpl(calendarService));
-        ServerCalendar calendar = this.createSimplePeakOffPeakCalendar(calendarService, "FirstCall");
-
-        // Business methods
-        calendar.toTimeSeries(Duration.ofHours(1L), ZoneOffset.UTC);
-
-        // Asserts
-        verify(this.vault).createRegularTimeSeries(this.recordSpec, ZoneOffset.UTC, Duration.ofHours(1), 0);
-        verify(this.storer).execute();
-        ZonedDateTime startOfThisYear = Year.now(this.clock).atMonthDay(MonthDay.of(Month.JANUARY, 1)).atStartOfDay(ZoneOffset.UTC);
-        ZonedDateTime endOfTimeSeriesRange = startOfThisYear.plusYears(2);
-        verify(this.generatedTimeSeries).toList(Range.closedOpen(startOfThisYear.toInstant(), endOfTimeSeriesRange.toInstant()));
-    }
-
-    @Test
-    public void secondCallReusesTimeSeries() {
-        ServerCalendarService calendarService = this.getCalendarService();
-        when(this.dataModel.getInstance(CalendarTimeSeriesEntityImpl.class)).thenReturn(new CalendarTimeSeriesEntityImpl(calendarService));
-        ServerCalendar calendar = this.createSimplePeakOffPeakCalendar(calendarService, "SecondCall");
-        CalendarTimeSeries hourly = calendar.toTimeSeries(Duration.ofHours(1L), ZoneOffset.UTC);
+        when(this.clock.instant()).thenReturn(this.recurrentTaskExecutionTime);
         reset(this.vault);
+        when(this.vault.createRegularTimeSeries(eq(this.recordSpec), any(ZoneId.class), any(TemporalAmount.class), anyInt())).thenReturn(this.generatedTimeSeries);
         reset(this.storer);
+        when(this.storer.execute()).thenReturn(this.storerStats);
 
         // Business methods
-        CalendarTimeSeries sameAsHourly = calendar.toTimeSeries(Duration.ofHours(1L), ZoneOffset.UTC);
+        calendar.extend(TIMESERIES_ID);
 
         // Asserts
         verify(this.vault, never()).createRegularTimeSeries(this.recordSpec, ZoneOffset.UTC, Duration.ofHours(1), 0);
-        verify(this.storer, never()).execute();
-        assertThat(sameAsHourly).isEqualTo(hourly);
+        verify(this.storer).execute();
+        Instant expectedRangeStart = ZonedDateTime.ofInstant(this.recurrentTaskExecutionTime, ZoneOffset.UTC).withSecond(0).withDayOfYear(1).plusYears(1).toInstant();
+        Instant expectedRangeEnd = ZonedDateTime.ofInstant(this.recurrentTaskExecutionTime, ZoneOffset.UTC).withSecond(0).withDayOfYear(1).plusYears(2).toInstant();
+        verify(this.generatedTimeSeries).toList(Range.closedOpen(expectedRangeStart, expectedRangeEnd));
     }
 
     @Test
-    public void sameIntervalDifferentTimeZoneCreatesTimeSeries() {
+    public void bumpVersion() {
         ServerCalendarService calendarService = this.getCalendarService();
         when(this.dataModel.getInstance(CalendarTimeSeriesEntityImpl.class)).thenReturn(new CalendarTimeSeriesEntityImpl(calendarService));
-        ServerCalendar calendar = this.createSimplePeakOffPeakCalendar(calendarService, "SecondCall");
+        ServerCalendar calendar = this.createSimplePeakOffPeakCalendar(calendarService, "FirstCall");
         calendar.toTimeSeries(Duration.ofHours(1L), ZoneOffset.UTC);
+        when(this.clock.instant()).thenReturn(this.recurrentTaskExecutionTime);
+        reset(this.dataModel);
 
         // Business methods
-        ZoneId zoneId = TimeZone.getTimeZone("EST").toZoneId();
-        calendar.toTimeSeries(Duration.ofHours(1L), zoneId);
+        calendar.bumpEndYear();
 
         // Asserts
-        verify(this.vault).createRegularTimeSeries(this.recordSpec, ZoneOffset.UTC, Duration.ofHours(1), 0);
-        verify(this.vault).createRegularTimeSeries(this.recordSpec, zoneId, Duration.ofHours(1), 0);
-        verify(this.storer, times(2)).execute();
+        Year expectedEndYear = Year.of(Year.now(this.clock).atDay(1).plusYears(1).getYear());
+        assertThat(calendar.getEndYear()).isEqualTo(expectedEndYear);
+        verify(this.dataModel).update(calendar, CalendarImpl.Fields.ENDYEAR.fieldName());
     }
 
     private ServerCalendar createSimplePeakOffPeakCalendar(ServerCalendarService calendarService, String name) {

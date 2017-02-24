@@ -8,6 +8,9 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.calendar.OutOfTheBoxCategory;
+import com.elster.jupiter.calendar.impl.CalendarTimeSeriesEntity;
+import com.elster.jupiter.calendar.impl.ServerCalendar;
+import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -15,16 +18,24 @@ import com.elster.jupiter.transaction.TransactionService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.MonthDay;
+import java.time.Period;
 import java.time.Year;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.temporal.TemporalAmount;
 import java.util.Optional;
 
 @Component(name = "com.elster.jupiter.calendar.impl.gogo", service = CalendarCommands.class,
         property = {"osgi.command.scope=cal",
                     "osgi.command.function=help",
                     "osgi.command.function=createCalendar",
+                    "osgi.command.function=toTimeSeries",
+                    "osgi.command.function=extend",
+                    "osgi.command.function=regenerate",
                     "osgi.command.function=deleteCalendar",
                     "osgi.command.function=createEiserverActivityCalendar"
         }, immediate = true)
@@ -53,6 +64,118 @@ public class CalendarCommands {
         this.createCalendar();
         this.deleteCalendar();
         this.createEiserverActivityCalendar();
+    }
+
+    public void toTimeSeries() {
+        System.out.println("Usage: toTimeSeries (<id> | <name>) <amount> (Min | H | D | Mon | Y) [<zone id>]");
+    }
+
+    public void toTimeSeries(long id, int temporalAmount, String temporalAmountType) {
+        Calendar calendar = this.calendarService.findCalendar(id).orElseThrow(() -> new IllegalArgumentException("Calendar with id " + id + " not found"));
+        this.toTimeSeries(calendar, temporalAmount, temporalAmountType, ZoneOffset.UTC);
+    }
+
+    public void toTimeSeries(long id, int temporalAmount, String temporalAmountType, String zoneId) {
+        Calendar calendar = this.calendarService.findCalendar(id).orElseThrow(() -> new IllegalArgumentException("Calendar with id " + id + " not found"));
+        this.toTimeSeries(calendar, temporalAmount, temporalAmountType, ZoneId.of(zoneId));
+    }
+
+    public void toTimeSeries(String name, int temporalAmount, String temporalAmountType) {
+        Calendar calendar = this.calendarService.findCalendarByName(name).orElseThrow(() -> new IllegalArgumentException("Calendar with name " + name + " not found"));
+        this.toTimeSeries(calendar, temporalAmount, temporalAmountType, ZoneOffset.UTC);
+    }
+
+    public void toTimeSeries(String name, int temporalAmount, String temporalAmountType, String zoneId) {
+        Calendar calendar = this.calendarService.findCalendarByName(name).orElseThrow(() -> new IllegalArgumentException("Calendar with name " + name + " not found"));
+        this.toTimeSeries(calendar, temporalAmount, temporalAmountType, ZoneId.of(zoneId));
+    }
+
+    private void toTimeSeries(Calendar calendar, int temporalAmount, String temporalAmountType, ZoneId zoneId) {
+        this.threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            calendar.toTimeSeries(this.toTemporalAmount(temporalAmount, temporalAmountType), zoneId);
+            context.commit();
+        }
+    }
+
+    public void extend() {
+        System.out.println("Usage: extend (<id> | <name>) <amount> (Min | H | D | Mon | Y)");
+    }
+
+    public void extend(long id, int temporalAmount, String temporalAmountType) {
+        Calendar calendar = this.calendarService.findCalendar(id).orElseThrow(() -> new IllegalArgumentException("Calendar with id " + id + " not found"));
+        this.extend((ServerCalendar) calendar, temporalAmount, temporalAmountType, ZoneOffset.UTC);
+    }
+
+    public void extend(String name, int temporalAmount, String temporalAmountType) {
+        Calendar calendar = this.calendarService.findCalendarByName(name).orElseThrow(() -> new IllegalArgumentException("Calendar with name " + name + " not found"));
+        this.extend((ServerCalendar) calendar, temporalAmount, temporalAmountType, ZoneOffset.UTC);
+    }
+
+    private void extend(ServerCalendar calendar, int temporalAmount, String temporalAmountType, ZoneId zoneId) {
+        this.threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            long timeSeriesId=
+                    calendar
+                        .getCachedTimeSeries()
+                        .stream()
+                        .filter(calendarTimeSeriesEntity -> calendarTimeSeriesEntity.matches(toTemporalAmount(temporalAmount, temporalAmountType), zoneId))
+                        .findAny()
+                        .map(CalendarTimeSeriesEntity::timeSeries)
+                        .map(TimeSeries::getId)
+                        .orElseThrow(() -> new IllegalArgumentException("TimeSeries for specified interval was not generated before, see cal:toTimeSeries"));
+            calendar.extend(timeSeriesId);
+            context.commit();
+        }
+    }
+
+    public void regenerate() {
+        System.out.println("Usage: regenerate (<id> | <name>)");
+    }
+
+    public void regenerate(long id) {
+        Calendar calendar = this.calendarService.findCalendar(id).orElseThrow(() -> new IllegalArgumentException("Calendar with id " + id + " not found"));
+        this.regenerate((ServerCalendar) calendar);
+    }
+
+    public void regenerate(String name) {
+        Calendar calendar = this.calendarService.findCalendarByName(name).orElseThrow(() -> new IllegalArgumentException("Calendar with name " + name + " not found"));
+        this.regenerate((ServerCalendar) calendar);
+    }
+
+    private void regenerate(ServerCalendar calendar) {
+        this.threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            calendar.regenerateCachedTimeSeries();
+            context.commit();
+        }
+    }
+
+    private TemporalAmount toTemporalAmount(int value, String type) {
+        switch (type) {
+            case "Min": {
+                return Duration.ofMinutes(value);
+            }
+            case "H": {
+                return Duration.ofHours(value);
+            }
+            case "D": {
+                return Period.ofDays(value);
+            }
+            case "Mon": {
+                return Period.ofMonths(value);
+            }
+            case "Y": {
+                if (value > 1) {
+                    throw new IllegalArgumentException("We only support 1 year, not " + value);
+                } else {
+                    return Period.ofYears(value);
+                }
+            }
+            default: {
+                throw new IllegalArgumentException("Unsupported temporal amount type " + type);
+            }
+        }
     }
 
     public void deleteCalendar() {
