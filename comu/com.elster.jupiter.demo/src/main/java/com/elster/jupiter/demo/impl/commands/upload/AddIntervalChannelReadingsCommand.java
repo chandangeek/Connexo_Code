@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.demo.impl.commands.upload;
 
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.commands.upload.time.IntervalReadingTimeProvider;
@@ -29,7 +30,7 @@ public class AddIntervalChannelReadingsCommand extends AddChannelReadingsCommand
     protected void validateReadingTypes() {
         super.validateReadingTypes();
         for (ReadingType readingType : getReadingTypes()) {
-            if (readingType.getMeasuringPeriod() == TimeAttribute.NOTAPPLICABLE){
+            if (readingType.getMeasuringPeriod() == TimeAttribute.NOTAPPLICABLE && !(readingType.getMacroPeriod().equals(MacroPeriod.DAILY) || readingType.getMacroPeriod().equals(MacroPeriod.MONTHLY))) {
                 throw new UnableToCreate("You should use the special command for non-interval reading types");
             }
         }
