@@ -73,13 +73,8 @@ public class InboundComPortPoolInfo extends ComPortPoolInfo<InboundComPortPool> 
                                     properties.put(spec.getName(), propertyValue);
                                 }
                             });
-                } else {
-                    throw new LocalizedFieldValidationException(MessageSeeds.FIELD_REQUIRED, "discoveryProtocolPluggableClassId");
                 }
             } catch (LocalizedFieldValidationException e) {
-                if(e.getViolatingProperty().equals("discoveryProtocolPluggableClassId")) {
-                    throw e;
-                }
                 throw new LocalizedFieldValidationException(e.getMessageSeed(), "properties."+e.getViolatingProperty());
             }
         }
