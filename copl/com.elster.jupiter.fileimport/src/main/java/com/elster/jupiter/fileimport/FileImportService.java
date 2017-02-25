@@ -4,11 +4,12 @@
 
 package com.elster.jupiter.fileimport;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.properties.PropertySpec;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -26,6 +27,11 @@ public interface FileImportService {
      * @return a builder for ImportSchedules
      */
     ImportScheduleBuilder newBuilder();
+
+    /**
+     * @return a builder for FileImportHistory
+     */
+    FileImportHistoryBuilder newFileImportHistoryBuilder();
 
     /**
      * @return a MessageHandler configured to delegate file import messages to file importers
@@ -119,5 +125,6 @@ public interface FileImportService {
      */
     Path getBasePath();
 
+    Finder<ImportSchedule> getImportSchedulesForFileUpload(String applicationName);
 
 }

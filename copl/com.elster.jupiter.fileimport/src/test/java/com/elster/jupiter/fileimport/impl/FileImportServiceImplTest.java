@@ -107,6 +107,11 @@ public class FileImportServiceImplTest {
     }
 
     @Test
+    public void testNewFileImportHistoryBuilder() {
+        assertThat(fileImportService.newFileImportHistoryBuilder()).isNotNull();
+    }
+
+    @Test
     public void testCreateMessageHandler() {
         assertThat(fileImportService.createMessageHandler()).isNotNull();
     }

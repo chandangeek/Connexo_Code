@@ -132,6 +132,17 @@ final class ImportScheduleImpl implements ServerImportSchedule {
         this.clock = clock;
     }
 
+    /**
+     * @deprecated
+     * New method below this one must be used instead.
+     * It has new parameter isActiveOnUI which defines possibility to use import service via user interface
+     * **/
+    @Deprecated
+    static ImportScheduleImpl from(DataModel dataModel, String name, boolean active, ScheduleExpression scheduleExpression, String applicationName, String importerName, String destination,
+                                   Path importDirectory, String pathMatcher, Path inProcessDirectory, Path failureDirectory, Path successDirectory) {
+        return dataModel.getInstance(ImportScheduleImpl.class).init(name, active, scheduleExpression, applicationName, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory, false);
+    }
+
     static ImportScheduleImpl from(DataModel dataModel, String name, boolean active, ScheduleExpression scheduleExpression, String applicationName, String importerName, String destination,
                                    Path importDirectory, String pathMatcher, Path inProcessDirectory, Path failureDirectory, Path successDirectory, boolean isActiveOnUI) {
         return dataModel.getInstance(ImportScheduleImpl.class).init(name, active, scheduleExpression, applicationName, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory, isActiveOnUI);

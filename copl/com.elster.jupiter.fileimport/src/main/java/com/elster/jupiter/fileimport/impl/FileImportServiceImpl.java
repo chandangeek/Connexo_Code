@@ -9,6 +9,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fileimport.FileImportHistoryBuilder;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImportOccurrenceFinderBuilder;
 import com.elster.jupiter.fileimport.FileImportService;
@@ -301,6 +302,11 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
     }
 
     @Override
+    public FileImportHistoryBuilder newFileImportHistoryBuilder() {
+        return new FileImportHistoryBuilderImpl(dataModel);
+    }
+
+    @Override
     public MessageHandler createMessageHandler() {
         return new StreamImportMessageHandler(jsonService, thesaurus, clock, this, transactionService);
     }
@@ -398,6 +404,17 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
             this.basePath = fileSystem.getPath("/");
         }
         return this.basePath;
+    }
+
+    @Override
+    public Finder<ImportSchedule> getImportSchedulesForFileUpload(String applicationName) {
+        Condition condition = Condition.TRUE;
+        condition = condition.and(Where.where("isActiveOnUI").isEqualTo(true));
+        condition = condition.and(Where.where("active").isEqualTo(true));
+        if (!"SYS".equalsIgnoreCase(applicationName)) {
+            condition = condition.and(Where.where("applicationName").isEqualToIgnoreCase(applicationName));
+        }
+        return DefaultFinder.of(ImportSchedule.class, condition, dataModel);
     }
 
     @Override

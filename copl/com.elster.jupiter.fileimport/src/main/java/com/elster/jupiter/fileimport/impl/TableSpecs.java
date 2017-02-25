@@ -24,6 +24,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 
 enum TableSpecs {
 
@@ -134,6 +135,7 @@ enum TableSpecs {
             table.setJournalTableName("FIM_FILE_IMPORT_HISTORYJRNL");
             Column importScheduleColumn = table.column("IMPORTSCHEDULE").number().notNull().add();
             table.column("USERNAME").varChar(NAME_LENGTH).map("userName").notNull().add();
+            table.column("FILENAME").varChar(SHORT_DESCRIPTION_LENGTH).map("fileName").notNull().add();
             table.column("UPLOADTIME").number().conversion(NUMBER2INSTANT).map("uploadTime").notNull().add();
             table.primaryKey("FIM_PK_HISTORY").on(id).add();
 

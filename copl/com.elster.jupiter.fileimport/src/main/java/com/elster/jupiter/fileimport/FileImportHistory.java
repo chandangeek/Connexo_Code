@@ -15,6 +15,8 @@ public interface FileImportHistory {
 
     String getUserName();
 
+    String getFileName();
+
     Instant getUploadTime();
 
     void setImportSchedule(ImportSchedule importSchedule);
@@ -22,4 +24,8 @@ public interface FileImportHistory {
     void setUserName(String userName);
 
     void setUploadTime(Instant uploadTime);
+
+    void setFileName(String fileName);
+
+    void save();
 }

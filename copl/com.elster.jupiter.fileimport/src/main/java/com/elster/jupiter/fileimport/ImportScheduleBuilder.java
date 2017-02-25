@@ -6,11 +6,14 @@ package com.elster.jupiter.fileimport;
 
 import com.elster.jupiter.util.time.ScheduleExpression;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.nio.file.Path;
 
 /**
  * Interface for builders for an ImportSchedule
  */
+@ProviderType
 public interface ImportScheduleBuilder {
 
     /**
@@ -75,7 +78,7 @@ public interface ImportScheduleBuilder {
     ImportScheduleBuilder setScheduleExpression(ScheduleExpression scheduleExpression);
 
     /**
-     * @param isActiveOnUI defines is it possible to upload file for import via user inerface
+     * @param isActiveOnUI defines possibility to upload file for import via user interface
      * @return this
      */
     ImportScheduleBuilder setActiveOnUI(boolean isActiveOnUI);
