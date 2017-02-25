@@ -15,13 +15,15 @@ public class FileImportHistoryInfo {
     public String userName;
     public Instant uploadTime;
 
-    public FileImportHistoryInfo() {
+    private FileImportHistoryInfo() {
     }
 
-    public FileImportHistoryInfo from(FileImportHistory fileImportHistory) {
-        this.importScheduleId = fileImportHistory.getImportSchedule().getId();
-        this.userName = fileImportHistory.getUserName();
-        this.uploadTime = fileImportHistory.getUploadTime();
-        return this;
+    public static FileImportHistoryInfo from(FileImportHistory fileImportHistory) {
+        FileImportHistoryInfo fileImportHistoryInfo = new FileImportHistoryInfo();
+        fileImportHistoryInfo.importScheduleId = fileImportHistory.getImportSchedule().getId();
+        fileImportHistoryInfo.userName = fileImportHistory.getUserName();
+        fileImportHistoryInfo.uploadTime = fileImportHistory.getUploadTime();
+
+        return fileImportHistoryInfo;
     }
 }

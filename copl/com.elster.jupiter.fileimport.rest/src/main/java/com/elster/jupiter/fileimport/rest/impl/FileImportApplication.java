@@ -13,6 +13,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -23,6 +24,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.hibernate.validator.HibernateValidator;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -34,6 +36,7 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import javax.ws.rs.core.Application;
 import java.nio.file.FileSystem;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -59,13 +62,15 @@ public class FileImportApplication extends Application implements MessageSeedPro
     private volatile Thesaurus thesaurus;
     private volatile PropertyValueInfoService propertyValueInfoService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile Clock clock;
 
     private List<App> apps = new CopyOnWriteArrayList<>();
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
                 FileImporterResource.class,
-                FileImportScheduleResource.class);
+                FileImportScheduleResource.class,
+                MultiPartFeature.class);
     }
 
     @Reference
@@ -121,6 +126,11 @@ public class FileImportApplication extends Application implements MessageSeedPro
         this.threadPrincipalService = threadPrincipalService;
     }
 
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
     @SuppressWarnings("unused")
     public void removeApplication(App app) {
         apps.remove(app);
@@ -152,6 +162,8 @@ public class FileImportApplication extends Application implements MessageSeedPro
                 bind(FileImportScheduleInfoFactory.class).to(FileImportScheduleInfoFactory.class);
                 bind(FileImporterInfoFactory.class).to(FileImporterInfoFactory.class);
                 bind(threadPrincipalService).to(ThreadPrincipalService.class);
+                bind(clock).to(Clock.class);
+                bind(ExceptionFactory.class).to(ExceptionFactory.class);
                 bindFactory(getValidatorFactory()).to(Validator.class);
             }
         });

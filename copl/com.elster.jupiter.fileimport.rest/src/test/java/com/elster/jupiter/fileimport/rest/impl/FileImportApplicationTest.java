@@ -11,10 +11,12 @@ import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 
 import javax.ws.rs.core.Application;
 import java.nio.file.FileSystem;
+import java.time.Clock;
 
 import org.mockito.Mock;
 
@@ -36,6 +38,10 @@ public class FileImportApplicationTest extends FelixRestApplicationJerseyTest {
     static FileSystem fileSystem;
     @Mock
     protected PropertyValueInfoService propertyValueInfoService;
+    @Mock
+    protected ThreadPrincipalService threadPrincipalService;
+    @Mock
+    protected Clock clock;
 
     @Override
     protected Application getApplication() {
@@ -50,6 +56,8 @@ public class FileImportApplicationTest extends FelixRestApplicationJerseyTest {
         application.setNlsService(nlsService);
         application.setFileSystem(fileSystem);
         application.setAppService(appService);
+        application.setThreadPrincipalService(threadPrincipalService);
+        application.setClock(clock);
         application.addApplication(mockApp("SYS", "Admin"));
         application.addApplication(mockApp("MDC", "MultiSense"));
         return application;

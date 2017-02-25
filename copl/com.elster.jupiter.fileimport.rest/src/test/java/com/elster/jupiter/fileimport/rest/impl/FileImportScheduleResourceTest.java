@@ -5,6 +5,7 @@
 package com.elster.jupiter.fileimport.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.ImportSchedule;
@@ -107,6 +108,7 @@ public class FileImportScheduleResourceTest extends FileImportApplicationTest {
         when(builder.setProcessingDirectory(any(Path.class))).thenReturn(builder);
         when(builder.setSuccessDirectory(any(Path.class))).thenReturn(builder);
         when(builder.setImporterName(any(String.class))).thenReturn(builder);
+        when(builder.setActiveOnUI(any(Boolean.class))).thenReturn(builder);
         when(builder.setScheduleExpression(any(ScheduleExpression.class))).thenReturn(builder);
 
         FileImporterFactory importerFactory = mock(FileImporterFactory.class);
@@ -209,6 +211,20 @@ public class FileImportScheduleResourceTest extends FileImportApplicationTest {
         assertThat(responseInfo.version).isNull();
     }
 
+    @Test
+    public void testGetImportSchedulesForFileUpload() {
+        ImportSchedule importSchedule = mockImportSchedule(1);
+        Finder finder = mock(Finder.class);
+        when(fileImportService.getImportSchedulesForFileUpload("INS")).thenReturn(finder);
+        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
+        when(finder.find()).thenReturn(Collections.singletonList(importSchedule));
+
+        Response response = target("/importservices/fileupload/list").request().header("X-CONNEXO-APPLICATION-NAME", "INS").get();
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getEntity()).isNotNull();
+    }
+
     private void mockTransaction() {
         when(transactionService.execute(Matchers.any(Transaction.class))).thenAnswer(invocation -> {
             Transaction transaction = (Transaction) invocation.getArguments()[0];
@@ -245,7 +261,7 @@ public class FileImportScheduleResourceTest extends FileImportApplicationTest {
         when(schedule.getName()).thenReturn("Schedule 1");
         when(schedule.getApplicationName()).thenReturn("SYS");
         when(schedule.getImporterName()).thenReturn("Test importer");
-        mockFileImporerFactory("Test importer");
+        mockFileImporterFactory("Test importer");
         when(schedule.getDestination()).thenReturn(mock(DestinationSpec.class));
         when(schedule.getImportDirectory()).thenReturn(testFolder);
         when(schedule.getPathMatcher()).thenReturn("*.csv");
@@ -265,7 +281,7 @@ public class FileImportScheduleResourceTest extends FileImportApplicationTest {
         return  schedule;
     }
 
-    private FileImporterFactory mockFileImporerFactory(String name) {
+    private FileImporterFactory mockFileImporterFactory(String name) {
         FileImporterFactory importer = mock(FileImporterFactory.class);
         when(importer.getName()).thenReturn(name);
         when(fileImportService.getImportFactory("Test importer")).thenReturn(Optional.of(importer));

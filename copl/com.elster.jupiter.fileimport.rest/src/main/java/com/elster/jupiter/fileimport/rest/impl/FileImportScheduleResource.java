@@ -4,6 +4,10 @@
 
 package com.elster.jupiter.fileimport.rest.impl;
 
+import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.fileimport.FileImportHistory;
+import com.elster.jupiter.fileimport.FileImportHistoryBuilder;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImportOccurrenceFinderBuilder;
 import com.elster.jupiter.fileimport.FileImportService;
@@ -17,6 +21,7 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -27,6 +32,10 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
 import com.google.common.collect.Range;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -49,10 +58,17 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.InvalidPathException;
+import java.time.Clock;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -67,9 +83,14 @@ public class FileImportScheduleResource {
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final Validator validator;
     private final ThreadPrincipalService threadPrincipalService;
+    private final Clock clock;
+    private final AppService appService;
+    private final ExceptionFactory exceptionFactory;
+
+    private static final int MAX_FILE_SIZE = 100 * 1024 * 1024;
 
     @Inject
-    public FileImportScheduleResource(FileImportService fileImportService, TransactionService transactionService, PropertyValueInfoService propertyValueInfoService, FileSystem fileSystem, FileImportScheduleInfoFactory fileImportScheduleInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, Validator validator, ThreadPrincipalService threadPrincipalService) {
+    public FileImportScheduleResource(FileImportService fileImportService, TransactionService transactionService, PropertyValueInfoService propertyValueInfoService, FileSystem fileSystem, FileImportScheduleInfoFactory fileImportScheduleInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, Validator validator, ThreadPrincipalService threadPrincipalService, Clock clock, AppService appService, ExceptionFactory exceptionFactory) {
         this.fileImportService = fileImportService;
         this.transactionService = transactionService;
         this.propertyValueInfoService = propertyValueInfoService;
@@ -78,6 +99,9 @@ public class FileImportScheduleResource {
         this.conflictFactory = conflictFactory;
         this.validator = validator;
         this.threadPrincipalService = threadPrincipalService;
+        this.clock = clock;
+        this.appService = appService;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
@@ -113,6 +137,44 @@ public class FileImportScheduleResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES})
     public FileImportScheduleInfo getImportScheduleIncludeDeleted(@PathParam("id") long id, @Context SecurityContext securityContext) {
         return fileImportScheduleInfoFactory.asInfo(fetchImportScheduleIncludeDeleted(id));
+    }
+
+    @GET
+    @Path("/fileupload/list")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES, Privileges.Constants.IMPORT_FILE})
+    public PagedInfoList getImportSchedulesForFileUpload(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName, @BeanParam JsonQueryParameters queryParameters) {
+        List<FileImportScheduleInfo> infos = fileImportService.getImportSchedulesForFileUpload(applicationName)
+                .from(queryParameters)
+                .find()
+                .stream()
+                .map(fileImportScheduleInfoFactory::asInfo)
+                .collect(Collectors.toList());
+        return PagedInfoList.fromPagedList("data", infos, queryParameters);
+    }
+
+    @POST
+    @Path("/fileupload")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES, Privileges.Constants.IMPORT_FILE})
+    @Transactional
+    public Response uploadFile(@FormDataParam("file")InputStream inputStream,
+                               @FormDataParam("file") FormDataContentDisposition contentDispositionHeader,
+                               @FormDataParam("scheduleId") InputStream scheduleId) throws IOException {
+        long importScheduleId = parseScheduleId(scheduleId);
+        ImportSchedule importSchedule = fileImportService.getImportSchedule(importScheduleId)
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.IMPORT_SERVICE_NOT_FOUND, importScheduleId));
+        AppServer appServer = findAppServerWithImportSchedule(importSchedule);
+
+        String importFolder = String.valueOf(appServer.getImportDirectory().get().toAbsolutePath())
+                + "/"
+                + String.valueOf(importSchedule.getImportDirectory());
+        String fileName = contentDispositionHeader.getFileName();
+
+        loadFile(inputStream, fileName, importFolder, appServer.getName());
+        FileImportHistory importHistory = buildFileImportHistory(importSchedule, fileName);
+        return Response.status(Response.Status.CREATED).entity(FileImportHistoryInfo.from(importHistory)).build();
     }
 
     @POST
@@ -218,8 +280,8 @@ public class FileImportScheduleResource {
                                                       @PathParam("id") long importServiceId,
                                                       @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                                       @Context SecurityContext securityContext) {
-        List<FileImportOccurrence> fileImportOccurences = getFileImportOccurrences(queryParameters, filter, applicationName, importServiceId);
-        List<FileImportOccurrenceInfo> data = fileImportOccurences.stream().map(FileImportOccurrenceInfo::of).collect(Collectors.toList());
+        List<FileImportOccurrence> fileImportOccurrences = getFileImportOccurrences(queryParameters, filter, applicationName, importServiceId);
+        List<FileImportOccurrenceInfo> data = fileImportOccurrences.stream().map(FileImportOccurrenceInfo::of).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("data", data, queryParameters);
     }
 
@@ -231,8 +293,8 @@ public class FileImportScheduleResource {
                                                            @BeanParam JsonQueryFilter filter,
                                                            @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                                            @Context SecurityContext securityContext) {
-        List<FileImportOccurrence> fileImportOccurences = getFileImportOccurrences(queryParameters, filter, applicationName, null);
-        List<FileImportOccurrenceInfo> data = fileImportOccurences.stream().map(FileImportOccurrenceInfo::of).collect(Collectors.toList());
+        List<FileImportOccurrence> fileImportOccurrences = getFileImportOccurrences(queryParameters, filter, applicationName, null);
+        List<FileImportOccurrenceInfo> data = fileImportOccurrences.stream().map(FileImportOccurrenceInfo::of).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("data", data, queryParameters);
     }
 
@@ -277,10 +339,10 @@ public class FileImportScheduleResource {
     @Path("/history/{occurrenceId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES})
-    public FileImportOccurrenceInfo geFileImportOccurence(@BeanParam JsonQueryParameters queryParameters,
-                                                          @BeanParam JsonQueryFilter filter,
-                                                          @PathParam("occurrenceId") long occurrenceId,
-                                                          @Context SecurityContext securityContext) {
+    public FileImportOccurrenceInfo geFileImportOccurrence(@BeanParam JsonQueryParameters queryParameters,
+                                                           @BeanParam JsonQueryFilter filter,
+                                                           @PathParam("occurrenceId") long occurrenceId,
+                                                           @Context SecurityContext securityContext) {
 
         return FileImportOccurrenceInfo.of(
                 fileImportService.getFileImportOccurrence(occurrenceId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND)));
@@ -336,6 +398,57 @@ public class FileImportScheduleResource {
         } catch (InvalidPathException e ){
             throw new IllegalArgumentException(e);
         }
+    }
+
+    private AppServer findAppServerWithImportSchedule(ImportSchedule importSchedule) {
+        return appService.findAppServers()
+                .stream()
+                .filter(AppServer::isActive)
+                .filter(server -> server.getImportSchedulesOnAppServer()
+                        .stream()
+                        .map(schedule -> schedule.getImportSchedule().orElse(null))
+                        .filter(importSchedule::equals)
+                        .findAny()
+                        .isPresent())
+                .sorted(Comparator.comparing(AppServer::getName))
+                .findFirst()
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_ACTIVE_APP_SERVERS_FOUND));
+    }
+
+    private void loadFile(InputStream inputStream, String fileName, String importFolder, String appServerName) {
+        File copiedFile = new File(importFolder + "/" + FilenameUtils.getBaseName(fileName) + ".tmp");
+        try(FileOutputStream outputStream = new FileOutputStream(copiedFile.getPath()); InputStream ins = inputStream ) {
+            byte[] buffer = new byte[1024];
+            int length;
+            while((length = ins.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, length);
+                if (outputStream.getChannel().size() > MAX_FILE_SIZE) {
+                    outputStream.close();
+                    FileUtils.deleteQuietly(copiedFile);
+                    throw exceptionFactory.newException(MessageSeeds.MAX_FILE_SIZE_EXCEEDED);
+                }
+            }
+        } catch (IOException ex) {
+            throw exceptionFactory.newException(MessageSeeds.FAILED_TO_UPLOAD_TO_SERVER, fileName, appServerName);
+        }
+        copiedFile.renameTo(new File(importFolder + "\\" + fileName));
+    }
+
+    private long parseScheduleId(InputStream inputStream) {
+        Scanner sc = new Scanner(inputStream);
+        if(sc.hasNextLong()) {
+            return sc.nextLong();
+        }
+        throw new WebApplicationException(Response.Status.NOT_FOUND);
+    }
+
+    private FileImportHistory buildFileImportHistory(ImportSchedule importSchedule, String fileName) {
+        FileImportHistoryBuilder fileImportHistoryBuilder = fileImportService.newFileImportHistoryBuilder();
+        fileImportHistoryBuilder.setImportSchedule(importSchedule);
+        fileImportHistoryBuilder.setUserName(threadPrincipalService.getPrincipal().getName());
+        fileImportHistoryBuilder.setFileName(fileName);
+        fileImportHistoryBuilder.setUploadTime(clock.instant());
+        return fileImportHistoryBuilder.create();
     }
 
 }
