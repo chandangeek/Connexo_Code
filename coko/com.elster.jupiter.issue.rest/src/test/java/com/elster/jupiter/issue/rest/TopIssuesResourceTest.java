@@ -15,6 +15,7 @@ import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
@@ -27,6 +28,7 @@ import com.elster.jupiter.util.conditions.Order;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -56,7 +58,7 @@ public class TopIssuesResourceTest extends IssueRestApplicationJerseyTest {
     @Mock
     private Query<IssueReason> issueReasonQuery;
     @Mock
-    private List<IssueReason> issueReasons;
+    private Map<IssueTypes, Long> openIssueCountMap;
 
     @Before
     public void beforeTest() {
@@ -111,6 +113,8 @@ public class TopIssuesResourceTest extends IssueRestApplicationJerseyTest {
                 .select(any(Condition.class), anyInt(), anyInt(), any(Order.class));
         when(issueService.query(IssueReason.class)).thenReturn(issueReasonQuery);
         when(issueService.findIssueType(anyString())).thenReturn(Optional.of(issueType));
+        when(issueService.getUserOpenIssueCount(user)).thenReturn(new HashMap<IssueTypes, Long>(){{put(IssueTypes.DATA_COLLECTION,1L);}});
+        when(issueService.getWorkGroupWithoutUserOpenIssueCount(user)).thenReturn(new HashMap<IssueTypes, Long>(){{put(IssueTypes.DATA_COLLECTION,0L);}});
         doReturn(Collections.singletonList(issue)).when(issueReasonQuery).select(where(ISSUE_TYPE).isNotEqual(anyObject()));
     }
 

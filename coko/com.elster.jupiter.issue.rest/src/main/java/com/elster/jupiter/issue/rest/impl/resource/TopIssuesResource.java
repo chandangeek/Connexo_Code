@@ -9,6 +9,7 @@ import com.elster.jupiter.issue.rest.response.TopIssuesInfo;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.users.User;
@@ -23,6 +24,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.SecurityContext;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
@@ -56,8 +58,12 @@ public class TopIssuesResource extends BaseResource {
         List<OpenIssue> issues = issueQuery.select(conditionIssue.and(conditionUser.or(conditionNullUser.and(conditionWG))), 1, 5, Order.ascending("priorityTotal")
                 .ascending("dueDate")
                 .ascending("reason"));
-        long issueTotalUserAssignedCount = getIssueService().getUserIssueCount(currentUser, issueReasons);
-        long issueTotalWorkGroupAssignedCount = getIssueService().getWorkGroupIssueWithoutUserCount(currentUser, issueReasons);
+        long issueTotalUserAssignedCount = getIssueService().getUserOpenIssueCount(currentUser).entrySet().stream().filter(entry ->
+                entry.getKey().equals(IssueTypes.DATA_COLLECTION) || entry.getKey().equals(IssueTypes.DATA_VALIDATION))
+                .mapToLong(Map.Entry::getValue).sum();
+        long issueTotalWorkGroupAssignedCount = getIssueService().getWorkGroupWithoutUserOpenIssueCount(currentUser).entrySet().stream().filter(entry ->
+                entry.getKey().equals(IssueTypes.DATA_COLLECTION) || entry.getKey().equals(IssueTypes.DATA_VALIDATION))
+                .mapToLong(Map.Entry::getValue).sum();
 
         return new TopIssuesInfo(issues, issueTotalUserAssignedCount, issueTotalWorkGroupAssignedCount);
     }
