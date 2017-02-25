@@ -10,6 +10,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.issue.impl.IssueFilterImpl;
 import com.elster.jupiter.issue.impl.IssueGroupFilterImpl;
+import com.elster.jupiter.issue.impl.database.DatabaseConst;
 import com.elster.jupiter.issue.impl.database.TableSpecs;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_2;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_3;
@@ -38,6 +39,7 @@ import com.elster.jupiter.issue.share.entity.IssueGroup;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.issue.share.entity.NotUniqueKeyException;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueActionService;
@@ -95,6 +97,7 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -433,12 +436,12 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     @Override
     public IssueReason findOrCreateReason(String key, IssueType issueType) {
         Optional<IssueReason> reason = find(IssueReason.class, key);
-        if(reason.isPresent()){
+        if (reason.isPresent()) {
             return reason.get();
-        }else{
-            if(!key.isEmpty()) {
+        } else {
+            if (!key.isEmpty()) {
                 return createReason(key, issueType, new SimpleTranslationKey(key, key), null);
-            }else{
+            } else {
                 return null;
             }
         }
@@ -458,7 +461,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     public IssueAssignee findIssueAssignee(Long userId, Long workGroupId) {
         IssueAssigneeImpl issueAssignee = new IssueAssigneeImpl();
         issueAssignee.setUser(userId != null ? userService.getUser(userId).orElse(null) : null);
-        issueAssignee.setWorkGroup(workGroupId != null ?userService.getWorkGroup(workGroupId).orElse(null) : null);
+        issueAssignee.setWorkGroup(workGroupId != null ? userService.getWorkGroup(workGroupId).orElse(null) : null);
         return issueAssignee;
     }
 
@@ -501,7 +504,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         return dataModel.mapper(clazz).getOptional(key);
     }
 
-    private List<IssueType> getAllIssueTypes(){
+    private List<IssueType> getAllIssueTypes() {
         return dataModel.mapper(IssueType.class).find();
     }
 
@@ -588,9 +591,9 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         Optional<IssueType> alarmIssueType = getAllIssueTypes().stream()
                 .filter(issueType -> issueType.getPrefix().equals("ALM"))
                 .findFirst();
-        if(alarmIssueType.isPresent()){
+        if (alarmIssueType.isPresent()) {
             condition = condition.and(where("reason.issueType").isEqualTo(alarmIssueType.get()));
-        }else{
+        } else {
             condition = Condition.FALSE;
         }
         List<Class<?>> eagerClasses = new ArrayList<>();
@@ -627,35 +630,62 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     }
 
     @Override
-    public long getUserIssueCount(User user, List<IssueReason> reasons){
-        SqlBuilder userIssueCountBuilder = getReasonBuilder(reasons);
-        userIssueCountBuilder.append(" AND ");
-        userIssueCountBuilder.append(" isu.ASSIGNEE_USER_ID =  ");
-        userIssueCountBuilder.addLong(user.getId());
-        return this.count(userIssueCountBuilder);
+    public Map<IssueTypes, Long> getUserOpenIssueCount(User user) {
+        return this.count(getOpenIssueCountGenericQueryBuilder(getUserWhereClause(user)));
     }
 
     @Override
-    public long getWorkGroupIssueWithoutUserCount(User user, List<IssueReason> reasons){
-        SqlBuilder workGroupIssueWithoutUserCountBuilder = getReasonBuilder(reasons);
-        workGroupIssueWithoutUserCountBuilder.append(" AND ");
-        workGroupIssueWithoutUserCountBuilder.append(" isu.ASSIGNEE_USER_ID = NULL ");
-        workGroupIssueWithoutUserCountBuilder.append(" AND ");
-        workGroupIssueWithoutUserCountBuilder.append(" isu.ASSIGNEE_WORKGROUP_ID IN ( ");
-        workGroupIssueWithoutUserCountBuilder.append(user.getWorkGroups().stream().map(WorkGroup::getId).map(String::valueOf).collect(Collectors.joining(", ")));
-        workGroupIssueWithoutUserCountBuilder.append(" ) ");
-        return this.count(workGroupIssueWithoutUserCountBuilder);
+    public Map<IssueTypes, Long> getWorkGroupWithoutUserOpenIssueCount(User user) {
+        return this.count(getOpenIssueCountGenericQueryBuilder(getWorkGroupWithoutUserWhereClause(user)));
     }
 
-
-    private SqlBuilder getReasonBuilder(List<IssueReason> reasons){
-        SqlBuilder reasonBuilder = new SqlBuilder("SELECT COUNT(*) FROM ");
-        reasonBuilder.append(TableSpecs.ISU_ISSUE_OPEN.name());
-        reasonBuilder.append(" isu WHERE isu.REASON_ID IN ( ");
-        reasonBuilder.append(reasons.stream().map(IssueReason::getKey).map(reason -> "'".concat(reason).concat("'")).collect(Collectors.joining(", ")));
-        reasonBuilder.append(" )");
-        return reasonBuilder;
+    private SqlBuilder getOpenIssueCountGenericQueryBuilder(SqlBuilder whereClause) {
+        SqlBuilder openIssueGenericQueryBuilder = new SqlBuilder("SELECT " + TableSpecs.ISU_REASON.name() + "." + DatabaseConst.ISSUE_REASON_COLUMN_TYPE + " " + DatabaseConst.ISSUE_REASON_COLUMN_TYPE
+                + " , COUNT(" + TableSpecs.ISU_ISSUE_OPEN.name() + ".ID) " + IssueService.COMPONENT_NAME + " FROM ");
+        openIssueGenericQueryBuilder.append(TableSpecs.ISU_ISSUE_OPEN.name() + " " + TableSpecs.ISU_ISSUE_OPEN.name());
+        openIssueGenericQueryBuilder.append(" RIGHT JOIN " + TableSpecs.ISU_REASON.name() + " " + TableSpecs.ISU_REASON.name()
+                + " ON " + TableSpecs.ISU_ISSUE_OPEN.name() + ".REASON_ID = " + TableSpecs.ISU_REASON.name() + "." + DatabaseConst.ISSUE_REASON_COLUMN_KEY + " ");
+        openIssueGenericQueryBuilder.add(whereClause);
+        openIssueGenericQueryBuilder.append(" GROUP BY " + TableSpecs.ISU_REASON.name() + "." + DatabaseConst.ISSUE_REASON_COLUMN_TYPE);
+        return openIssueGenericQueryBuilder;
     }
+
+    private SqlBuilder getUserWhereClause(User user) {
+        SqlBuilder userWhereClause = new SqlBuilder();
+        userWhereClause.append("WHERE " + TableSpecs.ISU_ISSUE_OPEN.name() + "." + DatabaseConst.ISSUE_COLUMN_USER_ID + " = ");
+        userWhereClause.addLong(user.getId());
+        return userWhereClause;
+    }
+
+    private SqlBuilder getWorkGroupWithoutUserWhereClause(User user) {
+        SqlBuilder workGroupWithoutUserWhereClause = new SqlBuilder();
+        workGroupWithoutUserWhereClause.append(" WHERE " + TableSpecs.ISU_ISSUE_OPEN.name() + "." + DatabaseConst.ISSUE_COLUMN_USER_ID + " = NULL");
+        workGroupWithoutUserWhereClause.append(" AND ");
+        workGroupWithoutUserWhereClause.append(TableSpecs.ISU_ISSUE_OPEN.name() + "." + DatabaseConst.ISSUE_COLUMN_WORKGROUP_ID + " IN ( ");
+        workGroupWithoutUserWhereClause.append(user.getWorkGroups().stream().map(WorkGroup::getId).map(String::valueOf).collect(Collectors.joining(", ")));
+        workGroupWithoutUserWhereClause.append(" ) ");
+        return workGroupWithoutUserWhereClause;
+    }
+
+    private Map<IssueTypes, Long> count(SqlBuilder sqlBuilder) {
+        Map<IssueTypes, Long> countMap = new HashMap<>();
+        try (Connection connection = this.dataModel.getConnection(false);
+             PreparedStatement statement = sqlBuilder.prepare(connection)) {
+            try (ResultSet resultSet = statement.executeQuery()) {
+                int typeColPos = resultSet.findColumn(DatabaseConst.ISSUE_REASON_COLUMN_TYPE);
+                int valueColPos = resultSet.findColumn(IssueService.COMPONENT_NAME);
+                while (resultSet.next()) {
+                    IssueTypes typeCol = IssueTypes.getByName(resultSet.getString(typeColPos));
+                    Long valueCol = resultSet.getLong(valueColPos);
+                    countMap.put(typeCol, valueCol);
+                }
+            }
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+        return countMap;
+    }
+
 
     private List<Class<?>> determineMainApiClass(IssueFilter filter) {
         List<Class<?>> eagerClasses = new ArrayList<>();
@@ -721,7 +751,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         //filter by issue types
         if (!filter.getIssueTypes().isEmpty()) {
             condition = condition.and(where("reason.issueType").in(filter.getIssueTypes()));
-        }else{
+        } else {
             List<IssueType> issueTypes = getAllIssueTypes().stream()
                     .filter(issueType -> !issueType.getPrefix().equals("ALM")).collect(Collectors.toList());
             condition = condition.and(where("reason.issueType").in(Collections.unmodifiableList(issueTypes)));
@@ -746,17 +776,6 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         }
     }
 
-    private long count(SqlBuilder sqlBuilder) {
-        try (Connection connection = this.dataModel.getConnection(false);
-             PreparedStatement statement = sqlBuilder.prepare(connection)) {
-            try (ResultSet counter = statement.executeQuery()) {
-                counter.next();
-                return counter.getLong(1);
-            }
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
-    }
 
     private static final class ComponentAndLayer {
         private final String componentName;
