@@ -28,8 +28,22 @@ Ext.define('Uni.util.ReadingsGraph', {
                 opposite: false,
                 gridLineDashStyle: 'Dot',
                 showEmpty: false,
+                labels: {
+                    style: {
+                        color: '#686868',
+                        fontWeight: 'normal',
+                        fontSize: '14px',
+                        fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                    }
+                },
                 title: {
                     rotation: 270,
+                    style: {
+                        color: '#686868',
+                        fontWeight: 'normal',
+                        fontSize: '14px',
+                        fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                    },
                     text: unitOfMeasure
                 }
             },
@@ -81,7 +95,13 @@ Ext.define('Uni.util.ReadingsGraph', {
 
         graphView.chart = new Highcharts.StockChart({
             title: {
-                text: channelName
+                text: channelName,
+                style: {
+                    color: '#74af74',
+                    fontSize: '25px',
+                    fontWeight: 'normal',
+                    fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                }
             },
 
             chart: {
@@ -96,6 +116,14 @@ Ext.define('Uni.util.ReadingsGraph', {
             xAxis: {
                 type: 'datetime',
                 gridLineDashStyle: 'Dot',
+                labels: {
+                    style: {
+                        color: '#686868',
+                        fontWeight: 'normal',
+                        fontSize: '14px',
+                        fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                    }
+                },
                 gridLineWidth: 1,
                 dateTimeLabelFormats: {
                     second: '%H:%M<br/>%a %e %b',
@@ -149,7 +177,13 @@ Ext.define('Uni.util.ReadingsGraph', {
             rangeSelector: {
                 selected: 0,
                 inputEnabled: true,
-                buttons: zoomLevels
+                buttons: zoomLevels,
+                style: {
+                    color: '#686868',
+                    fontWeight: 'normal',
+                    fontSize: '14px',
+                    fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                }
             },
 
             tooltip: {
