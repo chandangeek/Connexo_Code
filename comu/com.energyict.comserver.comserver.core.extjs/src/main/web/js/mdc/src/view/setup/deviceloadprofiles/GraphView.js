@@ -36,7 +36,9 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
             title: {
                 text: title,
                 style: {
-                    color: '#686868',
+                    color: '#74af74',
+                    fontWeight: 'normal',
+                    fontSize: '25px',
                     fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
                 }
             },
@@ -68,7 +70,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
                     style: {
                         color: '#686868',
                         fontWeight: 'normal',
-                        fontSize: '13px',
+                        fontSize: '14px',
                         fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
                     }
                 }

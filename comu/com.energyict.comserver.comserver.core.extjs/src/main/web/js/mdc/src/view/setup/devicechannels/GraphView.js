@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
 
     createTooltip: function (tooltip) {
         var me = this,
-            html = '<b>' + Uni.DateTime.formatDateLong(new Date(tooltip.x)),
+            html = '<span style=" color: #686868; font-size: 14px; ">' + Uni.DateTime.formatDateLong(new Date(tooltip.x)),
             point = tooltip.point,
             deltaIcon = '',
             bulkIcon = '',
@@ -79,12 +79,12 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                 + (Ext.isEmpty(point.dataLoggerSlave) ? '-' : point.dataLoggerSlave) + '</td></tr>';
         }
         if (calculatedValue) {
-            html += '<tr><td><b>' + Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value') + ':</b></td><td>' + calculatedValue +
+            html += '<tr><td>' + Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value') + ':</td><td style="font-weight: lighter">' + calculatedValue +
                 deltaIcon + (point.edited ? editedIcon : '') + '</td></tr>';
-            html += '<tr><td><b>' + Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value') + ':</b></td><td>' + collectedValue +
+            html += '<tr><td>' + Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value') + ':</td><td style="font-weight: lighter">' + collectedValue +
                 bulkIcon + (point.bulkEdited ? editedIcon : '') + '</td></tr>';
         } else {
-            html += '<tr><td><b>' + Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value') + ':</b></td><td>' + collectedValue +
+            html += '<tr><td><b>' + Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value') + ':</b></td><td style="font-weight: lighter">' + collectedValue +
                 deltaIcon + (point.edited ? editedIcon : '') + '</td></tr>';
         }
         if (point.multiplier) {
