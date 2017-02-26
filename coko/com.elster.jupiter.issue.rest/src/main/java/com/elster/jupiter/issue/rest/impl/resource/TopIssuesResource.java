@@ -23,9 +23,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.SecurityContext;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -44,9 +46,11 @@ public class TopIssuesResource extends BaseResource {
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public TopIssuesInfo getTopIssues(@Context SecurityContext securityContext) {
         User currentUser = (User) securityContext.getUserPrincipal();
-        IssueType alarmType = getIssueService().findIssueType("devicealarm").orElse(null);
+        List<IssueType> issueTypes = new ArrayList<>();
+        Stream.of(IssueTypes.DATA_COLLECTION.getName(), IssueTypes.DATA_VALIDATION.getName())
+                .forEach(issueType ->  getIssueService().findIssueType(issueType).ifPresent(issueTypes::add));
         List<IssueReason> issueReasons = getIssueService().query(IssueReason.class)
-                .select(where(ISSUE_TYPE).isNotEqual(alarmType))
+                .select(where(ISSUE_TYPE).in(issueTypes))
                 .stream()
                 .collect(Collectors.toList());
         Query<OpenIssue> issueQuery =
