@@ -59,8 +59,6 @@ public class EndDeviceEventCreatedEvent extends DeviceAlarmEvent {
         if (issue instanceof OpenDeviceAlarm) {
             OpenDeviceAlarm deviceAlarm = (OpenDeviceAlarm) issue;
             deviceAlarm.addRelatedAlarmEvent(endDeviceId, endDeviceEventType, eventTimestamp);
-
-
         }
     }
 }

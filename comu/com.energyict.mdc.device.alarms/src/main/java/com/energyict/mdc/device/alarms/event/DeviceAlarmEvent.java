@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringTokenizer;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -63,7 +64,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     private EventDescription eventDescription;
     private Injector injector;
 
-    private static final String ANY = "*";
+    private static final String WILDCARD = "*";
     private static final String ALL_EVENT_TYPES = "*.*.*.*";
     private static final String SEPARATOR = ":";
 
@@ -140,7 +141,8 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         } else if (eventTypeMridContainedInListCount(inputTriggeringEventTypeList, Collections.singletonList(this.getEventTypeMrid())) == 0) {
             return false;
         }
-        if (getEndDeviceEventTypes(clearingEndDeviceEventTypes).contains(this.getEventTypeMrid())) {
+        if (getEndDeviceEventTypes(clearingEndDeviceEventTypes).contains(this.getEventTypeMrid()) ||
+                getEndDeviceEventTypes(clearingEndDeviceEventTypes).stream().anyMatch(event -> checkMatchingEvent(event, this.getEventTypeMrid()))) {
             return raiseEventProps != null && !raiseEventProps.isEmpty() && logOnSameAlarm(raiseEventProps) &&
                     issueService.findOpenIssuesForDevice(getDevice().getName())
                             .find()
@@ -160,7 +162,10 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     }
 
     private List<String> getDeviceCodes(String endDeviceEventTypes) {
-        return parseCommaSeparatedStringToList(endDeviceEventTypes).stream().map(type -> type.substring(type.indexOf(SEPARATOR) + 1)).filter(code -> !code.equals(ANY)).collect(Collectors.toList());
+        return parseCommaSeparatedStringToList(endDeviceEventTypes).stream()
+                .map(type -> type.substring(type.indexOf(SEPARATOR) + 1))
+                .filter(code -> !code.equals(WILDCARD))
+                .collect(Collectors.toList());
     }
 
     private List<EndDeviceEventRecord> getLoggedEvents(RelativePeriod relativePeriod) {
@@ -183,44 +188,46 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     }
 
     private int eventTypeMridContainedInListCount(List<String> rawTriggeringEventTypesList, List<String> loggedEventTypeList) {
-        List<String> starredList = rawTriggeringEventTypesList.stream().filter(type -> type.contains(ANY)).collect(Collectors.toList());
+        List<String> starredList = rawTriggeringEventTypesList.stream().filter(type -> type.contains(WILDCARD)).collect(Collectors.toList());
         int initCount = loggedEventTypeList.stream()
                 .filter(rawTriggeringEventTypesList::contains)
                 .collect(Collectors.toList()).size();
         if (starredList.isEmpty()) {
             return initCount;
         } else {
-            int count = 0;
-            for (String starredElement : starredList) {
-                StringTokenizer starredElementTokenizer = getTokenized(starredElement);
-                for (String loggedElement : loggedEventTypeList) {
-                    StringTokenizer loggedElementTokenizer = getTokenized(loggedElement);
-                    int internalCount = 0;
-                    while (starredElementTokenizer.hasMoreTokens()) {
-                        String starredNextToken = starredElementTokenizer.nextToken();
-                        String loggedElementNextToken = loggedElementTokenizer.nextToken();
-                        if (starredNextToken.equals(ANY) || starredNextToken.equals(loggedElementNextToken)) {
-                            ++internalCount;
-                        } else {
-                            break;
-                        }
-                    }
-                    if (internalCount == 4) {
-                        ++count;
-                    }
-                    starredElementTokenizer = getTokenized(starredElement);
+            AtomicInteger count = new AtomicInteger(0);
+            starredList.forEach(starredEvent -> loggedEventTypeList.forEach(loggedEvent -> {
+                if (checkMatchingEvent(starredEvent, loggedEvent)) {
+                    count.incrementAndGet();
                 }
-            }
-            return count + initCount;
+            }));
+            return count.intValue() + initCount;
         }
     }
 
-    private boolean logOnSameAlarm(String raiseEventProps){
+
+    private boolean checkMatchingEvent(String inputEvent, String loggedEvent) {
+        String testVal;
+        String regexVal;
+        if (inputEvent.contains(WILDCARD)) {
+            testVal = loggedEvent;
+            regexVal = escape(inputEvent).replaceAll("\\*", ".+");     //Replace the * wildcards with proper regex wildcard
+        }  else {
+            return inputEvent.equals(loggedEvent);
+        }
+        return testVal.matches(regexVal);
+    }
+
+    private String escape(String cimCode) {
+        return cimCode.replaceAll("\\.", "\\\\.");
+    }
+
+    private boolean logOnSameAlarm(String raiseEventProps) {
         List<String> values = Arrays.asList(raiseEventProps.split(SEPARATOR));
         if (values.size() != 3) {
             throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUIMENTS, "Device Life Cycle in Device Type");
         }
-        return Integer.parseInt(values.get(0))==1;
+        return Integer.parseInt(values.get(0)) == 1;
     }
 
     private StringTokenizer getTokenized(String string) {
@@ -242,7 +249,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     }
 
 
-    protected void getEventDevice(Map<?, ?> rawEvent) {
+    private void getEventDevice(Map<?, ?> rawEvent) {
         Optional<Long> endDeviceId = getLong(rawEvent, ModuleConstants.DEVICE_IDENTIFIER);
         EndDevice endDevice = meteringService.findEndDeviceById(endDeviceId.orElse(0L))
                 .orElseThrow(() -> new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_KORE_DEVICE, endDeviceId));
@@ -250,7 +257,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         device = deviceService.findDeviceById(amrId).orElseThrow(() -> new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_DEVICE, amrId));
     }
 
-    protected void getEventTimestamp(Map<?, ?> rawEvent) {
+    private void getEventTimestamp(Map<?, ?> rawEvent) {
         Long eventTimeStamp = getLong(rawEvent, ModuleConstants.EVENT_TIMESTAMP).orElseThrow(() -> new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_TIMESTAMP));
         timestamp = Instant.ofEpochSecond(eventTimeStamp);
     }
@@ -293,15 +300,15 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         getEndDevice().ifPresent(filter::setDevice);
         filter.setStatus(issueService.findStatus(IssueStatus.OPEN).get());
         filter.setStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
-        Optional<? extends DeviceAlarm> foundIssue = deviceAlarmService.findAlarms(filter).find()
+        Optional<? extends DeviceAlarm> foundAlarm = deviceAlarmService.findAlarms(filter).find()
                 .stream().max(Comparator.comparing(Issue::getCreateTime));//It is going to be only zero or one open alarm per device
-        if (foundIssue.isPresent()) {
-            return Optional.of((OpenIssue) foundIssue.get());
+        if (foundAlarm.isPresent()) {
+            return Optional.of((OpenIssue) foundAlarm.get());
         }
         return Optional.empty();
     }
 
-    protected Optional<Long> getLong(Map<?, ?> map, String key) {
+    private Optional<Long> getLong(Map<?, ?> map, String key) {
         Object contents = map.get(key);
         if (contents == null) {
             return Optional.empty();
