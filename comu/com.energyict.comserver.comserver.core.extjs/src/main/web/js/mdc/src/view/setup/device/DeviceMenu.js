@@ -20,7 +20,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 xtype: 'menu',
                 items: [
                     {
-                        text: Uni.I18n.translate('devicemenu.overview', 'MDC', 'Overwiev'),
+                        text: Uni.I18n.translate('devicemenu.overviewx', 'MDC', 'Overview'),
                         itemId: 'deviceOverviewLink',
                         href: '#/devices/' + encodeURIComponent(deviceId)
                     },
