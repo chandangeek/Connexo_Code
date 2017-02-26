@@ -25,6 +25,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.SecurityContext;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
@@ -44,7 +45,7 @@ public class TopAlarmsResource extends BaseAlarmResource {
     @RolesAllowed({Privileges.Constants.VIEW_ALARM, Privileges.Constants.ASSIGN_ALARM, Privileges.Constants.CLOSE_ALARM, Privileges.Constants.COMMENT_ALARM, Privileges.Constants.ACTION_ALARM})
     public TopAlarmsInfo getTopAlarms(@Context SecurityContext securityContext) {
         User currentUser = (User) securityContext.getUserPrincipal();
-        IssueType alarmType = getIssueService().findIssueType("devicealarm").orElse(null);
+        IssueType alarmType = getIssueService().findIssueType(IssueTypes.DEVICE_ALARM.getName()).orElse(null);
         List<IssueReason> issueReasons = getIssueService().query(IssueReason.class)
                 .select(where(ISSUE_TYPE).isEqualTo(alarmType))
                 .stream()
@@ -57,14 +58,13 @@ public class TopAlarmsResource extends BaseAlarmResource {
         List<OpenIssue> alarms = alarmQuery.select(conditionAlarm.and(conditionUser.or(conditionNullUser.and(conditionWG))), 1, 5, Order.ascending("priorityTotal")
                 .ascending("dueDate")
                 .ascending("reason"));
-        long alarmTotalUserAssignedCount = getIssueService().getUserOpenIssueCount(currentUser).entrySet().stream().filter(entry ->
+        Optional<Long> alarmTotalUserAssignedCount = getIssueService().getUserOpenIssueCount(currentUser).entrySet().stream().filter(entry ->
                 entry.getKey().equals(IssueTypes.DEVICE_ALARM))
-                .mapToLong(Map.Entry::getValue).sum();
-        long alarmTotalWorkGroupAssignedCount = getIssueService().getWorkGroupWithoutUserOpenIssueCount(currentUser).entrySet().stream().filter(entry ->
+                .findFirst().map(Map.Entry::getValue);
+        Optional<Long> alarmTotalWorkGroupAssignedCount = getIssueService().getWorkGroupWithoutUserOpenIssueCount(currentUser).entrySet().stream().filter(entry ->
                 entry.getKey().equals(IssueTypes.DEVICE_ALARM))
-                .mapToLong(Map.Entry::getValue).sum();
-
-        return new TopAlarmsInfo(alarms, alarmTotalUserAssignedCount, alarmTotalWorkGroupAssignedCount);
+                .findFirst().map(Map.Entry::getValue);
+        return new TopAlarmsInfo(alarms, alarmTotalUserAssignedCount.isPresent() ? alarmTotalUserAssignedCount.get() : 0L, alarmTotalWorkGroupAssignedCount.isPresent() ? alarmTotalWorkGroupAssignedCount.get() : 0L);
     }
 
 }
