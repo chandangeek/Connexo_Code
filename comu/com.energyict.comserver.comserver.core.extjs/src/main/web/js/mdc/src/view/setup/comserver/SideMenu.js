@@ -12,6 +12,7 @@ Ext.define('Mdc.view.setup.comserver.SideMenu', {
             serverId = me.serverId;
         me.menuItems = [
             {
+                text: Uni.I18n.translate('comserver.sidemenu.details', 'MDC', 'Details'),
                 itemId: 'comserverLink',
                 href: '#/administration/comservers/' + serverId
             },
