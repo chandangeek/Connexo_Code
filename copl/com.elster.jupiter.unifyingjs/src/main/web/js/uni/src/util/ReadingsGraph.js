@@ -120,7 +120,7 @@ Ext.define('Uni.util.ReadingsGraph', {
                     style: {
                         color: '#686868',
                         fontWeight: 'normal',
-                        fontSize: '14px',
+                        fontSize: '13px',
                         fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
                     }
                 },
@@ -170,6 +170,14 @@ Ext.define('Uni.util.ReadingsGraph', {
                         week: '%a %e<br/>%b %Y',
                         month: '%b %Y',
                         year: '%Y'
+                    },
+                    labels: {
+                        style: {
+                            color: '#686868',
+                            fontWeight: 'normal',
+                            fontSize: '14px',
+                            fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                        }
                     }
                 }
             },
@@ -178,20 +186,36 @@ Ext.define('Uni.util.ReadingsGraph', {
                 selected: 0,
                 inputEnabled: true,
                 buttons: zoomLevels,
-                style: {
+                labelStyle: {
                     color: '#686868',
                     fontWeight: 'normal',
                     fontSize: '14px',
                     fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                },
+                inputStyle: {
+                    color: '#686868',
+                    fontWeight: 'normal',
+                    fontSize: '14px',
+                    fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                },
+                buttonTheme: {
+                    style: {
+                        color: '#686868',
+                        fontWeight: 'normal',
+                        fontSize: '14px',
+                        fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                    }
                 }
             },
 
             tooltip: {
                 shared: false,
                 style: {
-                    color: '#333333',
-                    fontSize: '12px',
-                    padding: '0px'
+                    color: '#686868',
+                    fontWeight: 'normal',
+                    fontSize: '14px',
+                    whiteSpace: 'nowrap',
+                    fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
                 },
                 useHTML: true,
                 formatter: function () {
