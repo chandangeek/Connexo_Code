@@ -7,6 +7,7 @@ package com.energyict.mdc.device.lifecycle.config;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.Privilege;
 
@@ -181,5 +182,13 @@ public interface DeviceLifeCycleConfigurationService {
      * @return The display name
      */
     String getDisplayName(DefaultState state);
+
+    /**
+     * Gets the display name for the specified {@link EndDeviceStage}
+     *
+     * @param stage The EndDeviceStage
+     * @return The display name
+     */
+    String getStageDisplayName(EndDeviceStage stage);
 
 }

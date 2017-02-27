@@ -17,6 +17,7 @@ import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.issue.share.IssueCreationValidator;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -132,6 +133,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
         List<TranslationKey> keys = new ArrayList<>();
         Stream.of(DefaultLifeCycleTranslationKey.values()).forEach(keys::add);
         Stream.of(DefaultState.values()).forEach(keys::add);
+        Stream.of(EndDeviceStageTranslationKey.values()).forEach(keys::add);
         return keys;
     }
 
@@ -433,5 +435,10 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     @Override
     public String getDisplayName(DefaultState state) {
         return this.thesaurus.getFormat(state).format();
+    }
+
+    @Override
+    public String getStageDisplayName(EndDeviceStage stage) {
+        return this.thesaurus.getString(EndDeviceStageTranslationKey.prefix + stage.name(), stage.name());
     }
 }
