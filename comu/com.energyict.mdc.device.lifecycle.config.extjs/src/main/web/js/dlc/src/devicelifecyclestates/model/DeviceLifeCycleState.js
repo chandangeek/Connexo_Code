@@ -13,6 +13,7 @@ Ext.define('Dlc.devicelifecyclestates.model.DeviceLifeCycleState', {
         {name: 'name', type: 'string'},
         {name: 'isCustom', type: 'boolean'},
         {name: 'isInitial', type: 'boolean'},
+        {name: 'stage', type: 'auto'},
         {
             name: 'sorted_name',
             persist: false,
