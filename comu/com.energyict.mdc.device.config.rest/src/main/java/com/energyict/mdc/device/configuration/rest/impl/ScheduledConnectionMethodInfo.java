@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ComWindow;
@@ -23,17 +24,18 @@ import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.ws.rs.core.UriInfo;
-import java.util.Arrays;
 
 public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialScheduledConnectionTask> {
 
     public ScheduledConnectionMethodInfo() {
     }
 
-    public ScheduledConnectionMethodInfo(PartialScheduledConnectionTask partialConnectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils) {
-        super(partialConnectionTask, uriInfo, mdcPropertyUtils);
+    public ScheduledConnectionMethodInfo(PartialScheduledConnectionTask partialConnectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus) {
+        super(partialConnectionTask, uriInfo, mdcPropertyUtils, thesaurus);
         if (partialConnectionTask.getConnectionStrategy() != null) {
-            this.connectionStrategy = partialConnectionTask.getConnectionStrategy().name();
+            connectionStrategyInfo = new ConnectionStrategyInfo();
+            connectionStrategyInfo.connectionStrategy =  partialConnectionTask.getConnectionStrategy().name();
+            connectionStrategyInfo.localizedValue = ConnectionStrategyTranslationKeys.translationFor(partialConnectionTask.getConnectionStrategy(), thesaurus);
         }
         this.numberOfSimultaneousConnections = partialConnectionTask.getNumberOfSimultaneousConnections();
         this.rescheduleRetryDelay = TimeDurationInfo.of(partialConnectionTask.getRescheduleDelay());
@@ -58,7 +60,9 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
         } else {
             partialConnectionTask.setComWindow(null);
         }
-        partialConnectionTask.setConnectionStrategy(getConnectionStrategy());
+        if (this.connectionStrategyInfo != null){
+            partialConnectionTask.setConnectionStrategy(getConnectionStrategy());
+        }
         if (!Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace()) {
             engineConfigurationService.findOutboundComPortPoolByName(this.comPortPool).ifPresent(partialConnectionTask::setComportPool);
         } else {
@@ -73,7 +77,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
     }
 
     @Override
-    public PartialConnectionTask createPartialTask(DeviceConfiguration deviceConfiguration, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, MdcPropertyUtils mdcPropertyUtils) {
+    public PartialConnectionTask createPartialTask(DeviceConfiguration deviceConfiguration, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus) {
         this.mdcPropertyUtils = mdcPropertyUtils;
         ConnectionTypePluggableClass connectionTypePluggableClass = findConnectionTypeOrThrowException(this.connectionTypePluggableClass, protocolPluggableService);
         TimeDuration rescheduleDelay = this.rescheduleRetryDelay == null ? null : this.rescheduleRetryDelay.asTimeDuration();
@@ -106,9 +110,10 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
 
     @JsonIgnore
     private ConnectionStrategy getConnectionStrategy(){
-       return Arrays.stream(ConnectionStrategy.values())
-                .filter(candidate -> candidate.name().equals(this.connectionStrategy))
-                .findFirst()
-                .orElse(null);
+        try{
+            return ConnectionStrategy.valueOf(this.connectionStrategyInfo.connectionStrategy);
+        }catch (IllegalArgumentException e){
+            return null;
+        }
     }
 }

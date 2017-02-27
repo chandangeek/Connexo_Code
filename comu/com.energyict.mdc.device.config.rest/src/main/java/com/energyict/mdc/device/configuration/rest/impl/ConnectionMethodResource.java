@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -52,6 +53,7 @@ public class ConnectionMethodResource {
     private final MdcPropertyUtils mdcPropertyUtils;
     private final DeviceService deviceService;
     private final ExceptionFactory exceptionFactory;
+    private final Thesaurus thesaurus;
 
     @Inject
     public ConnectionMethodResource(ResourceHelper resourceHelper,
@@ -60,7 +62,8 @@ public class ConnectionMethodResource {
                                     ConnectionMethodInfoFactory connectionMethodInfoFactory,
                                     MdcPropertyUtils mdcPropertyUtils,
                                     DeviceService deviceService,
-                                    ExceptionFactory exceptionFactory) {
+                                    ExceptionFactory exceptionFactory,
+                                    Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.protocolPluggableService = protocolPluggableService;
         this.engineConfigurationService = engineConfigurationService;
@@ -68,6 +71,7 @@ public class ConnectionMethodResource {
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
+        this.thesaurus = thesaurus;
     }
 
     @GET @Transactional
@@ -102,7 +106,7 @@ public class ConnectionMethodResource {
     @Path("/{connectionMethodId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
-    public ConnectionMethodInfo<?> getConnectionMethods(@PathParam("connectionMethodId") long connectionMethodId,
+    public ConnectionMethodInfo getConnectionMethods(@PathParam("connectionMethodId") long connectionMethodId,
                                                         @Context UriInfo uriInfo) {
         PartialConnectionTask partialConnectionTask = resourceHelper.findPartialConnectionTaskByIdOrThrowException(connectionMethodId);
         return connectionMethodInfoFactory.asInfo(partialConnectionTask, uriInfo);
@@ -136,7 +140,7 @@ public class ConnectionMethodResource {
                 resourceHelper.findProtocolDialectConfigurationPropertiesByIdOrThrowException(connectionMethodInfo.protocolDialectConfigurationProperties.id) : null;
 
 
-        PartialConnectionTask created = connectionMethodInfo.createPartialTask(deviceConfiguration, protocolDialectConfigurationProperties, engineConfigurationService, protocolPluggableService, mdcPropertyUtils);
+        PartialConnectionTask created = connectionMethodInfo.createPartialTask(deviceConfiguration, protocolDialectConfigurationProperties, engineConfigurationService, protocolPluggableService, mdcPropertyUtils, thesaurus);
         return Response.status(Response.Status.CREATED).entity(connectionMethodInfoFactory.asInfo(created, uriInfo)).build();
     }
 
@@ -149,13 +153,14 @@ public class ConnectionMethodResource {
                                            @PathParam("deviceConfigurationId") long deviceConfigurationId,
                                            @PathParam("connectionMethodId") long connectionMethodId,
                                            @Context UriInfo uriInfo,
-                                           ConnectionMethodInfo<PartialConnectionTask> info) {
+                                           ConnectionMethodInfo info) {
         info.id = connectionMethodId;
         PartialConnectionTask partialConnectionTask = resourceHelper.lockPartialConnectionTaskOrThrowException(info);
+        ProtocolDialectConfigurationProperties dialectConfigurationProperties = resourceHelper.findProtocolDialectConfigurationPropertiesByIdOrThrowException(info.protocolDialectConfigurationProperties.id);
         info.writeTo(partialConnectionTask, engineConfigurationService, protocolPluggableService);
+        partialConnectionTask.setProtocolDialectConfigurationProperties(dialectConfigurationProperties);
         updateProperties(info, partialConnectionTask);
         partialConnectionTask.save();
-
         return Response.ok(connectionMethodInfoFactory.asInfo(resourceHelper.findPartialConnectionTaskByIdOrThrowException(connectionMethodId), uriInfo)).build();
     }
 

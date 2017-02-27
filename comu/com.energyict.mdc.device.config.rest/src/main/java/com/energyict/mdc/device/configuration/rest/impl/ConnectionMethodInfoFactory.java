@@ -26,11 +26,11 @@ public class ConnectionMethodInfoFactory {
 
     public ConnectionMethodInfo<?> asInfo(PartialConnectionTask partialConnectionTask, UriInfo uriInfo) {
         if (PartialInboundConnectionTask.class.isAssignableFrom(partialConnectionTask.getClass())) {
-            ConnectionMethodInfo connectionMethodInfo =  new InboundConnectionMethodInfo((PartialInboundConnectionTask) partialConnectionTask, uriInfo, mdcPropertyUtils);
+            InboundConnectionMethodInfo connectionMethodInfo =  new InboundConnectionMethodInfo((PartialInboundConnectionTask) partialConnectionTask, uriInfo, mdcPropertyUtils, thesaurus);
             connectionMethodInfo.displayDirection = TranslationKeys.INBOUND.translateWith(thesaurus);
             return connectionMethodInfo;
         } else if (PartialScheduledConnectionTask.class.isAssignableFrom(partialConnectionTask.getClass())) {
-            ConnectionMethodInfo connectionMethodInfo =  new ScheduledConnectionMethodInfo((PartialScheduledConnectionTask) partialConnectionTask, uriInfo, mdcPropertyUtils);
+            ScheduledConnectionMethodInfo connectionMethodInfo =  new ScheduledConnectionMethodInfo((PartialScheduledConnectionTask) partialConnectionTask, uriInfo, mdcPropertyUtils, thesaurus);
             connectionMethodInfo.displayDirection = TranslationKeys.OUTBOUND.translateWith(thesaurus);
             return connectionMethodInfo;
         } else {

@@ -6,6 +6,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
@@ -17,6 +18,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.energyict.mdc.engine.config.InboundComPortPool;
@@ -25,6 +27,7 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
@@ -54,8 +57,21 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
     public static final long OK_VERSION = 24L;
     public static final long BAD_VERSION = 17L;
 
+    private ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties;
     private PartialInboundConnectionTask partialInboundConnectionTask;
     private PartialScheduledConnectionTask partialScheduledConnectionTask;
+    DeviceType deviceType;
+    DeviceConfiguration deviceConfiguration;
+
+    @Override
+    public void setupMocks() {
+        super.setupMocks();
+        protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
+        when(protocolDialectConfigurationProperties.getId()).thenReturn(1234L);
+        when(protocolDialectConfigurationProperties.getDeviceProtocolDialectName()).thenReturn("Dialectje");
+
+        when(deviceConfigurationService.getProtocolDialectConfigurationProperties(1234L)).thenReturn(Optional.of(protocolDialectConfigurationProperties));
+    }
 
     @Test
     public void testGetConnectionMethod() throws Exception {
@@ -74,6 +90,9 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         info.connectionTypePluggableClass = "pluggableClass";
         info.version = OK_VERSION;
         info.parent = new VersionInfo<>(12L, OK_VERSION);
+        info.protocolDialectConfigurationProperties =  new ConnectionMethodInfo.ProtocolDialectConfigurationPropertiesInfo();
+        info.protocolDialectConfigurationProperties.id = 1234L;
+        info.protocolDialectConfigurationProperties.name = "Dialectje";
         Response response = target("/devicetypes/11/deviceconfigurations/12/connectionmethods/13").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ArgumentCaptor<InboundComPortPool> comPortPoolArgumentCaptor = ArgumentCaptor.forClass(InboundComPortPool.class);
@@ -100,6 +119,10 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         info.comWindowStart = 6;
         info.comWindowEnd = 12;
         info.connectionTypePluggableClass = "pluggableClass";
+        info.protocolDialectConfigurationProperties =  new ConnectionMethodInfo.ProtocolDialectConfigurationPropertiesInfo();
+        info.protocolDialectConfigurationProperties.id = 1234L;
+        info.protocolDialectConfigurationProperties.name = "Dialectje";
+
         info.properties = new ArrayList<>();
         PropertyInfo propertyInfo = new PropertyInfo();
         propertyInfo.key = "connectionTimeOut";
@@ -107,7 +130,7 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         propertyInfo.required = false;
         TimeDurationInfo timeDurationInfo = new TimeDurationInfo();
         timeDurationInfo.timeUnit="1"; // INVALID
-        propertyInfo.propertyValueInfo = new PropertyValueInfo<TimeDurationInfo>(timeDurationInfo,null,null,true);
+        propertyInfo.propertyValueInfo = new PropertyValueInfo<>(timeDurationInfo,null,null,true);
         propertyInfo.propertyTypeInfo = new PropertyTypeInfo();
         propertyInfo.propertyTypeInfo.simplePropertyType = SimplePropertyType.TIMEDURATION;
         info.properties.add(propertyInfo);
@@ -132,6 +155,9 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         info.connectionTypePluggableClass = "pluggableClass";
         info.version = OK_VERSION;
         info.parent = new VersionInfo<>(12L, OK_VERSION);
+        info.protocolDialectConfigurationProperties =  new ConnectionMethodInfo.ProtocolDialectConfigurationPropertiesInfo();
+        info.protocolDialectConfigurationProperties.id = 1234L;
+        info.protocolDialectConfigurationProperties.name = "Dialectje";
         Response response = target("/devicetypes/11/deviceconfigurations/12/connectionmethods/14").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ArgumentCaptor<OutboundComPortPool> comPortPoolArgumentCaptor = ArgumentCaptor.forClass(OutboundComPortPool.class);
@@ -142,8 +168,8 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
     @Before
     public void setup() {
         super.setup();
-        DeviceType deviceType = mockDeviceType("device", 11);
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration("config", 12);
+        deviceType = mockDeviceType("device", 11);
+        deviceConfiguration = mockDeviceConfiguration("config", 12);
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         partialInboundConnectionTask = mockPartialInboundConnectionTask(13L, "partial inbound");
@@ -158,6 +184,7 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getName()).thenReturn(name);
         when(deviceConfiguration.getId()).thenReturn(id);
+        when(deviceConfiguration.getVersion()).thenReturn(1L);
         RegisterSpec registerSpec = mock(RegisterSpec.class);
         RegisterType registerType = mock(RegisterType.class);
         when(registerSpec.getRegisterType()).thenReturn(registerType);
@@ -193,6 +220,8 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         when(comPortPool.getName()).thenReturn("com port pool");
         when(partialConnectionTask.getComPortPool()).thenReturn(comPortPool);
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggableClass);
+        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mockProtocolDialectConfigurationProperties();
+        when(partialConnectionTask.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         return partialConnectionTask;
     }
 
@@ -214,6 +243,8 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         when(comPortPool.getName()).thenReturn("com port pool");
         when(partialConnectionTask.getComPortPool()).thenReturn(comPortPool);
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggableClass);
+        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mockProtocolDialectConfigurationProperties();
+        when(partialConnectionTask.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         return partialConnectionTask;
     }
 
@@ -230,6 +261,53 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         when(deviceConfigurationService.findAndLockDeviceType(id, OK_VERSION)).thenReturn(Optional.of(deviceType));
         when(deviceConfigurationService.findAndLockDeviceType(id, BAD_VERSION)).thenReturn(Optional.empty());
         return deviceType;
+    }
+
+    protected ProtocolDialectConfigurationProperties mockProtocolDialectConfigurationProperties(){
+        PropertySpec specYes = mock(PropertySpec.class);
+        when(specYes.getValueFactory()).thenReturn(new StringFactory());
+        when(specYes.getName()).thenReturn("yes");
+        when(specYes.getDisplayName()).thenReturn("YES");
+
+        PropertySpec specNo = mock(PropertySpec.class);
+        when(specYes.getValueFactory()).thenReturn(new StringFactory());
+        when(specYes.getName()).thenReturn("no");
+        when(specYes.getDisplayName()).thenReturn("NO");
+
+        PropertySpec specLanguage = mock(PropertySpec.class);
+        when(specYes.getValueFactory()).thenReturn(new StringFactory());
+        when(specYes.getName()).thenReturn("language");
+        when(specYes.getDisplayName()).thenReturn("Language");
+
+        TypedProperties flamish = TypedProperties.empty();
+        flamish.setProperty("yes", "joa't");
+
+        PropertyTypeInfo typeInfo = new PropertyTypeInfo();
+        typeInfo.simplePropertyType =  com.elster.jupiter.properties.rest.SimplePropertyType.TEXT;
+
+        PropertyInfo propertyInfoYes =  new PropertyInfo("yes", "yes", new PropertyValueInfo<>("joa't", null, null, true),typeInfo, false);
+
+        when(propertyValueInfoService.getPropertyInfo(any(PropertySpec.class), any(java.util.function.Function.class))).thenReturn(propertyInfoYes);
+
+
+        DeviceProtocolDialect dialect = mockDeviceProtocolDialect();
+
+        ProtocolDialectConfigurationProperties properties = mock(ProtocolDialectConfigurationProperties.class);
+        when(properties.getId()).thenReturn(11111111L);
+        when(properties.getDeviceProtocolDialect()).thenReturn(dialect);
+        when(properties.getTypedProperties()).thenReturn(flamish);
+        when(properties.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(properties.getTypedProperties()).thenReturn(flamish);
+        when(properties.getPropertySpecs()).thenReturn(Arrays.asList(specYes, specNo, specLanguage));
+
+        return properties;
+    }
+
+    protected DeviceProtocolDialect mockDeviceProtocolDialect(){
+        DeviceProtocolDialect dialect = mock(DeviceProtocolDialect.class);
+        when(dialect.getDeviceProtocolDialectName()).thenReturn("Mocked Protocol Dialect");
+        when(dialect.getDisplayName()).thenReturn("DisplayName of the mocked Protocol Dialect");
+        return dialect;
     }
 
 }
