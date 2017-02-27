@@ -28,7 +28,6 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -523,11 +522,20 @@ public class ColumnImpl implements Column {
         Object[] objects = getTable().getColumns()
                 .stream()
                 .filter(not(ColumnImpl::isMAC))
-                .map(column -> column.isVersion() ? versionIterator.next() : column.domainValue(target))
+                .map(column -> toMacColumnValue(versionIterator, target, column))
                 .map(Objects::toString)
                 .toArray();
         int hash = Objects.hash(objects);
         return getBytes(hash);
+    }
+
+    private Object toMacColumnValue(Iterator<Long> versionIterator, Object target, ColumnImpl column) {
+        if (column.isVersion()) {
+            return versionIterator.next();
+        } else if ("blob".equalsIgnoreCase(column.getDbType())) {
+            return Arrays.hashCode((byte[])column.domainValue(target));
+        }
+        return  column.domainValue(target);
     }
 
     boolean verifyMacValue(String macValue, Object target) {
