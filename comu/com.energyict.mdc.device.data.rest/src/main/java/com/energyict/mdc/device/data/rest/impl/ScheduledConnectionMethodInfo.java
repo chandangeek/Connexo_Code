@@ -5,12 +5,15 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -25,12 +28,16 @@ import static com.elster.jupiter.util.Checks.is;
 
 public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<ScheduledConnectionTask> {
 
+    public DeviceConnectionTaskInfo.ConnectionStrategyInfo connectionStrategy;
+
     public ScheduledConnectionMethodInfo() {
     }
 
-    public ScheduledConnectionMethodInfo(ScheduledConnectionTask scheduledConnectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils) {
+    public ScheduledConnectionMethodInfo(ScheduledConnectionTask scheduledConnectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus) {
         super(scheduledConnectionTask, uriInfo, mdcPropertyUtils);
-        this.connectionStrategy = scheduledConnectionTask.getConnectionStrategy().name();
+        this.connectionStrategy = new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
+        connectionStrategy.connectionStrategy = scheduledConnectionTask.getConnectionStrategy().name();
+        connectionStrategy.localizedValue = ConnectionStrategyTranslationKeys.translationFor(scheduledConnectionTask.getConnectionStrategy(), thesaurus);
         this.numberOfSimultaneousConnections = scheduledConnectionTask.getNumberOfSimultaneousConnections();
         this.rescheduleRetryDelay = TimeDurationInfo.of(scheduledConnectionTask.getRescheduleDelay());
         if (scheduledConnectionTask.getCommunicationWindow() != null) {
@@ -45,7 +52,11 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
     protected void writeTo(ScheduledConnectionTask scheduledConnectionTask, PartialConnectionTask partialConnectionTask, EngineConfigurationService engineConfigurationService, MdcPropertyUtils mdcPropertyUtils) {
         super.writeTo(scheduledConnectionTask, partialConnectionTask, engineConfigurationService, mdcPropertyUtils);
         writeCommonFields(scheduledConnectionTask, engineConfigurationService);
-        scheduledConnectionTask.setConnectionStrategy(getConnectionStrategy());
+        try {
+            scheduledConnectionTask.setConnectionStrategy(ConnectionStrategy.valueOf(connectionStrategy.connectionStrategy));
+        }catch(IllegalArgumentException e){
+            // Connection Stratiegy cannot be set as it is an invalid value
+        }
         try {
             scheduledConnectionTask.setNextExecutionSpecsFrom(this.nextExecutionSpecs != null ? nextExecutionSpecs.asTemporalExpression() : null);
         } catch (LocalizedFieldValidationException e) {
@@ -78,7 +89,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
                     .findOutboundComPortPoolByName(this.comPortPool)
                     .ifPresent(scheduledConnectionTaskBuilder::setComPortPool);
         }
-        scheduledConnectionTaskBuilder.setConnectionStrategy(getConnectionStrategy());
+        scheduledConnectionTaskBuilder.setConnectionStrategy(getConnectionStrategy(connectionStrategy));
         scheduledConnectionTaskBuilder.setNextExecutionSpecsFrom(this.nextExecutionSpecs != null ? nextExecutionSpecs.asTemporalExpression() : null);
         scheduledConnectionTaskBuilder.setConnectionTaskLifecycleStatus(this.status);
         scheduledConnectionTaskBuilder.setNumberOfSimultaneousConnections(this.numberOfSimultaneousConnections);

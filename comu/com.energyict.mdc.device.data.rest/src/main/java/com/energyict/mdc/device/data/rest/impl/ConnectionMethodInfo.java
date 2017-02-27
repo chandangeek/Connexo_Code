@@ -13,6 +13,7 @@ import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -26,7 +27,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -46,7 +46,6 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
     public boolean isDefault;
     public Integer comWindowStart;
     public Integer comWindowEnd;
-    public String connectionStrategy;
     public List<PropertyInfo> properties;
     public Integer numberOfSimultaneousConnections = 1;
     public TimeDurationInfo rescheduleRetryDelay;
@@ -100,10 +99,11 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
     public abstract ConnectionTask<?, ?> createTask(EngineConfigurationService engineConfigurationService, Device device, MdcPropertyUtils mdcPropertyUtils, PartialConnectionTask partialConnectionTask);
 
     @JsonIgnore
-    protected ConnectionStrategy getConnectionStrategy(){
-        return Arrays.stream(ConnectionStrategy.values())
-                .filter(candidate -> candidate.name().equals(this.connectionStrategy))
-                .findFirst()
-                .orElse(null);
+    protected ConnectionStrategy getConnectionStrategy(DeviceConnectionTaskInfo.ConnectionStrategyInfo info){
+        try {
+            return ConnectionStrategy.valueOf(info.connectionStrategy);
+        }catch(IllegalArgumentException e){
+            return null;
+        }
     }
 }

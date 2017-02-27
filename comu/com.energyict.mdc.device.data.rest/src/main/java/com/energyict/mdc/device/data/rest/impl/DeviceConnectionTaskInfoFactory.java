@@ -82,8 +82,8 @@ public class DeviceConnectionTaskInfoFactory {
                 info.currentState = new TaskStatusInfo(taskStatusTranslationKey.getKey(), thesaurus.getFormat(taskStatusTranslationKey).format());
             }
             info.connectionStrategy=new ConnectionStrategyInfo();
-            info.connectionStrategy.id = scheduledConnectionTask.getConnectionStrategy().name();
-            info.connectionStrategy.displayValue = ConnectionStrategyTranslationKeys.translationFor(scheduledConnectionTask.getConnectionStrategy(), thesaurus);
+            info.connectionStrategy.connectionStrategy = scheduledConnectionTask.getConnectionStrategy().name();
+            info.connectionStrategy.localizedValue = ConnectionStrategyTranslationKeys.translationFor(scheduledConnectionTask.getConnectionStrategy(), thesaurus);
             ComWindow communicationWindow = scheduledConnectionTask.getCommunicationWindow();
             if (communicationWindow!=null &&
                     (communicationWindow.getStart().getMillis()!=0 || communicationWindow.getEnd().getMillis()!=0)) {

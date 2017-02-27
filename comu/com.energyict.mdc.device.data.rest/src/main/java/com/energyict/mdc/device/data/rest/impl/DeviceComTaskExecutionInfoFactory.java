@@ -42,8 +42,8 @@ public class DeviceComTaskExecutionInfoFactory extends BaseComTaskExecutionInfoF
             if (connectionTask instanceof ScheduledConnectionTask) {
                 ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
                 info.connectionStrategy = new ConnectionStrategyInfo();
-                info.connectionStrategy.id = scheduledConnectionTask.getConnectionStrategy().name();
-                info.connectionStrategy.displayValue = ConnectionStrategyTranslationKeys.translationFor(scheduledConnectionTask.getConnectionStrategy(), getThesaurus());
+                info.connectionStrategy.connectionStrategy = scheduledConnectionTask.getConnectionStrategy().name();
+                info.connectionStrategy.localizedValue = ConnectionStrategyTranslationKeys.translationFor(scheduledConnectionTask.getConnectionStrategy(), getThesaurus());
             }
         });
     }

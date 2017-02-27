@@ -38,8 +38,8 @@ public class DeviceConnectionTaskInfo extends ConnectionTaskVersionInfo {
     }
 
     public static class ConnectionStrategyInfo {
-        public String id;
-        public String displayValue;
+        public String connectionStrategy;
+        public String localizedValue;
     }
 
     public static class ComTaskCountInfo {
