@@ -5,7 +5,9 @@
 Ext.define('Mdc.model.ConnectionMethod', {
     extend: 'Uni.model.ParentVersion',
     requires: [
-        'Uni.property.model.Property'
+        'Uni.property.model.Property',
+        'Mdc.model.field.ConnectionStrategy',
+        'Mdc.model.field.TimeInfo'
     ],
     fields: [
         {name: 'id', type: 'int', useNull: true},
@@ -16,7 +18,7 @@ Ext.define('Mdc.model.ConnectionMethod', {
         {name: 'isDefault', type: 'boolean', useNull: true},
         {name: 'comPortPool', type: 'string', useNull: true},
         {name: 'connectionTypePluggableClass', type: 'string', useNull: true},
-        {name: 'connectionStrategy', type: 'string', useNull: true},
+        {name: 'connectionStrategyInfo', type: 'Mdc.model.field.ConnectionStrategy', useNull: true},
         'rescheduleRetryDelay',
         {name: 'temporalExpression', useNull: true, defaultValue: null},
         {name: 'comWindowStart',type: 'int',useNull: true},

@@ -21,20 +21,14 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
             me.down('#addEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             me.down('#addEditButton').action = 'editCommunicationTaskAction';
             me.down('#comTaskComboBox').hide();
-            me.down('#protocolDialectConfigurationPropertiesComboBox').hide();
             me.down('#comTaskComboBox').setDisabled(true);
-            me.down('#protocolDialectConfigurationPropertiesComboBox').setDisabled(true);
             me.down('#comTaskDisplayField').show();
-            me.down('#protocolDialectConfigurationPropertiesDisplayField').show();
         } else {
             me.down('#addEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             me.down('#addEditButton').action = 'addCommunicationTaskAction';
             me.down('#comTaskComboBox').setDisabled(false);
-            me.down('#protocolDialectConfigurationPropertiesComboBox').setDisabled(false);
             me.down('#comTaskComboBox').show();
-            me.down('#protocolDialectConfigurationPropertiesComboBox').show();
             me.down('#comTaskDisplayField').hide();
-            me.down('#protocolDialectConfigurationPropertiesDisplayField').hide();
         }
         me.down('#cancelLink').href = returnLink;
     },
@@ -52,10 +46,10 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
         if (!Ext.isEmpty(record.get('partialConnectionTask'))) {
             me.down('#partialConnectionTaskComboBox').setValue(record.get('partialConnectionTask').id);
         }
-        if (!Ext.isEmpty(record.get('protocolDialectConfigurationProperties'))) {
-            me.down('#protocolDialectConfigurationPropertiesComboBox').setValue(record.get('protocolDialectConfigurationProperties').id);
-            me.down('#protocolDialectConfigurationPropertiesDisplayField').setValue(record.get('protocolDialectConfigurationProperties').name);
-        }
+        //if (!Ext.isEmpty(record.get('protocolDialectConfigurationProperties'))) {
+        //    me.down('#protocolDialectConfigurationPropertiesComboBox').setValue(record.get('protocolDialectConfigurationProperties').id);
+        //    me.down('#protocolDialectConfigurationPropertiesDisplayField').setValue(record.get('protocolDialectConfigurationProperties').name);
+        //}
         if (!Ext.isEmpty(record.get('priority'))) {
             me.down('#priorityNumberField').setValue(record.get('priority'));
         }
@@ -150,30 +144,6 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                         editable: false,
                         msgTarget: 'under',
                         width: 600
-                    },
-                    {
-                        xtype: 'displayfield',
-                        name: 'protocolDialectConfigurationPropertiesName',
-                        fieldLabel: Uni.I18n.translate('communicationtasks.form.protocolDialectConfigurationProperties', 'MDC', 'Protocol dialect'),
-                        itemId: 'protocolDialectConfigurationPropertiesDisplayField',
-                        hidden: true
-                    },
-                    {
-                        xtype: 'combobox',
-                        name: 'protocolDialectConfigurationPropertiesId',
-                        fieldLabel: Uni.I18n.translate('communicationtasks.form.protocolDialectConfigurationProperties', 'MDC', 'Protocol dialect'),
-                        itemId: 'protocolDialectConfigurationPropertiesComboBox',
-                        store: this.protocolDialectsStore,
-                        queryMode: 'local',
-                        displayField: 'name',
-                        valueField: 'id',
-                        emptyText: Uni.I18n.translate('communicationtasks.form.selectProtocolDialectConfigurationProperties', 'MDC', 'Select the protocol dialect'),
-                        forceSelection: true,
-                        editable: false,
-                        msgTarget: 'under',
-                        width: 600,
-                        required: true,
-                        allowBlank: false
                     },
                     {
                         xtype: 'numberfield',

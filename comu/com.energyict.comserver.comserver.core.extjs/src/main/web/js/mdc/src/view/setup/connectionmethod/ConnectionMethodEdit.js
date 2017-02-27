@@ -30,7 +30,6 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                 layout: {
                     type: 'vbox'
                 },
-
                 items: [
                     {
                         xtype: 'form',
@@ -87,6 +86,23 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 allowBlank: false,
                                 typeAhead: true,
                                 msgTarget: 'under'
+                            },
+                            {
+                                xtype: 'combobox',
+                                name: 'protocolDialectConfigurationPropertiesId',
+                                fieldLabel: Uni.I18n.translate('communicationtasks.form.protocolDialectConfigurationProperties', 'MDC', 'Protocol dialect'),
+                                itemId: 'protocolDialectConfigurationPropertiesComboBox',
+                                store: this.protocolDialectsStore,
+                                queryMode: 'local',
+                                displayField: 'name',
+                                valueField: 'id',
+                                emptyText: Uni.I18n.translate('communicationtasks.form.selectProtocolDialectConfigurationProperties', 'MDC', 'Select the protocol dialect'),
+                                forceSelection: true,
+                                editable: false,
+                                msgTarget: 'under',
+                                width: 600,
+                                required: true,
+                                allowBlank: false
                             },
                             {
                                 xtype: 'combobox',
