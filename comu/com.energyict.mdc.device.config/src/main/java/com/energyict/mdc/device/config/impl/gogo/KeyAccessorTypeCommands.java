@@ -80,7 +80,7 @@ public class KeyAccessorTypeCommands {
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.findDeviceType(deviceTypeId)
                     .orElseThrow(() -> new RuntimeException("No such device type"));
-            KeyType keyType = pkiService.getKeyType(keyTypeName)
+            KeyType keyType = pkiService.getKeyTypes(keyTypeName)
                     .orElseThrow(() -> new RuntimeException("No such key type"));
             KeyAccessorType.Builder builder = deviceType.addKeyAccessorType(name, keyType, keyEncryptionMethod)
                     .description("Created by gogo command");
