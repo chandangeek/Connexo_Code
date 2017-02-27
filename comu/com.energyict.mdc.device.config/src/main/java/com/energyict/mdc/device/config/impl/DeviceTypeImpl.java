@@ -515,7 +515,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public AllowedCalendar addCalendar(Calendar calendar) {
-        if (!calendar.getCategory().getName().equals(OutOfTheBoxCategory.TOU.getDefaultDisplayName())) {
+        if (!calendar.getCategory().getName().equals(OutOfTheBoxCategory.TOU.name())) {
             throw new TimeOfUseCalendarOnly(this.getThesaurus());
         }
         Optional<AllowedCalendar> existingAllowedCalendar = this.allowedCalendars.stream()
