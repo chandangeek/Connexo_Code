@@ -5,10 +5,8 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.cbo.QualityCodeCategory;
-import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
@@ -21,7 +19,6 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 final class ChannelValidationImpl implements ChannelValidation {
@@ -115,7 +112,7 @@ final class ChannelValidationImpl implements ChannelValidation {
         return Objects.hash(channelId, channelsContainerValidation);
     }
 
-    private final Instant minLastChecked() {
+    private Instant minLastChecked() {
         return channelsContainerValidation.get().getChannelsContainer().getStart();
     }
 
@@ -142,15 +139,19 @@ final class ChannelValidationImpl implements ChannelValidation {
         if (instant.isAfter(lastChecked)) {
             return false;
         }
-        Optional<BaseReadingRecord> reading = getChannel().getReadingsBefore(instant, 1).stream().findFirst();
-        return updateLastChecked(reading.map(BaseReading::getTimeStamp).orElseGet(this::minLastChecked));
+        Instant lastCheckedCandidate = instant.minusMillis(1);
+        Instant minLastChecked = minLastChecked();
+        return updateLastChecked(minLastChecked.isAfter(lastCheckedCandidate) ? minLastChecked : lastCheckedCandidate);
+//        // Doesn't work for aggregated channels
+//        Optional<BaseReadingRecord> reading = getChannel().getReadingsBefore(instant, 1).stream().findFirst();
+//        return updateLastChecked(reading.map(BaseReading::getTimeStamp).orElseGet(this::minLastChecked));
     }
 
     @Override
     public void validate() {
         Instant end = getChannel().getLastDateTime();
         if (end != null && lastChecked.isBefore(end)) {
-            Range<Instant> dataRange = Range.openClosed(lastChecked.plusMillis(1L), end);
+            Range<Instant> dataRange = Range.openClosed(lastChecked, end);
             List<? extends ValidationRuleSetVersion> versions = getChannelsContainerValidation().getRuleSet().getRuleSetVersions();
 
             Instant newLastChecked = versions.stream()
@@ -165,7 +166,7 @@ final class ChannelValidationImpl implements ChannelValidation {
                     })
                     .min(Comparator.naturalOrder()).orElse(end);
 
-            updateLastChecked(lastChecked.plusMillis(1L).equals(newLastChecked) ? lastChecked : newLastChecked);
+            updateLastChecked(newLastChecked);
         }
     }
 }

@@ -16,6 +16,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
+import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -205,7 +206,7 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
 
     @Override
     public boolean isAllDataValidated() {
-        if (channelValidations.isEmpty() || (lastRun == null && !getChannelsContainer().getChannels().parallelStream().anyMatch(Channel::hasData))) {
+        if (channelValidations.isEmpty() || (lastRun == null && getChannelsContainer().getChannels().parallelStream().noneMatch(Channel::hasData))) {
             return false;
         }
         Comparator<? super Instant> comparator = nullsLast(naturalOrder());
@@ -278,7 +279,9 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
                 .forEach(channelValidation -> {
                     Range<Instant> scope = rangeByChannelIdMap.get(channelValidation.getChannel().getId());
                     if (scope != null) {
-                        channelValidation.moveLastCheckedBefore(scope.hasLowerBound() ? scope.lowerEndpoint() : Instant.EPOCH);
+                        channelValidation.moveLastCheckedBefore(scope.hasLowerBound() ?
+                                scope.lowerBoundType() == BoundType.CLOSED ? scope.lowerEndpoint() : scope.lowerEndpoint().plusMillis(1) :
+                                Instant.EPOCH);
                     }
                 });
     }
