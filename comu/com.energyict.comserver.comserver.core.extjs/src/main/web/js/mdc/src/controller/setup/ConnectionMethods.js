@@ -371,16 +371,18 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 if (!Ext.isEmpty(values.protocolDialectConfigurationPropertiesId)) {
                     record.set('protocolDialectConfigurationProperties', {id: values.protocolDialectConfigurationPropertiesId});
                 }
-                if (values.connectionStrategy === 'AS_SOON_AS_POSSIBLE') {
-                    record.set('temporalExpression', null);
-                }
                 if (!values.hasOwnProperty('comWindowStart')) {
                     record.set('comWindowStart', 0);
                     record.set('comWindowEnd', 0);
                 }
                 propertyForm.updateRecord(record);
                 if (values.connectionStrategy) {
+                    if (values.connectionStrategy === 'AS_SOON_AS_POSSIBLE') {
+                        record.set('temporalExpression', null);
+                    }
                     record.set('connectionStrategyInfo', {connectionStrategy: values.connectionStrategy});
+                } else {
+                    record.set('connectionStrategyInfo', undefined);
                 }
                 if (typeof propertyForm.getRecord() !== 'undefined') {
                     record.propertiesStore = propertyForm.getRecord().properties();
