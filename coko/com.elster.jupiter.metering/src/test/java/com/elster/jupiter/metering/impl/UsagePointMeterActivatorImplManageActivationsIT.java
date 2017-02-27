@@ -408,17 +408,4 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
                 .throwingValidation()
                 .complete();
     }
-
-    @Test(expected = VerboseConstraintViolationException.class)
-    @Transactional
-    public void linkMetrologyConfigurationToUsagePointWithIncorrectStage() {
-        Instant now = inMemoryBootstrapModule.getClock().instant();
-        ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
-        UsagePoint usagePoint = serviceCategory
-                .newUsagePoint("testUP", now)
-                .create();
-        usagePoint.getState().startUpdate().setStage(UsagePointStage.Key.OPERATIONAL).complete();
-        usagePoint.linkMeters().activate(meter, meterRole).complete();
-    }
-
 }
