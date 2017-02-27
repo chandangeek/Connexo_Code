@@ -1,0 +1,9 @@
+-classpath: target/classes 
+-dsannotations: *
+
+Private-Package: \
+    com.elster.jupiter.dataquality.impl.*
+
+Export-Package: \
+    com.elster.jupiter.dataquality,\
+    com.elster.jupiter.dataquality.security
