@@ -959,7 +959,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     @Test
     @Transactional
     public void addKeyAccessorType() throws Exception {
-        inMemoryPersistence.getPkiService().addSymmetricKeyType("AES128", "AES", 128);
+        inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128", "AES", 128);
 
         Optional<KeyType> aes128 = inMemoryPersistence.getPkiService().getKeyTypes("AES128");
         assertThat(deviceType.getKeyAccessorTypes()).isEmpty();
