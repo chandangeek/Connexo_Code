@@ -58,6 +58,7 @@ Ext.define('Fim.view.log.Setup', {
                         {
                             xtype: 'button',
                             action: 'addSort',
+                            itemId: 'add-sort-btn',
                             text: Uni.I18n.translate('general.history.addSort', 'FIM', 'Add sort'),
                             menu: {
                                 xtype: 'fim-history-log-sort-menu',
@@ -74,6 +75,7 @@ Ext.define('Fim.view.log.Setup', {
                     },
                     emptyComponent: {
                         xtype: 'uni-form-empty-message',
+                        doAutoSize: false,
                         itemId: 'import-history-log-grid-empty-message',
                    }
                 }
