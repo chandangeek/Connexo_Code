@@ -32,11 +32,6 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
 
         me.items = [
             {
-                name: 'mrid',
-                itemId: 'mridView',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.mrid', 'MDC', 'MRID')
-            },
-            {
                 name: 'name',
                 itemId: 'nameView',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.name', 'MDC', 'Name')
@@ -46,6 +41,11 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 itemId: 'nameEdit',
                 xtype: 'textfield',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.name', 'MDC', 'Name')
+            },
+            {
+                name: 'mrid',
+                itemId: 'mridView',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.mrid', 'MDC', 'MRID')
             },
             {
                 name: 'deviceType',
@@ -72,6 +72,39 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 itemId: 'serialNumberEdit',
                 xtype: 'textfield',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.serialNumber', 'MDC', 'Serial number')
+            },
+            {
+                name: 'manufacturer',
+                itemId: 'manufacturerView',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.manufacturer', 'MDC', 'Manufacturer')
+            },
+            {
+                name: 'manufacturerEdit',
+                itemId: 'manufacturerEdit',
+                xtype: 'textfield',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.manufacturer', 'MDC', 'Manufacturer')
+            },
+            {
+                name: 'modelNbr',
+                itemId: 'modelNbrView',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.modelNbr', 'MDC', 'Model number')
+            },
+            {
+                name: 'modelNbrEdit',
+                itemId: 'modelNbrEdit',
+                xtype: 'textfield',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.modelNbr', 'MDC', 'Model number')
+            },
+            {
+                name: 'modelVersion',
+                itemId: 'modelVersionView',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.modelVersion', 'MDC', 'Model version')
+            },
+            {
+                name: 'modelVersionEdit',
+                itemId: 'modelVersionEdit',
+                xtype: 'textfield',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.modelVersion', 'MDC', 'Model version')
             },
             {
                 name: 'yearOfCertification',
