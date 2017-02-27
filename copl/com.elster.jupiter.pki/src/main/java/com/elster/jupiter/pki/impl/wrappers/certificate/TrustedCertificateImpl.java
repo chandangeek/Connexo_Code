@@ -20,6 +20,7 @@ import java.security.cert.CRL;
 import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
+import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.Optional;
 
@@ -48,6 +49,17 @@ public class TrustedCertificateImpl extends AbstractCertificateWrapperImpl imple
             throw new PkiLocalizedException(thesaurus, MessageSeeds.CRL_EXCEPTION, e);
         } catch (CertificateException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.ALGORITHM_NOT_SUPPORTED, e);
+        }
+    }
+
+    @Override
+    public void setCRL(CRL crl) {
+        // TODO PERFORM CHECKS
+        try {
+            this.latestCrl = ((X509CRL)crl).getEncoded();
+            this.save();
+        } catch (CRLException e) {
+            e.printStackTrace();
         }
     }
 

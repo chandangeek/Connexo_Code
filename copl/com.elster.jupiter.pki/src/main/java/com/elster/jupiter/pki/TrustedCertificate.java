@@ -19,5 +19,14 @@ public interface TrustedCertificate extends CertificateWrapper {
      */
     Optional<CRL> getCRL(); // TODO Switch to x509CRL?
 
+    /**
+     * Sets the CRL for this CA certificate. The new CRL will be reused if
+     * - The index number is lower than the current number
+     * - The signature is invalid
+     * - The issuer does not match the CA certificate subject
+     * @param crl The updated CRL
+     */
+    void setCRL(CRL crl);
+
     TrustStore getTrustStore();
 }

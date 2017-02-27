@@ -4,6 +4,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
+import com.elster.jupiter.orm.Encrypter;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.CertificateWrapper;
@@ -18,7 +19,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 public enum TableSpecs {
     PKI_KEYTYPES {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<KeyType> table = dataModel.addTable(this.name(), KeyType.class).since(Version.version(10,3));
             table.map(KeyTypeImpl.class);
             Column id = table.addAutoIdColumn();
@@ -34,7 +35,7 @@ public enum TableSpecs {
     },
     PKI_TRUSTSTORE {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<TrustStore> table = dataModel.addTable(this.name(), TrustStore.class).since(Version.version(10,3));
             table.map(TrustStoreImpl.class);
             Column id = table.addAutoIdColumn();
@@ -51,7 +52,7 @@ public enum TableSpecs {
     },
     PKI_CERTIFICATE {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<CertificateWrapper> table = dataModel.addTable(this.name(), CertificateWrapper.class)
                     .since(Version.version(10, 3));
             table.map(AbstractCertificateWrapperImpl.IMPLEMENTERS);
@@ -84,7 +85,9 @@ public enum TableSpecs {
             Column trustStoreColumn = table.column("TRUSTSTORE")
                     .number()
                     .add();
+//            table.addMessageAuthenticationCodeColumn(encrypter);
 
+            table.primaryKey("PK_PKI_CERTIFICATE").on(id).add();
             table.foreignKey("PKI_FK_CERT_PK").on(privateKeyColumn)
                     .references(KeyType.class)
                     .map(AbstractCertificateWrapperImpl.Fields.PRIVATE_KEY.fieldName())
@@ -96,11 +99,10 @@ public enum TableSpecs {
                     .reverseMap(TrustStoreImpl.Fields.CERTIFICATES.fieldName())
                     .onDelete(DeleteRule.CASCADE)
                     .add();
-            table.primaryKey("PK_PKI_CERTIFICATE").on(id).add();
         }
     }
     ;
 
-    abstract void addTo(DataModel component);
+    abstract void addTo(DataModel component, Encrypter encrypter);
 
 }

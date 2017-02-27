@@ -35,7 +35,7 @@ public class ProtocolsKeyTypeInitializer {
     @Activate
     public void activate() {
         try (TransactionContext context = transactionService.getContext()) {
-            Stream.of(ProtocolKeyTypes.values()).forEach(kt -> pkiService.getKeyType(kt.getName()).orElseGet(()->kt.createKeyType(pkiService)));
+            Stream.of(ProtocolKeyTypes.values()).forEach(kt -> pkiService.getKeyTypes(kt.getName()).orElseGet(()->kt.createKeyType(pkiService)));
             context.commit();
         }
     }

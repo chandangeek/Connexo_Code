@@ -91,7 +91,7 @@ public class PKIServiceImplIT {
                 .newSymmetricKeyType("AES128", "AES", 128)
                 .description("hello")
                 .add();
-        Optional<KeyType> keyType = inMemoryPersistence.getPkiService().getKeyType("AES128");
+        Optional<KeyType> keyType = inMemoryPersistence.getPkiService().getKeyTypes("AES128");
         assertThat(keyType).isPresent();
         assertThat(keyType.get().getName()).isEqualTo("AES128");
         assertThat(keyType.get().getAlgorithm()).isEqualTo("AES");
@@ -110,7 +110,7 @@ public class PKIServiceImplIT {
                 .RSA()
                 .keySize(2048)
                 .add();
-        Optional<KeyType> keyType = inMemoryPersistence.getPkiService().getKeyType("RSA2048");
+        Optional<KeyType> keyType = inMemoryPersistence.getPkiService().getKeyTypes("RSA2048");
         assertThat(keyType).isPresent();
         assertThat(keyType.get().getName()).isEqualTo("RSA2048");
         assertThat(keyType.get().getAlgorithm()).isEqualTo("RSA");
@@ -124,7 +124,7 @@ public class PKIServiceImplIT {
     @Transactional
     public void testCreateDSAKey() {
         KeyType created = inMemoryPersistence.getPkiService().newAsymmetricKeyType("DSA1024").DSA().keySize(1024).add();
-        Optional<KeyType> keyType = inMemoryPersistence.getPkiService().getKeyType("DSA1024");
+        Optional<KeyType> keyType = inMemoryPersistence.getPkiService().getKeyTypes("DSA1024");
         assertThat(keyType).isPresent();
         assertThat(keyType.get().getName()).isEqualTo("DSA1024");
         assertThat(keyType.get().getAlgorithm()).isEqualTo("DSA");
@@ -142,7 +142,7 @@ public class PKIServiceImplIT {
                 .ECDSA()
                 .curve("secp256r1")
                 .add();
-        Optional<KeyType> keyType = inMemoryPersistence.getPkiService().getKeyType("NIST P-256");
+        Optional<KeyType> keyType = inMemoryPersistence.getPkiService().getKeyTypes("NIST P-256");
         assertThat(keyType).isPresent();
         assertThat(keyType.get().getName()).isEqualTo("NIST P-256");
         assertThat(keyType.get().getAlgorithm()).isEqualTo("ECDSA");
@@ -297,7 +297,23 @@ public class PKIServiceImplIT {
         assertThat(certificates.get(0).getCertificate()).isPresent();
         assertThat(certificates.get(0).getCertificate().get().getIssuerDN().getName()).isEqualTo("CN=MyRootCA, OU=SmartEnergy, O=Honeywell, L=Kortrijk, ST=Vlaanderen, C=BE");
         assertThat(certificates.get(0).getCertificate().get().getSubjectDN().getName()).isEqualTo("CN=MyRootCA, OU=SmartEnergy, O=Honeywell, L=Kortrijk, ST=Vlaanderen, C=BE");
+    }
 
+    @Test
+    @Transactional
+    public void testAddCRLtoTrustedCertificate() throws Exception {
+        TrustStore main = inMemoryPersistence.getPkiService()
+                .newTrustStore("CRL")
+                .description("Main trust store")
+                .add();
+        X509Certificate certificate = loadCertificate("myRootCA.cert");
+        TrustedCertificate trustedCertificate = main.addCertificate(certificate);
+
+        trustedCertificate.setCRL(certificateFactory.generateCRL(CertPathValidatorTest.class.getResourceAsStream("mySubCA.revoked.crl.pem")));
+        Optional<TrustStore> reloaded = inMemoryPersistence.getPkiService().findTrustStore("CRL");
+        assertThat(reloaded).isPresent();
+        TrustedCertificate trustedCertificateReloaded = reloaded.get().getCertificates().get(0);
+        assertThat(trustedCertificateReloaded.getCRL()).isPresent();
     }
 
     private X509Certificate createSelfSignedCertificate(String myself) throws Exception {

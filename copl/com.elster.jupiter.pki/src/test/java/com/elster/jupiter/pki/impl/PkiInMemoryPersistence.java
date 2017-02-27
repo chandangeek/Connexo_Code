@@ -43,6 +43,7 @@ public class PkiInMemoryPersistence {
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
     private static Clock clock = Clock.systemDefaultZone();
+    private PkiService pkiService;
 
     public void activate() {
         injector = Guice.createInjector(
@@ -66,6 +67,7 @@ public class PkiInMemoryPersistence {
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(ThreadPrincipalService.class);
+            pkiService = injector.getInstance(PkiService.class);
             ctx.commit();
         }
     }
@@ -83,7 +85,7 @@ public class PkiInMemoryPersistence {
     }
 
     public PkiService getPkiService() {
-        return injector.getInstance(PkiService.class);
+        return pkiService;
     }
 
     public UserService getUserService() {

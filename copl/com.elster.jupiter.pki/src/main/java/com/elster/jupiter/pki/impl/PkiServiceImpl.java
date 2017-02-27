@@ -1,5 +1,6 @@
 package com.elster.jupiter.pki.impl;
 
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.Layer;
@@ -55,15 +56,18 @@ public class PkiServiceImpl implements PkiService {
     private final Map<String, PrivateKeyFactory> privateKeyFactories = new ConcurrentHashMap<>();
     private final Map<String, SymmetricKeyFactory> symmetricKeyFactories = new ConcurrentHashMap<>();
 
-    private DataModel dataModel;
-    private UpgradeService upgradeService;
-    private Thesaurus thesaurus;
+    private volatile DataModel dataModel;
+    private volatile UpgradeService upgradeService;
+    private volatile Thesaurus thesaurus;
+    private volatile DataVaultService dataVaultService;
+    private volatile OrmService ormService;
 
     @Inject
-    public PkiServiceImpl(OrmService ormService, UpgradeService upgradeService, NlsService nlsService) {
+    public PkiServiceImpl(OrmService ormService, UpgradeService upgradeService, NlsService nlsService, DataVaultService dataVaultService) {
         this.setOrmService(ormService);
         this.setUpgradeService(upgradeService);
         this.setNlsService(nlsService);
+        this.setDataVaultService(dataVaultService);
         this.activate();
     }
 
@@ -107,9 +111,12 @@ public class PkiServiceImpl implements PkiService {
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        DataModel dataModel = ormService.newDataModel(COMPONENTNAME, "Private Key Infrastructure");
-        Stream.of(TableSpecs.values()).forEach(tableSpecs -> tableSpecs.addTo(dataModel));
-        this.dataModel = dataModel;
+        this.ormService = ormService;
+    }
+
+    @Reference
+    public void setDataVaultService(DataVaultService dataVaultService) {
+        this.dataVaultService = dataVaultService;
     }
 
     DataModel getDataModel() {
@@ -128,9 +135,11 @@ public class PkiServiceImpl implements PkiService {
 
     @Activate
     public void activate() {
+        Security.addProvider(new BouncyCastleProvider());
+        this.dataModel = ormService.newDataModel(COMPONENTNAME, "Private Key Infrastructure");
+        Stream.of(TableSpecs.values()).forEach(tableSpecs -> tableSpecs.addTo(dataModel, dataVaultService));
         this.dataModel.register(this.getModule());
         upgradeService.register(InstallIdentifier.identifier("Pulse", PkiService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
-        Security.addProvider(new BouncyCastleProvider());
 //        initPrivileges();
     }
 
@@ -202,8 +211,13 @@ public class PkiServiceImpl implements PkiService {
     }
 
     @Override
-    public Optional<KeyType> getKeyType(String name) {
+    public Optional<KeyType> getKeyTypes(String name) {
         return this.getDataModel().mapper(KeyType.class).getUnique("name", name);
+    }
+
+    @Override
+    public List<KeyType> getKeyTypes() {
+        return this.getDataModel().mapper(KeyType.class).find();
     }
 
     @Override

@@ -78,7 +78,12 @@ public interface PkiService {
      * @param name The KpiType's name. The name is a unique identifier.
      * @return The KpiType if present, empty otherwise.
      */
-    Optional<KeyType> getKeyType(String name);
+    Optional<KeyType> getKeyTypes(String name);
+
+    /**
+     * Get a list of all known key types
+     */
+    List<KeyType> getKeyTypes();
 
     /**
      * Creates a new PrivateKeyWrapper. The PkiService will delegate the actual creation and storage to the appropriate
