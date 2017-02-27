@@ -100,12 +100,15 @@ Ext.define('Imt.usagepointhistory.view.meters.MetersPreview', {
         var me = this;
         if (!Ext.isEmpty(processes)) {
             return _.map(processes, function (process) {
+                var value = Dbp.privileges.DeviceProcesses.allBpmProcesses()
+                    ? Ext.String.format('<a href="{0}">{1}</a> - {2}', me.router.getRoute('usagepoints/view/processes').buildUrl(), process.id, process.name)
+                    : process.id + ' - ' + process.name;
                 return {
                     xtype: 'displayfield',
                     fieldLabel: '',
                     itemId: process.name,
                     htmlEncode: false,
-                    value: Ext.String.format('<a href="{0}">{1}</a> - {2}', me.router.getRoute('usagepoints/view/processes').buildUrl(), process.id, process.name)
+                    value: value
                 };
             });
         } else {
