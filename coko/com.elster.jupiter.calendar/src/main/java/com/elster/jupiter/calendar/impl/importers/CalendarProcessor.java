@@ -38,6 +38,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.MonthDay;
 import java.time.Year;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -124,7 +125,7 @@ public class CalendarProcessor {
          * so for repeated definitions we remove them from this set.
          * If it is a exception in the past, and we cannot remove it from this set, the processing should fail.
          */
-        HashSet<ExceptionalOccurrence> existingExceptions = toUpdate.getExceptionalOccurrences()
+        Collection<ExceptionalOccurrence> existingExceptions = toUpdate.getExceptionalOccurrences()
                 .stream()
                 .collect(Collectors.toCollection(HashSet::new));
 
@@ -207,15 +208,15 @@ public class CalendarProcessor {
     }
 
 
-    private boolean exists(HashSet<ExceptionalOccurrence> existingExceptions, Exception exceptional) {
-       //TODO automatically generated method body, provide implementation.
-        return false;
-    }
-
     private Calendar createOrRedefine(XmlCalendar calendar, Optional<Calendar> calendarByMRID) {
         UpdatableHolder<EventSet> eventSetHolder = new UpdatableHolder<>(null);
-        Category category = calendarService.findCategoryByName(calendar.getCategory())
-                .orElseThrow(() -> new CategoryNotFound(thesaurus, calendar.getCategory()));
+        // Find by name first, then (for backwards compatibility reasons) find by display name
+        Category category =
+                calendarService
+                        .findCategoryByName(calendar.getCategory())
+                        .orElseGet(() -> calendarService
+                                            .findCategoryByDisplayName(calendar.getCategory())
+                                            .orElseThrow(() -> new CategoryNotFound(thesaurus, calendar.getCategory())));
         UpdatableHolder<Consumer<ImportListener>> listenerNotification = new UpdatableHolder<>(null);
         CalendarService.CalendarBuilder builder = calendarByMRID
                 .map(existingCalendar -> {

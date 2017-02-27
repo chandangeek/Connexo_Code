@@ -57,7 +57,7 @@ class UpgraderV10_3 implements Upgrader {
 
     private void create(OutOfTheBoxCategory outOfTheBoxCategory) {
         CategoryImpl category = this.calendarService.getDataModel().getInstance(CategoryImpl.class);
-        category.init(outOfTheBoxCategory.getDefaultDisplayName());
+        category.init(outOfTheBoxCategory);
         category.save();
     }
 

@@ -27,7 +27,9 @@
     </eventset>
     <calendar>
         <name>Residential TOU Example</name>
-        <category>Time of use</category>
+        <category>TOU</category>
+        <!-- Using display name is still supported but deprecated
+        category>Time of use</category -->
         <mRID>optional</mRID>
         <description>From example provide by Robert Ritchy</description>
         <start-year>2010</start-year>

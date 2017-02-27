@@ -50,6 +50,8 @@ public interface CalendarService {
 
     Optional<Category> findCategoryByName(String name);
 
+    Optional<Category> findCategoryByDisplayName(String name);
+
     Optional<Category> findCategory(long id);
 
     Optional<Calendar> findCalendar(long id);

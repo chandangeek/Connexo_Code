@@ -303,6 +303,15 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
         return categoryMapper().getUnique(CategoryImpl.Fields.NAME.fieldName(), name);
     }
 
+    @Override
+    public Optional<Category> findCategoryByDisplayName(String displayName) {
+        return categoryMapper()
+                .find()
+                .stream()
+                .filter(each -> each.getDisplayName().equals(displayName))
+                .findAny();
+    }
+
     private DataMapper<Category> categoryMapper() {
         return this.getDataModel().mapper(Category.class);
     }

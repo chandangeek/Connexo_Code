@@ -82,7 +82,7 @@ class InstallerImpl implements FullInstaller, PrivilegesProvider {
     private void createCategories() {
         for (OutOfTheBoxCategory outOfTheBoxCategory : OutOfTheBoxCategory.values()) {
             CategoryImpl category = this.calendarService.getDataModel().getInstance(CategoryImpl.class);
-            category.init(outOfTheBoxCategory.getDefaultDisplayName());
+            category.init(outOfTheBoxCategory);
             category.save();
         }
     }

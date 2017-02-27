@@ -54,7 +54,6 @@ public enum MessageSeeds implements MessageSeed {
     CAL_MRID_FIELD_TOO_LONG(2028, Constants.CAL_MRID_FIELD_TOO_LONG, "Calendar MRID is too long, it must not exceed 80 characters.", Level.SEVERE),
     CAL_TIMEZONE_FIELD_TOO_LONG(2029, Constants.CAL_TIMEZONE_FIELD_TOO_LONG, "Calendar timezone id is too long, it must not exceed 80 characters.", Level.SEVERE),
     VALID_TRANSITIONS(2030, Constants.VALID_TRANSITIONS, "In case of non recurring transitions, a transition at or before the first day of the start year is required.", Level.SEVERE),
-    DUPLICATE_CATEGORY_NAME(2031, Constants.DUPLICATE_CATEGORY_NAME, "The category name must be unique.", Level.SEVERE),
     CATEGORY_NOT_FOUND(2032, Constants.CATEGORY_NOT_FOUND, "The category {0} does not exist."),
     EVENTSET_NAME_FIELD_TOO_LONG(2033, Constants.EVENTSET_NAME_FIELD_TOO_LONG, "Event Set name is too long, it must not exceed 80 characters.", Level.SEVERE),
     NO_DAYTYPE_DEFINED_WITH_NAME(2034, "calendar.import.no.daytype.defined.with.name", "There is no day type defined with name \"{0}\"."),
@@ -137,7 +136,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String VALIDATION_OF_FILE_FAILED = "calendar.import.validation.failed";
         public static final String DUPLICATE_CALENDAR_MRID = "calendar.mrid.alreadyexists";
         public static final String DUPLICATE_CALENDAR_NAME = "calendar.name.alreadyexists";
-        public static final String DUPLICATE_CATEGORY_NAME = "category.name.alreadyexists";
         public static final String VALIDATION_OF_FILE_FAILED_WITH_DETAIL = "calendar.import.validation.failed.with.detail";
         public static final String IMPORT_FAILED_OTHER_ERROR = "calendar.import.failed.other.error";
         public static final String CALENDAR_CREATED = "calendar.import.calendar.created";

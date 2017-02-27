@@ -45,6 +45,7 @@ import java.time.LocalTime;
 import java.time.MonthDay;
 import java.time.Year;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -182,7 +183,7 @@ public class CalendarCrudTest {
     }
 
     private Calendar createTestCalendar(String name) {
-        Category category = getCalendarService().findCategoryByName(OutOfTheBoxCategory.TOU.getDefaultDisplayName()).orElseThrow(AssertionError::new);
+        Category category = getCalendarService().findCategoryByName(OutOfTheBoxCategory.TOU.name()).orElseThrow(AssertionError::new);
         EventSet testEventSet = createTestEventSet();
         return getCalendarService().newCalendar(name, Year.of(2010), testEventSet)
                 .endYear(Year.of(2018))
@@ -482,7 +483,8 @@ public class CalendarCrudTest {
             assertThat(calendarImportResult.getCalendars()).hasSize(1);
             Calendar calendar = calendarImportResult.getCalendars().get(0);
             assertThat(calendar.getCategory()).isNotNull();
-            assertThat(calendar.getCategory().getName()).isEqualTo("Time of use");
+            assertThat(calendar.getCategory().getName()).isEqualTo(OutOfTheBoxCategory.TOU.name());
+            assertThat(calendar.getCategory().getDisplayName()).isEqualTo("Time of use");
             assertThat(calendar.getName()).isEqualTo("Residential TOU Example");
             assertThat(calendar.getMRID()).isEqualTo("optional");
             assertThat(calendar.getStartYear()).isEqualTo(Year.of(2010));
@@ -513,7 +515,7 @@ public class CalendarCrudTest {
                     .map(EventOccurrence::getFrom)
                     .collect(Collectors.toList())
             ).isEqualTo(
-                    Arrays.asList(LocalTime.of(0, 0))
+                    Collections.singletonList(LocalTime.of(0, 0))
             );
             assertThat(weekend.getEventOccurrences()
                     .stream()

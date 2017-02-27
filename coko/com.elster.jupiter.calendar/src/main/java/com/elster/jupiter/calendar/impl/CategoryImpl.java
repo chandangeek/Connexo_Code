@@ -5,6 +5,7 @@
 package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Category;
+import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
@@ -20,10 +21,7 @@ import java.util.Objects;
  * @author Isabelle Gheysens (igh)
  * @since 2016-04-15
  */
-@UniqueCategoryName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_CATEGORY_NAME + "}")
 final class CategoryImpl implements Category {
-
-    static final String CALENDAR_CATEGORY_KEY_PREFIX = "calendar.category.";
 
     public enum Fields {
         ID("id"),
@@ -49,8 +47,8 @@ final class CategoryImpl implements Category {
     private final ServerCalendarService calendarService;
     private final Thesaurus thesaurus;
 
-    public CategoryImpl init(String name) {
-        this.name = name;
+    public CategoryImpl init(OutOfTheBoxCategory category) {
+        this.name = category.name();
         return this;
     }
 
@@ -70,14 +68,33 @@ final class CategoryImpl implements Category {
         return name;
     }
 
-    @Override
     public void save() {
         Save.CREATE.save(calendarService.getDataModel(), this, Save.Create.class);
     }
 
     @Override
     public String getDisplayName() {
-        return thesaurus.getString(CALENDAR_CATEGORY_KEY_PREFIX + getName().toLowerCase(), getName());
+        try {
+            switch (OutOfTheBoxCategory.valueOf(this.name)) {
+                case TOU: {
+                    return thesaurus.getFormat(TranslationKeys.CALENDAR_CATEGORY_TOU).format();
+                }
+                case WORKFORCE: {
+                    return thesaurus.getFormat(TranslationKeys.CALENDAR_CATEGORY_WORKFORCE).format();
+                }
+                case COMMANDS: {
+                    return thesaurus.getFormat(TranslationKeys.CALENDAR_CATEGORY_COMMANDS).format();
+                }
+                default: {
+                    return this.getName();
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            /* Code must be running on database that was initialized with previous
+             * version of the Installer or upgrader that used the default translation as the name.
+             * be leniant for now and return that translated name. */
+            return this.name;
+        }
     }
 
     @Override

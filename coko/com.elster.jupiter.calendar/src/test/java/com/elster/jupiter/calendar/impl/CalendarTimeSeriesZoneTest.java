@@ -200,7 +200,7 @@ public class CalendarTimeSeriesZoneTest {
     }
 
     private ServerCalendar createSimplePeakOffPeakCalendar(String name) {
-        Category category = getCalendarService().findCategoryByName(OutOfTheBoxCategory.TOU.getDefaultDisplayName()).orElseThrow(() -> new IllegalStateException("Setup failed because out of the box category TOU is missing"));
+        Category category = getCalendarService().findCategoryByName(OutOfTheBoxCategory.TOU.name()).orElseThrow(() -> new IllegalStateException("Setup failed because out of the box category TOU is missing"));
         EventSet testEventSet = createTestEventSet();
         return (ServerCalendar) getCalendarService()
             .newCalendar(name, Year.of(2016), testEventSet)
