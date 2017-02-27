@@ -16,7 +16,6 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PropertyCopier;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
@@ -32,6 +31,7 @@ import javax.ws.rs.core.Link;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
@@ -51,13 +51,14 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
     private final Provider<MeterActivationInfoFactory> meterActivationInfoFactory;
     private final UsagePointCustomPropertySetInfoFactory customPropertySetInfoFactory;
     private final LocationInfoFactory locationInfoFactory;
+    private final Clock clock;
 
     @Inject
     public UsagePointInfoFactory(MeteringService meteringService, CustomPropertySetService customPropertySetService, ExceptionFactory exceptionFactory,
                                  Provider<EffectiveMetrologyConfigurationInfoFactory> effectiveMetrologyConfigurationInfoFactory,
                                  Provider<MeterActivationInfoFactory> meterActivationInfoFactory,
                                  UsagePointCustomPropertySetInfoFactory customPropertySetInfoFactory,
-                                 LocationInfoFactory locationInfoFactory) {
+                                 LocationInfoFactory locationInfoFactory, Clock clock) {
         this.meteringService = meteringService;
         this.customPropertySetService = customPropertySetService;
         this.exceptionFactory = exceptionFactory;
@@ -65,6 +66,7 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         this.meterActivationInfoFactory = meterActivationInfoFactory;
         this.customPropertySetInfoFactory = customPropertySetInfoFactory;
         this.locationInfoFactory = locationInfoFactory;
+        this.clock = clock;
     }
 
     LinkInfo asLink(UsagePoint usagePoint, Relation relation, UriInfo uriInfo) {
@@ -148,9 +150,14 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
             }
         });
         map.put("connectionState", (usagePointInfo, usagePoint, uriInfo) -> {
-            ConnectionState connectionState = usagePoint.getConnectionState();
             usagePointInfo.connectionState = new UsagePointConnectionStateInfo();
-            usagePointInfo.connectionState.connectionStateId = connectionState.getId();
+            usagePoint.getCurrentConnectionState().ifPresent(connectionState -> {
+                usagePointInfo.connectionState.connectionStateId = connectionState.getConnectionState().getId();
+                usagePointInfo.connectionState.startDate = connectionState.getRange().lowerEndpoint();
+                if (connectionState.getRange().hasUpperBound()) {
+                    usagePointInfo.connectionState.endDate = connectionState.getRange().upperEndpoint();
+                }
+            });
         });
         map.put("meterActivations", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.meterActivations = meterActivationInfoFactory
                 .get()
@@ -189,6 +196,9 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         addCustomPropertySetsValues(usagePointBuilder, usagePointInfo.customPropertySets);
         UsagePoint usagePoint = usagePointBuilder.create();
         createDefaultDetails(usagePoint);
+        if (usagePointInfo.connectionState != null && usagePointInfo.connectionState.connectionStateId != null) {
+            setConnectionStateFromInfo(usagePoint, usagePointInfo, usagePointInfo.installationTime);
+        }
         return usagePoint;
     }
 
@@ -241,41 +251,22 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         if (coordinates != null) {
             usagePoint.setSpatialCoordinates(coordinates);
         }
-
-        if (usagePointInfo.connectionState != null && usagePointInfo.connectionState.startDate != null) {
-            if (!("underConstruction".equals(usagePointInfo.connectionState.connectionStateId)) && usagePoint.getConnectionState().equals(ConnectionState.UNDER_CONSTRUCTION)) {
-                validateUsagePoint(usagePoint);
-            }
-            usagePoint.setConnectionState(findConnectionState(usagePointInfo),
-                    Instant.ofEpochMilli(usagePointInfo.connectionState.startDate));
-        } else if (usagePointInfo.connectionState != null && !usagePoint.getConnectionState().getId().equalsIgnoreCase(usagePointInfo.connectionState.connectionStateId)) {
-            usagePoint.setConnectionState(findConnectionState(usagePointInfo));
+        if (usagePointInfo.connectionState != null && usagePointInfo.connectionState.connectionStateId != null) {
+            setConnectionStateFromInfo(usagePoint, usagePointInfo, clock.instant());
         }
-
         usagePoint.update();
     }
 
-    private ConnectionState findConnectionState(UsagePointInfo usagePointInfo) {
-        return Arrays.stream(ConnectionState.values())
-                .filter(connectionState -> connectionState.getId()
-                        .equalsIgnoreCase(usagePointInfo.connectionState.connectionStateId))
-                .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_CONNECTION_STATE));
+    private void setConnectionStateFromInfo(UsagePoint usagePoint, UsagePointInfo usagePointInfo, Instant defaultStartTime) {
+        ConnectionState connectionState = findConnectionState(usagePointInfo);
+        Instant startTime = usagePointInfo.connectionState.startDate;
+        usagePoint.setConnectionState(connectionState, startTime != null ? startTime : defaultStartTime);
     }
 
-    private void validateUsagePoint(UsagePoint usagePoint) {
-        UsagePointMetrologyConfiguration metrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION)).getMetrologyConfiguration();
-
-        metrologyConfiguration.getMeterRoles().stream()
-                .filter(meterRole -> usagePoint.getMeterActivations().stream()
-                        .anyMatch(meterActivation -> meterActivation.getMeterRole().filter(mr -> mr.equals(meterRole)).isPresent()))
-                .findAny()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_METER_ACTIVATION_FOR_METER_ROLE));
-
-        if (metrologyConfiguration.getContracts().stream()
-                .anyMatch(metrologyContract -> metrologyContract.isMandatory() && !(metrologyContract.getStatus(usagePoint).getKey().equalsIgnoreCase("COMPLETE")))) {
-            throw exceptionFactory.newException(MessageSeeds.METROLOGY_CONTRACTS_INCOMPLETE);
-        }
+    private ConnectionState findConnectionState(UsagePointInfo usagePointInfo) {
+        return Arrays.stream(ConnectionState.supportedValues())
+                .filter(connectionState -> connectionState.getId().equalsIgnoreCase(usagePointInfo.connectionState.connectionStateId))
+                .findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_CONNECTION_STATE));
     }
 }
