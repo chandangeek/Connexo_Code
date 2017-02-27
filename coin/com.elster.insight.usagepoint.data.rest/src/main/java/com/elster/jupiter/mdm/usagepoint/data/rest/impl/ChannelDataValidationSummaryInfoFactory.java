@@ -24,10 +24,11 @@ public class ChannelDataValidationSummaryInfoFactory {
     }
 
     ChannelDataValidationSummaryInfo from(ReadingTypeDeliverable deliverable, List<IChannelDataCompletionSummary> summary) {
-        IChannelDataCompletionSummary generalSummary, editedSummary, validSummary;
+        IChannelDataCompletionSummary generalSummary, editedSummary, validSummary, estimatedSummary;
         generalSummary = summary.stream().filter(sum -> sum.getType() == ChannelDataCompletionSummaryType.GENERAL).findFirst().orElse(null);
         editedSummary = summary.stream().filter(sum -> sum.getType() == ChannelDataCompletionSummaryType.EDITED).findFirst().orElse(null);
         validSummary = summary.stream().filter(sum -> sum.getType() == ChannelDataCompletionSummaryType.VALID).findFirst().orElse(null);
+        estimatedSummary = summary.stream().filter(sum -> sum.getType() == ChannelDataCompletionSummaryType.ESTIMATED).findFirst().orElse(null);
 
         ChannelDataValidationSummaryInfo channelDataValidationGeneralSummaryInfo = new ChannelDataValidationSummaryInfo(deliverable.getId(),
                 deliverable.getName(),
@@ -45,6 +46,9 @@ public class ChannelDataValidationSummaryInfoFactory {
                         .collect(Collectors.toList()));
         if (editedSummary != null) {
             channelDataValidationGeneralSummaryInfo.statistics.add(getFlagInfo(ChannelDataCompletionSummaryType.EDITED, editedSummary));
+        }
+        if (estimatedSummary != null) {
+            channelDataValidationGeneralSummaryInfo.statistics.add(getFlagInfo(ChannelDataCompletionSummaryType.ESTIMATED, estimatedSummary));
         }
         return channelDataValidationGeneralSummaryInfo;
     }
