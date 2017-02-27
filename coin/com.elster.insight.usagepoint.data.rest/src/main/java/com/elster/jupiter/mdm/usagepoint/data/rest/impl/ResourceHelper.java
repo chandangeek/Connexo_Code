@@ -160,6 +160,22 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYCONTRACT_IS_NOT_LINKED_TO_USAGEPOINT, contractId, usagePoint.getName()));
     }
 
+    public MetrologyContract findInactiveMetrologyContractOrThrowException(EffectiveMetrologyConfigurationOnUsagePoint effectiveMC, long contractId) {
+        MetrologyContract metrologyContract = effectiveMC.getMetrologyConfiguration().getContracts()
+                .stream()
+                .filter(mc -> !mc.getDeliverables().isEmpty())
+                .filter(mc -> mc.getId() == contractId)
+                .filter(mc -> !mc.isMandatory())
+                .findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.CANNOT_ACTIVATE_METROLOGY_PURPOSE, contractId));
+
+        if(effectiveMC.getChannelsContainer(metrologyContract, clock.instant()).isPresent()){
+            throw conflictFactory.contextDependentConflictOn(metrologyContract.getMetrologyPurpose().getName()).build();
+        }
+
+        return metrologyContract;
+    }
+
     public UsagePointTransition findUsagePointTransitionOrThrowException(long transitionId) {
         return usagePointLifeCycleConfigurationService.findUsagePointTransition(transitionId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_USAGEPOINT_TRANSITION_WITH_ID, transitionId));
