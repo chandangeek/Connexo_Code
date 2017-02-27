@@ -813,7 +813,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
             throw DataParseException.ioException(new ProtocolException("Expected the second element of the received structure to be an OctetString"));
         }
         try {
-            return new AXDRDateTime(octetString).getValue().getTime();
+            return new AXDRDateTime(octetString.getBEREncodedByteArray(), 0, getDeviceTimeZone()).getValue().getTime(); // Make sure to pass device TimeZone, as deviation info is unspecified
         } catch (ProtocolException e) {
             throw DataParseException.ioException(e);
         }

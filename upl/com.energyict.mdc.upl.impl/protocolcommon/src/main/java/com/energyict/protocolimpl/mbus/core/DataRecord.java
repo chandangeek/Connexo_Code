@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.mbus.core;
 
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ProtocolException;
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -233,10 +235,67 @@ public class DataRecord {
             } // type unit or type duration
         } else if (dataRecordHeader.getValueInformationBlock().getPlainTextVIF() != null) {
             String vif = dataRecordHeader.getValueInformationBlock().getPlainTextVIF();
+            DataFieldCoding dataFieldCoding = dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding();
+            final int dataFieldCodingType = dataFieldCoding.getType();
             if (vif.equals("cust. ID")) {
                 int length = data[offset++];
                 setText(new String(ProtocolTools.getReverseByteArray(ProtocolTools.getSubArray(data, offset, offset + length))));
                 offset += length;
+            } else if(DataFieldCoding.list.contains(dataFieldCoding)){
+                if (logger.isLoggable(Level.FINE)) {
+                    logger.log(Level.FINE, "Parsing the value of data type [" + DataFieldCoding.DataFieldCodingType.fromId(dataFieldCodingType) + "]");
+                }
+                switch(dataFieldCodingType) {
+                    case DataFieldCoding.TYPE_BCD: {
+                        long val = ParseUtils.getBCD2LongLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
+                        offset+=dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes();
+                        BigDecimal bd = BigDecimal.valueOf(val);
+                        quantity = new Quantity(bd, getUnitForVIF(vif));
+                    } break; // DataFieldCoding.TYPE_BCD
+
+                    case DataFieldCoding.TYPE_BINARY: {
+                        long val = ProtocolUtils.getLongLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
+                        final int nrBytesToRead = dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes();
+                        if (!hasSufficientData(data, offset,nrBytesToRead )) {
+                            if (logger.isLoggable(Level.SEVERE)) {
+                                logger.log(Level.SEVERE, "Trying to parse the Binary data at offset [" + offset +
+                                        "] , but the buffer has no bytes left. The DIF indicates we need to read [" + nrBytesToRead + "] bytes," +
+                                        "and there are only [" + (data.length - offset) + "] bytes left in the buffer.");
+                            }
+                            throw new IOException("Trying to parse the Binary data at offset [" + offset +
+                                    "] , but the buffer has no bytes left. The DIF indicates we need to read [" + nrBytesToRead + "] bytes," +
+                                    "and there are only [" + (data.length - offset) + "] bytes left in the buffer.");
+                        }
+//                        final BigDecimal multiplier = dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getMultiplier();
+                        offset+=dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes();
+                        BigDecimal bd = BigDecimal.valueOf(val);
+                        quantity = new Quantity(bd, getUnitForVIF(vif));
+                    }
+                    break; // DataFieldCoding.TYPE_BINARY
+
+                    case DataFieldCoding.TYPE_REAL: {
+                        float val = Float.intBitsToFloat((int)ProtocolUtils.getLongLE(data,offset,4));
+                        final int nrBytesToRead = 4;
+                        if (!hasSufficientData(data, offset,nrBytesToRead )) {
+                            if (logger.isLoggable(Level.SEVERE)) {
+                                logger.log(Level.SEVERE, "Trying to parse the Binary data at offset [" + offset +
+                                        "] , but the buffer has no bytes left. The DIF type real indicates we need to read [" + nrBytesToRead + "] bytes," +
+                                        "and there are only [" + (data.length - offset) + "] bytes left in the buffer.");
+                            }
+                            throw new IOException("Trying to parse the Binary data at offset [" + offset +
+                                    "] , but the buffer has no bytes left. The DIF indicates we need to read [" + nrBytesToRead + "] bytes," +
+                                    "and there are only [" + (data.length - offset) + "] bytes left in the buffer.");
+                        }
+                        offset+=dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes();
+                        BigDecimal bd = new BigDecimal(""+val);
+                        quantity = new Quantity(bd, getUnitForVIF(vif));
+                    }
+                    break; // DataFieldCoding.TYPE_REAL
+                    case DataFieldCoding.TYPE_VARIABLELENGTH:
+                    case DataFieldCoding.TYPE_SPECIALFUNCTIONS: {
+                        quantity=null;
+                    } break; // DataFieldCoding.TYPE_SPECIALFUNCTIONS
+                } // switch(dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getType())
             }
         } else {
 
@@ -245,8 +304,21 @@ public class DataRecord {
         if (DEBUG>=1) System.out.println("KV_DEBUG> DataRecord, quantity="+quantity);
         
         
-        
     } // public DataRecord(byte[] data, int offset, TimeZone timeZone) throws IOException
+
+    private Unit getUnitForVIF(String vifUnit){
+        Unit unit = Unit.getUndefined();
+        Iterator iterator = BaseUnit.iterator();
+
+        while (iterator.hasNext()) {
+            BaseUnit base = (BaseUnit) iterator.next();
+            if(base.toString().equalsIgnoreCase(vifUnit)){
+                unit = Unit.get(base.getDlmsCode());
+                return unit;
+            }
+        }
+        return unit;
+    }
     
     private int decodeVariableLength(byte[] data, int offset) throws IOException {
         int length = ProtocolUtils.getInt(data,offset++,1);

@@ -87,6 +87,10 @@ public class MasterDataSerializer {
             }
         }
 
+        if(slaveDevice == null){
+            throw invalidFormatException("'Device configuration ID'", String.valueOf(configId), " is not used by any slave device.");
+        }
+
         addDeviceConfiguration(gatewayDevice, allMasterData, slaveDevice, deviceConfiguration, readOldObisCodes);
 
         return jsonSerialize(allMasterData);

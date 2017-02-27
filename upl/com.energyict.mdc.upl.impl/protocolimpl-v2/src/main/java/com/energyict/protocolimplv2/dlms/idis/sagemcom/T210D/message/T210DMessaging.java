@@ -42,7 +42,9 @@ public class T210DMessaging extends AM540Messaging {
         supportedMessages.add(LoadBalanceDeviceMessage.CONFIGURE_SUPERVISION_MONITOR_FOR_IMPORT_EXPORT);
         //FW messages
         supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_RESUME_AND_IMAGE_IDENTIFIER);
+        supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER_AND_RESUME);
         supportedMessages.add(FirmwareDeviceMessage.VerifyAndActivateFirmware);
+        supportedMessages.add(FirmwareDeviceMessage.VerifyAndActivateFirmwareAtGivenDate);
         supportedMessages.add(FirmwareDeviceMessage.FIRMWARE_IMAGE_ACTIVATION_WITH_DATA_PROTECTION);
         //Alarms
         supportedMessages.add(AlarmConfigurationMessage.RESET_ALL_ERROR_BITS);
@@ -55,12 +57,14 @@ public class T210DMessaging extends AM540Messaging {
         //Configuration for ConfigureGeneralLocalPortReadout captured_objects
         supportedMessages.add(ConfigurationChangeDeviceMessage.DISABLE_PUSH_ON_INSTALLATION);
         supportedMessages.add(ConfigurationChangeDeviceMessage.ENABLE_PUSH_ON_INTERVAL_OBJECTS);
+        supportedMessages.add(ConfigurationChangeDeviceMessage.ENABLE_PUSH_ON_INTERVAL_OBJECTS_WITH_TIME_DATE_ARRAY);
         supportedMessages.add(ConfigurationChangeDeviceMessage.ConfigureGeneralLocalPortReadout);
         //Contactor
         supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN);
         supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE);
         supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE);
         supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE);
+        supportedMessages.add(ContactorDeviceMessage.CONTACTOR_ACTION_WITH_ACTIVATION);
         supportedMessages.add(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE);
         supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_DATA_PROTECTION);
         supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_DATA_PROTECTION);
@@ -71,6 +75,8 @@ public class T210DMessaging extends AM540Messaging {
         supportedMessages.add(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_WITH_GIVEN_TABLE_OBIS_FROM_XML);
         supportedMessages.add(MBusSetupDeviceMessage.ScanAndInstallWiredMbusDevices);
         supportedMessages.add(MBusSetupDeviceMessage.InstallWirelessMbusDevices);
+        supportedMessages.add(MBusSetupDeviceMessage.ScanAndInstallWiredMbusDeviceForGivenMeterIdentification);
+        supportedMessages.add(MBusSetupDeviceMessage.InstallWirelessMbusDeviceForGivenMeterIdentification);
     }
 
     @Override

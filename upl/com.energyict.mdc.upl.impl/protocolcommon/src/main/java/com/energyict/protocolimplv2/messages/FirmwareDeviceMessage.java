@@ -122,7 +122,13 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpec {
     ),
     START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES(25),
     FIRMWARE_IMAGE_ACTIVATION_WITH_DATA_PROTECTION(26),
-    COPY_ACTIVE_FIRMWARE_TO_INACTIVE_PARTITION(27)
+    COPY_ACTIVE_FIRMWARE_TO_INACTIVE_PARTITION(27),
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER_AND_RESUME(28,
+            PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
+            PropertySpecFactory.dateTimePropertySpec(firmwareUpdateActivationDateAttributeName),
+            PropertySpecFactory.stringPropertySpec(firmwareUpdateImageIdentifierAttributeName),
+            PropertySpecFactory.notNullableBooleanPropertySpec(resumeFirmwareUpdateAttributeName, false)),
+    VerifyAndActivateFirmwareAtGivenDate(29, PropertySpecFactory.dateTimePropertySpec(firmwareUpdateActivationDateAttributeName)),
     ;
     private static final DeviceMessageCategory firmwareCategory = DeviceMessageCategories.FIRMWARE;
 

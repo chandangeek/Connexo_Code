@@ -337,7 +337,7 @@ public class DataPushNotificationParser {
         }
     }
 
-    private TimeZone getDeviceTimeZone() {
+    protected TimeZone getDeviceTimeZone() {
         TypedProperties deviceProtocolProperties = getInboundDAO().getDeviceProtocolProperties(getDeviceIdentifier());
         if (deviceProtocolProperties == null) {
             return TimeZone.getTimeZone(DEFAULT_TIMEZONE);
