@@ -33,7 +33,7 @@ public class HistoricalMeterActivationInfoFactory {
                     .flatMap(he -> he.getURLForEndDevice(meter))
                     .map(URL::toString)
                     .orElse(null);
-            String correlationId = usagePoint.getMRID() + ":" + meter.getMRID();
+            String correlationId = usagePoint.getMRID() + ":processOnLinkedMeter:" + meter.getMRID();
             info.ongoingProcesses = bpmService.getRunningProcesses(auth, filterFor(correlationId)).processes.stream()
                     .map(processInstanceInfo -> new IdWithNameInfo(processInstanceInfo.processId, processInstanceInfo.name))
                     .collect(Collectors.toList());
