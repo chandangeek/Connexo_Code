@@ -9,7 +9,7 @@ Ext.define('Imt.usagepointhistory.view.meters.Meters', {
         'Imt.usagepointhistory.view.meters.MetersGrid',
         'Imt.usagepointhistory.view.meters.MetersPreview',
         'Uni.view.container.PreviewContainer',
-        'Uni.util.FormInfoMessage'
+        'Uni.util.FormEmptyMessage'
     ],
     router: null,
 
@@ -30,7 +30,7 @@ Ext.define('Imt.usagepointhistory.view.meters.Meters', {
                 }
             },
             emptyComponent: {
-                xtype: 'uni-form-info-message',
+                xtype: 'uni-form-empty-message',
                 itemId: 'usage-point-history-meters-empty-message',
                 text: Uni.I18n.translate('usagePoint.history.meters.empty.title', 'IMT', 'No meters have been linked to this usage point yet')
             },
