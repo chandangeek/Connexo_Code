@@ -85,7 +85,7 @@ public enum TableSpecs {
             Column trustStoreColumn = table.column("TRUSTSTORE")
                     .number()
                     .add();
-//            table.addMessageAuthenticationCodeColumn(encrypter);
+            table.addMessageAuthenticationCodeColumn(encrypter); // TODO re-add
 
             table.primaryKey("PK_PKI_CERTIFICATE").on(id).add();
             table.foreignKey("PKI_FK_CERT_PK").on(privateKeyColumn)
