@@ -78,7 +78,7 @@ public interface PkiService {
      * @param name The KpiType's name. The name is a unique identifier.
      * @return The KpiType if present, empty otherwise.
      */
-    Optional<KeyType> getKeyTypes(String name);
+    Optional<KeyType> getKeyType(String name);
 
     /**
      * Get a list of all known key types

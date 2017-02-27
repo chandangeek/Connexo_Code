@@ -21,6 +21,8 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
+
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_UNIQUE + "}")
 public class TrustStoreImpl implements TrustStore {
 
@@ -99,6 +101,13 @@ public class TrustStoreImpl implements TrustStore {
 
     @Override
     public void removeCertificate(X509Certificate x509Certificate) {
+        List<TrustedCertificate> toBeRemoved = this.trustedCertificates.stream()
+                .filter(trustedCertificate -> trustedCertificate.getCertificate()
+                        .get()
+                        .getSerialNumber()
+                        .equals(x509Certificate.getSerialNumber()))
+                .collect(toList());
+        this.trustedCertificates.removeAll(toBeRemoved);
 
     }
 

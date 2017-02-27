@@ -211,7 +211,7 @@ public class PkiServiceImpl implements PkiService {
     }
 
     @Override
-    public Optional<KeyType> getKeyTypes(String name) {
+    public Optional<KeyType> getKeyType(String name) {
         return this.getDataModel().mapper(KeyType.class).getUnique("name", name);
     }
 
