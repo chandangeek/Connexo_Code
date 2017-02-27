@@ -54,6 +54,7 @@ Ext.define('Dxp.view.log.Setup', {
                     },
                     emptyComponent: {
                         xtype: 'uni-form-empty-message',
+                        doAutoSize: false,
                         text: Uni.I18n.translate('general.startedOnEmptyList', 'DES', '{0} started on {1} did not create any logs.', [me.task.get('name'), me.runStartedOn], false)
                     }
                 }

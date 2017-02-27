@@ -56,6 +56,7 @@ Ext.define('Dxp.controller.Log', {
                     view.down('#log-view-menu').setHeader(task.get('name'));
                     me.getApplication().fireEvent('dataexporttaskload', task);
                 } else {
+                    me.getApplication().fireEvent('exporthistorylogload', occurrenceTask);
                     view.down('#main-panel').setTitle(
                         Uni.I18n.translate('exportTask.log.of.occurence', 'DES', "Log '{0}'", occurrenceTask.get('startedOn_formatted'), false)
                     );

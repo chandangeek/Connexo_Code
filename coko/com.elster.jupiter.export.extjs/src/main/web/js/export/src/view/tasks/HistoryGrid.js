@@ -40,6 +40,7 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
                 header: Uni.I18n.translate('general.exportTask', 'DES', 'Export task'),
                 hidden: me.showExportTask,
                 dataIndex: 'name',
+                flex: 2,
                 renderer: function (value, metaData, record) {
                     var url = me.router.getRoute('administration/dataexporttasks/dataexporttask').buildUrl({taskId: record.get("taskId")});
                     return Dxp.privileges.DataExport.canView()
