@@ -411,7 +411,7 @@ public class ValidationEvaluatorIT {
             channel.editReadings(QualityCodeSystem.MDM, ImmutableList.of(ReadingImpl.of(readingType, BigDecimal.valueOf(70L), date1.plusSeconds(900))));
             return null;
         });
-        assertThat(validationService.getLastChecked(channel).get()).isEqualTo(date1);
+        assertThat(validationService.getLastChecked(channel).get()).isEqualTo(date1.plusSeconds(900).minusMillis(1));
         validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC),
                 channel, channel.getReadings(Range.all()), Range.all());
         assertThat(validationStates).hasSize(4);
