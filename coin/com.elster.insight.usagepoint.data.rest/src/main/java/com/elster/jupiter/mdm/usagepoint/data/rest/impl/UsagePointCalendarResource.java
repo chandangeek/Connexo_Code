@@ -114,7 +114,7 @@ public class UsagePointCalendarResource {
         if(calendarOnUsagePointInfo.immediately){
             calendarUsage = usagePoint.getUsedCalendars().addCalendar(calendar);
         } else {
-            calendarUsage = usagePoint.getUsedCalendars().addCalendar(start, calendar);
+            calendarUsage = usagePoint.getUsedCalendars().addCalendar(calendar, start);
         }
         return Response.ok(calendarOnUsagePointInfoFactory.from(calendarUsage, usagePoint)).build();
     }
