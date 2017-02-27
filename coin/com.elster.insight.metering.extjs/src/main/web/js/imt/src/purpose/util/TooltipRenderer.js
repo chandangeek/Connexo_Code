@@ -14,10 +14,6 @@ Ext.define('Imt.purpose.util.TooltipRenderer', {
                     items: []
                 },
                 {
-                    title: Uni.I18n.translate('general.MDMQuality', 'IMT', 'MDM quality'),
-                    items: []
-                },
-                {
                     title: Uni.I18n.translate('general.thirdPartyQuality', 'IMT', 'Third party quality'),
                     items: []
                 }
@@ -46,11 +42,10 @@ Ext.define('Imt.purpose.util.TooltipRenderer', {
                         groups[1].items.push(indexName);
                         break;
                     case '3.':
-                        groups[2].items.push(indexName);
                         break;
                     case '4.':
                     case '5.':
-                        groups[3].items.push(indexName);
+                        groups[2].items.push(indexName);
                         break;
                 }
             });
