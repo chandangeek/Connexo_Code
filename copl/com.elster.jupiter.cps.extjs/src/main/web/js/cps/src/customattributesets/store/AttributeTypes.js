@@ -17,5 +17,12 @@ Ext.define('Cps.customattributesets.store.AttributeTypes', {
             type: 'json',
             root: 'domainExtensions'
         }
-    }
+    },
+
+    sorters: [
+        {
+            property: 'displayValue',
+            direction: 'ASC'
+        }
+    ]
 });
