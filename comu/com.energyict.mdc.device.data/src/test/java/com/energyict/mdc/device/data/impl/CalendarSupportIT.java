@@ -385,7 +385,7 @@ public class CalendarSupportIT extends PersistenceIntegrationTest {
     private Calendar createCalendar(String name) {
         CalendarService calendarService = inMemoryPersistence.
                 getCalendarService();
-        Category category = calendarService.findCategoryByName(OutOfTheBoxCategory.TOU.getDefaultDisplayName()).get();
+        Category category = calendarService.findCategoryByName(OutOfTheBoxCategory.TOU.name()).get();
         EventSet eventSet = calendarService.newEventSet("eventset")
                 .addEvent("On peak").withCode(3)
                 .addEvent("Off peak").withCode(5)
