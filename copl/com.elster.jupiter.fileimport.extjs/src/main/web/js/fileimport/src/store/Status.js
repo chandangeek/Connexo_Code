@@ -34,6 +34,12 @@ Ext.define('Fim.store.Status', {
                 {
                     name: 'display'
                 }
+            ],
+            sorters: [
+                {
+                    property: 'display',
+                    direction: 'ASC'
+                }
             ]
         }, cfg)]);
     }

@@ -21,8 +21,14 @@ Ext.define('Fim.store.ImportServicesFilter', {
     },
 
     fields: [
-        {name: 'id',       type: 'int'},
-        {name: 'name',  type: 'string'}
-    ]
+        {name: 'id', type: 'int'},
+        {name: 'name', type: 'string'}
+    ],
 
+    sorters: [
+        {
+            property: 'name',
+            direction: 'ASC'
+        }
+    ]
 });
