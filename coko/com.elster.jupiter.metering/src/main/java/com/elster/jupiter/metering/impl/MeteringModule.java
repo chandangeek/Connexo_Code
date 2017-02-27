@@ -214,13 +214,8 @@ public class MeteringModule extends AbstractModule {
 
     private static class TimeOfUse implements Category {
         @Override
-        public void save() {
-            // No implementation required
-        }
-
-        @Override
         public String getDisplayName() {
-            return OutOfTheBoxCategory.TOU.getDefaultDisplayName();
+            return OutOfTheBoxCategory.TOU.name();
         }
 
         @Override

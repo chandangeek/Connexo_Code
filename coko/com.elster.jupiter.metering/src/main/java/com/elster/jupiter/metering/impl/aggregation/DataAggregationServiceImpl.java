@@ -375,7 +375,7 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
     @Override
     public Category getTimeOfUseCategory() {
         return this.calendarService
-                    .findCategoryByName(OutOfTheBoxCategory.TOU.getDefaultDisplayName())
+                    .findCategoryByName(OutOfTheBoxCategory.TOU.name())
                     .orElseThrow(() -> new IllegalStateException("Calendar service installer failure, time of use category is missing"));
     }
 

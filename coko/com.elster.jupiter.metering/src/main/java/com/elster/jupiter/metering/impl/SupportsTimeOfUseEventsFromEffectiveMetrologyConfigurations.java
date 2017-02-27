@@ -14,7 +14,8 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Models the contraint that the {@link com.elster.jupiter.calendar.Event}s of the
+ * Models the contraint that the {@link com.elster.jupiter.calendar.Event}s of
+ * a {@link com.elster.jupiter.calendar.OutOfTheBoxCategory time of use}
  * {@link com.elster.jupiter.calendar.Calendar} should support all the events
  * of all the event sets of the {@link com.elster.jupiter.metering.config.MetrologyConfiguration}s
  * that are effective during the same interval as the Calendar is effective.
@@ -25,8 +26,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({ElementType.TYPE})
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = {SupportsEventsFromEffectiveMetrologyConfigurationsValidator.class})
-public @interface SupportsEventsFromEffectiveMetrologyConfigurations {
+@Constraint(validatedBy = {SupportsTimeOfUseEventsFromEffectiveMetrologyConfigurationsValidator.class})
+public @interface SupportsTimeOfUseEventsFromEffectiveMetrologyConfigurations {
     String message() default "";
 
     Class<?>[] groups() default {};

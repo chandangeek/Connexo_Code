@@ -84,7 +84,7 @@ public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest
     protected Object getInstanceOfSubclassEqualToA() {
         when(searchDomain.getId()).thenReturn("UsagePoint");
         when(searchService.findDomain(any())).thenReturn(Optional.of(searchDomain));
-        UsagePointMetrologyConfigurationImpl subInst = new UsagePointMetrologyConfigurationImpl(dataModel, metrologyConfigurationService, eventService, this.customPropertySetService, searchDomain, searchService, clock, publisher);
+        UsagePointMetrologyConfigurationImpl subInst = new UsagePointMetrologyConfigurationImpl(dataModel, metrologyConfigurationService, eventService, this.customPropertySetService, searchDomain, clock, publisher);
         Reflection.field("id").ofType(Long.TYPE).in(subInst).set(INSTANCE_A_ID);
         return subInst;
     }

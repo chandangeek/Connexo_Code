@@ -326,28 +326,127 @@ public interface UsagePoint extends HasId, IdentifiedObject {
         UsagePointConfigurationBuilder calculating(ReadingType readingType);
     }
 
+    /**
+     * Models the usage of a {@link Calendar} on a UsagePoint.
+     * A Calendar is in use on a UsagePoint for a specified
+     * period in time. Multiple Calendars can only be in use
+     * at the same time if their {@link Category} is different.
+     * In other words adding a Calendar of one Category
+     * while another Calendar of the same Category is already
+     * in use will automatically stop the old Calendar
+     * from being in use.
+     */
     interface CalendarUsage {
-
         Range<Instant> getRange();
-
         Calendar getCalendar();
-
-        void end(Instant endAt);
     }
 
     interface UsedCalendars {
 
-        List<CalendarUsage> getCalendars(Category category);
-
+        /**
+         * Adds the specified {@link Calendar} to this UsagePoint.
+         * From this point in time onwards, the specified Calendar
+         * will be the only Calendar in use of the specified {@link Category}.
+         * Therefore, this will throw an exception if another
+         * Calendar of the same Category was added with a date
+         * further in the future.<br>
+         * Should have the same effect as:
+         * <code>
+         * <pre>
+         * Clock clock = ...
+         * usagePoint.addCalendar(clock.instant(), calendar);
+         * </pre>
+         * </code>
+         *
+         * @param calendar The Calendar
+         * @return The {@link CalendarUsage}
+         * @see #addCalendar(Calendar, Instant)
+         */
         CalendarUsage addCalendar(Calendar calendar);
 
-        CalendarUsage addCalendar(Instant startAt, Calendar calendar);
+        /**
+         * Adds the specified {@link Calendar} to this UsagePoint
+         * from the specified point in time onwards. Note that that
+         * point in time should be in the future.
+         * From that point in time onwards, the specified Calendar
+         * will be the only Calendar in use of the specified {@link Category}.
+         * Therefore, this will throw an exception if another
+         * Calendar of the same Category was added with a date
+         * even further in the future.
+         *
+         * @param calendar The Calendar
+         * @param startAt The point in time from which the Calendar will be in use
+         * @return The {@link CalendarUsage}
+         */
+        CalendarUsage addCalendar(Calendar calendar, Instant startAt);
 
+        /**
+         * Removes the specified {@link Calendar} so that it is no longer
+         * in use from this point in time onwards.
+         * Note that if the Calendar's {@link Category} is {@link com.elster.jupiter.calendar.OutOfTheBoxCategory#TOU time of use},
+         * this will throw an exception if the {@link UsagePointMetrologyConfiguration}
+         * requires {@link com.elster.jupiter.calendar.Event}s.<br>
+         * Should have the same effect as:
+         * <code>
+         * <pre>
+         * Clock clock = ...
+         * usagePoint.removeCalendar(clock.instant(), calendar);
+         * </pre>
+         * </code>
+         *
+         * @param calendar The Calendar that will no longer be in use from this point in time onwards
+         * @see #removeCalendar(Calendar, Instant)
+         */
+        void removeCalendar(Calendar calendar);
+
+        /**
+         * Removes the specified {@link Calendar} so that it is no longer
+         * in use from the specified point in time onwards.
+         * Note that if the Calendar's {@link Category} is {@link com.elster.jupiter.calendar.OutOfTheBoxCategory#TOU time of use},
+         * this will throw an exception if the {@link UsagePointMetrologyConfiguration}
+         * requires {@link com.elster.jupiter.calendar.Event}s.
+         *
+         * @param calendar The Calendar that will no longer be in use from this point in time onwards
+         * @param removeAt The point in time from which the Calendar will no longer be in use
+         * @see #removeCalendar(Calendar, Instant)
+         */
+        void removeCalendar(Calendar calendar, Instant removeAt);
+
+        /**
+         * Gets all the {@link Calendar}s that are or have been in use
+         * since the creation of this UsagePoint organized by {@link Category}.
+         *
+         * @return The Calendar usages organized by Category
+         */
+        Map<Category, List<CalendarUsage>> getCalendars();
+
+        /**
+         * Gets all the {@link Calendar}s of the specified {@link Category}
+         * that are or have been in use since the creation of this UsagePoint.
+         *
+         * @param category The Category
+         * @return The List of {@link CalendarUsage}s
+         */
+        List<CalendarUsage> getCalendars(Category category);
+
+        /**
+         * Gets all the {@link Calendar}s that are in use on
+         * the specified point in time.
+         *
+         * @param instant The point in time
+         * @return The List of Calendar
+         */
         List<Calendar> getCalendars(Instant instant);
 
+        /**
+         * Gets the only {@link Calendar} of the specified {@link Category}
+         * that is in use on the specified point in time.
+         *
+         * @param instant The point in time
+         * @param category The Category
+         * @return The Calendar or <code>Optional.empty()</code> if no such Calendar exists
+         */
         Optional<Calendar> getCalendar(Instant instant, Category category);
-
-        Map<Category, List<CalendarUsage>> getCalendars();
     }
 
 }

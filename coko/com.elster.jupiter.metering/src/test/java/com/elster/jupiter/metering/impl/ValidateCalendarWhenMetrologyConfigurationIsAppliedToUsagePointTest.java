@@ -7,6 +7,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.Event;
+import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
@@ -137,6 +138,8 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
         when(this.readingTypeWithoutTimeOfUse.getMRID()).thenReturn("Reading type without TOU");
         when(this.deliverableWithoutTimeOfUse.getReadingType()).thenReturn(this.readingTypeWithoutTimeOfUse);
 
+        when(this.category.getName()).thenReturn(OutOfTheBoxCategory.TOU.name());
+        when(this.category.getDisplayName()).thenReturn("Time of use in testing context");
         Event compatibleEvent = mock(Event.class);
         when(compatibleEvent.getCode()).thenReturn((long) tou);
         when(this.calendarWithCompatibleEvents.getEvents()).thenReturn(Collections.singletonList(compatibleEvent));
@@ -171,7 +174,7 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
         when(this.dataModel.getInstance(UsagePointMeterActivatorImpl.class)).thenReturn(this.injector.getInstance(UsagePointMeterActivatorImpl.class));
         when(this.dataModel.getInstance(MetrologyContractChannelsContainerImpl.class)).thenReturn(this.injector.getInstance(MetrologyContractChannelsContainerImpl.class));
         when(this.dataModel.getInstance(CalendarUsageImpl.class)).thenReturn(this.injector.getInstance(CalendarUsageImpl.class));
-        when(this.dataModel.getInstance(SupportsEventsFromEffectiveMetrologyConfigurationsValidator.class)).thenReturn(this.injector.getInstance(SupportsEventsFromEffectiveMetrologyConfigurationsValidator.class));
+        when(this.dataModel.getInstance(SupportsTimeOfUseEventsFromEffectiveMetrologyConfigurationsValidator.class)).thenReturn(this.injector.getInstance(SupportsTimeOfUseEventsFromEffectiveMetrologyConfigurationsValidator.class));
         when(this.dataModel.getInstance(IsPresentReferenceValidator.class)).thenReturn(this.injector.getInstance(IsPresentReferenceValidator.class));
         when(this.dataModel.getValidatorFactory()).thenReturn(this.getValidatorFactory());
     }

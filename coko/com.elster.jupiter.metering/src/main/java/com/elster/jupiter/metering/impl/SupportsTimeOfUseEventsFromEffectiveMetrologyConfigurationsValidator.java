@@ -5,6 +5,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.calendar.Event;
+import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -22,27 +23,35 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Validates the {@link SupportsEventsFromEffectiveMetrologyConfigurations} constraint.
+ * Validates the {@link SupportsTimeOfUseEventsFromEffectiveMetrologyConfigurations} constraint.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-02-23 (13:40)
  */
-public class SupportsEventsFromEffectiveMetrologyConfigurationsValidator implements ConstraintValidator<SupportsEventsFromEffectiveMetrologyConfigurations, CalendarUsageImpl> {
+public class SupportsTimeOfUseEventsFromEffectiveMetrologyConfigurationsValidator implements ConstraintValidator<SupportsTimeOfUseEventsFromEffectiveMetrologyConfigurations, CalendarUsageImpl> {
 
     private final Thesaurus thesaurus;
 
     @Inject
-    public SupportsEventsFromEffectiveMetrologyConfigurationsValidator(Thesaurus thesaurus) {
+    public SupportsTimeOfUseEventsFromEffectiveMetrologyConfigurationsValidator(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
 
     @Override
-    public void initialize(SupportsEventsFromEffectiveMetrologyConfigurations supportsEventsFromEffectiveMetrologyConfigurations) {
+    public void initialize(SupportsTimeOfUseEventsFromEffectiveMetrologyConfigurations supportsTimeOfUseEventsFromEffectiveMetrologyConfigurations) {
         // No need to hold on to the annotation for now
     }
 
     @Override
     public boolean isValid(CalendarUsageImpl calendarUsage, ConstraintValidatorContext context) {
+        return !this.isTimeOfUse(calendarUsage) || this.isValidTimeOfUse(calendarUsage, context);
+    }
+
+    private boolean isTimeOfUse(CalendarUsageImpl calendarUsage) {
+        return OutOfTheBoxCategory.TOU.name().equals(calendarUsage.getCalendar().getCategory().getName());
+    }
+
+    public boolean isValidTimeOfUse(CalendarUsageImpl calendarUsage, ConstraintValidatorContext context) {
         Set<Long> providedEventCodes =
             calendarUsage
                 .getCalendar()
@@ -59,7 +68,7 @@ public class SupportsEventsFromEffectiveMetrologyConfigurationsValidator impleme
                 .map(ReadingType::getTou)
                 .map(Long::new)
                 .collect(Collectors.toSet());
-        requestedEventCodes.remove(0);  // Code 0 actually means not applicable
+        requestedEventCodes.remove(0L);  // Code 0 actually means not applicable
         Set<Long> missingEventCodes = new HashSet<>();
         for (Long requestedEventCode : requestedEventCodes) {
             if (!providedEventCodes.contains(requestedEventCode)) {

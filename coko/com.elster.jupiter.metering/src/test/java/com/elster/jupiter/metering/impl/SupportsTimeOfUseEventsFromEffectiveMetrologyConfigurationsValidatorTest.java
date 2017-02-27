@@ -7,6 +7,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.Event;
+import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -49,13 +50,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link SupportsEventsFromEffectiveMetrologyConfigurationsValidator} component.
+ * Tests the {@link SupportsTimeOfUseEventsFromEffectiveMetrologyConfigurationsValidator} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-02-23 (13:55)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class SupportsEventsFromEffectiveMetrologyConfigurationsValidatorTest {
+public class SupportsTimeOfUseEventsFromEffectiveMetrologyConfigurationsValidatorTest {
 
     private static final Instant CALENDAR_USAGE_START = LocalDate.of(2017, Month.FEBRUARY, 23).atStartOfDay(ZoneOffset.UTC).toInstant();
     private static final long PEAK_CODE = 97L;
@@ -109,6 +110,8 @@ public class SupportsEventsFromEffectiveMetrologyConfigurationsValidatorTest {
         when(this.readingTypeWithoutTimeOfUse.getMRID()).thenReturn("Reading type without TOU");
         when(this.deliverableWithoutTimeOfUse.getReadingType()).thenReturn(this.readingTypeWithoutTimeOfUse);
 
+        when(this.category.getName()).thenReturn(OutOfTheBoxCategory.TOU.name());
+        when(this.category.getDisplayName()).thenReturn("Time of use in testing context");
         Event compatibleEvent = mock(Event.class);
         when(compatibleEvent.getCode()).thenReturn(PEAK_CODE);
         when(this.calendarWithCompatibleEvents.getEvents()).thenReturn(Collections.singletonList(compatibleEvent));
@@ -173,7 +176,7 @@ public class SupportsEventsFromEffectiveMetrologyConfigurationsValidatorTest {
         CalendarUsageImpl calendarUsage = CalendarUsageImpl.create(this.dataModel, CALENDAR_USAGE_START, this.usagePoint, this.calendarWithCompatibleEvents);
 
         // Business method
-        this.testValidationFails(calendarUsage);
+        this.testValidationOk(calendarUsage);
 
         // Asserts
         verify(this.calendarWithCompatibleEvents).getEvents();
@@ -189,7 +192,7 @@ public class SupportsEventsFromEffectiveMetrologyConfigurationsValidatorTest {
     }
 
     @Test
-    public void addCalendar_OptionalContractWithTimeOfUse_MandatoryContractsWithoutTimeOfUseDeliverables() {
+    public void addCalendar_OptionalContractWithTimeOfUse_MandatoryContractWithoutTimeOfUseDeliverables() {
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
         when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(this.metrologyConfiguration);
         when(this.mandatoryContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithoutTimeOfUse));
@@ -200,7 +203,7 @@ public class SupportsEventsFromEffectiveMetrologyConfigurationsValidatorTest {
         CalendarUsageImpl calendarUsage = CalendarUsageImpl.create(this.dataModel, CALENDAR_USAGE_START, this.usagePoint, this.calendarWithCompatibleEvents);
 
         // Business method
-        this.testValidationFails(calendarUsage);
+        this.testValidationOk(calendarUsage);
 
         // Asserts
         verify(this.calendarWithCompatibleEvents).getEvents();
@@ -243,7 +246,7 @@ public class SupportsEventsFromEffectiveMetrologyConfigurationsValidatorTest {
     }
 
     @Test
-    public void addCalenda_OptionalContractWithoutTimeOfUse_MandatoryContractsWithOtherTimeOfUseDeliverables() {
+    public void addCalendar_OptionalContractWithoutTimeOfUse_MandatoryContractsWithOtherTimeOfUseDeliverables() {
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
         IReadingType readingTypeWithOtherTimeOfUse = mock(IReadingType.class);
         when(readingTypeWithOtherTimeOfUse.getTou()).thenReturn((int) OFF_PEAK_CODE);
@@ -274,8 +277,34 @@ public class SupportsEventsFromEffectiveMetrologyConfigurationsValidatorTest {
         verify(this.readingTypeWithTimeOfUse, never()).getTou();
     }
 
-    private SupportsEventsFromEffectiveMetrologyConfigurationsValidator getTestInstance() {
-        return new SupportsEventsFromEffectiveMetrologyConfigurationsValidator(this.thesaurus);
+    @Test
+    public void addNonTimeOfUseCalendar() {
+        when(this.category.getName()).thenReturn("TST");
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        IReadingType readingTypeWithOtherTimeOfUse = mock(IReadingType.class);
+        when(readingTypeWithOtherTimeOfUse.getTou()).thenReturn((int) OFF_PEAK_CODE);
+        when(readingTypeWithOtherTimeOfUse.getMRID()).thenReturn("Another reading type without TOU");
+        ReadingTypeDeliverable deliverableWithOtherTimeOfUse = mock(ReadingTypeDeliverable.class);
+        when(deliverableWithOtherTimeOfUse.getReadingType()).thenReturn(readingTypeWithOtherTimeOfUse);
+        when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(this.metrologyConfiguration);
+        when(this.mandatoryContract.getDeliverables()).thenReturn(Collections.singletonList(deliverableWithOtherTimeOfUse));
+        when(this.optionalContract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverableWithoutTimeOfUse));
+        when(this.metrologyConfiguration.getContracts()).thenReturn(Arrays.asList(this.mandatoryContract, this.optionalContract));
+        when(this.metrologyConfiguration.getDeliverables()).thenReturn(Arrays.asList(this.deliverableWithoutTimeOfUse, this.deliverableWithTimeOfUse));
+        when(this.usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(effectiveMetrologyConfigurationOnUsagePoint));
+        CalendarUsageImpl calendarUsage = CalendarUsageImpl.create(this.dataModel, CALENDAR_USAGE_START, this.usagePoint, this.calendarWithOtherEvents);
+
+        // Business method
+        this.testValidationOk(calendarUsage);
+
+        // Asserts
+        verify(this.category).getName();
+        verify(this.calendarWithOtherEvents, never()).getEvents();
+        verify(this.usagePoint, never()).getEffectiveMetrologyConfigurations(Range.atLeast(CALENDAR_USAGE_START));
+    }
+
+    private SupportsTimeOfUseEventsFromEffectiveMetrologyConfigurationsValidator getTestInstance() {
+        return new SupportsTimeOfUseEventsFromEffectiveMetrologyConfigurationsValidator(this.thesaurus);
     }
 
     private void testValidationOk(CalendarUsageImpl calendarUsage) {
@@ -305,7 +334,7 @@ public class SupportsEventsFromEffectiveMetrologyConfigurationsValidatorTest {
 
             @Override
             public <T extends ConstraintValidator<?, ?>> T getInstance(Class<T> clazz) {
-                if (clazz.equals(SupportsEventsFromEffectiveMetrologyConfigurationsValidator.class)) {
+                if (clazz.equals(SupportsTimeOfUseEventsFromEffectiveMetrologyConfigurationsValidator.class)) {
                     return (T) getTestInstance();
                 } else if (clazz.equals(IsPresentReferenceValidator.class)) {
                     return (T) new IsPresentReferenceValidator();

@@ -20,7 +20,7 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import java.time.Instant;
 
-@SupportsEventsFromEffectiveMetrologyConfigurations(message = PrivateMessageSeeds.Constants.UNSATISFIED_TOU, groups = {Save.Create.class, Save.Update.class})
+@SupportsTimeOfUseEventsFromEffectiveMetrologyConfigurations(message = PrivateMessageSeeds.Constants.UNSATISFIED_TOU, groups = {Save.Create.class, Save.Update.class})
 public class CalendarUsageImpl implements ServerCalendarUsage {
 
     enum Fields {
@@ -85,6 +85,12 @@ public class CalendarUsageImpl implements ServerCalendarUsage {
     }
 
     @Override
+    public boolean startsOnOrAfter(Instant when) {
+        Instant start = this.interval.getStart();
+        return start.equals(when) || start.isAfter(when);
+    }
+
+    @Override
     public Calendar getCalendar() {
         return calendar.get();
     }
@@ -98,11 +104,13 @@ public class CalendarUsageImpl implements ServerCalendarUsage {
     }
 
     @Override
+    public boolean notEnded() {
+        return this.interval.getEnd() == null;
+    }
+
+    @Override
     public void end(Instant endAt) {
         Range<Instant> currentRange = getRange();
-        if (currentRange.hasUpperBound()) {
-            throw new IllegalArgumentException();
-        }
         interval = Interval.of(Ranges.copy(currentRange).withOpenUpperBound(endAt));
         update();
     }

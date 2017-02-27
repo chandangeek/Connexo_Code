@@ -20,7 +20,6 @@ import com.elster.jupiter.metering.impl.search.UsagePointRequirementsSearchDomai
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.search.SearchDomain;
-import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.util.Pair;
 
@@ -44,9 +43,9 @@ class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl im
     private List<UsagePointRequirement> usagePointRequirements = new ArrayList<>();
 
     @Inject
-    UsagePointMetrologyConfigurationImpl(DataModel dataModel, ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, CustomPropertySetService customPropertySetService, UsagePointRequirementsSearchDomain searchDomain, SearchService searchService, Clock clock, Publisher publisher) {
+    UsagePointMetrologyConfigurationImpl(DataModel dataModel, ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, CustomPropertySetService customPropertySetService, UsagePointRequirementsSearchDomain searchDomain, Clock clock, Publisher publisher) {
         super(dataModel, metrologyConfigurationService, eventService, customPropertySetService, clock, publisher);
-        this.searchDomain = searchService.findDomain(searchDomain.getId()).get();
+        this.searchDomain = searchDomain;
     }
 
     @Override

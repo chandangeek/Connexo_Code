@@ -6,6 +6,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.Event;
+import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -612,6 +613,7 @@ public class UsagePointImpl implements ServerUsagePoint {
         Set<Long> providedEventCodes = this.calendarUsages
                 .stream()
                 .filter(calendarUsage -> calendarUsage.overlaps(period))
+                .filter(calendarUsage -> calendarUsage.getCalendar().getCategory().getName().equals(OutOfTheBoxCategory.TOU.name()))
                 .map(ServerCalendarUsage::getCalendar)
                 .map(Calendar::getEvents)
                 .flatMap(Collection::stream)
@@ -1341,7 +1343,7 @@ public class UsagePointImpl implements ServerUsagePoint {
 
     @Override
     public UsedCalendars getUsedCalendars() {
-        return new UsedCalendarsImpl(this.dataModel, this.clock, this);
+        return new UsedCalendarsImpl(this.dataModel, this.clock, thesaurus, this);
     }
 
     @Override
