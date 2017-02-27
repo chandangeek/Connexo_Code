@@ -19,7 +19,7 @@ Ext.define('Mdc.model.ConnectionMethod', {
         {name: 'comPortPool', type: 'string', useNull: true},
         {name: 'connectionTypePluggableClass', type: 'string', useNull: true},
         {name: 'connectionStrategyInfo', type: 'Mdc.model.field.ConnectionStrategy', useNull: true},
-        'rescheduleRetryDelay',
+        {name: 'rescheduleRetryDelay', type: 'Mdc.model.field.TimeInfo', useNull: true},
         {name: 'temporalExpression', useNull: true, defaultValue: null},
         {name: 'comWindowStart',type: 'int',useNull: true},
         {name: 'comWindowEnd',type: 'int',useNull: true},
@@ -33,7 +33,6 @@ Ext.define('Mdc.model.ConnectionMethod', {
         {name: 'protocolDialectConfigurationProperties', type: 'auto', useNull: true, defaultValue: null}
     ],
     associations: [
-        {name: 'rescheduleRetryDelay',type: 'hasOne',model:'Mdc.model.field.TimeInfo',associationKey: 'rescheduleRetryDelay'},
         {name: 'properties', type: 'hasMany', model: 'Uni.property.model.Property', associationKey: 'properties', foreignKey: 'properties',
             getTypeDiscriminator: function (node) {
                 return 'Uni.property.model.Property';
