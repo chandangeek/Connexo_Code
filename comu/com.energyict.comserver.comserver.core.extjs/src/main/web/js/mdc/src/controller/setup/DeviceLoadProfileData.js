@@ -321,7 +321,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                         style: {
                             color: '#686868',
                             fontWeight: 'normal',
-                            fontSize: '13px',
+                            fontSize: '14px',
                             fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
                         }
                     }
@@ -349,7 +349,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 style: {
                     color: '#686868',
                     fontWeight: 'normal',
-                    fontSize: '13px',
+                    fontSize: '14px',
                     fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
                 }
             };

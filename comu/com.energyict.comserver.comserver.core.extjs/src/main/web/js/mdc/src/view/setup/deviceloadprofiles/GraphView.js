@@ -70,7 +70,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
                     style: {
                         color: '#686868',
                         fontWeight: 'normal',
-                        fontSize: '14px',
+                        fontSize: '13px',
                         fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
                     }
                 }
@@ -100,7 +100,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
                         style: {
                             color: '#686868',
                             fontWeight: 'normal',
-                            fontSize: '13px',
+                            fontSize: '14px',
                             fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
                         }
                     }
@@ -110,7 +110,27 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
             rangeSelector: {
                 selected: 0,
                 inputEnabled: true,
-                buttons: zoomLevels
+                buttons: zoomLevels,
+                labelStyle: {
+                    color: '#686868',
+                    fontWeight: 'normal',
+                    fontSize: '14px',
+                    fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                },
+                inputStyle: {
+                    color: '#686868',
+                    fontWeight: 'normal',
+                    fontSize: '14px',
+                    fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                },
+                buttonTheme: {
+                    style: {
+                        color: '#686868',
+                        fontWeight: 'normal',
+                        fontSize: '14px',
+                        fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                    }
+                }
             },
 
             tooltip: {
@@ -118,7 +138,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
                 style: {
                     color: '#686868',
                     fontWeight: 'normal',
-                    fontSize: '13px',
+                    fontSize: '14px',
                     fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
                 },
                 positioner: function (labelWidth, labelHeight, point) {
@@ -130,12 +150,12 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
                     return {x: xValue, y: yValue}
                 },
                 formatter: function () {
-                    var s = '<b>' + Highcharts.dateFormat('%A, %e %B %Y', this.x) + '</b>';
+                    var s = '<b style=" color: #74af74; font-size: 14px; fontFamily: Lato, Helvetica, Arial, Verdana, Sans-serif;">' + Highcharts.dateFormat('%A, %e %B %Y', this.x) ;
                     if (intervalLength < 86400000) {
                         s += '<br/>' + Uni.I18n.translate('general.interval', 'MDC', 'Interval') + ' ' + Highcharts.dateFormat('%H:%M', this.x);
-                        s += ' - ' + Highcharts.dateFormat('%H:%M', this.x + intervalLength);
+                        s += ' - ' + Highcharts.dateFormat('%H:%M', this.x + intervalLength)+ '</b>';
                     } else {
-                        s += '<b> - ' + Highcharts.dateFormat('%A, %e %B %Y', this.x + intervalLength) + '</b>';
+                        s += ' - ' + Highcharts.dateFormat('%A, %e %B %Y', this.x + intervalLength) + '</b>';
                     }
                     if (showDeviceQualityIcon[this.x]) {
                         s += '<span class="icon-price-tags" style="margin-left:4px; display:inline-block; vertical-align:top;"></span>';
@@ -145,7 +165,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
                     $.each(this.points, function (i, points) {
                         var series = points.point.series;
                         s += '<tr>'
-                        s += '<td style="padding-right: 10px; text-align: right"><b>' + channels[series.index].name + '</b></td>';
+                        s += '<td style="padding-right: 10px; text-align: left"><b>' + channels[series.index].name + '</b></td>';
                         s += '<td style="padding-right: 1px; text-align: right">' + points.y + '</td>';
                         s += '<td style="padding-left: 1px; text-align: left">' + channels[series.index].unitOfMeasure + '</td>';
                         s += '</tr>'

@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
 
     createTooltip: function (tooltip) {
         var me = this,
-            html = '<span style=" color: #686868; font-size: 14px; ">' + Uni.DateTime.formatDateLong(new Date(tooltip.x)),
+            html = '<b style=" color: #74af74; font-size: 14px; ">' + Uni.DateTime.formatDateLong(new Date(tooltip.x)),
             point = tooltip.point,
             deltaIcon = '',
             bulkIcon = '',
@@ -71,24 +71,24 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
             calculatedValue = null;
         }
         html += '<br/>' + Uni.I18n.translate('general.interval', 'MDC', 'Interval') + ' ' + Uni.DateTime.formatTimeShort(new Date(point.x));
-        html += ' - ' + Uni.DateTime.formatTimeShort(new Date(point.intervalEnd)) + deviceQualityIcon + '<br>';
-        html += '<table style="margin-top: 10px"><tbody>';
+        html += ' - ' + Uni.DateTime.formatTimeShort(new Date(point.intervalEnd)) + deviceQualityIcon + '</b><br>';
+        html += '<table style="margin-top: 10px; color: #686868; font-size: 14px;"><tbody>';
         bgColor = point.tooltipColor;
         if (me.mentionDataLoggerSlave) {
-            html += '<tr><td><b>' + Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave') + ':</b></td><td>'
+            html += '<tr><td><b>' + Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave') + '</b></td><td>'
                 + (Ext.isEmpty(point.dataLoggerSlave) ? '-' : point.dataLoggerSlave) + '</td></tr>';
         }
         if (calculatedValue) {
-            html += '<tr><td>' + Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value') + ':</td><td style="font-weight: lighter">' + calculatedValue +
+            html += '<tr><td><b>' + Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value') + '</b></td><td style="font-weight: lighter">' + calculatedValue +
                 deltaIcon + (point.edited ? editedIcon : '') + '</td></tr>';
-            html += '<tr><td>' + Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value') + ':</td><td style="font-weight: lighter">' + collectedValue +
+            html += '<tr><td><b>' + Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value') + '</b></td><td style="font-weight: lighter">' + collectedValue +
                 bulkIcon + (point.bulkEdited ? editedIcon : '') + '</td></tr>';
         } else {
-            html += '<tr><td><b>' + Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value') + ':</b></td><td style="font-weight: lighter">' + collectedValue +
+            html += '<tr><td><b>' + Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value') + '</b></b></td><td style="font-weight: lighter">' + collectedValue +
                 deltaIcon + (point.edited ? editedIcon : '') + '</td></tr>';
         }
         if (point.multiplier) {
-            html += '<tr><td><b>' + Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier') + ':</b></td><td>' + point.multiplier + '</td></tr>';
+            html += '<tr><td><b>' + Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier') + '</b></td><td>' + point.multiplier + '</td></tr>';
         }
         html += '</tbody></table>';
         html = '<div style="background-color: ' + bgColor + '; padding: 8px">' + html + '</div>';
