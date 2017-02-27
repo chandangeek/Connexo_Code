@@ -36,7 +36,7 @@ Ext.define('Idv.view.NonEstimatedDataGrid', {
     },
 
     style: {
-        marginLeft: '0'
+        paddingRight: '0'
     },
 
     initComponent: function () {
