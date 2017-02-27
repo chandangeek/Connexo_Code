@@ -676,7 +676,7 @@ public class DeviceTypeResource {
                 .stream()
                 .filter(calendar -> !usedCalendars.contains(calendar)
                         && calendar.getStatus().equals(Status.ACTIVE)
-                        && calendar.getCategory().getId()==(calendarService.findCategoryByName(OutOfTheBoxCategory.TOU.getDefaultDisplayName()).get().getId()))
+                        && calendar.getCategory().getName().equals(OutOfTheBoxCategory.TOU.name()))
                 .map(calendarInfoFactory::summaryFromCalendar)
                 .collect(Collectors.toList());
 
