@@ -10,7 +10,8 @@ Ext.define('Fim.view.importservices.AddImportService', {
         'Uni.form.field.DateTime',
         'Uni.util.FormErrorMessage',
         'Uni.property.form.Property',
-        'Uni.property.form.GroupedPropertyForm'
+        'Uni.property.form.GroupedPropertyForm',
+        'Uni.form.field.CheckboxWithExplanation'
     ],
 
     edit: false,
@@ -105,6 +106,13 @@ Ext.define('Fim.view.importservices.AddImportService', {
                         width: 600,
                         fieldLabel: Uni.I18n.translate('general.importFolder', 'FIM', 'Import folder'),
                         enforceMaxLength: true
+                    },
+                    {
+                        xtype: 'checkbox-with-explanation',
+                        name: 'isActiveOnUI',
+                        itemId: 'allow-uploads',
+                        fieldLabel: Uni.I18n.translate('general.allowUploads', 'FIM', 'Allow uploads in application'),
+                        explanation: Uni.I18n.translate('general.allowUploads.explanation', 'FIM', 'Uploading a file for import will also be available on the \'Upload file for import\' page')
                     },
                     {
                         xtype: 'container',
