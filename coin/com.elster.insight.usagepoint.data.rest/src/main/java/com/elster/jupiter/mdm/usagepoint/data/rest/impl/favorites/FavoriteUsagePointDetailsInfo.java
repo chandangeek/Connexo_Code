@@ -21,6 +21,7 @@ public class FavoriteUsagePointDetailsInfo {
     public Long creationDate;
     public Instant flaggedDate;
     public String comment;
+    public String state;
     public boolean favorite;
     public VersionInfo<Long> parent;
 
@@ -43,7 +44,7 @@ public class FavoriteUsagePointDetailsInfo {
         parent = new VersionInfo<>();
         parent.id = usagePoint.getId();
         parent.version = usagePoint.getVersion();
-
+        state = usagePoint.getState().getLifeCycle().getName();
     }
 
     private String getUsagePointDisplayType(UsagePoint usagePoint, Thesaurus thesaurus) {
