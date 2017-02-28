@@ -115,7 +115,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
      * - event notification frame secured with general-global ciphering (tag 0xDB GENERAL_GLOBAL_CIPHERING)
      * - event notification frame secured with general ciphering (tag 0xDD GENERAL_CIPHERING)
      * - event notification frame secured with general signing (tag 0xDF GENERAL_SIGNING)
-     * <p/>
+     * <p>
      * Not supported:
      * - ded-event-notification-request (tag 0xCA DED_EVENTNOTIFICATION_REQUEST) because we don't have a dedicated session key available
      * - glo-event-notification-request (tag 0xD2 GLO_EVENTNOTIFICATION_REQUEST) because it does not contain a system-title to identify the device
@@ -557,8 +557,8 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
 
     protected Boolean getInboundComTaskOnHold() {
         return getContext()
-                    .isInboundOnHold(deviceIdentifier)
-                    .orElse(Boolean.FALSE); // Avoid NPE down the line that may naively unbox in if-then constructs
+                .isInboundOnHold(deviceIdentifier)
+                .orElse(Boolean.FALSE); // Avoid NPE down the line that may naively unbox in if-then constructs
     }
 
     public DeviceProtocolSecurityPropertySet getSecurityPropertySet() {
@@ -590,7 +590,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
 
         setSourceSAP(ProtocolTools.getIntFromBytes(header, 2, 2));
         setDestinationSAP(ProtocolTools.getIntFromBytes(header, 4, 2));
-        Supplier<String> message1 = () -> " - sourceSAP="+getSourceSAP()+", destinationSAP:"+getDestinationSAP();
+        Supplier<String> message1 = () -> " - sourceSAP=" + getSourceSAP() + ", destinationSAP:" + getDestinationSAP();
         getContext().getLogger().info(message1);
         if (getSourceSAP() == 1) {
             setNotificatioType(INTERNAL_EVENT);
@@ -667,20 +667,20 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
             if (classId != DLMSClassId.DATA.getClassId()) {
                 if (classId != DLMSClassId.PUSH_EVENT_NOTIFICATION_SETUP.getClassId()) {
                     throw DataParseException.ioException(new ProtocolException("Expected push event notification from object with class ID '" + DLMSClassId.EVENT_NOTIFICATION.getClassId() +
-                                                                                                            "' or with classId '" + DLMSClassId.PUSH_EVENT_NOTIFICATION_SETUP.getClassId() +
-                                                                                                            "' or with classId '" + DLMSClassId.DATA.getClassId() +
-                                                                                                            "' but was '" + classId + "'"));
+                            "' or with classId '" + DLMSClassId.PUSH_EVENT_NOTIFICATION_SETUP.getClassId() +
+                            "' or with classId '" + DLMSClassId.DATA.getClassId() +
+                            "' but was '" + classId + "'"));
+                }
             }
-        }
         }
 
         if (attributeNumber != ATTRIBUTE_UNKNOWN) {
-        if (attributeNumber != LAST_EVENT_ATTRIBUTE_NUMBER) {
-            if (attributeNumber != EVENT_NOTIFICATION_ATTRIBUTE_NUMBER) {
-                throw DataParseException.ioException(new ProtocolException("Expected push event notification attribute '" + LAST_EVENT_ATTRIBUTE_NUMBER + "' or '"+EVENT_NOTIFICATION_ATTRIBUTE_NUMBER+"' but was '" + attributeNumber + "'"));
+            if (attributeNumber != LAST_EVENT_ATTRIBUTE_NUMBER) {
+                if (attributeNumber != EVENT_NOTIFICATION_ATTRIBUTE_NUMBER) {
+                    throw DataParseException.ioException(new ProtocolException("Expected push event notification attribute '" + LAST_EVENT_ATTRIBUTE_NUMBER + "' or '" + EVENT_NOTIFICATION_ATTRIBUTE_NUMBER + "' but was '" + attributeNumber + "'"));
+                }
             }
         }
-    }
     }
 
     private void parseNotificationWith5Elements(Structure eventPayLoad) {
