@@ -54,7 +54,7 @@ Ext.define('Uni.property.view.property.LifeCycleStatusInDeviceType', {
                         disabled: true,
                         fieldLabel: '&nbsp',
                         queryMode: 'local',
-                        name: 'deviceState',
+                        name: this.getName(),
                         labelWidth: 260,
                         allowBlank: false,
                         width: 595,

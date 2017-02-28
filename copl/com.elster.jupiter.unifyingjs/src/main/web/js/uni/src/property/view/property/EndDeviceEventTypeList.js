@@ -6,6 +6,9 @@
 Ext.define('Uni.property.view.property.EndDeviceEventTypeList', {
     extend: 'Uni.property.view.property.Base',
 
+    mixins: {
+        field: 'Ext.form.field.Field'
+    },
     requires: [
         'Uni.property.store.DeviceTypes',
         'Uni.property.store.DeviceDomains',
@@ -14,8 +17,10 @@ Ext.define('Uni.property.view.property.EndDeviceEventTypeList', {
         'Uni.property.store.EventTypesForAlarmRule'
     ],
 
+    name: '',
     getEditCmp: function () {
         var me = this;
+        me.name = me.getName();
         return [
             {
                 items: [
@@ -28,15 +33,27 @@ Ext.define('Uni.property.view.property.EndDeviceEventTypeList', {
                         width: 1000,
                         items: [
                             {
-                                xtype: 'component',
-                                html: Uni.I18n.translate('general.noEventTypes','UNI','No event types have been added'),
-                                itemId: 'noEventTypesLabel',
-                                style: {
-                                    'font': 'italic 13px/17px Lato',
-                                    'color': '#686868',
-                                    'margin-top': '6px',
-                                    'margin-right': '10px'
-                                }
+                                xtype: 'fieldcontainer',
+                                layout: 'vbox',
+                                msgTarget: 'under',
+                                items: [
+                                    {
+                                        xtype: 'component',
+                                        html: Uni.I18n.translate('general.noEventTypes', 'UNI', 'No event types have been added'),
+                                        itemId: 'noEventTypesLabel',
+                                        id: this.getName(),
+
+                                        style: {
+                                            'font': 'italic 13px/17px Lato',
+                                            'color': '#686868',
+                                            'margin-top': '6px',
+                                            'margin-right': '10px'
+                                        }
+                                    },
+                                    {
+                                        html: '<div id="error-message" class="x-form-invalid-under" style="display:none"></div>'
+                                    }
+                                ]
                             },
                             {
                                 xtype: 'gridpanel',
@@ -190,6 +207,7 @@ Ext.define('Uni.property.view.property.EndDeviceEventTypeList', {
         eventTypePanel.getStore().add(eventTypeModel);
 
         if (eventTypePanel.getStore().count() > 0) {
+            me.clearInvalid();
             noEventTypePanel.hide();
             eventTypePanel.show();
         }
@@ -212,5 +230,14 @@ Ext.define('Uni.property.view.property.EndDeviceEventTypeList', {
         }
 
         return items;
+    },
+
+    markInvalid: function (errors) {
+        var errorMessage = this.getEl().query('#error-message')[0];
+        errorMessage.style.display ='block';
+        errorMessage.innerHTML=errors;
+    },
+    clearInvalid: function () {
+        this.getEl().query('#error-message')[0].style.display ='none';
     }
 });
