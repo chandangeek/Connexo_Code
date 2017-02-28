@@ -44,7 +44,7 @@ public class FavoriteUsagePointDetailsInfo {
         parent = new VersionInfo<>();
         parent.id = usagePoint.getId();
         parent.version = usagePoint.getVersion();
-        state = usagePoint.getState().getLifeCycle().getName();
+        state = usagePoint.getState().getName();
     }
 
     private String getUsagePointDisplayType(UsagePoint usagePoint, Thesaurus thesaurus) {
