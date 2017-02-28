@@ -25,12 +25,22 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
         me.items = [
             {
                 xtype: 'general-info-form',
-                itemId: 'add-usage-point-step1',
+                itemId: 'step-general',
                 title: Uni.I18n.translate('usagepoint.wizard.step1title', 'IMT', 'Step 1: General information'),
                 isWizardStep: true,
                 navigationIndex: 1,
+                stepName: 'generalInfo',
                 ui: 'large',
                 isPossibleAdd: me.isPossibleAdd
+            },
+            {
+                xtype: 'life-cycle-transition-info-form',
+                itemId: 'step-life-cycle-transition',
+                title: Uni.I18n.translate('usagepoint.wizard.cpsStepTitle', 'IMT', 'Step {0}: {1}', [4, Uni.I18n.translate('general.lifeCycleTransition', 'IMT', 'Life cycle transition')]),
+                navigationIndex: 4,
+                stepName: 'lifeCycleTransitionInfo',
+                ui: 'large',
+                isWizardStep: true
             }
         ];
 
@@ -77,17 +87,24 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
         var me = this,
             step = me.getLayout().getActiveItem();
 
-        switch (step.navigationIndex) {
-            case 1:
+        switch (step.stepName) {
+            case 'generalInfo':
                 me.callParent(arguments);
                 break;
-            case 2:
+            case 'techInfo':
                 step.updateRecord();
                 me.getRecord().set('techInfo', step.getRecord().getData());
                 break;
-            default:
+            case 'casInfo':
                 step.updateRecord();
                 me.getRecord().customPropertySets().add(step.getRecord());
+                break;
+            case 'metrologyConfigurationWithMetersInfo':
+                me.getRecord().set(step.getRecord());
+                break;
+            case 'lifeCycleTransitionInfo':
+                me.getRecord().set('transitionToPerform', step.getRecord());
+                break;
         }
     },
 
@@ -109,18 +126,24 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
         if (warning) {
             warning.setVisible(!isValid);
         }
-        if (step.xtype === 'cps-info-form') {
-            if (!isValid) {
-                step.markInvalid(errors);
-            } else {
-                step.clearInvalid();
-            }
-        } else {
-            if (!isValid) {
-                step.getForm().markInvalid(errors);
-            } else {
-                step.getForm().clearInvalid();
-            }
+        switch (step.stepName) {
+            case 'casInfo':
+            case 'metrologyConfigurationWithMetersInfo':
+            case 'lifeCycleTransitionInfo':
+                if (!isValid) {
+                    step.markInvalid(errors);
+                } else {
+                    step.clearInvalid();
+                }
+                break;
+            case 'generalInfo':
+            case 'techInfo':
+                if (!isValid) {
+                    step.getForm().markInvalid(errors);
+                } else {
+                    step.getForm().clearInvalid();
+                }
+                break;
         }
         Ext.resumeLayouts(true);
     }

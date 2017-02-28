@@ -45,34 +45,58 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
             data = [],
             total = output.get('total'),
             fields = ['name', 'key', 'data', 'url', 'percentage', 'detail', 'tooltip'],
-            statisticsEdited = [],
+            edited = [],
             title = '<a href="' + url + '">'
                 + Ext.String.htmlEncode(output.get('name'))
-                + '</a>';
+                + '</a>',
+            sortedStatistics = [],
+            statisticsValid,
+            statisticsSuspect,
+            statisticsNotValidated,
+            statisticsEdited;
 
         if (!me.titleIsPartOfDataView) {
             me.title = title;
         }
 
         if (total > 0) {
-            me.titleAlign = 'right';
-            output.get('statistics').map(function(item) {
-                var queryParams = {},
-                    percentageUrl,
-                    dataItem;
-
-                if (item.key == 'statisticsSuspect' || item.key == 'statisticsMissing') {
-                    percentageUrl = router.getRoute('usagepoints/view/purpose/output').buildUrl({
-                        purposeId: purpose.getId(),
-                        outputId: output.getId()
-                    }, queryParams);
+            output.get('statistics').map(function (item) {
+                switch (item.key) {
+                    case 'statisticsValid':
+                        statisticsValid = item;
+                        break;
+                    case 'statisticsSuspect':
+                        statisticsSuspect = item;
+                        break;
+                    case 'statisticsNotValidated':
+                        statisticsNotValidated = item;
+                        break;
+                    case 'statisticsEdited':
+                        statisticsEdited = item;
+                        break;
                 }
+            });
+            if (statisticsSuspect) {
+                sortedStatistics.push(statisticsSuspect);
+            }
+            if (statisticsValid) {
+                sortedStatistics.push(statisticsValid);
+            }
+            if (statisticsNotValidated) {
+                sortedStatistics.push(statisticsNotValidated);
+            }
+            if (statisticsEdited) {
+                sortedStatistics.push(statisticsEdited);
+            }
+            me.titleAlign = 'right';
+            sortedStatistics.map(function(item) {
+                var queryParams = {},
+                    dataItem;
 
                 dataItem = {
                     name: item.displayName,
                     key: item.key,
                     data: item.count,
-                    url: percentageUrl,
                     percentage: Math.round(item.count / total * 100) + '%',
                     detail: item.detail,
                     tooltip: me.prepareTooltip(item, 'VIEW')
@@ -81,7 +105,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                 if (item.key != 'statisticsEdited') {
                     data.push(dataItem);
                 } else {
-                    statisticsEdited.push(dataItem);
+                    edited.push(dataItem);
                 }
             });
 
@@ -146,7 +170,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                     deferInitialRefresh: false,
                     store: Ext.create('Ext.data.Store', {
                         fields: fields,
-                        data: Ext.Array.merge(data, statisticsEdited)
+                        data: Ext.Array.merge(data, edited)
                     }),
                     itemSelector: 'tr.trlegend',
                     tpl: [
@@ -167,8 +191,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                         '<tr class="trlegend">' +
                         '<td>{name}</td>',
                         '<td>',
-                        '<tpl if="url"><a href="{url}">{percentage}</a>' +
-                        '<tpl else>{percentage}</tpl>' +
+                        '<tpl>{percentage}</tpl>' +
                         '</td>',
                         '<td>',
                         '<tpl if="tooltip">',
