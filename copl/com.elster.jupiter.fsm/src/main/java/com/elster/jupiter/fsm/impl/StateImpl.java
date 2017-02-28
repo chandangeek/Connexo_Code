@@ -61,14 +61,15 @@ public final class StateImpl implements State {
         public String fieldName() {
             return javaFieldName;
         }
-    }
 
+    }
     private final DataModel dataModel;
+
     private final Thesaurus thesaurus;
     private final Clock clock;
-
     @SuppressWarnings("unused")
     private long id;
+
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
     private String name;
@@ -88,13 +89,16 @@ public final class StateImpl implements State {
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
-
     @Inject
     protected StateImpl(DataModel dataModel, Thesaurus thesaurus, Clock clock) {
         super();
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.clock = clock;
+    }
+
+    protected void setStage(Stage stage) {
+        this.stage.set(stage);
     }
 
     public StateImpl initialize(FiniteStateMachine finiteStateMachine, boolean custom, String name) {

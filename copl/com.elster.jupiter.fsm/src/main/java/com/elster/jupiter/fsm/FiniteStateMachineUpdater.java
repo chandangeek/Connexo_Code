@@ -144,8 +144,9 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
          */
         StateUpdater prohibit(StateTransitionEventType eventType);
 
-        State complete();
+        void stage(Stage stage);
 
+        State complete();
     }
 
     interface TransitionBuilder {
