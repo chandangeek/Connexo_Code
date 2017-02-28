@@ -192,7 +192,7 @@ public class FiniteStateMachineBuilderImpl implements FiniteStateMachineBuilder 
 
         @Override
         public State complete() {
-            FiniteStateMachineBuilderImpl.this.underConstruction.add(this.underConstruction);
+            FiniteStateMachineBuilderImpl.this.underConstruction.validateAndAdd(this.underConstruction);
             return this.underConstruction;
         }
     }
