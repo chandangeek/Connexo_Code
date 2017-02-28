@@ -130,7 +130,7 @@ class MeterActivationSetBuilder {
     }
 
     private Stream<Instant> switchTimestamps(MeterActivation meterActivation) {
-        return this.switchTimestampsFromRange(meterActivation.getRange());
+        return this.switchTimestampsFromRange(this.period.intersection(meterActivation.getRange()));
     }
 
     private Stream<ServerCalendarUsage> getOverlappingCalendarUsages() {
@@ -142,7 +142,7 @@ class MeterActivationSetBuilder {
     }
 
     private Stream<Instant> switchTimestamps(ServerCalendarUsage calendarUsage) {
-        return this.switchTimestampsFromRange(calendarUsage.getRange());
+        return this.switchTimestampsFromRange(this.period.intersection(calendarUsage.getRange()));
     }
 
     private Stream<Instant> getOverlappingSLPProperties(CustomPropertySet<UsagePoint, ?> customPropertySet) {
