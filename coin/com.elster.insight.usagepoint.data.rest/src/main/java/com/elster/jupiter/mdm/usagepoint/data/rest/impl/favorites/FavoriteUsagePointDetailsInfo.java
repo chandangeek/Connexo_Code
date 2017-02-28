@@ -21,6 +21,7 @@ public class FavoriteUsagePointDetailsInfo {
     public Long creationDate;
     public Instant flaggedDate;
     public String comment;
+    public String state;
     public boolean favorite;
     public VersionInfo<Long> parent;
 
@@ -34,7 +35,7 @@ public class FavoriteUsagePointDetailsInfo {
         displayMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().map(mc -> mc.getMetrologyConfiguration().getName()).orElse(null);
         displayType = this.getUsagePointDisplayType(usagePoint, thesaurus);
         usagePoint.getCurrentConnectionState().ifPresent(connectionState -> {
-            displayConnectionState = connectionState.getName();
+            displayConnectionState = connectionState.getConnectionStateDisplayName();
         });
         creationDate = usagePoint.getCreateDate().toEpochMilli();
         comment = favoriteUsagePoint.getComment();
@@ -43,7 +44,7 @@ public class FavoriteUsagePointDetailsInfo {
         parent = new VersionInfo<>();
         parent.id = usagePoint.getId();
         parent.version = usagePoint.getVersion();
-
+        state = usagePoint.getState().getName();
     }
 
     private String getUsagePointDisplayType(UsagePoint usagePoint, Thesaurus thesaurus) {
