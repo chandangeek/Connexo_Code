@@ -1937,14 +1937,14 @@ public enum TableSpecs {
                     .add();
         }
     },
-    MTR_SLP_SYNTHLOADPROFILE{
+    MTR_SYNTHETICLOADPROFILE{
         @Override
         void addTo(DataModel dataModel) {
             Table<SyntheticLoadProfile> table = dataModel.addTable(name(), SyntheticLoadProfile.class);
             table.since(Version.version(10, 3));
             table.map(SyntheticLoadProfileImpl.class);
             table.cache();
-            table.setJournalTableName("MTR_SLP_SYNTHLOADPROFILEJRNL");
+            table.setJournalTableName("MTR_SYNTHETICLOADPROFILEJRNL");
             Column idColumn = table.addAutoIdColumn();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
@@ -1954,8 +1954,8 @@ public enum TableSpecs {
             table.column("START_TIME").number().notNull().conversion(ColumnConversion.NUMBER2INSTANT).map("startTime").add();
             Column timeseriesColumn = table.column("TIMESERIES").number().add();
             table.addAuditColumns();
-            table.primaryKey("PK_MTR_SLP_SLPROFILE").on(idColumn).add();
-            table.unique("UK_MTR_SLP_SLPROFILE_NAME").on(nameColumn).add();
+            table.primaryKey("PK_MTR_SLP").on(idColumn).add();
+            table.unique("UK_SLP_NAME").on(nameColumn).add();
             table.foreignKey("FK_MTR_SLP_TIMESERIES")
                     .on(timeseriesColumn)
                     .references(TimeSeries.class)
