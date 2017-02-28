@@ -368,7 +368,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                                     Ext.each(fail.issues, function (issue) {
                                         warnCount += 1;
                                         warnIssues.push(issue.id);
-                                        warnList += '<li>- <a href="javascript:void(0)">' + issue.title + '</a></li>';
+                                        failList += '<li>- <a href="#/workspace/issues/'+ issue.id +'?issueType=datacollection">' + issue.title + '</a></li>';
                                     });
                                     warnList += '</ul>';
                                     break;
@@ -398,7 +398,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                                 warnMessage = Uni.I18n.translatePlural('issues.close.unable.result', warnCount, 'ISU', '-','<h3 style="color: #eb5642">Unable to close one issue</h3><br>', '<h3 style="color: #eb5642">Unable to close {0} issues</h3><br>') + warnList;
                             }
                             if (failedCount > 0) {
-                                failedMessage = Uni.I18n.translatePlural('issues.close.failed.results', failedCount, 'ISU', '-', '<h3 style="color: #eb5642">Failed to close one issue</h3><br>', '<h3 style="color: #eb5642">Failed to close {0} issues</h3><br>') + failList;
+                                failedMessage = Uni.I18n.translatePlural('issues.close.failed.result', failedCount, 'ISU', '-', '<h3 style="color: #eb5642">Failed to close one issue</h3><br>', '<h3 style="color: #eb5642">Failed to close {0} issues</h3><br>') + failList;
                             }
                             break;
                         case 'retrycomm':
