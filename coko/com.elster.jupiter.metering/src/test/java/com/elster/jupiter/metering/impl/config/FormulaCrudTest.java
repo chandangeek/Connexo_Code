@@ -2494,7 +2494,7 @@ public class FormulaCrudTest {
             ReadingTypeDeliverable deliverable = builder.build(property);
         } catch (InvalidNodeException e) {
             // Asserts
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CUSTOM_PROPERTY_MUST_BE_NUMERICAL_OR_SYNTHETIC_LOAD_PROFILE);
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CUSTOM_PROPERTY_MUST_BE_NUMERICAL);
             throw e;
         }
     }

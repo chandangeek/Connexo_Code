@@ -20,7 +20,6 @@ import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 import com.elster.jupiter.util.units.Quantity;
 
 import java.math.BigDecimal;
@@ -100,8 +99,8 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
         if (!registeredCustomPropertySet.get().getCustomPropertySet().isVersioned()) {
             throw InvalidNodeException.customPropertySetNotVersioned(this.formulaBuilder.getThesaurus(), customPropertySet);
         }
-        if (!this.isNumerical(propertySpec) && !this.isSyntheticLoadProfile(propertySpec)) {
-            throw InvalidNodeException.customPropertyMustBeNumericalOrSyntheticLoadProfile(this.formulaBuilder.getThesaurus(), customPropertySet, propertySpec);
+        if (!this.isNumerical(propertySpec)) {
+            throw InvalidNodeException.customPropertyMustBeNumerical(this.formulaBuilder.getThesaurus(), customPropertySet, propertySpec);
         }
         return new FormulaAndExpressionNodeBuilder(this.formulaBuilder.property(registeredCustomPropertySet.get(), propertySpec));
     }
@@ -117,11 +116,6 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
         Class valueType = propertySpec.getValueFactory().getValueType();
         return Number.class.isAssignableFrom(valueType)
                 || Quantity.class.isAssignableFrom(valueType);
-    }
-
-    private boolean isSyntheticLoadProfile(PropertySpec propertySpec) {
-        Class valueType = propertySpec.getValueFactory().getValueType();
-        return SyntheticLoadProfile.class.isAssignableFrom(valueType);
     }
 
     @Override
