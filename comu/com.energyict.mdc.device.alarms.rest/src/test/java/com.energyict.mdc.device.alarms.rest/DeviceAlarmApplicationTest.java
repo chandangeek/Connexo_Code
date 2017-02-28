@@ -148,6 +148,7 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
         deviceAlarmApplication.setMeteringService(meteringService);
         deviceAlarmApplication.setIssueService(issueService);
         deviceAlarmApplication.setUserService(userService);
+        deviceAlarmApplication.setPropertyValueInfoService(propertyValueInfoService);
         deviceAlarmApplication.setNlsService(nlsService);
         deviceAlarmApplication.setBpmService(bpmService);
         deviceAlarmApplication.setPropertyValueInfoService(propertyValueInfoService);
@@ -359,6 +360,7 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
         when(alarm.getModTime()).thenReturn(Instant.EPOCH);
         when(alarm.getVersion()).thenReturn(1L);
         when(alarm.getDeviceAlarmRelatedEvents()).thenReturn(events);
+
         when(alarm.getPriority()).thenReturn(com.elster.jupiter.issue.share.Priority.DEFAULT);
         return alarm;
     }
