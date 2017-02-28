@@ -198,7 +198,7 @@ enum OutOfTheBoxCategoryForImport {
     protected void addCalendar(OutOfTheBoxCategory category, String calendarName, Optional<Instant> usageStartTime, UsagePointImportRecord data, UsagePoint usagePoint, ServiceProvider serviceProvider) {
         Calendar calendar = serviceProvider.calendarService()
                 .findCalendarByName(calendarName)
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.BAD_METROLOGY_CONFIGURATION, data.getLineNumber(), category.name()));
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.CALENDAR_DOES_NOT_EXIST, data.getLineNumber(), category.name()));
         if (usageStartTime.isPresent()) {
             usagePoint
                     .getUsedCalendars()
