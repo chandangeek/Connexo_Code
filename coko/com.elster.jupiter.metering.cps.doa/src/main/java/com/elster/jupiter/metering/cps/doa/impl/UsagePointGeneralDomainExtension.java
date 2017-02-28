@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.cps.doa.impl;
 
+import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -16,7 +17,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-class UsagePointGeneralDomainExtension implements PersistentDomainExtension<UsagePoint> {
+class UsagePointGeneralDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<UsagePoint> {
     public enum Fields {
         DOMAIN {
             @Override
