@@ -102,6 +102,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Checks.is;
+import static com.elster.jupiter.util.conditions.Where.where;
 import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND;
 import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE;
 import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_SEND;
@@ -257,6 +258,23 @@ public class DeviceResource {
         List<Device> allDevices = allDevicesFinder.from(queryParameters).find();
         List<DeviceInfo> deviceInfos = deviceInfoFactory.fromDevices(allDevices); //DeviceInfo.from(allDevices);
         return PagedInfoList.fromPagedList("devices", deviceInfos, queryParameters);
+    }
+
+    @GET @Transactional
+    @Path("/forcombo")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getAllDevices2(@BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
+        Condition condition = Condition.TRUE;
+        if (!params.getQueryParameters().isEmpty()) {
+            String name = params.getFirst("name");
+            if (name != null) {
+                condition = condition.and(where("name").likeIgnoreCase( name.length()==0 ? "*" : "*" + name + "*" ));
+            }
+        }
+        Finder<Device> allDevicesFinder = deviceService.findAllDevices(condition);
+        List<Device> allDevices = allDevicesFinder.from(queryParameters).find();
+        List<DeviceVersionInfo> deviceVersionInfos = DeviceVersionInfo.fromDevices(allDevices);
+        return PagedInfoList.fromPagedList("devices", deviceVersionInfos, queryParameters);
     }
 
     @POST @Transactional
