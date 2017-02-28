@@ -30,6 +30,7 @@ import com.energyict.mdc.device.data.tasks.ItemizeCommunicationsFilterQueueMessa
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 
@@ -54,6 +55,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.streams.Functions.asStream;
 import static java.util.stream.Collectors.toSet;
 
 @Path("/communications")
@@ -69,11 +71,12 @@ public class CommunicationResource {
     private final JsonService jsonService;
     private final AppService appService;
     private final MessageService messageService;
+    private final ProtocolPluggableService protocolPluggableService;
     private final ResourceHelper resourceHelper;
     private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public CommunicationResource(CommunicationTaskService communicationTaskService, SchedulingService schedulingService, DeviceConfigurationService deviceConfigurationService, TaskService taskService, ComTaskExecutionInfoFactory comTaskExecutionInfoFactory, MeteringGroupsService meteringGroupsService, ExceptionFactory exceptionFactory, JsonService jsonService, AppService appService, MessageService messageService, ResourceHelper resourceHelper, ConcurrentModificationExceptionFactory conflictFactory) {
+    public CommunicationResource(CommunicationTaskService communicationTaskService, SchedulingService schedulingService, DeviceConfigurationService deviceConfigurationService, TaskService taskService, ComTaskExecutionInfoFactory comTaskExecutionInfoFactory, MeteringGroupsService meteringGroupsService, ExceptionFactory exceptionFactory, JsonService jsonService, AppService appService, MessageService messageService, ResourceHelper resourceHelper, ConcurrentModificationExceptionFactory conflictFactory, ProtocolPluggableService protocolPluggableService) {
         this.communicationTaskService = communicationTaskService;
         this.schedulingService = schedulingService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -84,6 +87,7 @@ public class CommunicationResource {
         this.jsonService = jsonService;
         this.appService = appService;
         this.messageService = messageService;
+        this.protocolPluggableService = protocolPluggableService;
         this.resourceHelper = resourceHelper;
         this.conflictFactory = conflictFactory;
     }
@@ -289,6 +293,19 @@ public class CommunicationResource {
                 end = jsonQueryFilter.getInstant(FilterOption.finishIntervalTo.name());
             }
             filter.lastSessionEnd = Interval.of(start, end);
+        }
+
+        if (jsonQueryFilter.hasProperty(HeatMapBreakdownOption.connectionTypes.name())) {
+            List<Long> connectionTypeIds = jsonQueryFilter.getLongList(FilterOption.connectionTypes.name());
+            filter.connectionTypes = connectionTypeIds
+                    .stream()
+                    .map(protocolPluggableService::findConnectionTypePluggableClass)
+                    .flatMap(asStream())
+                    .collect(toSet());
+        }
+
+        if (jsonQueryFilter.hasProperty("device")) {
+            filter.deviceName = jsonQueryFilter.getString("device");
         }
 
         return filter;

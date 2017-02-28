@@ -234,6 +234,10 @@ public class ConnectionResource {
             filter.lastSessionEnd = Interval.of(start, end);
         }
 
+        if (jsonQueryFilter.hasProperty("device")) {
+            filter.deviceName = jsonQueryFilter.getString("device");
+        }
+
         return filter;
     }
 
