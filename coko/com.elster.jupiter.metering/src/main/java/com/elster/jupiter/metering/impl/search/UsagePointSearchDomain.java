@@ -283,16 +283,14 @@ public class UsagePointSearchDomain implements SearchDomain {
         List<SearchablePropertyConstriction> constrictions = fixedProperties.stream()
                 .filter(SearchableProperty::affectsAvailableDomainProperties)
                 .map(mapper)
-                .filter(propertyValue -> propertyValue != null && propertyValue.getValueBean() != null && propertyValue
-                        .getValueBean().values != null)
+                .filter(propertyValue -> propertyValue != null && propertyValue.getValueBean() != null && propertyValue.getValueBean().isValid())
                 .map(SearchablePropertyValue::asConstriction)
                 .collect(Collectors.toList());
         // 3) update list of available properties and convert these properties into properties values
         Map<String, SearchablePropertyValue> valuesMap = (constrictions.isEmpty() ? fixedProperties : addDynamicProperties(fixedProperties, constrictions))
                 .stream()
                 .map(mapper)
-                .filter(propertyValue -> propertyValue != null && propertyValue.getValueBean() != null && propertyValue
-                        .getValueBean().values != null)
+                .filter(propertyValue -> propertyValue != null && propertyValue.getValueBean() != null && propertyValue.getValueBean().isValid())
                 .collect(Collectors.toMap(propertyValue -> propertyValue.getProperty()
                         .getName(), Function.identity()));
         // 4) refresh all properties with their constrictions
