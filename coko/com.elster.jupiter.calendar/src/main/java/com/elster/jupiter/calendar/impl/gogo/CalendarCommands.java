@@ -6,6 +6,7 @@ package com.elster.jupiter.calendar.impl.gogo;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.calendar.impl.CalendarTimeSeriesEntity;
@@ -283,6 +284,7 @@ public class CalendarCommands {
                     .addEvent("Four").withCode(4)
                     .add();
             calendarService.newCalendar(name, Year.of(2009), eventSet)
+                    .category(calendarService.findCategoryByName(OutOfTheBoxCategory.TOU.getDefaultDisplayName()).get())
                     .description("Conforms to typical old style eiServer Code, as expected by legacy protocols")
                     .newDayType("Day1")
                         .eventWithCode(4).startsFrom(LocalTime.of(7, 0, 0))
