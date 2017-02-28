@@ -36,7 +36,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
@@ -49,7 +48,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
@@ -115,9 +113,7 @@ public class UsagePointProcessorForMultisenseTest {
     private MeteringDataImporterContext context;
 
     @Before
-    public void initMocks() {
-        MockitoAnnotations.initMocks(this);
-
+    public void initMocks() throws FileNotFoundException {
         when(threadPrincipalService.getLocale()).thenReturn(Locale.ENGLISH);
         when(meteringService.getLocationTemplate()).thenReturn(locationTemplate);
         when(meteringService.findUsagePointByMRID(anyString())).thenReturn(Optional.empty());
@@ -133,7 +129,7 @@ public class UsagePointProcessorForMultisenseTest {
         when(serviceCategoryTwo.getKind()).thenReturn(ServiceKind.ELECTRICITY);
         when(serviceCategoryTwo.getId()).thenReturn(34L);
         when(thesaurus.getFormat((Matchers.any(MessageSeeds.class)))).thenReturn(nlsMessageFormat);
-        when(licenseService.getLicensedApplicationKeys()).thenReturn(Arrays.asList("MDC"));
+        when(licenseService.getLicensedApplicationKeys()).thenReturn(Collections.singletonList("MDC"));
         when(licenseService.getLicenseForApplication("INS")).thenReturn(Optional.empty());
         when(clock.instant()).thenReturn(Instant.EPOCH);
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(nlsMessageFormat);
@@ -142,16 +138,12 @@ public class UsagePointProcessorForMultisenseTest {
         when(nlsMessageFormat.format(anyInt(), anyInt())).thenReturn("message");
         when(locationTemplate.getTemplateMembers()).thenReturn(Collections.emptyList());
 
-        try {
-            when(fileImportOccurrenceCorrect.getLogger()).thenReturn(logger);
-            when(fileImportOccurrenceIncorrect.getLogger()).thenReturn(logger);
-            when(fileImportOccurrenceFail.getLogger()).thenReturn(logger);
-            when(fileImportOccurrenceCorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("usagepoint_correct.csv").getPath()));
-            when(fileImportOccurrenceIncorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("usagepoint_incorrect.csv").getPath()));
-            when(fileImportOccurrenceFail.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("usagepoint_fail.csv").getPath()));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        when(fileImportOccurrenceCorrect.getLogger()).thenReturn(logger);
+        when(fileImportOccurrenceIncorrect.getLogger()).thenReturn(logger);
+        when(fileImportOccurrenceFail.getLogger()).thenReturn(logger);
+        when(fileImportOccurrenceCorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("usagepoint_correct.csv").getPath()));
+        when(fileImportOccurrenceIncorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("usagepoint_incorrect.csv").getPath()));
+        when(fileImportOccurrenceFail.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("usagepoint_fail.csv").getPath()));
 
         context = spy(new MeteringDataImporterContext());
         context.setMeteringService(meteringService);

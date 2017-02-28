@@ -50,7 +50,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
@@ -146,9 +145,7 @@ public class UsagePointProcessorTest {
     private MeteringDataImporterContext context;
 
     @Before
-    public void initMocks() {
-        MockitoAnnotations.initMocks(this);
-
+    public void initMocks() throws FileNotFoundException {
         when(meteringService.getLocationTemplate()).thenReturn(locationTemplate);
         when(templateFieldZipCode.getName()).thenReturn("zipCode");
         when(templateFieldZipCode.isMandatory()).thenReturn(false);
@@ -229,7 +226,7 @@ public class UsagePointProcessorTest {
         when(usagePointBuilder.newLocationBuilder()).thenReturn(locationBuilder);
         when(serviceCategoryTwo.getId()).thenReturn(34L);
         when(thesaurus.getFormat((Matchers.any(MessageSeeds.class)))).thenReturn(nlsMessageFormat);
-        when(licenseService.getLicensedApplicationKeys()).thenReturn(Arrays.asList("INS"));
+        when(licenseService.getLicensedApplicationKeys()).thenReturn(Collections.singletonList("INS"));
         when(licenseService.getLicenseForApplication("INS")).thenReturn(Optional.ofNullable(license));
         when(clock.instant()).thenReturn(Instant.EPOCH);
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(nlsMessageFormat);
@@ -251,14 +248,10 @@ public class UsagePointProcessorTest {
         when(usagePoint.forCustomProperties()).thenReturn(usagePointCustomPropertySetExtension);
         when(usagePointCustomPropertySetExtension.getAllPropertySets()).thenReturn(Collections.emptyList());
 
-        try {
-            when(fileImportOccurrenceCorrect.getLogger()).thenReturn(logger);
-            when(fileImportOccurrenceIncorrect.getLogger()).thenReturn(logger);
-            when(fileImportOccurrenceCorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("usagepoint_correct.csv").getPath()));
-            when(fileImportOccurrenceIncorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("usagepoint_incorrect.csv").getPath()));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        when(fileImportOccurrenceCorrect.getLogger()).thenReturn(logger);
+        when(fileImportOccurrenceIncorrect.getLogger()).thenReturn(logger);
+        when(fileImportOccurrenceCorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("usagepoint_correct.csv").getPath()));
+        when(fileImportOccurrenceIncorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("usagepoint_incorrect.csv").getPath()));
 
         context = spy(new MeteringDataImporterContext());
         context.setMeteringService(meteringService);

@@ -34,7 +34,6 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -87,7 +86,6 @@ public class UsagePointCsvImporterTest {
 
     @Before
     public void beforeTest() {
-        reset(logger, context, thesaurus);
         when(simpleNlsMessageFormat.format(anyObject())).thenReturn("format");
         when(thesaurus.getFormat(any(TranslationKey.class))).thenAnswer(invocationOnMock -> simpleNlsMessageFormat);
         when(thesaurus.getFormat(any(MessageSeed.class))).thenAnswer(invocationOnMock -> simpleNlsMessageFormat);

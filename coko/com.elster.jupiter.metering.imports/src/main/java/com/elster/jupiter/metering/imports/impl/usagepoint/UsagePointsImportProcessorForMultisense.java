@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.imports.impl.usagepoint;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
@@ -18,8 +19,9 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Stream;
 
-public class UsagePointsImportProcessorForMultisense extends AbstractImportProcessor<UsagePointImportRecord> {
+public class UsagePointsImportProcessorForMultisense extends AbstractImportProcessor<UsagePointImportRecord> implements OutOfTheBoxCategoryForImport.ServiceProvider {
 
     UsagePointsImportProcessorForMultisense(MeteringDataImporterContext context) {
         super(context);
@@ -65,13 +67,20 @@ public class UsagePointsImportProcessorForMultisense extends AbstractImportProce
         usagePointBuilder.withIsVirtual(true);
         UsagePoint usagePoint = usagePointBuilder.create();
         usagePoint.addDetail(usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, getClock().instant()));
+        this.addCalendars(data, usagePoint);
         setMetrologyConfigurationForUsagePoint(data, usagePoint);
         usagePoint.update();
         return usagePoint;
     }
 
+    private void addCalendars(UsagePointImportRecord data, UsagePoint usagePoint) {
+        Stream
+            .of(OutOfTheBoxCategoryForImport.values())
+            .forEach(each -> each.addCalendar(data, usagePoint, this));
+    }
+
     private void setMetrologyConfigurationForUsagePoint(UsagePointImportRecord data, UsagePoint usagePoint) {
-        data.getMetrologyConfiguration().ifPresent(metrologyConfigurationName -> {
+        data.getMetrologyConfigurationName().ifPresent(metrologyConfigurationName -> {
             UsagePointMetrologyConfiguration metrologyConfiguration = getContext().getMetrologyConfigurationService().findMetrologyConfiguration(metrologyConfigurationName)
                     .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
                     .map(UsagePointMetrologyConfiguration.class::cast)
@@ -86,4 +95,10 @@ public class UsagePointsImportProcessorForMultisense extends AbstractImportProce
             usagePoint.apply(metrologyConfiguration, data.getMetrologyConfigurationApplyTime().get());
         });
     }
+
+    @Override
+    public CalendarService calendarService() {
+        return this.getContext().getCalendarService();
+    }
+
 }

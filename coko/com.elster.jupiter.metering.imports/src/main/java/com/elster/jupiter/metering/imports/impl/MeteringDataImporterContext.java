@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.imports.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.MeteringService;
@@ -32,6 +33,7 @@ public class MeteringDataImporterContext {
     private volatile LicenseService licenseService;
     private volatile Clock clock;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
+    private volatile CalendarService calendarService;
 
     public MeteringDataImporterContext() {
     }
@@ -45,7 +47,8 @@ public class MeteringDataImporterContext {
                                        CustomPropertySetService customPropertySetService,
                                        LicenseService licenseService,
                                        Clock clock,
-                                       MetrologyConfigurationService metrologyConfigurationService) {
+                                       MetrologyConfigurationService metrologyConfigurationService,
+                                       CalendarService calendarService) {
         setPropertySpecService(propertySpecService);
         setNlsService(nlsService);
         setMeteringService(meteringService);
@@ -55,6 +58,7 @@ public class MeteringDataImporterContext {
         setClock(clock);
         setLicenseService(licenseService);
         setMetrologyConfigurationService(metrologyConfigurationService);
+        setCalendarService(calendarService);
     }
 
     public PropertySpecService getPropertySpecService() {
@@ -136,6 +140,15 @@ public class MeteringDataImporterContext {
 
     public MetrologyConfigurationService getMetrologyConfigurationService() {
         return metrologyConfigurationService;
+    }
+
+    public CalendarService getCalendarService() {
+        return calendarService;
+    }
+
+    @Reference
+    public void setCalendarService(CalendarService calendarService) {
+        this.calendarService = calendarService;
     }
 
     public boolean insightInstalled() {

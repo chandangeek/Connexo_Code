@@ -27,8 +27,9 @@ import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
-class UsagePointImportDescription implements FileImportDescription<UsagePointImportRecord> {
+class UsagePointImportDescription implements FileImportDescription<UsagePointImportRecord>, OutOfTheBoxCategoryForImport.ParserProvider {
 
     private final InstantParser instantParser;
     private final BigDecimalParser bigDecimalParser;
@@ -48,6 +49,16 @@ class UsagePointImportDescription implements FileImportDescription<UsagePointImp
         this.yesNoAnswerParser = new YesNoAnswerParser();
         this.quantityParser = new QuantityParser(bigDecimalParser, numberParser, stringParser);
         this.context = context;
+    }
+
+    @Override
+    public LiteralStringParser stringParser() {
+        return this.stringParser;
+    }
+
+    @Override
+    public InstantParser instantParser() {
+        return this.instantParser;
     }
 
     @Override
@@ -101,7 +112,7 @@ class UsagePointImportDescription implements FileImportDescription<UsagePointImp
                 .withName("allowUpdate")
                 .build());
         fields.put("metrologyConfiguration", CommonField.withParser(stringParser)
-                .withSetter(record::setMetrologyConfiguration)
+                .withSetter(record::setMetrologyConfigurationName)
                 .withName("metrologyConfiguration")
                 .build());
         fields.put("metrologyConfigurationTime", CommonField.withParser(instantParser)
@@ -109,10 +120,17 @@ class UsagePointImportDescription implements FileImportDescription<UsagePointImp
                 .withName("metrologyConfigurationTime")
                 .build());
 
+        addCalendarFields(fields, record);
         addTechnicalAttributesFields(fields, record);
         addLocationFields(fields, record);
         addCustomPropertySetFields(fields, record);
         return fields;
+    }
+
+    private void addCalendarFields(Map<String, FileImportField<?>> fields, UsagePointImportRecord record) {
+        Stream
+            .of(OutOfTheBoxCategoryForImport.values())
+            .forEach(each -> each.addFields(fields, record, this));
     }
 
     private void addTechnicalAttributesFields(Map<String, FileImportField<?>> fields, UsagePointImportRecord record) {
