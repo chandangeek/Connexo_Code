@@ -11,8 +11,10 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificate;
 import com.elster.jupiter.pki.CryptographicType;
+import com.elster.jupiter.pki.ExtendedKeyUsage;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.KeyUsage;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.PrivateKeyFactory;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
@@ -37,6 +39,7 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.security.Security;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -186,28 +189,28 @@ public class PkiServiceImpl implements PkiService {
     }
 
     @Override
-    public AsyncKeyTypeBuilder newClientCertificateType(String name) {
-        KeyTypeImpl instance = dataModel.getInstance(KeyTypeImpl.class);
-        instance.setCryptographicType(CryptographicType.ClientCertificate);
-        return new AsyncKeyTypeBuilderImpl(name, instance);
+    public ClientCertificateTypeBuilder newClientCertificateType(String name, String signingAlgorithm) {
+        KeyTypeImpl keyType = dataModel.getInstance(KeyTypeImpl.class);
+        keyType.setCryptographicType(CryptographicType.ClientCertificate);
+        keyType.setName(name);
+        keyType.setAlgorithm(signingAlgorithm);
+        return new ClientCertificateTypeBuilderImpl(keyType);
     }
 
     @Override
-    public KeyType newCertificateType(String name) {
+    public CertificateTypeBuilder newCertificateType(String name) {
         KeyTypeImpl keyType = new KeyTypeImpl(dataModel);
         keyType.setCryptographicType(CryptographicType.Certificate);
         keyType.setName(name);
-        keyType.save();
-        return keyType;
+        return new CertificateTypeBuilderImpl(keyType);
     }
 
     @Override
-    public KeyType newTrustedCertificateType(String name) {
+    public CertificateTypeBuilder newTrustedCertificateType(String name) {
         KeyTypeImpl keyType = new KeyTypeImpl(dataModel);
         keyType.setCryptographicType(CryptographicType.TrustedCertificate);
         keyType.setName(name);
-        keyType.save();
-        return keyType;
+        return new CertificateTypeBuilderImpl(keyType);
     }
 
     @Override
@@ -255,6 +258,53 @@ public class PkiServiceImpl implements PkiService {
         ClientCertificateImpl clientCertificate = getDataModel().getInstance(ClientCertificateImpl.class).init(privateKeyWrapper);
         clientCertificate.save();
         return clientCertificate;
+    }
+
+    private class ClientCertificateTypeBuilderImpl extends CertificateTypeBuilderImpl implements ClientCertificateTypeBuilder {
+        private final KeyTypeImpl underConstruction;
+
+        private ClientCertificateTypeBuilderImpl(KeyTypeImpl underConstruction) {
+            super(underConstruction);
+            this.underConstruction = underConstruction;
+        }
+
+        @Override
+        public ClientCertificateTypeBuilder setKeyUsages(EnumSet<KeyUsage> keyUsages) {
+            this.underConstruction.setKeyUsages(keyUsages);
+            return this;
+        }
+
+        @Override
+        public ClientCertificateTypeBuilder setExtendedKeyUsages(EnumSet<ExtendedKeyUsage> keyUsages) {
+            this.underConstruction.setExtendedKeyUsages(keyUsages);
+            return this;
+        }
+
+        @Override
+        public ClientCertificateTypeBuilder description(String description) {
+            super.description(description);
+            return this;
+        }
+    }
+
+    private class CertificateTypeBuilderImpl implements CertificateTypeBuilder {
+        private final KeyTypeImpl underConstruction;
+
+        private CertificateTypeBuilderImpl(KeyTypeImpl underConstruction) {
+            this.underConstruction = underConstruction;
+        }
+
+        @Override
+        public CertificateTypeBuilder description(String description) {
+            this.underConstruction.setDescription(description);
+            return this;
+        }
+
+        @Override
+        public KeyType add() {
+            underConstruction.save();
+            return underConstruction;
+        }
     }
 
     private class AsyncKeyTypeBuilderImpl implements AsyncKeyTypeBuilder {

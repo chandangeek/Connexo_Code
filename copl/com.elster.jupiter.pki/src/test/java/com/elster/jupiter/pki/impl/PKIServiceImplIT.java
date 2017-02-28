@@ -4,8 +4,10 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.pki.CryptographicType;
+import com.elster.jupiter.pki.ExtendedKeyUsage;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.KeyUsage;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
@@ -37,6 +39,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -86,7 +89,7 @@ public class PKIServiceImplIT {
 
     @Test
     @Transactional
-    public void testCreateSymmetricKey() {
+    public void testCreateSymmetricKeyType() {
         KeyType created = inMemoryPersistence.getPkiService()
                 .newSymmetricKeyType("AES128", "AES", 128)
                 .description("hello")
@@ -103,7 +106,7 @@ public class PKIServiceImplIT {
 
     @Test
     @Transactional
-    public void testCreateRSAKey() {
+    public void testCreateRSAKeyType() {
         KeyType created = inMemoryPersistence.getPkiService()
                 .newAsymmetricKeyType("RSA2048")
                 .description("boe")
@@ -122,7 +125,7 @@ public class PKIServiceImplIT {
 
     @Test
     @Transactional
-    public void testCreateDSAKey() {
+    public void testCreateDSAKeyType() {
         KeyType created = inMemoryPersistence.getPkiService().newAsymmetricKeyType("DSA1024").DSA().keySize(1024).add();
         Optional<KeyType> keyType = inMemoryPersistence.getPkiService().getKeyType("DSA1024");
         assertThat(keyType).isPresent();
@@ -135,7 +138,7 @@ public class PKIServiceImplIT {
 
     @Test
     @Transactional
-    public void testCreateECKey() {
+    public void testCreateECKeyType() {
         KeyType created = inMemoryPersistence.getPkiService()
                 .newAsymmetricKeyType("NIST P-256")
                 .description("check")
@@ -150,6 +153,25 @@ public class PKIServiceImplIT {
         assertThat(keyType.get().getCryptographicType()).isEqualTo(CryptographicType.AsymmetricKey);
         assertThat(keyType.get().getKeySize()).isEqualTo(0); // CXO-5375, I expect null here
         assertThat(keyType.get().getCurve()).isEqualTo("secp256r1");
+    }
+
+    @Test
+    @Transactional
+    public void testCreateClientCertificateType() throws Exception {
+        inMemoryPersistence.getPkiService()
+                .newClientCertificateType("TLS Server", "SHA256withRSA")
+                .description("Example client cert")
+                .setKeyUsages(EnumSet.of(KeyUsage.keyAgreement, KeyUsage.keyCertSign))
+                .setExtendedKeyUsages(EnumSet.of(ExtendedKeyUsage.tlsWebClientAuthentication, ExtendedKeyUsage.tlsWebServerAuthentication))
+                .add();
+
+        Optional<KeyType> keyType = inMemoryPersistence.getPkiService().getKeyType("TLS Server");
+        assertThat(keyType).isPresent();
+        assertThat(keyType.get().getName()).isEqualTo("TLS Server");
+        assertThat(keyType.get().getAlgorithm()).isEqualTo("SHA256withRSA");
+        assertThat(keyType.get().getDescription()).isEqualTo("Example client cert");
+        assertThat(keyType.get().getKeyUsages()).containsOnly(KeyUsage.keyAgreement, KeyUsage.keyCertSign);
+        assertThat(keyType.get().getExtendedKeyUsages()).containsOnly(ExtendedKeyUsage.tlsWebServerAuthentication, ExtendedKeyUsage.tlsWebClientAuthentication);
     }
 
     @Test
@@ -348,8 +370,7 @@ public class PKIServiceImplIT {
                 .getPublic()
                 .getEncoded());
         X509v3CertificateBuilder certificateBuilder = new X509v3CertificateBuilder(dnName, BigInteger.TEN, notBefore, notAfter, dnName, subjectPublicKeyInfo);
-        ContentSigner contentSigner = new JcaContentSignerBuilder("SHA256WithRSA")
-                .build(keyPair.getPrivate());
+        ContentSigner contentSigner = new JcaContentSignerBuilder("SHA256WithRSA").build(keyPair.getPrivate());
         X509Certificate certificate = new JcaX509CertificateConverter()
                 .setProvider("BC")
                 .getCertificate(certificateBuilder.build(contentSigner));

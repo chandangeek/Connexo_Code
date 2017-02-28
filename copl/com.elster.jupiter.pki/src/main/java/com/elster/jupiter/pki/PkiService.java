@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Finder;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,10 +68,28 @@ public interface PkiService {
      */
     AsyncKeyTypeBuilder newAsymmetricKeyType(String name);
 
-    AsyncKeyTypeBuilder newClientCertificateType(String name);
-    KeyType newCertificateType(String name);
+    /**
+     * Creates a KeyType for a certificate that will be used to proof identity towards other party. Allows specifying key
+     * usages and extended key usages, so that CSR can be generated for certificate renewal.
+     * @param name The type's name
+     * @param signingAlgorithm the algorithm to be used to generate a signature on CSR, e.g. SHA256withRSA
+     * @return a certificate type builder, allowing you to set key usages and extended key usages
+     */
+    ClientCertificateTypeBuilder newClientCertificateType(String name, String signingAlgorithm);
 
-    KeyType newTrustedCertificateType(String name);
+    /**
+     * Creates a KeyType for a certificate.
+     * @param name The type's name
+     * @return a certificate type builder, allowing you to set description
+     */
+    CertificateTypeBuilder newCertificateType(String name);
+
+    /**
+     * Creates a KeyType for a trusted certificate. A trusted certificate is a certificate that will belong to a trust store.
+     * @param name The type's name
+     * @return a certificate type builder, allowing you to set the description.
+     */
+    CertificateTypeBuilder newTrustedCertificateType(String name);
 
     /**
      * Get an existing KeyType by name.
@@ -102,6 +121,18 @@ public interface PkiService {
      * @return a new symmetric key wrapper of the required type and encryption method, without value.
      */
     SymmetricKeyWrapper newSymmetricKeyWrapper(KeyAccessorType keyAccessorType);
+
+    public interface CertificateTypeBuilder {
+        CertificateTypeBuilder description(String description);
+        KeyType add();
+    }
+
+    public interface ClientCertificateTypeBuilder extends CertificateTypeBuilder {
+        ClientCertificateTypeBuilder description(String description);
+        ClientCertificateTypeBuilder setKeyUsages(EnumSet<KeyUsage> keyUsages);
+        ClientCertificateTypeBuilder setExtendedKeyUsages(EnumSet<ExtendedKeyUsage> keyUsages);
+        KeyType add();
+    }
 
     public interface AsyncKeyTypeBuilder {
         AsyncKeyTypeBuilder description(String description);

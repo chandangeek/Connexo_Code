@@ -15,6 +15,7 @@ import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapp
 import static com.elster.jupiter.orm.ColumnConversion.BLOB2BYTE;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 
 public enum TableSpecs {
     PKI_KEYTYPES {
@@ -29,6 +30,8 @@ public enum TableSpecs {
             table.column("CURVE").varChar().map(KeyTypeImpl.Fields.CURVE.fieldName()).add();
             table.column("KEYSIZE").number().conversion(NUMBER2INT).map(KeyTypeImpl.Fields.KEY_SIZE.fieldName()).add();
             table.column("CRYPTOTYPE").number().map(KeyTypeImpl.Fields.CRYPTOGRAPHIC_TYPE.fieldName()).conversion(NUMBER2ENUM).add();
+            table.column("KEYUSAGES").number().map(KeyTypeImpl.Fields.KEY_USAGES.fieldName()).conversion(NUMBER2LONG).add();
+            table.column("EXTKEYUSAGES").number().map(KeyTypeImpl.Fields.EXTENDED_KEY_USAGES.fieldName()).conversion(NUMBER2LONG).add();
             table.primaryKey("PK_PKI_KEYTYPE").on(id).add();
             table.unique("UK_PKI_KEYTYPE").on(name).add();
         }

@@ -1,5 +1,10 @@
 package com.elster.jupiter.pki;
 
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasName;
+
+import java.util.EnumSet;
+
 /**
  * KeyType identifies the properties of a CryptoEntity (certificate/ keypair/ symmetric key) such as algorithm, bit length, ...
  * For an symmetric key, the following properties apply:
@@ -11,15 +16,19 @@ package com.elster.jupiter.pki;
  * - ec: curve name
  *
  */
-public interface KeyType {
+public interface KeyType extends HasName, HasId {
 
     /**
      * The name for a KeyType is intended to allow easy identification of a type. It does not need to match on other value.
-     * The name needs to be unique
+     * The name needs to be unique.
      * @return The KeyType name
      */
     String getName();
 
+    /**
+     * The name for a KeyType is intended to allow easy identification of a type. It does not need to match on other value.
+     * The name needs to be unique.
+     */
     void setName(String name);
 
     String getDescription();
@@ -48,6 +57,10 @@ public interface KeyType {
      * @return
      */
     Integer getKeySize();
+
+    EnumSet<KeyUsage> getKeyUsages();
+
+    EnumSet<ExtendedKeyUsage> getExtendedKeyUsages();
 
     /**
      * Returns the curve name in case of an EC key
