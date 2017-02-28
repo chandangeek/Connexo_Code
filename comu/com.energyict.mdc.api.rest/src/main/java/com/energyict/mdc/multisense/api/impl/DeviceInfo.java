@@ -10,6 +10,7 @@ import com.energyict.mdc.device.config.GatewayType;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.time.Instant;
 import java.util.List;
 
 @XmlRootElement
@@ -34,5 +35,10 @@ public class DeviceInfo extends LinkInfo<Long> {
     public String lifecycleState;
     public List<LinkInfo> communicationsTaskExecutions;
     public List<LinkInfo> deviceMessages;
+
+    public Instant installationDate;
+
+    public String usagePoint;
+    public String meterRole;
 }
 

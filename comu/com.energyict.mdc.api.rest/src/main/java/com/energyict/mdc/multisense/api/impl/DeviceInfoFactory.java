@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.cbo.IdentifiedObject;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PropertyCopier;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
@@ -211,6 +213,13 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo, Device
                     .title("Device type")
                     .build(device.getDeviceType().getId());
         });
+        map.put("installationDate", (deviceInfo, device, uriInfo) ->  device.getLifecycleDates()
+                .getInstalledDate()
+                .ifPresent(installationDate -> deviceInfo.installationDate = installationDate));
+        map.put("usagePoint", (deviceInfo, device, uriInfo) ->  device.getUsagePoint().ifPresent(usagePoint -> deviceInfo.usagePoint = usagePoint.getMRID()));
+        map.put("meterRole", (deviceInfo, device, uriInfo) -> device.getCurrentMeterActivation()
+                .flatMap(MeterActivation::getMeterRole)
+                .ifPresent(meterRole -> deviceInfo.meterRole = meterRole.getKey()));
         return map;
     }
 
