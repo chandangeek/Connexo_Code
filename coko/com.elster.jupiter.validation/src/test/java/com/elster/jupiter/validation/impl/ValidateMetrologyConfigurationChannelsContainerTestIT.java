@@ -108,7 +108,7 @@ public class ValidateMetrologyConfigurationChannelsContainerTestIT {
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.get(TransactionService.class));
 
-    private void createValidationConfiguration() {
+    private static void createValidationConfiguration() {
         ValidationServiceImpl validationService = (ValidationServiceImpl) inMemoryBootstrapModule.get(ValidationService.class);
         ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet("RS", QualityCodeSystem.MDM);
         ValidationRuleSetVersion ruleSetVersion = validationRuleSet.addRuleSetVersion("Always", Instant.ofEpochMilli(0));
