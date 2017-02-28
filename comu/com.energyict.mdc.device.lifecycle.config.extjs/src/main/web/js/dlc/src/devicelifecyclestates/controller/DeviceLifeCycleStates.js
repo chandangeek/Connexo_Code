@@ -265,7 +265,9 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             form = widget.down('#lifeCycleStateEditForm'),
             stageStore = Ext.StoreManager.get('Dlc.devicelifecyclestates.store.Stages');
 
-        me.getPage().setLoading(true);
+        if(Ext.isDefined(me.getPage())) {
+            me.getPage().setLoading(true);
+        }
         stageStore.load();
         me.fromEditTransition = router.queryParams.fromEditTransitionPage === 'true';
         me.fromAddTransition = router.queryParams.fromEditTransitionPage === 'false';
@@ -289,7 +291,9 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             if (!me.deviceLifeCycleState) {
                 me.deviceLifeCycleState = Ext.create(stateModel);
             }
-            me.getPage().setLoading(false);
+            if(Ext.isDefined(me.getPage())) {
+                me.getPage().setLoading(false);
+            }
 
             me.getApplication().fireEvent('changecontentevent', widget);
             form.loadRecord(me.deviceLifeCycleState);
