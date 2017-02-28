@@ -172,6 +172,15 @@ public abstract class AbstractTaskFilterSqlBuilder {
         }
     }
 
+    protected void appendDeviceNameSql(String deviceName) {
+        if (deviceName != null) {
+            this.appendWhereOrAnd();
+            this.append(" (dev.name = '");
+            this.append(deviceName);
+            this.append("')");
+        }
+    }
+
     protected enum IntervalBindStrategy {
         MILLIS {
             @Override

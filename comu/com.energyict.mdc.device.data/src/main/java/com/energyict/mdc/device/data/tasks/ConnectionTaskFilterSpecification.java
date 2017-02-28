@@ -95,4 +95,9 @@ public class ConnectionTaskFilterSpecification {
      * Default value: exclude connection tasks of "In stock" and "Decommissioned" devices
      */
     public Set<String> restrictedDeviceStates = new HashSet<>(Arrays.asList(DefaultState.IN_STOCK.getKey(), DefaultState.DECOMMISSIONED.getKey()));
+
+    /**
+     * The device(name) you want to filter on
+     */
+    public String deviceName;
 }
