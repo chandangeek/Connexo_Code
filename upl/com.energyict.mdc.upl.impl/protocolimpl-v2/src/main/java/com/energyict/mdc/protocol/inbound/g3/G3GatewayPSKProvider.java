@@ -14,14 +14,13 @@ import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.TLSConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.DeviceProtocol;
-import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.HexString;
-import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
@@ -184,7 +183,6 @@ public class G3GatewayPSKProvider {
         TypedProperties protocolProperties = deviceProtocolProperties == null ? com.energyict.protocolimpl.properties.TypedProperties.empty() : deviceProtocolProperties;
         protocolProperties.setProperty(DlmsProtocolProperties.READCACHE_PROPERTY, false);
         TypedProperties dialectProperties = context.getDeviceDialectProperties(getDeviceIdentifier()).orElseGet(com.energyict.protocolimpl.properties.TypedProperties::empty);
-        addDefaultValuesIfNecessary(gatewayProtocol, dialectProperties);
 
         DLMSCache dummyCache = new DLMSCache(new UniversalObject[0], 0);     //Empty cache, prevents that the protocol will read out the object list
         OfflineDevice offlineDevice = context.getInboundDAO().getOfflineDevice(getDeviceIdentifier(), new DeviceOfflineFlags());   //Empty flags means don't load any master data
@@ -203,19 +201,7 @@ public class G3GatewayPSKProvider {
         return new RtuPlusServer(this.context.getCollectedDataFactory(), this.context.getIssueFactory(), this.context.getPropertySpecService(), this.context.getNlsService(), this.context.getConverter(), this.context.getMessageFileExtractor(), this.context.getDeviceGroupExtractor(), this.context.getDeviceExtractor());
     }
 
-    /**
-     * For all properties who are not yet specified - but for which a default value exist - the default value will be added.
-     */
-    private void addDefaultValuesIfNecessary(DeviceProtocol gatewayProtocol, TypedProperties dialectProperties) {
-        DeviceProtocolDialect theActualDialect = gatewayProtocol.getDeviceProtocolDialects().get(0);
-        for (PropertySpec propertySpec : theActualDialect.getUPLPropertySpecs()) {
-            if (!dialectProperties.hasValueFor(propertySpec.getName()) && propertySpec.getPossibleValues() != null) {
-                dialectProperties.setProperty(propertySpec.getName(), propertySpec.getPossibleValues().getDefault());
-            }
-        }
-    }
-
-    private void createTcpComChannel() {
+    private void createTcpComChannel() throws PropertyValidationException {
         boolean tlsConnection = false;
         TypedProperties connectionProperties = context.getInboundDAO().getOutboundConnectionTypeProperties(getDeviceIdentifier());
         if (connectionProperties.getProperty(TLSConnectionType.TLS_VERSION_PROPERTY_NAME) != null) {
@@ -226,11 +212,14 @@ public class G3GatewayPSKProvider {
 
         try {
             PropertySpecService propertySpecService = getContext().getPropertySpecService();
+            ConnectionType connectionType;
             if (tlsConnection) {
-                tcpComChannel = new TLSConnectionType(propertySpecService, getContext().getNlsService(), getContext().getX509Service(), getContext().getKeyStoreService()).connect();
+                connectionType = new TLSConnectionType(propertySpecService, getContext().getNlsService(), getContext().getX509Service(), getContext().getKeyStoreService());
             } else {
-                tcpComChannel = new OutboundTcpIpConnectionType(propertySpecService).connect();
+                connectionType = new OutboundTcpIpConnectionType(propertySpecService);
             }
+            connectionType.setUPLProperties(connectionProperties);
+            tcpComChannel = connectionType.connect();
         } catch (ConnectionException e) {
             throw ConnectionSetupException.connectionSetupFailed(e);
         }
