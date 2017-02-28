@@ -22,7 +22,7 @@ public class DeviceProtocolSecurityPropertySetImpl implements AdvancedDeviceProt
     private int responseSecurityLevel;
     private TypedProperties securityProperties;
 
-    public DeviceProtocolSecurityPropertySetImpl(List<SecurityProperty> securityProperties) {
+    public DeviceProtocolSecurityPropertySetImpl(List<? extends SecurityProperty> securityProperties) {
         this.securityProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
         for (SecurityProperty securityProperty : securityProperties) {
             this.securityProperties.setProperty(securityProperty.getName(), securityProperty.getValue());

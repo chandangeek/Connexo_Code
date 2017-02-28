@@ -110,7 +110,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     V2_DLMS_USE_CACHED_FRAMECOUNTER_DESCRIPTION("upl.property.v2.dlms.useCachedFrameCounter.description", "Use cached framecounter"),
     V2_DLMS_REQUEST_AUTHENTICATE_FRAME_COUNTER("upl.property.v2.dlms.requestAuthenticateFrameCounter", "Request authentication framecounter"),
     V2_DLMS_REQUEST_AUTHENTICATE_FRAME_COUNTER_DESCRIPTION("upl.property.v2.dlms.requestAuthenticateFrameCounter.description", "Request authentication framecounter"),
-    V2_DLMS_LAST_SENDDATE("upl.property.v2.dlms.lastSendDate", "Last senddate"),
+    V2_DLMS_LAST_SEENDATE("upl.property.v2.dlms.lastSeenDate", "Last seen date"),
     V2_DLMS_LAST_SENDDATE_DESCRIPTION("upl.property.v2.dlms.lastSendDate.description", "Last senddate"),
     V2_DLMS_NODEID("upl.property.v2.dlms.nodeId", "NodeAddress"),
     V2_DLMS_NODEID_DESCRIPTION("upl.property.v2.dlms.nodeId.description", "NodeAddress"),

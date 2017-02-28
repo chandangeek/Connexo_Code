@@ -79,6 +79,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
     private static final byte TAG_EVENT_NOTIFICATION_REQUEST = (byte) (194);
     private static final String GATEWAY_LOGICAL_DEVICE_PREFIX = "ELS-UGW-";
     private static final int MAC_ADDRESS_LENGTH = 8;
+    private static final int ATTRIBUTE_UNKNOWN = 255;
 
     protected ObisCode logbookObisCode;
     protected CollectedLogBook collectedLogBook;
@@ -238,6 +239,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
 
             classId = inboundFrame.getShort();
             if ((classId != DLMSClassId.EVENT_NOTIFICATION.getClassId()) &&
+                    (classId != DLMSClassId.PUSH_EVENT_NOTIFICATION_SETUP.getClassId()) &&
                     (classId != DLMSClassId.DATA.getClassId())) // EVN uses
             {
                 throw DataParseException.ioException(new ProtocolException("Expected push event notification from object with class ID '" + DLMSClassId.EVENT_NOTIFICATION.getClassId() + "' but was '" + classId + "'"));
@@ -245,12 +247,6 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
             obisCodeBytes = new byte[6];
             inboundFrame.get(obisCodeBytes);
             obisCode = ObisCode.fromByteArray(obisCodeBytes);
-            if ((!obisCode.equals(EVENT_NOTIFICATION_OBISCODE)) &&
-                    (!obisCode.equals(ALARM_EVENTOBISCODE))&&
-                    (!obisCode.equals(ALARM_2_EVENTOBISCODE))) {
-                throw DataParseException.ioException(new ProtocolException("Expected push event notification from object with obiscode '" + EVENT_NOTIFICATION_OBISCODE + "' but was '" + obisCode.toString() + "'"));
-            }
-
             attributeNumber = inboundFrame.get() & 0xFF;
             validateCosemAttributeDescriptorOriginatingFromGateway(classId, obisCode, attributeNumber);
         } else {
@@ -368,7 +364,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
                 Unsigned16 eventCode = eventPayload.getDataType(1).getUnsigned16();
                 Unsigned16 deviceCode = eventPayload.getDataType(2).getUnsigned16();
                 String description = parseDescriptionFromOctetString(eventPayload.getDataType(3).getOctetString());
-                createCollectedLogBook(dateTime1, deviceCode.getValue(), eventCode.getValue(), description);
+                createCollectedLogBook(dateTime1, eventCode.getValue(), deviceCode.getValue(), description);
             } else {
                 AbstractDataType dataType = eventPayload.getNextDataType();
                 if (dataType instanceof OctetString) {
@@ -567,7 +563,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
 
     public DeviceProtocolSecurityPropertySet getSecurityPropertySet() {
         if (securityPropertySet == null) {
-            List<SecurityProperty> securityProperties =
+            List<? extends SecurityProperty> securityProperties =
                     getContext()
                             .getProtocolSecurityProperties(deviceIdentifier)
                             .orElseThrow(() -> CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier));
@@ -669,23 +665,22 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
     private void validateCosemAttributeDescriptorOriginatingFromGateway(short classId, ObisCode obisCode, int attributeNumber) {
         if (classId != DLMSClassId.EVENT_NOTIFICATION.getClassId()) {
             if (classId != DLMSClassId.DATA.getClassId()) {
-                throw DataParseException.ioException(new ProtocolException("Expected push event notification from object with class ID '" + DLMSClassId.EVENT_NOTIFICATION.getClassId() + "' or with classId '"+DLMSClassId.DATA.getClassId()+"' but was '" + classId + "'"));
+                if (classId != DLMSClassId.PUSH_EVENT_NOTIFICATION_SETUP.getClassId()) {
+                    throw DataParseException.ioException(new ProtocolException("Expected push event notification from object with class ID '" + DLMSClassId.EVENT_NOTIFICATION.getClassId() +
+                                                                                                            "' or with classId '" + DLMSClassId.PUSH_EVENT_NOTIFICATION_SETUP.getClassId() +
+                                                                                                            "' or with classId '" + DLMSClassId.DATA.getClassId() +
+                                                                                                            "' but was '" + classId + "'"));
             }
         }
-
-        if (!obisCode.equals(EVENT_NOTIFICATION_OBISCODE)) {
-            if (!obisCode.equals(ALARM_EVENTOBISCODE)) {
-                if (!obisCode.equals(ALARM_2_EVENTOBISCODE)) {
-                    throw DataParseException.ioException(new ProtocolException("Expected push event notification from object with obiscode '" + EVENT_NOTIFICATION_OBISCODE + "' or '" + ALARM_EVENTOBISCODE + "' or '" + ALARM_2_EVENTOBISCODE +"' but was '" + obisCode.toString() + "'"));
-                }
-            }
         }
 
+        if (attributeNumber != ATTRIBUTE_UNKNOWN) {
         if (attributeNumber != LAST_EVENT_ATTRIBUTE_NUMBER) {
             if (attributeNumber != EVENT_NOTIFICATION_ATTRIBUTE_NUMBER) {
                 throw DataParseException.ioException(new ProtocolException("Expected push event notification attribute '" + LAST_EVENT_ATTRIBUTE_NUMBER + "' or '"+EVENT_NOTIFICATION_ATTRIBUTE_NUMBER+"' but was '" + attributeNumber + "'"));
             }
         }
+    }
     }
 
     private void parseNotificationWith5Elements(Structure eventPayLoad) {
@@ -826,7 +821,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
             throw DataParseException.ioException(new ProtocolException("Expected the second element of the received structure to be an OctetString"));
         }
         try {
-            return new AXDRDateTime(octetString).getValue().getTime();
+            return new AXDRDateTime(octetString.getBEREncodedByteArray(), 0, getDeviceTimeZone()).getValue().getTime(); // Make sure to pass device TimeZone, as deviation info is unspecified
         } catch (ProtocolException e) {
             throw DataParseException.ioException(e);
         }

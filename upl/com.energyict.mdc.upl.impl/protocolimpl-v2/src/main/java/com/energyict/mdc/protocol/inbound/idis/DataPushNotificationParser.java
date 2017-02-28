@@ -214,7 +214,7 @@ public class DataPushNotificationParser {
 
     public DeviceProtocolSecurityPropertySet getSecurityPropertySet() {
         if (securityPropertySet == null) {
-            List<SecurityProperty> securityProperties =
+            List<? extends SecurityProperty> securityProperties =
                     context
                             .getProtocolSecurityProperties(deviceIdentifier)
                             .orElseThrow(() -> CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier));
@@ -321,7 +321,7 @@ public class DataPushNotificationParser {
         }
     }
 
-    private TimeZone getDeviceTimeZone() {
+    protected TimeZone getDeviceTimeZone() {
         TimeZone defaultTimeZOne = TimeZone.getTimeZone(DEFAULT_TIMEZONE);
         TypedProperties deviceProtocolProperties = getInboundDAO().getDeviceProtocolProperties(getDeviceIdentifier());
         if (deviceProtocolProperties == null) {

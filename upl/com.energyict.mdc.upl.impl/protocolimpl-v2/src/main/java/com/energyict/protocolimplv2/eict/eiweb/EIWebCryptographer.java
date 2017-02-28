@@ -37,7 +37,7 @@ public class EIWebCryptographer {
                         .getConnectionTypeProperties(deviceIdentifier)
                         .map(TypedProperties::copyOf)
                         .orElseThrow(() -> CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier));
-        List<SecurityProperty> securityProperties =
+        List<? extends SecurityProperty> securityProperties =
                 this.inboundDiscoveryContext
                         .getProtocolSecurityProperties(deviceIdentifier)
                         .orElseThrow(() -> CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier));
@@ -47,7 +47,7 @@ public class EIWebCryptographer {
         return new StringBasedMD5Seed(md5SeedBuilder);
     }
 
-    private String getEncryptionPassword(List<SecurityProperty> securityProperties) {
+    private String getEncryptionPassword(List<? extends SecurityProperty> securityProperties) {
         for (SecurityProperty securityProperty : securityProperties) {
             if (EIWEB_PROTOCOL_PASSWORD_PROPERTY_NAME.equals(securityProperty.getName())) {
                 return (String) securityProperty.getValue();

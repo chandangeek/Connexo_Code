@@ -96,7 +96,7 @@ public class Mtu155SecuritySupport extends AbstractSecuritySupport implements Le
         return typedProperties;
     }
 
-    public TypedProperties convertToTypedProperties(List<SecurityProperty> securityProperties) {
+    public TypedProperties convertToTypedProperties(List<? extends SecurityProperty> securityProperties) {
         TypedProperties typedProperties = TypedProperties.empty();
         if (!securityProperties.isEmpty()) {
 
