@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
@@ -48,7 +47,7 @@ public class EstimationRuleInfoFactory {
         return estimationRule.isPresent() ?  resourceHelper.getApplicationInfo(estimationRule.get().getRuleSet().getQualityCodeSystem()) : null;
     }
 
-    private EstimationRuleInfo asInfo(EstimationRule estimationRule) {
+    public EstimationRuleInfo asInfo(EstimationRule estimationRule) {
         EstimationRuleInfo info = new EstimationRuleInfo();
         info.id = estimationRule.getId();
         info.ruleSetId = estimationRule.getRuleSet().getId();

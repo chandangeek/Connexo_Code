@@ -89,9 +89,10 @@ public class ChannelResource {
     private final EstimationHelper estimationHelper;
     private final TopologyService topologyService;
     private final MeteringService meteringService;
+    private final EstimationRuleInfoFactory estimationRuleInfoFactory;
 
     @Inject
-    public ChannelResource(ExceptionFactory exceptionFactory, Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, ValidationInfoFactory validationInfoFactory, IssueDataValidationService issueDataValidationService, EstimationHelper estimationHelper, TopologyService topologyService, MeteringService meteringService) {
+    public ChannelResource(ExceptionFactory exceptionFactory, Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, ValidationInfoFactory validationInfoFactory, IssueDataValidationService issueDataValidationService, EstimationHelper estimationHelper, TopologyService topologyService, MeteringService meteringService, EstimationRuleInfoFactory estimationRuleInfoFactory) {
         this.exceptionFactory = exceptionFactory;
         this.channelHelper = channelHelper;
         this.resourceHelper = resourceHelper;
@@ -102,6 +103,7 @@ public class ChannelResource {
         this.estimationHelper = estimationHelper;
         this.topologyService = topologyService;
         this.meteringService = meteringService;
+        this.estimationRuleInfoFactory = estimationRuleInfoFactory;
     }
 
     @GET
@@ -504,6 +506,24 @@ public class ChannelResource {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
         return previewEstimate(QualityCodeSystem.MDC, device, channel, estimateChannelDataInfo);
+    }
+
+    @GET
+    @Path("/{channelid}/data/estimateWithRule")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public PagedInfoList getEstimationRulesForChannelData(@PathParam("name") String name, @PathParam("channelid") long channelId, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
+        List<EstimationRuleInfo> estimationRuleInfos = estimationHelper.getAllEstimationRules()
+                .stream()
+                .filter(estimationRule -> estimationRule.getRuleSet().getQualityCodeSystem().equals(QualityCodeSystem.MDC))
+                .filter(estimationRule -> estimationRule.getReadingTypes().contains(channel.getReadingType()))
+                .map(estimationRuleInfoFactory::asInfo)
+                .collect(Collectors.toList());
+
+        return PagedInfoList.fromPagedList("rules", estimationRuleInfos, queryParameters);
     }
 
     private List<ChannelDataInfo> previewEstimate(QualityCodeSystem system, Device device, Channel channel, EstimateChannelDataInfo estimateChannelDataInfo) {
