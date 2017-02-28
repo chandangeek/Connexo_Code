@@ -307,18 +307,18 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
                     switch (operation) {
                         case 'assign':
                             if (warnCount > 0) {
-                                warnMessage = Uni.I18n.translatePlural('alarms.assign.unable.result', warnCount, 'DAL', '-','<h3 style="color: #eb5642">Unable to assign one alarm</h3><br>', '<h3 style="color: #eb5642">Unable to assign {0} alarms</h3><br>') + warnList;
+                                warnMessage = Uni.I18n.translatePlural('alarms.assign.unable.results', warnCount, 'DAL', '-','<h3 style="color: #eb5642">Unable to assign one alarm</h3><br>', '<h3 style="color: #eb5642">Unable to assign {0} alarms</h3><br>') + warnList;
                             }
                             if (failedCount > 0) {
-                                failedMessage = Uni.I18n.translatePlural('alarms.assign.failed.result', failedCount, 'DAL', '-', '<h3 style="color: #eb5642">Failed to assign one alarm</h3><br>', '<h3 style="color: #eb5642">Failed to assign {0} alarms</h3><br>') + failList;
+                                failedMessage = Uni.I18n.translatePlural('alarms.assign.failed.results', failedCount, 'DAL', '-', '<h3 style="color: #eb5642">Failed to assign one alarm</h3><br>', '<h3 style="color: #eb5642">Failed to assign {0} alarms</h3><br>') + failList;
                             }
                             break;
                         case 'close':
                             if (warnCount > 0) {
-                                warnMessage = Uni.I18n.translatePlural('alarms.close.unable.result', warnCount, 'DAL', '-','<h3 style="color: #eb5642">Unable to close one alarm</h3><br>', '<h3 style="color: #eb5642">Unable to close {0} alarms</h3><br>') + warnList;
+                                warnMessage = Uni.I18n.translatePlural('alarms.close.unable.results', warnCount, 'DAL', '-','<h3 style="color: #eb5642">Unable to close one alarm</h3><br>', '<h3 style="color: #eb5642">Unable to close {0} alarms</h3><br>') + warnList;
                             }
                             if (failedCount > 0) {
-                                failedMessage = Uni.I18n.translatePlural('alarms.close.failed.result', failedCount, 'DAL', '-', '<h3 style="color: #eb5642">Failed to close one alarm</h3><br>', '<h3 style="color: #eb5642">Failed to close {0} alarms</h3><br>') + failList;
+                                failedMessage = Uni.I18n.translatePlural('alarms.close.failed.results', failedCount, 'DAL', '-', '<h3 style="color: #eb5642">Failed to close one alarm</h3><br>', '<h3 style="color: #eb5642">Failed to close {0} alarms</h3><br>') + failList;
                             }
                             break;
                     }
