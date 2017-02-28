@@ -7,8 +7,10 @@ package com.elster.jupiter.metering;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 
-import java.time.Instant;
+import aQute.bnd.annotation.ProviderType;
 
+import java.time.Instant;
+@ProviderType
 public interface MeterBuilder {
 
     Meter create();
@@ -32,6 +34,12 @@ public interface MeterBuilder {
     MeterBuilder setSpatialCoordinates(SpatialCoordinates spatialCoordinates);
 
     MeterBuilder setReceivedDate(Instant receivedDate);
+
+    MeterBuilder setManufacturer(String manufacturer);
+
+    MeterBuilder setModelNumber(String modelNumber);
+
+    MeterBuilder setModelVersion(String modelVersion);
 
     LocationBuilder newLocationBuilder();
 

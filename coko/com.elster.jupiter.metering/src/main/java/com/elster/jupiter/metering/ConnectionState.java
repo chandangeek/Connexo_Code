@@ -52,4 +52,16 @@ public enum ConnectionState implements TranslationKey {
     public String getDefaultFormat() {
         return this.name;
     }
+
+    /**
+     * Returns the values of enum that are currently supported. Deprecated values are excluded.
+     * Remove the method when deprecated values are removed. Then normal values() method can be used instead.
+     */
+    public static ConnectionState[] supportedValues() {
+        return new ConnectionState[]{
+                ConnectionState.CONNECTED,
+                ConnectionState.LOGICALLY_DISCONNECTED,
+                ConnectionState.PHYSICALLY_DISCONNECTED
+        };
+    }
 }
