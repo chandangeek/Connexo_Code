@@ -55,7 +55,6 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.time.TimeService;
-import com.elster.jupiter.usagepoint.calendar.UsagePointCalendarService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.impl.ValidationServiceImpl;
@@ -131,8 +130,6 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     @Mock
     PropertyValueInfoService propertyValueInfoService;
     @Mock
-    UsagePointCalendarService usagePointCalendarService;
-    @Mock
     CalendarOnUsagePointInfoFactory calendarOnUsagePointInfoFactory;
     @Mock
     CalendarService calendarService;
@@ -186,7 +183,6 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setThreadPrincipalService(threadPrincipalService);
         application.setLicenseService(licenseService);
         application.setPropertyValueInfoService(propertyValueInfoService);
-        application.setUsagePointCalendarService(usagePointCalendarService);
         application.setCalendarOnUsagePointInfoFactory(calendarOnUsagePointInfoFactory);
         application.setCalendarService(calendarService);
         application.setCalendarInfoFactory(calendarInfoFactory);
