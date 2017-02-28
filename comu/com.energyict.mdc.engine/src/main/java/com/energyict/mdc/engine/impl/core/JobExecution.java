@@ -41,6 +41,7 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.HexService;
@@ -49,6 +50,7 @@ import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocol.exceptions.ConnectionException;
 
@@ -64,6 +66,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.energyict.mdc.upl.DeviceProtocolDialect.Property.DEVICE_PROTOCOL_DIALECT;
 
 /**
  * Provides code reuse for in- and outbound {@link com.energyict.mdc.engine.config.ComPort ComPorts }
@@ -106,10 +110,36 @@ public abstract class JobExecution implements ScheduledJob {
 
     protected static TypedProperties getProtocolDialectTypedProperties(Device device, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
         Optional<ProtocolDialectProperties> protocolDialectPropertiesWithName = device.getProtocolDialectProperties(protocolDialectConfigurationProperties.getDeviceProtocolDialectName());
+        TypedProperties result;
         if (protocolDialectPropertiesWithName.isPresent()) {
-            return protocolDialectPropertiesWithName.get().getTypedProperties();
+            result = protocolDialectPropertiesWithName.get().getTypedProperties();
         } else {
-            return TypedProperties.inheritingFrom(protocolDialectConfigurationProperties.getTypedProperties());
+            result = TypedProperties.inheritingFrom(protocolDialectConfigurationProperties.getTypedProperties());
+        }
+        addDefaultValuesIfNecessary(protocolDialectConfigurationProperties, result);
+        addProtocolDialectNameAsProperty(protocolDialectConfigurationProperties, result);
+        return result;
+    }
+
+    /**
+     * For all properties who are not yet specified - but for which a default value exist - the default value will be added.
+     */
+    private static void addDefaultValuesIfNecessary(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, TypedProperties result) {
+        if (protocolDialectConfigurationProperties != null) {
+            DeviceProtocolDialect theActualDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialect();
+            if (theActualDialect != null) {
+                for (PropertySpec propertySpec : theActualDialect.getUPLPropertySpecs()) {
+                    if (!result.hasValueFor(propertySpec.getName()) && propertySpec.getPossibleValues() != null) {
+                        result.setProperty(propertySpec.getName(), propertySpec.getPossibleValues().getDefault());
+                    }
+                }
+            }
+        }
+    }
+
+    private static void addProtocolDialectNameAsProperty(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, TypedProperties result) {
+        if (protocolDialectConfigurationProperties != null) { // Should always be the case, but just to be sure
+            result.setProperty(DEVICE_PROTOCOL_DIALECT.getName(), protocolDialectConfigurationProperties.getDeviceProtocolDialectName());
         }
     }
 
