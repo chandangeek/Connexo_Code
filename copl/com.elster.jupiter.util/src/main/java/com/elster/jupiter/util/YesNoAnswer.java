@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 public enum YesNoAnswer {
     YES("Yes", () -> Optional.of(Boolean.TRUE)),
     NO("No", () -> Optional.of(Boolean.FALSE)),
-    UNKNOWN("Unknown", () -> Optional.empty());
+    UNKNOWN("Unknown", Optional::empty);
 
     private Supplier<Optional<Boolean>> answer;
     private String answerId;
