@@ -44,6 +44,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
             {
                 header: Uni.I18n.translate('deviceregisterconfiguration.latestValue', 'MDC', 'Latest value'),
                 dataIndex: 'value',
+                width: 450,
                 flex: 1
             }
         ];

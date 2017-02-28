@@ -27,7 +27,11 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.text.Preview', {
                     {
                         xtype:'fieldcontainer',
                         labelAlign: 'top',
-                        layout: 'vbox',
+                        layout: {
+                            type: 'vbox',
+                            align : 'stretch'
+                        },
+                        //layout: 'vbox',
                         defaults: {
                             xtype: 'displayfield',
                             labelWidth: 200
@@ -73,7 +77,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.text.Preview', {
                             },
                             {
                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.latestValue', 'MDC', 'Latest value'),
-                                name: 'value'
+                                name: 'value',
+                                width: 450
                             }
                         ]
                     }
