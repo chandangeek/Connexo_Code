@@ -15,7 +15,8 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
         'Dlc.devicelifecyclestates.store.DeviceLifeCycleStates',
         'Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses',
         'Dlc.devicelifecyclestates.store.TransitionBusinessProcessesOnEntry',
-        'Dlc.devicelifecyclestates.store.TransitionBusinessProcessesOnExit'
+        'Dlc.devicelifecyclestates.store.TransitionBusinessProcessesOnExit',
+        'Dlc.devicelifecyclestates.store.Stages'
     ],
 
     models: [
@@ -92,10 +93,10 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
         errorPanel.setVisible(value);
     },
 
-    getProcessItemsFromStore: function(store) {
-      var processItems = [];
+    getProcessItemsFromStore: function (store) {
+        var processItems = [];
 
-        store.each(function(record) {
+        store.each(function (record) {
             processItems.push(record.getData());
         });
         return processItems;
@@ -261,33 +262,38 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             stateModel = me.getModel('Dlc.devicelifecyclestates.model.DeviceLifeCycleState'),
             router = me.getController('Uni.controller.history.Router'),
             deviceLifeCycleModel = me.getModel('Dlc.devicelifecycles.model.DeviceLifeCycle'),
-            form = widget.down('#lifeCycleStateEditForm');
+            form = widget.down('#lifeCycleStateEditForm'),
+            stageStore = Ext.StoreManager.get('Dlc.devicelifecyclestates.store.Stages');
 
+        me.getPage().setLoading(true);
+        stageStore.load();
         me.fromEditTransition = router.queryParams.fromEditTransitionPage === 'true';
         me.fromAddTransition = router.queryParams.fromEditTransitionPage === 'false';
         stateModel.getProxy().setUrl(router.arguments);
+
         deviceLifeCycleModel.load(deviceLifeCycleId, {
             success: function (deviceLifeCycleRecord) {
                 me.getApplication().fireEvent('devicelifecycleload', deviceLifeCycleRecord);
             }
         });
-
-        me.getApplication().fireEvent('changecontentevent', widget);
-        widget.setLoading(true);
         if (!Ext.isEmpty(stateId)) {
             stateModel.load(stateId, {
                 success: function (record) {
+                    me.getPage().setLoading(false);
+                    me.getApplication().fireEvent('changecontentevent', widget);
                     me.getApplication().fireEvent('loadlifecyclestate', record);
                     form.loadRecord(record);
                 }
             });
         } else {
-           if (!me.deviceLifeCycleState){
-               me.deviceLifeCycleState = Ext.create(stateModel);
-           }
-           form.loadRecord(me.deviceLifeCycleState);
+            if (!me.deviceLifeCycleState) {
+                me.deviceLifeCycleState = Ext.create(stateModel);
+            }
+            me.getPage().setLoading(false);
+
+            me.getApplication().fireEvent('changecontentevent', widget);
+            form.loadRecord(me.deviceLifeCycleState);
         }
-        widget.setLoading(false);
     },
 
     removeState: function () {
@@ -299,7 +305,7 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('deviceLifeCycleStates.remove.msg', 'DLC', 'This state will no longer be available.'),
-            title: Uni.I18n.translate('general.removex', 'DLC', "Remove '{0}'?",[record.get('name')]),
+            title: Uni.I18n.translate('general.removex', 'DLC', "Remove '{0}'?", [record.get('name')]),
             fn: function (state) {
                 if (state === 'confirm') {
                     record.getProxy().setUrl(router.arguments);
@@ -330,7 +336,7 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
     addTransitionBusinessProcessesToState: function (storeToUpdate) {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
-            // save the editForm's current state
+        // save the editForm's current state
             editForm = me.getLifeCycleStatesEditForm();
         editForm.updateRecord();
         router.getRoute(router.currentRoute + (storeToUpdate === 'onEntry' ? '/addEntryProcesses' : '/addExitProcesses')).forward();
