@@ -52,10 +52,6 @@ public class CategoryResourceTest extends CalendarApplicationTest {
         }
 
         @Override
-        public void save() {
-        }
-
-        @Override
         public String getDisplayName() {
             return name;
         }
