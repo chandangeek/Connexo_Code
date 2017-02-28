@@ -285,20 +285,20 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
                     Ext.each(obj.failure, function (fail) {
                         switch (fail.reason) {
                             case 'Alarm doesn\'t exist':
-                                warnList += '<h4>' + fail.reason + ':</h4><ul style="list-style: none; padding-left: 1em;">';
+                                warnList += '<h3>' + fail.reason + ':</h3><ul style="list-style: none; padding-left: 1em;">';
                                 Ext.each(fail.issues, function (issue) {
                                     warnCount += 1;
                                     warnAlarms.push(issue.id);
-                                    warnList += '<li>- <a href="javascript:void(0)">' + issue.title + '</a></li>';
+                                    failList += '<li>- <a href="#/workspace/alarms/'+ issue.id +'">' + issue.title + '</a></li>';
                                 });
                                 warnList += '</ul>';
                                 break;
                             default:
-                                failList += '<h4>' + fail.reason + ':</h4><ul style="list-style: none; padding-left: 1em;">';
+                                failList += '<h3>' + fail.reason + ':</h3><ul style="list-style: none; padding-left: 1em;">';
                                 Ext.each(fail.issues, function (issue) {
                                     failedCount += 1;
                                     failedAlarms.push(issue.id);
-                                    failList += '<li>- <a href="javascript:void(0)">' + issue.title + '</a></li>';
+                                    failList += '<li>- <a href="#/workspace/alarms/'+ issue.id +'">' + issue.title + '</a></li>';
                                 });
                                 failList += '</ul>';
                         }
@@ -307,18 +307,18 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
                     switch (operation) {
                         case 'assign':
                             if (warnCount > 0) {
-                                warnMessage = Uni.I18n.translatePlural('alarms.assign.unable.result', warnCount, 'DAL', '-','<h3>Unable to assign one alarm</h3><br>', '<h3>Unable to assign {0} alarms</h3><br>') + warnList;
+                                warnMessage = Uni.I18n.translatePlural('alarms.assign.unable.result', warnCount, 'DAL', '-','<h3 style="color: #eb5642">Unable to assign one alarm</h3><br>', '<h3 style="color: #eb5642">Unable to assign {0} alarms</h3><br>') + warnList;
                             }
                             if (failedCount > 0) {
-                                failedMessage = Uni.I18n.translatePlural('alarms.assign.failed.result', failedCount, 'DAL', '-', '<h3>Failed to assign one alarm</h3><br>', '<h3>Failed to assign {0} alarms</h3><br>') + failList;
+                                failedMessage = Uni.I18n.translatePlural('alarms.assign.failed.result', failedCount, 'DAL', '-', '<h3 style="color: #eb5642">Failed to assign one alarm</h3><br>', '<h3 style="color: #eb5642">Failed to assign {0} alarms</h3><br>') + failList;
                             }
                             break;
                         case 'close':
                             if (warnCount > 0) {
-                                warnMessage = Uni.I18n.translatePlural('alarms.close.unable.result', warnCount, 'DAL', '-','<h3>Unable to close one alarm</h3><br>', '<h3>Unable to close {0} alarms</h3><br>') + warnList;
+                                warnMessage = Uni.I18n.translatePlural('alarms.close.unable.result', warnCount, 'DAL', '-','<h3 style="color: #eb5642">Unable to close one alarm</h3><br>', '<h3 style="color: #eb5642">Unable to close {0} alarms</h3><br>') + warnList;
                             }
                             if (failedCount > 0) {
-                                failedMessage = Uni.I18n.translatePlural('alarms.close.failed.result', failedCount, 'DAL', '-', '<h3>Failed to close one alarm</h3><br>', '<h3>Failed to close {0} alarms</h3><br>') + failList;
+                                failedMessage = Uni.I18n.translatePlural('alarms.close.failed.result', failedCount, 'DAL', '-', '<h3 style="color: #eb5642">Failed to close one alarm</h3><br>', '<h3 style="color: #eb5642">Failed to close {0} alarms</h3><br>') + failList;
                             }
                             break;
                     }
