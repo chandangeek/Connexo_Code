@@ -364,7 +364,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                         Ext.each(obj.failure, function (fail) {
                             switch (fail.reason) {
                                 case 'Issue doesn\'t exist':
-                                    warnList += '<h4>' + fail.reason + ':</h4><ul style="list-style: none; padding-left: 1em;">';
+                                    warnList += '<h3>' + fail.reason + ':</h3><ul style="list-style: none; padding-left: 1em;">';
                                     Ext.each(fail.issues, function (issue) {
                                         warnCount += 1;
                                         warnIssues.push(issue.id);
@@ -373,11 +373,11 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                                     warnList += '</ul>';
                                     break;
                                 default:
-                                    failList += '<h4>' + fail.reason + ':</h4><ul style="list-style: none; padding-left: 1em;">';
+                                    failList += '<h3>' + fail.reason + ':</h3><ul style="list-style: none; padding-left: 1em;">';
                                     Ext.each(fail.issues, function (issue) {
                                         failedCount += 1;
                                         failedIssues.push(issue.id);
-                                        failList += '<li>- <a href="javascript:void(0)">' + issue.title + '</a></li>';
+                                        failList += '<li>- <a href="#/workspace/issues/'+ issue.id +'?issueType=datacollection">' + issue.title + '</a></li>';
                                     });
                                     failList += '</ul>';
                             }
@@ -387,35 +387,35 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                     switch (operation) {
                         case 'assign':
                             if (warnCount > 0) {
-                                warnMessage = Uni.I18n.translatePlural('issues.assign.unable.result', warnCount, 'ISU', '-','<h3>Unable to assign one issue</h3><br>', '<h3>Unable to assign {0} issues</h3><br>') + warnList;
+                                warnMessage = Uni.I18n.translatePlural('issues.assign.unable.result', warnCount, 'ISU', '-','<h3 style="color: #eb5642">Unable to assign one issue</h3><br>', '<h3 style="color: #eb5642">Unable to assign {0} issues</h3><br>') + warnList;
                             }
                             if (failedCount > 0) {
-                                failedMessage = Uni.I18n.translatePlural('issues.assign.failed.result', failedCount, 'ISU', '-', '<h3>Failed to assign one issue</h3><br>', '<h3>Failed to assign {0} issues</h3><br>') + failList;
+                                failedMessage = Uni.I18n.translatePlural('issues.assign.failed.result', failedCount, 'ISU', '-', '<h3 style="color: #eb5642">Failed to assign one issue</h3><br>', '<h3 style="color: #eb5642">Failed to assign {0} issues</h3><br>') + failList;
                             }
                             break;
                         case 'close':
                             if (warnCount > 0) {
-                                warnMessage = Uni.I18n.translatePlural('issues.close.unable.result', warnCount, 'ISU', '-','<h3>Unable to close one issue</h3><br>', '<h3>Unable to close {0} issues</h3><br>') + warnList;
+                                warnMessage = Uni.I18n.translatePlural('issues.close.unable.result', warnCount, 'ISU', '-','<h3 style="color: #eb5642">Unable to close one issue</h3><br>', '<h3 style="color: #eb5642">Unable to close {0} issues</h3><br>') + warnList;
                             }
                             if (failedCount > 0) {
-                                failedMessage = Uni.I18n.translatePlural('issues.close.failed.result', failedCount, 'ISU', '-', '<h3>Failed to close one issue</h3><br>', '<h3>Failed to close {0} issues</h3><br>') + failList;
+                                failedMessage = Uni.I18n.translatePlural('issues.close.failed.results', failedCount, 'ISU', '-', '<h3 style="color: #eb5642">Failed to close one issue</h3><br>', '<h3 style="color: #eb5642">Failed to close {0} issues</h3><br>') + failList;
                             }
                             break;
                         case 'retrycomm':
                             if (warnCount > 0) {
-                                warnMessage = Uni.I18n.translatePlural('issues.retrycomm.unable.result', warnCount, 'ISU', '-', '<h3>Unable to retry communication tasks for {0} issue</h3><br>',
+                                warnMessage = Uni.I18n.translatePlural('issues.retrycomm.unable.result', warnCount, 'ISU', '-', '<h3 style="color: #eb5642">Unable to retry communication tasks for {0} issue</h3><br>',
                                         '<h3>Unable to retry communication tasks for {0} issues</h3><br>') + warnList;
                             }
                             break;
                         case 'retrycommnow':
                             if (warnCount > 0) {
-                                warnMessage = Uni.I18n.translatePlural('issues.retrycomm.unable.result', warnCount, 'ISU', '-', '<h3>Unable to retry communication tasks for {0} issue</h3><br>',
+                                warnMessage = Uni.I18n.translatePlural('issues.retrycomm.unable.result', warnCount, 'ISU', '-', '<h3 style="color: #eb5642">Unable to retry communication tasks for {0} issue</h3><br>',
                                         '<h3>Unable to retry communication tasks for {0} issues</h3><br>') + warnList;
                             }
                             break;
                         case 'retryconn':
                             if (warnCount > 0) {
-                                warnMessage = Uni.I18n.translatePlural('issues.retryconn.unable.result', warnCount, 'ISU', '-', '<h3>Unable to retry connections for {0} issue</h3><br>',
+                                warnMessage = Uni.I18n.translatePlural('issues.retryconn.unable.result', warnCount, 'ISU', '-', '<h3 style="color: #eb5642">Unable to retry connections for {0} issue</h3><br>',
                                         '<h3>Unable to retry connections for {0} issues</h3><br>') + warnList;
                             }
                             break;
