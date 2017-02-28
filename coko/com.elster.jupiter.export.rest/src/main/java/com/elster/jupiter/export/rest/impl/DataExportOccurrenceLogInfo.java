@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.export.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.logging.LogEntry;
 
 public class DataExportOccurrenceLogInfo {
@@ -14,9 +13,11 @@ public class DataExportOccurrenceLogInfo {
 
     public DataExportOccurrenceLogInfo() {}
 
-    public DataExportOccurrenceLogInfo(LogEntry logEntry, Thesaurus thesaurus) {
-        this.timestamp = logEntry.getTimestamp().toEpochMilli();
-        this.loglevel = logEntry.getLogLevel().intValue();
-        this.message = logEntry.getMessage();
+    public static DataExportOccurrenceLogInfo from(LogEntry logEntry) {
+        DataExportOccurrenceLogInfo dataExportOccurrenceLogInfo = new DataExportOccurrenceLogInfo();
+        dataExportOccurrenceLogInfo.timestamp = logEntry.getTimestamp().toEpochMilli();
+        dataExportOccurrenceLogInfo.loglevel = logEntry.getLogLevel().intValue();
+        dataExportOccurrenceLogInfo.message = logEntry.getMessage();
+        return dataExportOccurrenceLogInfo;
     }
 }

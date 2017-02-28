@@ -36,6 +36,7 @@ import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointConnectionState;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.History;
@@ -673,8 +674,6 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
 
         when(dataExportService.findDataExportOccurrence(anyLong())).thenReturn(Optional.of(occurrence));
         when(occurrence.getLogsFinder()).thenReturn(logEntryFinder);
-        when(logEntryFinder.setStart(anyInt())).thenReturn(logEntryFinder);
-        when(logEntryFinder.setLimit(anyInt())).thenReturn(logEntryFinder);
         when(logEntryFinder.find()).thenReturn(Collections.emptyList());
 
         Response response = target("/dataexporttask/history/" + occurrenceId + "/logs").request().get();
@@ -682,8 +681,6 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(dataExportService).findDataExportOccurrence(anyLong());
         verify(occurrence).getLogsFinder();
-        verify(logEntryFinder).setStart(anyInt());
-        verify(logEntryFinder).setLimit(anyInt());
     }
 
     @Test
@@ -728,9 +725,16 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
     private IdentifiedObject mockUsagePoint(String name, String connectionState) {
         UsagePoint usagePoint = mock(UsagePoint.class);
         when(usagePoint.getName()).thenReturn(name);
-        when(usagePoint.getConnectionStateDisplayName()).thenReturn(connectionState);
-        when(usagePoint.getCurrentConnectionState()).thenReturn(Optional.of(ConnectionState.CONNECTED));
+        UsagePointConnectionState usagePointConnectionState = mockUsagePointConnectionState(ConnectionState.CONNECTED);
+        when(usagePoint.getCurrentConnectionState()).thenReturn(Optional.of(usagePointConnectionState));
         return usagePoint;
+    }
+
+    private UsagePointConnectionState mockUsagePointConnectionState(ConnectionState connectionState) {
+        UsagePointConnectionState usagePointConnectionState = mock(UsagePointConnectionState.class);
+        when(usagePointConnectionState.getConnectionState()).thenReturn(connectionState);
+        when(usagePointConnectionState.getConnectionStateDisplayName()).thenReturn(connectionState.getDefaultFormat());
+        return usagePointConnectionState;
     }
 
     public ReadingType mockReadingType() {

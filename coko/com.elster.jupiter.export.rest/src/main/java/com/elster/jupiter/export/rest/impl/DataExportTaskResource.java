@@ -132,8 +132,8 @@ public class DataExportTaskResource {
                 .stream()
                 .map(ExportTask::getId)
                 .collect(Collectors.toList());
-        queryParameters.getStart().ifPresent(occurrencesFinder::setStart);
-        queryParameters.getLimit().ifPresent(occurrencesFinder::setLimit);
+        occurrencesFinder.setStart(queryParameters.getStart().orElse(0));
+        occurrencesFinder.setLimit(queryParameters.getLimit().orElse(0) + 1);
         occurrencesFinder.setOrder(queryParameters.getSortingColumns());
 
         return PagedInfoList.fromPagedList("data", getHistoryFromTasks(filter, occurrencesFinder, taskIds), queryParameters);
@@ -506,7 +506,7 @@ public class DataExportTaskResource {
     @GET
     @Path("/{id}/history/{occurrenceId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
+    @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
     public DataExportOccurrenceLogInfos getDataExportTaskHistory(@PathParam("id") long id, @PathParam("occurrenceId") long occurrenceId,
                                                                  @Context SecurityContext securityContext, @Context UriInfo uriInfo, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
@@ -527,11 +527,16 @@ public class DataExportTaskResource {
     @Path("/history/{occurrenceId}/logs")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
-    public DataExportOccurrenceLogInfos getDataExportLogByOccurrence(@PathParam("occurrenceId") long occurrenceId, @BeanParam JsonQueryParameters queryParameters) {
-        return new DataExportOccurrenceLogInfos(findDataExportOccurrenceOrThrowException(occurrenceId).getLogsFinder()
-                .setStart(queryParameters.getStart().orElse(0))
-                .setLimit(queryParameters.getLimit().orElse(0) + 1)
-                .find(), thesaurus);
+    public PagedInfoList getDataExportLogByOccurrence(@PathParam("occurrenceId") long occurrenceId, @BeanParam JsonQueryParameters queryParameters) {
+        LogEntryFinder finder = findDataExportOccurrenceOrThrowException(occurrenceId).getLogsFinder();
+        queryParameters.getStart().ifPresent(finder::setStart);
+        queryParameters.getLimit().ifPresent(finder::setLimit);
+        List<DataExportOccurrenceLogInfo> infos = finder.find()
+                .stream()
+                .map(DataExportOccurrenceLogInfo::from)
+                .collect(Collectors.toList());
+
+        return PagedInfoList.fromPagedList("data", infos, queryParameters);
     }
 
     @GET

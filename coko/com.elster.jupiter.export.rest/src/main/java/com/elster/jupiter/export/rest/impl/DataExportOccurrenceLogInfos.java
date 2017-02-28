@@ -21,8 +21,8 @@ public class DataExportOccurrenceLogInfos {
         addAll(logEntries, thesaurus);
     }
 
-    public DataExportOccurrenceLogInfo add(LogEntry logEntry, Thesaurus thesaurus) {
-        DataExportOccurrenceLogInfo result = new DataExportOccurrenceLogInfo(logEntry, thesaurus);
+    public DataExportOccurrenceLogInfo add(LogEntry logEntry) {
+        DataExportOccurrenceLogInfo result = DataExportOccurrenceLogInfo.from(logEntry);
         data.add(result);
         total++;
         return result;
@@ -30,7 +30,7 @@ public class DataExportOccurrenceLogInfos {
 
     public void addAll(Iterable<? extends LogEntry> logEntries, Thesaurus thesaurus) {
         for (LogEntry each : logEntries) {
-            add(each, thesaurus);
+            add(each);
         }
     }
 }
