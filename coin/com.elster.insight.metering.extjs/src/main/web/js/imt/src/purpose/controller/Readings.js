@@ -451,7 +451,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             grid = me.getReadingsList(),
             router = me.getController('Uni.controller.history.Router');
 
-        record.getProxy().setParams(encodeURIComponent(router.arguments.usagePointId), router.arguments.purposeId, router.arguments.outputId);
+        record.getProxy().setParams(router.arguments.usagePointId, router.arguments.purposeId, router.arguments.outputId);
         me.getReadingEstimationWindow().setLoading();
         Ext.Ajax.suspendEvent('requestexception');
         record.save({
