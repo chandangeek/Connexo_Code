@@ -76,6 +76,10 @@ Ext.define('Dsh.controller.Connections', {
         {
             ref: 'finishedBetweenFilter',
             selector: 'dsh-view-widget-connectionstopfilter #finish-interval-filter'
+        },
+        {
+            ref: 'connectionTypeFilter',
+            selector: 'dsh-view-widget-connectionstopfilter #connection-type-filter'
         }
 
     ],
@@ -288,6 +292,19 @@ Ext.define('Dsh.controller.Connections', {
                     }
                 );
                 break;
+            case 'viewCommunicationTasks':
+                me.viewCommunicationTasks(menu.record);
+                break;
         }
+    },
+
+    viewCommunicationTasks: function (record) {
+        var connectionType = record.get('connectionType'),
+            storeIndex = this.getConnectionTypeFilter().getStore().findExact("name", connectionType),
+            connectionTypeRecord = storeIndex!=-1 ? this.getConnectionTypeFilter().getStore().getAt(storeIndex) : undefined;
+
+        location.href = '#/workspace/communications/details?device=' + encodeURIComponent(record.get('device').name)
+            + (Ext.isEmpty(connectionTypeRecord) ? '' : '&connectionTypes=' + connectionTypeRecord.get('id'));
     }
+
 });
