@@ -109,14 +109,14 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
         var me = this,
             isActive = record.get('active'),
             ruleSetId = record.get('ruleSet').id,
-            rulesStore = me.getStore('Est.estimationrules.store.Rules');
+            ruleSetsStore = me.getStore('Est.estimationrulesets.store.EstimationRuleSetsStore');
 
         record.set('active', !isActive);
         record.getProxy().setUrl(ruleSetId);
         record.save({
             isNotEdit: true,
             callback: function (record, operation, success) {
-                rulesStore.load(function () {
+                ruleSetsStore.load(function () {
                     if (success) {
                         me.getApplication().fireEvent('acknowledge', isActive
                             ? Uni.I18n.translate('estimationrules.deactivateRuleSuccess', 'EST', 'Estimation rule deactivated')
