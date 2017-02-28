@@ -376,10 +376,10 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
 
     private void createPartitions() {
         LocalDate startOfThisYear = LocalDate.now(this.clock).withDayOfYear(1);
-        LocalDate startOfNextYear = startOfThisYear.plusYears(1);
+        LocalDate fiveYearsFromNow = startOfThisYear.plusYears(5);
         Instant start = startOfThisYear.minusYears(1).atStartOfDay(ZoneOffset.UTC).toInstant();
         this.vault.activate(start);
-        this.vault.extendTo(startOfNextYear.atStartOfDay(ZoneOffset.UTC).toInstant(), Logger.getLogger(getClass().getPackage().getName()));
+        this.vault.extendTo(fiveYearsFromNow.atStartOfDay(ZoneOffset.UTC).toInstant(), Logger.getLogger(getClass().getPackage().getName()));
     }
 
     @Override
