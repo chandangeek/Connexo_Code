@@ -762,10 +762,10 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     public static class ReadingsDeletedEventImpl implements Channel.ReadingsDeletedEvent {
-        private ChannelImpl channel;
+        private Channel channel;
         private Set<Instant> readingTimes;
 
-        public ReadingsDeletedEventImpl(ChannelImpl channel, Set<Instant> readingTimes) {
+        public ReadingsDeletedEventImpl(Channel channel, Set<Instant> readingTimes) {
             this.channel = channel;
             this.readingTimes = readingTimes;
         }

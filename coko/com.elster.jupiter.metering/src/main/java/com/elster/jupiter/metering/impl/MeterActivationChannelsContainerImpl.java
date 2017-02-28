@@ -113,8 +113,8 @@ class MeterActivationChannelsContainerImpl extends ChannelsContainerImpl {
     }
 
     private static Range<Instant> filterDependencyScope(Map<Channel, Range<Instant>> scope,
-                                                                  ReadingTypeDeliverable deliverable,
-                                                                  MetrologyContractCalculationIntrospector introspector) {
+                                                        ReadingTypeDeliverable deliverable,
+                                                        MetrologyContractCalculationIntrospector introspector) {
         return introspector.getChannelUsagesFor(deliverable).stream()
                 .map(channelUsage -> intersectWithScope(channelUsage, scope))
                 .flatMap(Functions.asStream())
