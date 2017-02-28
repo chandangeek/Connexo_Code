@@ -1,5 +1,6 @@
 package com.energyict.mdc.upl;
 
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.crypto.KeyStoreService;
 import com.energyict.mdc.upl.crypto.X509Service;
 import com.energyict.mdc.upl.io.ConnectionType;
@@ -32,12 +33,16 @@ public interface InboundDiscoveryContext {
 
     Logger getLogger();
 
+    void setLogger(Logger logger);
+
+    ComChannel getComChannel();
+
     /**
      * Tests if the discovery protocol indicated that it encountered
      * a problem in the communication with the actual device
      * because the latter required that the information be encrypted.
      * In that case, the session should probably be aborted and
-     * {@link InboundDeviceProtocol.DiscoverResponseType#ENCRYPTION_REQUIRED}
+     * {@link com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType#ENCRYPTION_REQUIRED}
      * should be returned as a discovery response.
      *
      * @return A flag that indicates that encryption was required
@@ -70,7 +75,11 @@ public interface InboundDiscoveryContext {
 
     HttpServletRequest getServletRequest();
 
+    void setServletRequest(HttpServletRequest servletRequest);
+
     HttpServletResponse getServletResponse();
+
+    void setServletResponse(HttpServletResponse servletResponse);
 
     DeviceGroupExtractor getDeviceGroupExtractor();
 
@@ -104,7 +113,7 @@ public interface InboundDiscoveryContext {
      * @param deviceIdentifier The object that uniquely identifies the Device
      * @return The List of SecurityProperty or <code>Optional.empty()</code> if the Device is not ready for inbound communication
      */
-    Optional<List<SecurityProperty>> getProtocolSecurityProperties(DeviceIdentifier deviceIdentifier);
+    Optional<List<? extends SecurityProperty>> getProtocolSecurityProperties(DeviceIdentifier deviceIdentifier);
 
     /**
      * Returns the dialect properties for the
