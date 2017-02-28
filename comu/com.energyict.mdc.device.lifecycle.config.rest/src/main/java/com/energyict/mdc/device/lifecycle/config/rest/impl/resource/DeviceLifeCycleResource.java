@@ -6,7 +6,10 @@ package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.EventType;
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -118,6 +121,16 @@ public class DeviceLifeCycleResource {
                 .map(privilege -> new IdWithNameInfo(null, privilege))
                 .collect(Collectors.toList());
         return Response.ok(PagedInfoList.fromCompleteList("privileges", privileges, queryParams)).build();
+    }
+
+    @GET
+    @Path("/stages")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
+    public List<IdWithDisplayValueInfo> getStages() {
+        return Arrays.stream(EndDeviceStage.values())
+                .map(stage -> new IdWithDisplayValueInfo<>(stage.name(), deviceLifeCycleConfigurationService.getStageDisplayName(stage)))
+                .collect(Collectors.toList());
     }
 
     @POST

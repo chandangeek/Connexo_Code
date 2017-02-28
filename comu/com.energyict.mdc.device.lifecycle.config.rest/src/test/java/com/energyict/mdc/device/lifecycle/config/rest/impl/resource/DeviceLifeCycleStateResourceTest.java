@@ -221,6 +221,7 @@ public class DeviceLifeCycleStateResourceTest extends DeviceLifeCycleConfigAppli
 
         DeviceLifeCycleStateInfo entity = new DeviceLifeCycleStateInfo();
         entity.name = "New state";
+        entity.stageName = "OPERATIONAL";
         Response response = target("/devicelifecycles/1/states").request().post(Entity.json(entity));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
@@ -233,6 +234,10 @@ public class DeviceLifeCycleStateResourceTest extends DeviceLifeCycleConfigAppli
         when(stateMachine.getStates()).thenReturn(Collections.singletonList(stateForEdit));
         DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
         when(dlc.getFiniteStateMachine()).thenReturn(stateMachine);
+        StageSet stageSet = mock(StageSet.class);
+        Stage stage = mock(Stage.class);
+        when(stageSet.getStageByName(anyString())).thenReturn(Optional.of(stage));
+        when(stateMachine.getStageSet()).thenReturn(Optional.of(stageSet));
 
         FiniteStateMachineUpdater fsmUpdater = mock(FiniteStateMachineUpdater.class);
         when(stateMachine.startUpdate()).thenReturn(fsmUpdater);
@@ -244,7 +249,7 @@ public class DeviceLifeCycleStateResourceTest extends DeviceLifeCycleConfigAppli
         info.name = "Eddited custom state";
         info.version = stateForEdit.getVersion();
         info.parent = new VersionInfo<>(dlc.getId(), dlc.getVersion());
-
+        info.stageName = "OPERATIONAL";
         Response response = target("/devicelifecycles/1/states/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(stateUpdater, times(1)).setName(Matchers.anyString());
@@ -258,6 +263,10 @@ public class DeviceLifeCycleStateResourceTest extends DeviceLifeCycleConfigAppli
         when(stateMachine.getStates()).thenReturn(Collections.singletonList(stateForEdit));
         DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
         when(dlc.getFiniteStateMachine()).thenReturn(stateMachine);
+        StageSet stageSet = mock(StageSet.class);
+        Stage stage = mock(Stage.class);
+        when(stageSet.getStageByName(anyString())).thenReturn(Optional.of(stage));
+        when(stateMachine.getStageSet()).thenReturn(Optional.of(stageSet));
 
         FiniteStateMachineUpdater fsmUpdater = mock(FiniteStateMachineUpdater.class);
         when(stateMachine.startUpdate()).thenReturn(fsmUpdater);
@@ -269,6 +278,7 @@ public class DeviceLifeCycleStateResourceTest extends DeviceLifeCycleConfigAppli
         info.name = "Eddited custom state";
         info.version = stateForEdit.getVersion();
         info.parent = new VersionInfo<>(dlc.getId(), dlc.getVersion());
+        info.stageName = "OPERATIONAL";
         Response response = target("/devicelifecycles/1/states/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(stateUpdater, times(0)).setName(Matchers.anyString());

@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.services.ListPager;
@@ -44,6 +45,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -97,11 +99,12 @@ public class DeviceLifeCycleStateResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
     public Response addDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, DeviceLifeCycleStateInfo stateInfo) {
+        validateInfo(stateInfo);
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
         FiniteStateMachineUpdater fsmUpdater = deviceLifeCycle.getFiniteStateMachine().startUpdate();
         StageSet stageSet = deviceLifeCycle.getFiniteStateMachine().getStageSet().orElseThrow(getDefaultStageSetException());
-        Stage operationalStage = stageSet.getStageByName(EndDeviceStage.OPERATIONAL.name()).orElseThrow(getDefaultStageSetException());
-        FiniteStateMachineUpdater.StateBuilder stateUpdater = fsmUpdater.newCustomState(stateInfo.name, operationalStage);
+        Stage stage = stageSet.getStageByName(stateInfo.stageName).orElseThrow(getDefaultStageSetException());
+        FiniteStateMachineUpdater.StateBuilder stateUpdater = fsmUpdater.newCustomState(stateInfo.name, stage);
         stateInfo.onEntry.stream().map(this::findStateChangeBusinessProcess).forEach(stateUpdater::onEntry);
         stateInfo.onExit.stream().map(this::findStateChangeBusinessProcess).forEach(stateUpdater::onExit);
 
@@ -125,6 +128,7 @@ public class DeviceLifeCycleStateResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
     public Response editDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("stateId") Long stateId, DeviceLifeCycleStateInfo info) {
+        validateInfo(info);
         info.id = stateId;
         State stateForEdit = resourceHelper.lockStateOrThrowException(info);
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
@@ -134,7 +138,9 @@ public class DeviceLifeCycleStateResource {
         if (stateForEdit.isCustom()) {
             stateUpdater.setName(info.name);
         }
-
+        StageSet stageSet = deviceLifeCycle.getFiniteStateMachine().getStageSet().orElseThrow(getDefaultStageSetException());
+        Stage stage = stageSet.getStageByName(info.stageName).orElseThrow(getDefaultStageSetException());
+        stateUpdater.stage(stage);
         info.onEntry.stream().map(this::findStateChangeBusinessProcess).forEach(stateUpdater::onEntry);
         info.onExit.stream().map(this::findStateChangeBusinessProcess).forEach(stateUpdater::onExit);
         // remove 'obsolete' onEntry processes:
@@ -235,6 +241,13 @@ public class DeviceLifeCycleStateResource {
         if (stateForDeletion.isInitial()){
             throw exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_STATE_IS_THE_INITIAL_STATE);
         }
+    }
+
+    private void validateInfo(DeviceLifeCycleStateInfo stateInfo) {
+        new RestValidationBuilder()
+                .notEmpty(stateInfo.name, "name", MessageSeeds.FIELD_CAN_NOT_BE_EMPTY)
+                .notEmpty(stateInfo.stageName, "stageName", MessageSeeds.FIELD_CAN_NOT_BE_EMPTY)
+                .validate();
     }
 
 }
