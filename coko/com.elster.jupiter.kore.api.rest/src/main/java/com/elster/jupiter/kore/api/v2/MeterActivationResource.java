@@ -5,22 +5,27 @@
 package com.elster.jupiter.kore.api.v2;
 
 import com.elster.jupiter.kore.api.impl.MessageSeeds;
+import com.elster.jupiter.kore.api.impl.TranslationKeys;
 import com.elster.jupiter.kore.api.security.Privileges;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
+import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.JsonQueryParameters;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PagedInfoList;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.util.Checks;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -40,6 +45,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -50,13 +57,15 @@ public class MeterActivationResource {
     private final MeteringService meteringService;
     private final ExceptionFactory exceptionFactory;
     private final MetrologyConfigurationService metrologyConfigurationService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public MeterActivationResource(MeterActivationInfoFactory meterActivationInfoFactory, MeteringService meteringService, MetrologyConfigurationService metrologyConfigurationService, ExceptionFactory exceptionFactory) {
+    public MeterActivationResource(MeterActivationInfoFactory meterActivationInfoFactory, MeteringService meteringService, MetrologyConfigurationService metrologyConfigurationService, ExceptionFactory exceptionFactory, Thesaurus thesaurus) {
         this.meterActivationInfoFactory = meterActivationInfoFactory;
         this.meteringService = meteringService;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.exceptionFactory = exceptionFactory;
+        this.thesaurus = thesaurus;
     }
 
     /**
@@ -148,9 +157,11 @@ public class MeterActivationResource {
         }
         Meter meter = meteringService.findMeterByMRID(meterActivationInfo.meter)
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METER, "meter"));
-
+        if (meterActivationInfo.meterRole == null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "meterRole");
+        }
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(meterActivationInfo.meterRole)
-                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METER_ROLE, meterActivationInfo.meterRole));
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METER_ROLE, "meterRole", meterActivationInfo.meterRole));
 
         UsagePointMeterActivator linker = usagePoint.linkMeters();
         if(!usagePoint.getMeterActivations().isEmpty()){
@@ -166,6 +177,75 @@ public class MeterActivationResource {
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METER_ACTIVATION_FOR_METER_ROLE, meterActivationInfo.meterRole));
 
         return meterActivationInfoFactory.from(activation, uriInfo, Collections.emptyList());
+    }
+
+    /**
+     * The meter activation records which meter was associated with a usage point during which time frame.
+     *
+     * @param mRID Unique identifier of the usage point
+     * @param meterActivationInfo Description of the to be vaidated meter activation
+     * @param uriInfo uriInfo
+     * @return The successfully validated meter activation
+     * @summary Validate requirements of a new activation for a meter
+     */
+    @POST
+    @Path("/validate")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @Transactional
+    public MeterActivationValidationStatusInfo validateMeterActivation(@PathParam("mRID") String mRID, @Context UriInfo uriInfo, MeterActivationInfo meterActivationInfo) {
+        if (meterActivationInfo == null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.EMPTY_REQUEST);
+        }
+        UsagePoint usagePoint = meteringService.findUsagePointByMRID(mRID)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
+        if (meterActivationInfo.meter == null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "meter");
+        }
+        Meter meter = meteringService.findMeterByMRID(meterActivationInfo.meter)
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METER, "meter"));
+        if (meterActivationInfo.meterRole == null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "meterRole");
+        }
+        MeterRole meterRole = metrologyConfigurationService.findMeterRole(meterActivationInfo.meterRole)
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METER_ROLE, "meterRole", meterActivationInfo.meterRole));
+
+        EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationOnUsagePoint = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION, usagePoint.getName()));
+
+        Set<ReadingTypeRequirement> requirements = metrologyConfigurationOnUsagePoint.getMetrologyConfiguration().getContracts().stream()
+                .flatMap(metrologyContract -> metrologyContract.getRequirements().stream())
+                .filter(readingTypeRequirement -> meterRole.equals(metrologyConfigurationOnUsagePoint.getMetrologyConfiguration()
+                        .getMeterRoleFor(readingTypeRequirement)
+                        .orElse(null)))
+                .collect(Collectors.toSet());
+
+        List<ReadingType> meterProvidedReadingTypes = meter.getHeadEndInterface()
+                .map(headEndInterface -> headEndInterface.getCapabilities(meter))
+                .map(EndDeviceCapabilities::getConfiguredReadingTypes)
+                .orElse(Collections.emptyList());
+        Set<ReadingTypeRequirement> unsatisfiedRequirements = requirements.stream()
+                .filter(requirement -> !meterProvidedReadingTypes.stream().anyMatch(requirement::matches))
+                .collect(Collectors.toSet());
+
+        MeterActivationValidationStatusInfo validationResult = new MeterActivationValidationStatusInfo();
+        if (!unsatisfiedRequirements.isEmpty()) {
+            validationResult.success = false;
+            validationResult.message = thesaurus.getFormat(TranslationKeys.UNSATISFIED_READING_TYPE_REQUIREMENTS).format(
+                    meter.getName(),
+                    String.join(", ", metrologyConfigurationOnUsagePoint.getMetrologyConfiguration()
+                            .getContracts()
+                            .stream()
+                            .filter(metrologyContract -> metrologyContract.getRequirements().stream().anyMatch(unsatisfiedRequirements::contains))
+                            .map(mc -> mc.getMetrologyPurpose().getName())
+                            .collect(Collectors.toList())),
+                    usagePoint.getName()
+            );
+        } else {
+            validationResult.success = true;
+        }
+        return validationResult;
     }
 
     /**

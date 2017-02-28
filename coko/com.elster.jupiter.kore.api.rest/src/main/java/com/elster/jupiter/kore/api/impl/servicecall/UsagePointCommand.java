@@ -40,8 +40,7 @@ public enum UsagePointCommand {
     }),
     READMETERS((serviceCall, usagePoint, usagePointCommandInfo, usagePointCommandHelper) -> {
         List<CompletionOptions> completionOptionsList = usagePoint.readData(Instant.ofEpochMilli(usagePointCommandInfo.effectiveTimestamp),
-                usagePointCommandInfo.readingTypes.stream().map(usagePointCommandHelper.getMeteringService()::getReadingType)
-                        .flatMap(rt -> rt.isPresent() ? Stream.of(rt.get()) : Stream.empty()).collect(Collectors.toList())
+                usagePointCommandHelper.getReadingTypesToRead(usagePointCommandInfo, usagePoint)
                 , serviceCall);
         Command.updateCallback(completionOptionsList, serviceCall, usagePointCommandHelper.getDestinationSpec());
         return completionOptionsList;

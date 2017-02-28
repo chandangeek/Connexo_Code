@@ -82,10 +82,11 @@ public enum MessageSeeds implements MessageSeed {
     FIELD_TOO_LONG(70, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters"),
     NO_SUCH_SERVICE_CALL_TYPE(71, "NoSuchServiceCallType", "No such service calltype with id {0}"),
     NO_SUCH_METER_ACTIVATION_FOR_METER_ROLE(72, "NoSuchMeterActivation", "No such meter activation for meter role"),
-    METROLOGY_CONTRACTS_INCOMPLETE(73, "MetrolsyContractsIncomplete", "The required metrology contracts are incomplete"),
+    METROLOGY_CONTRACTS_INCOMPLETE(73, "MetrologyContractsIncomplete", "The required metrology contracts are incomplete"),
     CAS_IS_NOT_ATTACHED_TO_USAGE_POINT(74, "CasIsNotAttachedToUsagePoint", "The custom attribute set with id {0} is not attached to the usage point"),
     NO_SUCH_LOCATION(75, "NoSuchLocation", "No such location with id {0}"),
-    NO_SUCH_METER_ROLE(76, "NoSuchMeterRole", "No such meter role with key {0}");
+    NO_SUCH_METER_ROLE(76, "NoSuchMeterRole", "No such meter role with key {0}"),
+    ;
 
     private final int number;
     private final String key;

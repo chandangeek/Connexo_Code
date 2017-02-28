@@ -12,7 +12,10 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.servicecall.DefaultState;
@@ -23,6 +26,9 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class UsagePointCommandHelper {
@@ -66,6 +72,27 @@ public class UsagePointCommandHelper {
                 .stream()
                 .flatMap(meterActivation -> meterActivation.getMeter()
                         .isPresent() ? Stream.of(meterActivation.getMeter().get()) : Stream.empty()).count();
+    }
+
+    List<ReadingType> getReadingTypesToRead(UsagePointCommandInfo usagePointCommandInfo, UsagePoint usagePoint) {
+        if (usagePointCommandInfo.readingTypes != null) {
+            return usagePointCommandInfo.readingTypes.stream()
+                    .map(this.getMeteringService()::getReadingType)
+                    .flatMap(rt -> rt.isPresent() ? Stream.of(rt.get()) : Stream.empty())
+                    .collect(Collectors.toList());
+        } else {
+            return usagePoint.getEffectiveMetrologyConfiguration(Instant.ofEpochMilli(usagePointCommandInfo.effectiveTimestamp))
+                    .map(emc ->
+                            emc.getMetrologyConfiguration()
+                                    .getContracts()
+                                    .stream()
+                                    .filter(mc -> emc.getChannelsContainer(mc, Instant.ofEpochMilli(usagePointCommandInfo.effectiveTimestamp)).isPresent())
+                                    .map(MetrologyContract::getDeliverables)
+                                    .flatMap(List::stream)
+                                    .map(ReadingTypeDeliverable::getReadingType)
+                                    .collect(Collectors.toList())
+                    ).orElse(Collections.emptyList());
+        }
     }
 
     DestinationSpec getDestinationSpec() {
