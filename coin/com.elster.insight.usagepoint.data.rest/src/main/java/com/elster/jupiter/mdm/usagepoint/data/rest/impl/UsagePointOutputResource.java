@@ -54,6 +54,7 @@ import com.google.common.collect.TreeRangeSet;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -97,6 +98,7 @@ public class UsagePointOutputResource {
     private final MeteringService meteringService;
     private final DataValidationTaskInfoFactory dataValidationTaskInfoFactory;
     private final EstimationTaskInfoFactory estimationTaskInfoFactory;
+    private final EstimationRuleInfoFactory estimationRuleInfoFactory;
 
     private static final String INTERVAL_START = "intervalStart";
     private static final String INTERVAL_END = "intervalEnd";
@@ -115,7 +117,8 @@ public class UsagePointOutputResource {
                              EstimationService estimationService,
                              MeteringService meteringService,
                              DataValidationTaskInfoFactory dataValidationTaskInfoFactory,
-                             EstimationTaskInfoFactory estimationTaskInfoFactory) {
+                             EstimationTaskInfoFactory estimationTaskInfoFactory,
+                             EstimationRuleInfoFactory estimationRuleInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.estimationHelper = estimationHelper;
@@ -131,6 +134,7 @@ public class UsagePointOutputResource {
         this.meteringService = meteringService;
         this.dataValidationTaskInfoFactory = dataValidationTaskInfoFactory;
         this.estimationTaskInfoFactory = estimationTaskInfoFactory;
+        this.estimationRuleInfoFactory = estimationRuleInfoFactory;
     }
 
     @GET
@@ -389,6 +393,41 @@ public class UsagePointOutputResource {
         Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
 
         return previewEstimate(QualityCodeSystem.MDM, channelsContainer, channel, estimateChannelDataInfo);
+    }
+
+    @GET
+    @Path("/{purposeId}/outputs/{outputId}/channelData/estimateWithRule")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
+    public PagedInfoList getEstimationRulesForChannel(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
+        ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
+        if (!readingTypeDeliverable.getReadingType().isRegular()) {
+            throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, outputId);
+        }
+        List<ReadingType> readingTypesFromContract = metrologyContract.getDeliverables()
+                .stream()
+                .map(ReadingTypeDeliverable::getReadingType)
+                .collect(Collectors.toList());
+
+        List<EstimationRuleInfo> estimationRuleInfos = getMatchingEstimationRules(readingTypesFromContract);
+
+        return PagedInfoList.fromPagedList("rules", estimationRuleInfos, queryParameters);
+    }
+
+    private List<EstimationRuleInfo> getMatchingEstimationRules(List<ReadingType> readingTypesFromContract) {
+        return estimationService.getEstimationRuleSets()
+                .stream()
+                .flatMap(ruleSet -> ruleSet.getRules().stream())
+                .filter(estimationRule -> estimationRule.getReadingTypes()
+                        .stream()
+                        .filter(readingTypesFromContract::contains)
+                        .findFirst().isPresent())
+                .map(estimationRuleInfoFactory::createEstimationRuleInfo)
+                .collect(Collectors.toList());
     }
 
     private List<OutputChannelDataInfo> previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Channel channel, EstimateChannelDataInfo estimateChannelDataInfo) {

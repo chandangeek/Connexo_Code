@@ -46,4 +46,16 @@ public class EstimationRuleInfoFactory {
         info.when = readingQualityRecord.getTimestamp();
         return info;
     }
+
+    public EstimationRuleInfo createEstimationRuleInfo(EstimationRule estimationRule) {
+        EstimationQuantityInfo info = new EstimationQuantityInfo();
+        info.id = estimationRule.getId();
+        info.ruleSetId = estimationRule.getRuleSet().getId();
+        info.deleted = estimationRule.isObsolete();
+        info.name = estimationRule.getName();
+        info.estimatorName = estimationRule.getDisplayName();
+        info.properties = propertyValueInfoService.getPropertyInfos(estimationRule.getPropertySpecs(), estimationRule.getProps());
+        info.application = resourceHelper.getApplicationInfo(estimationRule.getRuleSet().getQualityCodeSystem());
+        return info;
+    }
 }
