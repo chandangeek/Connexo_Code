@@ -40,6 +40,7 @@ public enum Privileges implements TranslationKey {
     VIEW_DATA_COLLECTION_KPI(Constants.VIEW_DATA_COLLECTION_KPI, "View data collection KPI"),
     ADMINISTER_DATA_COLLECTION_KPI(Constants.ADMINISTER_DATA_COLLECTION_KPI, "Administrate data collection KPI"),
     ADMINISTER_DEVICE_TIME_SLICED_CPS(Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS, "Administer device time-sliced CAS"),
+    ESTIMATE_WITH_RULE(Constants.ESTIMATE_WITH_RULE, "Estimate with rule")
     ;
 
     private final String key;
@@ -94,5 +95,7 @@ public enum Privileges implements TranslationKey {
         String ADMINISTER_DATA_COLLECTION_KPI = "privilege.administer.dataCollectionKpi";
 
         String ADMINISTER_DEVICE_TIME_SLICED_CPS = "privilege.administer.device.time.sliced.cps";
+
+        String ESTIMATE_WITH_RULE = "privilege.estimate.with.rule";
     }
 }
