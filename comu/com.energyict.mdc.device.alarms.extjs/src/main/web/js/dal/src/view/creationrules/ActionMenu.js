@@ -8,6 +8,13 @@ Ext.define('Dal.view.creationrules.ActionMenu', {
     initComponent: function() {
         this.items = [
             {
+                itemId: 'activate',
+                text: Uni.I18n.translate('general.activate', 'ISU', 'Activate'),
+                privileges: Isu.privileges.Issue.adminRule,
+                action: 'activate',
+                section: this.SECTION_ACTION
+            },
+            {
                 itemId: 'alarm-edit',
                 text: Uni.I18n.translate('general.edit', 'DAL', 'Edit'),
                 action: 'edit',

@@ -48,11 +48,13 @@ Ext.define('Dal.controller.CreationRules', {
     },
 
     showPreview: function (selectionModel, record) {
-        var itemPanel = this.getItemPanel(),
+        var me = this,
+            itemPanel = this.getItemPanel(),
             form = itemPanel.down('form'),
             menu = itemPanel.down('menu');
 
         Ext.suspendLayouts();
+        me.setupMenuItems(record);
         form.loadRecord(record);
         itemPanel.setTitle(Ext.String.htmlEncode(record.get('title')));
         if (menu) {
@@ -62,9 +64,10 @@ Ext.define('Dal.controller.CreationRules', {
     },
 
     chooseAction: function (menu, item) {
-        var action = item.action;
-        var id = menu.record.getId();
-        var router = this.getController('Uni.controller.history.Router');
+        var me = this,
+            action = item.action,
+            id = menu.record.getId(),
+            router = this.getController('Uni.controller.history.Router');
 
         switch (action) {
             case 'remove':
@@ -73,12 +76,69 @@ Ext.define('Dal.controller.CreationRules', {
             case 'edit':
                 router.getRoute('administration/alarmcreationrules/edit').forward({id: id});
                 break;
+            case 'activate':
+                router.setState(router.getRoute()); // store the current url
+                me.activateRule(menu.record);
+                break;
+        }
+    },
+
+    setupMenuItems: function (record) {
+        var suspended = record.get('active'),
+            menuText = suspended
+                ? Uni.I18n.translate('administration.alarmCreationRules.deactivate', 'DAL', 'Deactivate')
+                : Uni.I18n.translate('administration.alarmCreationRules.activate', 'DAL', 'Activate'),
+            menuItems = Ext.ComponentQuery.query('menu menuitem[action=activate]');
+        if (!Ext.isEmpty(menuItems)) {
+            Ext.Array.each(menuItems, function (item) {
+                item.setText(menuText);
+            });
         }
     },
 
     createRule: function () {
         var router = this.getController('Uni.controller.history.Router');
         router.getRoute('administration/alarmcreationrules/add').forward();
+    },
+
+    activateRule: function (record) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            suspended = record.data.active;
+
+        var action = ((suspended == true) ? 'deactivate' : 'activate');
+
+        Ext.Ajax.request({
+            url: '/api/dal/creationrules/' + record.data.id + '/' + action,
+            method: 'PUT',
+            jsonData: Ext.encode(record.raw),
+            success: function () {
+                var messageText = suspended
+                    ? Uni.I18n.translate('administration.alarmCreationRules.deactivateSuccessMsg', 'DAL', 'Alarm creation rule deactivated')
+                    : Uni.I18n.translate('administration.alarmCreationRules.activateSuccessMsg', 'DAL', 'Alarm creation rule activated');
+                me.getApplication().fireEvent('acknowledge', messageText);
+                router.getState().forward(); // navigate to the previously stored url
+            },
+            failure: function (response) {
+                if (response.status == 400) {
+                    var errorText = Uni.I18n.translate('administration.alarmCreationRules.error.unknown', 'DAL', 'Unknown error occurred');
+                    if (!Ext.isEmpty(response.statusText)) {
+                        errorText = response.statusText;
+                    }
+                    if (!Ext.isEmpty(response.responseText)) {
+                        var json = Ext.decode(response.responseText, true);
+                        if (json && json.error) {
+                            errorText = json.error;
+                        }
+                    }
+                    var titleText = suspended
+                        ? Uni.I18n.translate('administration.alarmCreationRules.deactivate.operation.failed', 'DAL', 'Deactivate operation failed')
+                        : Uni.I18n.translate('administration.alarmCreationRules.activate.operation.failed', 'DAL', 'Activate operation failed');
+
+                    me.getApplication().getController('Uni.controller.Error').showError(titleText, errorText);
+                }
+            }
+        });
     },
 
     showDeleteConfirmation: function (rule) {
