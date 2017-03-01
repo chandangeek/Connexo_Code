@@ -29,12 +29,14 @@ import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.MeterActivation;
@@ -1887,7 +1889,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         TopologyTimeline topologyTimeLine = mock(TopologyTimeline.class);
         when(topologyTimeLine.getAllDevices()).thenReturn(Collections.emptySet());
         when(topologyService.getPysicalTopologyTimeline(dataLogger)).thenReturn(topologyTimeLine);
-        Response response = target("/devices/1").request().put(Entity.json(info));
+         Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         // Already linked, shouldn't be linked a second time
@@ -2363,6 +2365,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.forEstimation()).thenReturn(deviceEstimation);
         mockGetOpenDataValidationIssue();
         State state = mockDeviceState("dlc.default.inStock");
+        Stage stage = mock(Stage.class);
+        when(stage.getName()).thenReturn("OPERATIONAL");
+        when(state.getStage()).thenReturn(Optional.of(stage));
         when(device.getState()).thenReturn(state);
         Instant now = Instant.now();
         CIMLifecycleDates dates = mock(CIMLifecycleDates.class);
@@ -2486,11 +2491,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testPrivilegesForInStockState() {
-        State state = mock(State.class);
-        when(state.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
+    public void testPrivilegesForPreOperationalStage() {
+        Stage stage = mock(Stage.class);
+        when(stage.getName()).thenReturn(EndDeviceStage.PRE_OPERATIONAL.name());
         Device device = mock(Device.class);
-        when(device.getState()).thenReturn(state);
+        when(device.getStage()).thenReturn(stage);
         when(deviceService.findDeviceByName(anyString())).thenReturn(Optional.of(device));
 
         DeviceConfiguration configuration = mock(DeviceConfiguration.class);
@@ -2525,11 +2530,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testPrivilegesForInDecommissionedState() {
-        State state = mock(State.class);
-        when(state.getName()).thenReturn(DefaultState.DECOMMISSIONED.getKey());
+    public void testPrivilegesForInPostOperationalStage() {
+        Stage stage = mock(Stage.class);
+        when(stage.getName()).thenReturn(EndDeviceStage.POST_OPERATIONAL.name());
         Device device = mock(Device.class);
-        when(device.getState()).thenReturn(state);
+        when(device.getStage()).thenReturn(stage);
         when(deviceService.findDeviceByName(anyString())).thenReturn(Optional.of(device));
 
         DeviceConfiguration configuration = mock(DeviceConfiguration.class);
@@ -2546,11 +2551,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testPrivilegesForCustomState() {
-        State state = mock(State.class);
-        when(state.getName()).thenReturn("Custom state");
+    public void testPrivilegesForOperationalStage() {
+        Stage stage = mock(Stage.class);
+        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.name());
         Device device = mock(Device.class);
-        when(device.getState()).thenReturn(state);
+        when(device.getStage()).thenReturn(stage);
         when(deviceService.findDeviceByName(anyString())).thenReturn(Optional.of(device));
         DeviceConfiguration configuration = mock(DeviceConfiguration.class);
         when(deviceConfigurationService.getSupportedTimeOfUseOptionsFor(any(), eq(true))).thenReturn(Collections.emptySet());
@@ -2847,6 +2852,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getSpatialCoordinates()).thenReturn(Optional.empty());
         when(device.getCreateTime()).thenReturn(Instant.EPOCH);
         String deviceName = "name";
+        State state = mock(State.class);
+        when(device.getState()).thenReturn(state);
+        Stage stage = mock(Stage.class);
+        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.name());
+        when(state.getStage()).thenReturn(Optional.of(stage));
         when(deviceService.newDevice(deviceConfiguration, deviceName, shipmentDate)).thenReturn(device);
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.name = deviceName;
@@ -2873,6 +2883,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceConfiguration.getValidationRuleSets()).thenReturn(Collections.emptyList());
         when(deviceConfigurationService.findDeviceConfiguration(deviceConfigId)).thenReturn(Optional.of(deviceConfiguration));
         Device device = mock(Device.class, RETURNS_DEEP_STUBS);
+        State state = mock(State.class);
+        when(device.getState()).thenReturn(state);
+        Stage stage = mock(Stage.class);
+        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.name());
+        when(state.getStage()).thenReturn(Optional.of(stage));
         when(deviceService.findDeviceByName("theDevice")).thenReturn(Optional.of(device));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         DeviceType deviceType = mock(DeviceType.class);
@@ -2927,6 +2942,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getLocation()).thenReturn(Optional.empty());
         when(device.getSpatialCoordinates()).thenReturn(Optional.empty());
         String name = "Great name";
+        State state = mock(State.class);
+        when(device.getState()).thenReturn(state);
+        Stage stage = mock(Stage.class);
+        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.name());
+        when(state.getStage()).thenReturn(Optional.of(stage));
         when(deviceService.newDevice(deviceConfiguration, name, "batch", shipmentDate)).thenReturn(device);
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.name = name;

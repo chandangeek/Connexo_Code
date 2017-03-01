@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.rest;
 
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -25,8 +26,9 @@ import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class DeviceStateAccessFilter implements ContainerRequestFilter {
-    private static final Logger LOGGER = Logger.getLogger(DeviceStateAccessFilter.class.getName());
+//todo
+public class DeviceStageAccessFilter implements ContainerRequestFilter {
+    private static final Logger LOGGER = Logger.getLogger(DeviceStageAccessFilter.class.getName());
     private static final int DEVICE_NAME_SEGMENT_POSITION = 1;
     private static final int MINIMUM_SEGMENT_COUNT = 2;
 
@@ -35,7 +37,7 @@ public class DeviceStateAccessFilter implements ContainerRequestFilter {
     private final DeviceService deviceService;
 
     @Inject
-    public DeviceStateAccessFilter(ResourceInfo resourceInfo, UriInfo uriInfo, DeviceService deviceService) {
+    public DeviceStageAccessFilter(ResourceInfo resourceInfo, UriInfo uriInfo, DeviceService deviceService) {
         this.resourceInfo = resourceInfo;
         this.uriInfo = uriInfo;
         this.deviceService = deviceService;
@@ -56,22 +58,22 @@ public class DeviceStateAccessFilter implements ContainerRequestFilter {
             return;
         }
         Optional<Device> device = deviceService.findDeviceByName(pathSegments.get(DEVICE_NAME_SEGMENT_POSITION).getPath());
-        if (device.isPresent() && !getRestrictedDeviceStates().contains(device.get().getState().getName())) {
+        if (device.isPresent() && !getRestrictedDeviceStages().contains(device.get().getStage().getName())) {
             // Current device state is not restricted, so stop our work
             return;
         }
         requestContext.abortWith(Response.status(Response.Status.NOT_FOUND).build());
     }
 
-    private Set<String> getRestrictedDeviceStates() {
+    private Set<String> getRestrictedDeviceStages() {
         Set<String> restrictedStates = Collections.emptySet();
-        DeviceStatesRestricted methodAnnotation = resourceInfo.getResourceMethod().getAnnotation(DeviceStatesRestricted.class);
+        DeviceStagesRestricted methodAnnotation = resourceInfo.getResourceMethod().getAnnotation(DeviceStagesRestricted.class);
         if (methodAnnotation != null) {
-            restrictedStates = Arrays.stream(methodAnnotation.value()).map(DefaultState::getKey).collect(Collectors.toSet());
+            restrictedStates = Arrays.stream(methodAnnotation.value()).map(EndDeviceStage::name).collect(Collectors.toSet());
         } else {
-            DeviceStatesRestricted classAnnotation = resourceInfo.getResourceClass().getAnnotation(DeviceStatesRestricted.class);
+            DeviceStagesRestricted classAnnotation = resourceInfo.getResourceClass().getAnnotation(DeviceStagesRestricted.class);
             if (classAnnotation != null) {
-                restrictedStates = Arrays.stream(classAnnotation.value()).map(DefaultState::getKey).collect(Collectors.toSet());
+                restrictedStates = Arrays.stream(classAnnotation.value()).map(EndDeviceStage::name).collect(Collectors.toSet());
             }
         }
         if (restrictedStates.isEmpty()) {
@@ -82,12 +84,12 @@ public class DeviceStateAccessFilter implements ContainerRequestFilter {
     }
 
     private boolean isRestrictedHttpMethod(ContainerRequestContext requestContext) {
-        if (this.resourceInfo.getResourceMethod().getAnnotation(DeviceStatesRestricted.class) != null) {
+        if (this.resourceInfo.getResourceMethod().getAnnotation(DeviceStagesRestricted.class) != null) {
             // Allow method annotation override a class annotation
             // For example we restrict all PUT and POST requests for a specific class and just one GET request via annotated method
             return true;
         }
-        DeviceStatesRestricted classAnnotation = this.resourceInfo.getResourceClass().getAnnotation(DeviceStatesRestricted.class);
+        DeviceStagesRestricted classAnnotation = this.resourceInfo.getResourceClass().getAnnotation(DeviceStagesRestricted.class);
         if (classAnnotation != null && classAnnotation.methods() != null) {
             return Arrays.asList(classAnnotation.methods()).contains(requestContext.getMethod());
         }
@@ -96,11 +98,11 @@ public class DeviceStateAccessFilter implements ContainerRequestFilter {
 
     private boolean isUserHasIgnoredRole(ContainerRequestContext requestContext) {
         String[] ignoredRoles = null;
-        DeviceStatesRestricted methodAnnotation = resourceInfo.getResourceMethod().getAnnotation(DeviceStatesRestricted.class);
+        DeviceStagesRestricted methodAnnotation = resourceInfo.getResourceMethod().getAnnotation(DeviceStagesRestricted.class);
         if (methodAnnotation != null) {
             ignoredRoles = methodAnnotation.ignoredUserRoles();
         } else {
-            DeviceStatesRestricted classAnnotation = resourceInfo.getResourceClass().getAnnotation(DeviceStatesRestricted.class);
+            DeviceStagesRestricted classAnnotation = resourceInfo.getResourceClass().getAnnotation(DeviceStagesRestricted.class);
             if (classAnnotation != null) {
                 ignoredRoles = classAnnotation.ignoredUserRoles();
             }

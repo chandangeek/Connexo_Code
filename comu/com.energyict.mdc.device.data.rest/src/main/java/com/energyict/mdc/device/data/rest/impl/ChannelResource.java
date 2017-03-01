@@ -10,6 +10,7 @@ import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.Estimator;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -30,7 +31,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
-import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
+import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
@@ -73,8 +74,8 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-@DeviceStatesRestricted(
-        value = {DefaultState.DECOMMISSIONED},
+@DeviceStagesRestricted(
+        value = {EndDeviceStage.POST_OPERATIONAL},
         methods = {HttpMethod.PUT, HttpMethod.POST, HttpMethod.DELETE},
         ignoredUserRoles = {Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
 public class ChannelResource {
@@ -633,7 +634,7 @@ public class ChannelResource {
     @Path("{channelid}/validate")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(com.elster.jupiter.validation.security.Privileges.Constants.VALIDATE_MANUAL)
-    @DeviceStatesRestricted({DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED})
+    @DeviceStagesRestricted({EndDeviceStage.PRE_OPERATIONAL, EndDeviceStage.POST_OPERATIONAL})
     public Response validateDeviceData(LoadProfileTriggerValidationInfo info, @PathParam("name") String name, @PathParam("channelid") long channelId) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);

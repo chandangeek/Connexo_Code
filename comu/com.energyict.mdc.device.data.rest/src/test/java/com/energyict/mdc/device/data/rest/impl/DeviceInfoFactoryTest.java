@@ -16,6 +16,7 @@ import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -23,6 +24,7 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -203,6 +205,8 @@ public class DeviceInfoFactoryTest {
     @Mock
     private State state;
     @Mock
+    private Stage stage;
+    @Mock
     private DeviceService deviceService;
     private Clock clock = Clock.systemDefaultZone();
     private ChannelInfoFactory channelInfoFactory;
@@ -335,6 +339,7 @@ public class DeviceInfoFactoryTest {
 
         when(deviceEstimation.isEstimationActive()).thenReturn(true);
         when(state.getName()).thenReturn(STATE_NAME);
+        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.name());
 
         when(dataLoggerChn1.getDevice()).thenReturn(dataLogger);
         when(dataLoggerChn2.getDevice()).thenReturn(dataLogger);
@@ -421,6 +426,7 @@ public class DeviceInfoFactoryTest {
         when(dataLogger.getRegisters()).thenReturn(Collections.emptyList());
         doReturn(Optional.of(meterActivation)).when(dataLogger).getCurrentMeterActivation();
         when(dataLogger.getState()).thenReturn(state);
+        when(state.getStage()).thenReturn(Optional.of(stage));
         when(dataLogger.getVersion()).thenReturn(DATALOGGER_VERSION);
         when(dataLogger.forEstimation()).thenReturn(deviceEstimation);
         when(dataLogger.getChannels()).thenReturn(Arrays.asList(dataLoggerChn1, dataLoggerChn2, dataLoggerChn3, dataLoggerChn4, dataLoggerChn5, dataLoggerChn6));

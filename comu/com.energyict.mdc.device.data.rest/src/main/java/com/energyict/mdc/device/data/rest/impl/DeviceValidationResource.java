@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -24,7 +25,7 @@ import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
-import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
+import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import com.google.common.collect.Range;
@@ -104,7 +105,7 @@ public class DeviceValidationResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
             Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    @DeviceStatesRestricted({DefaultState.DECOMMISSIONED})
+    @DeviceStagesRestricted({EndDeviceStage.POST_OPERATIONAL})
     public Response setValidationRuleSetStatusOnDevice(@PathParam("name") String name, @PathParam("validationRuleSetId") long validationRuleSetId, DeviceValidationRuleSetInfo info) {
         info.device.name = name;
         Device device = resourceHelper.lockDeviceOrThrowException(info.device);
@@ -365,7 +366,7 @@ public class DeviceValidationResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
             Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    @DeviceStatesRestricted({DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED})
+    @DeviceStagesRestricted({EndDeviceStage.PRE_OPERATIONAL, EndDeviceStage.POST_OPERATIONAL})
     public Response setValidationFeatureStatus(@PathParam("name") String name, DeviceValidationStatusInfo info) {
         info.device.name = name;
         Device device = resourceHelper.lockDeviceOrThrowException(info.device);
@@ -393,7 +394,7 @@ public class DeviceValidationResource {
     @PUT @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.VALIDATE_MANUAL)
-    @DeviceStatesRestricted({DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED})
+    @DeviceStagesRestricted({EndDeviceStage.PRE_OPERATIONAL, EndDeviceStage.POST_OPERATIONAL})
     public Response validateDeviceData(@PathParam("name") String name, DeviceInfo info) {
         info.name = name;
         Device device = resourceHelper.lockDeviceOrThrowException(info);
