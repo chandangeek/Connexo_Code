@@ -294,7 +294,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     private List<CreationRule> getCreationRules() {
         List<CreationRule> ruleList;
         try {
-            ruleList = getCreationRuleQuery().select(where("status").isEqualTo(true));
+            ruleList = getCreationRuleQuery().select(where("active").isEqualTo(true));
         } catch (UnderlyingSQLFailedException sqlEx) {
             throw new IllegalStateException("Rule store is not available yet");
         }

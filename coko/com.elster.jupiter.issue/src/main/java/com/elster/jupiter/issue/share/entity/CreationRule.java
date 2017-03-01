@@ -47,6 +47,7 @@ public interface CreationRule extends Entity, UniqueNamed, HasDynamicPropertiesW
 
     Priority getPriority();
 
-    boolean getStatus();
+    boolean isActive();
+
 
 }

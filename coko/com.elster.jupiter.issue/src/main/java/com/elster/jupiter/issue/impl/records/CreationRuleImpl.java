@@ -68,7 +68,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
     private String template;//creation rule template class name
     private Instant obsoleteTime;
     private Priority priority;
-    private boolean status;
+    private boolean active;
 
     @Valid
     private List<CreationRuleProperty> properties = new ArrayList<>();
@@ -193,12 +193,21 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
     }
 
     @Override
-    public boolean getStatus() {
-        return status;
+    public boolean isActive() {
+        return active;
     }
 
-    public void setStatus(boolean status) {
-        this.status = status;
+    void activate() {
+        if(!isActive()){
+            this.active = true;
+        }
+
+    }
+
+    void deactivate() {
+        if(isActive()){
+            this.active = false;
+        }
     }
 
     CreationRuleProperty addProperty(String name, Object value) {

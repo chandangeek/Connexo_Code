@@ -233,7 +233,7 @@ public enum TableSpecs {
 
             Column idColumn = table.addAutoIdColumn();
             Column nameColumn = table.column(CREATION_RULE_NAME).map("name").varChar(NAME_LENGTH).notNull().add();
-            table.column(CREATION_RULE_STATUS).type("char(1)").conversion(CHAR2BOOLEAN).map("status").add().since(Version.version(10, 3));
+            table.column(CREATION_RULE_STATUS).type("char(1)").conversion(CHAR2BOOLEAN).map("active").add().since(Version.version(10, 3));
             table.column(CREATION_RULE_COMMENT).map("comment").type("clob").conversion(CLOB2STRING).add();
             table.column(CREATION_RULE_CONTENT).map("content").type("clob").conversion(CLOB2STRING).notNull().add();
             Column reasonRefIdColumn = table.column(CREATION_RULE_REASON_ID).varChar(NAME_LENGTH).notNull().add();

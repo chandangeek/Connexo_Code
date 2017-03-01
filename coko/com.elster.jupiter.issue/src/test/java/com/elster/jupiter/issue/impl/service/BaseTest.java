@@ -275,7 +275,7 @@ public abstract class BaseTest {
         builder.setIssueType(getIssueService().findIssueType(ISSUE_DEFAULT_TYPE_UUID).orElse(null));
         builder.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
         builder.setPriority(Priority.DEFAULT);
-        builder.setStatus(true);
+        builder.activate();
         return builder.complete();
     }
 

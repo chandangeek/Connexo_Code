@@ -494,7 +494,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
         builder.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
         builder.setDueInTime(DueInType.DAY, 15L);
         builder.setPriority(Priority.DEFAULT);
-        builder.setStatus(true);
+        builder.activate();
         builder.setTemplate(template.getName());
         Map<String, Object> props = new LinkedHashMap<>();
         props.put(DECIMAL_PROPERTY_NAME, BigDecimal.valueOf(10));

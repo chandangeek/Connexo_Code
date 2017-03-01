@@ -65,15 +65,19 @@ public class CreationRuleBuilderImpl implements CreationRuleBuilder {
         return this;
     }
 
-    @Override
     public CreationRuleBuilder setPriority(Priority priority) {
         this.underConstruction.setPriority(priority);
         return this;
     }
 
+    public CreationRuleBuilder activate() {
+        this.underConstruction.activate();
+        return this;
+    }
+
     @Override
-    public CreationRuleBuilder setStatus(boolean status) {
-        this.underConstruction.setStatus(status);
+    public CreationRuleBuilder deactivate() {
+        this.underConstruction.deactivate();
         return this;
     }
 
