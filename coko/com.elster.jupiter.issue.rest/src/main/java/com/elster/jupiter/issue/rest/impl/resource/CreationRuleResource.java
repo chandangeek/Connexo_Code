@@ -43,6 +43,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.security.cert.CertPathValidatorException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.LIKE;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/creationrules")
@@ -70,20 +73,27 @@ public class CreationRuleResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CREATION_RULE, Privileges.Constants.VIEW_CREATION_RULE})
     public PagedInfoList getCreationRules(@BeanParam JsonQueryParameters queryParams) {
+        IssueType alarmType = getIssueService().findIssueType("devicealarm").orElse(null);
+        List<IssueReason> issueReasons = getIssueService().query(IssueReason.class)
+                .select(where(ISSUE_TYPE).isNotEqual(alarmType))
+                .stream()
+                .collect(Collectors.toList());
+
         Query<CreationRule> query =
                 getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class);
         List<CreationRule> rules;
-        Condition conditionAlarm = where("template").isEqualToIgnoreCase("BasicDeviceAlarmRuleTemplate");
+        Condition conditionIssue = where("reason").in(issueReasons);
         if (queryParams.getStart().isPresent()) {
             int from = queryParams.getStart().get() + 1;
             int to = from + queryParams.getLimit().orElse(0);
-            rules = query.select(conditionAlarm.not(), from, to, Order.ascending("name"));
+            rules = query.select(conditionIssue, from, to, Order.ascending("name"));
         } else {
-            rules = query.select(conditionAlarm.not(), Order.ascending("name"));
+            rules = query.select(conditionIssue, Order.ascending("name"));
         }
         List<CreationRuleInfo> infos = rules.stream().map(ruleInfoFactory::asInfo).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("creationRules", infos, queryParams);
     }
+
 
     @GET
     @Path("/{" + ID + "}")
