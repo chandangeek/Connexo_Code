@@ -8,6 +8,13 @@ Ext.define('Isu.view.creationrules.ActionMenu', {
     initComponent: function() {
         this.items = [
             {
+                itemId: 'activate',
+                text: Uni.I18n.translate('general.activate', 'ISU', 'Activate'),
+                privileges: Isu.privileges.Issue.adminRule,
+                action: 'activate',
+                section: this.SECTION_ACTION
+            },
+            {
                 itemId: 'edit',
                 text: Uni.I18n.translate('general.edit', 'ISU', 'Edit'),
                 action: 'edit',
