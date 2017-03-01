@@ -124,9 +124,9 @@ public class DeviceAlarmCreationRuleResource extends BaseAlarmResource {
     }
 
     @POST
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_ALARM_CREATION_RULE)
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_ALARM_CREATION_RULE)
     public Response addCreationRule(CreationRuleInfo rule) {
         try (TransactionContext context = getTransactionService().getContext()) {
             CreationRuleBuilder builder = getIssueService().getIssueCreationService().newCreationRule();
@@ -141,9 +141,9 @@ public class DeviceAlarmCreationRuleResource extends BaseAlarmResource {
 
     @PUT
     @Path("/{id}")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_ALARM_CREATION_RULE)
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_ALARM_CREATION_RULE)
     public Response editCreationRule(@PathParam("id") long id, CreationRuleInfo rule) {
         try (TransactionContext context = getTransactionService().getContext()) {
             CreationRule creationRule = findAndLockCreationRule(rule);
@@ -154,6 +154,42 @@ public class DeviceAlarmCreationRuleResource extends BaseAlarmResource {
             setTemplate(rule, updater);
             updater.complete();
             context.commit();
+        }
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Path("/{id}/activate")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_ALARM_CREATION_RULE)
+    public Response activateRule(@PathParam("id") long ruleId, CreationRuleInfo info) {
+        CreationRule creationRule = findAndLockCreationRule(info);
+        if (!creationRule.isActive()) {
+            try (TransactionContext context = getTransactionService().getContext()) {
+                CreationRuleUpdater updater = creationRule.startUpdate();
+                updater.activate();
+                updater.complete();
+                context.commit();
+            }
+        }
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Path("/{id}/deactivate")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_ALARM_CREATION_RULE)
+    public Response deactivateRule(@PathParam("id") long ruleId, CreationRuleInfo info) {
+        CreationRule creationRule = findAndLockCreationRule(info);
+        if (creationRule.isActive()) {
+            try (TransactionContext context = getTransactionService().getContext()) {
+                CreationRuleUpdater updater = creationRule.startUpdate();
+                updater.deactivate();
+                updater.complete();
+                context.commit();
+            }
         }
         return Response.ok().build();
     }
