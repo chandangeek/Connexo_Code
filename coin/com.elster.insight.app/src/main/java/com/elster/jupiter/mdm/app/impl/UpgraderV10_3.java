@@ -35,6 +35,7 @@ public class UpgraderV10_3 implements Upgrader {
         return new String[]{
                 // Usage point
                 com.elster.jupiter.metering.security.Privileges.Constants.MANAGE_USAGE_POINT_ATTRIBUTES,
+                com.elster.jupiter.metering.security.Privileges.Constants.ESTIMATE_WITH_RULE,
 
                 //com.elster.jupiter.cps
                 com.elster.jupiter.cps.Privileges.Constants.VIEW_CUSTOM_PROPERTIES_1,

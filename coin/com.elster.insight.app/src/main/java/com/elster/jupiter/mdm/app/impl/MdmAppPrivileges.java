@@ -20,6 +20,7 @@ class MdmAppPrivileges {
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_ANY_USAGEPOINT,
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_OWN_USAGEPOINT,
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
+                com.elster.jupiter.metering.security.Privileges.Constants.ESTIMATE_WITH_RULE,
 
                 //export
                 com.elster.jupiter.export.security.Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK,
