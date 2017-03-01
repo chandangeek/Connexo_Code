@@ -72,6 +72,7 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -139,6 +140,7 @@ public class IssueDataValidationServiceTest {
                 .setIssueType(issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get())
                 .setReason(issueService.findReason(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON).get())
                 .setPriority(Priority.DEFAULT)
+                .setStatus(true)
                 .setDueInTime(DueInType.YEAR, 5)
                 .setProperties(props)
                 .complete();
