@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.alarms.impl.install;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -15,6 +16,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
@@ -40,6 +42,7 @@ import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
 
 public class Installer implements FullInstaller, PrivilegesProvider {
     private static final Logger LOGGER = Logger.getLogger("DeviceAlarmIssueInstaller");
+    public static final String ALARM_RELATIVE_PERIOD_CATEGORY = "relativeperiod.category.deviceAlarm";
 
     private final MessageService messageService;
     private final IssueService issueService;
@@ -47,15 +50,17 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     private final DataModel dataModel;
     private final EventService eventService;
     private final UserService userService;
+    private final TimeService timeService;
 
     @Inject
-    public Installer(DataModel dataModel, IssueService issueService, IssueActionService issueActionService, MessageService messageService, EventService eventService, UserService userService) {
+    public Installer(DataModel dataModel, IssueService issueService, IssueActionService issueActionService, MessageService messageService, EventService eventService, UserService userService, TimeService timeService) {
         this.issueService = issueService;
         this.issueActionService = issueActionService;
         this.messageService = messageService;
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.userService = userService;
+        this.timeService = timeService;
     }
 
     @Override
@@ -68,6 +73,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
             IssueType issueType = setSupportedIssueType();
             setDefaultDeviceAlarmReasonsAndActions(issueType);
         }, "issue reasons and action types", logger);
+        run(this::createRelativePeriodCategory, "create alarm relative period category", logger);
         run(this::publishEvents, "publishing events", logger);
     }
 
@@ -126,8 +132,12 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         issueService.createReason(ModuleConstants.ALARM_REASON, issueType,
                 TranslationKeys.ALARM_REASON, TranslationKeys.ALARM_REASON_DESCRIPTION);
         IssueType deviceAlarmType = issueService.findIssueType(DeviceAlarmService.DEVICE_ALARM).get();
-        issueActionService.createActionType(DeviceAlarmActionsFactory.ID, AssignDeviceAlarmAction.class.getName(), deviceAlarmType);
-        issueActionService.createActionType(DeviceAlarmActionsFactory.ID, CloseDeviceAlarmAction.class.getName(), deviceAlarmType);
+        issueActionService.createActionType(DeviceAlarmActionsFactory.ID, AssignDeviceAlarmAction.class.getName(), deviceAlarmType, CreationRuleActionPhase.CREATE);
+        issueActionService.createActionType(DeviceAlarmActionsFactory.ID, CloseDeviceAlarmAction.class.getName(), deviceAlarmType, CreationRuleActionPhase.OVERDUE);
+    }
+
+    private void createRelativePeriodCategory() {
+        timeService.createRelativePeriodCategory(ALARM_RELATIVE_PERIOD_CATEGORY);
     }
 
     private void run(Runnable runnable, String explanation, Logger logger) {

@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.impl.ModuleConstants;
@@ -26,6 +27,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.time.Clock;
 
 @Component(name = "com.energyict.mdc.device.alarms.DeviceAlarmEventHandlerFactory",
         service = MessageHandlerFactory.class,
@@ -39,6 +41,8 @@ public class DeviceAlarmEventHandlerFactory implements MessageHandlerFactory {
     private volatile DeviceService deviceService;
     private volatile DeviceAlarmService deviceAlarmService;
     private volatile Thesaurus thesaurus;
+    private volatile TimeService timeService;
+    private volatile Clock clock;
 
     // For OSGi framework only
     public DeviceAlarmEventHandlerFactory() {
@@ -53,7 +57,9 @@ public class DeviceAlarmEventHandlerFactory implements MessageHandlerFactory {
             MeteringService meteringService,
             DeviceService deviceService,
             DeviceAlarmService deviceAlarmService,
-            NlsService nlsService) {
+            NlsService nlsService,
+            TimeService timeService,
+            Clock clock) {
         this();
         setJsonService(jsonService);
         setIssueService(issueService);
@@ -76,6 +82,8 @@ public class DeviceAlarmEventHandlerFactory implements MessageHandlerFactory {
                 bind(IssueCreationService.class).toInstance(issueCreationService);
                 bind(IssueService.class).toInstance(issueService);
                 bind(DeviceAlarmService.class).toInstance(deviceAlarmService);
+                bind(TimeService.class).toInstance(timeService);
+                bind(Clock.class).toInstance(clock);
             }
         });
         return new DeviceAlarmEventHandler(injector);
@@ -112,4 +120,13 @@ public class DeviceAlarmEventHandlerFactory implements MessageHandlerFactory {
         this.deviceAlarmService = deviceAlarmService;
     }
 
+    @Reference
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
 }

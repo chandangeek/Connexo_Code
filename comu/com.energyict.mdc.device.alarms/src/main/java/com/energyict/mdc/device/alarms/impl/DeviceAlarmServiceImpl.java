@@ -36,6 +36,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -90,6 +91,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     private volatile UpgradeService upgradeService;
     private volatile UserService userService;
     private volatile MeteringService meteringService;
+    private volatile TimeService timeService;
 
     // For OSGi framework
     public DeviceAlarmServiceImpl() {
@@ -106,7 +108,8 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                                   EventService eventService,
                                   UpgradeService upgradeService,
                                   UserService userService,
-                                  MeteringService meteringService) {
+                                  MeteringService meteringService,
+                                  TimeService timeService) {
         this();
         setMessageService(messageService);
         setIssueService(issueService);
@@ -118,6 +121,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         setUpgradeService(upgradeService);
         setUserService(userService);
         setMeteringService(meteringService);
+        setTimeService(timeService);
 
         activate();
     }
@@ -138,6 +142,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                 bind(DeviceService.class).toInstance(deviceService);
                 bind(EventService.class).toInstance(eventService);
                 bind(UserService.class).toInstance(userService);
+                bind(TimeService.class).toInstance(timeService);
             }
         });
         upgradeService.register(identifier("MultiSense", DeviceAlarmService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
@@ -190,6 +195,11 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
+    }
+
+    @Reference
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
     }
 
     @Reference

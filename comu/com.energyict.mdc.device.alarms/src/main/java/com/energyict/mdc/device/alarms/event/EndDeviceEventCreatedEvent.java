@@ -9,6 +9,7 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.time.TimeService;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import com.energyict.mdc.device.alarms.impl.ModuleConstants;
@@ -18,6 +19,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Map;
 
@@ -26,19 +28,21 @@ public class EndDeviceEventCreatedEvent extends DeviceAlarmEvent {
     private long endDeviceId;
     private String endDeviceEventType;
     private Instant eventTimestamp;
+    private String deviceCode;
 
 
     @Inject
-    public EndDeviceEventCreatedEvent(DeviceAlarmService deviceAlarmService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, Thesaurus thesaurus, Injector injector) {
-        super(deviceAlarmService, issueService, meteringService, deviceService, thesaurus, injector);
+    public EndDeviceEventCreatedEvent(DeviceAlarmService deviceAlarmService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, Thesaurus thesaurus, TimeService timeService, Clock clock, Injector injector) {
+        super(deviceAlarmService, issueService, meteringService, deviceService, thesaurus, timeService, clock, injector);
     }
 
     @Override
     public void init(Map<?, ?> jsonPayload) {
         try {
-            this.endDeviceId = ((Number) jsonPayload.get("endDeviceId")).longValue();
+            this.endDeviceId = ((Number) jsonPayload.get(ModuleConstants.DEVICE_IDENTIFIER)).longValue();
             this.eventTimestamp = Instant.ofEpochSecond(((Number) jsonPayload.get(ModuleConstants.EVENT_TIMESTAMP)).longValue());
-            this.endDeviceEventType = (String) jsonPayload.get("endDeviceEventType");
+            this.endDeviceEventType = (String) jsonPayload.get(ModuleConstants.END_DEVICE_EVENT_TYPE);
+            this.deviceCode = (String) jsonPayload.get(ModuleConstants.DEVICE_EVENT_TYPE);
         } catch (Exception e) {
             throw new UnableToCreateEventException(getThesaurus(), MessageSeeds.UNABLE_TO_CREATE_EVENT, jsonPayload.toString());
         }
@@ -55,8 +59,6 @@ public class EndDeviceEventCreatedEvent extends DeviceAlarmEvent {
         if (issue instanceof OpenDeviceAlarm) {
             OpenDeviceAlarm deviceAlarm = (OpenDeviceAlarm) issue;
             deviceAlarm.addRelatedAlarmEvent(endDeviceId, endDeviceEventType, eventTimestamp);
-
-
         }
     }
 }
