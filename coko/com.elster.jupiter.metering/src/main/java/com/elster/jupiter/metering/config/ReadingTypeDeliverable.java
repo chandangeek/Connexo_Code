@@ -20,7 +20,7 @@ import aQute.bnd.annotation.ProviderType;
  * @since 2016-02-04 (09:02)
  */
 @ProviderType
-public interface ReadingTypeDeliverable extends HasId, HasName {
+public interface ReadingTypeDeliverable extends HasId, HasName, Comparable<ReadingTypeDeliverable> {
 
     long getVersion();
 

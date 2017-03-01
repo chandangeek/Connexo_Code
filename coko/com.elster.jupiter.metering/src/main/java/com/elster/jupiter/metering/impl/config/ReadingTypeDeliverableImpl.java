@@ -219,6 +219,11 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
         return Long.hashCode(getId());
     }
 
+    @Override
+    public int compareTo(ReadingTypeDeliverable other) {
+        return Long.compare(this.id, other.getId());
+    }
+
     private class UpdaterImpl implements Updater {
         @Override
         public Updater setName(String name) {
