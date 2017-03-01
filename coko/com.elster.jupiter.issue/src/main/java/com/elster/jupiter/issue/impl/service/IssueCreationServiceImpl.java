@@ -58,7 +58,6 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
     public static final String ISSUE_CREATION_SERVICE = "issueCreationService";
     public static final String LOGGER = "LOGGER";
-    public static final String PRIORITY = ".priority";
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -263,7 +262,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     private List<CreationRule> getCreationRules() {
         List<CreationRule> ruleList;
         try {
-            ruleList = getCreationRuleQuery().select(Condition.TRUE);
+            ruleList = getCreationRuleQuery().select(where("status").isEqualTo(true));
         } catch (UnderlyingSQLFailedException sqlEx) {
             throw new IllegalStateException("Rule store is not available yet");
         }

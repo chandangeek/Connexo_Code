@@ -67,6 +67,7 @@ import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_PROPS_RULE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_PROPS_VALUE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_REASON_ID;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_STATUS;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_TEMPLATE_NAME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_UQ_NAME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_ASSIGNEE_TYPE;
@@ -232,6 +233,7 @@ public enum TableSpecs {
 
             Column idColumn = table.addAutoIdColumn();
             Column nameColumn = table.column(CREATION_RULE_NAME).map("name").varChar(NAME_LENGTH).notNull().add();
+            table.column(CREATION_RULE_STATUS).type("char(1)").conversion(CHAR2BOOLEAN).map("status").add().since(Version.version(10, 3));
             table.column(CREATION_RULE_COMMENT).map("comment").type("clob").conversion(CLOB2STRING).add();
             table.column(CREATION_RULE_CONTENT).map("content").type("clob").conversion(CLOB2STRING).notNull().add();
             Column reasonRefIdColumn = table.column(CREATION_RULE_REASON_ID).varChar(NAME_LENGTH).notNull().add();

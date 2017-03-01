@@ -72,6 +72,12 @@ public class CreationRuleBuilderImpl implements CreationRuleBuilder {
     }
 
     @Override
+    public CreationRuleBuilder setStatus(boolean status) {
+        this.underConstruction.setStatus(status);
+        return this;
+    }
+
+    @Override
     public CreationRuleBuilder setProperties(Map<String, Object> props) {
         this.underConstruction.setProperties(props);
         return this;

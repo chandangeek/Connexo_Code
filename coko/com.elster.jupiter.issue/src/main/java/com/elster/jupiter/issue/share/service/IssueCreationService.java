@@ -54,6 +54,8 @@ public interface IssueCreationService {
         CreationRuleBuilder setTemplate(String name);
 
         CreationRuleBuilder setPriority(Priority priority);
+
+        CreationRuleBuilder setStatus(boolean status);
         
         CreationRuleBuilder setProperties(Map<String, Object> props);
         
