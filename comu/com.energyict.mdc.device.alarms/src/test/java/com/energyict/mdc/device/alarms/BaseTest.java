@@ -316,7 +316,7 @@ public abstract class BaseTest {
         builder.setIssueType(getIssueService().findIssueType(DeviceAlarmService.DEVICE_ALARM).get());
         builder.setReason(getIssueService().findReason(reasonKey).orElse(null));
         builder.setPriority(Priority.DEFAULT);
-        builder.setStatus(true);
+        builder.activate();
         builder.setDueInTime(DueInType.DAY, 15L);
         CreationRuleTemplate template = getMockCreationRuleTemplate();
         builder.setTemplate(template.getName());
