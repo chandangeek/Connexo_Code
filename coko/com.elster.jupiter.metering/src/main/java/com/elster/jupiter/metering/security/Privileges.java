@@ -27,7 +27,9 @@ public enum Privileges implements TranslationKey {
 
     ADMINISTER_METROLOGY_CONFIGURATION(Constants.ADMINISTER_METROLOGY_CONFIGURATION, "Administer metrology configuration"),
 	VIEW_METROLOGY_CONFIGURATION(Constants.VIEW_METROLOGY_CONFIGURATION, "View metrology configuration"),
-	MANAGE_USAGE_POINT_ATTRIBUTES(Constants.MANAGE_USAGE_POINT_ATTRIBUTES, "Manage usage point attributes")
+	MANAGE_USAGE_POINT_ATTRIBUTES(Constants.MANAGE_USAGE_POINT_ATTRIBUTES, "Manage usage point attributes"),
+
+	ESTIMATE_WITH_RULE(Constants.ESTIMATE_WITH_RULE, "Estimate with rule")
 	;
 
 	private final String key;
@@ -70,5 +72,6 @@ public enum Privileges implements TranslationKey {
         String ADMINISTER_METROLOGY_CONFIGURATION = "privilege.administer.metrologyConfiguration";
 		String ADMINISTER_USAGEPOINT_TIME_SLICED_CPS = "privilege.administer.usage.point.time.sliced.cps";
 		String MANAGE_USAGE_POINT_ATTRIBUTES = "privilege.administer.usage.point.manage.attributes";
+		String ESTIMATE_WITH_RULE = "privilege.estimate.with.rule";
 	}
 }
