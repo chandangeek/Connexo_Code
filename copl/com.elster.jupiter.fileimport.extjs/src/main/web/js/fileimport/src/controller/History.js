@@ -89,7 +89,7 @@ Ext.define('Fim.controller.History', {
             importServiceModel.load(importServiceId, {
                 success: function (record) {
                     view.down('#history-view-menu').setHeader(record.get('name'));
-                    me.getApplication().fireEvent('importserviceload', record);
+                    me.getApplication().fireEvent('importserviceload', record.get('name'));
                 }
             });
         }
