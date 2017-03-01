@@ -2,11 +2,11 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Imt.purpose.view.ReadingEstimationWindow', {
+Ext.define('Imt.purpose.view.ReadingEstimationWithRuleWindow', {
     extend: 'Ext.window.Window',
-    alias: 'widget.reading-estimation-window',
+    alias: 'widget.reading-estimation-with-rule-window',
     modal: true,
-    title: Uni.I18n.translate('general.editWithEstimator', 'IMT', 'Edit with estimator'),
+    title: Uni.I18n.translate('general.selectEstimationRule', 'IMT', 'Select estimation rule'),
     bothSuspected: false,
     record: null,
 
@@ -40,17 +40,17 @@ Ext.define('Imt.purpose.view.ReadingEstimationWindow', {
                 },
                 {
                     xtype: 'combobox',
-                    itemId: 'estimator-field',
-                    name: 'estimatorImpl',
-                    fieldLabel: Uni.I18n.translate('estimationDevice.estimator', 'IMT', 'Estimator'),
+                    itemId: 'estimation-rule-field',
+                    name: 'estimationRule',
+                    fieldLabel: Uni.I18n.translate('estimationDevice.estimation rule', 'IMT', 'Estimation rule'),
                     required: true,
                     editable: 'false',
-                    store: 'Imt.purpose.store.Estimators',
-                    valueField: 'implementation',
+                    store: 'Imt.purpose.store.EstimationRules',
+                    valueField: 'id',
                     displayField: 'displayName',
                     queryMode: 'local',
                     forceSelection: true,
-                    emptyText: Uni.I18n.translate('general.selectAnEstimator', 'IMT', 'Select an estimator...'),
+                    emptyText: Uni.I18n.translate('general.selectAnEstimationRule', 'IMT', 'Select an estimation rule...'),
                     listeners: {
                         change: {
                             fn: function (implementationCombo, newValue) {
@@ -66,6 +66,8 @@ Ext.define('Imt.purpose.view.ReadingEstimationWindow', {
                 {
                     xtype: 'property-form',
                     itemId: 'property-form',
+                    isEdit: false,
+                    isReadOnly: true,
                     defaults: {
                         labelWidth: 200
                     }
@@ -96,5 +98,10 @@ Ext.define('Imt.purpose.view.ReadingEstimationWindow', {
         };
 
         me.callParent(arguments);
+    },
+
+    getEstimator: function(){
+        // var me = this;
+        // return me.down('#estimation-rule-field').getStore().getById(me.down('#estimation-rule-field').getValue())
     }
 });
