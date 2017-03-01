@@ -243,6 +243,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(validationTask.getLastRun()).thenReturn(Optional.empty());
         when(validationTask.getLastOccurrence()).thenReturn(Optional.empty());
         when(validationTask.getId()).thenReturn(31L);
+        when(validationTask.getMetrologyPurpose()).thenReturn(Optional.empty());
         doReturn(usagePointQuery).when(meteringService).getUsagePointQuery();
         doReturn(Collections.singletonList(usagePoint)).when(usagePointQuery)
                 .select(any(Condition.class), anyInt(), anyInt());

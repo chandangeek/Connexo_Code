@@ -74,6 +74,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -105,6 +106,10 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     private ValidationEvaluator evaluator;
     @Mock
     private EstimationRuleInfoFactory estimationRuleInfoFactory;
+    @Mock
+    private EstimationRuleSet estimationRuleSet;
+    @Mock
+    private EstimationRule estimationRule;
 
     @Captor
     private ArgumentCaptor<List<IntervalReadingImpl>> intervalReadingsCaptor;
@@ -572,6 +577,26 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         OutputChannelDataInfo info = factory.createChannelDataInfo(status);
         assertThat(info.dataValidated).isFalse();
         assertThat(info.validationResult).isEqualTo(ValidationStatus.NOT_VALIDATED);
+    }
+
+    @Test
+    public void testGetEstimationRulesForChannel() {
+        doReturn(Collections.singletonList(estimationRuleSet)).when(estimationService).getEstimationRuleSets();
+        doReturn(Collections.singletonList(estimationRule)).when(estimationRuleSet).getRules();
+        when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
+        when(estimationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
+        doReturn(Collections.singleton(regularReadingType)).when(estimationRule).getReadingTypes();
+        when(estimationRuleSet.getId()).thenReturn(15L);
+
+        Response response = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData/estimateWithRule").request().get();
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(estimationService).getEstimationRuleSets();
+        verify(estimationRuleSet).getRules();
+        verify(estimationRule, times(2)).getRuleSet();
+        verify(estimationRuleSet).getQualityCodeSystem();
+        verify(estimationRule).getReadingTypes();
+        verify(estimationRuleSet).getId();
     }
 
     private void mockIntervalReadingsWithValidationResult(AggregatedChannel channel) {

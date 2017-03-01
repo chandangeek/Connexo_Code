@@ -162,6 +162,10 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     UpgradeService upgradeService;
     @Mock
     OrmService ormService;
+    @Mock
+    ReadingType regularReadingType;
+    @Mock
+    ReadingType irregularReadingType;
 
     @Override
     protected Application getApplication() {
@@ -260,11 +264,11 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
 
         when(metrologyConfiguration.getContracts()).thenReturn(Arrays.asList(contract, contractOptional));
 
-        ReadingType regularReadingType = this.mockReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+        regularReadingType = this.mockReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
         when(regularReadingType.isRegular()).thenReturn(true);
         ReadingTypeDeliverable channelDeliverable = mockReadingTypeDeliverable(1L, "1 regular RT", metrologyConfiguration, regularReadingType);
 
-        ReadingType irregularReadingType = this.mockReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+        irregularReadingType = this.mockReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
         when(irregularReadingType.isRegular()).thenReturn(false);
         ReadingTypeDeliverable registerTypeDeliverable = mockReadingTypeDeliverable(2L, "2 irregular RT", metrologyConfiguration, irregularReadingType);
 

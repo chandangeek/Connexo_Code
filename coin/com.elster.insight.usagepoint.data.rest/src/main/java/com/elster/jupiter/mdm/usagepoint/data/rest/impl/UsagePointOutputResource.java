@@ -24,6 +24,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.beans.BaseReadingImpl;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -293,7 +294,7 @@ public class UsagePointOutputResource {
     @Transactional
     @Path("/{purposeId}/outputs/{outputId}/channelData")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.ESTIMATE_WITH_RULE})
     public Response editChannelDataOfOutput(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
                                             @BeanParam JsonQueryParameters queryParameters, List<OutputChannelDataInfo> channelDataInfos) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
@@ -305,15 +306,22 @@ public class UsagePointOutputResource {
         }
 
         List<BaseReading> editedReadings = new ArrayList<>();
+        List<BaseReading> estimatedReadings = new ArrayList<>();
         List<BaseReading> confirmedReadings = new ArrayList<>();
         List<Instant> removeCandidates = new ArrayList<>();
 
         channelDataInfos.forEach((channelDataInfo) -> {
             if (!isToBeConfirmed(channelDataInfo) && channelDataInfo.value == null) {
                 removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
-            } else {
+            }  else {
                 if (channelDataInfo.value != null) {
-                    editedReadings.add(channelDataInfo.createNew());
+                    BaseReading baseReading = channelDataInfo.createNew();
+                    if (channelDataInfo.ruleId != 0) {
+                        ((BaseReadingImpl)baseReading).addQuality("3.8." + channelDataInfo.ruleId);
+                        estimatedReadings.add(baseReading);
+                    } else {
+                        editedReadings.add(baseReading);
+                    }
                 }
                 if (isToBeConfirmed(channelDataInfo)) {
                     confirmedReadings.add(channelDataInfo.createConfirm());
@@ -325,6 +333,7 @@ public class UsagePointOutputResource {
         ChannelsContainer channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get();
         Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
 
+        channel.estimateReadings(QualityCodeSystem.MDM, estimatedReadings);
         Optional<Instant> currentLastChecked = validationService.getLastChecked(channel);
         channel.editReadings(QualityCodeSystem.MDM, editedReadings);
         channel.confirmReadings(QualityCodeSystem.MDM, confirmedReadings);
@@ -399,7 +408,7 @@ public class UsagePointOutputResource {
     @Path("/{purposeId}/outputs/{outputId}/channelData/estimateWithRule")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT, Privileges.Constants.ESTIMATE_WITH_RULE})
     public PagedInfoList getEstimationRulesForChannel(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
