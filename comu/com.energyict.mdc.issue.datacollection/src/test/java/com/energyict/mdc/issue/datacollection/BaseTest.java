@@ -288,6 +288,7 @@ public abstract class BaseTest {
         builder.setReason(getIssueService().findReason(reasonKey).orElse(null));
         builder.setDueInTime(DueInType.DAY, 15L);
         builder.setPriority(Priority.DEFAULT);
+        builder.setStatus(true);
         CreationRuleTemplate template = getMockCreationRuleTemplate();
         builder.setTemplate(template.getName());
         return builder.complete();
