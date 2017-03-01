@@ -170,7 +170,7 @@ public class CreationRuleResource extends BaseResource {
         builder.setName(rule.name)
                 .setComment(rule.comment)
                 .setDueInTime(DueInType.fromString(rule.dueIn.type), rule.dueIn.number)
-                .setPriority(Priority.get(rule.priority.urgency, rule.priority.impact));
+                .setPriority(Priority.get(rule.priority.urgency, rule.priority.impact)).setStatus(rule.status);
         if (rule.issueType != null) {
             getIssueService().findIssueType(rule.issueType.uid).ifPresent(builder::setIssueType);
             if (rule.reason != null) {

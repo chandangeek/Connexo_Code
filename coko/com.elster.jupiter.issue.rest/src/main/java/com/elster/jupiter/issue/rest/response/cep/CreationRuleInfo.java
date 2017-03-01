@@ -18,6 +18,7 @@ import java.util.List;
 public class CreationRuleInfo {
     public long id;
     public String name;
+    public boolean status;
     public String comment;
     public IssueReasonInfo reason;
     public IssueTypeInfo issueType;
