@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.beans.BaseReadingImpl;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -448,13 +449,15 @@ public class ChannelResource {
     @Path("/{channelid}/data")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA, Privileges.Constants.ESTIMATE_WITH_RULE})
     public Response editChannelData(@PathParam("name") String name, @PathParam("channelid") long channelId, @BeanParam JsonQueryParameters queryParameters, List<ChannelDataInfo> channelDataInfos) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
         List<BaseReading> editedReadings = new ArrayList<>();
         List<BaseReading> editedBulkReadings = new ArrayList<>();
         List<BaseReading> confirmedReadings = new ArrayList<>();
+        List<BaseReading> estimatedReadings = new ArrayList<>();
+        List<BaseReading> estimatedBulkReadings = new ArrayList<>();
         List<Instant> removeCandidates = new ArrayList<>();
         channelDataInfos.forEach((channelDataInfo) -> {
             validateLinkedToSlave(channel, Range.closedOpen(Instant.ofEpochMilli(channelDataInfo.interval.start), Instant.ofEpochMilli(channelDataInfo.interval.end)));
@@ -462,10 +465,22 @@ public class ChannelResource {
                 removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
             } else {
                 if (channelDataInfo.value != null) {
-                    editedReadings.add(channelDataInfo.createNew());
+                    BaseReading baseReading = channelDataInfo.createNew();
+                    if (channelDataInfo.ruleId != 0) {
+                        ((BaseReadingImpl)baseReading).addQuality("2.8." + channelDataInfo.ruleId);
+                        estimatedReadings.add(baseReading);
+                    } else {
+                        editedReadings.add(baseReading);
+                    }
                 }
                 if (channelDataInfo.collectedValue != null) {
-                    editedBulkReadings.add(channelDataInfo.createNewBulk());
+                    BaseReading baseReading = channelDataInfo.createNewBulk();
+                    if (channelDataInfo.ruleId != 0) {
+                        ((BaseReadingImpl)baseReading).addQuality("2.8." + channelDataInfo.ruleId);
+                        estimatedBulkReadings.add(baseReading);
+                    } else {
+                        editedBulkReadings.add(baseReading);
+                    }
                 }
                 if (isToBeConfirmed(channelDataInfo)) {
                     confirmedReadings.add(channelDataInfo.createConfirm());
@@ -477,6 +492,8 @@ public class ChannelResource {
                 .editChannelData(editedReadings)
                 .editBulkChannelData(editedBulkReadings)
                 .confirmChannelData(confirmedReadings)
+                .estimateChannelData(estimatedReadings)
+                .estimateBulkChannelData(estimatedBulkReadings)
                 .complete();
 
         return Response.status(Response.Status.OK).build();
@@ -512,7 +529,7 @@ public class ChannelResource {
     @Path("/{channelid}/data/estimateWithRule")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ESTIMATE_WITH_RULE})
     public PagedInfoList getEstimationRulesForChannelData(@PathParam("name") String name, @PathParam("channelid") long channelId, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);

@@ -999,4 +999,17 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
+    @Test
+    public void testGetEstimationRulesForChannelData() {
+        ReadingType readingType = mockReadingType("1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18");
+        when(channel.getReadingType()).thenReturn(readingType);
+        doReturn(Collections.singletonList(estimationRuleSet)).when(estimationService).getEstimationRuleSets();
+        doReturn(Collections.singletonList(estimationRule)).when(estimationRuleSet).getRules();
+        doReturn(Collections.singleton(readingType)).when(estimationRule).getReadingTypes();
+
+        Response response = target("devices/" + "1/channels/" + CHANNEL_ID1 + "/data/estimateWithRule").request().get();
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
 }
