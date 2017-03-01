@@ -371,7 +371,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
                 .setIssueType(issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get())
                 .setReason(issueService.findReason(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON).get())
                 .setPriority(Priority.DEFAULT)
-                .setStatus(true)
+                .activate()
                 .setDueInTime(DueInType.YEAR, 5)
                 .setProperties(props)
                 .complete();
