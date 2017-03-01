@@ -49,7 +49,6 @@ public class SyntheticLoadProfileImpl implements SyntheticLoadProfile {
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String description;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    private String interval;
     private Reference<ReadingType> readingType = ValueReference.absent();
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Instant startTime;
@@ -100,11 +99,7 @@ public class SyntheticLoadProfileImpl implements SyntheticLoadProfile {
     }
 
     @Override
-    public Duration getInterval() { return Duration.parse(interval);
-    }
-
-    void setInterval(Duration interval) {
-        this.interval = interval.toString();
+    public Duration getInterval() { return Duration.from(timeSeries.get().interval());
     }
 
     @Override

@@ -1948,7 +1948,6 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
-            table.column("INTERVAL").varChar(NAME_LENGTH).notNull().map("interval").add();
             table.column("DURATION").varChar(NAME_LENGTH).notNull().map("duration").add();
             Column readingTypeMRIDColumn = table.column("READINGTYPE").varChar(NAME_LENGTH).add();
             table.column("START_TIME").number().notNull().conversion(ColumnConversion.NUMBER2INSTANT).map("startTime").add();

@@ -44,13 +44,10 @@ public class SyntheticLoadProfileBuilderImpl implements SyntheticLoadProfileBuil
         return this;
     }
 
-    public SyntheticLoadProfileBuilder withInterval(Duration interval) {
-        this.interval = interval;
-        return this;
-    }
-
-    @Override
     public SyntheticLoadProfileBuilder withReadingType(ReadingType readingType) {
+        if(!readingType.isRegular()){
+            throw new IllegalArgumentException("Synthetic load profiles does not support irregular reading types");
+        }
         this.readingType = readingType;
         return this;
     }
@@ -69,14 +66,13 @@ public class SyntheticLoadProfileBuilderImpl implements SyntheticLoadProfileBuil
     public SyntheticLoadProfile build() {
         SyntheticLoadProfileImpl syntheticLoadProfile = syntheticLoadProfileService.getDataModel().getInstance(SyntheticLoadProfileImpl.class).initialize(name);
         syntheticLoadProfile.setDescription(description);
-        syntheticLoadProfile.setInterval(interval);
         syntheticLoadProfile.setReadingType(readingType);
         syntheticLoadProfile.setStartTime(startTime);
         syntheticLoadProfile.setDuration(duration);
 
         Vault vault = syntheticLoadProfileService.getVault();
         RecordSpec recordSpec = syntheticLoadProfileService.getRecordSpec();
-        TimeSeries timeSeries = vault.createRegularTimeSeries(recordSpec, timeZone, interval, 0);
+        TimeSeries timeSeries = vault.createRegularTimeSeries(recordSpec, timeZone, Duration.from(readingType.getIntervalLength().get()), 0);
         syntheticLoadProfile.setTimeSeries(timeSeries);
 
         syntheticLoadProfile.save();

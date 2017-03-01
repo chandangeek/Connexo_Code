@@ -65,20 +65,16 @@ public class SyntheticLoadProfileConsoleCommands {
         this.meteringService = meteringService;
     }
 
-    public void createSyntheticLoadProfile(String name, String intervalName, String durationName, String startTime){
-        createSyntheticLoadProfile(name, intervalName, durationName, startTime, "");
-    }
 
-    public void createSyntheticLoadProfile(String name, String intervalName, String durationName, String startTime, String readingType){
+    public void createSyntheticLoadProfile(String name, String durationName, String startTime, String readingType){
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             final Instant startDate = LocalDate.from(dateTimeFormat.parse(startTime)).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
             SyntheticLoadProfileBuilder builder = syntheticLoadProfileService.newSyntheticLoadProfile(name,
-                    Duration.parse(intervalName.toUpperCase()),
                     Period.parse(durationName.toUpperCase()),
-                    startDate);
+                    startDate,
+                    meteringService.getReadingType(readingType).get());
             builder.withDescription(name);
-            builder.withReadingType(meteringService.getReadingType(readingType).orElse(null));
             builder.build();
             context.commit();
         } catch (RuntimeException e){

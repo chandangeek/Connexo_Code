@@ -17,7 +17,5 @@ import java.time.Period;
 public interface SyntheticLoadProfileBuilder {
     SyntheticLoadProfileBuilder withDescription(String description);
 
-    SyntheticLoadProfileBuilder withReadingType(ReadingType readingType);
-
     SyntheticLoadProfile build();
 }

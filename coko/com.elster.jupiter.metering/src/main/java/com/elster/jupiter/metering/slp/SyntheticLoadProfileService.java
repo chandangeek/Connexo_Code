@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.metering.slp;
 
+import com.elster.jupiter.metering.ReadingType;
+
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Duration;
@@ -16,7 +18,7 @@ import java.util.Optional;
 public interface SyntheticLoadProfileService {
     String COMPONENTNAME = "SLP";
 
-    SyntheticLoadProfileBuilder newSyntheticLoadProfile(String name, Duration interval, Period duration, Instant startTime);
+    SyntheticLoadProfileBuilder newSyntheticLoadProfile(String name, Period duration, Instant startTime, ReadingType readingType);
 
     List<SyntheticLoadProfile> findSyntheticLoadProfiles();
 

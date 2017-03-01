@@ -8,6 +8,7 @@ import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfileBuilder;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
@@ -59,11 +60,11 @@ public class SyntheticLoadProfileServiceImpl implements SyntheticLoadProfileServ
     }
 
     @Override
-    public SyntheticLoadProfileBuilder newSyntheticLoadProfile(String name, Duration interval, Period duration, Instant startTime) {
+    public SyntheticLoadProfileBuilder newSyntheticLoadProfile(String name, Period duration, Instant startTime, ReadingType readingType) {
         SyntheticLoadProfileBuilderImpl syntheticLoadProfileBuilder = new SyntheticLoadProfileBuilderImpl(this, meteringService, name);
-        syntheticLoadProfileBuilder.withInterval(interval);
         syntheticLoadProfileBuilder.withDuration(duration);
         syntheticLoadProfileBuilder.withStartTime(startTime);
+        syntheticLoadProfileBuilder.withReadingType(readingType);
         return syntheticLoadProfileBuilder;
     }
 
