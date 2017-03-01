@@ -17,6 +17,8 @@ import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -100,6 +102,7 @@ public class SyntheticLoadProfileImportIT {
     private FileImportOccurrence fileImportOccurrenceIncorrectDuration;
 
     private SyntheticLoadProfileDataImporterContext context;
+    ReadingType readingType;
 
     @Before
     public void setUp() {
@@ -129,7 +132,7 @@ public class SyntheticLoadProfileImportIT {
                     new CustomPropertySetsModule(),
                     new PartyModule(),
                     new SearchModule(),
-                    new MeteringModule()
+                    new MeteringModule("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -160,14 +163,18 @@ public class SyntheticLoadProfileImportIT {
             e.printStackTrace();
         }
 
+        readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0").get();
+
         try (TransactionContext context = transactionService.getContext()) {
             for (int i = 1; i < 4; i++) {
-                SyntheticLoadProfileBuilder builder = syntheticLoadProfileService.newSyntheticLoadProfile("slp" + i, Duration.ofMinutes(15), Period.ofDays(1), DATE);
+                SyntheticLoadProfileBuilder builder = syntheticLoadProfileService.newSyntheticLoadProfile("slp" + i, Period.ofDays(1), DATE, readingType);
                 builder.withDescription("synthetic load profile description");
                 builder.build();
             }
             context.commit();
         }
+
+
     }
 
     @Test
