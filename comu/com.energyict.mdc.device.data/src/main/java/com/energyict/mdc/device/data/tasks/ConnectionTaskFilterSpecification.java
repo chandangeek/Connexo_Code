@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.tasks;
 
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceType;
@@ -95,4 +96,11 @@ public class ConnectionTaskFilterSpecification {
      * Default value: exclude connection tasks of "In stock" and "Decommissioned" devices
      */
     public Set<String> restrictedDeviceStates = new HashSet<>(Arrays.asList(DefaultState.IN_STOCK.getKey(), DefaultState.DECOMMISSIONED.getKey()));
+
+    /**
+     * The Set of device stages
+     * Comtasks of devices in such stages will be excluded from the result
+     * Default value: exclude comtasks of "Pre-operational" and "Post-operational" devices
+     */
+    public Set<String> restrictedDeviceStages = new HashSet<>(Arrays.asList(EndDeviceStage.PRE_OPERATIONAL.name(), EndDeviceStage.POST_OPERATIONAL.name()));
 }

@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.energyict.mdc.device.config.DeviceType;
@@ -37,7 +38,7 @@ abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTaskFilter
     private final Set<ConnectionTypePluggableClass> connectionTypes;
     private final Set<ComPortPool> comPortPools;
     private final Set<DeviceType> deviceTypes;
-    private final Set<DefaultState> restrictedDeviceStates;
+    private final Set<EndDeviceStage> restricedDeviceStages;
     private final List<EndDeviceGroup> deviceGroups;
     private final QueryExecutor<Device> queryExecutor;
     private boolean appendLastComSessionJoinClause;
@@ -47,7 +48,7 @@ abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTaskFilter
         this.connectionTypes = new HashSet<>(filterSpecification.connectionTypes);
         this.comPortPools = new HashSet<>(filterSpecification.comPortPools);
         this.deviceTypes = new HashSet<>(filterSpecification.deviceTypes);
-        this.restrictedDeviceStates = DefaultState.fromKeys(filterSpecification.restrictedDeviceStates);
+        this.restricedDeviceStages = EndDeviceStage.fromNames(filterSpecification.restrictedDeviceStages);
         this.appendLastComSessionJoinClause = filterSpecification.useLastComSession;
         this.deviceGroups = new ArrayList<>(filterSpecification.deviceGroups);
         this.queryExecutor = deviceQueryExecutor;
@@ -55,9 +56,9 @@ abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTaskFilter
 
     ClauseAwareSqlBuilder newActualBuilderForRestrictedStates() {
         ClauseAwareSqlBuilder actualBuilder = ClauseAwareSqlBuilder
-                .withExcludedStates(
+                .withExcludedStages(
                         DEVICE_STATE_ALIAS_NAME,
-                        this.restrictedDeviceStates,
+                        this.restricedDeviceStages,
                         this.getClock().instant());
         this.setActualBuilder(actualBuilder);
         return actualBuilder;
@@ -74,7 +75,7 @@ abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTaskFilter
         this.append(deviceContainerAliasName);
         this.append(".device = dev.id ");
         this.append(" join ");
-        this.append(DeviceStateSqlBuilder.DEVICE_STATE_ALIAS_NAME);
+        this.append(DeviceStageSqlBuilder.DEVICE_STAGE_ALIAS_NAME);
         this.append(" kd on dev.meterid = kd.id ");
     }
 

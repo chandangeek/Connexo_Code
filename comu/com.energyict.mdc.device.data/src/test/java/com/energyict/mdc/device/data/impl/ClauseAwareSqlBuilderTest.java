@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import java.time.Instant;
@@ -186,6 +187,38 @@ public class ClauseAwareSqlBuilderTest {
         assertThat(sqlText).contains("'" + DefaultState.DECOMMISSIONED.getKey().toLowerCase() + "'");
         assertThat(sqlText).contains("'" + DefaultState.IN_STOCK.getKey().toLowerCase() + "'");
         assertThat(sqlText).matches(".*fs\\.name\\s*not\\s*in\\s*\\(.*\\).*");
+    }
+
+    @Test
+    public void testWithoutExcludesStages() {
+        ClauseAwareSqlBuilder sqlBuilder = ClauseAwareSqlBuilder.withExcludedStages("stages", EnumSet.noneOf(EndDeviceStage.class), Instant.EPOCH);
+
+        // Asserts
+        String sqlText = sqlBuilder.getText().toLowerCase();
+        assertThat(sqlText).startsWith("with");
+        assertThat(sqlText).matches(".*fs\\.stage\\s*is\\s*not\\s*null.*");
+    }
+
+    @Test
+    public void testWithOneExcludedStages() {
+        ClauseAwareSqlBuilder sqlBuilder = ClauseAwareSqlBuilder.withExcludedStages("stages", EnumSet.of(EndDeviceStage.OPERATIONAL), Instant.EPOCH);
+
+        // Asserts
+        String sqlText = sqlBuilder.getText().toLowerCase();
+        assertThat(sqlText).startsWith("with");
+        assertThat(sqlText).contains("fs.stage <> (select top 1 fstg.id from fsm_stage fstg where fstg.name = '" + EndDeviceStage.OPERATIONAL.name().toLowerCase() + "')");
+    }
+
+    @Test
+    public void testWithMultipleExcludedStages() {
+        ClauseAwareSqlBuilder sqlBuilder = ClauseAwareSqlBuilder.withExcludedStages("stages", EnumSet.of(EndDeviceStage.POST_OPERATIONAL, EndDeviceStage.PRE_OPERATIONAL), Instant.EPOCH);
+
+        // Asserts
+        String sqlText = sqlBuilder.getText().toLowerCase();
+        assertThat(sqlText).startsWith("with");
+        assertThat(sqlText).contains("'" + EndDeviceStage.POST_OPERATIONAL.name().toLowerCase() + "'");
+        assertThat(sqlText).contains("'" + EndDeviceStage.PRE_OPERATIONAL.name().toLowerCase() + "'");
+        assertThat(sqlText).matches(".*fs\\.stage\\s*not\\s*in\\s*\\(.*\\).*");
     }
 
     private ClauseAwareSqlBuilder newSqlBuilder() {

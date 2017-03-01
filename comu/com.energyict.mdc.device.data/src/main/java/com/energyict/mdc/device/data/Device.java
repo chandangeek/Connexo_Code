@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data;
 
+import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
@@ -419,6 +420,13 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @since 2.0
      */
     State getState();
+
+    /**
+     * Gets the current {@link Stage} of the State of this Device.
+     *
+     * @return The current Stage
+     */
+    Stage getStage();
 
     /**
      * Gets the {@link State} of this Device as it was

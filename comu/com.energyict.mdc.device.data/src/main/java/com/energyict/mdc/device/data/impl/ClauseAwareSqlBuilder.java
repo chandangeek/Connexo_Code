@@ -4,10 +4,12 @@
 
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.sql.TupleParser;
+import com.energyict.mdc.device.data.impl.tasks.DeviceStageSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.DeviceStateSqlBuilder;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
@@ -32,6 +34,16 @@ public class ClauseAwareSqlBuilder implements PreparedStatementProvider {
     public static ClauseAwareSqlBuilder with(String withClause, String alias) {
         ClauseAwareSqlBuilder builder = new ClauseAwareSqlBuilder(new SqlBuilder());
         builder.appendWith(withClause, alias);
+        return builder;
+    }
+
+    public static ClauseAwareSqlBuilder withExcludedStages(String withClauseAliasName, Set<EndDeviceStage> excludedStages, Instant now) {
+        SqlBuilder actual = new SqlBuilder("with ");
+        DeviceStageSqlBuilder
+                .forExcludeStages(withClauseAliasName, excludedStages)
+                .appendRestrictedStagesWithClause(actual, now);
+        ClauseAwareSqlBuilder builder = new ClauseAwareSqlBuilder(actual);
+        builder.state.toWith();
         return builder;
     }
 

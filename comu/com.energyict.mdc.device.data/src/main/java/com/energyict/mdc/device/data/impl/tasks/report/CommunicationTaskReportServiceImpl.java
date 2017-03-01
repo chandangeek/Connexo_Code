@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data.impl.tasks.report;
 
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -20,7 +21,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.TableSpecs;
-import com.energyict.mdc.device.data.impl.tasks.DeviceStateSqlBuilder;
+import com.energyict.mdc.device.data.impl.tasks.DeviceStageSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.ServerComTaskStatus;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus;
 import com.energyict.mdc.device.data.impl.tasks.WithClauses;
@@ -29,7 +30,6 @@ import com.energyict.mdc.device.data.tasks.CommunicationTaskBreakdowns;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import javax.inject.Inject;
@@ -61,8 +61,7 @@ import java.util.stream.Stream;
 public class CommunicationTaskReportServiceImpl implements CommunicationTaskReportService {
 
     private static final String BUSY_ALIAS_NAME = ServerConnectionTaskStatus.BUSY_TASK_ALIAS_NAME;
-    private static final String DEVICE_STATE_ALIAS_NAME = "enddevices";
-
+    private static final String DEVICE_STAGE_ALIAS_NAME = "enddevices";
     private final DeviceDataModelService deviceDataModelService;
     private final MeteringService meteringService;
 
@@ -100,9 +99,9 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
             // Check first pass
             if (sqlBuilder == null) {
                 sqlBuilder = ClauseAwareSqlBuilder
-                                .withExcludedStates(
-                                        DEVICE_STATE_ALIAS_NAME,
-                                        DefaultState.fromKeys(filter.restrictedDeviceStates),
+                                .withExcludedStages(
+                                        DEVICE_STAGE_ALIAS_NAME,
+                                        EndDeviceStage.fromNames(filter.restrictedDeviceStages),
                                         this.deviceDataModelService.clock().instant());
                 WithClauses.COMTASK_EXECUTION_WITH_DEVICE_STATE.appendTo(sqlBuilder, "ctes");
                 this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, filter, taskStatus);
@@ -205,9 +204,9 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
             // Check first pass
             if (sqlBuilder == null) {
                 sqlBuilder = ClauseAwareSqlBuilder
-                        .withExcludedStates(
-                                DEVICE_STATE_ALIAS_NAME,
-                                DefaultState.fromKeys(filterSpecification.restrictedDeviceStates),
+                        .withExcludedStages(
+                                DEVICE_STAGE_ALIAS_NAME,
+                                EndDeviceStage.fromNames(filterSpecification.restrictedDeviceStages),
                                 this.deviceDataModelService.clock().instant());
                 WithClauses.BUSY_CONNECTION_TASK.appendTo(sqlBuilder, BUSY_ALIAS_NAME);
                 this.countByDeviceTypeAndTaskStatusSqlBuilder(sqlBuilder, filterSpecification, taskStatus);
@@ -273,9 +272,9 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
     @Override
     public Map<DeviceType, List<Long>> getComTasksDeviceTypeHeatMap(EndDeviceGroup deviceGroup) {
         SqlBuilder sqlBuilder = new SqlBuilder("WITH ");
-        DeviceStateSqlBuilder
-                .forDefaultExcludedStates("enddevices")
-                .appendRestrictedStatesWithClause(sqlBuilder, this.deviceDataModelService.clock().instant());
+        DeviceStageSqlBuilder
+                .forDefaultExcludedStages("enddevices")
+                .appendRestrictedStagesWithClause(sqlBuilder, this.deviceDataModelService.clock().instant());
         sqlBuilder.append("select dev.DEVICETYPE, cte.lastsess_highestpriocomplcode, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
         sqlBuilder.append(" cte join ");
@@ -369,9 +368,9 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
 
     private Map<CompletionCode, Long> getComTaskLastComSessionHighestPriorityCompletionCodeCount(Optional<EndDeviceGroup> deviceGroup) {
         SqlBuilder sqlBuilder = new SqlBuilder("WITH ");
-        DeviceStateSqlBuilder
-                .forDefaultExcludedStates("cte")
-                .appendRestrictedStatesWithClause(sqlBuilder, this.deviceDataModelService.clock().instant());
+        DeviceStageSqlBuilder
+                .forDefaultExcludedStages("cte")
+                .appendRestrictedStagesWithClause(sqlBuilder, this.deviceDataModelService.clock().instant());
         sqlBuilder.append("select cte.lastsess_highestpriocomplcode, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
         sqlBuilder.append(" cte join ");
