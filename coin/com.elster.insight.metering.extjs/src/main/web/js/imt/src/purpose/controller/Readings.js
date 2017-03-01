@@ -14,7 +14,8 @@ Ext.define('Imt.purpose.controller.Readings', {
         'Uni.store.DataIntervalAndZoomLevels',
         'Imt.purpose.view.SingleReadingActionMenu',
         'Imt.purpose.view.MultipleReadingsActionMenu',
-        'Imt.purpose.view.ReadingEstimationWindow'
+        'Imt.purpose.view.ReadingEstimationWindow',
+        'Imt.purpose.view.ReadingEstimationWithRuleWindow'
     ],
 
     stores: [
@@ -62,6 +63,10 @@ Ext.define('Imt.purpose.controller.Readings', {
         {
             ref: 'readingEstimationWindow',
             selector: 'reading-estimation-window'
+        },
+        {
+            ref: 'readingEstimationWithRuleWindow',
+            selector: 'reading-estimation-with-rule-window'
         }
     ],
 
@@ -88,7 +93,10 @@ Ext.define('Imt.purpose.controller.Readings', {
                 click: this.saveChannelDataChanges
             },
             'reading-estimation-window #estimate-reading-button': {
-                click: this.estimateReading
+                click: this.estimateReadingWithEstimator
+            },
+            'reading-estimation-with-rule-window #estimate-reading-button': {
+                click: this.estimateReadingWithRule
             }
         });
     },
@@ -100,6 +108,9 @@ Ext.define('Imt.purpose.controller.Readings', {
         switch (item.action) {
             case 'estimateValue':
                 me.estimateValue(records);
+                break;
+            case 'estimateWithRule':
+                me.estimateWithRule(records);
                 break;
             case 'confirmValue':
                 me.confirmValue(records, true);
@@ -122,6 +133,9 @@ Ext.define('Imt.purpose.controller.Readings', {
                 break;
             case 'estimateValue':
                 me.estimateValue(menu.record);
+                break;
+            case 'estimateWithRule':
+                me.estimateWithRule(menu.record);
                 break;
             case 'confirmValue':
                 me.confirmValue(menu.record, false);
@@ -186,10 +200,12 @@ Ext.define('Imt.purpose.controller.Readings', {
     },
 
     checkSuspect: function (menu) {
-        var validationResult = menu.record.get('validationResult') == 'validationStatus.suspect';
-
+        var me = this,
+            validationResult = menu.record.get('validationResult') == 'validationStatus.suspect',
+            estimationRulesCount = me.getStore('Imt.purpose.store.EstimationRules').getCount();
         Ext.suspendLayouts();
         menu.down('#estimate-value').setVisible(validationResult);
+        menu.down('#estimate-value-with-rule').setVisible(estimationRulesCount);
         if (menu.record.get('confirmed') || menu.record.isModified('value')) {
             menu.down('#confirm-value').hide();
         } else {
@@ -412,20 +428,29 @@ Ext.define('Imt.purpose.controller.Readings', {
         });
     },
 
-    estimateReading: function () {
+    estimateWithRule: function (record) {
+        Ext.widget('reading-estimation-with-rule-window', {
+            itemId: 'channel-reading-estimation-with-rule-window',
+            record: record
+        }).show();
+    },
+
+    estimateReadingWithEstimator: function () {
         var me = this,
-            propertyForm = me.getReadingEstimationWindow().down('#property-form'),
+            window = me.getReadingEstimationWindow(),
+            estimator = window.down('#estimator-field').getValue(),
+            propertyForm = window.down('#property-form'),
             model = Ext.create('Imt.purpose.model.ChannelDataEstimate'),
-            record = me.getReadingEstimationWindow().record,
+            record = window.record,
             intervalsArray = [];
 
-        !me.getReadingEstimationWindow().down('#form-errors').isHidden() && me.getReadingEstimationWindow().down('#form-errors').hide();
-        !me.getReadingEstimationWindow().down('#error-label').isHidden() && me.getReadingEstimationWindow().down('#error-label').hide();
-        propertyForm.clearInvalid();
+
+        !window.down('#form-errors').isHidden() && window.down('#form-errors').hide();
+        !window.down('#error-label').isHidden() && window.down('#error-label').hide();
 
         if (propertyForm.getRecord()) {
             propertyForm.updateRecord();
-            model.set('estimatorImpl', me.getReadingEstimationWindow().down('#estimator-field').getValue());
+            model.set('estimatorImpl', estimator);
             model.propertiesStore = propertyForm.getRecord().properties();
         }
         if (!Ext.isArray(record)) {
@@ -442,17 +467,85 @@ Ext.define('Imt.purpose.controller.Readings', {
             });
         }
         model.set('intervals', intervalsArray);
-        me.saveChannelDataEstimateModel(model, record);
+        me.saveChannelDataEstimateModel(model, record, window);
     },
 
+    estimateReadingWithRule: function () {
+        var me = this,
+            window = me.getReadingEstimationWithRuleWindow(),
+            estimationRuleId = window.down('#estimation-rule-field').getValue(),
+            propertyForm = window.down('#property-form'),
+            model = Ext.create('Imt.purpose.model.ChannelDataEstimate'),
+            record = window.record,
+            intervalsArray = [];
+
+
+        !window.down('#form-errors').isHidden() && window.down('#form-errors').hide();
+        !window.down('#error-label').isHidden() && window.down('#error-label').hide();
+
+        if (propertyForm.getRecord()) {
+            model.set('estimatorImpl', window.getEstimator());
+            model.propertiesStore = propertyForm.getRecord().properties();
+        }
+        if (!Ext.isArray(record)) {
+            intervalsArray.push({
+                start: record.get('interval').start,
+                end: record.get('interval').end
+            });
+        } else {
+            Ext.Array.each(record, function (item) {
+                intervalsArray.push({
+                    start: item.get('interval').start,
+                    end: item.get('interval').end
+                });
+            });
+        }
+        model.set('intervals', intervalsArray);
+        me.saveChannelDataEstimateModel(model, record, window, estimationRuleId);
+    },
+
+    // estimateReading: function (window, estimator) {
+    //     var me = this,
+    //         window = me.getReadingEstimationWithRuleWindow(),
+    //         estimator = window.down('#estimator-field').getValue(),
+    //         propertyForm = window.down('#property-form'),
+    //         model = Ext.create('Imt.purpose.model.ChannelDataEstimate'),
+    //         record = window.record,
+    //         intervalsArray = [];
+    //
+    //
+    //     !window.down('#form-errors').isHidden() && window.down('#form-errors').hide();
+    //     !window.down('#error-label').isHidden() && window.down('#error-label').hide();
+    //
+    //     if (propertyForm.getRecord()) {
+    //         model.set('estimatorImpl', estimator);
+    //         model.propertiesStore = propertyForm.getRecord().properties();
+    //     }
+    //     if (!Ext.isArray(record)) {
+    //         intervalsArray.push({
+    //             start: record.get('interval').start,
+    //             end: record.get('interval').end
+    //         });
+    //     } else {
+    //         Ext.Array.each(record, function (item) {
+    //             intervalsArray.push({
+    //                 start: item.get('interval').start,
+    //                 end: item.get('interval').end
+    //             });
+    //         });
+    //     }
+    //     model.set('intervals', intervalsArray);
+    //     me.saveChannelDataEstimateModel(model, record, window);
+    // },
+
     //TODO
-    saveChannelDataEstimateModel: function (record, readings) {
+    saveChannelDataEstimateModel: function (record, readings, window, ruleId) {
         var me = this,
             grid = me.getReadingsList(),
             router = me.getController('Uni.controller.history.Router');
 
         record.getProxy().setParams(encodeURIComponent(router.arguments.usagePointId), router.arguments.purposeId, router.arguments.outputId);
-        me.getReadingEstimationWindow().setLoading();
+        window.setLoading();
         Ext.Ajax.suspendEvent('requestexception');
         record.save({
             callback: function (rec, operation, success) {
@@ -463,37 +556,37 @@ Ext.define('Imt.purpose.controller.Readings', {
                 Ext.suspendLayouts();
                 if (success && responseText[0]) {
                     if (!Ext.isArray(readings)) {
-                        me.updateEstimatedValues(record, readings, responseText[0]);
+                        me.updateEstimatedValues(record, readings, responseText[0], ruleId);
                     } else {
                         Ext.Array.each(responseText, function (estimatedReading) {
                             Ext.Array.findBy(readings, function (reading) {
                                 if (estimatedReading.interval.start == reading.get('interval').start) {
-                                    me.updateEstimatedValues(record, reading, estimatedReading);
+                                    me.updateEstimatedValues(record, reading, estimatedReading, ruleId);
                                     return true;
                                 }
                             });
                         });
                     }
-                    me.getReadingEstimationWindow().destroy();
+                    window.destroy();
                     grid.down('#save-changes-button').isDisabled() && me.showButtons();
                 } else {
-                    me.getReadingEstimationWindow().setLoading(false);
+                    window.setLoading(false);
                     if (responseText) {
                         if (responseText.message) {
-                            me.getReadingEstimationWindow().down('#error-label').show();
-                            me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #EB5642">' + responseText.message + '</div>', false);
+                            window.down('#error-label').show();
+                            window.down('#error-label').setText('<div style="color: #EB5642">' + responseText.message + '</div>', false);
                         } else if (responseText.readings) {
-                            me.getReadingEstimationWindow().down('#error-label').show();
+                            window.down('#error-label').show();
                             var listOfFailedReadings = [];
                             Ext.Array.each(responseText.readings, function (readingTimestamp) {
                                 listOfFailedReadings.push(Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(readingTimestamp)), Uni.DateTime.formatTimeShort(new Date(readingTimestamp))], false));
                             });
-                            me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #EB5642">' +
+                            window.down('#error-label').setText('<div style="color: #EB5642">' +
                                 Uni.I18n.translate('output.estimationErrorMessage', 'IMT', 'Could not estimate {0} with {1}',
-                                    [listOfFailedReadings.join(', '), me.getReadingEstimationWindow().down('#estimator-field').getRawValue().toLowerCase()]) + '</div>', false);
+                                    [listOfFailedReadings.join(', '), window.down('#estimator-field').getRawValue().toLowerCase()]) + '</div>', false);
                         } else if (responseText.errors) {
-                            me.getReadingEstimationWindow().down('#form-errors').show();
-                            me.getReadingEstimationWindow().down('#property-form').markInvalid(responseText.errors);
+                            window.down('#form-errors').show();
+                            window.down('#property-form').markInvalid(responseText.errors);
                         }
                     }
 
@@ -503,11 +596,12 @@ Ext.define('Imt.purpose.controller.Readings', {
         });
     },
 
-    updateEstimatedValues: function (record, reading, estimatedReading) {
+    updateEstimatedValues: function (record, reading, estimatedReading, ruleId) {
         var me = this,
             grid = me.getReadingsList();
 
         reading.set('value', estimatedReading.value);
+        ruleId && reading.set('ruleId', ruleId);
         reading.set('validationResult', 'validationStatus.ok');
 
         grid.getView().refreshNode(grid.getStore().indexOf(reading));

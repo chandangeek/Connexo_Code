@@ -183,7 +183,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             window.location.replace(router.getRoute('usagepoints/view/purpose/output').buildUrl({tab: 'readings'}));
         } else {
             outputModel = me.getModel('Imt.purpose.model.Output');
-            dependenciesCounter = 3;
+            dependenciesCounter = 4;
             displayPage = function () {
                 var widget;
 
@@ -237,6 +237,12 @@ Ext.define('Imt.purpose.controller.Purpose', {
                     output = record;
                     displayPage();
                 }
+            });
+
+            var estimationRulesStore = me.getStore('Imt.purpose.store.EstimationRules');
+            estimationRulesStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId, outputId: outputId}
+            estimationRulesStore.load(function(records){
+                displayPage();
             });
         }
     },
