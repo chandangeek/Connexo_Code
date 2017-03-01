@@ -100,7 +100,7 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
             meterRole = inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
             UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP", meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get()).create();
             usagePointMetrologyConfiguration.addMeterRole(meterRole);
-            usagePoint.apply(usagePointMetrologyConfiguration, THREE_DAYS_BEFORE);
+            usagePoint.apply(usagePointMetrologyConfiguration, INSTALLATION_TIME);
             context.commit();
         }
     }
@@ -360,7 +360,7 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
     @Transactional
     public void testClearActivationsInTheMiddle() {
         ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
-        UsagePoint usagePoint2 = serviceCategory.newUsagePoint("UsagePoint2", ONE_DAY_BEFORE).create();
+        UsagePoint usagePoint2 = serviceCategory.newUsagePoint("UsagePoint2", THREE_DAYS_BEFORE).create();
         AmrSystem system = inMemoryBootstrapModule.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter meter2 = system.newMeter("Meter2", "myName2").create();
         MeterRole meterRole2 = inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.MAIN);
@@ -372,7 +372,7 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         usagePoint2.linkMeters().activate(meter, meterRole).complete();
         usagePoint2.linkMeters().clear(ONE_DAY_AFTER, meterRole).complete();
         reloadObjects();
-        usagePoint.apply(usagePointMetrologyConfiguration, TWO_DAYS_BEFORE);
+        usagePoint.apply(usagePointMetrologyConfiguration, INSTALLATION_TIME.plusSeconds(60));
         usagePoint.linkMeters().activate(ONE_DAY_AFTER, meter, meterRole)
                 .activate(INSTALLATION_TIME, meter2, meterRole2).complete();
         UsagePointMeterActivatorImpl activator = (UsagePointMeterActivatorImpl) usagePoint.linkMeters();
@@ -384,7 +384,7 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
 
         List<? extends MeterActivation> meterActivations = meter.getMeterActivations();
         assertThat(meterActivations).hasSize(3);
-        assertThat(meterActivations.get(0).getRange()).isEqualTo(Range.closedOpen(ONE_DAY_BEFORE, ONE_DAY_AFTER));
+        assertThat(meterActivations.get(0).getRange()).isEqualTo(Range.closedOpen(THREE_DAYS_BEFORE, ONE_DAY_AFTER));
         assertThat(meterActivations.get(1).getRange()).isEqualTo(Range.closedOpen(ONE_DAY_AFTER, THREE_DAYS_AFTER));
         assertThat(meterActivations.get(2).getRange()).isEqualTo(Range.atLeast(THREE_DAYS_AFTER));
 
@@ -402,7 +402,7 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
 
         usagePointActivations = usagePoint2.getMeterActivations();
         assertThat(usagePointActivations).hasSize(1);
-        assertThat(usagePointActivations.get(0).getRange()).isEqualTo(Range.closedOpen(ONE_DAY_BEFORE, ONE_DAY_AFTER));
+        assertThat(usagePointActivations.get(0).getRange()).isEqualTo(Range.closedOpen(THREE_DAYS_BEFORE, ONE_DAY_AFTER));
         assertThat(usagePointActivations.get(0).getMeter().get()).isEqualTo(meter);
     }
 

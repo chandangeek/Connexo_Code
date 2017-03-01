@@ -545,7 +545,7 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     private void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Set<MetrologyContract> optionalContractsToActivate, Instant start, Instant end) {
-        UsagePointStage.Key usagePointStage = this.getState().getStage().getKey();
+        UsagePointStage.Key usagePointStage = this.getState(start).getStage().getKey();
         if (usagePointStage != UsagePointStage.Key.PRE_OPERATIONAL) {
             throw UsagePointManagementException.incorrectStage(thesaurus);
         }

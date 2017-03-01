@@ -372,7 +372,7 @@ public class DataAggregationServiceImplCalculateGasIT {
         this.initializeSqlBuilders();
 
         // Apply MetrologyConfiguration to UsagePoint
-        this.usagePoint.apply(this.configuration, jan1st2016);
+        this.usagePoint.apply(this.configuration, jan1st2016.plusSeconds(60));
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
         this.contract.addDeliverable(netConsumption);
@@ -454,7 +454,7 @@ public class DataAggregationServiceImplCalculateGasIT {
         this.initializeSqlBuilders();
 
         // Apply MetrologyConfiguration to UsagePoint
-        this.usagePoint.apply(this.configuration, jan1st2016);
+        this.usagePoint.apply(this.configuration, jan1st2016.plusSeconds(60));
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
         this.contract.addDeliverable(netConsumption);
@@ -510,7 +510,7 @@ public class DataAggregationServiceImplCalculateGasIT {
                 .create();
         UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP", electricity).create();
         usagePointMetrologyConfiguration.addMeterRole(getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT));
-        usagePoint.apply(usagePointMetrologyConfiguration, jan1st2016.minusSeconds(20));
+        usagePoint.apply(usagePointMetrologyConfiguration, jan1st2016);
     }
 
     private void activateMeterWith15min_m3_Channel(MeterRole meterRole) {
