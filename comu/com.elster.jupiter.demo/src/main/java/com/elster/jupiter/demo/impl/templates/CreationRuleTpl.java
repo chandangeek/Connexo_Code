@@ -26,20 +26,20 @@ public enum CreationRuleTpl implements Template<CreationRule, IssueRuleBuilder> 
     private DueInType dueInType;
     private String ruleTemplateName;
     private Priority priority;
-    private boolean status;
+    private boolean active;
 
     CreationRuleTpl(String name, String type, String reason) {
         this(name, type, reason, DueInType.WEEK, BASIC_DATA_COLLECTION_RULE_TEMPLATE, Priority.DEFAULT, true);
     }
 
-    CreationRuleTpl(String name, String type, String reason, DueInType dueIntype, String ruleTemplateName, Priority priority, boolean status) {
+    CreationRuleTpl(String name, String type, String reason, DueInType dueIntype, String ruleTemplateName, Priority priority, boolean active) {
         this.name = name;
         this.type = type;
         this.reason = reason;
         this.dueInType = dueIntype;
         this.ruleTemplateName = ruleTemplateName;
         this.priority = priority;
-        this.status = status;
+        this.active = active;
     }
 
     @Override
@@ -55,7 +55,7 @@ public enum CreationRuleTpl implements Template<CreationRule, IssueRuleBuilder> 
                 withDueInType(this.dueInType).
                 withRuleTemplate(this.ruleTemplateName).
                 withPriority(this.priority).
-                withStatus(this.status);
+                withStatus(this.active);
     }
 
     public String getName() {

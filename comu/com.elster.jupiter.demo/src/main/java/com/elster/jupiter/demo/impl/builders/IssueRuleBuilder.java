@@ -61,7 +61,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private String ruleTemplate;
     private DueInType dueInType = null;
     private Priority priority;
-    private boolean status;
+    private boolean active;
 
     @Inject
     public IssueRuleBuilder(IssueCreationService issueCreationService, IssueService issueService, DeviceConfigurationService deviceConfigurationService, TimeService timeService) {
@@ -98,7 +98,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     }
 
     public IssueRuleBuilder withStatus(boolean status) {
-        this.status = status;
+        this.active = status;
         return this;
     }
 
@@ -112,7 +112,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         Log.write(this);
         CreationRuleBuilder builder = issueCreationService.newCreationRule();
         builder.setName(getName());
-        builder.setStatus(this.status);
+        builder = this.active ? builder.activate() : builder.deactivate();
         builder.setIssueType(getReasonForRule().getIssueType());
         builder.setReason(getReasonForRule());
 
