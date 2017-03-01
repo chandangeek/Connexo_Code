@@ -7,6 +7,7 @@ package com.elster.jupiter.issue.impl.service;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.issue.impl.module.DroolsValidationException;
+import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.records.CreationRuleBuilderImpl;
 import com.elster.jupiter.issue.impl.records.CreationRuleImpl;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
@@ -23,6 +24,7 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
@@ -46,6 +48,7 @@ import org.kie.internal.utils.CompositeClassLoader;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -58,6 +61,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
     public static final String ISSUE_CREATION_SERVICE = "issueCreationService";
     public static final String LOGGER = "LOGGER";
+    private static final java.lang.String SEPARATOR = ":";
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -178,6 +182,25 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         });
     }
 
+
+    @Override
+    public void processAlarmCreationEvent(int ruleId, IssueEvent event, String raiseEventProps) {
+        findCreationRuleById(ruleId).ifPresent(firedRule -> {
+                    CreationRuleTemplate template = firedRule.getTemplate();
+                    if (logOnSameAlarm(raiseEventProps)) {
+                        Optional<? extends OpenIssue> existingIssue = event.findExistingIssue();
+                        if (existingIssue.isPresent()) {
+                            template.updateIssue(existingIssue.get(), event);
+                        } else {
+                            createNewIssue(firedRule, event, template);
+                        }
+                    } else {
+                        createNewIssue(firedRule, event, template);
+                    }
+                }
+        );
+    }
+
     private void createNewIssue(CreationRule firedRule, IssueEvent event, CreationRuleTemplate template) {
         OpenIssueImpl baseIssue = dataModel.getInstance(OpenIssueImpl.class);
         baseIssue.setReason(firedRule.getReason());
@@ -201,6 +224,15 @@ public class IssueCreationServiceImpl implements IssueCreationService {
             }
         }
         return false;
+    }
+
+
+    private boolean logOnSameAlarm(String raiseEventProps){
+        List<String> values = Arrays.asList(raiseEventProps.split(SEPARATOR));
+        if (values.size() != 3) {
+            throw new LocalizedFieldValidationException(MessageSeeds.ISSUE_CREATION_RULE_PARAMETER_ABSENT, "Log on same alarm indicator");
+        }
+        return Integer.parseInt(values.get(0))==1;
     }
 
     @Override

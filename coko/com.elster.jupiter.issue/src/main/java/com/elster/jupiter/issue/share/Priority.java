@@ -4,13 +4,12 @@
 
 package com.elster.jupiter.issue.share;
 
-import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.xml.bind.annotation.XmlTransient;
-import java.math.BigDecimal;
 import java.util.Arrays;
 
 public final class Priority implements Comparable<Priority>, Cloneable {
+
     @Valid
     private int urgency;
     @Valid
@@ -18,7 +17,7 @@ public final class Priority implements Comparable<Priority>, Cloneable {
 
     private Rank rank;
 
-    public static final Priority DEFAULT = new Priority(25,5);
+    public static final Priority DEFAULT = new Priority(25, 5);
 
     enum Rank {
         VERY_HIGH("Very High"),
@@ -99,17 +98,22 @@ public final class Priority implements Comparable<Priority>, Cloneable {
         return urgency < 1 || impact < 1;
     }
 
-    public void increaseUrgency() {
-        ++this.urgency;
-        if (isHighest()) {
-            throw new IllegalStateException();
+    public int increaseUrgency() {
+
+        if (!isHighest()) {
+           return ++this.urgency;
+
+        } else {
+            return 50;
         }
     }
 
-    public void lowerUrgency() {
-        --this.urgency;
-        if (isLowest()) {
-            throw new IllegalStateException();
+    public int lowerUrgency() {
+        if (!isLowest()) {
+            return --this.urgency;
+
+        } else {
+            return 1;
         }
     }
 
