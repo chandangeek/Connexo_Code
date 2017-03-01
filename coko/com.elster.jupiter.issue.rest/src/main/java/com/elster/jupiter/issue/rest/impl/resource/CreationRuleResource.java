@@ -43,7 +43,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.security.cert.CertPathValidatorException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +51,6 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.LIKE;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/creationrules")
@@ -123,6 +121,7 @@ public class CreationRuleResource extends BaseResource {
     }
 
     public CreationRule findAndLockCreationRule(CreationRuleInfo info) {
+        //TODO - merge with CXO - 4420 and filter only for alarm creation rules
         return getIssueCreationService().findAndLockCreationRuleByIdAndVersion(info.id, info.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
                         .withActualVersion(() -> getIssueCreationService().findCreationRuleById(info.id).map(CreationRule::getVersion).orElse(null))
@@ -130,9 +129,9 @@ public class CreationRuleResource extends BaseResource {
     }
 
     @POST
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_CREATION_RULE)
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_CREATION_RULE)
     public Response addCreationRule(CreationRuleInfo rule) {
         try (TransactionContext context = getTransactionService().getContext()) {
             CreationRuleBuilder builder = getIssueCreationService().newCreationRule();
@@ -147,9 +146,9 @@ public class CreationRuleResource extends BaseResource {
 
     @PUT
     @Path("/{id}")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_CREATION_RULE)
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_CREATION_RULE)
     public Response editCreationRule(@PathParam("id") long id, CreationRuleInfo rule) {
         try (TransactionContext context = getTransactionService().getContext()) {
             CreationRule creationRule = findAndLockCreationRule(rule);
@@ -160,6 +159,42 @@ public class CreationRuleResource extends BaseResource {
             setTemplate(rule, updater);
             updater.complete();
             context.commit();
+        }
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Path("/{id}/activate")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_CREATION_RULE)
+    public Response activateRule(@PathParam("id") long ruleId, CreationRuleInfo info) {
+        CreationRule creationRule = findAndLockCreationRule(info);
+        if (!creationRule.isActive()) {
+            try (TransactionContext context = getTransactionService().getContext()) {
+                CreationRuleUpdater updater = creationRule.startUpdate();
+                updater.activate();
+                updater.complete();
+                context.commit();
+            }
+        }
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Path("/{id}/deactivate")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_CREATION_RULE)
+    public Response deactivateRule(@PathParam("id") long ruleId, CreationRuleInfo info) {
+        CreationRule creationRule = findAndLockCreationRule(info);
+        if (creationRule.isActive()) {
+            try (TransactionContext context = getTransactionService().getContext()) {
+                CreationRuleUpdater updater = creationRule.startUpdate();
+                updater.deactivate();
+                updater.complete();
+                context.commit();
+            }
         }
         return Response.ok().build();
     }
@@ -176,15 +211,17 @@ public class CreationRuleResource extends BaseResource {
         return Response.ok().build();
     }
 
+
     private void setBaseFields(CreationRuleInfo rule, CreationRuleBuilder builder) {
         builder.setName(rule.name)
                 .setComment(rule.comment)
                 .setDueInTime(DueInType.fromString(rule.dueIn.type), rule.dueIn.number)
-                .setPriority(Priority.get(rule.priority.urgency, rule.priority.impact)).setStatus(rule.status);
+                .setPriority(Priority.get(rule.priority.urgency, rule.priority.impact));
+        builder = rule.active ? builder.activate() : builder.deactivate();
         if (rule.issueType != null) {
             getIssueService().findIssueType(rule.issueType.uid).ifPresent(builder::setIssueType);
             if (rule.reason != null) {
-                builder.setReason(getIssueService().findOrCreateReason(rule.reason.id.equals("12222e48-9afb-4c76-a41e-d3c40f16ac76")? rule.reason.name: rule.reason.id, getIssueService().findIssueType(rule.issueType.uid)
+                builder.setReason(getIssueService().findOrCreateReason(rule.reason.id.equals("12222e48-9afb-4c76-a41e-d3c40f16ac76") ? rule.reason.name : rule.reason.id, getIssueService().findIssueType(rule.issueType.uid)
                         .get()));
             }
         }

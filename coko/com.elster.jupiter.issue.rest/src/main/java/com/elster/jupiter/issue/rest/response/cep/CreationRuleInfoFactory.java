@@ -32,6 +32,7 @@ public class CreationRuleInfoFactory {
         CreationRuleInfo info = new CreationRuleInfo();
         info.id = rule.getId();
         info.name = rule.getName();
+        info.active = rule.isActive();
         info.comment = rule.getComment();
         info.reason = new IssueReasonInfo(rule.getReason());
         info.issueType = new IssueTypeInfo(rule.getIssueType());
