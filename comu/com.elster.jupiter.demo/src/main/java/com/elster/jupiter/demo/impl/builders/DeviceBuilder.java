@@ -12,6 +12,7 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import javax.inject.Inject;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +24,7 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
     private DeviceConfiguration deviceConfiguration;
     private List<ComSchedule> comSchedules;
     private int yearOfCertification;
+    private Instant shippingDate;
 
     @Inject
     public DeviceBuilder(DeviceService deviceService, Clock clock) {
@@ -52,6 +54,11 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
         return this;
     }
 
+    public DeviceBuilder withShippingDate(Instant date) {
+        this.shippingDate = date;
+        return this;
+    }
+
     @Override
     public Optional<Device> find() {
         return deviceService.findDeviceByName(getName());
@@ -60,7 +67,10 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
     @Override
     public Device create() {
         Log.write(this);
-        Device device = deviceService.newDevice(deviceConfiguration, getName(), clock.instant());
+        if(this.shippingDate == null) {
+            this.shippingDate = clock.instant().minusSeconds(60);
+        }
+        Device device = deviceService.newDevice(deviceConfiguration, getName(), this.shippingDate);
         device.setSerialNumber(serialNumber);
         device.setYearOfCertification(this.yearOfCertification);
         if (comSchedules != null) {

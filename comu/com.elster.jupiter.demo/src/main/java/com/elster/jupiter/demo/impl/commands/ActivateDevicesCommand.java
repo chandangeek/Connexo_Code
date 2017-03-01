@@ -76,7 +76,7 @@ public class ActivateDevicesCommand {
 
     public void run() {
         if (this.effectiveTimestamp == null) {
-            this.effectiveTimestamp = this.clock.instant().plus(1, ChronoUnit.MINUTES);
+            this.effectiveTimestamp = this.clock.instant().minusSeconds(60);
         }
         getDeviceList().stream()
                 .filter(this.isTransitionAllowed)

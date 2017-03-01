@@ -23,6 +23,7 @@ import com.energyict.mdc.device.data.DeviceService;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -38,6 +39,7 @@ public class CreateSPEDeviceCommand {
     private final Provider<SetCustomAttributeValuesToDevicePostBuilder> setCustomAttributeValuesToDevicePostBuilderProvider;
     private final Provider<AddLocationInfoToDevicesCommand> addLocationInfoToDevicesCommandProvider;
     private final Provider<CreateUsagePointsForDevicesCommand> createUsagePointsForDevicesCommandProvider;
+    private final Clock clock;
 
     private DeviceTypeTpl deviceTypeTpl;
     private DeviceConfiguration deviceConfiguration;
@@ -53,13 +55,14 @@ public class CreateSPEDeviceCommand {
                                   Provider<ActivateDevicesCommand> activateDevicesCommandProvider,
                                   Provider<SetCustomAttributeValuesToDevicePostBuilder> setCustomAttributeValuesToDevicePostBuilderProvider,
                                   Provider<AddLocationInfoToDevicesCommand> addLocationInfoToDevicesCommandProvider,
-                                  Provider<CreateUsagePointsForDevicesCommand> createUsagePointsForDevicesCommandProvider) {
+                                  Provider<CreateUsagePointsForDevicesCommand> createUsagePointsForDevicesCommandProvider, Clock clock) {
         this.deviceService = deviceService;
         this.connectionsDevicePostBuilderProvider = connectionsDevicePostBuilderProvider;
         this.activateDevicesCommandProvider = activateDevicesCommandProvider;
         this.setCustomAttributeValuesToDevicePostBuilderProvider = setCustomAttributeValuesToDevicePostBuilderProvider;
         this.addLocationInfoToDevicesCommandProvider = addLocationInfoToDevicesCommandProvider;
         this.createUsagePointsForDevicesCommandProvider = createUsagePointsForDevicesCommandProvider;
+        this.clock = clock;
     }
 
     public void setSerialNumber(String serialNumber) {
@@ -136,6 +139,7 @@ public class CreateSPEDeviceCommand {
         String name = Constants.Device.STANDARD_PREFIX + this.serialNumber;
         Device device = Builders.from(DeviceBuilder.class)
                 .withName(name)
+                .withShippingDate(this.clock.instant().minusSeconds(60))
                 .withSerialNumber(this.serialNumber)
                 .withDeviceConfiguration(this.deviceConfiguration)
                 .withComSchedules(Collections.singletonList(Builders.from(ComScheduleTpl.DAILY_READ_ALL).get()))
@@ -154,15 +158,16 @@ public class CreateSPEDeviceCommand {
             addLocationInfoToDevicesCommand.setDevices(Collections.singletonList(device));
             addLocationInfoToDevicesCommand.run();
         }
-        if (this.withUsagePoint) {
-            CreateUsagePointsForDevicesCommand createUsagePointsForDevicesCommand = this.createUsagePointsForDevicesCommandProvider.get();
-            createUsagePointsForDevicesCommand.setDevices(Collections.singletonList(device));
-            createUsagePointsForDevicesCommand.run();
-        }
         if (this.shouldBeActive) {
             ActivateDevicesCommand activateDevicesCommand = activateDevicesCommandProvider.get();
             activateDevicesCommand.setDevices(Collections.singletonList(device));
             activateDevicesCommand.run();
         }
+        if (this.withUsagePoint) {
+            CreateUsagePointsForDevicesCommand createUsagePointsForDevicesCommand = this.createUsagePointsForDevicesCommandProvider.get();
+            createUsagePointsForDevicesCommand.setDevices(Collections.singletonList(device));
+            createUsagePointsForDevicesCommand.run();
+        }
+
     }
 }
