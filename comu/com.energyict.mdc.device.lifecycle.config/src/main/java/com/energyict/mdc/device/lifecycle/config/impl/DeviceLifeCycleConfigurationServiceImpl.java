@@ -421,13 +421,13 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     }
 
     public boolean isValidCreationEvent(IssueEvent issueEvent){
-        EnumSet<DefaultState> restrictedStates = EnumSet.of(DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED);
+        EnumSet<EndDeviceStage> restrictedStages = EnumSet.of(EndDeviceStage.PRE_OPERATIONAL, EndDeviceStage.POST_OPERATIONAL);
         Optional<EndDevice> endDevice = issueEvent.getEndDevice();
         if (endDevice.isPresent()) {
-            return !endDevice.get().getState()
-                    .map(DefaultState::from)
-                    .filter(defaultState -> defaultState.isPresent() && restrictedStates.contains(defaultState.get()))
-                    .isPresent();
+            String stateName = endDevice.get().getState().orElseThrow(() -> new IllegalStateException("Device does not have a state"))
+                    .getStage().orElseThrow(() -> new IllegalStateException("Device does not have a stage"))
+                    .getName();
+            return !restrictedStages.contains(EndDeviceStage.valueOf(stateName));
         }
         return true;
     }
