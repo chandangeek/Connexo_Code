@@ -29,6 +29,12 @@ class UsagePointMetrologyConfigurationBuilderImpl implements UsagePointMetrology
     }
 
     @Override
+    public UsagePointMetrologyConfigurationBuilder withGapAllowed(boolean isGapAllowed) {
+        this.underConstruction.setGapAllowed(isGapAllowed);
+        return this;
+    }
+
+    @Override
     public UsagePointMetrologyConfiguration create() {
         this.underConstruction.create();
         return this.underConstruction;

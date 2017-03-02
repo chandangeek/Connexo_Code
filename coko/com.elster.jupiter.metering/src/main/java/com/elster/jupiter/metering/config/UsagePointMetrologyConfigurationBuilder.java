@@ -11,6 +11,8 @@ public interface UsagePointMetrologyConfigurationBuilder {
 
     UsagePointMetrologyConfigurationBuilder withDescription(String description);
 
+    UsagePointMetrologyConfigurationBuilder withGapAllowed(boolean isGapAllowed);
+
     UsagePointMetrologyConfiguration create();
 
 }
