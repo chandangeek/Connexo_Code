@@ -31,7 +31,7 @@ public enum MessageSeeds implements MessageSeed {
     ESTIMATOR_REQUIRED_PROPERTY_MISSING(1007, Constants.ESTIMATOR_REQUIRED_PROPERTY_MISSING_KEY, "This field is required", Level.SEVERE),
 
     VETO_DEVICEGROUP_DELETION(1008, Constants.VETO_DEVICEGROUP_DELETION_KEY, "Device group {0} is still in use by an estimation task", Level.SEVERE),
-    VETO_USAGEPOINTGROUP_DELETION(1009, Constants.VETO_USAGEPOINTGROUP_DELETION_KEY, "Usage point group {0} is still in use by an estimation task", Level.SEVERE);
+    VETO_USAGEPOINTGROUP_DELETION(1009, Constants.VETO_USAGEPOINTGROUP_DELETION_KEY, "Usage point group ''{0}'' is still in use by one or more tasks", Level.SEVERE);
 
     private final int number;
     private final String key;
