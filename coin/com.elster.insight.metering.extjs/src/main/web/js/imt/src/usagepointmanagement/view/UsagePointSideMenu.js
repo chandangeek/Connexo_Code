@@ -9,9 +9,11 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
         'Imt.util.ServiceCategoryTranslations'
     ],
     alias: 'widget.usage-point-management-side-menu',
+    uniqueMenuId: 'usage-point-management-side-menu',
     router: null,
     usagePoint: null,
-    
+    objectType: Uni.I18n.translate('general.usage point', 'IMT', 'Usage point'),
+
     initComponent: function () {
         var me = this,
             usagePoint = me.usagePoint,
