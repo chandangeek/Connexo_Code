@@ -8,7 +8,6 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.ConnectionState;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConnectionState;
@@ -103,7 +102,7 @@ public class UsagePointConnectionStateImplIT {
         UsagePoint usagePoint = createUsagePoint(UP_NAME, JANUARY_2014);
 
         exception.expect(ConnectionStateChangeException.class);
-        exception.expectMessage(MessageSeeds.CONNECTION_STATE_CHANGE_BEFORE_INSTALLATION_TIME.getDefaultFormat());
+        exception.expectMessage(PrivateMessageSeeds.CONNECTION_STATE_CHANGE_BEFORE_INSTALLATION_TIME.getDefaultFormat());
 
         // Business method
         usagePoint.setConnectionState(ConnectionState.CONNECTED, JANUARY_2014.minusMillis(1));
@@ -116,7 +115,7 @@ public class UsagePointConnectionStateImplIT {
         usagePoint.setConnectionState(ConnectionState.CONNECTED, JANUARY_2014);
 
         exception.expect(ConnectionStateChangeException.class);
-        exception.expectMessage(MessageSeeds.CONNECTION_STATE_CHANGE_BEFORE_LATEST_CHANGE.getDefaultFormat());
+        exception.expectMessage(PrivateMessageSeeds.CONNECTION_STATE_CHANGE_BEFORE_LATEST_CHANGE.getDefaultFormat());
 
         // Business method
         usagePoint.setConnectionState(ConnectionState.LOGICALLY_DISCONNECTED, JANUARY_2014);
@@ -166,7 +165,7 @@ public class UsagePointConnectionStateImplIT {
         usagePoint.setConnectionState(ConnectionState.PHYSICALLY_DISCONNECTED, FEBRUARY_2014);
 
         exception.expect(ConnectionStateChangeException.class);
-        exception.expectMessage(MessageSeeds.CONNECTION_STATE_CHANGE_BEFORE_LATEST_CHANGE.getDefaultFormat());
+        exception.expectMessage(PrivateMessageSeeds.CONNECTION_STATE_CHANGE_BEFORE_LATEST_CHANGE.getDefaultFormat());
 
         // Business method
         usagePoint.setConnectionState(ConnectionState.LOGICALLY_DISCONNECTED, FEBRUARY_2014);

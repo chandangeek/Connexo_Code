@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -16,10 +15,10 @@ public class ConnectionStateChangeException extends LocalizedException {
     }
 
     public static ConnectionStateChangeException stateChangeTimeShouldBeAfterInstallationTime(Thesaurus thesaurus) {
-        return new ConnectionStateChangeException(thesaurus, MessageSeeds.CONNECTION_STATE_CHANGE_BEFORE_INSTALLATION_TIME);
+        return new ConnectionStateChangeException(thesaurus, PrivateMessageSeeds.CONNECTION_STATE_CHANGE_BEFORE_INSTALLATION_TIME);
     }
 
     public static ConnectionStateChangeException stateChangeTimeShouldBeAfterLatestConnectionStateChange(Thesaurus thesaurus) {
-        return new ConnectionStateChangeException(thesaurus, MessageSeeds.CONNECTION_STATE_CHANGE_BEFORE_LATEST_CHANGE);
+        return new ConnectionStateChangeException(thesaurus, PrivateMessageSeeds.CONNECTION_STATE_CHANGE_BEFORE_LATEST_CHANGE);
     }
 }
