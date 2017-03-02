@@ -147,7 +147,7 @@ public class AM540Properties extends IDISProperties {
     }
 
     public long getAARQTimeout() {
-        return getProperties().getTypedProperty(AM540ConfigurationSupport.AARQ_TIMEOUT_PROPERTY, AM540ConfigurationSupport.DEFAULT_NOT_USED_AARQ_TIMEOUT.toMillis());
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.AARQ_TIMEOUT_PROPERTY, AM540ConfigurationSupport.DEFAULT_NOT_USED_AARQ_TIMEOUT).toMillis();
     }
 
     /**
