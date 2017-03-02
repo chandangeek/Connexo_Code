@@ -19,13 +19,19 @@ public interface IssueAction extends HasDynamicPropertiesWithValues {
     
     boolean isApplicable(Issue issue);
 
+    boolean isApplicable(String reasonName);
+
     boolean isApplicableForUser(User user);
-    
+
     IssueAction initAndValidate(Map<String, Object> properties);
     
     IssueActionResult execute(Issue issue);
 
     default IssueAction setIssue(Issue issue) {
+        return this;
+    }
+
+    default IssueAction setReasonName(String reasonName){
         return this;
     }
 }
