@@ -31,7 +31,6 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -111,10 +110,10 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
     }
 
     private static QualityCodeSystem getUnderlyingSystem(Collection<ChannelsContainer> containers) {
-        EnumSet<QualityCodeSystem> systems = EnumSet.noneOf(QualityCodeSystem.class);
-        containers.forEach(container -> systems.add(container instanceof MetrologyContractChannelsContainer ?
-                                QualityCodeSystem.MDM : QualityCodeSystem.MDC));
-        return systems.stream()
+        return containers.stream()
+                .map(container -> container instanceof MetrologyContractChannelsContainer ?
+                                QualityCodeSystem.MDM : QualityCodeSystem.MDC)
+                .distinct()
                 .reduce((system1, system2) -> {
                     throw new IllegalArgumentException("ReadingStorer is not designed to store readings for several systems at once");
                 })
