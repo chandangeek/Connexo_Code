@@ -779,11 +779,11 @@ public class MasterDataSerializer {
         }
     }
 
-    protected ProtocolRuntimeException invalidFormatException(String propertyName, String propertyValue, String message) {
+    protected DeviceConfigurationException invalidFormatException(String propertyName, String propertyValue, String message) {
         return DeviceConfigurationException.invalidPropertyFormat(propertyName, propertyValue, message);
     }
 
-    protected ProtocolRuntimeException missingProperty(String propertyName) {
+    protected DeviceConfigurationException missingProperty(String propertyName) {
         return DeviceConfigurationException.missingProperty(propertyName);
     }
 
