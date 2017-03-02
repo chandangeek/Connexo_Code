@@ -47,6 +47,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -54,8 +55,11 @@ import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 
@@ -147,6 +151,14 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     MeteringTranslationService meteringTranslationService;
     @Mock
     UsagePointLifeCycleService usagePointLifeCycleService;
+    @Mock
+    UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
+    @Mock
+    TaskService taskService;
+    @Mock
+    UpgradeService upgradeService;
+    @Mock
+    OrmService ormService;
 
     @Override
     protected Application getApplication() {
@@ -192,6 +204,8 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setMessageService(messageService);
         application.setMeteringTranslationService(meteringTranslationService);
         application.setUsagePointLifeCycleService(usagePointLifeCycleService);
+        application.setUsagePointLifeCycleConfigurationService(usagePointLifeCycleConfigurationService);
+        application.setPropertySpecService(propertySpecService);
         return application;
     }
 

@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfo;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfo;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -41,12 +42,12 @@ public class UsagePointInfo {
     public String servicePriority;
     public Long installationTime;
     public IdWithNameInfo connectionState = new IdWithNameInfo();
-    public String displayConnectionState;
     public String displayMetrologyConfiguration;
     public String displayServiceCategory;
     public String displayType;
     public UsagePointLifeCycleStateInfo state;
     public UsagePointLifeCycleInfo lifeCycle;
+    public UsagePointTransitionInfo transitionToPerform;
     public Long lastTransitionTime;
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "serviceCategory")
