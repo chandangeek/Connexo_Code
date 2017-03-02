@@ -34,7 +34,7 @@ public class FavoriteUsagePointDetailsInfo {
         displayMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().map(mc -> mc.getMetrologyConfiguration().getName()).orElse(null);
         displayType = this.getUsagePointDisplayType(usagePoint, thesaurus);
         usagePoint.getCurrentConnectionState().ifPresent(connectionState -> {
-            displayConnectionState = connectionState.getName();
+            displayConnectionState = connectionState.getConnectionStateDisplayName();
         });
         creationDate = usagePoint.getCreateDate().toEpochMilli();
         comment = favoriteUsagePoint.getComment();

@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointConnectionState;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.groups.EnumeratedUsagePointGroup;
 import com.elster.jupiter.metering.groups.GroupBuilder;
@@ -668,14 +669,21 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
                 .thenReturn(effectiveMCOptional);
         when(usagePoint.isSdp()).thenReturn(isSdp);
         when(usagePoint.isVirtual()).thenReturn(isVirtual);
-        when(usagePoint.getCurrentConnectionState()).thenReturn(Optional.of(connectionState));
-        when(usagePoint.getConnectionStateDisplayName()).thenReturn(connectionState.getDefaultFormat());
+        UsagePointConnectionState usagePointConnectionState = mockUsagePointConnectionState(connectionState);
+        when(usagePoint.getCurrentConnectionState()).thenReturn(Optional.of(usagePointConnectionState));
         Optional<Location> locationOptional = Optional.ofNullable(location).map(UsagePointGroupResourceTest::mockLocation);
         when(usagePoint.getLocation()).thenReturn(locationOptional);
         when(usagePoint.getSpatialCoordinates()).thenReturn(Optional.empty());
         UsagePointState usagePointState = mock(UsagePointState.class);
         when(usagePoint.getState()).thenReturn(usagePointState);
         return usagePoint;
+    }
+
+    private static UsagePointConnectionState mockUsagePointConnectionState(ConnectionState connectionState) {
+        UsagePointConnectionState usagePointConnectionState = mock(UsagePointConnectionState.class);
+        when(usagePointConnectionState.getConnectionState()).thenReturn(connectionState);
+        when(usagePointConnectionState.getConnectionStateDisplayName()).thenReturn(connectionState.getDefaultFormat());
+        return usagePointConnectionState;
     }
 
     private static EffectiveMetrologyConfigurationOnUsagePoint mockUsagePointMetrologyConfiguration(String name) {
