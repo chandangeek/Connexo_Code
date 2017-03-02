@@ -7,6 +7,7 @@ package com.elster.jupiter.properties.rest.impl;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.AssignPropertyFactory;
+import com.elster.jupiter.properties.rest.ProcessPropertyFactory;
 import com.elster.jupiter.properties.rest.PropertyType;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.RaiseEventPropertyFactory;
@@ -36,6 +37,9 @@ public class IdWithNamePropertyValueConverter implements PropertyValueConverter 
         }
         if (propertySpec.getValueFactory() instanceof RelativePeriodWithCountPropertyFactory) {
             return SimplePropertyType.RELATIVEPERIODWITHCOUNT;
+        }
+        if (propertySpec.getValueFactory() instanceof ProcessPropertyFactory) {
+            return SimplePropertyType.BPM_PROCESS;
         }
         return SimplePropertyType.IDWITHNAME;
     }
