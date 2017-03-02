@@ -146,7 +146,6 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
                 && propertyType != SimplePropertyType.SELECTIONGRID
                 && propertyType != SimplePropertyType.ENDDEVICEEVENTTYPE
                 && propertyType != SimplePropertyType.LIFECYCLESTATUSINDEVICETYPE
-                && propertyType != SimplePropertyType.RAISEEVENTPROPS
                 ) {
             // this means we have a default value, so no predefinedPropertyValues necessary in frontend.
             return null;
