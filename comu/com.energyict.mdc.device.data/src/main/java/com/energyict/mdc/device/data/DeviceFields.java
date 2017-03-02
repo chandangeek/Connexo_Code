@@ -20,7 +20,10 @@ public enum DeviceFields implements ImplField {
     BATCH("batch"),
     METER("meter"),
     LOCATION("location"),
-    READINGTYPEOBISCODEUSAGES("readingTypeObisCodeUsages")
+    READINGTYPEOBISCODEUSAGES("readingTypeObisCodeUsages"),
+    MANUFACTURER("manufacturer"),
+    MODEL_NBR("modelNbr"),
+    MODEL_VERSION("modelVersion")
     ;
 
     private final String javaFieldName;

@@ -216,6 +216,9 @@ public class DeviceDeleteTest {
         when(meterBuilder.setAmrId(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setMRID(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setSerialNumber(anyString())).thenReturn(meterBuilder);
+        when(meterBuilder.setManufacturer(anyString())).thenReturn(meterBuilder);
+        when(meterBuilder.setModelNumber(anyString())).thenReturn(meterBuilder);
+        when(meterBuilder.setModelVersion(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setStateMachine(any(FiniteStateMachine.class))).thenReturn(meterBuilder);
         when(meterBuilder.setReceivedDate(any(Instant.class))).thenReturn(meterBuilder);
         when(meterBuilder.create()).thenReturn(meter);
