@@ -58,7 +58,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 @Component(name = "com.energyict.mdc.device.alarms.BasicDeviceAlarmRuleTemplate",
         property = {"name=" + BasicDeviceAlarmRuleTemplate.NAME},
@@ -74,8 +73,9 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     public static final String DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES = NAME + ".deviceLifecyleInDeviceTypes";
     private static final String SEPARATOR = ":";
     private static final int DEFAULT_NUMERICAL_VALUE = 0;
-    private static final String RAISE_EVENT_PROPS_DEFAULT_VALUE = "0:0:0";
     private static final String EMPTY_CODE = "-1";
+    private static final String RAISE_EVENT_PROPS_DEFAULT_VALUE = "0:0:0";
+    private static final List<String> RAISE_EVENT_PROPS_POSSIBLE_VALUES = Arrays.asList("0:0:0", "1:0:0", "1:0:1", "1:1:0", "1:1:1");
 
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
@@ -198,7 +198,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                                 .sorted(Comparator.comparing(State::getId))
                                 .forEach(state -> list.add(new DeviceLifeCycleInDeviceTypeInfo(deviceType, state))));
         DeviceLifeCycleInDeviceTypeInfo[] deviceLifeCycleInDeviceTypepossibleValues = list.stream().toArray(DeviceLifeCycleInDeviceTypeInfo[]::new);
-        RaiseEventPropsInfo[] raiseEventPropsPossibleValues = Stream.of("0.0.0", "1.0.0", "1.0.1", "1.1.0", "1.1.1")
+        RaiseEventPropsInfo[] raiseEventPropsPossibleValues = RAISE_EVENT_PROPS_POSSIBLE_VALUES.stream()
                 .map(RaiseEventPropsInfo::new)
                 .toArray(RaiseEventPropsInfo[]::new);
 
@@ -248,15 +248,16 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         return getThesaurus().getFormat(TranslationKeys.BASIC_TEMPLATE_DEVICE_ALARM_NAME).format();
     }
 
+    @SuppressWarnings("unchecked")
     private OpenIssue getAlarmForUpdate(OpenIssue openIssue, IssueEvent event) {
         if (openIssue instanceof OpenDeviceAlarm && event instanceof DeviceAlarmEvent) {
             OpenDeviceAlarm alarm = OpenDeviceAlarm.class.cast(openIssue);
             List<String> clearingEvents = new ArrayList<>();
             alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(CLEARING_EVENTS))
                     .findFirst().ifPresent(element ->
-                    ((ArrayList) (element.getValue())).forEach(value -> clearingEvents.add(((EventTypeInfo) value).getName())));
+                    ((ArrayList<EventTypeInfo>) (element.getValue())).forEach(value -> clearingEvents.add(value.getName())));
             Optional<RaiseEventPropsInfo> newEventProps = alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(RAISE_EVENT_PROPS))
-                    .findFirst().map(found -> new RaiseEventPropsInfo(String.valueOf(found.getValue())));
+                    .findFirst().map(found -> (RaiseEventPropsInfo)found.getValue());
 
             if (!clearingEvents.isEmpty() && ((DeviceAlarmEvent) event).isClearing(clearingEvents)) {
                 if (!alarm.isStatusCleared()) {
@@ -362,7 +363,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         public HasIdAndName fromStringValue(String stringValue) {
             List<String> values = Arrays.asList(stringValue.split(SEPARATOR));
             if (values.size() != 2) {
-                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUIMENTS, "Device Life Cycle in Device Type");
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS, "Device Life Cycle in Device Type");
             }
             DeviceType deviceType = deviceConfigurationService
                     .findDeviceType(Long.parseLong(values.get(0)))
@@ -416,12 +417,12 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         }
     }
 
-    public static class DeviceLifeCycleInDeviceTypeInfo extends HasIdAndName {
+    static class DeviceLifeCycleInDeviceTypeInfo extends HasIdAndName {
 
         private DeviceType deviceType;
         private State lifeCycleState;
 
-        public DeviceLifeCycleInDeviceTypeInfo(DeviceType deviceType, State lifeCycleState) {
+        DeviceLifeCycleInDeviceTypeInfo(DeviceType deviceType, State lifeCycleState) {
             this.deviceType = deviceType;
             this.lifeCycleState = lifeCycleState;
         }
@@ -541,11 +542,11 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
             return Integer.parseInt(Arrays.asList(value.split(SEPARATOR)).get(0)) == 1;
         }
 
-        public boolean hasIncreaseUrgency() {
+        boolean hasIncreaseUrgency() {
             return Integer.parseInt(Arrays.asList(value.split(SEPARATOR)).get(1)) == 1;
         }
 
-        public boolean hasDecreaseUrgency() {
+        boolean hasDecreaseUrgency() {
             return Integer.parseInt(Arrays.asList(value.split(SEPARATOR)).get(2)) == 1;
         }
 
@@ -576,7 +577,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         public HasIdAndName fromStringValue(String stringValue) {
             List<String> values = Arrays.asList(stringValue.split(SEPARATOR));
             if (values.size() != 2) {
-                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUIMENTS, "Relative period with occurrence count for device alarms");
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS, "Relative period with occurrence count for device alarms");
             }
             int count = Integer.parseInt(values.get(0));
             RelativePeriod relativePeriod = timeService.findRelativePeriod(Long.parseLong(values.get(1))).orElse(null);
@@ -622,12 +623,12 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         }
     }
 
-    public static class RelativePeriodWithCountInfo extends HasIdAndName {
+    static class RelativePeriodWithCountInfo extends HasIdAndName {
 
         private RelativePeriod relativePeriod;
         private int occurrenceCount;
 
-        public RelativePeriodWithCountInfo(int occurrenceCount, RelativePeriod relativePeriod) {
+        RelativePeriodWithCountInfo(int occurrenceCount, RelativePeriod relativePeriod) {
             this.relativePeriod = relativePeriod;
             this.occurrenceCount = occurrenceCount;
         }
@@ -676,19 +677,4 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
             return result;
         }
     }
-
-
-    //TODO - write a check method to avoid number format exceptions
-    /*
-    public static boolean isInteger(String s) {
-    try {
-        Integer.parseInt(s);
-    } catch(NumberFormatException e) {
-        return false;
-    } catch(NullPointerException e) {
-        return false;
-    }
-    return true;
-}
-     */
 }
