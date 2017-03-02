@@ -395,7 +395,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .ifPresent(metrologyConfiguration -> metrologyConfiguration.getMeterRoles()
                         .forEach(meterRole -> mandatoryMeterRoles.put(meterRole, new MeterRoleInfo(meterRole))));
 
-        Map<MeterRole, MeterActivation> meterRoleToMeterInfoMapping = usagePoint.getMeterActivations(usagePoint.getInstallationTime())
+        Map<MeterRole, MeterActivation> meterRoleToMeterInfoMapping = usagePoint.getMeterActivations(clock.instant())
                 .stream()
                 .filter(meterActivation -> meterActivation.getMeterRole().isPresent() && meterActivation.getMeter().isPresent())
                 .collect(Collectors.toMap(meterActivation -> meterActivation.getMeterRole().get(), Function.identity()));
