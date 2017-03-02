@@ -491,6 +491,8 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
     @Test
     public void testCanActivateAndClearMetersOnUsagePoint() {
+        when(usagePointStage.getKey()).thenReturn(UsagePointStage.Key.PRE_OPERATIONAL);
+
         Meter meter1 = mock(Meter.class);
         when(meter1.getName()).thenReturn("meter1");
         when(meteringService.findMeterByName("meter1")).thenReturn(Optional.of(meter1));
@@ -541,6 +543,55 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         verify(linker).activate(eq(meter2), eq(meterRole2));
         verify(linker).clear(eq(meterRole3));
         verify(linker).complete();
+    }
+
+    @Test
+    public void testCanActivateAndClearMetersOnUsagePointWithNoPreOperationalStage() {
+        Meter meter1 = mock(Meter.class);
+        when(meter1.getName()).thenReturn("meter1");
+        when(meteringService.findMeterByName("meter1")).thenReturn(Optional.of(meter1));
+
+        Meter meter2 = mock(Meter.class);
+        when(meter2.getName()).thenReturn("meter2");
+        when(meteringService.findMeterByName("meter2")).thenReturn(Optional.of(meter2));
+
+        MeterRole meterRole1 = mock(MeterRole.class);
+        when(meterRole1.getKey()).thenReturn("key1");
+        when(metrologyConfigurationService.findMeterRole("key1")).thenReturn(Optional.of(meterRole1));
+
+        MeterRole meterRole2 = mock(MeterRole.class);
+        when(meterRole2.getKey()).thenReturn("key2");
+        when(metrologyConfigurationService.findMeterRole("key2")).thenReturn(Optional.of(meterRole2));
+
+        MeterRole meterRole3 = mock(MeterRole.class);
+        when(meterRole3.getKey()).thenReturn("key3");
+        when(metrologyConfigurationService.findMeterRole("key3")).thenReturn(Optional.of(meterRole3));
+
+        UsagePointMeterActivator linker = mock(UsagePointMeterActivator.class);
+        when(usagePoint.linkMeters()).thenReturn(linker);
+
+        MeterActivationInfo meterActivation1 = new MeterActivationInfo();
+        meterActivation1.meter = new MeterInfo();
+        meterActivation1.meter.name = meter1.getName();
+        meterActivation1.meterRole = new MeterRoleInfo();
+        meterActivation1.meterRole.id = meterRole1.getKey();
+
+        MeterActivationInfo meterActivation2 = new MeterActivationInfo();
+        meterActivation2.meter = new MeterInfo();
+        meterActivation2.meter.name = meter2.getName();
+        meterActivation2.meterRole = new MeterRoleInfo();
+        meterActivation2.meterRole.id = meterRole2.getKey();
+
+        MeterActivationInfo meterActivation3 = new MeterActivationInfo();
+        meterActivation3.meterRole = new MeterRoleInfo();
+        meterActivation3.meterRole.id = meterRole3.getKey();
+
+        UsagePointInfo info = new UsagePointInfo();
+        info.version = usagePoint.getVersion();
+        info.meterActivations = Arrays.asList(meterActivation1, meterActivation2, meterActivation3);
+
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/activatemeters").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(422);
     }
 
     @Test
