@@ -20,6 +20,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.imports.impl.properties.SupportedNumberFormat;
@@ -127,6 +128,9 @@ public class UsagePointProcessorForMultisenseTest {
     private FileImportOccurrence fileImportOccurrenceFail;
     @Mock
     private LocationTemplate locationTemplate;
+    @Mock
+    private UsagePointMetrologyConfiguration metrologyConfiguration;
+
 
     private MeteringDataImporterContext context;
 
@@ -156,6 +160,9 @@ public class UsagePointProcessorForMultisenseTest {
         when(nlsMessageFormat.format()).thenReturn("message");
         when(nlsMessageFormat.format(anyInt(), anyInt())).thenReturn("message");
         when(locationTemplate.getTemplateMembers()).thenReturn(Collections.emptyList());
+        when(metrologyConfigurationService.findMetrologyConfiguration(anyString())).thenReturn(Optional.of(metrologyConfiguration));
+        when(metrologyConfiguration.isActive()).thenReturn(true);
+        when(metrologyConfiguration.getServiceCategory()).thenReturn(serviceCategoryTwo);
 
         when(fileImportOccurrenceCorrect.getLogger()).thenReturn(logger);
         when(fileImportOccurrenceIncorrect.getLogger()).thenReturn(logger);

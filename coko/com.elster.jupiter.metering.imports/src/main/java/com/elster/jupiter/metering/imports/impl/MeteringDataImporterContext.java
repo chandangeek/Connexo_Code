@@ -13,7 +13,9 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.users.UserService;
 
 import org.osgi.service.component.annotations.Component;
@@ -34,6 +36,8 @@ public class MeteringDataImporterContext {
     private volatile Clock clock;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile CalendarService calendarService;
+    private volatile UsagePointLifeCycleService usagePointLifeCycleService;
+    private volatile PropertyValueInfoService propertyValueInfoService;
 
     public MeteringDataImporterContext() {
     }
@@ -48,7 +52,9 @@ public class MeteringDataImporterContext {
                                        LicenseService licenseService,
                                        Clock clock,
                                        MetrologyConfigurationService metrologyConfigurationService,
-                                       CalendarService calendarService) {
+                                       CalendarService calendarService,
+                                       UsagePointLifeCycleService usagePointLifeCycleService,
+                                       PropertyValueInfoService propertyValueInfoService) {
         setPropertySpecService(propertySpecService);
         setNlsService(nlsService);
         setMeteringService(meteringService);
@@ -59,6 +65,8 @@ public class MeteringDataImporterContext {
         setLicenseService(licenseService);
         setMetrologyConfigurationService(metrologyConfigurationService);
         setCalendarService(calendarService);
+        setUsagePointLifeCycleService(usagePointLifeCycleService);
+        setPropertyValueInfoService(propertyValueInfoService);
     }
 
     public PropertySpecService getPropertySpecService() {
@@ -140,6 +148,24 @@ public class MeteringDataImporterContext {
     @Reference
     public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
         this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
+    @Reference
+    public void setUsagePointLifeCycleService(UsagePointLifeCycleService usagePointLifeCycleService) {
+        this.usagePointLifeCycleService = usagePointLifeCycleService;
+    }
+
+    @Reference
+    public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
+        this.propertyValueInfoService = propertyValueInfoService;
+    }
+
+    public PropertyValueInfoService getPropertyValueInfoService() {
+        return propertyValueInfoService;
+    }
+
+    public UsagePointLifeCycleService getUsagePointLifeCycleService() {
+        return usagePointLifeCycleService;
     }
 
     public MetrologyConfigurationService getMetrologyConfigurationService() {
