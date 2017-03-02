@@ -40,10 +40,10 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.security.cert.CertPathValidatorException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +52,6 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.LIKE;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/creationrules")
@@ -169,9 +168,9 @@ public class CreationRuleResource extends BaseResource {
     @Path("/validateaction")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response validateAction(CreationRuleActionInfo info) {
+    public Response validateAction(@QueryParam("reason_name") String reasonName, CreationRuleActionInfo info) {
         CreationRuleActionBuilder actionBuilder = getIssueCreationService().newCreationRule().newCreationRuleAction();
-        setAction(info, actionBuilder);
+        setAction(info, actionBuilder, reasonName);
         actionBuilder.complete().validate();
         return Response.ok().build();
     }
@@ -209,10 +208,10 @@ public class CreationRuleResource extends BaseResource {
     }
 
     private void setActions(CreationRuleInfo rule, CreationRuleBuilder builder) {
-        rule.actions.stream().forEach((info) -> setAction(info, builder.newCreationRuleAction()));
+        rule.actions.stream().forEach((info) -> setAction(info, builder.newCreationRuleAction(), null));
     }
 
-    private void setAction(CreationRuleActionInfo actionInfo, CreationRuleActionBuilder actionBuilder) {
+    private void setAction(CreationRuleActionInfo actionInfo, CreationRuleActionBuilder actionBuilder, String reasonName) {
         if (actionInfo.phase != null) {
             actionBuilder.setPhase(CreationRuleActionPhase.fromString(actionInfo.phase.uuid));
         }
@@ -220,7 +219,7 @@ public class CreationRuleResource extends BaseResource {
             Optional<IssueActionType> actionType = getIssueActionService().findActionType(actionInfo.type.id);
             if (actionType.isPresent() && actionType.get().createIssueAction().isPresent() && actionInfo.properties != null) {
                 actionBuilder.setActionType(actionType.get());
-                for (PropertySpec propertySpec : actionType.get().createIssueAction().get().getPropertySpecs()) {
+                for (PropertySpec propertySpec : actionType.get().createIssueAction().get().setReasonName(reasonName).getPropertySpecs()) {
                     Object value = propertyValueInfoService.findPropertyValue(propertySpec, actionInfo.properties);
                     if (value != null) {
                         actionBuilder.addProperty(propertySpec.getName(), value);
