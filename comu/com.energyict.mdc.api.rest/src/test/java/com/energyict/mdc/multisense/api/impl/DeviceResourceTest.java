@@ -88,7 +88,7 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(model.<List>get("$")).hasSize(23);
         assertThat(model.<List<String>>get("$")).containsOnly("actions", "batch", "connectionMethods", "deviceConfiguration",
                 "deviceProtocolPluggeableClassId", "gatewayType", "id", "isDirectlyAddressable", "isGateway", "lifecycleState",
-                "link", "mRID", "name", "physicalGateway", "serialNumber",
+                "link", "mRID", "name", "physicalGateway", "serialNumber","manufacturer", "modelNumber", "modelVersion",
                 "slaveDevices", "version", "yearOfCertification", "communicationTaskExecutions", "deviceMessages", "usagePoint", "meterRole", "installationDate");
     }
 

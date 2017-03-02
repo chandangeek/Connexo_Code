@@ -18,6 +18,9 @@ public class DeviceInfo extends LinkInfo<Long> {
     @NotNull
     public String mRID;
     public String serialNumber;
+    public String manufacturer;
+    public String modelNbr;
+    public String modelVersion;
     public String name;
 
     public DeviceConfigurationInfo deviceConfiguration;

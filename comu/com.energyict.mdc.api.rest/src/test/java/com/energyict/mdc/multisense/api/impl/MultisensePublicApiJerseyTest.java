@@ -128,6 +128,9 @@ import static org.mockito.Mockito.when;
  * Created by bvn on 9/19/14.
  */
 public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTest {
+    private static final String MANUFACTURER = "The Manufacturer";
+    private static final String MODELNBR = "The ModelNumber";
+    private static final String MODELVERSION = "The modelVersion";
     private static final Pattern MRID_PATTERN = Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})");
     private static final String MRID_REPLACEMENT = "$1-$2-$3-$4-$5";
     @Mock
@@ -231,6 +234,9 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         long deviceId = (long) mRID.hashCode();
         when(mock.getId()).thenReturn(deviceId);
         when(mock.getSerialNumber()).thenReturn(serial);
+        when(mock.getManufacturer()).thenReturn(MANUFACTURER);
+        when(mock.getModelNumber()).thenReturn(MODELNBR);
+        when(mock.getModelVersion()).thenReturn(MODELVERSION);
         when(mock.getVersion()).thenReturn(333L);
         State state = mock(State.class);
         when(state.getName()).thenReturn(DefaultState.IN_STOCK.getKey());

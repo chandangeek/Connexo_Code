@@ -93,6 +93,9 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo, Device
         map.put("name", (deviceInfo, device, uriInfo) -> deviceInfo.name = device.getName());
         map.put("mRID", (deviceInfo, device, uriInfo) -> deviceInfo.mRID = device.getmRID());
         map.put("serialNumber", (deviceInfo, device, uriInfo) -> deviceInfo.serialNumber = device.getSerialNumber());
+        map.put("manufacturer", (deviceInfo, device, uriInfo) -> deviceInfo.manufacturer = device.getManufacturer());
+        map.put("modelNumber", (deviceInfo, device, uriInfo) -> deviceInfo.modelNbr = device.getModelNumber());
+        map.put("modelVersion", (deviceInfo, device, uriInfo) -> deviceInfo.modelVersion = device.getModelVersion());
         map.put("deviceProtocolPluggeableClassId", (deviceInfo, device, uriInfo) -> deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType()
                 .getDeviceProtocolPluggableClass()
                 .map(HasId::getId)
