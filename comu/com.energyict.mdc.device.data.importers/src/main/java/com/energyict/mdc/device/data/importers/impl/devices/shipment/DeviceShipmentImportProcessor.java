@@ -56,10 +56,19 @@ public class DeviceShipmentImportProcessor extends AbstractDeviceDataFileImportP
             throw new ProcessorException(MessageSeeds.PROCESS_SQL_EXCEPTION, data.getLineNumber()).andStopImport();
         }
 
-        device.setSerialNumber(data.getSerialNumber());
-        device.setYearOfCertification(data.getYearOfCertification());
-        device.save();
+        if (data.getSerialNumber() != null)
+            device.setSerialNumber(data.getSerialNumber());
+        if (data.getManufacturer() != null)
+            device.setManufacturer(data.getManufacturer());
+        if (data.getModelNbr() != null)
+            device.setModelNumber(data.getModelNbr());
+        if (data.getModelVersion() != null)
+            device.setModelVersion(data.getModelVersion());
+        if (data.getYearOfCertification() != null)
+            device.setYearOfCertification(data.getYearOfCertification());
+
         setShipmentDate(device, data);
+        device.save();
     }
 
     @Override
