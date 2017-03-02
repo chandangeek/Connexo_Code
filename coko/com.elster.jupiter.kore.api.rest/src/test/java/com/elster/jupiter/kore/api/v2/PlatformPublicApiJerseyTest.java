@@ -37,6 +37,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointConnectionState;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointPropertySet;
@@ -201,7 +202,8 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
         when(usagePoint.getServicePriority()).thenReturn("service priority");
         when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.empty());
         when(usagePoint.getMeterActivations()).thenReturn(Collections.emptyList());
-        when(usagePoint.getConnectionState()).thenReturn(ConnectionState.CONNECTED);
+        UsagePointConnectionState usagePointConnectionState = mockUsagePointConnectionState(ConnectionState.CONNECTED, Range.atLeast(usagePoint.getInstallationTime()));
+        when(usagePoint.getCurrentConnectionState()).thenReturn(Optional.of(usagePointConnectionState));
         when(usagePoint.getSpatialCoordinates()).thenReturn(Optional.empty());
 
         when(usagePoint.forCustomProperties()).thenReturn(extension);
@@ -210,6 +212,13 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
         when(meteringService.findAndLockUsagePointByMRIDAndVersion(mRID, version)).thenReturn(Optional.of(usagePoint));
         when(detail.getUsagePoint()).thenReturn(usagePoint);
         return usagePoint;
+    }
+
+    protected UsagePointConnectionState mockUsagePointConnectionState(ConnectionState connectionState, Range<Instant> effectiveInterval) {
+        UsagePointConnectionState usagePointConnectionState = mock(UsagePointConnectionState.class);
+        when(usagePointConnectionState.getConnectionState()).thenReturn(connectionState);
+        when(usagePointConnectionState.getRange()).thenReturn(effectiveInterval);
+        return usagePointConnectionState;
     }
 
     protected UsagePointPropertySet mockUsagePointPropertySet(long id, CustomPropertySet cps, UsagePoint usagePoint, UsagePointCustomPropertySetExtension extension) {
