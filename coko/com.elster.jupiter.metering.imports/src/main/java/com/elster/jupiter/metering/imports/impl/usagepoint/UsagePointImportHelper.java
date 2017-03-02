@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.imports.impl.usagepoint;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.UsagePoint;
@@ -11,7 +12,6 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.imports.impl.CustomPropertySetRecord;
 import com.elster.jupiter.metering.imports.impl.MessageSeeds;
 import com.elster.jupiter.metering.imports.impl.MeteringDataImporterContext;
-import com.elster.jupiter.metering.imports.impl.exceptions.ProcessorException;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 
 import com.google.common.collect.Range;
