@@ -2,26 +2,26 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.device.data.validation.impl;
+package com.energyict.mdc.device.dataquality.impl;
 
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
-interface SuspectsRange {
+interface MetricValueRange {
 
     void appendHavingTo(SqlBuilder sqlBuilder, String expression);
 
-    class IgnoreSuspectRange implements SuspectsRange {
+    class IgnoreRange implements MetricValueRange {
         @Override
         public void appendHavingTo(SqlBuilder sqlBuilder, String expression) {
             sqlBuilder.append(expression);
-            sqlBuilder.append(" > 0");
+            sqlBuilder.append(" >= 0");
         }
     }
 
-    class ExactMatch implements SuspectsRange {
+    class ExactMatch implements MetricValueRange {
         private final long match;
 
         ExactMatch(long match) {
@@ -36,7 +36,8 @@ interface SuspectsRange {
         }
     }
 
-    class LongRange implements SuspectsRange {
+    class LongRange implements MetricValueRange {
+
         private final Range<Long> range;
 
         LongRange(Range<Long> range) {
@@ -51,7 +52,7 @@ interface SuspectsRange {
                 sqlBuilder.append("=");
             }
             sqlBuilder.addLong(this.range.hasLowerBound() ? this.range.lowerEndpoint() : Integer.MIN_VALUE);
-            sqlBuilder.append("AND ");
+            sqlBuilder.append("and ");
             sqlBuilder.append(expression);
             sqlBuilder.append(" <");
             if (this.range.hasUpperBound() && this.range.upperBoundType() == BoundType.CLOSED) {
