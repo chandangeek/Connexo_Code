@@ -87,9 +87,7 @@ class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinder {
 
     @Override
     public DataExportOccurrenceFinder withExportTask(List<Long> exportTasksIds) {
-        if (!exportTasksIds.isEmpty()) {
-            this.condition = this.condition.and(where("RTEXPORTTASK").in(exportTasksIds));
-        }
+        this.condition = this.condition.and(where("RTEXPORTTASK").in(exportTasksIds));
         return this;
     }
 
