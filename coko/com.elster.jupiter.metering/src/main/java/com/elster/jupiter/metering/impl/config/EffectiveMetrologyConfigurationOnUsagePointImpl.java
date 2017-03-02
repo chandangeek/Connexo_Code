@@ -44,7 +44,6 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     private Interval interval;
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
     private Reference<UsagePointMetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
-    private boolean active;
     private List<EffectiveMetrologyContractOnUsagePoint> effectiveContracts = new ArrayList<>();
 
     private long id;
@@ -103,17 +102,6 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
         if(interval.toClosedRange().isEmpty()){
             effectiveContracts.clear();
         }
-        this.dataModel.update(this);
-    }
-
-    @Override
-    public boolean isActive() {
-        return this.active;
-    }
-
-    @Override
-    public void activate() {
-        this.active = true;
         this.dataModel.update(this);
     }
 
