@@ -63,7 +63,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
             try {
                 doProvide(pskProvider, joiningMacAddress);
             } catch (CommunicationException e) {
-                pskProvider.provideError(e.getMessage());
+                pskProvider.provideError(e.getMessage(), context);
             }
         }
         return DiscoverResultType.DATA;
@@ -73,9 +73,9 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         DeviceProtocolSecurityPropertySet securityPropertySet = getEventPushNotificationParser().getSecurityPropertySet();
         Boolean onHold = getEventPushNotificationParser().getInboundComTaskOnHold();
         if (onHold) {
-            pskProvider.provideError(getErrorMessage());
+            pskProvider.provideError(getErrorMessage(), context);
         } else {
-            pskProvider.providePSK(joiningMacAddress, securityPropertySet);
+            pskProvider.providePSK(joiningMacAddress, securityPropertySet, context);
         }
     }
 
@@ -102,7 +102,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
                     }
                 }
             }
-        } catch (Exception ex){
+        } catch (Exception ex) {
             logMessage.append(ex.getCause()).append(ex.getMessage());
         }
         return logMessage.toString();
@@ -123,7 +123,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     private boolean isJoinAttempt() {
         try {
             return getMeterProtocolEvent().getProtocolCode() == METER_JOIN_ATTEMPT;
-        } catch (Exception ex){
+        } catch (Exception ex) {
             return false;
         }
     }
@@ -132,7 +132,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
      * Subclass for the Beacon implementation overrides this, it returns a specific PSK provider that is customized for the Beacon.
      */
     protected G3GatewayPSKProvider getPskProvider() {
-        return G3GatewayPSKProviderFactory.getInstance().getPSKProvider(getDeviceIdentifier(), getContext());
+        return G3GatewayPSKProviderFactory.getInstance().getPSKProvider(getDeviceIdentifier());
     }
 
     private MeterProtocolEvent getMeterProtocolEvent() {

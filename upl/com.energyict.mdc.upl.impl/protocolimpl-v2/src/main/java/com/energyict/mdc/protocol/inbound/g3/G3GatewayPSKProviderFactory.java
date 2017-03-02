@@ -1,6 +1,5 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
-import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.util.HashMap;
@@ -35,9 +34,9 @@ public class G3GatewayPSKProviderFactory {
      * Note that this method is synchronized so only one thread at a time can fetch a PSK provider.
      * This is to avoid troubles when 2 threads simultaneously would trigger the creation of a new PSK provider twice.
      */
-    public synchronized G3GatewayPSKProvider getPSKProvider(DeviceIdentifier deviceIdentifier, InboundDiscoveryContext context) {
+    public synchronized G3GatewayPSKProvider getPSKProvider(DeviceIdentifier deviceIdentifier) {
         if (!providers.containsKey(deviceIdentifier)) {
-            providers.put(deviceIdentifier, new G3GatewayPSKProvider(deviceIdentifier, context));
+            providers.put(deviceIdentifier, new G3GatewayPSKProvider(deviceIdentifier));
         }
         return providers.get(deviceIdentifier);
     }

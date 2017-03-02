@@ -1,6 +1,5 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
-import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.util.HashMap;
@@ -38,9 +37,9 @@ public class BeaconPSKProviderFactory {
      * Note that this method is synchronized so only one thread at a time can fetch a PSK provider.
      * This is to avoid troubles when 2 threads simultaneously would trigger the creation of a new PSK provider twice.
      */
-    public synchronized BeaconPSKProvider getPSKProvider(DeviceIdentifier deviceIdentifier, InboundDiscoveryContext context) {
+    public synchronized BeaconPSKProvider getPSKProvider(DeviceIdentifier deviceIdentifier) {
         if (!providers.containsKey(deviceIdentifier)) {
-            providers.put(deviceIdentifier, new BeaconPSKProvider(deviceIdentifier, context, provideProtocolJavaClasName));
+            providers.put(deviceIdentifier, new BeaconPSKProvider(deviceIdentifier, provideProtocolJavaClasName));
         }
         return providers.get(deviceIdentifier);
     }

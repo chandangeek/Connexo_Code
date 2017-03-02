@@ -1,7 +1,6 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -12,7 +11,7 @@ import java.util.List;
 /**
  * Does pretty much the same as the PushEventNotification of the G3 gateway,
  * but uses the Beacon3100 protocol to connect to the DC device.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  *
  * @author khe
@@ -36,7 +35,7 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
     }
 
     protected BeaconPSKProvider getPskProvider() {
-        return BeaconPSKProviderFactory.getInstance(provideProtocolJavaClasName).getPSKProvider(getDeviceIdentifier(), getContext());
+        return BeaconPSKProviderFactory.getInstance(provideProtocolJavaClasName).getPSKProvider(getDeviceIdentifier());
     }
 
     @Override
