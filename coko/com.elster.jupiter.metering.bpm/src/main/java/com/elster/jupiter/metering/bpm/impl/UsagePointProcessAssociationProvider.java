@@ -125,7 +125,6 @@ public class UsagePointProcessAssociationProvider implements ProcessAssociationP
                 .named(TranslationKeys.CONNECTION_STATE_PROPERTY.getKey(), TranslationKeys.CONNECTION_STATE_PROPERTY)
                 .fromThesaurus(this.thesaurus)
                 .addValues(possibleValues)
-                .markRequired()
                 .markMultiValued(",")
                 .markExhaustive(PropertySelectionMode.LIST)
                 .finish();
