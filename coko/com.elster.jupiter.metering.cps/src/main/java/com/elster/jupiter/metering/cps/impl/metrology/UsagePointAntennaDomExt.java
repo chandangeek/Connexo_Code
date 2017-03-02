@@ -52,6 +52,7 @@ public class UsagePointAntennaDomExt extends AbstractVersionedPersistentDomainEx
     @NotNull(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
     @HasQuantityValueMin(min = 0, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.QUANTITY_MIN_VALUE + "}")
     private Quantity antennaPower;
+    @NotNull(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
     @Min(value = 0, message = "{" + MessageSeeds.Keys.QUANTITY_MIN_VALUE + "}")
     private long antennaCount;
 
