@@ -155,4 +155,15 @@ public class UsagePointMeterActivationException extends LocalizedException {
         ex.cause = cause;
         return ex;
     }
+
+    public static class UsagePointIncorrectStage extends UsagePointMeterActivationException{
+        public UsagePointIncorrectStage(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {
+            super(thesaurus, messageSeed, args);
+        }
+    }
+
+    public static UsagePointIncorrectStage usagePointIncorrectStage(Thesaurus thesaurus){
+        UsagePointIncorrectStage ex = new UsagePointIncorrectStage(thesaurus, MessageSeeds.USAGE_POINT_INCORRECT_STAGE);
+        return ex;
+    }
 }

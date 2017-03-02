@@ -788,8 +788,6 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         void meterHasUnsatisfiedRequirements(Meter meter, UsagePoint usagePoint, MeterRole meterRole, Map<UsagePointMetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements);
 
         void activationWasFailedByCustomValidator(Meter meter, MeterRole meterRole, UsagePoint usagePoint, CustomUsagePointMeterActivationValidationException ex);
-
-        void usagePointIncorrectStage();
     }
 
     private static class FormValidationReport implements ValidationReport {
@@ -852,15 +850,6 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             this.valid = false;
             this.context.buildConstraintViolationWithTemplate(ex.getLocalizedMessage())
                     .addPropertyNode(meterRole.getKey())
-                    .addConstraintViolation();
-        }
-
-        @Override
-        public void usagePointIncorrectStage() {
-            this.valid = false;
-            String errorMessage = this.thesaurus.getFormat(MessageSeeds.USAGE_POINT_INCORRECT_STAGE).format();
-            this.context.buildConstraintViolationWithTemplate(errorMessage)
-                    .addPropertyNode("usagepoint")
                     .addConstraintViolation();
         }
     }
@@ -943,11 +932,6 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         @Override
         public void activationWasFailedByCustomValidator(Meter meter, MeterRole meterRole, UsagePoint usagePoint, CustomUsagePointMeterActivationValidationException ex) {
             throw UsagePointMeterActivationException.activationWasFailedByCustomValidator(this.thesaurus, meter, meterRole, usagePoint, ex);
-        }
-
-        @Override
-        public void usagePointIncorrectStage() {
-            throw UsagePointManagementException.incorrectStage(this.thesaurus);
         }
     }
 
