@@ -553,11 +553,7 @@ public class ConnectionTaskReportServiceImplOracleSpecificIT {
     }
 
     private SearchablePropertyValue createSearchablePropertyValue(String searchableProperty, List<String> values) {
-        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
-        valueBean.propertyName = searchableProperty;
-        valueBean.operator = SearchablePropertyOperator.EQUAL;
-        valueBean.values = values;
-        return new SearchablePropertyValue(null, valueBean);
+        return new SearchablePropertyValue(null, new SearchablePropertyValue.ValueBean(searchableProperty,SearchablePropertyOperator.EQUAL, values));
     }
 
 }

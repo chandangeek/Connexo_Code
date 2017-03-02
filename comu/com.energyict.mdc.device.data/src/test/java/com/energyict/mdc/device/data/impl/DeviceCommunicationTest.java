@@ -47,6 +47,7 @@ import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -122,11 +123,11 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass = inMemoryPersistence.getProtocolPluggableService()
                 .newInboundDeviceProtocolPluggableClass("MyInboundDeviceProtocolPluggableClass", SimpleDiscoveryProtocol.class.getName());
         inboundDeviceProtocolPluggableClass.save();
-        inboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool("InboundComPortPool", ComPortType.TCP, inboundDeviceProtocolPluggableClass);
+        inboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool("InboundComPortPool", ComPortType.TCP, inboundDeviceProtocolPluggableClass, Collections.emptyMap());
         inboundComPortPool.setActive(true);
         inboundComPortPool.update();
 
-        otherInboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool("OtherInboundPool", ComPortType.TCP, inboundDeviceProtocolPluggableClass);
+        otherInboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool("OtherInboundPool", ComPortType.TCP, inboundDeviceProtocolPluggableClass, Collections.emptyMap());
         otherInboundComPortPool.setActive(true);
         otherInboundComPortPool.update();
         IssueStatus wontFix = mock(IssueStatus.class);
