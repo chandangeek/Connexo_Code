@@ -144,12 +144,9 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService, M
         if (possibleValues.getAllValues().size() <= 1
                 && propertyType != SimplePropertyType.DEVICECONFIGURATIONLIST
                 && propertyType != SimplePropertyType.QUANTITY
-                && propertyType != SimplePropertyType.DEVICECONFIGURATIONLIST
-                && propertyType != SimplePropertyType.QUANTITY
                 && propertyType != SimplePropertyType.SELECTIONGRID
                 && propertyType != SimplePropertyType.ENDDEVICEEVENTTYPE
-                && propertyType != SimplePropertyType.LIFECYCLESTATUSINDEVICETYPE
-                && propertyType != SimplePropertyType.RAISEEVENTPROPS) {
+                && propertyType != SimplePropertyType.LIFECYCLESTATUSINDEVICETYPE) {
             // this means we have a default value, so no predefinedPropertyValues necessary in frontend.
             return null;
         }

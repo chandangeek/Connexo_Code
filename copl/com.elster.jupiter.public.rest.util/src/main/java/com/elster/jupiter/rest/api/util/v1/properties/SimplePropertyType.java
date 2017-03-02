@@ -37,7 +37,7 @@ public enum SimplePropertyType implements PropertyType {
     ENDDEVICEEVENTTYPE(ListValueFactory.class),
     LIFECYCLESTATUSINDEVICETYPE(ListValueFactory.class),
     RAISEEVENTPROPS(HasIdAndName.class),
-    RELATIVEPERIODWITHCOUNT(ListValueFactory.class);
+    RELATIVEPERIODWITHCOUNT(HasIdAndName.class);
 
     private Class typeClass;
 
