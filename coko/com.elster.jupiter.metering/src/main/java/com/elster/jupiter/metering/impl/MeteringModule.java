@@ -90,7 +90,7 @@ public class MeteringModule extends AbstractModule {
         requireBinding(CustomPropertySetService.class);
         requireBinding(PropertySpecService.class);
         requireBinding(SearchService.class);
-        requireBinding(UsagePointLifeCycleConfigurationService.class);
+//        requireBinding(UsagePointLifeCycleConfigurationService.class);
 
         bindConstant().annotatedWith(Names.named("requiredReadingTypes")).to(readingTypes);
         bindConstant().annotatedWith(Names.named("createReadingTypes")).to(createReadingTypes);

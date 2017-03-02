@@ -390,6 +390,9 @@ public enum TableSpecs {
             Column stateMachine = table.column("FSM").number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column locationIdColumn = table.column("LOCATIONID").number().conversion(NUMBER2LONGNULLZERO).since(version(10, 2)).add();
             table.column("GEOCOORDINATES").sdoGeometry().conversion(SDOGEOMETRY2SPATIALGEOOBJ).map("spatialCoordinates").since(version(10, 2)).add();
+            table.column("MANUFACTURER").varChar(NAME_LENGTH).map("manufacturer").since(version(10, 3)).add();
+            table.column("MODELNBR").varChar(NAME_LENGTH).map("modelNbr").since(version(10, 3)).add();
+            table.column("MODELVERSION").varChar(NAME_LENGTH).map("modelVersion").since(version(10, 3)).add();
             table.addAuditColumns();
             table.primaryKey("PK_MTR_METER").on(idColumn).add();
             table.foreignKey("FK_MTR_METERAMRSYSTEM")
@@ -1660,7 +1663,7 @@ public enum TableSpecs {
             table.since(version(10, 2));
 
             Column idColumn = table.addAutoIdColumn();
-            List<Column> intervalColumns = table.addIntervalColumns(EffectiveMetrologyContractOnUsagePointImpl.Fields.INTERVAL.fieldName());
+            table.addIntervalColumns(EffectiveMetrologyContractOnUsagePointImpl.Fields.INTERVAL.fieldName());
             Column effectiveConfColumn = table.column(EffectiveMetrologyContractOnUsagePointImpl.Fields.EFFECTIVE_CONF.name()).number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column metrologyContractColumn = table.column(EffectiveMetrologyContractOnUsagePointImpl.Fields.METROLOGY_CONTRACT.name()).number().conversion(ColumnConversion.NUMBER2LONG).add();
 
