@@ -92,7 +92,8 @@ class MeterActivationChannelsContainerImpl extends ChannelsContainerImpl {
                                         .map(container -> {
                                             MetrologyContractCalculationIntrospector introspector =
                                                     aggregationService.introspect(effectiveMC.getUsagePoint(), contract, effectiveMC.getRange());
-                                            Map<Channel, Range<Instant>> directlyDependentScope = contract.getDeliverables().stream()
+                                            // introspector finds direct dependencies as well as transitive
+                                            return contract.getDeliverables().stream()
                                                     .map(deliverable -> Pair.of(
                                                             deliverable.getReadingType(),
                                                             filterDependencyScope(scope, deliverable, introspector)))
@@ -100,15 +101,10 @@ class MeterActivationChannelsContainerImpl extends ChannelsContainerImpl {
                                                     .map(readingTypeAndRange -> Pair.of(
                                                             container.getChannel(readingTypeAndRange.getFirst()).orElse(null),
                                                             readingTypeAndRange.getLast()))
-                                                    .filter(Pair::hasFirst)
-                                                    .collect(Collectors.toMap(Pair::getFirst, Pair::getLast));
-                                            Map<Channel, Range<Instant>> transitiveDependentScope = container
-                                                    .findDependentChannelScope(directlyDependentScope);
-                                            return Stream.concat(directlyDependentScope.entrySet().stream(),
-                                                    transitiveDependentScope.entrySet().stream());
+                                                    .filter(Pair::hasFirst);
                                         })
                                         .orElse(Stream.empty())))
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Range::span))))
+                        .collect(Collectors.toMap(Pair::getFirst, Pair::getLast, Range::span))))
                 .orElse(Collections.emptyMap());
     }
 
