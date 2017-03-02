@@ -241,7 +241,7 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
                         exitProcessesStore.removeAll();
                     }
 
-                    widget.down('#usagepoint-life-cycle-link').setText(usagePointLifeCycleRecord.get('name'));
+                    widget.down('#states-side-menu').setHeader(usagePointLifeCycleRecord.get('name'));
                     me.getApplication().fireEvent('changecontentevent', widget);
                     mainView.setLoading(false);
                 }
