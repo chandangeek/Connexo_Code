@@ -4,8 +4,10 @@
 
 package com.elster.jupiter.kore.api.v2;
 
+import java.time.Instant;
+
 public class UsagePointConnectionStateInfo {
     public String connectionStateId;
-    public Long startDate;
-    public Long endDate;
+    public Instant startDate;
+    public Instant endDate;
 }

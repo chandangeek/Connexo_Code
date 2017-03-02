@@ -9,6 +9,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommand;
 import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandCallbackInfo;
 import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandInfo;
+import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.Location;
@@ -151,6 +152,8 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         info.aliasName = "alias";
         info.version = 2L;
         info.description = "description";
+        info.connectionState = new UsagePointConnectionStateInfo();
+        info.connectionState.connectionStateId = ConnectionState.CONNECTED.getId();
 
         UsagePoint usagePoint = mockUsagePoint(MRID, 2L, ServiceKind.ELECTRICITY);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
@@ -160,6 +163,8 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        verify(usagePoint).setConnectionState(ConnectionState.CONNECTED, clock.instant());
     }
 
     @Test

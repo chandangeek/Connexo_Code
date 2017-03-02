@@ -19,10 +19,6 @@
     <name>[Jupiter] com.elster.jupiter.kore.api.rest</name>
     <description>Kore public REST api</description>
 
-    <properties>
-        <api.version>1.0</api.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.hibernate</groupId>
@@ -231,9 +227,54 @@
                         <artifactId>miredot-plugin</artifactId>
                         <executions>
                             <execution>
+                                <id>v1-doc</id>
                                 <goals>
                                     <goal>restdoc</goal>
                                 </goals>
+                                <configuration>
+                                    <output>
+                                        <title>Platform API v1</title>
+                                        <html>
+                                            <baseUrl>http://localhost:8080/public/api/coko/v1</baseUrl>
+                                            <location>miredot/${project.version}/v1</location>
+                                        </html>
+                                    </output>
+                                    <restModel>
+                                        <filter>
+                                            <includes>
+                                                <include>com.elster.jupiter.kore.api.v1.*</include>
+                                            </includes>
+                                            <excludes>
+                                                <exclude>com.elster.jupiter.kore.api.v2.*</exclude>
+                                            </excludes>
+                                        </filter>
+                                    </restModel>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>v2-doc</id>
+                                <goals>
+                                    <goal>restdoc</goal>
+                                </goals>
+                                <configuration>
+                                    <output>
+                                        <title>Platform API v2</title>
+                                        <html>
+                                            <baseUrl>http://localhost:8080/public/api/coko/v2</baseUrl>
+                                            <location>miredot/${project.version}/v2</location>
+                                        </html>
+                                    </output>
+                                    <restModel>
+                                        <filter>
+                                            <includes>
+                                                <include>com.elster.jupiter.kore.api.v2.*</include>
+                                            </includes>
+                                            <excludes>
+                                                <exclude>com.elster.jupiter.kore.api.v1.*</exclude>
+                                            </excludes>
+                                        </filter>
+                                    </restModel>
+                                </configuration>
                             </execution>
                         </executions>
                         <configuration>
@@ -255,12 +296,6 @@
                                     <PARTIAL_RESOURCE_OVERLAP>warn</PARTIAL_RESOURCE_OVERLAP>
                                 </checks>
                             </analysis>
-                            <output>
-                                <title>Platform API v${api.version}</title>
-                                <html>
-                                    <baseUrl>http://localhost:8080/public/api/coko/v${api.version}</baseUrl>
-                                </html>
-                            </output>
 
                             <restModel>
                                 <externalSources>
