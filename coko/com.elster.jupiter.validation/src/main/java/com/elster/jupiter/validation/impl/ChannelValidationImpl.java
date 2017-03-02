@@ -142,9 +142,6 @@ final class ChannelValidationImpl implements ChannelValidation {
         Instant lastCheckedCandidate = instant.minusMillis(1);
         Instant minLastChecked = minLastChecked();
         return updateLastChecked(minLastChecked.isAfter(lastCheckedCandidate) ? minLastChecked : lastCheckedCandidate);
-//        // Doesn't work for aggregated channels
-//        Optional<BaseReadingRecord> reading = getChannel().getReadingsBefore(instant, 1).stream().findFirst();
-//        return updateLastChecked(reading.map(BaseReading::getTimeStamp).orElseGet(this::minLastChecked));
     }
 
     @Override
