@@ -118,6 +118,7 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
         form.updateRecord();
         record = form.getRecord();
         record.getProxy().url = '/api/isu/creationrules/validateaction';
+        record.getProxy().extraParams = ({reason_name: me.getStore('Dal.store.Clipboard').get('alarmsCreationRuleState').get('reason_id')});
         record.save({
             callback: function (validatedRecord, operation, success) {
                 var json;
