@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.alarms.impl;
 
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
@@ -92,6 +93,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     private volatile UserService userService;
     private volatile MeteringService meteringService;
     private volatile TimeService timeService;
+    private volatile BpmService bpmService;
 
     // For OSGi framework
     public DeviceAlarmServiceImpl() {
@@ -109,6 +111,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                                   UpgradeService upgradeService,
                                   UserService userService,
                                   MeteringService meteringService,
+                                  BpmService bpmService,
                                   TimeService timeService) {
         this();
         setMessageService(messageService);
@@ -122,6 +125,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         setUserService(userService);
         setMeteringService(meteringService);
         setTimeService(timeService);
+        setBpmService(bpmService);
 
         activate();
     }
@@ -143,6 +147,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                 bind(EventService.class).toInstance(eventService);
                 bind(UserService.class).toInstance(userService);
                 bind(TimeService.class).toInstance(timeService);
+                bind(BpmService.class).toInstance(bpmService);
             }
         });
         upgradeService.register(identifier("MultiSense", DeviceAlarmService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
@@ -157,6 +162,11 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     @Reference
     public final void setMessageService(MessageService messageService) {
         this.messageService = messageService;
+    }
+
+    @Reference
+    public final void setBpmService(BpmService bpmService) {
+        this.bpmService = bpmService;
     }
 
     @Reference

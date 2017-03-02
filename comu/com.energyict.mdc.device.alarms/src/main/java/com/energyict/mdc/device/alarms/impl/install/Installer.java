@@ -26,6 +26,7 @@ import com.energyict.mdc.device.alarms.impl.DeviceAlarmActionsFactory;
 import com.energyict.mdc.device.alarms.impl.ModuleConstants;
 import com.energyict.mdc.device.alarms.impl.actions.AssignDeviceAlarmAction;
 import com.energyict.mdc.device.alarms.impl.actions.CloseDeviceAlarmAction;
+import com.energyict.mdc.device.alarms.impl.actions.StartProcessAlarmAction;
 import com.energyict.mdc.device.alarms.impl.database.CreateDeviceAlarmViewOperation;
 import com.energyict.mdc.device.alarms.impl.event.DeviceAlarmEventDescription;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
@@ -132,8 +133,9 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         issueService.createReason(ModuleConstants.ALARM_REASON, issueType,
                 TranslationKeys.ALARM_REASON, TranslationKeys.ALARM_REASON_DESCRIPTION);
         IssueType deviceAlarmType = issueService.findIssueType(DeviceAlarmService.DEVICE_ALARM).get();
-        issueActionService.createActionType(DeviceAlarmActionsFactory.ID, AssignDeviceAlarmAction.class.getName(), deviceAlarmType, CreationRuleActionPhase.CREATE);
-        issueActionService.createActionType(DeviceAlarmActionsFactory.ID, CloseDeviceAlarmAction.class.getName(), deviceAlarmType, CreationRuleActionPhase.OVERDUE);
+        issueActionService.createActionType(DeviceAlarmActionsFactory.ID, AssignDeviceAlarmAction.class.getName(), deviceAlarmType, null);
+        issueActionService.createActionType(DeviceAlarmActionsFactory.ID, StartProcessAlarmAction.class.getName(), deviceAlarmType, null);
+        issueActionService.createActionType(DeviceAlarmActionsFactory.ID, CloseDeviceAlarmAction.class.getName(), deviceAlarmType, CreationRuleActionPhase.NOT_APPLICABLE);
     }
 
     private void createRelativePeriodCategory() {
