@@ -28,7 +28,10 @@ public enum DeviceSearchModelTranslationKeys implements TranslationKey {
     HAS_OPEN_DATA_VALIDATION_ISSUES("hasOpenDataValidationIssues", "Data validation issues"),
     LOCATION("location", "Location"),
     DEVICE_DATA_STATE_ACTIVE("deviceDataStateActive", "Active"),
-    DEVICE_DATA_STATE_INACTIVE("deviceDataStateInactive", "Inactive")
+    DEVICE_DATA_STATE_INACTIVE("deviceDataStateInactive", "Inactive"),
+    MANUFACTURER("manufacturer", "Manufacturer"),
+    MODEL_NUMBER("modelNbr", "Model number"),
+    MODEL_VERSION("modelVersion", "Model version")
     ;
 
     private String key;
