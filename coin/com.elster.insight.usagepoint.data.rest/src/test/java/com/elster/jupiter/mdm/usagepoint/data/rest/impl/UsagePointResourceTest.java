@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.bpm.ProcessInstanceInfo;
 import com.elster.jupiter.bpm.ProcessInstanceInfos;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -61,6 +62,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -720,6 +722,41 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     }
 
     @Test
+    public void testGetHistoryOfMeters() throws Exception {
+        MeterActivation meterActivation = mock(MeterActivation.class);
+        Meter meter = mock(Meter.class);
+        HeadEndInterface headEndInterface = mock(HeadEndInterface.class);
+        MeterRole meterRole = mock(MeterRole.class);
+        ProcessInstanceInfo processInstanceInfo = new ProcessInstanceInfo();
+        processInstanceInfo.processId = "1";
+        processInstanceInfo.name = "Replace meter";
+        ProcessInstanceInfos processInstanceInfos = new ProcessInstanceInfos(Collections.singletonList(processInstanceInfo));
+        when(meterRole.getDisplayName()).thenReturn("Meter role");
+        when(meterActivation.getId()).thenReturn(1L);
+        when(meterActivation.getStart()).thenReturn(Instant.ofEpochMilli(1486466700000L));
+        when(meterActivation.getMeterRole()).thenReturn(Optional.of(meterRole));
+        when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
+        when(usagePoint.getMeterActivations()).thenReturn(Collections.singletonList(meterActivation));
+        when(usagePoint.getMRID()).thenReturn("40a4-cb543");
+        when(meter.getName()).thenReturn("Meter");
+        when(meter.getHeadEndInterface()).thenReturn(Optional.of(headEndInterface));
+        when(meter.getMRID()).thenReturn("38c2-44b5");
+        when(headEndInterface.getURLForEndDevice(meter)).thenReturn(Optional.of(new URL("http://localhost:8989/apps/multisense/index.html#/devices/D1")));
+        when(bpmService.getRunningProcesses(any(), any())).thenReturn(processInstanceInfos);
+
+        String json = target("/usagepoints/" + USAGE_POINT_NAME + "/history/meters").request().get(String.class);
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<List>get("$.meters")).hasSize(1);
+        assertThat(jsonModel.<Integer>get("$.meters[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<Long>get("$.meters[0].start")).isEqualTo(1486466700000L);
+        assertThat(jsonModel.<Boolean>get("$.meters[0].current")).isEqualTo(true);
+        assertThat(jsonModel.<String>get("$.meters[0].meter")).isEqualTo("Meter");
+        assertThat(jsonModel.<String>get("$.meters[0].url")).isEqualTo("http://localhost:8989/apps/multisense/index.html#/devices/D1");
+        assertThat(jsonModel.<String>get("$.meters[0].meterRole")).isEqualTo("Meter role");
+        assertThat(jsonModel.<List>get("$.meters[0].ongoingProcesses")).hasSize(1);
+        assertThat(jsonModel.<String>get("$.meters[0].ongoingProcesses[0].id")).isEqualTo("1");
+        assertThat(jsonModel.<String>get("$.meters[0].ongoingProcesses[0].name")).isEqualTo("Replace meter");
     public void testGetValidationTasksOnUsagePoint() throws Exception {
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/validationtasks").request().get();
         assertThat(response.getStatus()).isEqualTo(200);

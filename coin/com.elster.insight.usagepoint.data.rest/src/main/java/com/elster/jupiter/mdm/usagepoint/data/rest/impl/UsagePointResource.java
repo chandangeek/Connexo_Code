@@ -166,6 +166,7 @@ public class UsagePointResource {
     private final UsagePointDataCompletionService usagePointDataCompletionService;
     private final ReadingTypeDeliverableFactory readingTypeDeliverableFactory;
     private final DataValidationTaskInfoFactory dataValidationTaskInfoFactory;
+    private final HistoricalMeterActivationInfoFactory historicalMeterActivationInfoFactory;
     private final TransactionService transactionService;
     private final UsagePointLifeCycleService usagePointLifeCycleService;
     private final PropertyValueInfoService propertyValueInfoService;
@@ -196,6 +197,7 @@ public class UsagePointResource {
                               Provider<UsagePointOutputResource> usagePointOutputResourceProvider,
                               ReadingTypeDeliverableFactory readingTypeDeliverableFactory,
                               DataValidationTaskInfoFactory dataValidationTaskInfoFactory,
+                              HistoricalMeterActivationInfoFactory historicalMeterActivationInfoFactory,
                               TransactionService transactionService,
                               UsagePointLifeCycleService usagePointLifeCycleService,
                               PropertyValueInfoService propertyValueInfoService,
@@ -224,6 +226,7 @@ public class UsagePointResource {
         this.usagePointOutputResourceProvider = usagePointOutputResourceProvider;
         this.readingTypeDeliverableFactory = readingTypeDeliverableFactory;
         this.dataValidationTaskInfoFactory = dataValidationTaskInfoFactory;
+        this.historicalMeterActivationInfoFactory = historicalMeterActivationInfoFactory;
         this.transactionService = transactionService;
         this.usagePointLifeCycleService = usagePointLifeCycleService;
         this.propertyValueInfoService = propertyValueInfoService;
@@ -888,6 +891,20 @@ public class UsagePointResource {
                 .map(readingTypeDeliverableFactory::asInfo)
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("deliverables", deliverables, queryParameters);
+    }
+    
+    @GET
+    @Path("/{name}/history/meters")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
+            Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getHistoryOfMeters(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @HeaderParam("Authorization") String auth) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        List<HistoricalMeterActivationInfo> meterActivationInfoList = usagePoint.getMeterActivations().stream()
+                .map(ma -> historicalMeterActivationInfoFactory.from(ma, usagePoint, auth))
+                .sorted(Comparator.comparing((HistoricalMeterActivationInfo info) -> info.start).reversed().thenComparing(info -> info.meterRole).thenComparing(info -> info.meter))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("meters", meterActivationInfoList, queryParameters);
     }
 
     @GET

@@ -406,6 +406,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(UsagePointInfoFactory.class).to(UsagePointInfoFactory.class);
             bind(OutputChannelDataInfoFactory.class).to(OutputChannelDataInfoFactory.class);
+            bind(HistoricalMeterActivationInfoFactory.class).to(HistoricalMeterActivationInfoFactory.class);
             bind(OutputRegisterDataInfoFactory.class).to(OutputRegisterDataInfoFactory.class);
             bind(LocationInfoFactory.class).to(LocationInfoFactory.class);
             bind(GoingOnResource.class).to(GoingOnResource.class);
