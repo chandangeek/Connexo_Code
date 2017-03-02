@@ -13,7 +13,7 @@ Ext.define('Fim.view.log.Menu', {
         if (me.router.arguments.importServiceId) {
             me.menuItems = [
                 {
-                    text: Uni.I18n.translate('general.overview', 'FIM', 'Overview'),
+                    text: Uni.I18n.translate('general.details', 'FIM', 'Details'),
                     itemId: 'import-service-log-view-link',
                     href: '#/administration/importservices/' + me.router.arguments.importServiceId
                 }

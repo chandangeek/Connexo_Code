@@ -7,15 +7,17 @@ Ext.define('Fim.view.history.Menu', {
     alias: 'widget.fim-history-menu',
 
     router: null,
-    title: '',
     showImportService: false,
+
+    title: Uni.I18n.translate('general.importService', 'FIM', 'Import service'),
+    objectType: Uni.I18n.translate('general.importService', 'FIM', 'Import service'),
 
     initComponent: function () {
         var me = this;
 
         me.menuItems = [
             {
-                text: Uni.I18n.translate('general.overview', 'FIM', 'Overview'),
+                text: Uni.I18n.translate('general.details', 'FIM', 'Details'),
                 hidden: me.showImportService,
                 itemId: 'import-service-view-link',
                 href: '#/administration/importservices/' + this.importServiceId
