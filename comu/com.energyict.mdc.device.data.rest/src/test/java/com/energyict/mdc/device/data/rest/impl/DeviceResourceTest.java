@@ -273,10 +273,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
                 .containsKey("comWindowEnd")
                 .containsKey("comPortPool")
                 .containsKey("isDefault")
-                .containsKey("connectionStrategy")
+                .containsKey("connectionStrategyInfo")
                 .containsKey("properties")
                 .containsKey("numberOfSimultaneousConnections")
                 .containsKey("rescheduleRetryDelay")
+                .containsKey("protocolDialect")
                 .containsKey("nextExecutionSpecs");
     }
 

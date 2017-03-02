@@ -12,12 +12,14 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -51,6 +53,7 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
     public TimeDurationInfo rescheduleRetryDelay;
     public TemporalExpressionInfo nextExecutionSpecs;
     public String protocolDialect;
+    public String protocolDialectDisplayName;
 
     public ConnectionMethodInfo() {
     }
@@ -66,7 +69,11 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
         List<PropertySpec> propertySpecs = connectionTask.getConnectionType().getPropertySpecs();
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         this.properties = new ArrayList<>();
-        this.protocolDialect = connectionTask.getProtocolDialectConfigurationProperties().getDeviceProtocolDialectName();
+        ProtocolDialectConfigurationProperties dialectConfigurationProperties = connectionTask.getProtocolDialectConfigurationProperties();
+        this.protocolDialect = dialectConfigurationProperties.getDeviceProtocolDialectName();
+        DeviceProtocolDialect protocolDialect =  dialectConfigurationProperties.getDeviceProtocolDialect();
+        if (protocolDialect != null)
+            this.protocolDialectDisplayName = protocolDialect.getDisplayName();
         mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, typedProperties, this.properties);
         this.version = connectionTask.getVersion();
         Device device = connectionTask.getDevice();

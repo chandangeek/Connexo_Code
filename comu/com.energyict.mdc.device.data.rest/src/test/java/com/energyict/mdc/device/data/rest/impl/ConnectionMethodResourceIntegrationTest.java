@@ -40,6 +40,8 @@ import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.Device;
@@ -106,6 +108,7 @@ import org.mockito.MockitoAnnotations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 /**
@@ -186,6 +189,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceProtocol.getCustomPropertySet()).thenReturn(Optional.empty());
         registerConnectionTypePluggableClasses();
+        initializeMocks();
     }
 
     private static void registerConnectionTypePluggableClasses() {
@@ -205,10 +209,10 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         inMemoryPersistence.cleanUpDataBase();
     }
 
-    @BeforeClass
     public static void initializeMocks() {
         try (TransactionContext context = inMemoryPersistence.getTransactionService().getContext()) {
-
+            PartialConnectionTaskProtocolDialect protocolDialect = new PartialConnectionTaskProtocolDialect();
+            when(deviceProtocol.getDeviceProtocolDialects()).thenReturn(Collections.singletonList(protocolDialect));
             deviceMessageIds = EnumSet.of(DeviceMessageId.CONTACTOR_CLOSE,
                     DeviceMessageId.CONTACTOR_OPEN,
                     DeviceMessageId.CONTACTOR_ARM,
@@ -224,13 +228,14 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
             when(encryptionAccessLevel.getId()).thenReturn(anySecurityLevel);
             when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(encryptionAccessLevel));
             when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.values()));
-
             freezeClock(2014, Calendar.JANUARY, 1); // Experiencing timing issues in tests that set clock back in time and the respective devices need their device life cycle
             deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
+      //      when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
             DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
             deviceConfigurationBuilder.isDirectlyAddressable(true);
             deviceConfiguration = deviceConfigurationBuilder.add();
-            protocolDialectConfigurationProperties = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new PartialConnectionTaskProtocolDialect());
+
+            protocolDialectConfigurationProperties = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(protocolDialect);
 
             as1440WithoutProperties = deviceConfiguration.newPartialScheduledConnectionTask(AS_1440_INCOMPLETE, outboundIpConnectionTypePluggableClass, TimeDuration.hours(1), ConnectionStrategy.AS_SOON_AS_POSSIBLE, protocolDialectConfigurationProperties).build();
             as1440WithProperties = deviceConfiguration.newPartialScheduledConnectionTask(AS_1440_COMPLETED, outboundIpConnectionTypePluggableClass, TimeDuration.hours(1), ConnectionStrategy.AS_SOON_AS_POSSIBLE, protocolDialectConfigurationProperties).
@@ -385,20 +390,8 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
             device.save();
             transactionContext.commit();
         }
-        ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
-        info.name = AS_1440_INCOMPLETE;
+        ScheduledConnectionMethodInfo info = updateInfo(null);
         info.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
-        info.nextExecutionSpecs = new TemporalExpressionInfo();
-        info.nextExecutionSpecs.every = new TimeDurationInfo();
-        info.nextExecutionSpecs.every.count = 15;
-        info.nextExecutionSpecs.every.timeUnit = "minutes";
-        info.version = 0L;
-        DeviceConnectionTaskInfo.ConnectionStrategyInfo strategyInfo= new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
-        strategyInfo.connectionStrategy = "AS_SOON_AS_POSSIBLE";
-        strategyInfo.localizedValue = "As soon as Possible";
-        info.connectionStrategy = strategyInfo;
-        info.comPortPool = "Whirlpool";
-        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
 
         Response response = target("/devices/AGENT007/connectionmethods").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
@@ -417,20 +410,8 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
             device.save();
             transactionContext.commit();
         }
-        ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
-        info.name = AS_1440_INCOMPLETE;
-        info.status = ConnectionTaskLifecycleStatus.ACTIVE;
-        info.nextExecutionSpecs = new TemporalExpressionInfo();
-        info.nextExecutionSpecs.every = new TimeDurationInfo();
-        info.nextExecutionSpecs.every.count = 15;
-        info.nextExecutionSpecs.every.timeUnit = "minutes";
-        info.version = 0L;
-        DeviceConnectionTaskInfo.ConnectionStrategyInfo strategyInfo= new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
-        strategyInfo.connectionStrategy = "AS_SOON_AS_POSSIBLE";
-        strategyInfo.localizedValue = "As soon as Possible";
-        info.connectionStrategy = strategyInfo;
-        info.comPortPool = "Whirlpool";
-        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
+
+        ScheduledConnectionMethodInfo info = updateInfo(null);
 
         Response response = target("/devices/AGENT009/connectionmethods").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -446,19 +427,8 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
             device.save();
             transactionContext.commit();
         }
-        ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
-        info.name = AS_1440_INCOMPLETE;
-        info.status = ConnectionTaskLifecycleStatus.ACTIVE;
-        info.nextExecutionSpecs = new TemporalExpressionInfo();
-        info.nextExecutionSpecs.every = new TimeDurationInfo();
-        info.nextExecutionSpecs.every.count = 15;
-        info.nextExecutionSpecs.every.timeUnit = "minutes";
-        info.version = 0L;
-        DeviceConnectionTaskInfo.ConnectionStrategyInfo strategyInfo= new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
-        strategyInfo.connectionStrategy = "AS_SOON_AS_POSSIBLE";
-        strategyInfo.localizedValue = "As soon as Possible";
-        info.connectionStrategy = strategyInfo;
-        info.comPortPool = "Whirlpool";
+
+        ScheduledConnectionMethodInfo info = updateInfo(null);
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
@@ -480,20 +450,8 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
             device.save();
             transactionContext.commit();
         }
-        ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
-        info.name = AS_1440_INCOMPLETE;
-        info.status = ConnectionTaskLifecycleStatus.ACTIVE;
-        info.nextExecutionSpecs = new TemporalExpressionInfo();
-        info.nextExecutionSpecs.every = new TimeDurationInfo();
-        info.nextExecutionSpecs.every.count = 15;
-        info.nextExecutionSpecs.every.timeUnit = "minutes";
-        info.version = 0L;
-        DeviceConnectionTaskInfo.ConnectionStrategyInfo strategyInfo= new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
-        strategyInfo.connectionStrategy = "AS_SOON_AS_POSSIBLE";
-        strategyInfo.localizedValue = "As soon as Possible";
-        info.connectionStrategy = strategyInfo;
-        info.comPortPool = "Whirlpool";
-        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
+
+        ScheduledConnectionMethodInfo info = updateInfo(null);
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
         info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(4096, true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
@@ -524,21 +482,8 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
                     add();
             transactionContext.commit();
         }
-        ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
-        info.name = AS_1440_INCOMPLETE;
-        info.status = ConnectionTaskLifecycleStatus.ACTIVE;
-        info.nextExecutionSpecs = new TemporalExpressionInfo();
-        info.nextExecutionSpecs.every = new TimeDurationInfo();
-        info.nextExecutionSpecs.every.count = 15;
-        info.nextExecutionSpecs.every.timeUnit = "minutes";
-        info.version = scheduledConnectionTask.getVersion();
-        DeviceConnectionTaskInfo.ConnectionStrategyInfo strategyInfo= new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
-        strategyInfo.connectionStrategy = "AS_SOON_AS_POSSIBLE";
-        strategyInfo.localizedValue = "As soon as Possible";
-        info.connectionStrategy = strategyInfo;
-        info.comPortPool = "Whirlpool";
-        info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
-        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
+
+        ScheduledConnectionMethodInfo info = updateInfo(scheduledConnectionTask);
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
 
@@ -555,44 +500,19 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
 
     @Test
     public void testUpdateAlreadyCompletedScheduledConnectionMethodWithAllPropertiesFromIncompleteConfig() {
-        Device device;
         ScheduledConnectionTask scheduledConnectionTask;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
-            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "AGENT012", Instant.now());
-            device.save();
-            scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(as1440WithoutProperties).
-                    setComPortPool(whirlpool).
-                    setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties).
-                    setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE).
-                    setConnectionTaskLifecycleStatus(ConnectionTaskLifecycleStatus.ACTIVE).
-                    setProperty("ipAddress", "1.1.1.256").
-                    setProperty("port", BigDecimal.valueOf(9998)).
-                    setNextExecutionSpecsFrom(new TemporalExpression(TimeDuration.days(1))).
-                    add();
+            scheduledConnectionTask = addScheduledConnectionTask(createDevice("AGENT012"), as1440WithoutProperties, ConnectionTaskLifecycleStatus.ACTIVE, true, BigDecimal.valueOf(9998), "1.1.1.256");
             transactionContext.commit();
         }
-        ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
-        info.name = AS_1440_INCOMPLETE;
-        info.status = ConnectionTaskLifecycleStatus.ACTIVE;
-        info.nextExecutionSpecs = new TemporalExpressionInfo();
-        info.nextExecutionSpecs.every = new TimeDurationInfo();
-        info.nextExecutionSpecs.every.count = 15;
-        info.nextExecutionSpecs.every.timeUnit = "minutes";
-        info.version = scheduledConnectionTask.getVersion();
-        DeviceConnectionTaskInfo.ConnectionStrategyInfo strategyInfo= new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
-        strategyInfo.connectionStrategy = "AS_SOON_AS_POSSIBLE";
-        strategyInfo.localizedValue = "As soon as Possible";
-        info.connectionStrategy = strategyInfo;
-        info.comPortPool = "Whirlpool";
-        info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
-        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
+        ScheduledConnectionMethodInfo info = updateInfo(scheduledConnectionTask);
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", true, null),
                 new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
 
         Response response = target("/devices/AGENT012/connectionmethods/"+scheduledConnectionTask.getId()).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        Optional<Device> agent = inMemoryPersistence.getDeviceService().findDeviceByName(device.getName());
+        Optional<Device> agent = inMemoryPersistence.getDeviceService().findDeviceByName("AGENT012");
         assertThat(agent).isPresent();
         assertThat(agent.get().getConnectionTasks()).hasSize(1);
         ConnectionTask connectionTask = agent.get().getConnectionTasks().get(0);
@@ -601,43 +521,20 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     }
 
     @Test
-    public void testUpdateImcompleteScheduledConnectionMethodWithAllPropertiesFromIncompleteConfig() {
-        Device device;
+    public void testUpdateIncompleteScheduledConnectionMethodWithAllPropertiesFromIncompleteConfig() {
         ScheduledConnectionTask scheduledConnectionTask;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
-            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "AGENT013", Instant.now());
-            device.save();
-            scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(as1440WithoutProperties).
-                    setComPortPool(whirlpool).
-                    setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties).
-                    setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE).
-                    setConnectionTaskLifecycleStatus(ConnectionTaskLifecycleStatus.INCOMPLETE).
-                    setNextExecutionSpecsFrom(new TemporalExpression(TimeDuration.days(1))).
-                    add();
+            scheduledConnectionTask = addScheduledConnectionTask(createDevice("AGENT013"), as1440WithoutProperties, ConnectionTaskLifecycleStatus.INCOMPLETE, false, null, null);
             transactionContext.commit();
         }
-        ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
-        info.name = AS_1440_INCOMPLETE;
-        info.status = ConnectionTaskLifecycleStatus.ACTIVE;
-        info.nextExecutionSpecs = new TemporalExpressionInfo();
-        info.nextExecutionSpecs.every = new TimeDurationInfo();
-        info.nextExecutionSpecs.every.count = 15;
-        info.nextExecutionSpecs.every.timeUnit = "minutes";
-        info.version = scheduledConnectionTask.getVersion();
-        DeviceConnectionTaskInfo.ConnectionStrategyInfo strategyInfo= new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
-        strategyInfo.connectionStrategy = "AS_SOON_AS_POSSIBLE";
-        strategyInfo.localizedValue = "As soon as Possible";
-        info.connectionStrategy = strategyInfo;
-        info.comPortPool = "Whirlpool";
-        info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
-        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
+        ScheduledConnectionMethodInfo info = updateInfo(scheduledConnectionTask);
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", true, null),
                 new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
 
         Response response = target("/devices/AGENT013/connectionmethods/"+scheduledConnectionTask.getId()).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        Optional<Device> agent = inMemoryPersistence.getDeviceService().findDeviceByName(device.getName());
+        Optional<Device> agent = inMemoryPersistence.getDeviceService().findDeviceByName("AGENT013");
         assertThat(agent).isPresent();
         assertThat(agent.get().getConnectionTasks()).hasSize(1);
         ConnectionTask connectionTask = agent.get().getConnectionTasks().get(0);
@@ -653,20 +550,8 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
             device.save();
             transactionContext.commit();
         }
-        ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
+        ScheduledConnectionMethodInfo info = updateInfo(null);
         info.name = AS_1440_COMPLETED; // <-- we inherit value for ip address and port
-        info.status = ConnectionTaskLifecycleStatus.ACTIVE;
-        info.nextExecutionSpecs = new TemporalExpressionInfo();
-        info.nextExecutionSpecs.every = new TimeDurationInfo();
-        info.nextExecutionSpecs.every.count = 15;
-        info.nextExecutionSpecs.every.timeUnit = "minutes";
-        info.version = 0L;
-        DeviceConnectionTaskInfo.ConnectionStrategyInfo strategyInfo= new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
-        strategyInfo.connectionStrategy = "AS_SOON_AS_POSSIBLE";
-        strategyInfo.localizedValue = "As soon as Possible";
-        info.connectionStrategy = strategyInfo;
-        info.comPortPool = "Whirlpool";
-        info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>(null, true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
@@ -685,44 +570,18 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
 
     @Test
     public void testUpdateScheduledConnectionMethodUndoPreviouslySetRequiredPropertyFromCompleteConfig() throws IOException {
-        Device device;
-        ConnectionTask scheduledConnectionTask;
+        ScheduledConnectionTask scheduledConnectionTask;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
-            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "AGENT015", Instant.now());
-            device.save();
-            scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(as1440WithProperties).
-                    setComPortPool(whirlpool).
-                    setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties).
-                    setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE).
-                    setConnectionTaskLifecycleStatus(ConnectionTaskLifecycleStatus.INCOMPLETE).
-                    setNextExecutionSpecsFrom(new TemporalExpression(TimeDuration.days(1))).
-                    setProperty("port", PORT_FROM_PARTIAL).
-                    setProperty("ipAddress", "6.6.6.6"). // <- overriden value
-                    add();
+            scheduledConnectionTask = addScheduledConnectionTask(createDevice("AGENT015"), as1440WithProperties, ConnectionTaskLifecycleStatus.INCOMPLETE, true, PORT_FROM_PARTIAL, null);
             transactionContext.commit();
         }
-
-        ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
-        info.name = AS_1440_COMPLETED; // <-- we inherit value for ip address and port
-        info.status = ConnectionTaskLifecycleStatus.ACTIVE;
-        info.nextExecutionSpecs = new TemporalExpressionInfo();
-        info.nextExecutionSpecs.every = new TimeDurationInfo();
-        info.nextExecutionSpecs.every.count = 15;
-        info.nextExecutionSpecs.every.timeUnit = "minutes";
-        info.version = scheduledConnectionTask.getVersion();
-        DeviceConnectionTaskInfo.ConnectionStrategyInfo strategyInfo= new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
-        strategyInfo.connectionStrategy = "AS_SOON_AS_POSSIBLE";
-        strategyInfo.localizedValue = "As soon as Possible";
-        info.connectionStrategy = strategyInfo;
-        info.comPortPool = "Whirlpool";
-        info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
+        ScheduledConnectionMethodInfo info = updateInfo(scheduledConnectionTask);
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>(null, true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
-        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
 
         Response response = target("/devices/AGENT015/connectionmethods/"+scheduledConnectionTask.getId()).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        Optional<Device> agent = inMemoryPersistence.getDeviceService().findDeviceByName(device.getName());
+        Optional<Device> agent = inMemoryPersistence.getDeviceService().findDeviceByName("AGENT015");
         assertThat(agent).isPresent();
         assertThat(agent.get().getConnectionTasks()).hasSize(1);
         ConnectionTask connectionTask = agent.get().getConnectionTasks().get(0);
@@ -732,36 +591,13 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     }
 
     @Test
-    public void testUpdateImcompleteScheduledConnectionMethodWithMissingRequiredPropertiesFromIncompleteConfig() throws IOException {
-        Device device;
+    public void testUpdateIncompleteScheduledConnectionMethodWithMissingRequiredPropertiesFromIncompleteConfig() throws IOException {
         ScheduledConnectionTask scheduledConnectionTask;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
-            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "AGENT016", Instant.now());
-            device.save();
-            scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(as1440WithoutProperties).
-                    setComPortPool(whirlpool).
-                    setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties).
-                    setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE).
-                    setConnectionTaskLifecycleStatus(ConnectionTaskLifecycleStatus.INCOMPLETE).
-                    setNextExecutionSpecsFrom(new TemporalExpression(TimeDuration.days(1))).
-                    add();
+            scheduledConnectionTask = addScheduledConnectionTask(createDevice("AGENT016"), as1440WithoutProperties, ConnectionTaskLifecycleStatus.INCOMPLETE, false, null, null);
             transactionContext.commit();
         }
-        ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
-        info.name = AS_1440_INCOMPLETE;
-        info.status = ConnectionTaskLifecycleStatus.ACTIVE;
-        info.nextExecutionSpecs = new TemporalExpressionInfo();
-        info.nextExecutionSpecs.every = new TimeDurationInfo();
-        info.nextExecutionSpecs.every.count = 15;
-        info.nextExecutionSpecs.every.timeUnit = "minutes";
-        info.version = scheduledConnectionTask.getVersion();
-        DeviceConnectionTaskInfo.ConnectionStrategyInfo strategyInfo= new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
-        strategyInfo.connectionStrategy = "AS_SOON_AS_POSSIBLE";
-        strategyInfo.localizedValue = "As soon as Possible";
-        info.connectionStrategy = strategyInfo;
-        info.comPortPool = "Whirlpool";
-        info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
-        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
+        ScheduledConnectionMethodInfo info = updateInfo(scheduledConnectionTask);
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(4096, true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
 
@@ -775,37 +611,12 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
 
     @Test
     public void testUpdateCompletedScheduledConnectionMethodWithMissingRequiredPropertiesFromIncompleteConfig() throws IOException {
-        Device device;
         ScheduledConnectionTask scheduledConnectionTask;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
-            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "AGENT017", Instant.now());
-            device.save();
-            scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(as1440WithoutProperties).
-                    setComPortPool(whirlpool).
-                    setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties).
-                    setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE).
-                    setConnectionTaskLifecycleStatus(ConnectionTaskLifecycleStatus.ACTIVE).
-                    setNextExecutionSpecsFrom(new TemporalExpression(TimeDuration.days(1))).
-                    setProperty("ipAddress", "6.6.6.6").
-                    setProperty("port", BigDecimal.valueOf(666)).
-                    add();
+            scheduledConnectionTask = addScheduledConnectionTask(createDevice("AGENT017"), as1440WithoutProperties, ConnectionTaskLifecycleStatus.ACTIVE, true, null, null);
             transactionContext.commit();
         }
-        ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
-        info.name = AS_1440_INCOMPLETE;
-        info.status = ConnectionTaskLifecycleStatus.ACTIVE;
-        info.nextExecutionSpecs = new TemporalExpressionInfo();
-        info.nextExecutionSpecs.every = new TimeDurationInfo();
-        info.nextExecutionSpecs.every.count = 15;
-        info.nextExecutionSpecs.every.timeUnit = "minutes";
-        info.version = scheduledConnectionTask.getVersion();
-        DeviceConnectionTaskInfo.ConnectionStrategyInfo strategyInfo= new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
-        strategyInfo.connectionStrategy = "AS_SOON_AS_POSSIBLE";
-        strategyInfo.localizedValue = "As soon as Possible";
-        info.connectionStrategy = strategyInfo;
-        info.comPortPool = "Whirlpool";
-        info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
-        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
+        ScheduledConnectionMethodInfo info = updateInfo(scheduledConnectionTask);
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(4096, true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
 
@@ -818,37 +629,12 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
 
     @Test
     public void testUpdateCompletedScheduledConnectionMethodWithNullRequiredPropertiesFromIncompleteConfig() throws IOException {
-        Device device;
         ScheduledConnectionTask scheduledConnectionTask;
         try (TransactionContext transactionContext = inMemoryPersistence.getTransactionService().getContext()) {
-            device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "AGENT018", Instant.now());
-            device.save();
-            scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(as1440WithoutProperties).
-                    setComPortPool(whirlpool).
-                    setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties).
-                    setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE).
-                    setConnectionTaskLifecycleStatus(ConnectionTaskLifecycleStatus.ACTIVE).
-                    setNextExecutionSpecsFrom(new TemporalExpression(TimeDuration.days(1))).
-                    setProperty("ipAddress", "6.6.6.6").
-                    setProperty("port", BigDecimal.valueOf(666)).
-                    add();
+            scheduledConnectionTask = addScheduledConnectionTask(createDevice("AGENT018"), as1440WithoutProperties, ConnectionTaskLifecycleStatus.ACTIVE, true, null, null);
             transactionContext.commit();
         }
-        ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
-        info.name = AS_1440_INCOMPLETE;
-        info.status = ConnectionTaskLifecycleStatus.ACTIVE;
-        info.nextExecutionSpecs = new TemporalExpressionInfo();
-        info.nextExecutionSpecs.every = new TimeDurationInfo();
-        info.nextExecutionSpecs.every.count = 15;
-        info.nextExecutionSpecs.every.timeUnit = "minutes";
-        info.version = scheduledConnectionTask.getVersion();
-        DeviceConnectionTaskInfo.ConnectionStrategyInfo strategyInfo= new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
-        strategyInfo.connectionStrategy = "AS_SOON_AS_POSSIBLE";
-        strategyInfo.localizedValue = "As soon as Possible";
-        info.connectionStrategy = strategyInfo;
-        info.comPortPool = "Whirlpool";
-        info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
-        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
+        ScheduledConnectionMethodInfo info = updateInfo(scheduledConnectionTask);
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<>(null, null, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
         info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(4096, null, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
@@ -889,9 +675,10 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         DeviceConnectionTaskInfo.ConnectionStrategyInfo strategyInfo= new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
         strategyInfo.connectionStrategy = "AS_SOON_AS_POSSIBLE";
         strategyInfo.localizedValue = "As soon as Possible";
-        info.connectionStrategy = strategyInfo;
+        info.connectionStrategyInfo = strategyInfo;
         info.comPortPool = "Whirlpool";
         info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
+        info.protocolDialectDisplayName = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", null, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
@@ -906,6 +693,47 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         assertThat(connectionTask.getStatus()).isEqualTo(ConnectionTaskLifecycleStatus.ACTIVE);
         assertThat(connectionTask.getProperty("port")).isNull();
         assertThat(connectionTask.getProperty("ipAddress").getValue()).isEqualTo("10.10.10.1");
+    }
+
+    private ScheduledConnectionMethodInfo updateInfo(ConnectionTask task){
+        ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
+        info.name = AS_1440_INCOMPLETE;
+        info.status = ConnectionTaskLifecycleStatus.ACTIVE;
+        info.nextExecutionSpecs = new TemporalExpressionInfo();
+        info.nextExecutionSpecs.every = new TimeDurationInfo();
+        info.nextExecutionSpecs.every.count = 15;
+        info.nextExecutionSpecs.every.timeUnit = "minutes";
+        if (task != null)
+            info.version = task.getVersion();
+        else
+            info.version = 0L;
+        DeviceConnectionTaskInfo.ConnectionStrategyInfo strategyInfo= new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
+        strategyInfo.connectionStrategy = "AS_SOON_AS_POSSIBLE";
+        strategyInfo.localizedValue = "As soon as Possible";
+        info.connectionStrategyInfo = strategyInfo;
+        info.comPortPool = "Whirlpool";
+        info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
+        info.protocolDialectDisplayName = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
+        if (task != null)
+            info.parent = new VersionInfo<>(task.getDevice().getName(), task.getDevice().getVersion());
+        return info;
+    }
+
+    private Device createDevice(String name){
+        return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, Instant.now());
+    }
+
+    private ScheduledConnectionTask addScheduledConnectionTask(Device device, PartialOutboundConnectionTask partialConnectionTask, ConnectionTaskLifecycleStatus status, boolean complete, BigDecimal port, String ipAddress ){
+        Device.ScheduledConnectionTaskBuilder taskbuilder = device.getScheduledConnectionTaskBuilder(partialConnectionTask);
+        taskbuilder.setComPortPool(whirlpool).
+                setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties).
+                setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE).
+                setConnectionTaskLifecycleStatus(status).
+                setNextExecutionSpecsFrom(new TemporalExpression(TimeDuration.days(1)));
+        if (complete)
+            taskbuilder.setProperty("port", port == null ? BigDecimal.valueOf(666): port)
+                       .setProperty("ipAddress", ipAddress == null ?  "6.6.6.6" : ipAddress);
+        return taskbuilder.add();
     }
 
     private static class PartialConnectionTaskProtocolDialect implements DeviceProtocolDialect {

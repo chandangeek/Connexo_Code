@@ -9,6 +9,7 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo.ComTaskCountInfo;
@@ -21,6 +22,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 
 import javax.inject.Inject;
 import java.time.Duration;
@@ -74,16 +76,20 @@ public class DeviceConnectionTaskInfoFactory {
         info.name = info.connectionMethod.name; // need it for concurrency check
         info.connectionMethod.status = connectionTask.getStatus();
         info.connectionMethod.isDefault = connectionTask.isDefault();
-        info.protocolDialect = connectionTask.getProtocolDialectConfigurationProperties().getDeviceProtocolDialectName();
+        ProtocolDialectConfigurationProperties dialectConfigurationProperties = connectionTask.getProtocolDialectConfigurationProperties();
+        info.protocolDialect = dialectConfigurationProperties.getDeviceProtocolDialectName();
+        DeviceProtocolDialect dialect = dialectConfigurationProperties.getDeviceProtocolDialect();
+        if (dialect != null)
+            info.protocolDialectDisplayName = dialect.getDisplayName();
         if (connectionTask instanceof ScheduledConnectionTask) {
             ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
             if (scheduledConnectionTask.getTaskStatus()!=null) {
                 TaskStatusTranslationKeys taskStatusTranslationKey = TaskStatusTranslationKeys.from(scheduledConnectionTask.getTaskStatus());
                 info.currentState = new TaskStatusInfo(taskStatusTranslationKey.getKey(), thesaurus.getFormat(taskStatusTranslationKey).format());
             }
-            info.connectionStrategy=new ConnectionStrategyInfo();
-            info.connectionStrategy.connectionStrategy = scheduledConnectionTask.getConnectionStrategy().name();
-            info.connectionStrategy.localizedValue = ConnectionStrategyTranslationKeys.translationFor(scheduledConnectionTask.getConnectionStrategy(), thesaurus);
+            info.connectionStrategyInfo=new ConnectionStrategyInfo();
+            info.connectionStrategyInfo.connectionStrategy = scheduledConnectionTask.getConnectionStrategy().name();
+            info.connectionStrategyInfo.localizedValue = ConnectionStrategyTranslationKeys.translationFor(scheduledConnectionTask.getConnectionStrategy(), thesaurus);
             ComWindow communicationWindow = scheduledConnectionTask.getCommunicationWindow();
             if (communicationWindow!=null &&
                     (communicationWindow.getStart().getMillis()!=0 || communicationWindow.getEnd().getMillis()!=0)) {

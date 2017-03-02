@@ -132,11 +132,12 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         assertThat(jsonModel.<Boolean>get("$.connections[0].connectionMethod.isDefault")).isTrue();
         assertThat(jsonModel.<String>get("$.connections[0].connectionMethod.status")).isEqualTo("active");
         assertThat(jsonModel.<String>get("$.connections[0].window")).isEqualTo("00:01 - 00:02");
-        assertThat(jsonModel.<String>get("$.connections[0].connectionStrategy.id")).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE.name());
-        assertThat(jsonModel.<String>get("$.connections[0].connectionStrategy.displayValue")).isEqualTo(ConnectionStrategyTranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat());
+        assertThat(jsonModel.<String>get("$.connections[0].connectionStrategyInfo.connectionStrategy")).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE.name());
+        assertThat(jsonModel.<String>get("$.connections[0].connectionStrategyInfo.localizedValue")).isEqualTo(ConnectionStrategyTranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat());
         assertThat(jsonModel.<Long>get("$.connections[0].nextExecution")).isEqualTo(nextExecution.toEpochMilli());
         assertThat(jsonModel.<Integer>get("$.connections[0].comSessionId")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.connections[0].protocolDialect")).isEqualTo("Protocol Dialect Name");
+        assertThat(jsonModel.<String>get("$.connections[0].protocolDialectDisplayName")).isEqualTo("Display Name of Protocol Dialect");
     }
 
     @Test
@@ -266,7 +267,8 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
         DeviceProtocolDialect deviceProtocolDialect = mock(DeviceProtocolDialect.class);
         when(deviceProtocolDialect.getDeviceProtocolDialectName()).thenReturn("Protocol Dialect Name");
-        when(protocolDialectConfigurationProperties.getDeviceProtocolDialect()).thenReturn(mock(DeviceProtocolDialect.class));
+        when(deviceProtocolDialect.getDisplayName()).thenReturn("Display Name of Protocol Dialect");
+        when(protocolDialectConfigurationProperties.getDeviceProtocolDialect()).thenReturn(deviceProtocolDialect);
         when(protocolDialectConfigurationProperties.getDeviceProtocolDialectName()).thenReturn("Protocol Dialect Name");
         when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
 

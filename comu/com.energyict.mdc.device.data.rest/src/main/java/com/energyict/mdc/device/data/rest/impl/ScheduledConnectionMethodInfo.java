@@ -28,16 +28,16 @@ import static com.elster.jupiter.util.Checks.is;
 
 public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<ScheduledConnectionTask> {
 
-    public DeviceConnectionTaskInfo.ConnectionStrategyInfo connectionStrategy;
+    public DeviceConnectionTaskInfo.ConnectionStrategyInfo connectionStrategyInfo;
 
     public ScheduledConnectionMethodInfo() {
     }
 
     public ScheduledConnectionMethodInfo(ScheduledConnectionTask scheduledConnectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus) {
         super(scheduledConnectionTask, uriInfo, mdcPropertyUtils);
-        this.connectionStrategy = new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
-        connectionStrategy.connectionStrategy = scheduledConnectionTask.getConnectionStrategy().name();
-        connectionStrategy.localizedValue = ConnectionStrategyTranslationKeys.translationFor(scheduledConnectionTask.getConnectionStrategy(), thesaurus);
+        this.connectionStrategyInfo = new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
+        connectionStrategyInfo.connectionStrategy = scheduledConnectionTask.getConnectionStrategy().name();
+        connectionStrategyInfo.localizedValue = ConnectionStrategyTranslationKeys.translationFor(scheduledConnectionTask.getConnectionStrategy(), thesaurus);
         this.numberOfSimultaneousConnections = scheduledConnectionTask.getNumberOfSimultaneousConnections();
         this.rescheduleRetryDelay = TimeDurationInfo.of(scheduledConnectionTask.getRescheduleDelay());
         if (scheduledConnectionTask.getCommunicationWindow() != null) {
@@ -53,7 +53,8 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
         super.writeTo(scheduledConnectionTask, partialConnectionTask, engineConfigurationService, mdcPropertyUtils);
         writeCommonFields(scheduledConnectionTask, engineConfigurationService);
         try {
-            scheduledConnectionTask.setConnectionStrategy(ConnectionStrategy.valueOf(connectionStrategy.connectionStrategy));
+            if (connectionStrategyInfo != null)
+                scheduledConnectionTask.setConnectionStrategy(ConnectionStrategy.valueOf(connectionStrategyInfo.connectionStrategy));
         }catch(IllegalArgumentException e){
             // Connection Stratiegy cannot be set as it is an invalid value
         }
@@ -65,6 +66,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
     }
 
     private void writeCommonFields(ScheduledConnectionTask scheduledConnectionTask, EngineConfigurationService engineConfigurationService) {
+
         scheduledConnectionTask.setNumberOfSimultaneousConnections(this.numberOfSimultaneousConnections);
         if (this.comWindowEnd != null && this.comWindowStart != null) {
             scheduledConnectionTask.setCommunicationWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
@@ -89,7 +91,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
                     .findOutboundComPortPoolByName(this.comPortPool)
                     .ifPresent(scheduledConnectionTaskBuilder::setComPortPool);
         }
-        scheduledConnectionTaskBuilder.setConnectionStrategy(getConnectionStrategy(connectionStrategy));
+        scheduledConnectionTaskBuilder.setConnectionStrategy(getConnectionStrategy(connectionStrategyInfo));
         scheduledConnectionTaskBuilder.setNextExecutionSpecsFrom(this.nextExecutionSpecs != null ? nextExecutionSpecs.asTemporalExpression() : null);
         scheduledConnectionTaskBuilder.setConnectionTaskLifecycleStatus(this.status);
         scheduledConnectionTaskBuilder.setNumberOfSimultaneousConnections(this.numberOfSimultaneousConnections);

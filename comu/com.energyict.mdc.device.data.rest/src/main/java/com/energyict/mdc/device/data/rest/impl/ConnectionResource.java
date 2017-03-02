@@ -103,7 +103,7 @@ public class ConnectionResource {
             List<ProtocolDialectConfigurationProperties> protocolDialectConfigurationPropertiesList = task.getDevice().getDeviceConfiguration().getProtocolDialectConfigurationPropertiesList();
             Optional<ProtocolDialectConfigurationProperties> dialectConfigurationProperties = protocolDialectConfigurationPropertiesList.stream()
                     .filter(protocolDialectConfigurationProperties -> protocolDialectConfigurationProperties.getDeviceProtocolDialect()
-                            .getDisplayName()
+                            .getDeviceProtocolDialectName()
                             .equals(connectionTaskInfo.protocolDialect))
                     .findFirst();
             if (!dialectConfigurationProperties.isPresent()){
