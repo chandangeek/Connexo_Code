@@ -9,6 +9,7 @@ import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.nls.Thesaurus;
 
@@ -16,6 +17,8 @@ import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -71,20 +74,42 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidator implements Con
     }
 
     private boolean validate(ConstraintValidatorContext context, ReadingTypeDeliverable deliverable, Set<Long> eventCodes) {
-        long eventCode = deliverable.getReadingType().getTou();
-        if (eventCode != 0 && !eventCodes.contains(eventCode)) {
-            String message = this.thesaurus.getFormat(PrivateMessageSeeds.DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET).format(Long.toString(eventCode), deliverable.getName());
-            context
-                .buildConstraintViolationWithTemplate(message)
-                .addPropertyNode("deliverables")
-                .addPropertyNode("tou")
+        long eventCode = deliverable.getReadingType().getTou(); // Upcast from int to long is always safe
+        if (eventCode != 0) {
+            if (this.allRequirementsUseTheSameTimeOfUseBucket(deliverable)) {
+                return true;
+            } else if (!eventCodes.contains(eventCode)) {
+                String message = this.thesaurus.getFormat(PrivateMessageSeeds.DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET).format(Long.toString(eventCode), deliverable.getName());
+                context
+                    .buildConstraintViolationWithTemplate(message)
+                    .addPropertyNode("deliverables")
+                    .addPropertyNode("tou")
                     .inIterable().atKey(deliverable.getReadingType().getMRID())
-                .addConstraintViolation()
-                .disableDefaultConstraintViolation();
-            return false;
+                    .addConstraintViolation()
+                    .disableDefaultConstraintViolation();
+                return false;
+            } else {
+                return true;
+            }
         } else {
             return true;
         }
+    }
+
+    private boolean allRequirementsUseTheSameTimeOfUseBucket(ReadingTypeDeliverable deliverable) {
+        Set<Integer> deliverableBucket = new HashSet<>(Collections.singletonList(deliverable.getReadingType().getTou()));
+        Set<Integer> allTimeOfUseBuckets = this.timeOfUseBucketsFromRequirements(deliverable);
+        return allTimeOfUseBuckets.equals(deliverableBucket);
+    }
+
+    private Set<Integer> timeOfUseBucketsFromRequirements(ReadingTypeDeliverable deliverable) {
+        return deliverable
+                .getFormula()
+                .getExpressionNode()
+                .accept(new RequirementsFromExpressionNode())
+                .stream()
+                .map(ReadingTypeRequirement::getTou)
+                .collect(Collectors.toSet());
     }
 
 }

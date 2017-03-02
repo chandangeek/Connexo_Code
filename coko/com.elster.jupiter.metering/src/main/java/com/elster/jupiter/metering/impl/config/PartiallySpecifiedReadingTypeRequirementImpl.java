@@ -320,6 +320,14 @@ class PartiallySpecifiedReadingTypeRequirementImpl extends ReadingTypeRequiremen
     }
 
     @Override
+    public int getTou() {
+        return getReadingTypeTemplate()
+                    .getAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE)
+                    .getCode()
+                    .orElse(0);
+    }
+
+    @Override
     public IntervalLength getIntervalLength() {
         return IntervalLength.from(this);
     }

@@ -94,6 +94,11 @@ class FullySpecifiedReadingTypeRequirementImpl extends ReadingTypeRequirementImp
     }
 
     @Override
+    public int getTou() {
+        return this.getReadingType().getTou();
+    }
+
+    @Override
     public String getDescription() {
         return readingType.map(ReadingType::getFullAliasName).orElse("");
     }
