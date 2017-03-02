@@ -5,7 +5,9 @@
 Ext.define('Mdc.view.setup.devicetype.SideMenu', {
     extend: 'Uni.view.menu.SideMenu',
     alias: 'widget.deviceTypeSideMenu',
+    uniqueMenuId: 'device-type-side-menu',
     title: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
+    objectType: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
     deviceTypeId: null,
     isDataLoggerSlave: undefined,
     initComponent: function () {
@@ -13,6 +15,7 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
 
         me.menuItems = [
             {
+                text: Uni.I18n.translate('general.details', 'MDC', 'Details'),
                 itemId: 'overviewLink',
                 href: '#/administration/devicetypes/' + me.deviceTypeId
             },
@@ -146,10 +149,8 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
         }]);
     },
 
-    setDeviceTypeLink: function (name) {
-        if (this.down('#overviewLink')) {
-            this.down('#overviewLink').setText(name);
-        }
+    setDeviceTypeTitle: function (name) {
+        this.setHeader(name);
     }
 });
 

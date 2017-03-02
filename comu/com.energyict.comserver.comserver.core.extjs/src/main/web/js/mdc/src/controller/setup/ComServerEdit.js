@@ -61,7 +61,7 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
 
                 me.comServerModel = record;
 
-                me.getApplication().fireEvent('loadComServer', record);
+                me.getApplication().fireEvent('comServerOverviewLoad', record);
 
                 switch (comServerType) {
                     case 'Online':
