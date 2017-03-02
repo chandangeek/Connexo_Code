@@ -126,7 +126,10 @@ public enum MessageSeeds implements MessageSeed {
     REQUIRED_CAS_MISSING(8002, Constants.REQUIRED_CAS_MISSING, "Required custom property sets are missing"),
 
     CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE(9001, Constants.CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE, "Can''t remove usage point life cycle because it''s in use by at least one of the usage point."),
-    CAN_NOT_DELETE_ACTIVE_STATE(9002, Constants.CAN_NOT_DELETE_ACTIVE_STATE, "This state can''t be removed from this usage point life cycle because one or more usage points use this state.");
+    CAN_NOT_DELETE_ACTIVE_STATE(9002, Constants.CAN_NOT_DELETE_ACTIVE_STATE, "This state can''t be removed from this usage point life cycle because one or more usage points use this state."),
+
+    CONNECTION_STATE_CHANGE_BEFORE_INSTALLATION_TIME(10001, "connection.state.change.before.installation.time", "Connection state change should be after usage point installation time"),
+    CONNECTION_STATE_CHANGE_BEFORE_LATEST_CHANGE(10002, "connection.state.change.before.latest.change", "Connection state change should be after the latest connection state change on usage point"),;
 
     private final int number;
     private final String key;

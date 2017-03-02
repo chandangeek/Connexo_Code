@@ -48,6 +48,8 @@ import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePoint;
 import com.elster.jupiter.nls.NlsKey;
@@ -332,7 +334,7 @@ public class MeteringServiceImpl implements ServerMeteringService {
     @Override
     public Query<ChannelsContainer> getChannelsContainerWithReadingQualitiesQuery(Range<Instant> readingQualityTimestamp, ReadingQualityType... readingQualityTypes) {
         QueryExecutor<ChannelsContainer> query = dataModel.query(ChannelsContainer.class, Channel.class,
-                EffectiveMetrologyContractOnUsagePoint.class, EffectiveMetrologyConfigurationOnUsagePoint.class);
+                EffectiveMetrologyContractOnUsagePoint.class, EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyContract.class, MetrologyPurpose.class);
 
         Condition suspectCondition = where("typeCode").in(Stream.of(readingQualityTypes).map(ReadingQualityType::getCode).collect(Collectors.toList()));
         if (!Range.all().equals(readingQualityTimestamp)) {
