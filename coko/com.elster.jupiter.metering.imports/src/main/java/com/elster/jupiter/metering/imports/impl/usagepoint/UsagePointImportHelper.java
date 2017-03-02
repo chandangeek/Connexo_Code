@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.imports.impl.usagepoint;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.LocationBuilder;
@@ -22,8 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class UsagePointImportHelper {
+public class UsagePointImportHelper implements OutOfTheBoxCategoryForImport.ServiceProvider {
 
     private MeteringDataImporterContext context;
     private Clock clock;
@@ -31,6 +33,11 @@ public class UsagePointImportHelper {
     public UsagePointImportHelper(MeteringDataImporterContext context, Clock clock) {
         this.context = context;
         this.clock = clock;
+    }
+
+    @Override
+    public CalendarService calendarService() {
+        return this.context.getCalendarService();
     }
 
     public UsagePoint createUsagePointForInsight(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data) {
@@ -91,12 +98,18 @@ public class UsagePointImportHelper {
         UsagePoint usagePoint = usagePointBuilder.create();
         usagePoint.addDetail(usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, clock.instant()));
         usagePoint.update();
-
-        if (data.getMetrologyConfiguration().isPresent()) {
-            validateMetrologyConfiguration(data.getMetrologyConfiguration().get(), usagePoint, data);
+        this.addCalendars(data, usagePoint);
+        data.getMetrologyConfigurationName().ifPresent(metrologyConfigurationName -> {
+            validateMetrologyConfiguration(metrologyConfigurationName, usagePoint, data);
             setMetrologyConfigurationForUsagePoint(data, usagePoint);
-        }
+        });
         return usagePoint;
+    }
+
+    private void addCalendars(UsagePointImportRecord data, UsagePoint usagePoint) {
+        Stream
+            .of(OutOfTheBoxCategoryForImport.values())
+            .forEach(each -> each.addCalendar(data, usagePoint, this));
     }
 
     public UsagePoint updateUsagePoint(UsagePoint usagePoint, UsagePointImportRecord data) {
@@ -168,13 +181,16 @@ public class UsagePointImportHelper {
 
 
     public void setMetrologyConfigurationForUsagePoint(UsagePointImportRecord data, UsagePoint usagePoint) {
-        if(data.getMetrologyConfiguration().isPresent()) {
+        data.getMetrologyConfigurationName().ifPresent(metrologyConfigurationName -> {
             context.getMetrologyConfigurationService()
-                    .findMetrologyConfiguration(data.getMetrologyConfiguration().get())
+                    .findMetrologyConfiguration(metrologyConfigurationName)
+                    .map(UsagePointMetrologyConfiguration.class::cast)
                     .ifPresent(configuration ->
-                            usagePoint.apply(((UsagePointMetrologyConfiguration) configuration), data.getMetrologyConfigurationApplyTime()
-                                    .get()));
-        }
+                            usagePoint
+                                    .apply(
+                                        configuration,
+                                        data.getMetrologyConfigurationApplyTime().get()));
+        });
     }
 
     private void addCustomPropertySetsValues(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data) {

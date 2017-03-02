@@ -256,9 +256,9 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
     }
 
     private void validateMeterConfigurationAndTransition(UsagePoint usagePoint, UsagePointImportRecord data) {
-        data.getMetrologyConfiguration().ifPresent(metrologyConfigurationName -> {
+        data.getMetrologyConfigurationName().ifPresent(metrologyConfigurationName -> {
             usagePointImportHelper.validateMetrologyConfiguration(metrologyConfigurationName, usagePoint, data);
-            usagePoint.apply((UsagePointMetrologyConfiguration) getContext().getMetrologyConfigurationService().findMetrologyConfiguration(data.getMetrologyConfiguration().get()).get(), data.getMetrologyConfigurationApplyTime().get());
+            usagePoint.apply((UsagePointMetrologyConfiguration) getContext().getMetrologyConfigurationService().findMetrologyConfiguration(data.getMetrologyConfigurationName().get()).get(), data.getMetrologyConfigurationApplyTime().get());
 
             validateMeterActivation(usagePoint, data);
             validateUsagePointTransitionValues(usagePoint, data);
