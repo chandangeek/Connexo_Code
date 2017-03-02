@@ -72,9 +72,9 @@ public class UsagePointRequirementImpl implements UsagePointRequirement {
 
     public UsagePointRequirementImpl init(UsagePointMetrologyConfiguration metrologyConfiguration, SearchablePropertyValue.ValueBean valueBean) {
         this.metrologyConfiguration.set(metrologyConfiguration);
-        this.searchableProperty = valueBean.propertyName;
-        this.operator = valueBean.operator;
-        this.initConditionValues(valueBean.values);
+        this.searchableProperty = valueBean.getPropertyName();
+        this.operator = valueBean.getOperator();
+        this.initConditionValues(valueBean.getValues());
         return this;
     }
 
@@ -106,11 +106,7 @@ public class UsagePointRequirementImpl implements UsagePointRequirement {
 
     @Override
     public SearchablePropertyValue.ValueBean toValueBean() {
-        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
-        valueBean.propertyName = this.searchableProperty;
-        valueBean.operator = this.operator;
-        valueBean.values = this.conditionValues.stream().map(UsagePointRequirementValue::getValue).collect(Collectors.toList());
-        return valueBean;
+        return new SearchablePropertyValue.ValueBean(this.searchableProperty, this.operator,this.conditionValues.stream().map(UsagePointRequirementValue::getValue).collect(Collectors.toList()));
     }
 
     @Override
