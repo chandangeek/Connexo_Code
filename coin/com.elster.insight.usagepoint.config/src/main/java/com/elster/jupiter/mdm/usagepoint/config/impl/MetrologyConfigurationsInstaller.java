@@ -78,7 +78,9 @@ class MetrologyConfigurationsInstaller {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                 .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential prosumer with 1 meter", serviceCategory)
-                .withDescription("Typical installation for residential prosumers with smart meter").create();
+                .withDescription("Typical installation for residential prosumers with smart meter")
+                .withGapAllowed(false)
+                .create();
 
         config.addUsagePointRequirement(getUsagePointRequirement(SERVICEKIND, SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY
                 .name()));
@@ -187,7 +189,9 @@ class MetrologyConfigurationsInstaller {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                 .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential prosumer with 2 meters", serviceCategory)
-                .withDescription("Typical installation for residential prosumers with dumb meters").create();
+                .withDescription("Typical installation for residential prosumers with dumb meters")
+                .withGapAllowed(false)
+                .create();
 
         config.addUsagePointRequirement(getUsagePointRequirement(SERVICEKIND, SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY
                 .name()));
@@ -242,7 +246,7 @@ class MetrologyConfigurationsInstaller {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                 .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential net metering (production)", serviceCategory)
-                .withDescription("Residential producer").create();
+                .withDescription("Residential producer").withGapAllowed(true).create();
 
         config.addUsagePointRequirement(getUsagePointRequirement(SERVICEKIND, SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY
                 .name()));
@@ -289,7 +293,7 @@ class MetrologyConfigurationsInstaller {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                 .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential net metering (consumption)", serviceCategory)
-                .withDescription("Residential consumer").create();
+                .withDescription("Residential consumer").withGapAllowed(true).create();
 
         config.addUsagePointRequirement(getUsagePointRequirement(SERVICEKIND, SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY
                 .name()));
@@ -355,7 +359,7 @@ class MetrologyConfigurationsInstaller {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                 .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential non-smart installation", serviceCategory)
-                .withDescription("Registers of different types (textual, numeric)").create();
+                .withDescription("Registers of different types (textual, numeric)").withGapAllowed(true).create();
 
         config.addUsagePointRequirement(getUsagePointRequirement(SERVICEKIND, SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY
                 .name()));
@@ -402,7 +406,7 @@ class MetrologyConfigurationsInstaller {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                 .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential gas non-smart installation", serviceCategory)
-                .withDescription("Billing register").create();
+                .withDescription("Billing register").withGapAllowed(true).create();
 
         config.addUsagePointRequirement(getUsagePointRequirement(SERVICEKIND, SearchablePropertyOperator.EQUAL, ServiceKind.GAS
                 .name()));
@@ -439,7 +443,7 @@ class MetrologyConfigurationsInstaller {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                 .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("C&I 3-phased consumer with smart meter with 2 ToU", serviceCategory)
-                .withDescription("C&I 3-phased consumer with smart meter 2 ToU").create();
+                .withDescription("C&I 3-phased consumer with smart meter 2 ToU").withGapAllowed(true).create();
 
         config.addUsagePointRequirement(getUsagePointRequirement(SERVICEKIND, SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY
                 .name()));
@@ -553,7 +557,7 @@ class MetrologyConfigurationsInstaller {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                 .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential consumer with 4 ToU", serviceCategory)
-                .withDescription("Residential consumer with 4 ToU").create();
+                .withDescription("Residential consumer with 4 ToU").withGapAllowed(true).create();
 
         config.addUsagePointRequirement(getUsagePointRequirement(SERVICEKIND, SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY
                 .name()));
@@ -622,7 +626,7 @@ class MetrologyConfigurationsInstaller {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.GAS)
                 .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.GAS));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential gas", serviceCategory)
-                .withDescription("Residential gas installation").create();
+                .withDescription("Residential gas installation").withGapAllowed(true).create();
 
         config.addUsagePointRequirement(getUsagePointRequirement(SERVICEKIND, SearchablePropertyOperator.EQUAL, ServiceKind.GAS
                 .name()));
@@ -671,7 +675,7 @@ class MetrologyConfigurationsInstaller {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.WATER)
                 .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.WATER));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("C&I water configuration", serviceCategory)
-                .withDescription("C&I water configuration with 2 meters").create();
+                .withDescription("C&I water configuration with 2 meters").withGapAllowed(true).create();
 
         config.addUsagePointRequirement(getUsagePointRequirement(SERVICEKIND, SearchablePropertyOperator.EQUAL, ServiceKind.WATER
                 .name()));
@@ -722,7 +726,7 @@ class MetrologyConfigurationsInstaller {
     }
 
     ReadingTypeDeliverable buildFormulaRequirementMax(UsagePointMetrologyConfiguration config, ReadingType readingType,
-                                                              ReadingTypeRequirement requirementPlus, ReadingTypeRequirement requirementMinus, String name) {
+                                                      ReadingTypeRequirement requirementPlus, ReadingTypeRequirement requirementMinus, String name) {
 
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
         return builder.build(builder.maximum(builder.minus(builder.requirement(requirementPlus), builder.requirement(requirementMinus)), builder
