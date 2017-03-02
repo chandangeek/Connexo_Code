@@ -33,14 +33,6 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskAction
                 section: this.SECTION_EDIT
             },
             {
-                text: Uni.I18n.translate('deviceCommunicationTask.changeProtocolDialect', 'MDC', 'Change protocol dialect'),
-                privileges: Mdc.privileges.Device.administrateDeviceCommunication,
-                itemId: 'changeProtocolDialectOfDeviceComTask',
-                action: 'changeProtocolDialectOfDeviceComTask',
-                dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationTasksActions,
-                section: this.SECTION_EDIT
-            },
-            {
                 text: Uni.I18n.translate('deviceCommunicationTask.changeUrgency', 'MDC', 'Change urgency'),
                 privileges: Mdc.privileges.Device.administrateDeviceCommunication,
                 itemId: 'changeUrgencyOfDeviceComTask',

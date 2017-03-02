@@ -51,21 +51,6 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
                     });
                 break;
             }
-            case 'changeProtocolDialectOfDeviceComTask': {
-                this.setTitle(Uni.I18n.translate('deviceCommunicationTask.changeProtocolDialectOfDeviceComTask', 'MDC', "Change protocol dialect of {0}", this.comTaskName));
-                this.down('#changeConnectionItemForm').add(
-                    {
-                        xtype: 'combobox',
-                        fieldLabel: Uni.I18n.translate('deviceCommunicationTask.protocolDialect', 'MDC', 'Protocol dialect'),
-                        name: 'name',
-                        itemId: 'protocolDialectCombo',
-                        displayField: 'name',
-                        store: this.store,
-                        queryMode: 'local',
-                        value: this.init
-                    });
-                break;
-            }
             case 'changeUrgencyOfDeviceComTask': {
                 this.setTitle(Uni.I18n.translate('deviceCommunicationTask.changeUrgencyOfDeviceComTask', 'MDC', 'Change urgency of {0}', this.comTaskName));
                 this.down('#changeConnectionItemForm').add({

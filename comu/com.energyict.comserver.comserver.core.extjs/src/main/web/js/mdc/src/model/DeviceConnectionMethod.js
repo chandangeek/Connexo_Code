@@ -17,7 +17,7 @@ Ext.define('Mdc.model.DeviceConnectionMethod', {
         {name: 'isDefault', type: 'boolean', useNull: true},
         {name: 'comPortPool', type: 'string', useNull: true},
         {name: 'connectionType', type: 'string', useNull: true},
-        {name: 'connectionStrategy', type: 'string', useNull: true},
+        {name: 'connectionStrategyInfo', type: 'Mdc.model.field.ConnectionStrategy', useNull: true},
         'rescheduleRetryDelay',
         {name: 'nextExecutionSpecs', useNull: true, defaultValue: null},
         {name: 'comWindowStart',useNull: true, defaultValue: null},
@@ -28,7 +28,9 @@ Ext.define('Mdc.model.DeviceConnectionMethod', {
             mapping: function (data) {
                 return {start: data.comWindowStart, end: data.comWindowEnd};
             }
-        }
+        },
+        {name: 'protocolDialect', type: 'string', useNull: true},
+        {name: 'protocolDialectDisplayName', type: 'string', useNull: true}
 
     ],
     associations: [

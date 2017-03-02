@@ -9,10 +9,8 @@ Ext.define('Mdc.model.ProtocolDialect', {
     ],
     fields: [
         {name: 'id', type: 'int', useNull: true},
-        {name: 'name', type: 'string', useNull: true}
-        //,
-        //{name: 'availableForUse', type: 'boolean', useNull: true}
-
+        {name: 'name', type: 'string', useNull: true},
+        {name: 'displayName', type: 'string', useNull: true}
     ],
     associations: [
         {name: 'properties', type: 'hasMany', model: 'Uni.property.model.Property', associationKey: 'properties', foreignKey: 'properties',

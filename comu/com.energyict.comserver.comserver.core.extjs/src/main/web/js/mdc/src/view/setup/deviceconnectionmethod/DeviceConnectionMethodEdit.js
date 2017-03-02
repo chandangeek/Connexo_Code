@@ -76,6 +76,16 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                             },
                             {
                                 xtype: 'combobox',
+                                fieldLabel: Uni.I18n.translate('deviceCommunicationTask.protocolDialect', 'MDC', 'Protocol dialect'),
+                                name: 'protocolDialect',
+                                itemId: 'protocolDialectComboBox',
+                                store: this.protocolDialects,
+                                displayField: 'displayName',
+                                valueField: 'name',
+                                queryMode: 'local'
+                            },
+                            {
+                                xtype: 'combobox',
                                 name: 'comPortPool',
                                 fieldLabel: Uni.I18n.translate('general.comPortPool', 'MDC', 'Communication port pool'),
                                 itemId: 'communicationPortPoolComboBox',
@@ -218,29 +228,6 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                     }
                                 ]
                             },
-//                                    {
-//                                        xtype: 'radiogroup',
-//                                        fieldLabel: 'isDefault',
-//                                        itemId: 'isDefault',
-//                                        allowBlank: false,
-//                                        horizontal: true,
-//                                        columns: 2,
-//                                        items: [
-//                                            {
-//                                                boxLabel: 'yes',
-//                                                name: 'isDefault',
-//                                                inputValue: true,
-//                                                margin: '0 10 5 0'
-//                                            },
-//                                            {
-//                                                boxLabel: 'no',
-//                                                name: 'isDefault',
-//                                                checked: true,
-//                                                inputValue: false,
-//                                                margin: '0 10 5 0'
-//                                            }
-//                                        ]
-//                                    },
                             {
                                 xtype: 'fieldcontainer',
                                 fieldLabel: Uni.I18n.translate('deviceconnectionmethod.numberOfSimultaneousConnections', 'MDC', 'Number of simultaneous connections'),
@@ -274,14 +261,14 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                 disabled: true,
                                 items: [
                                     {
-                                        boxLabel:  Uni.I18n.translate('general.yes', 'MDC', 'Yes'),
+                                        boxLabel: Uni.I18n.translate('general.yes', 'MDC', 'Yes'),
                                         name: 'status',
                                         checked: true,
                                         inputValue: 'connectionTaskStatusActive',
                                         margin: '0 10 5 0'
                                     },
                                     {
-                                        boxLabel:  Uni.I18n.translate('general.no', 'MDC', 'No'),
+                                        boxLabel: Uni.I18n.translate('general.no', 'MDC', 'No'),
                                         name: 'status',
                                         inputValue: 'connectionTaskStatusInActive',
                                         margin: '0 10 5 0'
@@ -307,7 +294,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                             {
                                 xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('deviceconnectionmethod.connectionDetails', 'MDC', 'Connection details'),
-                                renderer: function() {
+                                renderer: function () {
                                     return ''; // No dash!
                                 }
                             }
@@ -317,7 +304,6 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                         xtype: 'property-form',
                         width: '100%'
                     },
-
                     {
                         xtype: 'form',
                         border: false,
@@ -401,10 +387,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
             }
         }
         this.down('#cancelLink').href = this.returnLink;
-
     }
-
-
 });
 
 
