@@ -30,7 +30,6 @@ public final class DevicePrivileges {
     private DevicePrivileges() {
     }
 
-    public static final String DEVICES_WIDGET_ISSUES = "devices.widget.issues";
     public static final String DEVICES_WIDGET_VALIDATION = "devices.widget.validation";
     public static final String DEVICES_WIDGET_COMMUNICATION_TOPOLOGY = "devices.widget.communication.topology";
     public static final String DEVICES_WIDGET_CONNECTION = "devices.widget.connection";
@@ -140,7 +139,6 @@ public final class DevicePrivileges {
             @Override
             List<String> getPrivileges(User user) {
                 List<String> privileges = new ArrayList<>(super.getPrivileges(user));
-                privileges.remove(DEVICES_WIDGET_ISSUES);
                 privileges.remove(DEVICES_WIDGET_VALIDATION);
                 privileges.remove(DEVICES_ACTIONS_VALIDATION);
                 privileges.remove(DEVICES_ACTIONS_ESTIMATION);
@@ -156,7 +154,6 @@ public final class DevicePrivileges {
 
         List<String> getPrivileges(User user) {
             return Arrays.asList(
-                    DevicePrivileges.DEVICES_WIDGET_ISSUES,
                     DevicePrivileges.DEVICES_WIDGET_VALIDATION,
                     DevicePrivileges.DEVICES_WIDGET_COMMUNICATION_TOPOLOGY,
                     DevicePrivileges.DEVICES_WIDGET_CONNECTION,
