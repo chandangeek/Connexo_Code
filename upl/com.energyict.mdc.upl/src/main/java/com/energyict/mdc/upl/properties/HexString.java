@@ -14,6 +14,4 @@ public interface HexString {
     default boolean isEmpty() {
         return this.length() == 0;
     }
-
-    Number getValue();
 }
