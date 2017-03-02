@@ -1,6 +1,6 @@
 -classpath: target/classes
 -dsannotations: *
 Private-Package:  \
-	com.energyict.mdc.device.data.validation.impl.*
+	com.energyict.mdc.device.dataquality.impl.*
 Export-Package:  \
-	com.energyict.mdc.device.data.validation
+	com.energyict.mdc.device.dataquality
