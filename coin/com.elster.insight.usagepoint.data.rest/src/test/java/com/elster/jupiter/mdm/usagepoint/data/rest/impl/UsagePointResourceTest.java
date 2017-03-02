@@ -239,6 +239,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
                 .hours()
                 .at(10, 0)
                 .build());
+        when(validationTask.getMetrologyPurpose()).thenReturn(Optional.empty());
         when(validationTask.getEndDeviceGroup()).thenReturn(Optional.empty());
         when(validationTask.getLastRun()).thenReturn(Optional.empty());
         when(validationTask.getLastOccurrence()).thenReturn(Optional.empty());
