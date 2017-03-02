@@ -59,7 +59,7 @@ public class UsagePointsImporterFactory extends AbstractFileImporterFactory {
                 new UsagePointImportDescription(dateFormat, timeZone, numberFormat, context), context);
 
         FileImportProcessor<UsagePointImportRecord> processor = context.insightInstalled()
-                ? new UsagePointsImportProcessor(getContext())
+                ? new UsagePointsImportProcessor(getContext(), dateFormat, timeZone)
                 : new UsagePointsImportProcessorForMultisense(getContext());
 
         FileImportLogger logger = new UsagePointsImportLogger(getContext());
