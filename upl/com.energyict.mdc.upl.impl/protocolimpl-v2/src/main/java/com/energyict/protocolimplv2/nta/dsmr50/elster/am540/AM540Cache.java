@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.cache.DeviceProtocolCacheXmlMarshallAdapter;
 import com.energyict.protocol.support.FrameCounterCache;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 
@@ -17,6 +18,7 @@ import java.io.Serializable;
  * @author khe
  */
 @XmlJavaTypeAdapter(DeviceProtocolCacheXmlMarshallAdapter.class)
+@XmlRootElement
 public class AM540Cache extends DLMSCache implements DeviceProtocolCache, Serializable, FrameCounterCache {
 
     UniversalObject[] mirrorObjectList;

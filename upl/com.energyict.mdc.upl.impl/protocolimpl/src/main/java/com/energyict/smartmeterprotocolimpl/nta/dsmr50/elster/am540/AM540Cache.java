@@ -1,10 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540;
 
-import com.energyict.mdc.upl.cache.DeviceProtocolCacheXmlMarshallAdapter;
-
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.mdc.upl.cache.DeviceProtocolCacheXmlMarshallAdapter;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
@@ -16,6 +16,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * @since 12/06/2014 - 15:42
  */
 @XmlJavaTypeAdapter(DeviceProtocolCacheXmlMarshallAdapter.class)
+@XmlRootElement
 public class AM540Cache extends DLMSCache {
 
     private long frameCounter = 1;

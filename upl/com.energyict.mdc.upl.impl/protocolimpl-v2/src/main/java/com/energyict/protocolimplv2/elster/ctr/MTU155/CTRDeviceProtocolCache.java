@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.cache.DeviceProtocolCacheXmlMarshallAdapter;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 
@@ -13,6 +14,7 @@ import java.io.Serializable;
  * @since 21/06/13 - 15:44
  */
 @XmlJavaTypeAdapter(DeviceProtocolCacheXmlMarshallAdapter.class)
+@XmlRootElement
 public class CTRDeviceProtocolCache implements DeviceProtocolCache, Serializable {
 
     /** The last WriteDataBlock ID used in SMS communication. **/
