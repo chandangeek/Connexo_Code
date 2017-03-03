@@ -4,7 +4,7 @@
 
 package com.elster.jupiter.metering.impl.aggregation;
 
-import com.elster.jupiter.slp.SyntheticLoadProfile;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 
 import com.google.common.collect.Range;
 

@@ -19,8 +19,8 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.slp.SyntheticLoadProfile;
 import com.elster.jupiter.util.units.Dimension;
 
 import com.google.common.collect.Range;

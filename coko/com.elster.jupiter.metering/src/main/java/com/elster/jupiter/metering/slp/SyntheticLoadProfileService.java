@@ -8,7 +8,6 @@ import com.elster.jupiter.metering.ReadingType;
 
 import aQute.bnd.annotation.ProviderType;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
 import java.util.List;

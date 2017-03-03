@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.metering.impl.slp;
 
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.ReadingType;
@@ -79,8 +78,7 @@ public class SyntheticLoadProfileServiceImplIT {
         assertThat(syntheticLoadProfileFromBuilder.getInterval()).isEqualTo(INTERVAL15MIN);
         assertThat(syntheticLoadProfileFromBuilder.getDuration()).isEqualTo(DURATION1MONTH);
         assertThat(syntheticLoadProfileFromBuilder.getStartTime()).isEqualTo(DATE);
-        assertThat(syntheticLoadProfileFromBuilder.getReadingType()).isPresent();
-        assertThat(syntheticLoadProfileFromBuilder.getReadingType().get()).isEqualTo(readingType);
+        assertThat(syntheticLoadProfileFromBuilder.getReadingType()).isEqualTo(readingType);
 
         SyntheticLoadProfile syntheticLoadProfile = inMemoryBootstrapModule.getSyntheticLoadProfileService().findSyntheticLoadProfile(syntheticLoadProfileFromBuilder.getId()).get();
         assertThat(syntheticLoadProfile.getName()).isEqualTo(SYNTHETIC_LOAD_PROFILE_NAME);
@@ -88,8 +86,7 @@ public class SyntheticLoadProfileServiceImplIT {
         assertThat(syntheticLoadProfile.getInterval()).isEqualTo(INTERVAL15MIN);
         assertThat(syntheticLoadProfile.getDuration()).isEqualTo(DURATION1MONTH);
         assertThat(syntheticLoadProfile.getStartTime()).isEqualTo(DATE);
-        assertThat(syntheticLoadProfile.getReadingType()).isPresent();
-        assertThat(syntheticLoadProfile.getReadingType().get()).isEqualTo(readingType);
+        assertThat(syntheticLoadProfile.getReadingType()).isEqualTo(readingType);
     }
 
     @Test

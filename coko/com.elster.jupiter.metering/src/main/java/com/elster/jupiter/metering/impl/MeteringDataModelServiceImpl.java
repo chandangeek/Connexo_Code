@@ -220,7 +220,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
             this.dataAggregationService = new DataAggregationServiceImpl(this, this.truncaterFactory, this.sourceChannelSetFactory);
         }
         this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.dataModel, this.thesaurus);
-        this.syntheticLoadProfileService = new SyntheticLoadProfileServiceImpl(this.idsService, this.meteringService, this.dataModel, this.thesaurus);
+        this.syntheticLoadProfileService = new SyntheticLoadProfileServiceImpl(this.idsService, this.dataModel);
         this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this.meteringService, this.meteringTranslationService, this.metrologyConfigurationService, this.clock, this.licenseService);
     }
 

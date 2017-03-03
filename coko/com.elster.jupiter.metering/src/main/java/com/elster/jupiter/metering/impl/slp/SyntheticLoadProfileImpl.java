@@ -18,6 +18,8 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.units.Unit;
 
 import com.google.common.collect.ImmutableMap;
@@ -48,7 +50,7 @@ public class SyntheticLoadProfileImpl implements SyntheticLoadProfile {
     private String name;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String description;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingType> readingType = ValueReference.absent();
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Instant startTime;
@@ -103,12 +105,17 @@ public class SyntheticLoadProfileImpl implements SyntheticLoadProfile {
     }
 
     @Override
-    public Optional<ReadingType> getReadingType() {
-        return readingType.getOptional();
+    public ReadingType getReadingType() {
+        return readingType.get();
     }
 
     void setReadingType(ReadingType readingType) {
         this.readingType.set(readingType);
+    }
+
+    @Override
+    public Unit getUnitOfMeasure() {
+        return this.getReadingType().getUnit().getUnit();
     }
 
     @Override
@@ -167,6 +174,12 @@ public class SyntheticLoadProfileImpl implements SyntheticLoadProfile {
     private void addValues(TimeSeriesDataStorer storer, Map<Instant, BigDecimal> values) {
         TimeSeries timeSeries = getTimeSeries();
         values.entrySet().forEach(entry -> storer.add(timeSeries, entry.getKey(), entry.getValue()));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public SqlFragment getRawValuesSql(Range<Instant> interval, Pair<String, String>... fieldSpecAndAliasNames) {
+        return this.timeSeries.get().getRawValuesSql(interval, fieldSpecAndAliasNames);
     }
 
     @Override

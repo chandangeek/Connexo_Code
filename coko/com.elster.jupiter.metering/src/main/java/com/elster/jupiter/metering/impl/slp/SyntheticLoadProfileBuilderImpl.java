@@ -7,11 +7,9 @@ package com.elster.jupiter.metering.impl.slp;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.Vault;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfileBuilder;
-import com.elster.jupiter.util.units.Unit;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -21,20 +19,17 @@ import java.util.TimeZone;
 public class SyntheticLoadProfileBuilderImpl implements SyntheticLoadProfileBuilder {
 
     private final SyntheticLoadProfileServiceImpl syntheticLoadProfileService;
-    private final MeteringService meteringService;
 
     private final TimeZone timeZone = TimeZone.getTimeZone("UTC");
 
     private String name;
     private String description;
-    private Duration interval;
     private ReadingType readingType;
     private Instant startTime;
     private Period duration;
 
-    public SyntheticLoadProfileBuilderImpl(SyntheticLoadProfileServiceImpl syntheticLoadProfileService, MeteringService meteringService, String name) {
+    public SyntheticLoadProfileBuilderImpl(SyntheticLoadProfileServiceImpl syntheticLoadProfileService, String name) {
         this.syntheticLoadProfileService = syntheticLoadProfileService;
-        this.meteringService = meteringService;
         this.name = name;
     }
 

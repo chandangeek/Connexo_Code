@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.metering.impl.slp;
 
-import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfileBuilder;
@@ -19,14 +18,11 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -84,13 +80,20 @@ public class SyntheticLoadProfileConsoleCommands {
         }
     }
 
-    public void viewSyntheticLoadProfiles(){
-        syntheticLoadProfileService.findSyntheticLoadProfiles().stream()
-                .map(cf -> "" + cf.getName()
-                        + ", started: " + DefaultDateTimeFormatters.shortDate().withShortTime().build().format(cf.getStartTime())
-                        + ", interval: " + cf.getInterval()
-                        + ", duration: " + cf.getDuration()
-                        + ", readingtype: " + cf.getReadingType().map(IdentifiedObject::getMRID).orElse("-")).forEach(System.out::println);
+    public void viewSyntheticLoadProfiles() {
+        syntheticLoadProfileService
+                .findSyntheticLoadProfiles()
+                .stream()
+                .map(this::toString)
+                .forEach(System.out::println);
+    }
+
+    private String toString(SyntheticLoadProfile slp) {
+        return slp.getName()
+                + ", started: " + DefaultDateTimeFormatters.shortDate().withShortTime().build().format(slp.getStartTime())
+                + ", interval: " + slp.getInterval()
+                + ", duration: " + slp.getDuration()
+                + ", readingtype: " + slp.getReadingType().getMRID();
     }
 
     public void viewSyntheticLoadProfileValues(String name){
