@@ -11,13 +11,13 @@ import java.time.Period;
 import java.time.temporal.TemporalAmount;
 import java.util.stream.Stream;
 
-interface TimeDurationFactory {
+interface TimeDurationFactory<T extends TemporalAmount> {
 
-    TimeDuration from(TemporalAmount temporalAmount);
+    TimeDuration from(T temporalAmount);
 
-    class TimeDurationFromDurationFactory implements TimeDurationFactory {
+    class TimeDurationFromDurationFactory implements TimeDurationFactory<Duration> {
 
-        private Stream<TimeDurationFactory> factories;
+        private Stream<TimeDurationFactory<Duration>> factories;
 
         TimeDurationFromDurationFactory() {
             super();
@@ -28,7 +28,7 @@ interface TimeDurationFactory {
         }
 
         @Override
-        public TimeDuration from(TemporalAmount temporalAmount) {
+        public TimeDuration from(Duration temporalAmount) {
             return this.factories
                     .map(f -> f.from(temporalAmount))
                     .filter(t -> t != null)
@@ -38,13 +38,9 @@ interface TimeDurationFactory {
 
     }
 
-    class TimeDurationFromDurationInHoursFactory implements TimeDurationFactory {
+    class TimeDurationFromDurationInHoursFactory implements TimeDurationFactory<Duration> {
         @Override
-        public TimeDuration from(TemporalAmount temporalAmount) {
-            return this.from((Duration) temporalAmount);
-        }
-
-        private TimeDuration from(Duration duration) {
+        public TimeDuration from(Duration duration) {
             if (duration.toHours() != 0) {
                 return TimeDuration.hours(Math.toIntExact(duration.toHours()));
             } else {
@@ -53,13 +49,9 @@ interface TimeDurationFactory {
         }
     }
 
-    class TimeDurationFromDurationInMinutesFactory implements TimeDurationFactory {
+    class TimeDurationFromDurationInMinutesFactory implements TimeDurationFactory<Duration> {
         @Override
-        public TimeDuration from(TemporalAmount temporalAmount) {
-            return this.from((Duration) temporalAmount);
-        }
-
-        private TimeDuration from(Duration duration) {
+        public TimeDuration from(Duration duration) {
             if (duration.toMinutes() != 0) {
                 return TimeDuration.minutes(Math.toIntExact(duration.toMinutes()));
             } else {
@@ -68,13 +60,10 @@ interface TimeDurationFactory {
         }
     }
 
-    class TimeDurationFromDurationInSecondsFactory implements TimeDurationFactory {
-        @Override
-        public TimeDuration from(TemporalAmount temporalAmount) {
-            return this.from((Duration) temporalAmount);
-        }
+    class TimeDurationFromDurationInSecondsFactory implements TimeDurationFactory<Duration> {
 
-        private TimeDuration from(Duration duration) {
+        @Override
+        public TimeDuration from(Duration duration) {
             if (duration.getSeconds() != 0) {
                 return TimeDuration.seconds(Math.toIntExact(duration.getSeconds()));
             } else {
@@ -83,59 +72,36 @@ interface TimeDurationFactory {
         }
     }
 
-    class TimeDurationFromPeriodFactory implements TimeDurationFactory {
-        private Stream<TimeDurationFactory> factories;
+    class TimeDurationFromPeriodFactory implements TimeDurationFactory<Period> {
+
+        private Stream<TimeDurationFactory<Period>> factories;
 
         TimeDurationFromPeriodFactory() {
             super();
             this.factories = Stream.of(
-                    new TimeDurationFromPeriodValidatingFactory(),
                     new TimeDurationFromPeriodInMonthsFactory(),
                     new TimeDurationFromPeriodInDaysFactory());
         }
 
         @Override
-        public TimeDuration from(TemporalAmount temporalAmount) {
+        public TimeDuration from(Period period) {
+            if (period.getYears() != 0 && period.getDays() != 0) {
+                throw new IllegalArgumentException("Years and days are not supported");
+            }
+            if (period.getMonths() != 0 && period.getDays() != 0) {
+                throw new IllegalArgumentException("Months and days are not supported");
+            }
             return this.factories
-                    .map(f -> f.from(temporalAmount))
+                    .map(f -> f.from(period))
                     .filter(t -> t != null)
                     .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("Unable to convert Period '" + temporalAmount + "' to TemporalExpression"));
-        }
-
-    }
-
-    class TimeDurationFromPeriodValidatingFactory implements TimeDurationFactory {
-
-        @Override
-        public TimeDuration from(TemporalAmount temporalAmount) {
-            return this.from((Period) temporalAmount);
-        }
-
-        private TimeDuration from(Period period) {
-            if (period.getYears() != 0 || period.getMonths() != 0) {
-                return this.noDays(period);
-            } else {
-                return null;
-            }
-        }
-
-        private TimeDuration noDays(Period period) {
-            if (period.getDays() != 0) {
-                throw new IllegalArgumentException("Years and days or months and days are not supported");
-            } else {
-                return null;
-            }
+                    .orElseThrow(() -> new IllegalArgumentException("Unable to convert Period '" + period + "' to TemporalExpression"));
         }
     }
 
-    class TimeDurationFromPeriodInMonthsFactory implements TimeDurationFactory {
+    class TimeDurationFromPeriodInMonthsFactory implements TimeDurationFactory<Period> {
         @Override
-        public TimeDuration from(TemporalAmount temporalAmount) {
-            return this.from((Period) temporalAmount);
-        }
-
-        private TimeDuration from(Period period) {
+        public TimeDuration from(Period period) {
             if (period.toTotalMonths() != 0) {
                 return TimeDuration.months(Math.toIntExact(period.toTotalMonths()));
             } else {
@@ -144,13 +110,9 @@ interface TimeDurationFactory {
         }
     }
 
-    class TimeDurationFromPeriodInDaysFactory implements TimeDurationFactory {
+    class TimeDurationFromPeriodInDaysFactory implements TimeDurationFactory<Period> {
         @Override
-        public TimeDuration from(TemporalAmount temporalAmount) {
-            return this.from((Period) temporalAmount);
-        }
-
-        private TimeDuration from(Period period) {
+        public TimeDuration from(Period period) {
             if (period.getDays() != 0) {
                 return TimeDuration.days(Math.toIntExact(period.getDays()));
             } else {

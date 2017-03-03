@@ -14,24 +14,18 @@ public interface DataQualityKpiMemberType {
     String getName();
 
     enum PredefinedKpiMemberType implements DataQualityKpiMemberType {
-        CHANNEL("CHANNEL"),
-        REGISTER("REGISTER"),
-        SUSPECT("SUSPECT"),
-        INFORMATIVE("INFORMATIVE"),
-        ADDED("ADDED"),
-        EDITED("EDITED"),
-        REMOVED("REMOVED"),
-        ESTIMATED("ESTIMATED"),
-        CONFIRMED("CONFIRMED");
-
-        private final String name;
-
-        PredefinedKpiMemberType(String name) {
-            this.name = name;
-        }
+        CHANNEL,
+        REGISTER,
+        SUSPECT,
+        INFORMATIVE,
+        ADDED,
+        EDITED,
+        REMOVED,
+        ESTIMATED,
+        CONFIRMED;
 
         public String getName() {
-            return name;
+            return name();
         }
     }
 

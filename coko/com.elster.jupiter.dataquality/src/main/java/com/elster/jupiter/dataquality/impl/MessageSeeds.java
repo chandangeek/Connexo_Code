@@ -55,6 +55,7 @@ public enum MessageSeeds implements MessageSeed {
     public enum Constants {
 
         ;
+
         public static final String CAN_NOT_BE_EMPTY = "CanNotBeEmpty";
         public static final String DEVICE_GROUP_MUST_BE_UNIQUE = "DeviceGroupMustBeUnique";
         public static final String USAGEPOINT_GROUP_AND_PURPOSE_MUST_BE_UNIQUE = "UsagePointGroupAndPurposeMustBeUnique";
