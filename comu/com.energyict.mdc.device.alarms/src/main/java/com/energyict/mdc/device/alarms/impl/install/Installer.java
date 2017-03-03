@@ -42,7 +42,6 @@ import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
 
 public class Installer implements FullInstaller, PrivilegesProvider {
     private static final Logger LOGGER = Logger.getLogger("DeviceAlarmIssueInstaller");
-    public static final String ALARM_RELATIVE_PERIOD_CATEGORY = "relativeperiod.category.deviceAlarm";
 
     private final MessageService messageService;
     private final IssueService issueService;
@@ -137,7 +136,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     }
 
     private void createRelativePeriodCategory() {
-        timeService.createRelativePeriodCategory(ALARM_RELATIVE_PERIOD_CATEGORY);
+        timeService.createRelativePeriodCategory(ModuleConstants.ALARM_RELATIVE_PERIOD_CATEGORY);
     }
 
     private void run(Runnable runnable, String explanation, Logger logger) {

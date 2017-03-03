@@ -35,6 +35,7 @@ import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
@@ -196,7 +197,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 .forEach(deviceType ->
                         deviceType.getDeviceLifeCycle().getFiniteStateMachine().getStates().stream().distinct()
                                 .sorted(Comparator.comparing(State::getId))
-                                .forEach(state -> list.add(new DeviceLifeCycleInDeviceTypeInfo(deviceType, state))));
+                                .forEach(state -> list.add(new DeviceLifeCycleInDeviceTypeInfo(deviceType, state, deviceLifeCycleConfigurationService))));
         DeviceLifeCycleInDeviceTypeInfo[] deviceLifeCycleInDeviceTypepossibleValues = list.stream().toArray(DeviceLifeCycleInDeviceTypeInfo[]::new);
         RaiseEventPropsInfo[] raiseEventPropsPossibleValues = RAISE_EVENT_PROPS_POSSIBLE_VALUES.stream()
                 .map(RaiseEventPropsInfo::new)
@@ -376,7 +377,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                     .filter(stateValue -> stateValue.getId() == Long.parseLong(values.get(1)))
                     .findFirst()
                     .orElse(null);
-            return new DeviceLifeCycleInDeviceTypeInfo(deviceType, lifeCycleState);
+            return new DeviceLifeCycleInDeviceTypeInfo(deviceType, lifeCycleState, deviceLifeCycleConfigurationService);
         }
 
         @Override
@@ -422,10 +423,12 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
 
         private DeviceType deviceType;
         private State lifeCycleState;
+        private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
-        DeviceLifeCycleInDeviceTypeInfo(DeviceType deviceType, State lifeCycleState) {
+        DeviceLifeCycleInDeviceTypeInfo(DeviceType deviceType, State lifeCycleState, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
             this.deviceType = deviceType;
             this.lifeCycleState = lifeCycleState;
+            this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         }
 
         @Override
@@ -438,7 +441,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
             try {
                 JSONObject jsonId = new JSONObject();
                 jsonId.put("deviceTypeName", deviceType.getName());
-                jsonId.put("lifeCycleStateName", deviceType.getName() + "." + lifeCycleState.getName());
+                jsonId.put("lifeCycleStateName", deviceType.getName() + "." + getStateName(lifeCycleState));
                 return jsonId.toString();
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -470,6 +473,13 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
             result = 31 * result + deviceType.hashCode();
             result = 31 * result + lifeCycleState.hashCode();
             return result;
+        }
+
+        private String getStateName(State state) {
+            return DefaultState
+                    .from(state)
+                    .map(deviceLifeCycleConfigurationService::getDisplayName)
+                    .orElseGet(state::getName);
         }
     }
 
