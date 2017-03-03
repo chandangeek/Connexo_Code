@@ -252,6 +252,7 @@ public class FileImportScheduleResource {
             importSchedule.setImporterName(info.importerInfo.name);
             importSchedule.setPathMatcher(info.pathMatcher);
             importSchedule.setScheduleExpression(ScanFrequency.toScheduleExpression(info.scanFrequency));
+            importSchedule.setActiveOnUI(info.isActiveOnUI);
             updateProperties(info, importSchedule);
 
             importSchedule.update();
