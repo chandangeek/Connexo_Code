@@ -10,19 +10,19 @@
 
 package com.energyict.protocolimpl.edmi.mk6.registermapping;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.edmi.common.command.ReadCommand;
+import com.energyict.protocolimpl.edmi.mk6.MK6;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.edmi.mk6.MK6;
-import com.energyict.protocolimpl.edmi.mk6.command.ReadCommand;
 
 /**
  *

@@ -11,9 +11,8 @@
 package com.energyict.protocolimpl.edmi.mk10.loadsurvey;
 
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.edmi.mk10.command.CommandFactory;
-import com.energyict.protocolimpl.edmi.mk10.core.SurveyChannelTypeParser;
+import com.energyict.protocolimpl.edmi.common.command.CommandFactory;
+import com.energyict.protocolimpl.edmi.common.core.SurveyChannelTypeParser;
 import com.energyict.protocolimpl.edmi.mk10.registermapping.MK10Register;
 
 import java.io.IOException;
@@ -29,7 +28,6 @@ public class LoadSurvey {
 
 	private static final String	LF	= "\n";
 	private static final int BASE_REGISTER_ID = MK10Register.SURVEY1_STARTDATE;
-	private static final int DEBUG = 0;
 
 	private CommandFactory commandFactory;
 	private int LoadSurveyNumber;
@@ -97,27 +95,18 @@ public class LoadSurvey {
 		for (int channel = 0; channel <  getLoadSurveyChannels().length; channel++) {
 			LoadSurveyChannel lsc = new LoadSurveyChannel();
 
-			if ((channel+1) == nrOfChannels) {
-				lsc.setName("Status channel"); //Last channel in loadsurvey is statuschannel.
+			if ((channel+1) == nrOfChannels) { 	 //Last channel in loadsurvey is statuschannel.
 				lsc.setScaling(0);
 				lsc.setScalingFactor(new BigDecimal(0));
-				lsc.setUnit(Unit.get(""));
+				lsc.setUnit(Unit.getUndefined());
 				lsc.setType('C');
 				lsc.setWidth(1);
 			}
 			else {
 				int tempreg = (BASE_REGISTER_ID + 0x0040 + channel + (0x0020 * getLoadSurveyNumber()));
 				int ChannelDef = getCommandFactory().getReadCommand(tempreg).getRegister().getBigDecimal().intValue();
-				String registeridstr = "0x" + ProtocolUtils.buildStringHex(tempreg, 4);
-				if (DEBUG == 1) {
-					this.commandFactory.getMk10().sendDebug("Channel " + String.valueOf(channel) + " RegisterID: " + registeridstr + " Value: 0x" + ProtocolUtils.buildStringHex(ChannelDef, 4));
-				}
-
 				SurveyChannelTypeParser ctp = new SurveyChannelTypeParser(ChannelDef);
-
-				lsc.setName(ctp.getName());
-				lsc.setType(ctp.getType());
-				lsc.setScaling(ctp.getDecimalPointScaling());
+				lsc.setScaling(ctp.getDecimalPointPosition());
 				lsc.setUnit(ctp.getUnit());
 				lsc.setWidth(2);
 

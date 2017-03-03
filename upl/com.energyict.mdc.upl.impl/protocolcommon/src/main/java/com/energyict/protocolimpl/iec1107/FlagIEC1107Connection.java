@@ -1249,7 +1249,7 @@ public class FlagIEC1107Connection extends Connection {
         this.addCRLF = addCRLF;
     }
 
-    public void delayAndFlush(long delay) throws NestedIOException, ConnectionException {
+    public void delayAndFlush(long delay) throws ConnectionException {
         super.delayAndFlush(delay);
     }
 

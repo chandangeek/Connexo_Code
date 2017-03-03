@@ -1,12 +1,16 @@
 package com.energyict.dlms.protocolimplv2.connection;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.channels.serial.BaudrateValue;
+import com.energyict.mdc.channels.serial.NrOfDataBits;
+import com.energyict.mdc.channels.serial.NrOfStopBits;
+import com.energyict.mdc.channels.serial.Parities;
+import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.protocol.SerialPortComChannel;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.channels.serial.*;
-import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -249,7 +253,7 @@ public class FlagIEC1107Connection extends com.energyict.protocolimpl.iec1107.Fl
     }
 
     @Override
-    protected int readIn() throws NestedIOException, ConnectionException {
+    protected int readIn() throws ConnectionException {
         if (comChannel.available() != 0) {
             return comChannel.read();
         } else {
@@ -263,7 +267,7 @@ public class FlagIEC1107Connection extends com.energyict.protocolimpl.iec1107.Fl
     }
 
     @Override
-    public void delayAndFlush(long delay) throws NestedIOException, ConnectionException {
+    public void delayAndFlush(long delay) throws ConnectionException {
         delay(delay);
         flushInputStream();
     }
