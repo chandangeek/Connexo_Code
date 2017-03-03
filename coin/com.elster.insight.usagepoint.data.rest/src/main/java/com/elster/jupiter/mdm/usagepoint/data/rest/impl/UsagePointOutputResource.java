@@ -449,25 +449,26 @@ public class UsagePointOutputResource {
                                 .collect(Collectors.toMap(Function.identity(), readingWithValidationStatusFactory::createRegisterReading, (a, b) -> a));
                 TreeMap<Instant, RegisterReadingWithValidationStatus> sortedPreFilledRegisterDataMap = new TreeMap<>();
                 sortedPreFilledRegisterDataMap.putAll(preFilledRegisterDataMap);
-                ReadingRecord previousPersistent = null;
-                ReadingRecord previousCalculated = null;
+                ReadingRecord previousReadingRecord = null;
                 for (Map.Entry<Instant, RegisterReadingWithValidationStatus> entry : sortedPreFilledRegisterDataMap.entrySet()) {
                     Instant readingTimestamp = entry.getKey();
-
-
                     RegisterReadingWithValidationStatus readingWithValidationStatus = entry.getValue();
                     ReadingRecord persistedReading = persistedReadings.get(readingTimestamp);
+//                    ReadingRecord tempPreviousReadingRecord = null;
+                    readingWithValidationStatus.setPreviousReadingRecord(previousReadingRecord);
                     if (persistedReading != null && (persistedReading.getValue() != null || persistedReading.getText() != null)) {
                         readingWithValidationStatus.setPersistedReadingRecord(persistedReading);
-                        readingWithValidationStatus.setPreviousPersistedReadingRecord(previousPersistent);
-                        previousPersistent = persistedReading;
+                       // readingWithValidationStatus.setPreviousReadingRecord(previousReadingRecord);
+                        previousReadingRecord = persistedReading;
+                    } else {
+                        ReadingRecord calculatedReading = calculatedReadings.get(readingTimestamp);
+                        if (calculatedReading != null) {
+                            readingWithValidationStatus.setCalculatedReadingRecord(calculatedReading);
+                            // readingWithValidationStatus.setPreviousReadingRecord(previousReadingRecord);
+                            previousReadingRecord = calculatedReading;
+                        }
                     }
-                    ReadingRecord calculatedReading = calculatedReadings.get(readingTimestamp);
-                    if (calculatedReading != null) {
-                        readingWithValidationStatus.setCalculatedReadingRecord(calculatedReading);
-                        readingWithValidationStatus.setPreviousCalculatedReadingRecord(previousCalculated);
-                        previousCalculated = calculatedReading;
-                    }
+//                    previousReadingRecord = tempPreviousReadingRecord;
                 }
 
                 // add validation statuses to pre filled register data map
@@ -531,7 +532,7 @@ public class UsagePointOutputResource {
 
         if (persistedReading.isPresent() && persistedReading.get().getValue() != null) {
             readingWithValidationStatus.setPersistedReadingRecord(persistedReading.get());
-            readingWithValidationStatus.setCalculatedReadingRecord(calculatedReading.get());
+            calculatedReading.ifPresent(readingWithValidationStatus::setCalculatedReadingRecord);
         } else if (calculatedReading.isPresent()) {
             readingWithValidationStatus.setCalculatedReadingRecord(calculatedReading.get());
         } else {
@@ -562,7 +563,10 @@ public class UsagePointOutputResource {
         ChannelsContainer channelsContainer = usagePoint.getCurrentEffectiveMetrologyConfiguration().get()
                 .getChannelsContainer(metrologyContract).get();
         Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
-        if (registerDataInfo instanceof BillingOutputRegisterDataInfo && ((BillingOutputRegisterDataInfo) registerDataInfo).interval.start > ((BillingOutputRegisterDataInfo) registerDataInfo).interval.end) {
+        if (registerDataInfo instanceof BillingOutputRegisterDataInfo && ((BillingOutputRegisterDataInfo) registerDataInfo).interval!=null && ((BillingOutputRegisterDataInfo) registerDataInfo).interval.start > ((BillingOutputRegisterDataInfo) registerDataInfo).interval.end) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INTERVAL_END_BEFORE_START, "interval.end");
+        }
+        if (registerDataInfo instanceof NumericalOutputRegisterDataInfo && ((NumericalOutputRegisterDataInfo) registerDataInfo).interval!= null &&((NumericalOutputRegisterDataInfo) registerDataInfo).interval.start > ((NumericalOutputRegisterDataInfo) registerDataInfo).interval.end) {
             throw new LocalizedFieldValidationException(MessageSeeds.INTERVAL_END_BEFORE_START, "interval.end");
         }
         BaseReading reading = registerDataInfo.createNew(readingTypeDeliverable.getReadingType());

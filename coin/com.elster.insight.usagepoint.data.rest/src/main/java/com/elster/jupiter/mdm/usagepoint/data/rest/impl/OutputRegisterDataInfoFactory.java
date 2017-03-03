@@ -76,7 +76,7 @@ public class OutputRegisterDataInfoFactory {
                 numericalOutputRegisterDataInfo.calculatedValue = readingWithValidationStatus.getCalculatedValue()
                         .orElse(null);
 
-                numericalOutputRegisterDataInfo.interval = readingWithValidationStatus.getBillingPeriod()
+                numericalOutputRegisterDataInfo.interval = readingWithValidationStatus.getTimePeriod()
                         .map(IntervalInfo::from)
                         .orElse(null);
                 if(aggregatesWithEventDate.contains(readingType.getAggregate())){

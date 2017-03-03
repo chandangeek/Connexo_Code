@@ -1,5 +1,6 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.Reading;
@@ -22,5 +23,15 @@ public class RegisterReadingWithValidationStatus extends ReadingWithValidationSt
 
     public Optional<Range<Instant>> getBillingPeriod() {
         return getPersistedReadingRecord().flatMap(BaseReading::getTimePeriod);
+    }
+
+    public Optional<Range<Instant>> getTimePeriod() {
+        if(getReading().get().getReadingType().getMacroPeriod().equals(MacroPeriod.BILLINGPERIOD)){
+            return getReading().get().getTimePeriod();
+        } else if(getPreviousReading().isPresent()){
+            return Optional.of(Range.openClosed(getPreviousReading().get().getTimeStamp(), getReading().get().getTimeStamp()));
+        } else {
+            return Optional.of(Range.atMost(getReading().get().getTimeStamp()));
+        }
     }
 }

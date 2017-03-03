@@ -85,6 +85,7 @@ public class OutputInfoFactory {
         outputInfo.formula = readingTypeDeliverable.getFormula() != null ? FormulaInfo.asInfo(readingTypeDeliverableFactory.asInfo(readingTypeDeliverable).formula.description) : null;
         outputInfo.hasEvent = aggregatesWithEventDate.contains(readingTypeDeliverable.getReadingType().getAggregate());
         outputInfo.isCummulative = readingTypeDeliverable.getReadingType().isCumulative();
+        outputInfo.isBilling = readingTypeDeliverable.getReadingType().getMacroPeriod().equals(MacroPeriod.BILLINGPERIOD);
     }
 
     private RegisterOutputInfo asRegisterOutputInfo(ReadingTypeDeliverable readingTypeDeliverable, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration,
