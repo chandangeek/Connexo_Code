@@ -4,10 +4,10 @@
 
 package com.energyict.mdc.device.data.importers.impl.devices.activation;
 
+import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.devices.DeviceTransitionImportProcessor;
-import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
