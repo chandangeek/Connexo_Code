@@ -5,6 +5,7 @@
 package com.elster.jupiter.slp.importers.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -20,6 +21,8 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfileBuilder;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
@@ -27,10 +30,8 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.metering.slp.SyntheticLoadProfileBuilder;
-import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
-import com.elster.jupiter.slp.importers.impl.syntheticloadprofile.SyntheticLoadProfileImporterFactory;
 import com.elster.jupiter.slp.importers.impl.properties.SupportedNumberFormat;
+import com.elster.jupiter.slp.importers.impl.syntheticloadprofile.SyntheticLoadProfileImporterFactory;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -50,7 +51,6 @@ import org.osgi.service.event.EventAdmin;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
 import java.time.ZoneId;
@@ -132,6 +132,7 @@ public class SyntheticLoadProfileImportIT {
                     new CustomPropertySetsModule(),
                     new PartyModule(),
                     new SearchModule(),
+                    new CalendarModule(),
                     new MeteringModule("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
             );
         } catch (Exception e) {
