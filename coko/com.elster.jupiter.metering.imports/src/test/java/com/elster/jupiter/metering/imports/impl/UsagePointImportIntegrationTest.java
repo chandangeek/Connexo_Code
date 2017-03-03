@@ -33,7 +33,6 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
 import java.io.ByteArrayInputStream;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -70,7 +69,7 @@ public class UsagePointImportIntegrationTest {
     }
 
     @AfterClass
-    public static void cleanUp() throws SQLException {
+    public static void cleanUp() {
         inMemoryPersistence.cleanUpDataBase();
     }
 
