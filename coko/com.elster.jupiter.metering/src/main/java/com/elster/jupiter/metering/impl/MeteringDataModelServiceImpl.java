@@ -44,10 +44,12 @@ import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
 import com.elster.jupiter.metering.impl.search.UsagePointRequirementsSearchDomain;
+import com.elster.jupiter.metering.impl.slp.SyntheticLoadProfileServiceImpl;
 import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_2;
 import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_2_1;
 import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_3;
 import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsKey;
@@ -136,6 +138,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     private DataAggregationService dataAggregationService;
     private UsagePointRequirementsSearchDomain usagePointRequirementsSearchDomain;
     private MetrologyConfigurationServiceImpl metrologyConfigurationService;
+    private SyntheticLoadProfileService syntheticLoadProfileService;
 
     private boolean createAllReadingTypes;
     private String[] requiredReadingTypes;
@@ -217,6 +220,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
             this.dataAggregationService = new DataAggregationServiceImpl(this, this.truncaterFactory, this.sourceChannelSetFactory);
         }
         this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.dataModel, this.thesaurus);
+        this.syntheticLoadProfileService = new SyntheticLoadProfileServiceImpl(this.idsService, this.meteringService, this.dataModel, this.thesaurus);
         this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this.meteringService, this.meteringTranslationService, this.metrologyConfigurationService, this.clock, this.licenseService);
     }
 
@@ -255,6 +259,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 bind(DataAggregationService.class).toInstance(dataAggregationService);
                 bind(ServerDataAggregationService.class).toInstance((ServerDataAggregationService) dataAggregationService);
                 bind(UsagePointLifeCycleConfigurationService.class).toInstance(usagePointLifeCycleConfigurationService);
+                bind(SyntheticLoadProfileService.class).toInstance(syntheticLoadProfileService);
                 bind(TimeService.class).toInstance(timeService);
                 bind(Publisher.class).toInstance(publisher);
                 bind(CalendarService.class).toInstance(calendarService);
@@ -281,6 +286,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         registerTruncationFactory(bundleContext);
         registerDataAggregationService(bundleContext);
         registerMetrologyConfigurationService(bundleContext); // Search domain must already be registered
+        registerSyntheticLoadProfileService(bundleContext);
     }
 
     private Dictionary<String, Object> noServiceProperties() {
@@ -341,6 +347,17 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                                     MetrologyConfigurationService.class.getName(),
                                     ServerMetrologyConfigurationService.class.getName()},
                             this.metrologyConfigurationService,
+                            noServiceProperties()));
+        }
+    }
+
+    private void registerSyntheticLoadProfileService(BundleContext bundleContext) {
+        if (bundleContext != null) {
+            this.serviceRegistrations.add(
+                    bundleContext.registerService(
+                            new String[]{
+                                    SyntheticLoadProfileService.class.getName()},
+                            this.syntheticLoadProfileService,
                             noServiceProperties()));
         }
     }
@@ -580,6 +597,11 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     @Override
     public ServerMetrologyConfigurationService getMetrologyConfigurationService() {
         return this.metrologyConfigurationService;
+    }
+
+    @Override
+    public SyntheticLoadProfileService getSyntheticLoadProfileService() {
+        return this.syntheticLoadProfileService;
     }
 
     boolean isCreateAllReadingTypes() {

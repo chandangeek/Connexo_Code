@@ -142,7 +142,7 @@ public class UsagePointImpl implements ServerUsagePoint {
     private Instant installationTime;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String serviceDeliveryRemark;
-    private TemporalReference<UsagePointConnectionState> connectionState = Temporals.absent();
+    private TemporalReference<UsagePointConnectionStateImpl> connectionState = Temporals.absent();
     private TemporalReference<UsagePointStateTemporalImpl> state = Temporals.absent();
     private List<ServerCalendarUsage> calendarUsages = new ArrayList<>();
 
@@ -563,7 +563,7 @@ public class UsagePointImpl implements ServerUsagePoint {
         UsagePointMeterActivator linker = this.linkMeters().withFormValidation(UsagePointMeterActivator.FormValidation.DEFINE_METROLOGY_CONFIGURATION);
 
         meterActivations.stream()
-                .filter(meterActivation -> meterActivation.getMeterRole().isPresent() && meterActivation.getEnd()==null)
+                .filter(meterActivation -> meterActivation.getMeterRole().isPresent() && meterActivation.getEnd() == null)
                 .forEach(meterActivation -> linker.activate(meterActivation.getMeter().get(), meterActivation.getMeterRole().get()));
 
         linker.complete();
@@ -706,25 +706,21 @@ public class UsagePointImpl implements ServerUsagePoint {
     @Override
     @Deprecated
     public ConnectionState getConnectionState() {
-        UsagePointStage.Key stage = getState().getStage().getKey();
-        switch (stage) {
-            case PRE_OPERATIONAL:
-                return ConnectionState.UNDER_CONSTRUCTION;
-            case POST_OPERATIONAL:
-                return ConnectionState.DEMOLISHED;
-            default:
-                return getCurrentConnectionState().orElse(null);
-        }
+        return getCurrentConnectionState().map(UsagePointConnectionState::getConnectionState).orElse(null);
     }
 
     @Override
-    public Optional<ConnectionState> getCurrentConnectionState() {
-        return this.connectionState.effective(this.clock.instant()).map(UsagePointConnectionState::getConnectionState);
+    public Optional<UsagePointConnectionState> getCurrentConnectionState() {
+        return getConnectionStateAt(this.clock.instant());
+    }
+
+    private Optional<UsagePointConnectionState> getConnectionStateAt(Instant time) {
+        return this.connectionState.effective(time).map(Function.identity());
     }
 
     @Override
     public String getConnectionStateDisplayName() {
-        return this.thesaurus.getFormat(getConnectionState()).format();
+        return getCurrentConnectionState().map(UsagePointConnectionState::getConnectionStateDisplayName).orElse(null);
     }
 
     @Override
@@ -733,27 +729,39 @@ public class UsagePointImpl implements ServerUsagePoint {
     }
 
     @Override
-    public void setConnectionState(ConnectionState connectionState, Instant effective) {
-        if (!this.connectionState.effective(effective).filter(cs -> cs.getConnectionState().equals(connectionState)).isPresent()) {
-            if (!this.connectionState.all().isEmpty()) {
-                this.closeCurrentConnectionState(effective);
-            }
-            this.createNewState(effective, connectionState);
-            this.touch();
+    public void setConnectionState(ConnectionState newConnectionState, Instant effectiveDate) {
+        if (effectiveDate.isBefore(getInstallationTime())) {
+            throw ConnectionStateChangeException.stateChangeTimeShouldBeAfterInstallationTime(thesaurus);
         }
+        Optional<UsagePointConnectionStateImpl> latestConnectionState = this.connectionState.all().stream()
+                .max(Comparator.comparing(state -> state.getRange().lowerEndpoint()));
+        if (latestConnectionState.isPresent()) {
+            if (!isConnectionStateChangeFeasible(effectiveDate, latestConnectionState.get(), newConnectionState)) {
+                throw ConnectionStateChangeException.stateChangeTimeShouldBeAfterLatestConnectionStateChange(thesaurus);
+            }
+            if (!isConnectionStateChangeNeeded(newConnectionState, latestConnectionState.get())) {
+                return;
+            }
+            latestConnectionState.get().endAt(effectiveDate);
+        }
+        createNewConnectionState(newConnectionState, effectiveDate);
+        touch();
     }
 
-    private void closeCurrentConnectionState(Instant now) {
-        UsagePointConnectionState currentState = this.connectionState.effective(now).get();
-        currentState.close(now);
-        this.dataModel.update(currentState);
+    private boolean isConnectionStateChangeFeasible(Instant effectiveDate, UsagePointConnectionState latestState, ConnectionState newState) {
+        Range<Instant> latestStateInterval = latestState.getRange();
+        return !(latestStateInterval.hasUpperBound() && effectiveDate.isBefore(latestStateInterval.upperEndpoint())) &&
+                !(latestStateInterval.hasLowerBound() && effectiveDate.isBefore(latestStateInterval.lowerEndpoint())) &&
+                !(effectiveDate.equals(latestStateInterval.lowerEndpoint()) && latestState.getConnectionState() != newState);
     }
 
-    private void createNewState(Instant effective, ConnectionState connectionState) {
-        Interval stateEffectivityInterval = Interval.of(Range.atLeast(effective));
-        UsagePointConnectionState usagePointConnectionState = this.dataModel
-                .getInstance(UsagePointConnectionStateImpl.class)
-                .initialize(stateEffectivityInterval, this, connectionState);
+    private boolean isConnectionStateChangeNeeded(ConnectionState newConnectionState, UsagePointConnectionState latestConnectionState) {
+        return latestConnectionState.getConnectionState() != newConnectionState;
+    }
+
+    private void createNewConnectionState(ConnectionState connectionState, Instant effectiveDate) {
+        UsagePointConnectionStateImpl usagePointConnectionState =
+                this.dataModel.getInstance(UsagePointConnectionStateImpl.class).init(this, connectionState, Range.atLeast(effectiveDate));
         this.connectionState.add(usagePointConnectionState);
     }
 

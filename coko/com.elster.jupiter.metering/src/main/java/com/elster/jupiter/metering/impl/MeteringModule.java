@@ -27,6 +27,7 @@ import com.elster.jupiter.metering.impl.aggregation.VirtualFactory;
 import com.elster.jupiter.metering.impl.aggregation.VirtualFactoryImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -93,7 +94,7 @@ public class MeteringModule extends AbstractModule {
         requireBinding(CustomPropertySetService.class);
         requireBinding(PropertySpecService.class);
         requireBinding(SearchService.class);
-        requireBinding(UsagePointLifeCycleConfigurationService.class);
+//        requireBinding(UsagePointLifeCycleConfigurationService.class);
 
         bindConstant().annotatedWith(Names.named("requiredReadingTypes")).to(readingTypes);
         bindConstant().annotatedWith(Names.named("createReadingTypes")).to(createReadingTypes);
@@ -103,6 +104,7 @@ public class MeteringModule extends AbstractModule {
         bind(ServerMeteringService.class).toProvider(MeteringServiceProvider.class);
         bind(ServerMetrologyConfigurationService.class).toProvider(MetrologyConfigurationServiceProvider.class);
         bind(MetrologyConfigurationService.class).toProvider(MetrologyConfigurationServiceProvider.class);
+        bind(SyntheticLoadProfileService.class).toProvider(SyntheticLoadProfileServiceProvider.class);
         bind(VirtualFactory.class).to(VirtualFactoryImpl.class).in(Scopes.SINGLETON);
         bind(SqlBuilderFactory.class).to(SqlBuilderFactoryImpl.class).in(Scopes.SINGLETON);
         bind(DataAggregationService.class).annotatedWith(Names.named("dataAggregationMock")).toProvider(() -> dataAggregationMock);
@@ -162,6 +164,20 @@ public class MeteringModule extends AbstractModule {
         @Override
         public ServerMetrologyConfigurationService get() {
             return this.meteringDataModelService.getMetrologyConfigurationService();
+        }
+    }
+
+    private static class SyntheticLoadProfileServiceProvider implements Provider<SyntheticLoadProfileService> {
+        private final MeteringDataModelService meteringDataModelService;
+
+        @Inject
+        private SyntheticLoadProfileServiceProvider(MeteringDataModelService meteringDataModelService) {
+            this.meteringDataModelService = meteringDataModelService;
+        }
+
+        @Override
+        public SyntheticLoadProfileService get() {
+            return this.meteringDataModelService.getSyntheticLoadProfileService();
         }
     }
 

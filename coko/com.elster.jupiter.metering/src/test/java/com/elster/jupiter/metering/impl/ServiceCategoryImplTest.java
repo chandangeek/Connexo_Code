@@ -119,7 +119,7 @@ public class ServiceCategoryImplTest {
     @Test
     public void testNewUsagePoint() {
         when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, thesaurus, () -> null, () -> null, customPropertySetService, metrologyConfigurationService, dataAggregationService, usagePointLifeCycleConfigurationService));
-        when(dataModel.getInstance(UsagePointConnectionStateImpl.class)).thenAnswer(invocation -> new UsagePointConnectionStateImpl());
+        when(dataModel.getInstance(UsagePointConnectionStateImpl.class)).thenAnswer(invocation -> new UsagePointConnectionStateImpl(dataModel, thesaurus));
         UsagePointState usagePointState = mock(UsagePointState.class);
         when(usagePointState.isInitial()).thenReturn(true);
         UsagePointLifeCycle usagePointLifeCycle = mock(UsagePointLifeCycle.class);

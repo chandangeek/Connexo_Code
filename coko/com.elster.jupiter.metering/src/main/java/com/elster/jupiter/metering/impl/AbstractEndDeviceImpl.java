@@ -71,6 +71,9 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     private Instant obsoleteTime;
     private Instant modTime;
     private SpatialCoordinates spatialCoordinates;
+    private String manufacturer;
+    private String modelNbr;
+    private String modelVersion;
 
     @SuppressWarnings("unused")
     private String userName;
@@ -404,6 +407,36 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     @Override
     public Optional<Instant> getObsoleteTime() {
         return Optional.ofNullable(this.obsoleteTime);
+    }
+
+    @Override
+    public String getManufacturer() {
+        return manufacturer == null ? "" : manufacturer;
+    }
+
+    @Override
+    public void setManufacturer(String manufacturer) {
+         this.manufacturer = manufacturer;
+    }
+
+    @Override
+    public String getModelNumber() {
+        return modelNbr == null ? "" : modelNbr;
+    }
+
+    @Override
+    public void setModelNumber(String modelNumber) {
+       this.modelNbr = modelNumber;
+    }
+
+    @Override
+    public String getModelVersion() {
+        return modelVersion == null ? "" : modelVersion;
+    }
+
+    @Override
+    public void setModelVersion(String modelVersion) {
+        this.modelVersion = modelVersion;
     }
 
     /**
