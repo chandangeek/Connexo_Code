@@ -75,7 +75,10 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
             if (ootbMetrologyConfiguration.isPresent()) {
                 // set appropriate value for gap allowed flag
                 MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration configuration = ootbMetrologyConfiguration.get();
-                metrologyConfiguration.startUpdate().setGapAllowed(configuration.isGapAllowed()).complete();
+                if (!metrologyConfiguration.isGapAllowed() != configuration.isGapAllowed()) {
+                    // correct flag value for ootb configuration
+                    metrologyConfiguration.startUpdate().setGapAllowed(configuration.isGapAllowed()).complete();
+                }
             }
         }));
     }
