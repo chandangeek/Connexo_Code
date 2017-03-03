@@ -23,6 +23,7 @@ import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
@@ -42,6 +43,7 @@ import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPrope
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
+import com.elster.jupiter.rest.util.StatusCode;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
@@ -602,52 +604,17 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     }
 
     @Test
-    public void testCanActivateAndClearMetersOnUsagePointWithNoPreOperationalStage() {
-        Meter meter1 = mock(Meter.class);
-        when(meter1.getName()).thenReturn("meter1");
-        when(meteringService.findMeterByName("meter1")).thenReturn(Optional.of(meter1));
-
-        Meter meter2 = mock(Meter.class);
-        when(meter2.getName()).thenReturn("meter2");
-        when(meteringService.findMeterByName("meter2")).thenReturn(Optional.of(meter2));
-
-        MeterRole meterRole1 = mock(MeterRole.class);
-        when(meterRole1.getKey()).thenReturn("key1");
-        when(metrologyConfigurationService.findMeterRole("key1")).thenReturn(Optional.of(meterRole1));
-
-        MeterRole meterRole2 = mock(MeterRole.class);
-        when(meterRole2.getKey()).thenReturn("key2");
-        when(metrologyConfigurationService.findMeterRole("key2")).thenReturn(Optional.of(meterRole2));
-
-        MeterRole meterRole3 = mock(MeterRole.class);
-        when(meterRole3.getKey()).thenReturn("key3");
-        when(metrologyConfigurationService.findMeterRole("key3")).thenReturn(Optional.of(meterRole3));
-
-        UsagePointMeterActivator linker = mock(UsagePointMeterActivator.class);
-        when(usagePoint.linkMeters()).thenReturn(linker);
-
-        MeterActivationInfo meterActivation1 = new MeterActivationInfo();
-        meterActivation1.meter = new MeterInfo();
-        meterActivation1.meter.name = meter1.getName();
-        meterActivation1.meterRole = new MeterRoleInfo();
-        meterActivation1.meterRole.id = meterRole1.getKey();
-
-        MeterActivationInfo meterActivation2 = new MeterActivationInfo();
-        meterActivation2.meter = new MeterInfo();
-        meterActivation2.meter.name = meter2.getName();
-        meterActivation2.meterRole = new MeterRoleInfo();
-        meterActivation2.meterRole.id = meterRole2.getKey();
-
-        MeterActivationInfo meterActivation3 = new MeterActivationInfo();
-        meterActivation3.meterRole = new MeterRoleInfo();
-        meterActivation3.meterRole.id = meterRole3.getKey();
-
+    public void testCanActivateAndClearMetersOnUsagePointWithNoPreOperationalStage() throws IOException {
         UsagePointInfo info = new UsagePointInfo();
         info.version = usagePoint.getVersion();
-        info.meterActivations = Arrays.asList(meterActivation1, meterActivation2, meterActivation3);
 
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/activatemeters").request().put(Entity.json(info));
-        assertThat(response.getStatus()).isEqualTo(422);
+        JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
+
+        assertThat(response.getStatus()).isEqualTo(StatusCode.UNPROCESSABLE_ENTITY.getStatusCode());
+        assertThat(model.<Boolean>get("$.success")).isEqualTo(false);
+        assertThat(model.<String>get("$.message")).isEqualTo(MessageSeeds.USAGE_POINT_INCORRECT_STAGE.getDefaultFormat());
+        assertThat(model.<String>get("$.error")).isEqualTo(MessageSeeds.USAGE_POINT_INCORRECT_STAGE.getKey());
     }
 
     @Test
@@ -808,6 +775,8 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         assertThat(jsonModel.<List>get("$.meters[0].ongoingProcesses")).hasSize(1);
         assertThat(jsonModel.<String>get("$.meters[0].ongoingProcesses[0].id")).isEqualTo("1");
         assertThat(jsonModel.<String>get("$.meters[0].ongoingProcesses[0].name")).isEqualTo("Replace meter");
+    }
+
     public void testGetValidationTasksOnUsagePoint() throws Exception {
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/validationtasks").request().get();
         assertThat(response.getStatus()).isEqualTo(200);
