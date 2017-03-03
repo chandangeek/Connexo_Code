@@ -740,7 +740,7 @@ public enum TableSpecs {
                     .conversion(CHAR2BOOLEAN)
                     .map(MetrologyConfigurationImpl.Fields.ALLOW_GAP.fieldName())
                     .since(version(10,3))
-                    .installValue("'Y'")
+                    .installValue("'N'")
                     .add();
             table.column(MetrologyConfigurationImpl.Fields.STATUS.name())
                     .number()
