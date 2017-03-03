@@ -23,6 +23,8 @@ import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTempla
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 
@@ -54,6 +56,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private final IssueCreationService issueCreationService;
     private final IssueService issueService;
     private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final TimeService timeService;
 
     private String type;
@@ -63,11 +66,12 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private Priority priority;
 
     @Inject
-    public IssueRuleBuilder(IssueCreationService issueCreationService, IssueService issueService, DeviceConfigurationService deviceConfigurationService, TimeService timeService) {
+    public IssueRuleBuilder(IssueCreationService issueCreationService, IssueService issueService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TimeService timeService) {
         super(IssueRuleBuilder.class);
         this.issueCreationService = issueCreationService;
         this.issueService = issueService;
         this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.timeService = timeService;
     }
 
@@ -282,7 +286,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                                                                    try {
                                                                        JSONObject jsonId = new JSONObject();
                                                                        jsonId.put("deviceTypeName", deviceType.getName());
-                                                                       jsonId.put("lifeCycleStateName", deviceType.getName() + "." + state.getName());
+                                                                       jsonId.put("lifeCycleStateName", deviceType.getName() + "." + getStateName(state));
                                                                        return jsonId.toString();
                                                                    } catch (JSONException e) {
                                                                        e.printStackTrace();
@@ -319,5 +323,12 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                 return "";
             }
         };
+    }
+
+    private String getStateName(State state) {
+        return DefaultState
+                .from(state)
+                .map(deviceLifeCycleConfigurationService::getDisplayName)
+                .orElseGet(state::getName);
     }
 }
