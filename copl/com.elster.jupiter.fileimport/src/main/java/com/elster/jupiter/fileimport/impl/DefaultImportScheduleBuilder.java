@@ -98,8 +98,8 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
     }
 
     @Override
-    public ImportScheduleBuilder setActiveOnUI(boolean isActiveOnUI) {
-        this.isActiveOnUI = isActiveOnUI;
+    public ImportScheduleBuilder setActiveInUI(boolean activeInUI) {
+        this.isActiveOnUI = activeInUI;
         return this;
     }
 

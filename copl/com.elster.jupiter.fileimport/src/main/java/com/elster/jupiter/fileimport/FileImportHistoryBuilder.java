@@ -4,11 +4,14 @@
 
 package com.elster.jupiter.fileimport;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 
 /**
  * Interface for builders for an FileImportHistory
  */
+@ProviderType
 public interface FileImportHistoryBuilder {
 
     /**

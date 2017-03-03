@@ -407,17 +407,6 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
     }
 
     @Override
-    public Finder<ImportSchedule> getImportSchedulesForFileUpload(String applicationName) {
-        Condition condition = Condition.TRUE;
-        condition = condition.and(Where.where("isActiveOnUI").isEqualTo(true));
-        condition = condition.and(Where.where("active").isEqualTo(true));
-        if (!"SYS".equalsIgnoreCase(applicationName)) {
-            condition = condition.and(Where.where("applicationName").isEqualToIgnoreCase(applicationName));
-        }
-        return DefaultFinder.of(ImportSchedule.class, condition, dataModel);
-    }
-
-    @Override
     public String getComponentName() {
         return FileImportService.COMPONENT_NAME;
     }

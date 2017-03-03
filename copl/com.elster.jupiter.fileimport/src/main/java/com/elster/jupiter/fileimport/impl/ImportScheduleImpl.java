@@ -25,7 +25,6 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 
 import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.nio.file.FileSystem;
@@ -70,8 +69,7 @@ final class ImportScheduleImpl implements ServerImportSchedule {
     @NonEmptyPath(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     private Path failureDirectory;
 
-    @NotNull(message = "{CannotBeNull}")
-    private boolean isActiveOnUI;
+    private boolean activeInUI;
 
     private String pathMatcher;
     private transient ScheduleExpression scheduleExpression;
@@ -135,7 +133,9 @@ final class ImportScheduleImpl implements ServerImportSchedule {
     /**
      * @deprecated
      * New method below this one must be used instead.
-     * It has new parameter isActiveOnUI which defines possibility to use import service via user interface
+     * {@link ImportScheduleImpl from(DataModel dataModel, String name, boolean active, ScheduleExpression scheduleExpression, String applicationName, String importerName, String destination,
+    Path importDirectory, String pathMatcher, Path inProcessDirectory, Path failureDirectory, Path successDirectory, boolean isActiveOnUI)}
+     * It has new parameter activeInUI which defines possibility to use import schedule via user interface
      * **/
     @Deprecated
     static ImportScheduleImpl from(DataModel dataModel, String name, boolean active, ScheduleExpression scheduleExpression, String applicationName, String importerName, String destination,
@@ -148,7 +148,7 @@ final class ImportScheduleImpl implements ServerImportSchedule {
         return dataModel.getInstance(ImportScheduleImpl.class).init(name, active, scheduleExpression, applicationName, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory, isActiveOnUI);
     }
 
-    private ImportScheduleImpl init(String name, boolean active, ScheduleExpression scheduleExpression, String applicationName, String importerName, String destinationName, Path importDirectory, String pathMatcher, Path inProcessDirectory, Path failureDirectory, Path successDirectory, boolean isActiveOnUI) {
+    private ImportScheduleImpl init(String name, boolean active, ScheduleExpression scheduleExpression, String applicationName, String importerName, String destinationName, Path importDirectory, String pathMatcher, Path inProcessDirectory, Path failureDirectory, Path successDirectory, boolean activeInUI) {
         this.name = name;
         this.active = active;
         this.scheduleExpression = scheduleExpression;
@@ -161,7 +161,7 @@ final class ImportScheduleImpl implements ServerImportSchedule {
         this.successDirectory = successDirectory;
         this.pathMatcher = pathMatcher;
         this.applicationName = applicationName;
-        this.isActiveOnUI = isActiveOnUI;
+        this.activeInUI = activeInUI;
         return this;
     }
 
@@ -262,14 +262,12 @@ final class ImportScheduleImpl implements ServerImportSchedule {
         return Collections.unmodifiableList(properties);
     }
 
-    @Override
-    public boolean getActiveOnUI() {
-        return isActiveOnUI;
+    public boolean activeInUI() {
+        return activeInUI;
     }
 
-    @Override
-    public void setActiveOnUI(boolean isActiveOnUI) {
-        this.isActiveOnUI = active;
+    public void setActiveInUI(boolean isActiveOnUI) {
+        this.activeInUI = active;
     }
 
     @Override

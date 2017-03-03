@@ -125,9 +125,9 @@ public interface ImportSchedule {
     /**
      * @return possibility to use import service and upload file via user interface
     * */
-    boolean getActiveOnUI();
+    boolean activeInUI();
 
-    void setActiveOnUI(boolean isActiveOnUI);
+    void setActiveInUI(boolean isActiveOnUI);
 
     Map<String,Object> getProperties();
 

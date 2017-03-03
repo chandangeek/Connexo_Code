@@ -14,6 +14,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2PATH;
@@ -46,7 +47,7 @@ enum TableSpecs {
             table.column("INPROCESSDIR").varChar(DESCRIPTION_LENGTH).notNull().conversion(CHAR2PATH).map("inProcessDirectory").add();
             table.column("SUCCESSDIR").varChar(DESCRIPTION_LENGTH).notNull().conversion(CHAR2PATH).map("successDirectory").add();
             table.column("FAILDIR").varChar(DESCRIPTION_LENGTH).notNull().conversion(CHAR2PATH).map("failureDirectory").add();
-            table.column("ISACTIVEONUI").bool().notNull().map("isActiveOnUI").add();
+            table.column("ACTIVEINUI").bool().notNull().map("activeInUI").installValue("'N'").since(Version.version(10, 3)).add();
             Column obsoleteColumn = table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
             table.addAuditColumns();
             table.primaryKey("FIM_PK_IMPORT_SCHEDULE").on(idColumn).add();
@@ -130,7 +131,7 @@ enum TableSpecs {
         @Override
         public void addTo(DataModel dataModel) {
             Table<FileImportHistory> table = dataModel.addTable(name(), FileImportHistory.class);
-            table.map(FileImportHistoryImpl.class);
+            table.since(Version.version(10, 3)).map(FileImportHistoryImpl.class);
             Column id = table.addAutoIdColumn();
             table.setJournalTableName("FIM_FILE_IMPORT_HISTORYJRNL");
             Column importScheduleColumn = table.column("IMPORTSCHEDULE").number().notNull().add();
@@ -139,7 +140,7 @@ enum TableSpecs {
             table.column("UPLOADTIME").number().conversion(NUMBER2INSTANT).map("uploadTime").notNull().add();
             table.primaryKey("FIM_PK_HISTORY").on(id).add();
 
-            table.foreignKey("FIM_FK_IMPORTSCHEDULE")
+            table.foreignKey("FIM_FK_IMPORTHISTORY2SCHEDULE")
                     .on(importScheduleColumn)
                     .references(FIM_IMPORT_SCHEDULE.name())
                     .map("importSchedule")

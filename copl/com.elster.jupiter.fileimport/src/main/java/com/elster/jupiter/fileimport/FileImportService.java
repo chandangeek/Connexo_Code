@@ -124,7 +124,4 @@ public interface FileImportService {
      * @return the base path of the running app server import folder
      */
     Path getBasePath();
-
-    Finder<ImportSchedule> getImportSchedulesForFileUpload(String applicationName);
-
 }
