@@ -51,13 +51,12 @@ public class MetrologyConfigurationResourceTest extends MeteringApplicationJerse
         readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
     }
 
-    private UsagePointMetrologyConfiguration mockMetrologyConfiguration(long id, String name, ServiceKind serviceKind, MetrologyConfigurationStatus status, String readingTypeMRID, boolean isGapAllowed) {
+    private UsagePointMetrologyConfiguration mockMetrologyConfiguration(long id, String name, ServiceKind serviceKind, MetrologyConfigurationStatus status, String readingTypeMRID) {
         UsagePointMetrologyConfiguration mock = mock(UsagePointMetrologyConfiguration.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getName()).thenReturn(name);
         when(mock.getDescription()).thenReturn("some description");
         when(mock.getStatus()).thenReturn(status);
-        when(mock.isGapAllowed()).thenReturn(isGapAllowed);
         ServiceCategory serviceCategory = mock(ServiceCategory.class);
         when(mock.getServiceCategory()).thenReturn(serviceCategory);
         when(serviceCategory.getKind()).thenReturn(serviceKind);
@@ -124,8 +123,8 @@ public class MetrologyConfigurationResourceTest extends MeteringApplicationJerse
 
     @Test
     public void testGetMetrologyConfigurations() {
-        UsagePointMetrologyConfiguration config1 = mockMetrologyConfiguration(1L, "config1", ServiceKind.ELECTRICITY, MetrologyConfigurationStatus.INACTIVE, "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", true);
-        UsagePointMetrologyConfiguration config2 = mockMetrologyConfiguration(2L, "config2", ServiceKind.WATER, MetrologyConfigurationStatus.ACTIVE, "0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0", false);
+        UsagePointMetrologyConfiguration config1 = mockMetrologyConfiguration(1L, "config1", ServiceKind.ELECTRICITY, MetrologyConfigurationStatus.INACTIVE, "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
+        UsagePointMetrologyConfiguration config2 = mockMetrologyConfiguration(2L, "config2", ServiceKind.WATER, MetrologyConfigurationStatus.ACTIVE, "0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0");
         when(metrologyConfigurationService.findAllMetrologyConfigurations()).thenReturn(Arrays.asList(config1, config2));
 
         //Business method
@@ -137,14 +136,12 @@ public class MetrologyConfigurationResourceTest extends MeteringApplicationJerse
         assertThat(jsonModel.<Number>get("$.metrologyConfigurations[0].id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.metrologyConfigurations[0].name")).isEqualTo("config1");
         assertThat(jsonModel.<String>get("$.metrologyConfigurations[0].status.id")).isEqualTo("inactive");
-        assertThat(jsonModel.<Boolean>get("$.metrologyConfigurations[0].isGapAllowed")).isEqualTo(true);
         assertThat(jsonModel.<String>get("$.metrologyConfigurations[0].serviceCategory.id")).isEqualTo("ELECTRICITY");
         assertThat(jsonModel.<List>get("$.metrologyConfigurations[0].readingTypes")).hasSize(1);
         assertThat(jsonModel.<String>get("$.metrologyConfigurations[0].readingTypes[0].mRID")).isEqualTo("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
         assertThat(jsonModel.<Number>get("$.metrologyConfigurations[1].id")).isEqualTo(2);
         assertThat(jsonModel.<String>get("$.metrologyConfigurations[1].name")).isEqualTo("config2");
         assertThat(jsonModel.<String>get("$.metrologyConfigurations[1].status.id")).isEqualTo("active");
-        assertThat(jsonModel.<Boolean>get("$.metrologyConfigurations[1].isGapAllowed")).isEqualTo(false);
         assertThat(jsonModel.<String>get("$.metrologyConfigurations[1].serviceCategory.id")).isEqualTo("WATER");
         assertThat(jsonModel.<List>get("$.metrologyConfigurations[1].readingTypes")).hasSize(1);
         assertThat(jsonModel.<String>get("$.metrologyConfigurations[1].readingTypes[0].mRID")).isEqualTo("0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0");
@@ -250,7 +247,7 @@ public class MetrologyConfigurationResourceTest extends MeteringApplicationJerse
     @Test
     public void testGetMetrologyConfiguration() {
         MetrologyConfigurationInfo info = mockMetrologyConfigurationInfo(1L, "config1", "some description", 1L);
-        UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(1L, "config1", ServiceKind.ELECTRICITY, MetrologyConfigurationStatus.INACTIVE, "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", true);
+        UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(1L, "config1", ServiceKind.ELECTRICITY, MetrologyConfigurationStatus.INACTIVE, "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
         when(metrologyConfigurationService.findMetrologyConfiguration(1L)).thenReturn(Optional.of(metrologyConfiguration));
 
         //Business method
@@ -262,7 +259,6 @@ public class MetrologyConfigurationResourceTest extends MeteringApplicationJerse
         assertThat(jsonModel.<String>get("$.name")).isEqualTo("config1");
         assertThat(jsonModel.<Number>get("$.description")).isEqualTo("some description");
         assertThat(jsonModel.<String>get("$.status.id")).isEqualTo("inactive");
-        assertThat(jsonModel.<Boolean>get("$.isGapAllowed")).isEqualTo(true);
         assertThat(jsonModel.<String>get("$.serviceCategory.id")).isEqualTo("ELECTRICITY");
         assertThat(jsonModel.<List>get("$.readingTypes")).hasSize(1);
         assertThat(jsonModel.<String>get("$.readingTypes[0].mRID")).isEqualTo("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");

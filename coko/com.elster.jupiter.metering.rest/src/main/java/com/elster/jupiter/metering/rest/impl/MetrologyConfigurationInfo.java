@@ -19,7 +19,6 @@ public class MetrologyConfigurationInfo {
     public long id;
     public String name;
     public String description;
-    public boolean isGapAllowed;
     public IdWithNameInfo status;
     public IdWithNameInfo serviceCategory;
     public List<ReadingTypeInfo> readingTypes;

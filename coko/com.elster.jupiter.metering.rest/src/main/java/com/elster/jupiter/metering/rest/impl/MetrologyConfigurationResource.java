@@ -107,12 +107,11 @@ public class MetrologyConfigurationResource {
                 .notEmpty(info.name, "name")
                 .notEmpty(info.serviceCategory, "serviceCategory")
                 .notEmpty(info.readingTypes, "readingTypes")
-                .notEmpty(info.isGapAllowed, "isGapAllowed")
                 .validate();
 
         ServiceCategory serviceCategory = resourceHelper.findServiceCategory(info.serviceCategory);
         UsagePointMetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.newUsagePointMetrologyConfiguration(info.name, serviceCategory)
-                .withDescription(info.description).withGapAllowed(info.isGapAllowed).create();
+                .withDescription(info.description).create();
 
         setReadingTypes(metrologyConfiguration, resourceHelper.findReadingTypes(info.readingTypes), false);
 
@@ -130,7 +129,6 @@ public class MetrologyConfigurationResource {
                 .notEmpty(info.name, "name")
                 .notEmpty(info.serviceCategory, "serviceCategory")
                 .notEmpty(info.readingTypes, "readingTypes")
-                .notEmpty(info.isGapAllowed, "isGapAllowed")
                 .validate();
 
         UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findAndLockMetrologyConfiguration(info);
@@ -138,8 +136,7 @@ public class MetrologyConfigurationResource {
 
         metrologyConfigurationUpdater
                 .setName(info.name)
-                .setDescription(info.description)
-                .setGapAllowed(info.isGapAllowed);
+                .setDescription(info.description);
 
         if (!metrologyConfiguration.isActive()) {
             metrologyConfigurationUpdater.setServiceCategory(resourceHelper.findServiceCategory(info.serviceCategory));
