@@ -6,6 +6,7 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
 
@@ -13,6 +14,7 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 
 import javax.inject.Inject;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,8 +63,19 @@ class UpgraderV10_3 implements Upgrader {
                 while (rs.next()) {
                     updatePartialConnectionTaskStatement.addBatch(String.format("UPDATE DTC_PARTIALCONNECTIONTASK SET DIALECTCONFIGPROPERTIES = %1s WHERE ID = %2s", rs.getLong(1), rs.getLong(2)));
                 }
+                updatePartialConnectionTaskStatement.executeBatch();
+                alterDTC_PARTIALCONNECTIONTASK(updatePartialConnectionTaskStatement); // Need to be done afterwards to avoid 'ORA-01758: Tabel moet leeg zijn om verplichte (NOT NULL) kolom toe te kunnen voegen.'
             }
         });
+    }
+
+    private void alterDTC_PARTIALCONNECTIONTASK(Statement statement) {
+        String sql = "ALTER TABLE DTC_PARTIALCONNECTIONTASK MODIFY (DIALECTCONFIGPROPERTIES NOT NULL)";
+        try {
+            statement.execute(sql);
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
     }
 
 }

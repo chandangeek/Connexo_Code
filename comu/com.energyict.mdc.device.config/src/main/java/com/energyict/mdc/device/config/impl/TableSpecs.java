@@ -459,7 +459,7 @@ public enum TableSpecs {
             table.column("RESCHEDULERETRYDELAY").number().conversion(NUMBER2INT).map("rescheduleRetryDelay.count").add();
             Column comportpool = table.column("COMPORTPOOL").number().add();
             table.column("RESCHEDULERETRYDELAYCODE").number().conversion(NUMBER2INT).map("rescheduleRetryDelay.timeUnitCode").add();
-            Column dialectConfigurationProperties = table.column("DIALECTCONFIGPROPERTIES").number().notNull().add().since(Version.version(10, 3));
+            Column dialectConfigurationProperties = table.column("DIALECTCONFIGPROPERTIES").number().since(Version.version(10, 3)).add();
             table.setJournalTableName("DTC_PARTIALCONNECTIONTASKJRNL").since(version(10, 2));
             table.addAuditColumns();
             table.primaryKey("PK_DTC_PARTIALCONNTASK").on(id).add();
