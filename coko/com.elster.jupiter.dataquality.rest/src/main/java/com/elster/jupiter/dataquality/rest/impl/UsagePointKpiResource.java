@@ -48,7 +48,6 @@ public class UsagePointKpiResource {
     }
 
     @GET
-    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_DATA_QUALITY_KPI_CONFIGURATION, Privileges.Constants.VIEW_DATA_QUALITY_KPI_CONFIGURATION})
     public PagedInfoList getAllDataQualityKpis(@BeanParam JsonQueryParameters queryParameters) {
@@ -61,8 +60,8 @@ public class UsagePointKpiResource {
     }
 
     private Comparator<UsagePointDataQualityKpi> usagePointKpiComparator() {
-        return Comparator.<UsagePointDataQualityKpi, String>comparing(kpi -> kpi.getUsagePointGroup().getName())
-                .thenComparing(kpi -> kpi.getMetrologyPurpose().getName());
+        return Comparator.<UsagePointDataQualityKpi, String>comparing(kpi -> kpi.getUsagePointGroup().getName().toUpperCase())
+                .thenComparing(kpi -> kpi.getMetrologyPurpose().getName().toUpperCase());
     }
 
     @GET

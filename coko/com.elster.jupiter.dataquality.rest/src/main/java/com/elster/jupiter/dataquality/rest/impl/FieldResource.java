@@ -85,7 +85,7 @@ public class FieldResource {
         List<AvailableUsagePointGroup> infos = availableGroups.asMap().entrySet()
                 .stream()
                 .map(entry -> new AvailableUsagePointGroup(entry.getKey(), entry.getValue()))
-                .sorted(Comparator.comparing(info -> info.name))
+                .sorted(Comparator.comparing(info -> info.name.toUpperCase()))
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("usagePointGroups", infos, queryParameters);
     }
@@ -98,7 +98,7 @@ public class FieldResource {
             super(usagePointGroup);
             this.purposes = metrologyPurposes.stream()
                     .map(IdWithNameInfo::new)
-                    .sorted(Comparator.comparing(info -> info.name))
+                    .sorted(Comparator.comparing(info -> info.name.toUpperCase()))
                     .toArray(IdWithNameInfo[]::new);
         }
     }

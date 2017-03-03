@@ -30,7 +30,6 @@ import static com.elster.jupiter.dataquality.rest.impl.DataQualityKpiInfo.UsageP
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -194,7 +193,7 @@ public class UsagePointKpiResourceTest extends DataQualityApplicationJerseyTest 
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-        verify(dataQualityKpiService, times(1)).newDataQualityKpi(usagePointGroup, billing, FREQUENCY);
-        verify(dataQualityKpiService, times(1)).newDataQualityKpi(usagePointGroup, information, FREQUENCY);
+        verify(dataQualityKpiService).newDataQualityKpi(usagePointGroup, billing, FREQUENCY);
+        verify(dataQualityKpiService).newDataQualityKpi(usagePointGroup, information, FREQUENCY);
     }
 }

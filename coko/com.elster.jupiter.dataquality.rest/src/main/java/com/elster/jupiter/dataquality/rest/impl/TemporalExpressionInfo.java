@@ -36,7 +36,7 @@ public class TemporalExpressionInfo {
             fromDuration(info.every, duration, Duration::toHours, ChronoUnit.HOURS);
             fromDuration(info.every, duration, Duration::toMinutes, ChronoUnit.MINUTES);
         } else {
-            info.every = fromTemporalAmount(temporalAmount);
+            info.every = TimeDurationInfo.fromTemporalAmount(temporalAmount);
         }
         return info;
     }
@@ -46,21 +46,6 @@ public class TemporalExpressionInfo {
             info.count = conv.apply(duration);
             info.timeUnit = unit.toString().toLowerCase();
         }
-    }
-
-    private static void fromTemporalAmount(TimeDurationInfo info, TemporalAmount temporalAmount, TemporalUnit unit) {
-        if (info != null && info.count == 0) {
-            info.count = temporalAmount.get(unit);
-            info.timeUnit = unit.toString().toLowerCase();
-        }
-    }
-
-    private static TimeDurationInfo fromTemporalAmount(TemporalAmount temporalAmount) {
-        TimeDurationInfo durationInfo = new TimeDurationInfo();
-        for (TemporalUnit unit : temporalAmount.getUnits()) {
-            fromTemporalAmount(durationInfo, temporalAmount, unit);
-        }
-        return durationInfo;
     }
 }
 

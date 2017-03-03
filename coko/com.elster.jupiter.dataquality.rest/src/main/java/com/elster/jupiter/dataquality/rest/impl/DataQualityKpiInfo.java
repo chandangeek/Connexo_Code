@@ -26,7 +26,7 @@ public abstract class DataQualityKpiInfo {
         public LongIdWithNameInfo usagePointGroup;
         public LongIdWithNameInfo metrologyPurpose;
 
-        public LongIdWithNameInfo[] purposes;// used only by then front-end to POST kpi with multiple purposes
+        public LongIdWithNameInfo[] purposes;// used only to POST kpis for multiple purposes at once
 
     }
 }

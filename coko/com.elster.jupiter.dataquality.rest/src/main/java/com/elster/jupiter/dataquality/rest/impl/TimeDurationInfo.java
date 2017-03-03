@@ -6,7 +6,8 @@ package com.elster.jupiter.dataquality.rest.impl;
 
 import com.elster.jupiter.time.TimeDuration;
 
-import java.util.Optional;
+import java.time.temporal.TemporalAmount;
+import java.time.temporal.TemporalUnit;
 
 public class TimeDurationInfo {
     public long count;
@@ -19,34 +20,23 @@ public class TimeDurationInfo {
         // Constructor to allow ExtJS empty string TimeDurations
     }
 
-    public TimeDurationInfo(TimeDuration timeDuration) {
-        this.count = timeDuration.getCount();
-        this.timeUnit = TimeDuration.getTimeUnitDescription(timeDuration.getTimeUnitCode());
-    }
-
-    public TimeDurationInfo(long seconds) {
-        this.count = seconds;
-        this.timeUnit = TimeDuration.TimeUnit.SECONDS.getDescription();
-    }
-
-    public static TimeDurationInfo of(TimeDuration timeDurationOrNull) {
-        if (timeDurationOrNull == null) {
-            return null;
-        } else {
-            return new TimeDurationInfo(timeDurationOrNull);
-        }
-    }
-
-    public static TimeDurationInfo of(Optional<TimeDuration> timeDurationOrNull) {
-        if (!timeDurationOrNull.isPresent()) {
-            return null;
-        } else {
-            return new TimeDurationInfo(timeDurationOrNull.get());
-        }
-    }
-
     public TimeDuration asTimeDuration() {
         return new TimeDuration(this.count + " " + this.timeUnit);
+    }
+
+    static TimeDurationInfo fromTemporalAmount(TemporalAmount temporalAmount) {
+        TimeDurationInfo durationInfo = new TimeDurationInfo();
+        for (TemporalUnit unit : temporalAmount.getUnits()) {
+            fromTemporalAmount(durationInfo, temporalAmount, unit);
+        }
+        return durationInfo;
+    }
+
+    private static void fromTemporalAmount(TimeDurationInfo info, TemporalAmount temporalAmount, TemporalUnit unit) {
+        if (info != null && info.count == 0) {
+            info.count = temporalAmount.get(unit);
+            info.timeUnit = unit.toString().toLowerCase();
+        }
     }
 }
 
