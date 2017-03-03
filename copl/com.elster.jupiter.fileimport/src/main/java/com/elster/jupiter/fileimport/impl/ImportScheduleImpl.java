@@ -269,7 +269,7 @@ final class ImportScheduleImpl implements ServerImportSchedule {
 
     @Override
     public void setActiveOnUI(boolean isActiveOnUI) {
-        this.isActiveOnUI = active;
+        this.isActiveOnUI = isActiveOnUI;
     }
 
     @Override
