@@ -25,6 +25,7 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Counters;
 import com.elster.jupiter.util.LongCounter;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.validation.ValidationRule;
@@ -33,6 +34,7 @@ import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -320,13 +322,14 @@ class DeviceDataQualityKpiCalculator implements DataQualityKpiCalculator {
              ResultSet resultSet = statement.executeQuery()
         ) {
             return StreamSupport.stream(new ResultSetSpliterator(resultSet), false)
-                    .collect(Collectors.toMap(this::toKey, this::toCounter, this::add));
+                    .flatMap(rs -> toKeys(rs).stream().map(key -> Pair.of(key, toCounter(rs))))
+                    .collect(Collectors.toMap(Pair::getFirst, Pair::getLast, this::add));
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
     }
 
-    private Key toKey(ResultSet resultSet) {
+    private Set<Key> toKeys(ResultSet resultSet) {
         try {
             long channelId = resultSet.getLong(ResultSetColumn.CHANNELID.index());
             Timestamp timestamp = resultSet.getTimestamp(ResultSetColumn.READINGTIMESTAMP.index());
@@ -338,19 +341,23 @@ class DeviceDataQualityKpiCalculator implements DataQualityKpiCalculator {
 
             for (PredefinedDataQualityMetric metric : PredefinedDataQualityMetric.values()) {
                 if (metric.accept(readingQualityType)) {
-                    return new Key(channelId, localDate, metric);
+                    return ImmutableSet.of(new Key(channelId, localDate, metric));
                 }
             }
             if (qualitiesToValidationRules.containsKey(readingQualityType)) {
                 ValidationRule validationRule = qualitiesToValidationRules.get(readingQualityType);
-                return new Key(channelId, localDate, notSuspect ? PredefinedDataQualityMetric.INFORMATIVE : new ValidatorDataQualityMetric(validationRule));
+                return ImmutableSet.of(new Key(channelId, localDate,
+                        notSuspect ? PredefinedDataQualityMetric.INFORMATIVE : new ValidatorDataQualityMetric(validationRule)));
             }
             if (qualitiesToEstimationRules.containsKey(readingQualityType)) {
                 EstimationRule estimationRule = qualitiesToEstimationRules.get(readingQualityType);
-                return new Key(channelId, localDate, new EstimatorDataQualityMetric(estimationRule));
+                return ImmutableSet.of(
+                        new Key(channelId, localDate, PredefinedDataQualityMetric.ESTIMATED),
+                        new Key(channelId, localDate, new EstimatorDataQualityMetric(estimationRule))
+                );
             }
             // this should normally not happen
-            return new Key(channelId, localDate, PredefinedDataQualityMetric.UNKNOWN);
+            return ImmutableSet.of(new Key(channelId, localDate, PredefinedDataQualityMetric.UNKNOWN));
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }

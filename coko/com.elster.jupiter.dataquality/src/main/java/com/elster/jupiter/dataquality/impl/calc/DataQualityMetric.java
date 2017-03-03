@@ -22,7 +22,7 @@ interface DataQualityMetric {
         ADDED(QualityCodeIndex.ADDED),
         EDITED(QualityCodeIndex.EDITGENERIC),
         REMOVED(QualityCodeIndex.REJECTED),
-        ESTIMATED(QualityCodeIndex.ESTIMATEGENERIC),
+        ESTIMATED,
         CONFIRMED(QualityCodeIndex.ACCEPTED),
         UNKNOWN;
 
