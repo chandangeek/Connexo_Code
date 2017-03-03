@@ -16,6 +16,8 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.RelativePeriodCategory;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.PrivilegesProvider;
@@ -34,14 +36,22 @@ import com.energyict.mdc.device.alarms.security.Privileges;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.LAST_7_DAYS;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.PREVIOUS_MONTH;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.PREVIOUS_WEEK;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.THIS_MONTH;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.THIS_WEEK;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.THIS_YEAR;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.TODAY;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.YESTERDAY;
 
 public class Installer implements FullInstaller, PrivilegesProvider {
-    private static final Logger LOGGER = Logger.getLogger("DeviceAlarmIssueInstaller");
 
     private final MessageService messageService;
     private final IssueService issueService;
@@ -73,6 +83,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
             setDefaultDeviceAlarmReasonsAndActions(issueType);
         }, "issue reasons and action types", logger);
         run(this::createRelativePeriodCategory, "create alarm relative period category", logger);
+        run(this::createRelativePeriods, "Assign default relative periods to DAL category", logger);
         run(this::publishEvents, "publishing events", logger);
     }
 
@@ -103,10 +114,10 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         Stream.of(DeviceAlarmEventDescription.values()).findFirst()
                 .map(deviceAlarmEventDescription -> eventService.getEventType(deviceAlarmEventDescription.getTopic()))
                 .ifPresent(eventType -> {
-            eventType.get().setPublish(true);
-            eventType.get().update();
+                    eventType.get().setPublish(true);
+                    eventType.get().update();
 
-        });
+                });
     }
 
     private IssueType setSupportedIssueType() {
@@ -137,6 +148,22 @@ public class Installer implements FullInstaller, PrivilegesProvider {
 
     private void createRelativePeriodCategory() {
         timeService.createRelativePeriodCategory(ModuleConstants.ALARM_RELATIVE_PERIOD_CATEGORY);
+    }
+
+    private void createRelativePeriods() {
+        RelativePeriodCategory category = getCategory();
+
+        EnumSet.of(LAST_7_DAYS, PREVIOUS_MONTH, PREVIOUS_WEEK, THIS_MONTH, THIS_WEEK, THIS_YEAR, TODAY, YESTERDAY)
+                .forEach(definition -> {
+                    RelativePeriod relativePeriod = timeService.findRelativePeriodByName(definition.getPeriodName())
+                            .orElseThrow(IllegalArgumentException::new);
+                    relativePeriod.addRelativePeriodCategory(category);
+                });
+    }
+
+    private RelativePeriodCategory getCategory() {
+        return timeService.findRelativePeriodCategoryByName(ModuleConstants.ALARM_RELATIVE_PERIOD_CATEGORY)
+                .orElseThrow(IllegalArgumentException::new);
     }
 
     private void run(Runnable runnable, String explanation, Logger logger) {
