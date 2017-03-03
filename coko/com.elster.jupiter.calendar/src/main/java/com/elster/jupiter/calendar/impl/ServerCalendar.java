@@ -24,7 +24,10 @@ public interface ServerCalendar extends Calendar {
 
     /**
      * Returns a view on this Calendar where all time zone neutral
-     * information is mapped to the specified ZoneId within the specified year.
+     * information is mapped to the specified ZoneId within the specified year range.
+     * We are not using the Range class because only closed ranges are allowed
+     * and we support that start year == end year but the Range class considers
+     * that to be an empty range.
      * All {@link com.elster.jupiter.calendar.RecurrentExceptionalOccurrence}s
      * are converted to {@link com.elster.jupiter.calendar.FixedExceptionalOccurrence}s.
      * All {@link com.elster.jupiter.calendar.RecurrentPeriodTransitionSpec}s
@@ -33,10 +36,11 @@ public interface ServerCalendar extends Calendar {
      * are mapped to the ZoneId.
      *
      * @param zoneId The ZoneId
-     * @param year The year
+     * @param startYear The first year in the range
+     * @param endYear The last year in the range
      * @return The ZonedView
      */
-    ZonedView forZone(ZoneId zoneId, Year year);
+    ZonedView forZone(ZoneId zoneId, Year startYear, Year endYear);
 
     /**
      * Extends the cached TimeSeries with one additional year.

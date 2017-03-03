@@ -566,8 +566,8 @@ public class CalendarImpl implements ServerCalendar {
     }
 
     @Override
-    public ZonedView forZone(ZoneId zoneId, Year year) {
-        return new ZonedCalenderViewImpl(this, this.clock, zoneId, year);
+    public ZonedView forZone(ZoneId zoneId, Year startYear, Year endYear) {
+        return new ZonedCalenderViewImpl(this, zoneId, startYear, endYear);
     }
 
     @Override

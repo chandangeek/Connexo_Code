@@ -127,7 +127,7 @@ class CalendarTimeSeriesEntityImpl implements CalendarTimeSeriesEntity, Persiste
                             0);
         if (Year.now(this.calendarService.getClock()).getValue() >= calendar.getStartYear().getValue()) {
             // Calendar does not start in the future
-            ServerCalendar.ZonedView zonedView = calendar.forZone(this.zoneId, calendar.getStartYear());
+            ServerCalendar.ZonedView zonedView = calendar.forZone(this.zoneId, calendar.getStartYear(), endYear);
             TimeSeriesDataStorer storer = this.calendarService.getIdsService().createNonOverrulingStorer();
             newlyCreated
                     .toList(this.initialGenerationRange(endYear))
@@ -150,7 +150,7 @@ class CalendarTimeSeriesEntityImpl implements CalendarTimeSeriesEntity, Persiste
         Year nextYear = Year.now(this.calendarService.getClock()).plusYears(1);
         ServerCalendar calendar = this.calendar();
         TimeSeries timeSeries = timeSeries();
-        ServerCalendar.ZonedView zonedView = calendar.forZone(this.zoneId, nextYear);
+        ServerCalendar.ZonedView zonedView = calendar.forZone(this.zoneId, nextYear, nextYear);
         TimeSeriesDataStorer storer = this.calendarService.getIdsService().createNonOverrulingStorer();
         timeSeries
             .toList(this.extensionGenerationRange(nextYear))
@@ -170,21 +170,18 @@ class CalendarTimeSeriesEntityImpl implements CalendarTimeSeriesEntity, Persiste
         ServerCalendar calendar = this.calendar();
         TimeSeries timeSeries = timeSeries();
         TimeSeriesDataStorer storer = this.calendarService.getIdsService().createOverrulingStorer();
-        for (int y = calendar.getStartYear().getValue(); y < calendar.getEndYear().getValue(); y++) {
-            Year year = Year.of(y);
-            ServerCalendar.ZonedView zonedView = calendar.forZone(this.zoneId, year);
-            timeSeries
-                .toList(this.oneYearRange(year))
+        ServerCalendar.ZonedView zonedView = calendar.forZone(this.zoneId, calendar.getStartYear(), calendar.getEndYear());
+        timeSeries
+                .toList(this.yearRange(calendar.getStartYear(), calendar.getEndYear()))
                 .forEach(instant -> storer.add(timeSeries, instant, zonedView.eventFor(instant).getCode()));
-        }
         LOGGER.log(Level.INFO, () -> "Regenerated timeseries for calendar(id=" + this.calendar().getId() + ", name=" + this.calendar().getName() + ")");
         this.log(storer.execute());
     }
 
-    private Range<Instant> oneYearRange(Year oneYear) {
-        ZonedDateTime startOfYear = oneYear.atDay(1).atStartOfDay(this.zoneId);
-        ZonedDateTime startOfNextYear = oneYear.atDay(1).plusYears(1).atStartOfDay(this.zoneId);
-        return Range.closedOpen(startOfYear.toInstant(), startOfNextYear.toInstant());
+    private Range<Instant> yearRange(Year startYear, Year endYear) {
+        ZonedDateTime startOfStartYear = startYear.atDay(1).atStartOfDay(this.zoneId);
+        ZonedDateTime startOfNextAfterEndYear = endYear.atDay(1).plusYears(1).atStartOfDay(this.zoneId);
+        return Range.closedOpen(startOfStartYear.toInstant(), startOfNextAfterEndYear.toInstant());
     }
 
     private void log(StorerStats stats) {

@@ -15,7 +15,6 @@ import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
 
 import com.google.common.collect.Range;
 
-import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalTime;
@@ -49,11 +48,11 @@ public class ZonedCalenderViewImpl implements ServerCalendar.ZonedView {
     private Set<FixedDayTypeOccurrence> exceptionalOccurrences;
     private Set<FixedDayTypeOccurrence> dayTypeOccurrences;
 
-    public ZonedCalenderViewImpl(ServerCalendar calendar, Clock clock, ZoneId zoneId, Year year) {
+    public ZonedCalenderViewImpl(ServerCalendar calendar, ZoneId zoneId, Year startYear, Year endYear) {
         this.calendar = calendar;
         this.zoneId = zoneId;
-        this.startYear = year.getValue();
-        this.endYear = Year.now(clock).getValue();
+        this.startYear = startYear.getValue();
+        this.endYear = endYear.getValue();
         this.fixRecurringExceptions();
         this.fixPeriodTransitions();
     }

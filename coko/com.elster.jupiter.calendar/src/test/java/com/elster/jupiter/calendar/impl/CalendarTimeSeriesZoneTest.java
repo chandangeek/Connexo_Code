@@ -34,7 +34,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for the {@link ServerCalendar#forZone(ZoneId, Year)} method
+ * Tests for the {@link ServerCalendar#forZone(ZoneId, Year, Year)} method
  * with Clock being fixed to May 2nd, 2016 at 01:40:00 (UTC).
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -76,7 +76,7 @@ public class CalendarTimeSeriesZoneTest {
         ServerCalendar calendar = this.createSimplePeakOffPeakCalendar("SimpleUTC");
 
         // Business methods
-        ServerCalendar.ZonedView zonedView = calendar.forZone(ZoneOffset.UTC, Year.of(2016));
+        ServerCalendar.ZonedView zonedView = calendar.forZone(ZoneOffset.UTC, Year.of(2016), Year.of(2016));
 
         // Asserts for a recurring holiday
         Instant jan1st2016_06_59_59_UTC = LocalDate.of(2016, Month.JANUARY, 1).atTime(6, 59, 59).atZone(ZoneOffset.UTC).toInstant();
@@ -105,12 +105,53 @@ public class CalendarTimeSeriesZoneTest {
 
     @Test
     @Transactional
+    public void simplePeakOffPeakCalendar_UTC_TwoYears() {
+        ServerCalendar calendar = this.createSimplePeakOffPeakCalendar("SimpleUTC");
+
+        // Business methods
+        ServerCalendar.ZonedView zonedView = calendar.forZone(ZoneOffset.UTC, Year.of(2016), Year.of(2017));
+
+        // Asserts for a recurring holiday in first year
+        Instant jan1st2016_06_59_59_UTC = LocalDate.of(2016, Month.JANUARY, 1).atTime(6, 59, 59).atZone(ZoneOffset.UTC).toInstant();
+        assertThat(zonedView.eventFor(jan1st2016_06_59_59_UTC).getCode()).isEqualTo(OFF_PEAK_EVENT_CODE);
+        Instant jan1st2016_07_0_0_UTC = jan1st2016_06_59_59_UTC.plusSeconds(1);
+        assertThat(zonedView.eventFor(jan1st2016_07_0_0_UTC).getCode()).isEqualTo(OFF_PEAK_EVENT_CODE);
+        Instant jan1st2016_21_0_1_UTC = LocalDate.of(2016, Month.JANUARY, 1).atTime(21, 0, 1).atZone(ZoneOffset.UTC).toInstant();
+        assertThat(zonedView.eventFor(jan1st2016_21_0_1_UTC).getCode()).isEqualTo(OFF_PEAK_EVENT_CODE);
+
+        // Asserts for a recurring holiday in second year
+        Instant jan1st2017_06_59_59_UTC = LocalDate.of(2017, Month.JANUARY, 1).atTime(6, 59, 59).atZone(ZoneOffset.UTC).toInstant();
+        assertThat(zonedView.eventFor(jan1st2017_06_59_59_UTC).getCode()).isEqualTo(OFF_PEAK_EVENT_CODE);
+        Instant jan1st2017_07_0_0_UTC = jan1st2017_06_59_59_UTC.plusSeconds(1);
+        assertThat(zonedView.eventFor(jan1st2017_07_0_0_UTC).getCode()).isEqualTo(OFF_PEAK_EVENT_CODE);
+        Instant jan1st2017_21_0_1_UTC = LocalDate.of(2017, Month.JANUARY, 1).atTime(21, 0, 1).atZone(ZoneOffset.UTC).toInstant();
+        assertThat(zonedView.eventFor(jan1st2017_21_0_1_UTC).getCode()).isEqualTo(OFF_PEAK_EVENT_CODE);
+
+        // Asserts for normal day in first year
+        Instant feb1st2016_06_59_59_UTC = LocalDate.of(2016, Month.FEBRUARY, 1).atTime(6, 59, 59).atZone(ZoneOffset.UTC).toInstant();
+        assertThat(zonedView.eventFor(feb1st2016_06_59_59_UTC).getCode()).isEqualTo(OFF_PEAK_EVENT_CODE);
+        Instant feb1st2016_07_00_00_UTC = feb1st2016_06_59_59_UTC.plusSeconds(1);
+        assertThat(zonedView.eventFor(feb1st2016_07_00_00_UTC).getCode()).isEqualTo(PEAK_EVENT_CODE);
+        Instant feb1st2016_21_00_01_UTC = LocalDate.of(2016, Month.FEBRUARY, 1).atTime(21, 0, 1).atZone(ZoneOffset.UTC).toInstant();
+        assertThat(zonedView.eventFor(feb1st2016_21_00_01_UTC).getCode()).isEqualTo(OFF_PEAK_EVENT_CODE);
+
+        // Asserts for normal day in second year
+        Instant feb1st2017_06_59_59_UTC = LocalDate.of(2017, Month.FEBRUARY, 1).atTime(6, 59, 59).atZone(ZoneOffset.UTC).toInstant();
+        assertThat(zonedView.eventFor(feb1st2017_06_59_59_UTC).getCode()).isEqualTo(OFF_PEAK_EVENT_CODE);
+        Instant feb1st2017_07_00_00_UTC = feb1st2017_06_59_59_UTC.plusSeconds(1);
+        assertThat(zonedView.eventFor(feb1st2017_07_00_00_UTC).getCode()).isEqualTo(PEAK_EVENT_CODE);
+        Instant feb1st2017_21_00_01_UTC = LocalDate.of(2017, Month.FEBRUARY, 1).atTime(21, 0, 1).atZone(ZoneOffset.UTC).toInstant();
+        assertThat(zonedView.eventFor(feb1st2017_21_00_01_UTC).getCode()).isEqualTo(OFF_PEAK_EVENT_CODE);
+    }
+
+    @Test
+    @Transactional
     public void simplePeakOffPeakCalendar_ESTView_ESTRequest() {
         ServerCalendar calendar = this.createSimplePeakOffPeakCalendar("SimpleEST");
 
         // Business methods
         ZoneId zoneId = TimeZone.getTimeZone("EST").toZoneId();
-        ServerCalendar.ZonedView zonedView = calendar.forZone(zoneId, Year.of(2016));
+        ServerCalendar.ZonedView zonedView = calendar.forZone(zoneId, Year.of(2016), Year.of(2016));
 
         // Asserts for a recurring holiday
         Instant jan1st2016_06_59_59 = LocalDate.of(2016, Month.JANUARY, 1).atTime(6, 59, 59).atZone(zoneId).toInstant();
@@ -162,7 +203,7 @@ public class CalendarTimeSeriesZoneTest {
 
         // Business methods
         ZoneId zoneId = TimeZone.getTimeZone("EST").toZoneId();
-        ServerCalendar.ZonedView zonedView = calendar.forZone(zoneId, Year.of(2016));
+        ServerCalendar.ZonedView zonedView = calendar.forZone(zoneId, Year.of(2016), Year.of(2016));
 
         // Asserts for a recurring holiday
         Instant jan1st2016_21_00_01_UTC = LocalDate.of(2016, Month.MAY, 1).atTime(21, 0, 1).atZone(ZoneOffset.UTC).toInstant();
