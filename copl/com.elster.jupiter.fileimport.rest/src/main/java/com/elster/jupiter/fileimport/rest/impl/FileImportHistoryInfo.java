@@ -15,9 +15,6 @@ public class FileImportHistoryInfo {
     public String userName;
     public Instant uploadTime;
 
-    private FileImportHistoryInfo() {
-    }
-
     public static FileImportHistoryInfo from(FileImportHistory fileImportHistory) {
         FileImportHistoryInfo fileImportHistoryInfo = new FileImportHistoryInfo();
         fileImportHistoryInfo.importScheduleId = fileImportHistory.getImportSchedule().getId();

@@ -108,7 +108,7 @@ public class FileImportScheduleResourceTest extends FileImportApplicationTest {
         when(builder.setProcessingDirectory(any(Path.class))).thenReturn(builder);
         when(builder.setSuccessDirectory(any(Path.class))).thenReturn(builder);
         when(builder.setImporterName(any(String.class))).thenReturn(builder);
-        when(builder.setActiveOnUI(any(Boolean.class))).thenReturn(builder);
+        when(builder.setActiveInUI(any(Boolean.class))).thenReturn(builder);
         when(builder.setScheduleExpression(any(ScheduleExpression.class))).thenReturn(builder);
 
         FileImporterFactory importerFactory = mock(FileImporterFactory.class);
@@ -215,11 +215,11 @@ public class FileImportScheduleResourceTest extends FileImportApplicationTest {
     public void testGetImportSchedulesForFileUpload() {
         ImportSchedule importSchedule = mockImportSchedule(1);
         Finder finder = mock(Finder.class);
-        when(fileImportService.getImportSchedulesForFileUpload("INS")).thenReturn(finder);
+        when(fileImportService.findImportSchedules("INS")).thenReturn(finder);
         when(finder.from(any(QueryParameters.class))).thenReturn(finder);
         when(finder.find()).thenReturn(Collections.singletonList(importSchedule));
 
-        Response response = target("/importservices/fileupload/list").request().header("X-CONNEXO-APPLICATION-NAME", "INS").get();
+        Response response = target("/fields/fileupload/").request().header("X-CONNEXO-APPLICATION-NAME", "INS").get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(response.getEntity()).isNotNull();

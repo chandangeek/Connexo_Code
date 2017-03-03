@@ -70,6 +70,7 @@ public class FileImportApplication extends Application implements MessageSeedPro
         return ImmutableSet.of(
                 FileImporterResource.class,
                 FileImportScheduleResource.class,
+                FieldResource.class,
                 MultiPartFeature.class);
     }
 

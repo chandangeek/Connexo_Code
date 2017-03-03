@@ -139,20 +139,6 @@ public class FileImportScheduleResource {
         return fileImportScheduleInfoFactory.asInfo(fetchImportScheduleIncludeDeleted(id));
     }
 
-    @GET
-    @Path("/fileupload/list")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES, Privileges.Constants.IMPORT_FILE})
-    public PagedInfoList getImportSchedulesForFileUpload(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName, @BeanParam JsonQueryParameters queryParameters) {
-        List<FileImportScheduleInfo> infos = fileImportService.getImportSchedulesForFileUpload(applicationName)
-                .from(queryParameters)
-                .find()
-                .stream()
-                .map(fileImportScheduleInfoFactory::asInfo)
-                .collect(Collectors.toList());
-        return PagedInfoList.fromPagedList("data", infos, queryParameters);
-    }
-
     @POST
     @Path("/fileupload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -165,13 +151,16 @@ public class FileImportScheduleResource {
         long importScheduleId = parseScheduleId(scheduleId);
         ImportSchedule importSchedule = fileImportService.getImportSchedule(importScheduleId)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.IMPORT_SERVICE_NOT_FOUND, importScheduleId));
+
         AppServer appServer = findAppServerWithImportSchedule(importSchedule);
 
-        String importFolder = String.valueOf(appServer.getImportDirectory().get().toAbsolutePath())
-                + "/"
-                + String.valueOf(importSchedule.getImportDirectory());
+        String importFolder = String.valueOf(appServer.getImportDirectory().get().toAbsolutePath()
+                .resolve(importSchedule.getImportDirectory()));
         String fileName = contentDispositionHeader.getFileName();
 
+        if (fileName == null || fileName.isEmpty()) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "file");
+        }
         loadFile(inputStream, fileName, importFolder, appServer.getName());
         FileImportHistory importHistory = buildFileImportHistory(importSchedule, fileName);
         return Response.status(Response.Status.CREATED).entity(FileImportHistoryInfo.from(importHistory)).build();
@@ -195,7 +184,7 @@ public class FileImportScheduleResource {
                 .setSuccessDirectory(getPath(info.successDirectory))
                 .setProcessingDirectory(getPath(info.inProcessDirectory))
                 .setImporterName(info.importerInfo.name)
-                .setActiveOnUI(info.isActiveOnUI)
+                .setActiveInUI(info.activeInUI)
                 .setScheduleExpression(ScanFrequency.toScheduleExpression(info.scanFrequency));
 
         List<PropertySpec> propertiesSpecs = fileImportService.getPropertiesSpecsForImporter(info.importerInfo.name);
@@ -407,12 +396,10 @@ public class FileImportScheduleResource {
                 .filter(server -> server.getImportSchedulesOnAppServer()
                         .stream()
                         .map(schedule -> schedule.getImportSchedule().orElse(null))
-                        .filter(importSchedule::equals)
-                        .findAny()
-                        .isPresent())
+                        .anyMatch(importSchedule::equals))
                 .sorted(Comparator.comparing(AppServer::getName))
                 .findFirst()
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_ACTIVE_APP_SERVERS_FOUND));
+                .orElse(null);
     }
 
     private void loadFile(InputStream inputStream, String fileName, String importFolder, String appServerName) {
@@ -425,7 +412,7 @@ public class FileImportScheduleResource {
                 if (outputStream.getChannel().size() > MAX_FILE_SIZE) {
                     outputStream.close();
                     FileUtils.deleteQuietly(copiedFile);
-                    throw exceptionFactory.newException(MessageSeeds.MAX_FILE_SIZE_EXCEEDED);
+                    throw new LocalizedFieldValidationException(MessageSeeds.MAX_FILE_SIZE_EXCEEDED, "file");
                 }
             }
         } catch (IOException ex) {
