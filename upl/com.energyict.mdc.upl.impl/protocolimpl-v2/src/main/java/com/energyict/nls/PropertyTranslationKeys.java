@@ -307,6 +307,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     V2_EICT_READCACHE("upl.property.v2.eict.readCache", "Read cache"),
     V2_EICT_READCACHE_DESCRIPTION("upl.property.v2.eict.readCache.description", "Read cache"),
     V2_EICT_DLMS_METER_KEK("upl.property.v2.eict.dlmsMeterKek", "DLMS meter KEK"),
+    V2_EICT_DLMS_DEVICE_SYSTEM_TITLE("upl.property.v2.eict.deviceSystemTitle", "Device system title"),
     V2_EICT_DLMS_METER_KEK_DESCRIPTION("upl.property.v2.eict.dlmsMeterKek.description", "DLMS meter KEK"),
     V2_EICT_PSK_ENCRYPTION_KEY("upl.property.v2.eict.pskEncryptionKey", "PSK encryption key"),
     V2_EICT_PSK_ENCRYPTION_KEY_DESCRIPTION("upl.property.v2.eict.pskEncryptionKey.description", "PSK encryption key"),

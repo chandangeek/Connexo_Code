@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.mdc.upl.meterdata.Device;
@@ -12,36 +16,36 @@ import java.util.Set;
 
 /**
  * Provides an implementation for the {@link DeviceIdentifier} interface
- * that uses an {@link Device}'s Call Home ID to uniquely identify it.
+ * that uses an {@link Device}'s system title to uniquely identify it.
  *
  * @author sva
  * @since 26/10/12 (11:26)
  */
 @XmlRootElement
-public class DialHomeIdDeviceIdentifier implements FindMultipleDevices {
+public class DeviceIdentifierBySystemTitle implements FindMultipleDevices {
 
-    private final String callHomeID;
+    private final String systemTitle;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
      */
-    private DialHomeIdDeviceIdentifier() {
-        callHomeID = "";
+    private DeviceIdentifierBySystemTitle() {
+        systemTitle = "";
     }
 
-    public DialHomeIdDeviceIdentifier(String callHomeId) {
+    public DeviceIdentifierBySystemTitle(String systemTitle) {
         super();
-        this.callHomeID = callHomeId;
+        this.systemTitle = systemTitle;
     }
 
     @Override
     public String toString() {
-        return "device with call home id " + this.callHomeID;
+        return "device with system title " + this.systemTitle;
     }
 
     @XmlAttribute
-    public String getCallHomeID() {
-        return callHomeID;
+    public String getSystemTitle() {
+        return systemTitle;
     }
 
     @Override
@@ -52,23 +56,21 @@ public class DialHomeIdDeviceIdentifier implements FindMultipleDevices {
     private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
         @Override
         public String getTypeName() {
-            return "CallHomeId";
+            return "systemTitle";
         }
 
         @Override
         public Set<String> getRoles() {
-            return new HashSet<>(Collections.singletonList("callHomeId"));
+            return new HashSet<>(Collections.singletonList("systemTitle"));
         }
 
         @Override
         public Object getValue(String role) {
-            if ("callHomeId".equals(role)) {
-                return callHomeID;
+            if ("systemTitle".equals(role)) {
+                return systemTitle;
             } else {
                 throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
             }
         }
-
     }
-
 }

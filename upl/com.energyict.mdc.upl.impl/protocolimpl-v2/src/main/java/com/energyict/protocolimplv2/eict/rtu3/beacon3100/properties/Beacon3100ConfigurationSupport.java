@@ -54,6 +54,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         propertySpecs.add(clientPrivateKeyAgreementKeyPropertySpec());
         propertySpecs.add(serverTLSCertificate());
         propertySpecs.add(callingAPTitlePropertySpec());
+        propertySpecs.add(deviceSystemTitlePropertySpec());
         propertySpecs.add(publicClientPreEstablishedPropertySpec());
 
         propertySpecs.remove(ntaSimulationToolPropertySpec());
@@ -157,6 +158,10 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
      */
     private PropertySpec pskEncryptionKeyPropertySpec() {
         return UPLPropertySpecFactory.specBuilder(PSK_ENCRYPTION_KEY, false, PropertyTranslationKeys.V2_EICT_PSK_ENCRYPTION_KEY, this.getPropertySpecService()::encryptedStringSpec).finish();
+    }
+
+    public PropertySpec deviceSystemTitlePropertySpec() {
+        return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.DEVICE_SYSTEM_TITLE, false, PropertyTranslationKeys.V2_EICT_DLMS_DEVICE_SYSTEM_TITLE, this.getPropertySpecService()::stringSpec).finish();
     }
 
     private PropertySpec durationSpec(String name, boolean required, Duration defaultValue, TranslationKey translationKey) {

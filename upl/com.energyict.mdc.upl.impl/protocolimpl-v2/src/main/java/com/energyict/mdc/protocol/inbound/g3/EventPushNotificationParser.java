@@ -35,7 +35,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.idis.am540.events.MeterEventParser;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierLikeSerialNumber;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySystemTitle;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
@@ -544,11 +544,12 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
     }
 
-    //TODO this might change in the RTU3
     protected DeviceIdentifier getDeviceIdentifierBasedOnSystemTitle(byte[] systemTitle) {
-        String serialNumber = new String(systemTitle);
-        serialNumber = serialNumber.replace("DC", "");      //Strip off the "DC" prefix
-        return new DeviceIdentifierLikeSerialNumber("%" + serialNumber + "%");
+        byte[] mc = ProtocolTools.getSubArray(systemTitle, 0, 3);
+        String manufacturerCode = ProtocolTools.getAsciiFromBytes(mc);
+        byte[] remainingBytes = ProtocolTools.getSubArray(systemTitle, 3);
+        String remainingData = ProtocolTools.getHexStringFromBytes(remainingBytes, "");
+        return new DeviceIdentifierBySystemTitle(manufacturerCode + remainingData);
     }
 
     protected DlmsProperties getNewInstanceOfProperties() {
