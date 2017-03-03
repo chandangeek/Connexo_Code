@@ -90,14 +90,14 @@ class UpgraderV10_3 implements Upgrader {
     private void moveProtocolDialectProperties(){
         dataModel.useConnectionRequiringTransaction(connection -> {
             try (Statement retrieveDialectPropertiesIdStatement = connection.createStatement();
-                Statement updatePartialConnectionTaskStatement = connection.createStatement()) {
-                String sql = "SELECT DISTINCT PROTOCOLDIALECTCONFIGPROPS, NVL(CONNECTIONTASK, DECODE(USEDEFAULTCONNECTIONTASK, 0, NULL, 1, DDC_CONNECTIONTASK.ID )) AS CONNECTIONTASKID \n" +
-                        "FROM DDC_COMTASKEXEC, DDC_CONNECTIONTASK WHERE DDC_COMTASKEXEC.DEVICE = DDC_CONNECTIONTASK.DEVICE AND DDC_CONNECTIONTASK.ISDEFAULT = 1";
+                Statement updateConnectionTaskStatement = connection.createStatement()) {
+                String sql = "SELECT DISTINCT DDC_COMTASKEXEC.PROTOCOLDIALECTCONFIGPROPS, NVL(CONNECTIONTASK, DECODE(USEDEFAULTCONNECTIONTASK, 0, NULL, 1, DDC_CONNECTIONTASK.ID )) AS CONNECTIONTASKID \n" +
+                        "FROM DDC_COMTASKEXEC, DDC_CONNECTIONTASK WHERE DDC_COMTASKEXEC.DEVICE = DDC_CONNECTIONTASK.DEVICE AND DDC_CONNECTIONTASK.ISDEFAULT = 1 AND DDC_COMTASKEXEC.PROTOCOLDIALECTCONFIGPROPS IS NOT NULL";
                 ResultSet rs = retrieveDialectPropertiesIdStatement.executeQuery(sql);
                 while (rs.next()){
-                    updatePartialConnectionTaskStatement.addBatch(String.format("UPDATE DDC_CONNECTIONTASK SET PROTOCOLDIALECTCONFIGPROPS = %1s WHERE ID = %2s", rs.getLong(1), rs.getLong(2)));
+                    updateConnectionTaskStatement.addBatch(String.format("UPDATE DDC_CONNECTIONTASK SET PROTOCOLDIALECTCONFIGPROPS = %1s WHERE ID = %2s", rs.getLong(1), rs.getLong(2)));
                 }
-                updatePartialConnectionTaskStatement.executeBatch();
+                updateConnectionTaskStatement.executeBatch();
             }
         });
     }
