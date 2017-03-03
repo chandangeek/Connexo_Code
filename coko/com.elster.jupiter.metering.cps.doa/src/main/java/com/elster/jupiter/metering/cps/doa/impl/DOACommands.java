@@ -4,14 +4,15 @@
 
 package com.elster.jupiter.metering.cps.doa.impl;
 
-import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.slp.SyntheticLoadProfile;
-import com.elster.jupiter.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
@@ -28,6 +29,7 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.Year;
 import java.time.ZoneOffset;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -55,6 +57,7 @@ public class DOACommands {
     private volatile TransactionService transactionService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile CustomPropertySetService customPropertySetService;
+    private volatile MeteringService meteringService;
     private volatile SyntheticLoadProfileService slpService;
 
     @Reference
@@ -85,6 +88,12 @@ public class DOACommands {
     @SuppressWarnings("unused")
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
         this.customPropertySetService = customPropertySetService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     @Reference
@@ -134,30 +143,40 @@ public class DOACommands {
 
     @SuppressWarnings("unused")
     public void createSLP() {
-        System.out.println("Usage: createSLP <name> [description] <interval length> <unit> <start year>");
+        System.out.println("Usage: createSLP <name> [description] <reading type mRID> <start year>");
         System.out.println("       where <interval length> is one of: " + IntervalLength.names());
         System.out.println("       where <unit> is the name of one ReadingTypeUnit enum values");
     }
 
     @SuppressWarnings("unused")
-    public void createSLP(String name, String intervalLength, String unit, int startYear) {
-        this.createSLP(name, name, intervalLength, unit, startYear);
+    public void createSLP(String name, String readingTypeMRID, int startYear) {
+        this.createSLP(name, name, readingTypeMRID, startYear);
     }
 
     @SuppressWarnings("unused")
-    public void createSLP(String name, String description, String intervalLength, String unit, int startYear) {
+    public void createSLP(String name, String description, String readingTypeMRID, int startYear) {
         this.threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = this.transactionService.getContext()) {
+            ReadingType readingType = this.findReadingTypeOrThrowException(readingTypeMRID);
             SyntheticLoadProfile slp = this.slpService
-                    .newSyntheticLoadProfile(name)
+                    .newSyntheticLoadProfile(
+                            name,
+                            Period.ofYears(1),
+                            LocalDate.ofYearDay(startYear, 1).atStartOfDay(ZoneOffset.UTC).toInstant(),
+                            readingType)
                     .withDescription(description)
-                    .withInterval(IntervalLength.valueOf(intervalLength).toDuration())
-                    .withDuration(Period.ofYears(1))
-                    .withUnitOfMeasure(ReadingTypeUnit.valueOf(unit).getUnit())
-                    .withStartTime(LocalDate.ofYearDay(startYear, 1).atStartOfDay(ZoneOffset.UTC).toInstant())
                     .build();
             System.out.println("Synthetic load profile created with id: " + slp.getId());
             context.commit();
+        }
+    }
+
+    private ReadingType findReadingTypeOrThrowException(String readingTypeMRID) {
+        List<ReadingType> readingTypes = this.meteringService.findReadingTypes(Collections.singletonList(readingTypeMRID));
+        if (readingTypes.isEmpty()) {
+            throw new IllegalArgumentException("Reading type does not exist: " + readingTypeMRID);
+        } else {
+            return readingTypes.get(0);
         }
     }
 
