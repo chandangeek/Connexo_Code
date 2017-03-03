@@ -34,10 +34,10 @@ import com.google.common.collect.Sets;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -68,7 +68,7 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
      */
     @Override
     public List<IChannelDataCompletionSummary> getDataCompletionStatistics(Channel channel, Range<Instant> interval) {
-        List<IChannelDataCompletionSummary> summaryList = new ArrayList<>();
+        List<IChannelDataCompletionSummary> summaryList = new LinkedList<>();
         TreeMap<Instant, Set<ReadingQualityType>> qualityTypesByAllTimings =
                 (channel.isRegular() ? channel.toList(interval).stream() : channel.getReadings(interval)
                         .stream()
