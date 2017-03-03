@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.ExtjsFilter;
@@ -14,6 +15,7 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -75,6 +77,12 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
     private ReadingRecord readingRecord1, readingRecord2, readingRecord3;
     @Mock
     private ValidationEvaluator evaluator;
+    @Mock
+    private ReadingType readingType1;
+    @Mock
+    private ReadingType readingType2;
+    @Mock
+    private ReadingType readingType3;
 
     @Captor
     private ArgumentCaptor<List<ReadingImpl>> readingsCaptor;
@@ -99,10 +107,17 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         when(readingRecord1.getTimePeriod()).thenReturn(Optional.empty());
         when(readingRecord2.getValue()).thenReturn(BigDecimal.valueOf(206, 0));
         when(readingRecord2.getTimeStamp()).thenReturn(readingTimeStamp2);
+        when(readingRecord2.getTimePeriod()).thenReturn(Optional.empty());
         when(readingRecord2.getReportedDateTime()).thenReturn(readingTimeStamp2);
         when(readingRecord3.getValue()).thenReturn(BigDecimal.valueOf(250, 0));
         when(readingRecord3.getTimeStamp()).thenReturn(readingTimeStamp3);
         when(readingRecord3.getReportedDateTime()).thenReturn(readingTimeStamp3);
+        when(readingRecord1.getReadingType()).thenReturn(readingType1);
+        when(readingRecord2.getReadingType()).thenReturn(readingType2);
+        when(readingRecord3.getReadingType()).thenReturn(readingType3);
+        when(readingType1.getMacroPeriod()).thenReturn(MacroPeriod.BILLINGPERIOD);
+        when(readingType2.getMacroPeriod()).thenReturn(MacroPeriod.BILLINGPERIOD);
+        when(readingType3.getMacroPeriod()).thenReturn(MacroPeriod.MONTHLY);
 
         evaluator = mock(ValidationEvaluator.class);
         when(validationService.getEvaluator()).thenReturn(evaluator);
