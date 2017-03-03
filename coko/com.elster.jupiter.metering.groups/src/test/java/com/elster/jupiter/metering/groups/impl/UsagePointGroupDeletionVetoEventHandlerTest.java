@@ -28,6 +28,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -61,9 +62,7 @@ public class UsagePointGroupDeletionVetoEventHandlerTest {
     @Before
     public void setUp() {
         usagePointGroupDeletionVetoEventHandler = new UsagePointGroupDeletionVetoEventHandler(meteringGroupsService, thesaurus);
-        valueBean = new SearchablePropertyValue.ValueBean();
-        valueBean.propertyName = UsagePointGroupSearchableProperty.PROPERTY_NAME;
-        valueBean.operator = SearchablePropertyOperator.EQUAL;
+        valueBean = new SearchablePropertyValue.ValueBean(UsagePointGroupSearchableProperty.PROPERTY_NAME, SearchablePropertyOperator.EQUAL);
         searchablePropertyValue = new SearchablePropertyValue(usagePointGroupSearchableProperty, valueBean);
 
         when(localEvent.getSource()).thenReturn(eventSource);
@@ -80,14 +79,13 @@ public class UsagePointGroupDeletionVetoEventHandlerTest {
 
     @Test(expected = VetoDeleteUsagePointGroupException.class)
     public void catchVetoDeleteDeviceGroupException() {
-        valueBean.values = Collections.singletonList(String.valueOf(queryUsagePointGroup.getId()));
-
+        valueBean.setValues(String.valueOf(queryUsagePointGroup.getId()));
         usagePointGroupDeletionVetoEventHandler.handle(localEvent);
     }
 
     @Test
     public void noVetoDeleteDeviceGroupException() {
-        valueBean.values = Collections.emptyList();
+        valueBean.setValues(Collections.emptyList());
         usagePointGroupDeletionVetoEventHandler.handle(localEvent);
 
         // Asserts
