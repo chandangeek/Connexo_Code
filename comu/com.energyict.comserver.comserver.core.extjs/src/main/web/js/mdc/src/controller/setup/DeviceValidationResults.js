@@ -240,7 +240,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                 viewport.setLoading(false);
 
                 var res = Ext.JSON.decode(response.responseText);
-                if (!res.isActive || res.allDataValidated) {
+                if (!res.isActive) {
                     return;
                 }
 
@@ -382,7 +382,8 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                     },
                     items: [
                         {
-                            boxLabel: Uni.I18n.translate('validationResults.validate.fromLast', 'MDC', 'Validate data from last validation'),
+                            boxLabel: Uni.I18n.translate('validationResults.validate.fromLastChecked', 'MDC', 'Validate data from last validation ({0})',
+                                Uni.DateTime.formatDateShort(me.dataValidationLastChecked)),
                             inputValue: 'lastValidation',
                             itemId: 'rdo-validate-from-last',
                             xtype: 'radiofield',
