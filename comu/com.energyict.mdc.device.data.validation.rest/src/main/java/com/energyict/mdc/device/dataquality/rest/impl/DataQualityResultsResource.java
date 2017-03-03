@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.device.data.validation.rest.impl;
+package com.energyict.mdc.device.dataquality.rest.impl;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -12,8 +12,8 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.security.Privileges;
-import com.energyict.mdc.device.data.validation.DataQualityOverviews;
-import com.energyict.mdc.device.data.validation.DeviceDataQualityService;
+import com.energyict.mdc.device.dataquality.DataQualityOverviews;
+import com.energyict.mdc.device.dataquality.DeviceDataQualityService;
 
 import com.google.common.collect.Range;
 import org.json.JSONArray;
@@ -41,35 +41,36 @@ import static com.elster.jupiter.util.streams.Currying.perform;
 import static com.elster.jupiter.util.streams.Currying.test;
 
 @Path("/validationresults")
-public class ValidationResultsResource {
+public class DataQualityResultsResource {
 
     private final DeviceDataQualityService deviceDataQualityService;
     private final MeteringGroupsService meteringGroupsService;
+    private final DataQualityOverviewInfoFactory dataQualityOverviewInfoFactory;
     private final ExceptionFactory exceptionFactory;
 
     private enum Validator {
         THRESHOLDVALIDATOR("thresholdViolation") {
             @Override
             protected void applyTo(DeviceDataQualityService.DataQualityOverviewBuilder builder) {
-                builder.includeThresholdValidator();
+
             }
         },
         MISSINGVALUESVALIDATOR("checkMissing") {
             @Override
             protected void applyTo(DeviceDataQualityService.DataQualityOverviewBuilder builder) {
-                builder.includeMissingValuesValidator();
+//                builder.includeMissingValuesValidator();
             }
         },
         READINGQUALITIESVALIDATOR("intervalState") {
             @Override
             protected void applyTo(DeviceDataQualityService.DataQualityOverviewBuilder builder) {
-                builder.includeReadingQualitiesValidator();
+//                builder.includeReadingQualitiesValidator();
             }
         },
         REGISTERINCREASEVALIDATOR("registerIncrease") {
             @Override
             protected void applyTo(DeviceDataQualityService.DataQualityOverviewBuilder builder) {
-                builder.includeRegisterIncreaseValidator();
+//                builder.includeRegisterIncreaseValidator();
             }
         };
 
@@ -83,10 +84,10 @@ public class ValidationResultsResource {
 
         static Validator fromAbbreviation(String abbreviation) {
             return Stream
-                        .of(values())
-                        .filter(test(Validator::matchesAbbreviation).with(abbreviation))
-                        .findFirst()
-                        .orElseThrow(() -> new IllegalArgumentException("Unknown kpi type " + abbreviation));
+                    .of(values())
+                    .filter(test(Validator::matchesAbbreviation).with(abbreviation))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown kpi type " + abbreviation));
         }
 
         private boolean matchesAbbreviation(String abbreviation) {
@@ -95,9 +96,11 @@ public class ValidationResultsResource {
     }
 
     @Inject
-    public ValidationResultsResource(DeviceDataQualityService deviceDataQualityService, MeteringGroupsService meteringGroupsService, ExceptionFactory exceptionFactory) {
+    public DataQualityResultsResource(DeviceDataQualityService deviceDataQualityService, MeteringGroupsService meteringGroupsService,
+                                      DataQualityOverviewInfoFactory dataQualityOverviewInfoFactory, ExceptionFactory exceptionFactory) {
         this.deviceDataQualityService = deviceDataQualityService;
         this.meteringGroupsService = meteringGroupsService;
+        this.dataQualityOverviewInfoFactory = dataQualityOverviewInfoFactory;
         this.exceptionFactory = exceptionFactory;
     }
 
@@ -142,7 +145,7 @@ public class ValidationResultsResource {
                         }
                     } catch (NumberFormatException e) {
                         throw exceptionFactory.newException(MessageSeeds.NUMBER_FORMAT_INVALID);
-                    } catch (JSONException e){
+                    } catch (JSONException e) {
                         throw exceptionFactory.newException(MessageSeeds.BETWEEN_VALUES_INVALID);
                     }
                 }
@@ -158,34 +161,32 @@ public class ValidationResultsResource {
         Range<Instant> range = from != null && to != null ? Range.closed(from, to) : Range.all();
         DeviceDataQualityService.DataQualityOverviewBuilder builder =
                 this.deviceDataQualityService
-                    .forAllGroups(this.endDevicesFromIds(deviceGroupIds))
-                    .in(range);
+                        .forAllDevices()
+                        .in(this.endDevicesFromIds(deviceGroupIds))
+                        .in(range);
         suspectsRange.applyTo(builder);
         validators.forEach(perform(Validator::applyTo).with(builder));
         DataQualityOverviews dataQualityOverviews =
-            builder
-                .paged(
-                    this.getPageStart(queryParameters),
-                    this.getPageEnd(queryParameters));
+                builder.paged(this.getPageStart(queryParameters), this.getPageEnd(queryParameters));
         return PagedInfoList.fromPagedList("summary", toInfos(dataQualityOverviews), queryParameters);
     }
 
-    private Integer getPageStart(@BeanParam JsonQueryParameters queryParameters) {
+    private Integer getPageStart(JsonQueryParameters queryParameters) {
         return queryParameters.getStart().orElse(0) + 1;
     }
 
-    private Integer getPageEnd(@BeanParam JsonQueryParameters queryParameters) {
+    private Integer getPageEnd(JsonQueryParameters queryParameters) {
         return queryParameters
                 .getLimit()
                 .map(limit -> this.getPageStart(queryParameters) + limit)
                 .orElse(Integer.MAX_VALUE);
     }
 
-    private List<ValidationOverviewInfo> toInfos(DataQualityOverviews dataQualityOverviews) {
+    private List<DataQualityOverviewInfo> toInfos(DataQualityOverviews dataQualityOverviews) {
         return dataQualityOverviews
                 .allOverviews()
                 .stream()
-                .map(ValidationOverviewInfo::from)
+                .map(dataQualityOverviewInfoFactory::asInfo)
                 .collect(Collectors.toList());
     }
 

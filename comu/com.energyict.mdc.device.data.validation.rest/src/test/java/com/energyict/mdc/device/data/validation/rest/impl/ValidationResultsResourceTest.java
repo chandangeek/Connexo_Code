@@ -5,10 +5,10 @@
 package com.energyict.mdc.device.data.validation.rest.impl;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.energyict.mdc.device.data.validation.DataQualityOverview;
-import com.energyict.mdc.device.data.validation.DataQualityOverviews;
-import com.energyict.mdc.device.data.validation.DeviceDataQualityKpiResults;
-import com.energyict.mdc.device.data.validation.DeviceDataQualityService;
+import com.energyict.mdc.device.dataquality.DataQualityOverview;
+import com.energyict.mdc.device.dataquality.DataQualityOverviews;
+import com.energyict.mdc.device.dataquality.DeviceDataQualityKpiResults;
+import com.energyict.mdc.device.dataquality.DeviceDataQualityService;
 
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
@@ -26,7 +26,6 @@ import org.mockito.Mock;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -53,19 +52,19 @@ public class ValidationResultsResourceTest extends DeviceDataValidationRestAppli
         DeviceDataQualityService.MetricSpecificationBuilder suspectsBuilder = mock(DeviceDataQualityService.MetricSpecificationBuilder.class);
         when(suspectsBuilder.equalTo(anyInt())).thenReturn(builder);
         when(suspectsBuilder.inRange(any(Range.class))).thenReturn(builder);
-        when(builder.excludeAllValidators()).thenReturn(builder);
-        when(builder.includeAllValidators()).thenReturn(builder);
-        when(builder.includeThresholdValidator()).thenReturn(builder);
-        when(builder.includeMissingValuesValidator()).thenReturn(builder);
-        when(builder.includeReadingQualitiesValidator()).thenReturn(builder);
-        when(builder.includeRegisterIncreaseValidator()).thenReturn(builder);
+//        when(builder.excludeAllValidators()).thenReturn(builder);
+//        when(builder.includeAllValidators()).thenReturn(builder);
+//        when(builder.includeThresholdValidator()).thenReturn(builder);
+//        when(builder.includeMissingValuesValidator()).thenReturn(builder);
+//        when(builder.includeReadingQualitiesValidator()).thenReturn(builder);
+//        when(builder.includeRegisterIncreaseValidator()).thenReturn(builder);
         when(builder.in(any(Range.class))).thenReturn(builder);
         when(builder.suspects()).thenReturn(suspectsBuilder);
         DataQualityOverviews overviews = mock(DataQualityOverviews.class);
         when(overviews.allOverviews()).thenReturn(Arrays.asList(o1, o2));
         when(builder.paged(anyInt(), anyInt())).thenReturn(overviews);
 
-        when(deviceDataQualityService.forAllGroups(anyList())).thenReturn(builder);
+//        when(deviceDataQualityService.forAllGroups(anyList())).thenReturn(builder);
 
         JsonModel jsonModel = JsonModel.model(target("/validationresults/devicegroups")
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"deviceGroups\",\"value\":[97]}]", "UTF-8"))
@@ -96,10 +95,10 @@ public class ValidationResultsResourceTest extends DeviceDataValidationRestAppli
 
     private DataQualityOverview mockValidationOverview(String deviceName, String serialNumber, String deviceTypeName, String deviceConfigurationName, DeviceDataQualityKpiResults kpiResults) {
         DataQualityOverview dataQualityOverview = mock(DataQualityOverview.class);
-        when(dataQualityOverview.getDeviceName()).thenReturn(deviceName);
-        when(dataQualityOverview.getDeviceSerialNumber()).thenReturn(serialNumber);
-        when(dataQualityOverview.getDeviceTypeName()).thenReturn(deviceTypeName);
-        when(dataQualityOverview.getDeviceConfigurationName()).thenReturn(deviceConfigurationName);
+//        when(dataQualityOverview.getDeviceName()).thenReturn(deviceName);
+//        when(dataQualityOverview.getDeviceSerialNumber()).thenReturn(serialNumber);
+//        when(dataQualityOverview.getDeviceTypeName()).thenReturn(deviceTypeName);
+//        when(dataQualityOverview.getDeviceConfigurationName()).thenReturn(deviceConfigurationName);
         when(dataQualityOverview.getDataQualityKpiResults()).thenReturn(kpiResults);
         return dataQualityOverview;
     }
@@ -110,12 +109,12 @@ public class ValidationResultsResourceTest extends DeviceDataValidationRestAppli
         when(kpiResults.getAmountOfSuspects()).thenReturn(amountOfSuspects);
         when(kpiResults.getChannelSuspects()).thenReturn(channelSuspects);
         when(kpiResults.getRegisterSuspects()).thenReturn(registerSuspects);
-        when(kpiResults.isAllDataValidated()).thenReturn(allDataValidated);
-        when(kpiResults.getLastSuspect()).thenReturn(lastSuspect);
-        when(kpiResults.isThresholdValidator()).thenReturn(thresholdValidator);
-        when(kpiResults.isMissingValuesValidator()).thenReturn(missingValuesValidator);
-        when(kpiResults.isReadingQualitiesValidator()).thenReturn(readingQualitiesValidator);
-        when(kpiResults.isRegisterIncreaseValidator()).thenReturn(registerIncreaseValidator);
+//        when(kpiResults.isAllDataValidated()).thenReturn(allDataValidated);
+//        when(kpiResults.getLastSuspect()).thenReturn(lastSuspect);
+//        when(kpiResults.isThresholdValidator()).thenReturn(thresholdValidator);
+//        when(kpiResults.isMissingValuesValidator()).thenReturn(missingValuesValidator);
+//        when(kpiResults.isReadingQualitiesValidator()).thenReturn(readingQualitiesValidator);
+//        when(kpiResults.isRegisterIncreaseValidator()).thenReturn(registerIncreaseValidator);
         return kpiResults;
     }
 

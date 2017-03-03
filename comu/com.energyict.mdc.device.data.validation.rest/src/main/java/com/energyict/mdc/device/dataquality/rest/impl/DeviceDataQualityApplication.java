@@ -2,8 +2,10 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.device.data.validation.rest.impl;
+package com.energyict.mdc.device.dataquality.rest.impl;
 
+import com.elster.jupiter.dataquality.DataQualityKpiService;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -12,7 +14,8 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.data.validation.DeviceDataQualityService;
+import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.dataquality.DeviceDataQualityService;
 
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -26,27 +29,25 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Created by dragos on 7/21/2015.
- *
- */
-
-@Component(name = "com.energyict.dvr.rest", service = {Application.class}, immediate = true, property = {"alias=/dvr", "app=MDC", "name=" + DeviceDataValidationApplication.COMPONENT_NAME})
-public class DeviceDataValidationApplication extends Application implements MessageSeedProvider {
+@Component(name = "com.energyict.dvr.rest", service = {Application.class}, immediate = true, property = {"alias=/ddq", "app=MDC", "name=" + DeviceDataQualityApplication.COMPONENT_NAME})
+public class DeviceDataQualityApplication extends Application implements MessageSeedProvider {
 
     public static final String APP_KEY = "MDC";
-    public static final String COMPONENT_NAME = "DVR";
+    public static final String COMPONENT_NAME = "DQR";
 
     private volatile DeviceDataQualityService deviceDataQualityService;
+    private volatile DataQualityKpiService dataQualityKpiService;
     private volatile MeteringGroupsService meteringGroupsService;
-    private volatile License license;
+    private volatile ValidationService validationService;
+    private volatile EstimationService estimationService;
     private volatile Thesaurus thesaurus;
-    private volatile NlsService nlsService;
+    private volatile License license;
 
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
-                ValidationResultsResource.class
+                DataQualityResultsResource.class,
+                FieldResource.class
         );
     }
 
@@ -64,13 +65,27 @@ public class DeviceDataValidationApplication extends Application implements Mess
     }
 
     @Reference
+    public void setDataQualityKpiService(DataQualityKpiService dataQualityKpiService) {
+        this.dataQualityKpiService = dataQualityKpiService;
+    }
+
+    @Reference
     public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
         this.meteringGroupsService = meteringGroupsService;
     }
 
     @Reference
+    public void setValidationService(ValidationService validationService) {
+        this.validationService = validationService;
+    }
+
+    @Reference
+    public void setEstimationService(EstimationService estimationService) {
+        this.estimationService = estimationService;
+    }
+
+    @Reference
     public void setNlsService(NlsService nlsService) {
-        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
     }
 
@@ -94,10 +109,13 @@ public class DeviceDataValidationApplication extends Application implements Mess
         @Override
         protected void configure() {
             bind(deviceDataQualityService).to(DeviceDataQualityService.class);
+            bind(dataQualityKpiService).to(DataQualityKpiService.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
-            bind(ExceptionFactory.class).to(ExceptionFactory.class);
+            bind(validationService).to(ValidationService.class);
+            bind(estimationService).to(EstimationService.class);
             bind(thesaurus).to(Thesaurus.class);
-            bind(nlsService).to(NlsService.class);
+            bind(ExceptionFactory.class).to(ExceptionFactory.class);
+            bind(DataQualityOverviewInfoFactory.class).to(DataQualityOverviewInfoFactory.class);
         }
     }
 }

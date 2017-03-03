@@ -6,7 +6,8 @@ package com.energyict.mdc.device.data.validation.rest.impl;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.energyict.mdc.device.data.validation.DeviceDataQualityService;
+import com.energyict.mdc.device.dataquality.DeviceDataQualityService;
+import com.energyict.mdc.device.dataquality.rest.impl.DeviceDataQualityApplication;
 
 import javax.ws.rs.core.Application;
 
@@ -21,7 +22,7 @@ public class DeviceDataValidationRestApplicationJerseyTest extends FelixRestAppl
 
     @Override
     protected Application getApplication() {
-        DeviceDataValidationApplication application = new DeviceDataValidationApplication();
+        DeviceDataQualityApplication application = new DeviceDataQualityApplication();
         application.setDeviceDataQualityService(deviceDataQualityService);
         application.setMeteringGroupsService(meteringGroupsService);
         application.setNlsService(nlsService);

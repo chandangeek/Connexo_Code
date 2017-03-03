@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.device.data.validation.rest.impl;
+package com.energyict.mdc.device.dataquality.rest.impl;
 
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -32,7 +32,7 @@ public enum MessageSeeds implements MessageSeed {
 
     @Override
     public String getModule() {
-        return DeviceDataValidationApplication.COMPONENT_NAME;
+        return DeviceDataQualityApplication.COMPONENT_NAME;
     }
 
     @Override
