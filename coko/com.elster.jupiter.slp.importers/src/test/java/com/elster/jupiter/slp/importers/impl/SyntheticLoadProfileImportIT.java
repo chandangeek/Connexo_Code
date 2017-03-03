@@ -5,6 +5,7 @@
 package com.elster.jupiter.slp.importers.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -132,6 +133,7 @@ public class SyntheticLoadProfileImportIT {
                     new CustomPropertySetsModule(),
                     new PartyModule(),
                     new SearchModule(),
+                    new CalendarModule(),
                     new MeteringModule("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
             );
         } catch (Exception e) {
