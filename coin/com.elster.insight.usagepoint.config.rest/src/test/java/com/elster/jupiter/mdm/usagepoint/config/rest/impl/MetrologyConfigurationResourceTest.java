@@ -153,6 +153,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(mock.getStatus()).thenReturn(status);
         when(mock.getVersion()).thenReturn(1L);
         when(mock.getDescription()).thenReturn("some description");
+        when(mock.isGapAllowed()).thenReturn(true);
 
         MeterRole role = mock(MeterRole.class);
         when(role.getKey()).thenReturn(DefaultMeterRole.DEFAULT.getKey());
@@ -213,6 +214,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         assertThat(jsonModel.<Number>get("$.id")).isEqualTo(13);
         assertThat(jsonModel.<String>get("$.name")).isEqualTo("Residential");
         assertThat(jsonModel.<String>get("$.description")).isEqualTo("some description");
+        assertThat(jsonModel.<Boolean>get("$.isGapAllowed")).isEqualTo(true);
         assertThat(jsonModel.<String>get("$.status.id")).isEqualTo("inactive");
         assertThat(jsonModel.<String>get("$.status.name")).isEqualTo("Inactive");
         assertThat(jsonModel.<String>get("$.serviceCategory.id")).isEqualTo(ServiceKind.GAS.name());
