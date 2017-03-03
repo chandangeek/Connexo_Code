@@ -266,10 +266,10 @@ final class ImportScheduleImpl implements ServerImportSchedule {
         return activeInUI;
     }
 
-    public void setActiveInUI(boolean isActiveOnUI) {
-        this.activeInUI = active;
+    public void setActiveInUI(boolean activeInUI) {
+        this.activeInUI = activeInUI;
     }
-    
+
     @Override
     public void setProperty(String name, Object value) {
         FileImporterPropertyImpl fileImporterProperty = properties.stream()
