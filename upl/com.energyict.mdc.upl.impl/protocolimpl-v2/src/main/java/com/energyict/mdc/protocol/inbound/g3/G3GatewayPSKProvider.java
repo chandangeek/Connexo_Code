@@ -3,8 +3,6 @@ package com.energyict.mdc.protocol.inbound.g3;
 import com.energyict.cbo.TimePeriod;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -18,6 +16,7 @@ import com.energyict.mdc.channels.ip.socket.TLSConnectionType;
 import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
+import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
@@ -185,11 +184,11 @@ public class G3GatewayPSKProvider {
         }
         addDefaultValuesIfNecessary(gatewayProtocol, dialectProperties);
 
-        DLMSCache dummyCache = new DLMSCache(new UniversalObject[0], 0);     //Empty cache, prevents that the protocol will read out the object list
         OfflineDevice offlineDevice = context.getInboundDAO().goOfflineDevice(getDeviceIdentifier(), new DeviceOfflineFlags());   //Empty flags means don't load any master data
+        DeviceProtocolCache deviceCache = offlineDevice.getDeviceProtocolCache();
         createTcpComChannel();
         context.logOnAllLoggerHandlers("Creating a new DLMS session to Beacon device '" + getDeviceIdentifier().getIdentifier() + "', to provide the PSK key(s)", Level.INFO);
-        gatewayProtocol.setDeviceCache(dummyCache);
+        gatewayProtocol.setDeviceCache(deviceCache);
         gatewayProtocol.addProperties(protocolProperties);
         gatewayProtocol.addDeviceProtocolDialectProperties(dialectProperties);
         gatewayProtocol.setSecurityPropertySet(securityPropertySet);

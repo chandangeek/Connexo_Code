@@ -372,27 +372,31 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     @Override
-    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
-        if (deviceMessage.getSpecification().equals(DeviceActionMessage.SyncMasterdataForDC)) {
-            return new MasterDataSerializer().serializeMasterData(offlineDevice.getId(), readOldObisCodes());
-        } else if (deviceMessage.getSpecification().equals(DeviceActionMessage.SyncDeviceDataForDC)) {
-            return new MasterDataSerializer().serializeMeterDetails(offlineDevice.getId());
-        } else if (deviceMessage.getSpecification().equals(DeviceActionMessage.SyncOneConfigurationForDC)) {
-            int configId = ((BigDecimal) deviceMessage.getAttributes().get(0).getValue()).intValue();
-            return new MasterDataSerializer().serializeMasterDataForOneConfig(configId, readOldObisCodes());
-        } else if (deviceMessage.getSpecification().equals(FirmwareDeviceMessage.DataConcentratorMulticastFirmwareUpgrade)) {
-            return MulticastSerializer.serialize(offlineDevice, deviceMessage);
-        } else if (deviceMessage.getSpecification().equals(FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES)) {
-            return MulticastSerializer.serialize(offlineDevice, deviceMessage);
-        } else if (deviceMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS)
-                || deviceMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_CLIENT)) {
-            new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecName.AUTHENTICATION_KEY);
-        } else if (deviceMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS)
-                || deviceMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_CLIENT)) {
-            new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecName.ENCRYPTION_KEY);
-        } else if (deviceMessage.getSpecification().equals(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS)
-                || deviceMessage.getSpecification().equals(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_CLIENT)) {
-            new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecName.MASTER_KEY);
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage)  {
+        try{
+            if (deviceMessage.getSpecification().equals(DeviceActionMessage.SyncMasterdataForDC)) {
+                return new MasterDataSerializer().serializeMasterData(offlineDevice.getId(), readOldObisCodes());
+            } else if (deviceMessage.getSpecification().equals(DeviceActionMessage.SyncDeviceDataForDC)) {
+                return new MasterDataSerializer().serializeMeterDetails(offlineDevice.getId());
+            } else if (deviceMessage.getSpecification().equals(DeviceActionMessage.SyncOneConfigurationForDC)) {
+                int configId = ((BigDecimal) deviceMessage.getAttributes().get(0).getValue()).intValue();
+                return new MasterDataSerializer().serializeMasterDataForOneConfig(configId, readOldObisCodes());
+            } else if (deviceMessage.getSpecification().equals(FirmwareDeviceMessage.DataConcentratorMulticastFirmwareUpgrade)) {
+                return MulticastSerializer.serialize(offlineDevice, deviceMessage);
+            } else if (deviceMessage.getSpecification().equals(FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES)) {
+                return MulticastSerializer.serialize(offlineDevice, deviceMessage);
+            } else if (deviceMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS)
+                    || deviceMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_CLIENT)) {
+                new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecName.AUTHENTICATION_KEY);
+            } else if (deviceMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS)
+                    || deviceMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_CLIENT)) {
+                new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecName.ENCRYPTION_KEY);
+            } else if (deviceMessage.getSpecification().equals(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS)
+                    || deviceMessage.getSpecification().equals(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_CLIENT)) {
+                new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecName.MASTER_KEY);
+            }
+        }catch (DeviceConfigurationException e){
+            return "DeviceConfigurationException " + e.getMessage();
         }
 
         return "";
