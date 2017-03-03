@@ -17,7 +17,7 @@ Ext.define('Ddv.view.validations.Grid', {
         me.columns = [
             {
                 header: Uni.I18n.translate('validations.name', 'DDV', 'Name'),
-                dataIndex: 'name',
+                dataIndex: 'deviceName',
                 flex: 1,
                 renderer: function (value) {
                     var href = me.router.getRoute('devices/device').buildUrl({deviceId: encodeURIComponent(value)});
@@ -26,7 +26,7 @@ Ext.define('Ddv.view.validations.Grid', {
             },
             {
                 header: Uni.I18n.translate('validations.serialNumber', 'DDV', 'Serial number'),
-                dataIndex: 'serialNumber',
+                dataIndex: 'deviceSerialNumber',
                 flex: 1
             },
             {

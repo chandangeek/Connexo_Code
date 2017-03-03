@@ -10,7 +10,7 @@ Ext.define('Ddv.store.Validations', {
 
     proxy: {
         type: 'rest',
-        url: '/api/dvr/validationresults/devicegroups',
+        url: '/api/ddq/validationresults/devicegroups',
 
         appendId: false,
         reader: {

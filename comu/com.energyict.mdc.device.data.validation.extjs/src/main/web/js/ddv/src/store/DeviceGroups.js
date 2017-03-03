@@ -14,7 +14,7 @@ Ext.define('Ddv.store.DeviceGroups', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        url: '/api/val/kpis/kpigroups',
+        url: '/api/ddq/fields/kpiDeviceGroups',
         pageParam: undefined,
         startParam: undefined,
         limitParam: undefined,
