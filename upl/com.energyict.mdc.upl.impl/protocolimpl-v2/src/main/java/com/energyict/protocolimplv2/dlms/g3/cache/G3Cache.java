@@ -25,6 +25,10 @@ import java.util.Map;
 @XmlRootElement
 public class G3Cache extends DLMSCache implements ProfileCache {
 
+    public G3Cache() {
+        //For serialization only
+    }
+
     private Map<ObisCodeAndAttribute, Unit> units = new HashMap<>();
     private Map<ObisCode, List<ChannelInfo>> channelInfos = new HashMap<>();
 

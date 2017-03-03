@@ -26,6 +26,10 @@ public class AM540Cache extends DLMSCache implements DeviceProtocolCache, Serial
     private long frameCounter = 1;
     private boolean connectionToBeaconMirror;
 
+    public AM540Cache() {
+        //For serialization only
+    }
+
     public AM540Cache(boolean connectionToBeaconMirror) {
         this.connectionToBeaconMirror = connectionToBeaconMirror;
     }
