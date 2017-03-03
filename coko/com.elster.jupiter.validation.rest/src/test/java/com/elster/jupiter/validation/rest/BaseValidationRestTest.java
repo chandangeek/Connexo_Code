@@ -5,7 +5,6 @@
 package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
-import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -50,8 +49,6 @@ public class BaseValidationRestTest extends FelixRestApplicationJerseyTest {
     @Mock
     protected DataValidationTask dataValidationTask;
     @Mock
-    protected KpiService kpiService;
-    @Mock
     protected PropertyValueInfoService propertyValueInfoService;
 
     protected DataValidationTaskBuilder builder = initBuilderStub();
@@ -90,7 +87,6 @@ public class BaseValidationRestTest extends FelixRestApplicationJerseyTest {
         app.setRestQueryService(restQueryService);
         app.setTransactionService(transactionService);
         app.setMeteringGroupsService(meteringGroupsService);
-        app.setKpiService(kpiService);
         app.setMetrologyConfigurationService(metrologyConfigurationService);
         app.setNlsService(nlsService);
         app.setTimeService(timeService);

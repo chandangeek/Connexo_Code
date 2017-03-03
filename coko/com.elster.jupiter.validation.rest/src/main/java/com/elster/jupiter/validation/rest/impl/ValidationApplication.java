@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.validation.rest.impl;
 
-import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -55,7 +54,6 @@ public class ValidationApplication extends Application implements TranslationKey
     private volatile RestQueryService restQueryService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
-    private volatile KpiService kpiService;
 
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
@@ -85,11 +83,6 @@ public class ValidationApplication extends Application implements TranslationKey
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
-    }
-
-    @Reference
-    public void setKpiService(KpiService kpiService) {
-        this.kpiService = kpiService;
     }
 
     @Reference
@@ -140,7 +133,6 @@ public class ValidationApplication extends Application implements TranslationKey
             bind(thesaurus).to(Thesaurus.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(timeService).to(TimeService.class);
-            bind(kpiService).to(KpiService.class);
             bind(DataValidationTaskInfoFactory.class).to(DataValidationTaskInfoFactory.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
         }
