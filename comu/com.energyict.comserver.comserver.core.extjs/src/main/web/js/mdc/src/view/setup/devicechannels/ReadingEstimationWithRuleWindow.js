@@ -2,11 +2,11 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWindow', {
+Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWithRuleWindow', {
     extend: 'Ext.window.Window',
-    alias: 'widget.reading-estimation-window',
+    alias: 'widget.reading-estimation-with-rule-window',
     modal: true,
-    title: Uni.I18n.translate('general.editWithEstimator', 'MDC', 'Edit with estimator'),
+    title: Uni.I18n.translate('general.EstimateWithRule', 'MDC', 'Estimate with rule'),
     bothSuspected: false,
     record: null,
 
@@ -67,15 +67,15 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWindow', {
                     xtype: 'combobox',
                     itemId: 'estimator-field',
                     name: 'estimatorImpl',
-                    fieldLabel: Uni.I18n.translate('estimationDevice.estimator', 'MDC', 'Estimator'),
+                    fieldLabel: Uni.I18n.translate('estimationDevice.estimationRule', 'MDC', 'Estimation rule'),
                     required: true,
                     editable: false,
-                    store: 'Mdc.store.Estimators',
-                    valueField: 'implementation',
-                    displayField: 'displayName',
+                    store: 'Mdc.store.EstimationRulesOnChannelMainValue',
+                    valueField: 'id',
+                    displayField: 'name',
                     queryMode: 'local',
                     forceSelection: true,
-                    emptyText: Uni.I18n.translate('general.selectAnEstimator', 'MDC', 'Select an estimator...'),
+                    emptyText: Uni.I18n.translate('general.selectAnEstimationRule', 'MDC', 'Select an estimation rule...'),
                     listeners: {
                         change: {
                             fn: function (implementationCombo, newValue) {
@@ -91,6 +91,8 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWindow', {
                 {
                     xtype: 'property-form',
                     itemId: 'property-form',
+                    isEdit: false,
+                    isReadOnly: true,
                     defaults: {
                         labelWidth: 200
                     }
@@ -121,5 +123,13 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWindow', {
         };
 
         me.callParent(arguments);
+    },
+
+    getEstimator: function(){
+        var me = this;
+        return me.down('#estimator-field')
+            .getStore()
+            .getById(me.down('#estimator-field').getValue())
+            .get('estimatorImpl');
     }
 });
