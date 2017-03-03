@@ -67,7 +67,6 @@ Ext.define('Imt.purpose.controller.Purpose', {
             mainView = Ext.ComponentQuery.query('#contentPanel')[0];
 
         mainView.setLoading();
-        
         me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(function(usagePointTypes, op, success) {
             if (success) {
                 me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(usagePointId, {
@@ -207,7 +206,6 @@ Ext.define('Imt.purpose.controller.Purpose', {
             router = me.getController('Uni.controller.history.Router'),
             output = panel.output,
             readingsStore;
-
         switch (output.get('outputType')) {
             case 'channel':
                 readingsStore = me.getStore('Imt.purpose.store.Readings');

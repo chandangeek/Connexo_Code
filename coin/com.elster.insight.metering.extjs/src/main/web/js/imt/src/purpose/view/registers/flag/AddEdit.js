@@ -26,7 +26,6 @@ Ext.define('Imt.purpose.view.registers.flag.AddEdit', {
 
     initComponent: function () {
         var me = this;
-
         me.content = [
             {
                 xtype: 'form',

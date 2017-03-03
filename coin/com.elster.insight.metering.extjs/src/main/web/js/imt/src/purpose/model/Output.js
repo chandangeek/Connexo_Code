@@ -13,7 +13,10 @@ Ext.define('Imt.purpose.model.Output', {
         {name: 'readingType', type: 'auto', useNull: true},
         {name: 'formula', type: 'auto', useNull: true},
         {name: 'flowUnit', type: 'string', useNull: true},
-        {name: 'deliverableType', type: 'string', useNull: true}
+        {name: 'deliverableType', type: 'string', useNull: true},
+        {name: 'hasEvent', type: 'auto', useNull: true},
+        {name: 'isBilling', type: 'auto', useNull: true},
+        {name: 'isCummulative', type: 'auto', useNull: true}
     ],
 
     associations: [

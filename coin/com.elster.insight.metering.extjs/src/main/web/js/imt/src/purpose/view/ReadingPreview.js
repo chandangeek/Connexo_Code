@@ -101,7 +101,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
         switch(me.output.get('outputType')){
             case 'channel': {
                 generalTimeField = {
-                    fieldLabel: Uni.I18n.translate('general.interval', 'IMT', 'Interval'),
+                    fieldLabel: Uni.I18n.translate('general.measurementPeriod', 'IMT', 'Measurement period'),
                     name: 'interval',
                     itemId: 'interval-field',
                     renderer: function (value) {
@@ -115,21 +115,58 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                 }
             } break;
             case 'register':{
-                generalTimeField = {
-                    fieldLabel: Uni.I18n.translate('general.measurementTime', 'IMT', 'Measurement time'),
-                    name: 'timeStamp',
-                    itemId: 'measurement-time-field',
-                    renderer: function (value) {
-                        return value
-                            ? Uni.DateTime.formatDateTimeShort(new Date(value))
-                            : '-';
+                if((me.output.get('deliverableType')==='numerical' || me.output.get('deliverableType')==='billing') && (me.output.get('isCummulative') || me.output.get('isBilling'))){
+                    generalTimeField = {
+                        fieldLabel: Uni.I18n.translate('general.measurementPeriod', 'IMT', 'Measurement period'),
+                        name: 'interval',
+                        itemId: 'interval-field',
+                        renderer: function (value) {
+                            if (!Ext.isEmpty(value) && !!value.start) {
+                                return value
+                                    ? Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value.start)), Uni.DateTime.formatTimeLong(new Date(value.start))])
+                                + ' - ' +
+                                Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value.end)), Uni.DateTime.formatTimeLong(new Date(value.end))])
+                                    : '-';
+                            } else if (!Ext.isEmpty(value) && !!value.end){
+                                return Uni.DateTime.formatDateLong(new Date(value.end))
+                            }
+                            return '-';
+                        },
+                        htmlEncode: false
+                    }
+                } else if (!me.output.get('hasEvent')){
+                    generalTimeField = {
+                        fieldLabel: Uni.I18n.translate('general.measurementTime', 'IMT', 'Measurement time'),
+                        name: 'timeStamp',
+                        itemId: 'measurement-time-field',
+                        renderer: function (value) {
+                            return value
+                                ? Uni.DateTime.formatDateTimeShort(new Date(value))
+                                : '-';
+                        }
                     }
                 }
             } break;
         }
+        generalItems.push(generalTimeField);
+
+        if(me.output.get('hasEvent')){
+            generalItems.push(
+                {
+                    fieldLabel: Uni.I18n.translate('device.registerData.eventTime', 'IMT', 'Event time'),
+                    dataIndex: 'eventDate',
+                    itemId: 'eventTime',
+                    renderer: function (value) {
+                        return value
+                            ? Uni.DateTime.formatDateTimeLong(new Date(value))
+                            : '-';
+                    }
+                }
+            );
+        }
+
 
         generalItems.push(
-            generalTimeField,
             {
                 fieldLabel: Uni.I18n.translate('device.readingData.lastUpdate', 'IMT', 'Last update'),
                 name: 'reportedDateTime',
@@ -164,7 +201,14 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                 renderer: function (value) {
                     return me.setValueWithResult(value);
                 }
-            },
+            });
+        if(me.output.get('isCummulative')){
+            valuesItems.push({
+                fieldLabel: Uni.I18n.translate('device.registerData.deltaValue', 'IMT', 'Delta value'),
+                dataIndex: 'deltaValue'
+            })
+        }
+        valuesItems.push(
             {
                 fieldLabel: Uni.I18n.translate('general.formula', 'IMT', 'Formula'),
                 itemId: 'formula-field'

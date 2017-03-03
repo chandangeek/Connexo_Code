@@ -13,20 +13,12 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
         var me = this,
             readingType =  me.output.get('readingType'),
             unit = readingType && readingType.names ? readingType.names.unitOfMeasure : readingType.unit;
-        me.columns = [
-            {
-                header: Uni.I18n.translate('general.measurementTime', 'IMT', 'Measurement time'),
-                flex: 1,
-                dataIndex: 'timeStamp',
-                renderer: function (value) {
-                    return value
-                        ? Uni.DateTime.formatDateTimeShort(new Date(value))
-                        : '-'
-                }
-            },
-            {
+        me.columns = [];
+
+        if((me.output.get('deliverableType')==='numerical' || me.output.get('deliverableType')==='billing') && (me.output.get('isCummulative') || me.output.get('isBilling'))){
+            me.columns.push( {
                 header: Uni.I18n.translate('general.measurementPeriod', 'IMT', 'Measurement period'),
-                flex: 1,
+                flex: 2,
                 dataIndex: 'interval',
                 renderer: function (value) {
                     if(!Ext.isEmpty(value)) {
@@ -40,15 +32,31 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
                     }
                     return '-';
                 }
-            },
-            {
-                header: Uni.I18n.translate('device.registerData.eventTime', 'IMT', 'Event time'),
-                dataIndex: 'eventDate',
-                itemId: 'eventTime',
-                renderer: me.renderMeasurementTime,
-                flex: 1
-            },
-            {
+            })
+        } else if (!me.output.get('hasEvent')){
+            me.columns.push({
+                header: Uni.I18n.translate('general.measurementTime', 'IMT', 'Measurement time'),
+                flex: 1,
+                dataIndex: 'timeStamp',
+                renderer: function (value) {
+                    return value
+                        ? Uni.DateTime.formatDateTimeShort(new Date(value))
+                        : '-'
+                }
+            })
+        }
+        if(me.output.get('hasEvent')){
+            me.columns.push(
+                {
+                    header: Uni.I18n.translate('device.registerData.eventTime', 'IMT', 'Event time'),
+                    dataIndex: 'eventDate',
+                    itemId: 'eventTime',
+                    renderer: me.renderMeasurementTime,
+                    flex: 1
+                }
+            );
+        }
+        me.columns.push({
                 header: unit
                     ? Uni.I18n.translate('general.valueOf', 'IMT', 'Value ({0})', unit)
                     : Uni.I18n.translate('general.value.empty', 'IMT', 'Value'),
@@ -56,14 +64,17 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
                 align: 'right',
                 width: 200,
                 dataIndex: 'value'
-            },
-            {
+            });
+        if(me.output.get('isCummulative')){
+            me.columns.push({
                 header: Uni.I18n.translate('device.registerData.deltaValue', 'IMT', 'Delta value'),
-                dataIndex: 'deltaValue',
+                    dataIndex: 'deltaValue',
                 align: 'right',
                 minWidth: 150,
                 flex: 1
-            },
+            })
+        }
+        me.columns = me.columns.concat([
             {
                 xtype: 'edited-column',
                 header: '',
@@ -90,7 +101,7 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
                     router: me.router
                 }
             }
-        ];
+        ]);
         me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
