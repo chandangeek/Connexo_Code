@@ -201,11 +201,12 @@ Ext.define('Imt.purpose.controller.Readings', {
 
     checkSuspect: function (menu) {
         var me = this,
-            validationResult = menu.record.get('validationResult') == 'validationStatus.suspect',
+            validationResult = menu.record.get('validationResult') === 'validationStatus.suspect' ||
+                menu.record.get('estimatedNotSaved') === true,
             estimationRulesCount = me.getStore('Imt.purpose.store.EstimationRules').getCount();
         Ext.suspendLayouts();
         menu.down('#estimate-value').setVisible(validationResult);
-        menu.down('#estimate-value-with-rule').setVisible(estimationRulesCount);
+        menu.down('#estimate-value-with-rule').setVisible(validationResult && estimationRulesCount);
         if (menu.record.get('confirmed') || menu.record.isModified('value')) {
             menu.down('#confirm-value').hide();
         } else {
@@ -346,6 +347,8 @@ Ext.define('Imt.purpose.controller.Readings', {
                     isConfirmed: record.get('confirmedNotSaved') || false
                 };
                 changedData.push(confirmedObj);
+            } else if (record.get('ruleId')) {
+                changedData.push(_.pick(record.getData(), 'interval', 'value', 'ruleId'));
             } else if (record.isModified('value')) {
                 changedData.push(_.pick(record.getData(), 'interval', 'value'));
             } else if (record.isModified('collectedValue')) {
@@ -361,8 +364,10 @@ Ext.define('Imt.purpose.controller.Readings', {
             canEstimate = false,
             canConfirm = false,
             canReset = false,
+            canEstimateWithRule = false,
             button = me.getReadingsList().down('#readings-bulk-action-button'),
-            menu = button.down('menu');
+            menu = button.down('menu'),
+            estimationRulesCount = me.getStore('Imt.purpose.store.EstimationRules').getCount();
 
         selectedRecords.forEach(function (record) {
             if (canEstimate && canConfirm && canReset) {
@@ -373,6 +378,9 @@ Ext.define('Imt.purpose.controller.Readings', {
                 if (!canConfirm && !record.get('isConfirmed') && !record.isModified('value')) {
                     canConfirm = true;
                 }
+                if(estimationRulesCount){
+                    canEstimateWithRule = true;
+                }
             }
             if (!canReset && (record.get('estimatedByRule') || record.get('modificationFlag') == "EDITED" || record.get('modificationFlag') == "ADDED")) {
                 canReset = true;
@@ -381,6 +389,7 @@ Ext.define('Imt.purpose.controller.Readings', {
 
         Ext.suspendLayouts();
         menu.down('#estimate-value').setVisible(canEstimate);
+        menu.down('#estimate-value-with-rule').setVisible(canEstimateWithRule);
         menu.down('#confirm-value').setVisible(canConfirm);
         menu.down('#reset-value').setVisible(canReset);
         button.setDisabled(!menu.query('menuitem[hidden=false]').length);
@@ -447,6 +456,7 @@ Ext.define('Imt.purpose.controller.Readings', {
 
         !window.down('#form-errors').isHidden() && window.down('#form-errors').hide();
         !window.down('#error-label').isHidden() && window.down('#error-label').hide();
+        propertyForm.clearInvalid();
 
         if (propertyForm.getRecord()) {
             propertyForm.updateRecord();
@@ -503,40 +513,6 @@ Ext.define('Imt.purpose.controller.Readings', {
         model.set('intervals', intervalsArray);
         me.saveChannelDataEstimateModel(model, record, window, estimationRuleId);
     },
-
-    // estimateReading: function (window, estimator) {
-    //     var me = this,
-    //         window = me.getReadingEstimationWithRuleWindow(),
-    //         estimator = window.down('#estimator-field').getValue(),
-    //         propertyForm = window.down('#property-form'),
-    //         model = Ext.create('Imt.purpose.model.ChannelDataEstimate'),
-    //         record = window.record,
-    //         intervalsArray = [];
-    //
-    //
-    //     !window.down('#form-errors').isHidden() && window.down('#form-errors').hide();
-    //     !window.down('#error-label').isHidden() && window.down('#error-label').hide();
-    //
-    //     if (propertyForm.getRecord()) {
-    //         model.set('estimatorImpl', estimator);
-    //         model.propertiesStore = propertyForm.getRecord().properties();
-    //     }
-    //     if (!Ext.isArray(record)) {
-    //         intervalsArray.push({
-    //             start: record.get('interval').start,
-    //             end: record.get('interval').end
-    //         });
-    //     } else {
-    //         Ext.Array.each(record, function (item) {
-    //             intervalsArray.push({
-    //                 start: item.get('interval').start,
-    //                 end: item.get('interval').end
-    //             });
-    //         });
-    //     }
-    //     model.set('intervals', intervalsArray);
-    //     me.saveChannelDataEstimateModel(model, record, window);
-    // },
 
     //TODO
     saveChannelDataEstimateModel: function (record, readings, window, ruleId) {
@@ -603,6 +579,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         reading.set('value', estimatedReading.value);
         ruleId && reading.set('ruleId', ruleId);
         reading.set('validationResult', 'validationStatus.ok');
+        reading.set('estimatedNotSaved', true);
 
         grid.getView().refreshNode(grid.getStore().indexOf(reading));
 

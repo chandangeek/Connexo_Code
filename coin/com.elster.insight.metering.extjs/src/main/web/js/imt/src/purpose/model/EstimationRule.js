@@ -11,6 +11,7 @@ Ext.define('Imt.purpose.model.EstimationRule', {
     fields: [
         {name: 'id', type: 'number'},
         {name: 'displayName', type: 'string'},
+        {name: 'estimatorImpl', type: 'string'},
         {name: 'properties', type: 'auto', defaultValue: null}
     ],
 

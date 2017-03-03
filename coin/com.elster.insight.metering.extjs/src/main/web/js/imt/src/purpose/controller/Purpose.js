@@ -183,7 +183,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             window.location.replace(router.getRoute('usagepoints/view/purpose/output').buildUrl({tab: 'readings'}));
         } else {
             outputModel = me.getModel('Imt.purpose.model.Output');
-            dependenciesCounter = 4;
+            dependenciesCounter = 3;
             displayPage = function () {
                 var widget;
 
@@ -235,14 +235,16 @@ Ext.define('Imt.purpose.controller.Purpose', {
             outputModel.load(outputId, {
                 success: function (record) {
                     output = record;
-                    displayPage();
+                    if(record.get('outputType') === "channel"){
+                        var estimationRulesStore = me.getStore('Imt.purpose.store.EstimationRules');
+                        estimationRulesStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId, outputId: outputId}
+                        estimationRulesStore.load(function(records){
+                            displayPage();
+                        });
+                    } else {
+                        displayPage();
+                    }
                 }
-            });
-
-            var estimationRulesStore = me.getStore('Imt.purpose.store.EstimationRules');
-            estimationRulesStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId, outputId: outputId}
-            estimationRulesStore.load(function(records){
-                displayPage();
             });
         }
     },

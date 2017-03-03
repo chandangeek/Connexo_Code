@@ -19,7 +19,7 @@ Ext.define('Imt.purpose.view.MultipleReadingsActionMenu', {
                 itemId: 'estimate-value',
                 privileges: Imt.privileges.UsagePoint.admin,
                 hidden: true,
-                text: Uni.I18n.translate('general.estimateValue', 'IMT', 'Estimate'),
+                text: Uni.I18n.translate('general.editWithEstimator', 'IMT', 'Edit with estimator'),
                 action: 'estimateValue',
                 section: this.SECTION_ACTION
             },

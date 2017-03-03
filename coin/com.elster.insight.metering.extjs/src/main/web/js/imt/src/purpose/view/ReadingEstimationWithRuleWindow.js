@@ -47,7 +47,7 @@ Ext.define('Imt.purpose.view.ReadingEstimationWithRuleWindow', {
                     editable: 'false',
                     store: 'Imt.purpose.store.EstimationRules',
                     valueField: 'id',
-                    displayField: 'displayName',
+                    displayField: 'name',
                     queryMode: 'local',
                     forceSelection: true,
                     emptyText: Uni.I18n.translate('general.selectAnEstimationRule', 'IMT', 'Select an estimation rule...'),
@@ -101,7 +101,10 @@ Ext.define('Imt.purpose.view.ReadingEstimationWithRuleWindow', {
     },
 
     getEstimator: function(){
-        // var me = this;
-        // return me.down('#estimation-rule-field').getStore().getById(me.down('#estimation-rule-field').getValue())
+        var me = this;
+        return me.down('#estimation-rule-field')
+            .getStore()
+            .getById(me.down('#estimation-rule-field').getValue())
+            .get('estimatorImpl');
     }
 });
