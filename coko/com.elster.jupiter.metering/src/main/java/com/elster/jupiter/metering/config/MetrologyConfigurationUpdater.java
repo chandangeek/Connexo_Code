@@ -14,6 +14,8 @@ public interface MetrologyConfigurationUpdater {
 
     MetrologyConfigurationUpdater setDescription(String description);
 
+    MetrologyConfigurationUpdater setGapAllowed(boolean isGapAllowed);
+
     MetrologyConfigurationUpdater setServiceCategory(ServiceCategory serviceCategory);
 
     MetrologyConfiguration complete();
