@@ -4,30 +4,28 @@
 
 package com.elster.jupiter.metering.impl.aggregation;
 
-import com.elster.jupiter.metering.config.*;
+import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.Operator;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
 import com.elster.jupiter.metering.impl.config.ConstantNodeImpl;
 import com.elster.jupiter.metering.impl.config.OperationNodeImpl;
 import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableNodeImpl;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.units.Dimension;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -155,10 +153,6 @@ public class DependencyAnalyzerTest {
         ReadingTypeDeliverable deliverable = mock(ReadingTypeDeliverable.class);
         when(deliverable.getId()).thenReturn(id);
         when(deliverable.getFormula()).thenReturn(formula);
-        when(deliverable.compareTo(any(ReadingTypeDeliverable.class))).thenAnswer(invocation -> {
-            ReadingTypeDeliverable other = (ReadingTypeDeliverable) invocation.getArguments()[0];
-            return Long.compare(id, other.getId());
-        });
         return deliverable;
     }
 
