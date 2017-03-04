@@ -50,6 +50,7 @@ public class EstimationRuleInfoFactory {
     public EstimationRuleInfo createEstimationRuleInfo(EstimationRule estimationRule) {
         EstimationQuantityInfo info = new EstimationQuantityInfo();
         info.id = estimationRule.getId();
+        info.estimatorImpl = estimationRule.getImplementation();
         info.ruleSetId = estimationRule.getRuleSet().getId();
         info.deleted = estimationRule.isObsolete();
         info.name = estimationRule.getName();
