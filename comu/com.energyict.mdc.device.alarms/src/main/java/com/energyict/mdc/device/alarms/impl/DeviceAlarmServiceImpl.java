@@ -37,6 +37,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.time.spi.RelativePeriodCategoryTranslationProvider;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -76,10 +77,10 @@ import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.energyict.mdc.device.alarms.DeviceAlarmServiceImpl",
-        service = {TranslationKeyProvider.class, MessageSeedProvider.class, DeviceAlarmService.class, IssueProvider.class, IssueGroupTranslationProvider.class},
+        service = {TranslationKeyProvider.class, MessageSeedProvider.class, DeviceAlarmService.class, IssueProvider.class, IssueGroupTranslationProvider.class, RelativePeriodCategoryTranslationProvider.class},
         property = "name=" + DeviceAlarmService.COMPONENT_NAME,
         immediate = true)
-public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSeedProvider, DeviceAlarmService, IssueProvider, IssueGroupTranslationProvider {
+public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSeedProvider, DeviceAlarmService, IssueProvider, IssueGroupTranslationProvider, RelativePeriodCategoryTranslationProvider {
     private volatile IssueService issueService;
     private volatile IssueActionService issueActionService;
     private volatile MessageService messageService;
@@ -161,7 +162,8 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
 
     @Reference
     public final void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(DeviceAlarmService.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(DeviceAlarmService.COMPONENT_NAME, Layer.DOMAIN)
+                .join(nlsService.getThesaurus(TimeService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Reference
@@ -282,7 +284,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     private List<Class<?>> determineMainApiClass(DeviceAlarmFilter filter) {
         List<Class<?>> eagerClasses = new ArrayList<>();
         List<IssueStatus> statuses = filter.getStatuses();
-        if (!statuses.isEmpty() && statuses.stream().allMatch(status -> !status.isHistorical())) {
+        if (!statuses.isEmpty() && statuses.stream().noneMatch(IssueStatus::isHistorical)) {
             eagerClasses.add(OpenDeviceAlarm.class);
             eagerClasses.add(OpenIssue.class);
         } else if (!statuses.isEmpty() && statuses.stream().allMatch(IssueStatus::isHistorical)) {
