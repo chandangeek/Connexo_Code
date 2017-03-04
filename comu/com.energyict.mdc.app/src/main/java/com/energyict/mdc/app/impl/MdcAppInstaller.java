@@ -22,6 +22,7 @@ import com.energyict.mdc.app.MdcAppService;
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.engine.monitor.app.MdcMonitorAppService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -171,6 +172,8 @@ public class MdcAppInstaller {
                     com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_ATTRIBUTE,
                     com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS,
                     com.energyict.mdc.device.data.security.Privileges.Constants.ESTIMATE_WITH_RULE,
+                    com.energyict.mdc.device.data.security.Privileges.Constants.EDIT_WITH_ESTIMATOR,
+
 
                     //Estimation
                     com.elster.jupiter.estimation.security.Privileges.Constants.RUN_ESTIMATION_TASK,
