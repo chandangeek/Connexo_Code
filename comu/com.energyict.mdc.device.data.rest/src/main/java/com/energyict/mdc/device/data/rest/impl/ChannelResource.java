@@ -449,7 +449,7 @@ public class ChannelResource {
     @Path("/{channelid}/data")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA, Privileges.Constants.ESTIMATE_WITH_RULE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA, Privileges.Constants.ESTIMATE_WITH_RULE, Privileges.Constants.EDIT_WITH_ESTIMATOR})
     public Response editChannelData(@PathParam("name") String name, @PathParam("channelid") long channelId, @BeanParam JsonQueryParameters queryParameters, List<ChannelDataInfo> channelDataInfos) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
@@ -516,7 +516,7 @@ public class ChannelResource {
     @Path("/{channelid}/data/estimate")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.EDIT_WITH_ESTIMATOR})
     public List<ChannelDataInfo> previewEstimateChannelData(@PathParam("name") String name, @PathParam("channelid") long channelId,
                                                             @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName,
                                                             EstimateChannelDataInfo estimateChannelDataInfo) {
