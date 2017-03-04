@@ -17,10 +17,12 @@ import com.elster.jupiter.fileimport.ImportScheduleBuilder;
 import com.elster.jupiter.fileimport.Status;
 import com.elster.jupiter.fileimport.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -30,6 +32,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.json.JsonService;
 
 import com.google.common.collect.Range;
 import org.apache.commons.io.FileUtils;
@@ -86,11 +89,15 @@ public class FileImportScheduleResource {
     private final Clock clock;
     private final AppService appService;
     private final ExceptionFactory exceptionFactory;
+    private final JsonService jsonService;
+    private final Thesaurus thesaurus;
+
 
     private static final int MAX_FILE_SIZE = 100 * 1024 * 1024;
+    private static final int UNPROCESSIBLE_ENTITY = 422;
 
     @Inject
-    public FileImportScheduleResource(FileImportService fileImportService, TransactionService transactionService, PropertyValueInfoService propertyValueInfoService, FileSystem fileSystem, FileImportScheduleInfoFactory fileImportScheduleInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, Validator validator, ThreadPrincipalService threadPrincipalService, Clock clock, AppService appService, ExceptionFactory exceptionFactory) {
+    public FileImportScheduleResource(FileImportService fileImportService, TransactionService transactionService, PropertyValueInfoService propertyValueInfoService, FileSystem fileSystem, FileImportScheduleInfoFactory fileImportScheduleInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, Validator validator, ThreadPrincipalService threadPrincipalService, Clock clock, AppService appService, ExceptionFactory exceptionFactory, JsonService jsonService, Thesaurus thesaurus) {
         this.fileImportService = fileImportService;
         this.transactionService = transactionService;
         this.propertyValueInfoService = propertyValueInfoService;
@@ -102,6 +109,8 @@ public class FileImportScheduleResource {
         this.clock = clock;
         this.appService = appService;
         this.exceptionFactory = exceptionFactory;
+        this.jsonService = jsonService;
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -159,7 +168,8 @@ public class FileImportScheduleResource {
         String fileName = contentDispositionHeader.getFileName();
 
         if (fileName == null || fileName.isEmpty()) {
-            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "file");
+            throw new WebApplicationException(Response.status(UNPROCESSIBLE_ENTITY).entity(jsonService
+                    .serialize(new ConstraintViolationInfo(thesaurus).from(new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "file")))).build());
         }
         loadFile(inputStream, fileName, importFolder, appServer.getName());
         FileImportHistory importHistory = buildFileImportHistory(importSchedule, fileName);
@@ -413,11 +423,13 @@ public class FileImportScheduleResource {
                 if (outputStream.getChannel().size() > MAX_FILE_SIZE) {
                     outputStream.close();
                     FileUtils.deleteQuietly(copiedFile);
-                    throw new LocalizedFieldValidationException(MessageSeeds.MAX_FILE_SIZE_EXCEEDED, "file");
+                    throw new WebApplicationException(Response.status(UNPROCESSIBLE_ENTITY).entity(jsonService
+                            .serialize(new ConstraintViolationInfo(thesaurus).from(new LocalizedFieldValidationException(MessageSeeds.MAX_FILE_SIZE_EXCEEDED, "file")))).build());
                 }
             }
         } catch (IOException ex) {
-            throw exceptionFactory.newException(MessageSeeds.FAILED_TO_UPLOAD_TO_SERVER, fileName, appServerName);
+            throw new WebApplicationException(Response.status(UNPROCESSIBLE_ENTITY).entity(jsonService
+                    .serialize(new ConstraintViolationInfo(thesaurus).from(exceptionFactory.newException(MessageSeeds.FAILED_TO_UPLOAD_TO_SERVER, fileName, appServerName)))).build());
         }
         copiedFile.renameTo(new File(importFolder + "\\" + fileName));
     }
