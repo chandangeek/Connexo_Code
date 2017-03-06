@@ -43,6 +43,9 @@ public class EndDeviceInfoFactory implements InfoFactory<EndDevice> {
         info.name = endDevice.getName();
         info.serialNumber = endDevice.getSerialNumber();
         info.utcNumber = endDevice.getUtcNumber();
+        info.modelNbr = endDevice.getModelNumber();
+        info.modelVersion = endDevice.getModelVersion();
+        info.utcNumber = endDevice.getUtcNumber();
 
         if (endDevice.getElectronicAddress() != null) {
             info.eMail1 = endDevice.getElectronicAddress().getEmail1();
@@ -67,6 +70,9 @@ public class EndDeviceInfoFactory implements InfoFactory<EndDevice> {
         infos.add(createDescription(TranslationSeeds.DESCRIPTION, String.class));
         infos.add(createDescription(TranslationSeeds.MRID, String.class));
         infos.add(createDescription(TranslationSeeds.SERIALNUMBER, String.class));
+        infos.add(createDescription(TranslationSeeds.MANUFACTURER, String.class));
+        infos.add(createDescription(TranslationSeeds.MODEL_NBR, String.class));
+        infos.add(createDescription(TranslationSeeds.MODEL_VERSION, String.class));
         infos.add(createDescription(TranslationSeeds.UTCNUMBER, String.class));
         infos.add(createDescription(TranslationSeeds.EMAIL1, String.class));
         infos.add(createDescription(TranslationSeeds.EMAIL2, String.class));
