@@ -42,6 +42,7 @@ Ext.define('Uni.view.widget.WorkList', {
                 margin: '0 10 0 0',
                 layout: 'fit',
                 width: 150,
+                maxHeight: 26,
                 items: [
                     {
                         xtype: 'combobox',
@@ -49,6 +50,7 @@ Ext.define('Uni.view.widget.WorkList', {
                         editable: false,
                         hidden: true,
                         displayField: 'name',
+                        maxHeight: 26,
                         listeners: {
                             change: function (combo, newValue) {
                                 var workItem = combo.findRecordByValue(newValue);

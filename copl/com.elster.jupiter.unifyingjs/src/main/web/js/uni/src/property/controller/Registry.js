@@ -93,7 +93,7 @@ Ext.define('Uni.property.controller.Registry', {
         SELECTIONGRID: 'Uni.property.view.property.SelectionGrid',
         QUANTITY: 'Uni.property.view.property.Quantity',
         LISTREADINGQUALITY: 'Uni.property.view.property.ReadingQualities',
-        ASSIGN: 'Uni.property.view.property.Assign',
+        ASSIGN: 'Uni.property.view.property.Assign'
     },
 
 // store must be registered on some ctrl (not in the responsibility of this class: move later?)
