@@ -14,7 +14,7 @@ Ext.define('Imt.dashboard.view.AddFavoriteUsagePointGroups', {
             {
                 ui: 'large',
                 xtype: 'panel',
-                title: Uni.I18n.translate('selectFavoriteUsagePointGroups.title', 'IMT', 'Select favorite usage point groups'),
+                title: Uni.I18n.translate('selectFavoriteUsagePointGroups.title', 'IMT', 'Select favourite usage point groups'),
                 itemId: 'select-usage-point-groups',
                 items: [
                     {
