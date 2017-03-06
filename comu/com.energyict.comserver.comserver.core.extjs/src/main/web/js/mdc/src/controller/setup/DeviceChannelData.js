@@ -14,7 +14,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         'Mdc.view.setup.devicechannels.TabbedDeviceChannelsView',
         'Mdc.view.setup.devicechannels.Overview',
         'Mdc.view.setup.devicechannels.ReadingEstimationWindow',
-        'Mdc.view.setup.devicechannels.EditCustomAttributes'
+        'Mdc.view.setup.devicechannels.EditCustomAttributes',
+        'Mdc.view.setup.devicechannels.History'
     ],
 
     models: [
@@ -35,7 +36,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         'Mdc.store.Estimators',
         'Mdc.store.ValidationBlocks',
         'Mdc.store.TimeUnits',
-        'Mdc.store.DataLoggerSlaveChannelHistory'
+        'Mdc.store.DataLoggerSlaveChannelHistory',
+        'Mdc.store.HistoryChannels'
     ],
 
     refs: [
@@ -56,6 +58,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             selector: '#deviceLoadProfileChannelDataSideFilter'
         },
         {
+            ref: 'deviceLoadProfileHistoryChannelDataPreview',
+            selector: '#deviceLoadProfileHistoryChannelDataPreview'
+        },
+        {
             ref: 'deviceLoadProfileChannelDataPreview',
             selector: '#deviceLoadProfileChannelDataPreview'
         },
@@ -65,7 +71,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         },
         {
             ref: 'filterPanel',
-            selector: '#deviceLoadProfileChannelData #deviceloadprofileschanneldatafilterpanel'
+            selector: '#deviceLoadProfileChannelData #mdc-device-channels-topfilter'
         },
         {
             ref: 'readingEstimationWindow',
@@ -90,6 +96,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     init: function () {
         this.control({
+            'device-channels-history-grid': {
+                select: this.showHistoryPreview
+            },
             '#deviceLoadProfileChannelData #deviceLoadProfileChannelDataGrid': {
                 select: this.showPreview,
                 beforeedit: this.beforeEditRecord,
@@ -400,6 +409,16 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         }
     },
 
+    showHistoryPreview: function (selectionModel, record) {
+        var me = this,
+            previewPanel;
+
+        if (selectionModel.getSelection().length === 1) {
+            previewPanel = me.getDeviceLoadProfileHistoryChannelDataPreview();
+            previewPanel.updateForm(record);
+        }
+    },
+
     onGraphResize: function (graphView, width, height) {
         if (graphView.chart) {
             graphView.chart.setSize(width, height, false);
@@ -407,7 +426,13 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
     chooseAction: function (menu, item) {
-        var me = this;
+        var me = this,
+            records = me.getPage().down('deviceLoadProfileChannelDataGrid').getSelectionModel().getSelection(),
+            router = this.getController('Uni.controller.history.Router'),
+            routeParams = router.arguments,
+            route,
+            filterParams = {};
+
         switch (item.action) {
             case 'editValue':
                 me.getPage().down('#deviceLoadProfileChannelDataGrid').getPlugin('cellplugin').startEdit(menu.record, 1);
@@ -421,7 +446,14 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             case 'confirmValue':
                 me.confirmValue(menu.record, false);
                 break;
+            case 'viewHistory':
+                route = 'devices/device/channels/channel/history';
+                filterParams = {endInterval: Number(menu.record.get('interval').end - 1) + '-' + Number(menu.record.get('interval').end)};
+                route && (route = router.getRoute(route));
+                route && route.forward(routeParams, filterParams);
+                break;
         }
+
     },
 
     showButtons: function () {
@@ -750,7 +782,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     chooseBulkAction: function (menu, item) {
         var me = this,
-            records = me.getPage().down('deviceLoadProfileChannelDataGrid').getSelectionModel().getSelection();
+            records = me.getPage().down('deviceLoadProfileChannelDataGrid').getSelectionModel().getSelection(),
+            router = this.getController('Uni.controller.history.Router'),
+            routeParams = router.arguments,
+            route,
+            filterParams = {};
 
         switch (item.action) {
             case 'estimateValue':
@@ -762,7 +798,16 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             case 'removeReadings':
                 me.removeReadings(records, true);
                 break;
+            case 'viewHistory':
+                route = 'devices/device/channels/channel/history';
+                var param = {};
+                me.getFilterPanel().down('#devicechannels-topfilter-duration').applyParamValue(param);
+                filterParams = {endInterval: param.intervalStart.toString() + '-' + param.intervalEnd.toString()};
+                break;
         }
+
+        route && (route = router.getRoute(route));
+        route && route.forward(routeParams, filterParams);
     },
 
     confirmValue: function (record, isBulk) {
@@ -965,5 +1010,47 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 restoreBtn.enable();
             }
         }
+    },
+
+    viewHistory: function (deviceId, channelId) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            viewport = Ext.ComponentQuery.query('viewport')[0];
+
+        viewport.setLoading(true);
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
+            success: function (device) {
+                var model = Ext.ModelManager.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice');
+                model.getProxy().setExtraParam('deviceId', deviceId);
+                model.load(channelId, {
+                    success: function (channel) {
+
+                        var widget = Ext.widget('device-channels-history', {
+                            device: device,
+                            router: router,
+                            channel: channel
+                        });
+                        var store = me.getStore('Mdc.store.HistoryChannels');
+
+                        store.getProxy().setUrl(router.arguments.deviceId, router.arguments.channelId);
+                        store.load({
+                            callback: function () {
+                                me.getApplication().fireEvent('loadDevice', device);
+                                me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', channel);
+                                me.getApplication().fireEvent('changecontentevent', widget);
+                                viewport.setLoading(false);
+                            }
+                        });
+
+                    },
+                    failure: function () {
+                        viewport.setLoading(false);
+                    }
+                });
+            },
+            failure: function () {
+                viewport.setLoading(false);
+            }
+        });
     }
 });

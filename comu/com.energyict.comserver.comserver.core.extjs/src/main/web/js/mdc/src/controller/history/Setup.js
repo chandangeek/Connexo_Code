@@ -813,6 +813,13 @@ Ext.define('Mdc.controller.history.Setup', {
                                             privileges: Mdc.privileges.Device.administrateDevice,
                                             action: 'editChannel'
                                         },
+                                        history: {
+                                            title: Uni.I18n.translate('general.history', 'MDC', 'History'),
+                                            route: 'history',
+                                            controller: 'Mdc.controller.setup.DeviceChannelData',
+                                            privileges: Mdc.privileges.Device.administrateDevice,
+                                            action: 'viewHistory'
+                                        },
                                         editcustomattributes: {
                                             route: 'customattributes/{customAttributeSetId}/edit',
                                             controller: 'Mdc.controller.setup.DeviceChannelData',

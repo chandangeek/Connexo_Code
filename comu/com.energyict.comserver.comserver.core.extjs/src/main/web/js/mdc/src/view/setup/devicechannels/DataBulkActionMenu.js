@@ -27,6 +27,12 @@ Ext.define('Mdc.view.setup.devicechannels.DataBulkActionMenu', {
                 text: Uni.I18n.translate('general.removeReadings', 'MDC', 'Remove readings'),
                 action: 'removeReadings',
                 section: this.SECTION_REMOVE
+            },
+            {
+                itemId: 'view-history',
+                text: Uni.I18n.translate('general.viewHistory', 'MDC', 'View history'),
+                action: 'viewHistory',
+                section: this.SECTION_VIEW
             }
         ];
         this.callParent(arguments);
