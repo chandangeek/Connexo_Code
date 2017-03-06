@@ -89,6 +89,23 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                             },
                             {
                                 xtype: 'combobox',
+                                name: 'protocolDialectConfigurationPropertiesId',
+                                fieldLabel: Uni.I18n.translate('communicationtasks.form.protocolDialectConfigurationProperties', 'MDC', 'Protocol dialect'),
+                                itemId: 'protocolDialectConfigurationPropertiesComboBox',
+                                store: this.protocolDialectsStore,
+                                queryMode: 'local',
+                                displayField: 'name',
+                                valueField: 'id',
+                                emptyText: Uni.I18n.translate('communicationtasks.form.selectProtocolDialectConfigurationProperties', 'MDC', 'Select the protocol dialect'),
+                                forceSelection: true,
+                                editable: false,
+                                msgTarget: 'under',
+                                width: 600,
+                                required: true,
+                                allowBlank: false
+                            },
+                            {
+                                xtype: 'combobox',
                                 name: 'comPortPool',
                                 fieldLabel: Uni.I18n.translate('general.comPortPool', 'MDC', 'Communication port pool'),
                                 itemId: 'communicationPortPoolComboBox',
