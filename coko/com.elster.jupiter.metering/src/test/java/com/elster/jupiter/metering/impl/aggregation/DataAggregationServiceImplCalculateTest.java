@@ -235,6 +235,7 @@ public class DataAggregationServiceImplCalculateTest {
         when(this.configuration.getRequirements()).thenReturn(Arrays.asList(consumption, production));
         when(this.configuration.getMeterRoleFor(consumption)).thenReturn(Optional.of(this.meterRole));
         when(this.configuration.getMeterRoleFor(production)).thenReturn(Optional.of(this.meterRole));
+        when(this.usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(this.effectiveMetrologyConfiguration));
         // Setup configuration deliverables
         ReadingTypeDeliverable netConsumption = mock(ReadingTypeDeliverable.class);
         when(netConsumption.getName()).thenReturn("consumption");
@@ -353,6 +354,7 @@ public class DataAggregationServiceImplCalculateTest {
         when(this.configuration.getRequirements()).thenReturn(Arrays.asList(consumption, production));
         when(this.configuration.getMeterRoleFor(consumption)).thenReturn(Optional.of(this.meterRole));
         when(this.configuration.getMeterRoleFor(production)).thenReturn(Optional.of(this.meterRole));
+        when(this.usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(this.effectiveMetrologyConfiguration));
         // Setup configuration deliverables
         ReadingTypeDeliverable netConsumption = mock(ReadingTypeDeliverable.class);
         when(netConsumption.getName()).thenReturn("consumption");
@@ -471,6 +473,7 @@ public class DataAggregationServiceImplCalculateTest {
         when(this.configuration.getRequirements()).thenReturn(Arrays.asList(consumption, production));
         when(this.configuration.getMeterRoleFor(consumption)).thenReturn(Optional.of(this.meterRole));
         when(this.configuration.getMeterRoleFor(production)).thenReturn(Optional.of(this.meterRole));
+        when(this.usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(this.effectiveMetrologyConfiguration));
         // Setup configuration deliverables
         ReadingTypeDeliverable netConsumption = mock(ReadingTypeDeliverable.class);
         when(netConsumption.getName()).thenReturn("consumption");

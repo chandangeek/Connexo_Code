@@ -151,11 +151,7 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
     }
 
     private List<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfigurationForUsagePointInPeriod(UsagePoint usagePoint, Range<Instant> period) {
-        List<EffectiveMetrologyConfigurationOnUsagePoint> result =
-                this.getDataModel()
-                    .query(EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class, MetrologyContract.class)
-                    .select(     where("usagePoint").isEqualTo(usagePoint)
-                            .and(where("interval").isEffective(period)));
+        List<EffectiveMetrologyConfigurationOnUsagePoint> result = usagePoint.getEffectiveMetrologyConfigurations(period);
         Loggers.ANALYSIS.debug(() -> new DataAggregationAnalysisLogger().verboseEffectiveMetrologyConfigurations(result));
         return result;
     }
