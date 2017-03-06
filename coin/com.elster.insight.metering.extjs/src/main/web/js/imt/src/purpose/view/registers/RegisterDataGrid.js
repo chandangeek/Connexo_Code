@@ -176,10 +176,10 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
             }
             if (showDeviceQualityIcon) {
                 icon = '<span class="icon-price-tags" style="margin-left:10px; position:absolute;" data-qtitle="'
-                    + Uni.I18n.translate('general.deviceQuality', 'MDC', 'Device quality') + '" data-qtip="'
+                    + Uni.I18n.translate('general.deviceQuality', 'IMT', 'Device quality') + '" data-qtip="'
                     + tooltipContent + '"></span>';
             }
         }
-        return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)]) + icon;
+        return Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)]) + icon;
     }
 });
