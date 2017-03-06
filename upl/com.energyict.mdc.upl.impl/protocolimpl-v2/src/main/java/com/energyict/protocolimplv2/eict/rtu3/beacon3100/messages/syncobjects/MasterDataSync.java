@@ -51,6 +51,9 @@ public class MasterDataSync {
         AllMasterData allMasterData;
         try {
             final String serializedMasterData = pendingMessage.getPreparedContext();    //This context field contains the serialized version of the master data.
+            if(serializedMasterData.contains("DeviceConfigurationException")) {
+                return generateFailedMessage(pendingMessage, collectedMessage, serializedMasterData);
+            }
             final JSONObject jsonObject = new JSONObject(serializedMasterData);
             allMasterData = ObjectMapperFactory.getObjectMapper().readValue(new StringReader(jsonObject.toString()), AllMasterData.class);
         } catch (JSONException | IOException e) {
@@ -166,6 +169,9 @@ public class MasterDataSync {
         Beacon3100MeterDetails[] meterDetails;
         try {
             final String serializedMasterData = pendingMessage.getPreparedContext();    //This context field contains the serialized version of the master data.
+            if(serializedMasterData.contains("DeviceConfigurationException")) {
+                return generateFailedMessage(pendingMessage, collectedMessage, serializedMasterData);
+            }
             final JSONArray jsonObject = new JSONArray(serializedMasterData);
             meterDetails = ObjectMapperFactory.getObjectMapper().readValue(new StringReader(jsonObject.toString()), Beacon3100MeterDetails[].class);
         } catch (JSONException | IOException e) {
@@ -197,6 +203,13 @@ public class MasterDataSync {
             }
         }
 
+        return collectedMessage;
+    }
+
+    private CollectedMessage generateFailedMessage(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage, String serializedMasterData) {
+        collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+        collectedMessage.setDeviceProtocolInformation(serializedMasterData);
+        collectedMessage.setFailureInformation(ResultType.InCompatible, beacon3100Messaging.createMessageFailedIssue(pendingMessage, new Exception()));
         return collectedMessage;
     }
 

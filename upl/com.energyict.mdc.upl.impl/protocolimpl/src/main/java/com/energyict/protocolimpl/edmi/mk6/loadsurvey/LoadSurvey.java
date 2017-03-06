@@ -10,8 +10,8 @@
 
 package com.energyict.protocolimpl.edmi.mk6.loadsurvey;
 
-import com.energyict.protocolimpl.edmi.mk6.command.CommandFactory;
-import com.energyict.protocolimpl.edmi.mk6.core.RegisterUnitParser;
+import com.energyict.protocolimpl.edmi.common.command.CommandFactory;
+import com.energyict.protocolimpl.edmi.common.core.RegisterUnitParser;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -85,16 +85,14 @@ public class LoadSurvey implements Serializable {
             lsc.setScaling(getCommandFactory().getReadCommand((registerId<<16)|0x5E600|channel).getRegister().getBigDecimal().intValue());
             lsc.setScalingFactor(getCommandFactory().getReadCommand((registerId<<16)|0x5E800|channel).getRegister().getBigDecimal());
             lsc.setType(getCommandFactory().getReadCommand((registerId<<16)|0x5E200|channel).getRegister().getBigDecimal().intValue());
-            RegisterUnitParser rup = new RegisterUnitParser();
-            lsc.setUnit(rup.parse((char)getCommandFactory().getReadCommand((registerId<<16)|0x5E300|channel).getRegister().getBigDecimal().intValue()));
+            lsc.setUnit(RegisterUnitParser.parse((char)getCommandFactory().getReadCommand((registerId<<16)|0x5E300|channel).getRegister().getBigDecimal().intValue()));
             lsc.setWidth(getCommandFactory().getReadCommand((registerId<<16)|0x5E100|channel).getRegister().getBigDecimal().intValue());
             getLoadSurveyChannels()[channel]=lsc;
         }
     }
     
     public LoadSurveyData readFile(Date from) throws IOException {
-        LoadSurveyData lsd = new LoadSurveyData(this,from);
-        return lsd;
+        return new LoadSurveyData(this,from);
     }
     
     public CommandFactory getCommandFactory() {

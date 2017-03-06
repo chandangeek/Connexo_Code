@@ -10,9 +10,9 @@
 
 package com.energyict.protocolimpl.edmi.mk10.loadsurvey;
 
-import java.math.BigDecimal;
-
 import com.energyict.cbo.Unit;
+
+import java.math.BigDecimal;
 
 
 /**
@@ -24,7 +24,6 @@ public class LoadSurveyChannel {
 	private int width;
 	private int type; // internal data type
 	private Unit unit;
-	private String name;
 	private int scaling; // DecimalPointScaling (place of the decimal point)
 	private BigDecimal scalingFactor; // ScalingFactor (k, M, G, ...)
 
@@ -38,7 +37,6 @@ public class LoadSurveyChannel {
 		// Generated code by ToStringBuilder
 		StringBuffer strBuff = new StringBuffer();
 		strBuff.append("LoadSurveyChannel:\n");
-		strBuff.append("   name="+getName()+"\n");
 		strBuff.append("   scaling="+getScaling()+"\n");
 		strBuff.append("   scalingFactor="+getScalingFactor()+"\n");
 		strBuff.append("   type="+getType()+"\n");
@@ -46,9 +44,6 @@ public class LoadSurveyChannel {
 		strBuff.append("   width="+getWidth()+"\n");
 		return strBuff.toString();
 	}
-
-
-
 
 	public int getWidth() {
 		return width;
@@ -72,14 +67,6 @@ public class LoadSurveyChannel {
 
 	public void setUnit(Unit unit) {
 		this.unit = unit;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public int getScaling() {

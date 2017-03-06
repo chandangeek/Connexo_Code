@@ -28,6 +28,9 @@ public enum DeviceProtocolDialectNameEnum {
     GARNET_SERIAL_DIALECT_NAME("GarnetSerialDialect"),
     ABNT_SERIAL_DIALECT_NAME("AbntSerialDialect"),
     ABNT_OPTICAL_DIALECT_NAME("AbntOpticalDialect"),
+    EDMI_TCP_DIALECT_NAME("EdmiTcpDialect"),
+    EDMI_UDP_DIALECT_NAME("EdmiUdpDialect"),
+    EDMI_OPTICAL_DIALECT_NAME("EdmiOpticalDialect"),
     NO_PARAMETERS_PROTOCOL_DIALECT_NAME("NoParamsDialect");
 
     DeviceProtocolDialectNameEnum(String uniqueName) {

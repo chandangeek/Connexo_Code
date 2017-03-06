@@ -10,6 +10,11 @@
 
 package com.energyict.protocolimpl.edmi.mk10.eventsurvey;
 
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.edmi.common.command.Atlas1FileAccessReadCommand;
+import com.energyict.protocolimpl.edmi.common.command.CommandFactory;
+import com.energyict.protocolimpl.edmi.common.core.DateTimeBuilder;
+
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
@@ -18,18 +23,12 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TimeZone;
-
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.edmi.mk10.command.CommandFactory;
-import com.energyict.protocolimpl.edmi.mk10.command.FileAccessReadCommand;
-import com.energyict.protocolimpl.edmi.mk10.core.DateTimeBuilder;
 /**
  *
  * @author koen
  */
 public class EventSurvey {
 
-	private static final int DEBUG 				= 0;
 	private static final int BASE_REGISTER_ID 	= 0xD810;
 
 	private CommandFactory commandFactory;
@@ -51,25 +50,16 @@ public class EventSurvey {
 	}
 
 	private void init() throws IOException {
-		if (DEBUG >= 1) {
-			getCommandFactory().getMk10().sendDebug("EventSurvey, init();");
-		}
 		for (int lognr = 0; lognr <  5; lognr++) {
-			FileAccessReadCommand farc;
+			Atlas1FileAccessReadCommand farc;
 			eventset[lognr] = new LinkedHashSet();
 			eventset[lognr].clear();
 
 			long firstentry = getCommandFactory().getReadCommand(registerId + 0x0005 + lognr).getRegister().getBigDecimal().longValue();
 			long lastentry = getCommandFactory().getReadCommand(registerId + 0x000A + lognr).getRegister().getBigDecimal().longValue();
 
-			if (DEBUG >= 1) {
-				getCommandFactory().getMk10().sendDebug(" lognr = " + lognr);
-				getCommandFactory().getMk10().sendDebug(" firstentry = " + firstentry);
-				getCommandFactory().getMk10().sendDebug(" lastentry = " + lastentry);
-			}
-
 			while (firstentry < lastentry) {
-				farc = this.getCommandFactory().getFileAccessReadCommand(lognr + 2, firstentry, 0xFFFF);
+				farc = this.getCommandFactory().getAtlas1FileAccessReadCommand(lognr + 2, firstentry, 0xFFFF);
 				firstentry = farc.getStartRecord() + farc.getNumberOfRecords();
 				eventset[lognr].addAll(getEventData(farc.getData(), lognr));
 			};
@@ -78,7 +68,7 @@ public class EventSurvey {
 
 	private Set getEventData(byte[] data_in, int eventlognr) throws IOException {
 		Set set = new HashSet();
-		TimeZone tz = this.commandFactory.getMk10().getTimeZone();
+		TimeZone tz = this.commandFactory.getProtocol().getTimeZone();
 		Calendar cal = ProtocolUtils.getCleanCalendar(tz);
 		set.clear();
 

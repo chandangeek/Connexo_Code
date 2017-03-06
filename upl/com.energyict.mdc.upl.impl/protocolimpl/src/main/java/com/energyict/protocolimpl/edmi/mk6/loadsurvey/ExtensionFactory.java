@@ -10,10 +10,10 @@
 
 package com.energyict.protocolimpl.edmi.mk6.loadsurvey;
 
+import com.energyict.protocolimpl.edmi.common.command.CommandFactory;
+
 import java.io.IOException;
 import java.io.Serializable;
-
-import com.energyict.protocolimpl.edmi.mk6.command.CommandFactory;
 /**
  *
  * @author koen
