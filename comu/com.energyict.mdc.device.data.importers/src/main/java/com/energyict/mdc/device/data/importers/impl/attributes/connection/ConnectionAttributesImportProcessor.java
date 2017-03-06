@@ -54,7 +54,7 @@ public class ConnectionAttributesImportProcessor extends AbstractDeviceDataFileI
             validateConnectionMethodProperties(data, connectionTask.get().getConnectionType(), logger);
             ConnectionTask task = connectionTask.get();
             setConnectionAttributes(data, task.getConnectionType(), task::setProperty);
-            task.save();
+            task.saveAllProperties();
             logMissingPropertiesIfIncomplete(task, data, logger);
         } else {
             PartialConnectionTask partialConnectionTask = device.getDeviceConfiguration().getPartialConnectionTasks()
