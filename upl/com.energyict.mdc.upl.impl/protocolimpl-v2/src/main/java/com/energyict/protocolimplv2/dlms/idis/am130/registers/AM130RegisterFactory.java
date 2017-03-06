@@ -237,6 +237,8 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
                         registerValue = new RegisterValue(offlineRegister, String.valueOf(dataValue.getBooleanObject().getState()));
                     } else if (dataValue.getTypeEnum() != null) {
                         registerValue = new RegisterValue(offlineRegister, new Quantity(dataValue.getTypeEnum().getValue(), Unit.getUndefined()));
+                    } else if (dataValue.getUnsigned32() != null) {
+                    	registerValue = new RegisterValue(offlineRegister, new Quantity(dataValue.getUnsigned32().getValue(), Unit.getUndefined()));
                     } else {
                         registerValue = getRegisterValueForAlarms(offlineRegister, dataValue);
                     }
