@@ -4,7 +4,6 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
-
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -28,7 +27,7 @@ public class ActivateTemporaryKeyMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageId() == SecurityMessage.ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY.id();
+        return message.getSpecification().getId() == SecurityMessage.ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY.id();
     }
 
     @Override

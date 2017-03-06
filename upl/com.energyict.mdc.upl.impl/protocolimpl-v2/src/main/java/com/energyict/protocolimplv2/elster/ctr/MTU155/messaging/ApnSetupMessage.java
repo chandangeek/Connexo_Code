@@ -4,7 +4,6 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
-
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AttributeType;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
@@ -37,7 +36,7 @@ public class ApnSetupMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageId() == NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS.id();
+        return message.getSpecification().getId() == NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS.id();
     }
 
     @Override
