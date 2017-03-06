@@ -21,12 +21,16 @@ public class TypedPropertiesValueAdapter {
 
         for (String name : typedProperties.propertyNames()) {
             Object typedProperty = typedProperties.getTypedProperty(name);
-            if (typedProperty instanceof TimeDuration) {
-                typedProperty = ((TimeDuration) typedProperty).asTemporalAmount();
-            }
-
-            result.setProperty(name, typedProperty);
+            result.setProperty(name, adaptToUPLValue(typedProperty));
         }
         return result;
+    }
+
+    public static Object adaptToUPLValue(Object value) {
+        if (value instanceof TimeDuration) {
+            value = ((TimeDuration) value).asTemporalAmount();
+        }
+        //TODO complete
+        return value;
     }
 }
