@@ -22,6 +22,12 @@ Ext.define('Fim.view.history.HistoryPreviewForm', {
         me.items = [
             {
                 xtype: 'displayfield',
+                fieldLabel: Uni.I18n.translate('importService.history.importServiceName', 'FIM', 'Import service'),
+                name: 'importServiceName',
+                hidden: (me.router.currentRoute !== 'workspace/importhistory') && (me.router.currentRoute !== 'administration/importhistory')
+            },
+            {
+                xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('importService.history.fileName', 'FIM', 'File name'),
                 name: 'fileName'
             },

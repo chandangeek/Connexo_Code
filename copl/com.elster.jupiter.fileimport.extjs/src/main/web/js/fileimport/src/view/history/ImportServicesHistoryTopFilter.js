@@ -46,7 +46,7 @@ Ext.define('Fim.view.history.ImportServicesHistoryTopFilter', {
                 valueField: 'value',
                 store: 'Fim.store.Status'
             }
-        ]
+        ];
         me.callParent(arguments);
     }
 });

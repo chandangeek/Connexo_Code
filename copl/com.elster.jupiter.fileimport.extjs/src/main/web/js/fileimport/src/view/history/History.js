@@ -89,7 +89,8 @@ Ext.define('Fim.view.history.History', {
                     },
                     previewComponent: {
                         xtype: 'fim-history-preview',
-                        itemId: 'pnl-history-preview'
+                        itemId: 'pnl-history-preview',
+                        router: me.router
                     }
                 }
             ],

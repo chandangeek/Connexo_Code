@@ -10,8 +10,15 @@ Ext.define('Fim.view.history.HistoryPreview', {
         'Fim.view.history.HistoryPreviewForm'
     ],
 
-    items: {
-        xtype: 'fim-history-preview-form'
+    initComponent: function () {
+        var me = this;
+
+        me.items = {
+            xtype: 'fim-history-preview-form',
+            router: me.router
+        };
+
+        me.callParent(arguments);
     }
 });
 
