@@ -30,13 +30,8 @@ public class MeterInCorrectStageValidator implements ConstraintValidator<MeterIn
         this.context = context;
         Instant activationTime = meterActivation.getStart();
         Optional<Meter> meter = meterActivation.getMeter();
-        return !meter.isPresent() || isValid(meter.get(), activationTime);
-
-    }
-
-    private boolean isValid(Meter meter, Instant activationTime) {
-        Optional<UsagePoint> usagePoint = meter.getUsagePoint(activationTime);
-        return !usagePoint.isPresent() || isValid(meter, usagePoint.get(), activationTime);
+        Optional<UsagePoint> usagePoint = meterActivation.getUsagePoint();
+        return !meter.isPresent() || !usagePoint.isPresent() || isValid(meter.get(), usagePoint.get(), activationTime);
     }
 
     private boolean isValid(Meter meter, UsagePoint usagePoint, Instant activationTime) {
@@ -68,7 +63,7 @@ public class MeterInCorrectStageValidator implements ConstraintValidator<MeterIn
         context.disableDefaultConstraintViolation();
         context
                 .buildConstraintViolationWithTemplate(message)
-                .addPropertyNode("state")
+                .addPropertyNode("stage")
                 .addConstraintViolation();
     }
 }

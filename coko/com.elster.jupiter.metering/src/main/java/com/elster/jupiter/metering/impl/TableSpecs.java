@@ -811,7 +811,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column usagePoint = table.column("USAGEPOINT").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column metrologyConfiguration = table.column("METROLOGYCONFIG").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
-            table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
+            table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add().upTo(version(10, 3));
             table.addIntervalColumns("interval");
             table.addAuditColumns();
             table.primaryKey("PK_MTR_UPMTRCONFIG").on(id).add();
