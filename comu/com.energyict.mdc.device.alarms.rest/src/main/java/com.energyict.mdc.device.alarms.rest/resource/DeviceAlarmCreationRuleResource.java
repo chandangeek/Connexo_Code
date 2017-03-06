@@ -135,13 +135,6 @@ public class DeviceAlarmCreationRuleResource extends BaseAlarmResource {
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
-    public CreationRule findAndLockCreationRule(CreationRuleInfo info) {
-        return getIssueService().getIssueCreationService().findAndLockCreationRuleByIdAndVersion(info.id, info.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                        .withActualVersion(() -> getIssueService().getIssueCreationService().findCreationRuleById(info.id).map(CreationRule::getVersion).orElse(null))
-                        .supplier());
-    }
-
     @POST
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ALARM_CREATION_RULE)
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -203,40 +196,6 @@ public class DeviceAlarmCreationRuleResource extends BaseAlarmResource {
     }
 
 
-    private List<? extends RelativePeriod> fetchRelativePeriods() {
-        return timeService.getRelativePeriodQuery().select(Where.where("relativePeriodCategoryUsages.relativePeriodCategory.name")
-                .isEqualTo(ModuleConstants.ALARM_RELATIVE_PERIOD_CATEGORY));
-    }
-
-    private String findTranslatedRelativePeriod(String name) {
-        return defaultRelativePeriodDefinitionTranslationKeys()
-                .filter(e -> e.getDefaultFormat().equals(name))
-                .findFirst()
-                .map(e -> thesaurus.getFormat(e).format())
-                .orElse(name);
-    }
-
-    private Stream<TranslationKey> defaultRelativePeriodDefinitionTranslationKeys() {
-        return Stream.of(DefaultRelativePeriodDefinition.RelativePeriodTranslationKey.values());
-    }
-
-    private long getIntervalLengthDifference(RelativePeriod relativePeriod, ZonedDateTime now) {
-        Range<ZonedDateTime> interval = relativePeriod.getOpenClosedZonedInterval(now);
-        ZonedDateTime relativePeriodStart = interval.lowerEndpoint();
-        if (now.isAfter(relativePeriodStart)) {
-            return getIntervalLength(interval.intersection(Range.atMost(now)));
-        }
-        // period starts in the future, this is not what we need,
-        // return max interval length to move such relative period to the bottom of the list
-        return Long.MAX_VALUE;
-    }
-
-    private long getIntervalLength(Range<ZonedDateTime> interval) {
-        return interval.upperEndpoint().toInstant().toEpochMilli() - interval.lowerEndpoint().toInstant().toEpochMilli();
-    }
-
-
-
     @POST
     @Path("/validateaction")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -246,6 +205,13 @@ public class DeviceAlarmCreationRuleResource extends BaseAlarmResource {
         setAction(info, actionBuilder);
         actionBuilder.complete().validate();
         return Response.ok().build();
+    }
+
+    private CreationRule findAndLockCreationRule(CreationRuleInfo info) {
+        return getIssueService().getIssueCreationService().findAndLockCreationRuleByIdAndVersion(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> getIssueService().getIssueCreationService().findCreationRuleById(info.id).map(CreationRule::getVersion).orElse(null))
+                        .supplier());
     }
 
     private void setBaseFields(CreationRuleInfo rule, CreationRuleBuilder builder) {
@@ -279,7 +245,7 @@ public class DeviceAlarmCreationRuleResource extends BaseAlarmResource {
     }
 
     private void setActions(CreationRuleInfo rule, CreationRuleBuilder builder) {
-        rule.actions.stream().forEach((info) -> setAction(info, builder.newCreationRuleAction()));
+        rule.actions.forEach((info) -> setAction(info, builder.newCreationRuleAction()));
     }
 
     private void setAction(CreationRuleActionInfo actionInfo, CreationRuleActionBuilder actionBuilder) {
@@ -299,5 +265,35 @@ public class DeviceAlarmCreationRuleResource extends BaseAlarmResource {
                 actionBuilder.complete();
             }
         }
+    }
+
+    private List<? extends RelativePeriod> fetchRelativePeriods() {
+        return timeService.getRelativePeriodQuery().select(Where.where("relativePeriodCategoryUsages.relativePeriodCategory.name")
+                .isEqualTo(ModuleConstants.ALARM_RELATIVE_PERIOD_CATEGORY));
+    }
+
+    private String findTranslatedRelativePeriod(String name) {
+        return defaultRelativePeriodDefinitionTranslationKeys()
+                .filter(e -> e.getDefaultFormat().equals(name))
+                .findFirst()
+                .map(e -> thesaurus.getFormat(e).format())
+                .orElse(name);
+    }
+
+    private Stream<TranslationKey> defaultRelativePeriodDefinitionTranslationKeys() {
+        return Stream.of(DefaultRelativePeriodDefinition.RelativePeriodTranslationKey.values());
+    }
+
+    private long getIntervalLengthDifference(RelativePeriod relativePeriod, ZonedDateTime now) {
+        Range<ZonedDateTime> interval = relativePeriod.getOpenClosedZonedInterval(now);
+        ZonedDateTime relativePeriodStart = interval.lowerEndpoint();
+        if (now.isAfter(relativePeriodStart)) {
+            return getIntervalLength(interval.intersection(Range.atMost(now)));
+        }
+        return Long.MAX_VALUE;
+    }
+
+    private long getIntervalLength(Range<ZonedDateTime> interval) {
+        return interval.upperEndpoint().toInstant().toEpochMilli() - interval.lowerEndpoint().toInstant().toEpochMilli();
     }
 }

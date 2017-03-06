@@ -118,6 +118,8 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
     TimeService timeService;
     @Mock
     static SecurityContext securityContext;
+    @Mock
+    static Clock clock;
 
     @Provider
     @Priority(Priorities.AUTHORIZATION)
@@ -160,6 +162,8 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
         deviceAlarmApplication.setTimeService(timeService);
         deviceAlarmApplication.setClock(Clock.fixed(LocalDateTime.of(2017, 1, 1, 16, 0, 0).toInstant(ZoneOffset.UTC), ZoneId.systemDefault()));
         deviceAlarmApplication.setPropertyValueInfoService(propertyValueInfoService);
+        deviceAlarmApplication.setTimeService(timeService);
+        deviceAlarmApplication.setClock(clock);
         return deviceAlarmApplication;
     }
 
