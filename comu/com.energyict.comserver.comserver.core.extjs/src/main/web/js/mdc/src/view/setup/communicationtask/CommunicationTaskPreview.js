@@ -54,9 +54,9 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskPreview', {
                         },
                         {
                             fieldLabel: Uni.I18n.translate('communicationtasks.task.partialConnectionTask', 'MDC', 'Connection method'),
-                            name: 'partialConnectionTask.displayValue',
+                            name: 'partialConnectionTask',
                             renderer: function (value) {
-                                return value ? Ext.String.htmlEncode(value.name) : '';
+                                return value ? Ext.String.htmlEncode(value.name) : '-';
                             }
                         }
                     ]
