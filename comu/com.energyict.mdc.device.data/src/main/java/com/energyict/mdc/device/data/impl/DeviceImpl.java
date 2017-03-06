@@ -63,6 +63,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TemporalExpression;
@@ -107,6 +108,7 @@ import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.LogBook;
@@ -134,6 +136,7 @@ import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueName;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidOverruledAttributes;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidSecurityProperties;
+import com.energyict.mdc.device.data.impl.pki.CertificateAccessorImpl;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.security.ServerDeviceForValidation;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForActivation;
@@ -264,6 +267,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final DeviceConfigurationService deviceConfigurationService;
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
+    private final List<KeyAccessor> keyAccessors = new ArrayList<>();
 
     @SuppressWarnings("unused")
     private long id;
@@ -3078,6 +3082,38 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public void deactivateEstimation() {
         this.estimationActive = false;
+    }
+
+    @Override
+    public List<KeyAccessor> getKeyAccessors() {
+        return Collections.unmodifiableList(this.keyAccessors);
+    }
+
+    @Override
+    public Optional<KeyAccessor> getKeyAccessor(KeyAccessorType keyAccessorType) {
+        return this.keyAccessors.stream().filter(keyAccessor -> keyAccessor.getKeyAccessorType().getId()==keyAccessorType.getId()).findAny();
+    }
+
+    @Override
+    public KeyAccessor newKeyAccessor(KeyAccessorType keyAccessorType) {
+        switch (keyAccessorType.getKeyType().getCryptographicType()) {
+            case Certificate:
+                break;
+            case ClientCertificate:
+                CertificateAccessorImpl certificateAccessor = dataModel.getInstance(CertificateAccessorImpl.class);
+                certificateAccessor.init(keyAccessorType, this);
+                this.keyAccessors.add(certificateAccessor);
+                return certificateAccessor;
+            case TrustedCertificate:
+                break;
+            case SymmetricKey:
+                break;
+            case Passphrase:
+                break;
+            case AsymmetricKey:
+                break;
+        }
+        return null;
     }
 
     static class DeviceEstimationImpl implements DeviceEstimation {
