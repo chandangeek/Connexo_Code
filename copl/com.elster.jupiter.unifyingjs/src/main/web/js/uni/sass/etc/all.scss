@@ -356,6 +356,10 @@ TODO Move this into a separate button UI.
   float: right;
 }
 
+.uni-cb-item tr td {
+  padding: 0px !important
+}
+
 .uni-icon-info-small {
   float: right;
   background-image: url('images/shared/icon-info-small.png');

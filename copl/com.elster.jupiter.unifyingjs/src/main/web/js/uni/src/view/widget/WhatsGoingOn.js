@@ -76,7 +76,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                         value: 'all',
                         store: healthTypeStore,
                         displayField: 'displayValue',
-                        cls: 'cbo',
+                        cls: 'uni-cb-item',
                         valueField: 'type',
                         listeners: {
                             change: function (combo, newvalue) {

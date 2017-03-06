@@ -49,7 +49,7 @@ Ext.define('Uni.view.widget.WorkList', {
                         editable: false,
                         hidden: true,
                         displayField: 'name',
-                        cls: 'cbo',
+                        cls: 'uni-cb-item',
                         listeners: {
                             change: function (combo, newValue) {
                                 var workItem = combo.findRecordByValue(newValue);
