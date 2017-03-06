@@ -5,7 +5,8 @@
 Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationSideMenu', {
     extend: 'Uni.view.menu.SideMenu',
     alias: 'widget.metrology-configuration-side-menu',
-    title: Uni.I18n.translate('general.metrologyConfiguration', 'IMT', 'Metrology configuration'),
+    uniqueMenuId: 'metrology-configuration-side-menu',
+    objectType: Uni.I18n.translate('general.metrologyConfiguration', 'IMT', 'Metrology configuration'),
 
     router: null,
     metrologyConfig: null,
@@ -26,9 +27,10 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationSideMenu', {
         //    });
         //});
 
+        me.title = me.metrologyConfig.get('name') || Uni.I18n.translate('general.metrologyConfiguration', 'IMT', 'Metrology configuration');
         me.menuItems = [
             {
-                text: me.metrologyConfig.get('name'),
+                text: Uni.I18n.translate('general.overview', 'IMT', 'Overview'),
                 itemId: 'metrology-configuration-overview-link',
                 href: me.router.getRoute('administration/metrologyconfiguration/view').buildUrl()
             },

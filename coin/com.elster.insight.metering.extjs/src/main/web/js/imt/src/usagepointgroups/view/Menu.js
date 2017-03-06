@@ -7,14 +7,14 @@ Ext.define('Imt.usagepointgroups.view.Menu', {
     alias: 'widget.usagepointgroups-menu',
     xtype: 'usagepointgroups-menu',
     usagePointGroup: null,
-    title: Uni.I18n.translate('general.usagePointGroups', 'IMT', 'Usage point groups'),
+    objectType: Uni.I18n.translate('general.usagePointGroup', 'IMT', 'Usage point group'),
 
     initComponent: function () {
         var me = this;
-
+        me.title = me.usagePointGroup.get('name') || Uni.I18n.translate('general.usagePointGroup', 'IMT', 'Usage point group');
         me.menuItems = [
             {
-                text: me.usagePointGroup.get('name'),
+                text: Uni.I18n.translate('general.overview', 'IMT', 'Overview'),
                 itemId: 'usagepointgroups-view-link',
                 href: me.router.getRoute('usagepoints/usagepointgroups/view').buildUrl({usagePointGroupId: me.usagePointGroup.getId()})
             }
