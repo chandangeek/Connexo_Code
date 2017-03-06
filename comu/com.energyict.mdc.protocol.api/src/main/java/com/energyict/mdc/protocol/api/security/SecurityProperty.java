@@ -2,8 +2,6 @@ package com.energyict.mdc.protocol.api.security;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
 /**
  * Holds the value of a single security property for a Device.
@@ -24,44 +22,14 @@ import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-01-02 (10:30)
  */
-public interface SecurityProperty {
-
-    /**
-     * Gets the {@link AuthenticationDeviceAccessLevel} of the security property set
-     * that contains this SecurityProperty.
-     *
-     * @return The AuthenticationDeviceAccessLevel
-     */
-    public AuthenticationDeviceAccessLevel getAuthenticationDeviceAccessLevel();
-
-    /**
-     * Gets the {@link EncryptionDeviceAccessLevel} of the security property set
-     * that contains this SecurityProperty.
-     *
-     * @return The EncryptionDeviceAccessLevel
-     */
-    public EncryptionDeviceAccessLevel getEncryptionDeviceAccessLevel();
-
-    /**
-     * Gets the name of this property as defined by its {@link PropertySpec}.
-     *
-     * @return The name of this property
-     */
-    public String getName ();
-
-    /**
-     * Gets the value of this property.
-     *
-     * @return The value
-     */
-    public Object getValue ();
+public interface SecurityProperty extends com.energyict.mdc.upl.security.SecurityProperty {
 
     /**
      * Gets the time Interval during which this SecurityProperty is active.
      *
      * @return The activity period
      */
-    public Interval getActivePeriod ();
+    Interval getActivePeriod();
 
 
     /**
@@ -74,6 +42,6 @@ public interface SecurityProperty {
      *
      * @return the completion status
      */
-    public boolean isComplete ();
+    boolean isComplete();
 
 }
