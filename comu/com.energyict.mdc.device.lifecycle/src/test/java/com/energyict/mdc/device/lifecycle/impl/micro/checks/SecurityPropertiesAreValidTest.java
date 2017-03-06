@@ -40,7 +40,7 @@ public class SecurityPropertiesAreValidTest {
         SecurityPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now(), null);
 
         // Asserts
         assertThat(violation).isPresent();
@@ -53,7 +53,7 @@ public class SecurityPropertiesAreValidTest {
         SecurityPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now(), null);
 
         // Asserts
         assertThat(violation).isEmpty();

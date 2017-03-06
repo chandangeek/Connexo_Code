@@ -21,6 +21,7 @@ import com.energyict.mdc.device.lifecycle.impl.micro.checks.ConnectionProperties
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.DefaultConnectionTaskAvailable;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.DeviceIsLinkedWithUsagePoint;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.GeneralProtocolPropertiesAreValid;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.MetrologyConfigurationInCorrectStateIfAny;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.NoActiveServiceCalls;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.ProtocolDialectPropertiesAreValid;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.ScheduledCommunicationTaskAvailable;
@@ -137,6 +138,9 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
             }
             case NO_ACTIVE_SERVICE_CALLS: {
                 return new NoActiveServiceCalls(thesaurus, serviceCallService);
+            }
+            case METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY: {
+                return new MetrologyConfigurationInCorrectStateIfAny(thesaurus);
             }
             default: {
                 throw new IllegalArgumentException("Unknown or unsupported MicroCheck: " + check);
