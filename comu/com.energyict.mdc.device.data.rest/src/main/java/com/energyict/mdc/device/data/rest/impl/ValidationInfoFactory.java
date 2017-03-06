@@ -229,6 +229,17 @@ public class ValidationInfoFactory {
                 .collect(Collectors.toList());
     }
 
+    VeeReadingInfo createVeeReadingInfoWithModificationFlags(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation, IntervalReadingRecord reading, List<ReadingQualityRecord> readingQualities, Boolean validationActive) {
+        VeeReadingInfo veeReadingInfo = createVeeReadingInfo(channel, dataValidationStatus, deviceValidation);
+        veeReadingInfo.readingQualities = getReadingQualities(readingQualities);
+        veeReadingInfo.validationActive = validationActive;
+        setVeeReadingValueInfo(veeReadingInfo.mainValidationInfo, reading, dataValidationStatus.getReadingQualities());
+        if (channel.getReadingType().getCalculatedReadingType().isPresent()) {
+            setVeeReadingValueInfo(veeReadingInfo.bulkValidationInfo, reading, dataValidationStatus.getBulkReadingQualities());
+        }
+        return veeReadingInfo;
+    }
+
     VeeReadingInfo createVeeReadingInfoWithModificationFlags(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation, IntervalReadingRecord reading, Boolean validationActive) {
         VeeReadingInfo veeReadingInfo = createVeeReadingInfo(channel, dataValidationStatus, deviceValidation);
         veeReadingInfo.readingQualities = getReadingQualities(reading);
@@ -259,6 +270,18 @@ public class ValidationInfoFactory {
     /**
      * Returns the CIM code and the full translation of all distinct reading qualities on the given interval reading
      */
+    private List<ReadingQualityInfo> getReadingQualities(List<ReadingQualityRecord> readingQualities) {
+        return readingQualities.stream().filter(ReadingQualityRecord::isActual)
+                .map(ReadingQuality::getType)
+                .distinct()
+                .filter(type -> type.system().isPresent())
+                .filter(type -> type.category().isPresent())
+                .filter(type -> type.qualityIndex().isPresent())
+                .filter(type -> type.system().get() != QualityCodeSystem.MDM || !type.hasValidationCategory())
+                .map(type -> ReadingQualityInfo.fromReadingQualityType(meteringTranslationService, type))
+                .collect(Collectors.toList());
+    }
+
     private List<ReadingQualityInfo> getReadingQualities(IntervalReadingRecord intervalReadingRecord) {
         if (intervalReadingRecord == null) {
             return Collections.emptyList();

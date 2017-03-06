@@ -29,6 +29,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.FlagsReading;
 import com.energyict.mdc.device.data.FlagsRegister;
+import com.energyict.mdc.device.data.LoadProfileJournalReading;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.NumericalRegister;
@@ -138,6 +139,17 @@ public class DeviceDataInfoFactory {
         }
         return channelIntervalInfo;
     }
+
+
+    ChannelHistoryDataInfo createChannelHistoryDataInfo(Channel channel, LoadProfileJournalReading loadProfileJournalReading, boolean isValidationActive, DeviceValidation deviceValidation, Device dataLoggerSlave) {
+        ChannelHistoryDataInfo channelHistoryDataInfo = new ChannelHistoryDataInfo(createChannelDataInfo(channel, (LoadProfileReading) loadProfileJournalReading, isValidationActive, deviceValidation, dataLoggerSlave));
+        channelHistoryDataInfo.journalTime = loadProfileJournalReading.getJournalTime();
+        channelHistoryDataInfo.userName = loadProfileJournalReading.getUserName();
+        channelHistoryDataInfo.isActive = loadProfileJournalReading.getActive();
+        channelHistoryDataInfo.version = loadProfileJournalReading.getVersion();
+        return channelHistoryDataInfo;
+    }
+
 
     /**
      * Find translation of the index of the given reading quality CIM code.
