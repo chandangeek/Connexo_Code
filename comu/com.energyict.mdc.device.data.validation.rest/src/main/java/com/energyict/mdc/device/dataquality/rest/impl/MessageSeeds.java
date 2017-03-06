@@ -11,7 +11,7 @@ import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
 
     INVALID_FILTER_FORMAT(1, "InvalidFilterFormat", "Invalid format of filter ''{0}'', expected format: {1}"),
-    UNSUPPORTED_OPERATOR(2, "UnsupportedFilterOperator", "Unsupported filter operator ''{0}'', supported operators: ''{1}''"),
+    UNSUPPORTED_OPERATOR(2, "UnsupportedFilterOperator", "Unsupported filter operator ''{0}'', supported operators: {1}"),
     INVALID_OPERATOR_CRITERIA(3, "InvalidOperatorCriteria", "Invalid criteria for operator ''{0}'' of filter ''{1}''"),
 
     NO_SUCH_DEVICE_GROUP(4, "NoSuchDeviceGroup", "Device group with id ''{0}'' not found"),
