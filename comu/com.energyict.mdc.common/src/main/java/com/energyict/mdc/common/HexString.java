@@ -12,7 +12,6 @@ import static com.elster.jupiter.util.Checks.is;
 public class HexString implements com.energyict.mdc.upl.properties.HexString, Comparable<com.energyict.mdc.upl.properties.HexString>, Serializable {
 
     private String content;
-    private Number value;
 
     public HexString() {
         super();
@@ -21,16 +20,12 @@ public class HexString implements com.energyict.mdc.upl.properties.HexString, Co
     public HexString(String hexString) {
         if (!is(hexString).emptyOrOnlyWhiteSpace()) {
             try {
-                this.value = new BigInteger(hexString.toUpperCase(), 16);
+                new BigInteger(hexString.toUpperCase(), 16);
                 setContent(hexString);
             } catch (NumberFormatException x) {
                 throw new IllegalArgumentException("Invalid HexString");
             }
         }
-    }
-
-    protected void setContent(String hexString) {
-        content = hexString.toUpperCase();
     }
 
     public boolean isValid() {
@@ -41,9 +36,8 @@ public class HexString implements com.energyict.mdc.upl.properties.HexString, Co
         return content;
     }
 
-    @Override
-    public Number getValue() {
-        return value;
+    protected void setContent(String hexString) {
+        content = hexString.toUpperCase();
     }
 
     public boolean isEmpty() {
