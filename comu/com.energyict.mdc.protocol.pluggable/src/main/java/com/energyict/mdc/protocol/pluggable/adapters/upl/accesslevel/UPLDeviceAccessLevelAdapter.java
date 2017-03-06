@@ -1,4 +1,4 @@
-package com.energyict.mdc.protocol.pluggable.impl.adapters.upl.accesslevel;
+package com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;

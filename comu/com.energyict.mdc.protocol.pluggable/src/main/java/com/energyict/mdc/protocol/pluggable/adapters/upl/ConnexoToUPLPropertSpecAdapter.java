@@ -82,4 +82,17 @@ public class ConnexoToUPLPropertSpecAdapter implements PropertySpec {
         return ConnexoToUPLValueFactoryAdapter.adapt(this.actual.getValueFactory());
     }
 
+    @Override
+    public int hashCode() {
+        return actual.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ConnexoToUPLPropertSpecAdapter) {
+            return actual.equals(((ConnexoToUPLPropertSpecAdapter) obj).actual);
+        } else {
+            return actual.equals(obj);
+        }
+    }
 }

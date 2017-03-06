@@ -5,7 +5,9 @@ import com.energyict.cbo.Quantity;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.protocol.ProfileData;
@@ -164,7 +166,12 @@ public class UPLMeterProtocolAdapter implements MeterProtocol, UPLProtocolAdapte
 
     @Override
     public void addProperties(TypedProperties properties) {
-
+        com.energyict.mdc.upl.properties.TypedProperties adaptedProperties = TypedPropertiesValueAdapter.adaptToUPLValues(properties);
+        try {
+            uplMeterProtocol.setUPLProperties(adaptedProperties);
+        } catch (PropertyValidationException e) {
+            throw new NestedPropertyValidationException(e);
+        }
     }
 
     @Override
@@ -197,6 +204,7 @@ public class UPLMeterProtocolAdapter implements MeterProtocol, UPLProtocolAdapte
 
     @Override
     public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
-
+        com.energyict.mdc.upl.properties.TypedProperties adaptedProperties = TypedPropertiesValueAdapter.adaptToUPLValues(properties);
+        uplMeterProtocol.setUPLProperties(adaptedProperties);
     }
 }

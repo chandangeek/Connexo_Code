@@ -8,8 +8,11 @@ import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
@@ -170,6 +173,11 @@ public class UPLSmartMeterProtocolAdapter implements SmartMeterProtocol, UPLProt
 
     @Override
     public void addProperties(TypedProperties properties) {
-
+        com.energyict.mdc.upl.properties.TypedProperties adaptedProperties = TypedPropertiesValueAdapter.adaptToUPLValues(properties);
+        try {
+            uplSmartMeterProtocol.setUPLProperties(adaptedProperties);
+        } catch (PropertyValidationException e) {
+            throw new NestedPropertyValidationException(e);
+        }
     }
 }

@@ -49,4 +49,18 @@ public class ConnexoDeviceMessageCategoryAdapter implements com.energyict.mdc.up
                 .map(ConnexoDeviceMessageSpecAdapter::new)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ConnexoDeviceMessageCategoryAdapter) {
+            return cxoDeviceMessageCategory.equals(((ConnexoDeviceMessageCategoryAdapter) obj).cxoDeviceMessageCategory);
+        } else {
+            return cxoDeviceMessageCategory.equals(obj);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return cxoDeviceMessageCategory.hashCode();
+    }
 }

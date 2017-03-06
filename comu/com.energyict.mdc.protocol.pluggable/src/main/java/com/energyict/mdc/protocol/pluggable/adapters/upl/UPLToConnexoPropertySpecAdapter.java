@@ -98,4 +98,17 @@ public class UPLToConnexoPropertySpecAdapter implements PropertySpec {
         }
     }
 
+    @Override
+    public int hashCode() {
+        return actual.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof UPLToConnexoPropertySpecAdapter) {
+            return actual.equals(((UPLToConnexoPropertySpecAdapter) obj).actual);
+        } else {
+            return actual.equals(obj);
+        }
+    }
 }

@@ -4,7 +4,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
@@ -106,12 +105,12 @@ public class InboundDeviceProtocolPluggableClassRegistrarTest {
         }
 
         @Override
-        public DiscoverResultType doDiscovery() {
+        public com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType doDiscovery() {
             return null;
         }
 
         @Override
-        public void provideResponse(DiscoverResponseType responseType) {
+        public void provideResponse(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType responseType) {
 
         }
 
@@ -121,7 +120,7 @@ public class InboundDeviceProtocolPluggableClassRegistrarTest {
         }
 
         @Override
-        public List<CollectedData> getCollectedData(OfflineDevice device) {
+        public List<CollectedData> getCollectedData() {
             return null;
         }
 

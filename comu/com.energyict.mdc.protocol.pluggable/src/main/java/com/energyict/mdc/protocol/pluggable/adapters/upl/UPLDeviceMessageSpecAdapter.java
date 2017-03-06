@@ -46,4 +46,18 @@ public class UPLDeviceMessageSpecAdapter implements DeviceMessageSpec {
                 .map(UPLToConnexoPropertySpecAdapter::new)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof UPLDeviceMessageSpecAdapter) {
+            return uplDeviceMessageSpec.equals(((UPLDeviceMessageSpecAdapter) obj).uplDeviceMessageSpec);
+        } else {
+            return uplDeviceMessageSpec.equals(obj);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return uplDeviceMessageSpec.hashCode();
+    }
 }

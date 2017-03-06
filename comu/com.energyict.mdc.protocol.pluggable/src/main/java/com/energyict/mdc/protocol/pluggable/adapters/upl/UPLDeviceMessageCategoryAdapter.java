@@ -44,4 +44,18 @@ public class UPLDeviceMessageCategoryAdapter implements DeviceMessageCategory {
                 .map(UPLDeviceMessageSpecAdapter::new)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof UPLDeviceMessageCategoryAdapter) {
+            return uplDeviceMessageCategory.equals(((UPLDeviceMessageCategoryAdapter) obj).uplDeviceMessageCategory);
+        } else {
+            return uplDeviceMessageCategory.equals(obj);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return uplDeviceMessageCategory.hashCode();
+    }
 }
