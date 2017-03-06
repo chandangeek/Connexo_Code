@@ -297,14 +297,15 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
     }
 
     private void updateLastRun(){
-        if(getMinLastChecked() != null) {
+        Instant minLastChecked = getMinLastChecked();
+        if (minLastChecked != null) {
             Instant firstMeterActivation = getChannelsContainer().getMeter().flatMap(meter -> {
                 List<? extends MeterActivation> meterActivations = meter.getMeterActivations();
                 Collections.reverse(meterActivations);
                 return Optional.of(meterActivations.get(0).getStart());
             }).orElseGet(() -> null);
-            lastRun = getMinLastChecked().equals(firstMeterActivation) ? null : getMinLastChecked();
-        }else{
+            lastRun = minLastChecked.equals(firstMeterActivation) ? null : minLastChecked;
+        } else {
             lastRun = null;
         }
         save();

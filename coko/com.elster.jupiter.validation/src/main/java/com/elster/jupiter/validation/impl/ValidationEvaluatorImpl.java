@@ -65,9 +65,6 @@ class ValidationEvaluatorImpl extends AbstractValidationEvaluator {
                 return false;
             }
             for (ChannelsContainerValidation validation : validations) {
-                if (validation.getLastRun() == null) { // if validation by that ruleset never run before
-                    return false;
-                }
                 Optional<ChannelValidation> channelValidation = validation.getChannelValidation(channel);
                 if (!channelValidation.isPresent()
                         || !channelValidation.get().hasActiveRules()
