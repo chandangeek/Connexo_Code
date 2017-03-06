@@ -109,7 +109,7 @@ Ext.define('Fim.view.importservices.AddImportService', {
                     },
                     {
                         xtype: 'checkbox-with-explanation',
-                        name: 'isActiveOnUI',
+                        name: 'activeInUI',
                         itemId: 'allow-uploads',
                         fieldLabel: Uni.I18n.translate('general.allowUploads', 'FIM', 'Allow uploads in application'),
                         explanation: Uni.I18n.translate('general.allowUploads.explanation', 'FIM', 'Uploading a file for import will also be available on the \'Upload file for import\' page')
