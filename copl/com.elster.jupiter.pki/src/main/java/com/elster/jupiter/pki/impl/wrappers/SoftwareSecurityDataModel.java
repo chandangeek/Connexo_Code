@@ -30,8 +30,10 @@ import java.util.stream.Stream;
  * OSGi Component that will create the datamodel for the factories in the SSM bundle.
  * This approach was taken because the factories can have their respective tables in the same component
  */
-@Component(name="SoftwareSecurityDataModel", property = {"name="+SoftwareSecurityDataModel.COMPONENTNAME}, immediate = true)
-
+@Component(name="SoftwareSecurityDataModel",
+        service = SoftwareSecurityDataModel.class,
+        property = {"name="+SoftwareSecurityDataModel.COMPONENTNAME},
+        immediate = true)
 public class SoftwareSecurityDataModel {
     static final String COMPONENTNAME = "SSM";
 
@@ -42,7 +44,11 @@ public class SoftwareSecurityDataModel {
     private volatile UpgradeService upgradeService;
     private PkiService pkiService;
 
-    @Inject
+    // OSGi
+    public SoftwareSecurityDataModel() {
+    }
+
+    @Inject // Testing purposes
     public SoftwareSecurityDataModel(OrmService ormService, UpgradeService upgradeService, NlsService nlsService,
                                      DataVaultService dataVaultService, PropertySpecService propertySpecService,
                                      PkiService pkiService) {

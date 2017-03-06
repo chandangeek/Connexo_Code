@@ -16,14 +16,18 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 
-@Component(name="PlaintextPrivateKeyFactory", service = PrivateKeyFactory.class, immediate = true)
+@Component(name="PlaintextPrivateKeyFactory", service = { PrivateKeyFactory.class }, immediate = true)
 public class DataVaultPrivateKeyFactory implements PrivateKeyFactory {
 
     public static final String KEY_ENCRYPTION_METHOD = "DataVault";
 
     private volatile DataModel dataModel;
 
-    @Inject
+    // OSGi
+    public DataVaultPrivateKeyFactory() {
+    }
+
+    @Inject // Testing only
     public DataVaultPrivateKeyFactory(SoftwareSecurityDataModel ssmModel) {
         this.setSsmModel(ssmModel);
     }
@@ -39,7 +43,7 @@ public class DataVaultPrivateKeyFactory implements PrivateKeyFactory {
     }
 
     @Override
-    public PrivateKeyWrapper newPrivateKey(KeyAccessorType keyAccessorType) {
+    public PrivateKeyWrapper newPrivateKeyWrapper(KeyAccessorType keyAccessorType) {
         switch (PkiService.AsymmetricKeyAlgorithms.valueOf(keyAccessorType.getKeyType().getAlgorithm())) {
             case ECDSA: return newEcdsaPrivateKey(keyAccessorType);
             case RSA: return newRsaPrivateKey(keyAccessorType);

@@ -33,13 +33,14 @@ public interface TrustStore {
     /**
      * Adds the provided certificate to the trust store. By adding a certificate to the trust store, that certificate
      * can be used to build a chain of trust.
+     * @param alias The alias for this certificate. The alias is unique within a truststore.
      * @param x509Certificate to be trusted certificate, typically a Certifying Authority.
      */
-    public TrustedCertificate addCertificate(X509Certificate x509Certificate);
+    public TrustedCertificate addCertificate(String alias, X509Certificate x509Certificate);
 
     /**
      * Removes the provided certificate from the trust store.
-     * @param x509Certificate to be trusted certificate
+     * @param alias The alias of the certificate that is to be removed
      */
-    public void removeCertificate(X509Certificate x509Certificate);
+    public void removeCertificate(String alias);
 }

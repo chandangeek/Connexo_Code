@@ -22,7 +22,11 @@ public class DataVaultSymmetricKeyFactory implements SymmetricKeyFactory {
 
     private volatile DataModel dataModel;
 
-    @Inject
+    // OSGi
+    public DataVaultSymmetricKeyFactory() {
+    }
+
+    @Inject // Testing only
     public DataVaultSymmetricKeyFactory(SoftwareSecurityDataModel ssmModel) {
         this.setSsmModel(ssmModel);
     }

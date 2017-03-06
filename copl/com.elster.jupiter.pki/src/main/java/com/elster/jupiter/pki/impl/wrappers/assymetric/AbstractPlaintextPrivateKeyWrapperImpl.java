@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.PlaintextPrivateKeyWrapper;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.Renewable;
 import com.elster.jupiter.pki.impl.MessageSeeds;
@@ -40,7 +41,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * Implements storage of a PrivateKey in the DataVault.
  */
-abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapper, Renewable {
+abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements PlaintextPrivateKeyWrapper, Renewable {
 
     protected final DataVaultService dataVaultService;
     protected final PropertySpecService propertySpecService;
@@ -59,24 +60,20 @@ abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapp
                     "DSA", PlaintextDsaPrivateKey.class,
                     "EC", PlaintextEcdsaPrivateKey.class);
 
-    AbstractPlaintextPrivateKeyImpl(DataVaultService dataVaultService, PropertySpecService propertySpecService, DataModel dataModel, Thesaurus thesaurus) {
+    AbstractPlaintextPrivateKeyWrapperImpl(DataVaultService dataVaultService, PropertySpecService propertySpecService, DataModel dataModel, Thesaurus thesaurus) {
         this.dataVaultService = dataVaultService;
         this.propertySpecService = propertySpecService;
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
     }
 
-    public AbstractPlaintextPrivateKeyImpl init(KeyAccessorType keyAccessorType) {
+    public AbstractPlaintextPrivateKeyWrapperImpl init(KeyAccessorType keyAccessorType) {
         keyTypeReference.set(keyAccessorType.getKeyType());
         return this;
     }
 
-    public String getEncryptedPrivateKey() {
+    protected String getEncryptedPrivateKey() {
         return encryptedPrivateKey;
-    }
-
-    public void setEncryptedPrivateKey(String encryptedPrivateKey) {
-        this.encryptedPrivateKey = encryptedPrivateKey;
     }
 
     protected KeyType getKeyType() {
@@ -115,6 +112,7 @@ abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapp
                 .stream().map(properties -> properties.asPropertySpec(propertySpecService)).collect(toList());
     }
 
+    @Override
     public void save() {
         Save.action(id).save(dataModel, this);
     }
@@ -136,6 +134,11 @@ abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapp
 
     protected abstract PrivateKey doGetPrivateKey() throws InvalidKeyException, NoSuchAlgorithmException,
             InvalidKeySpecException, NoSuchProviderException;
+
+    @Override
+    public void setPrivateKey(PrivateKey privateKey) {
+        this.encryptedPrivateKey = dataVaultService.encrypt(privateKey.getEncoded());
+    }
 
     @Override
     public void renewValue() {
@@ -187,7 +190,7 @@ abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapp
             }
 
             @Override
-            void copyFromMap(Map<String, Object> properties, AbstractPlaintextPrivateKeyImpl privateKey) {
+            void copyFromMap(Map<String, Object> properties, AbstractPlaintextPrivateKeyWrapperImpl privateKey) {
                 if (properties.containsKey(getPropertyName())) {
                     byte[] decode = Base64.getDecoder().decode((String) properties.get(getPropertyName()));
                     privateKey.encryptedPrivateKey = privateKey.dataVaultService.encrypt(decode);
@@ -195,7 +198,7 @@ abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapp
             }
 
             @Override
-            void copyToMap(Map<String, Object> properties, AbstractPlaintextPrivateKeyImpl privateKey) {
+            void copyToMap(Map<String, Object> properties, AbstractPlaintextPrivateKeyWrapperImpl privateKey) {
                 byte[] decrypt = privateKey.dataVaultService.decrypt(privateKey.encryptedPrivateKey);
                 properties.put(getPropertyName(), Base64.getEncoder().encodeToString(decrypt));
             }
@@ -209,8 +212,8 @@ abstract public class AbstractPlaintextPrivateKeyImpl implements PrivateKeyWrapp
         }
 
         abstract PropertySpec asPropertySpec(PropertySpecService propertySpecService);
-        abstract void copyFromMap(Map<String, Object> properties, AbstractPlaintextPrivateKeyImpl privateKey);
-        abstract void copyToMap(Map<String, Object> properties, AbstractPlaintextPrivateKeyImpl privateKey);
+        abstract void copyFromMap(Map<String, Object> properties, AbstractPlaintextPrivateKeyWrapperImpl privateKey);
+        abstract void copyToMap(Map<String, Object> properties, AbstractPlaintextPrivateKeyWrapperImpl privateKey);
 
         String getPropertyName() {
             return propertyName;

@@ -22,7 +22,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 /**
  * Created by bvn on 2/14/17.
  */
-public class PlaintextDsaPrivateKey extends AbstractPlaintextPrivateKeyImpl {
+public class PlaintextDsaPrivateKey extends AbstractPlaintextPrivateKeyWrapperImpl {
 
     @Inject
     PlaintextDsaPrivateKey(DataVaultService dataVaultService, PropertySpecService propertySpecService, DataModel dataModel, Thesaurus thesaurus) {
@@ -42,7 +42,7 @@ public class PlaintextDsaPrivateKey extends AbstractPlaintextPrivateKeyImpl {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");
         keyGen.initialize(getKeyType().getKeySize(), new SecureRandom());
         PrivateKey privateKey = keyGen.generateKeyPair().getPrivate();
-        setEncryptedPrivateKey(dataVaultService.encrypt(privateKey.getEncoded()));
+        setPrivateKey(privateKey);
         this.save();
     }
 

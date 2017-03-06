@@ -22,7 +22,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 /**
  * Created by bvn on 2/14/17.
  */
-public class PlaintextRsaPrivateKey extends AbstractPlaintextPrivateKeyImpl {
+public class PlaintextRsaPrivateKey extends AbstractPlaintextPrivateKeyWrapperImpl {
 
 
     @Inject
@@ -43,7 +43,7 @@ public class PlaintextRsaPrivateKey extends AbstractPlaintextPrivateKeyImpl {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(getKeyType().getKeySize(), new SecureRandom());
         PrivateKey privateKey = keyGen.generateKeyPair().getPrivate();
-        setEncryptedPrivateKey(dataVaultService.encrypt(privateKey.getEncoded()));
+        setPrivateKey(privateKey);
         this.save();
     }
 }

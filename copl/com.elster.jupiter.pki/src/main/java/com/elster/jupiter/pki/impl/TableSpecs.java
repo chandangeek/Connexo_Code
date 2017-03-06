@@ -65,6 +65,11 @@ public enum TableSpecs {
                     .number()
                     .conversion(ColumnConversion.NUMBER2LONG)
                     .add();
+            table.column("ALIAS")
+                    .varChar()
+                    .notNull()
+                    .map(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName())
+                    .add();
             table.column("CERTIFICATE")
                     .type("blob")
                     .conversion(BLOB2BYTE)
@@ -97,7 +102,7 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("PKI_FK_CERT_TS").on(trustStoreColumn)
                     .references(TrustStoreImpl.class)
-                    .composition()
+//                    .composition() // Due to bug CXO-5905
                     .map(AbstractCertificateWrapperImpl.Fields.TRUST_STORE.fieldName())
                     .reverseMap(TrustStoreImpl.Fields.CERTIFICATES.fieldName())
                     .onDelete(DeleteRule.CASCADE)

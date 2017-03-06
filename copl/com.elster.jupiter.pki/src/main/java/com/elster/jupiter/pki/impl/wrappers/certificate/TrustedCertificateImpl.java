@@ -11,6 +11,7 @@ import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
+import com.elster.jupiter.properties.PropertySpecService;
 
 import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
@@ -29,11 +30,10 @@ public class TrustedCertificateImpl extends AbstractCertificateWrapperImpl imple
     private final Thesaurus thesaurus;
     private byte[] latestCrl;
     private Reference<TrustStore> trustStoreReference = Reference.empty();
-    // TODO row protection
 
     @Inject
-    public TrustedCertificateImpl(DataModel dataModel, Thesaurus thesaurus) {
-        super(dataModel, thesaurus);
+    public TrustedCertificateImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService) {
+        super(dataModel, thesaurus, propertySpecService);
         this.thesaurus = thesaurus;
     }
 
@@ -68,8 +68,9 @@ public class TrustedCertificateImpl extends AbstractCertificateWrapperImpl imple
         return trustStoreReference.get();
     }
 
-    public TrustedCertificateImpl init(TrustStore trustStore, X509Certificate x509Certificate) {
+    public TrustedCertificateImpl init(TrustStore trustStore, String alias, X509Certificate x509Certificate) {
         this.trustStoreReference.set(trustStore);
+        this.setAlias(alias);
         this.setCertificate(x509Certificate);
         return this;
     }

@@ -27,7 +27,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 /**
  * Created by bvn on 2/14/17.
  */
-public class PlaintextEcdsaPrivateKey extends AbstractPlaintextPrivateKeyImpl {
+public class PlaintextEcdsaPrivateKey extends AbstractPlaintextPrivateKeyWrapperImpl {
 
     @Inject
     PlaintextEcdsaPrivateKey(DataVaultService dataVaultService, PropertySpecService propertySpecService, DataModel dataModel, Thesaurus thesaurus) {
@@ -47,7 +47,7 @@ public class PlaintextEcdsaPrivateKey extends AbstractPlaintextPrivateKeyImpl {
         ECNamedCurveParameterSpec parameterSpec = ECNamedCurveTable.getParameterSpec(getKeyType().getCurve());
         keyGen.initialize(parameterSpec, new SecureRandom());
         PrivateKey privateKey = keyGen.generateKeyPair().getPrivate();
-        setEncryptedPrivateKey(dataVaultService.encrypt(privateKey.getEncoded()));
+        setPrivateKey(privateKey);
         this.save();
     }
 

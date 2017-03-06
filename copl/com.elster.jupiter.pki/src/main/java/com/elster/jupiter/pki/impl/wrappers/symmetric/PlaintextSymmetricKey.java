@@ -34,7 +34,9 @@ import java.util.Map;
 import static java.util.stream.Collectors.toList;
 
 /**
- * Created by bvn on 2/16/17.
+ * A Plaintext symmetric key is stored encrypted in the DB (using DataVaultService), however, the secret value is shown
+ * in plaintext to the user (base64 encoded).
+ * This type is NOT secure and is to be used for development or debugging purposes only.
  */
 public class PlaintextSymmetricKey implements SymmetricKeyWrapper, Renewable {
 

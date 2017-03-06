@@ -22,7 +22,15 @@ public interface PkiService {
 
     CertificateWrapper newCertificateWrapper();
 
-    ClientCertificate newClientCertificateWrapper(KeyAccessorType keyAccessorType); // TODO needs 2 Keytypes!! 1 for Cert and 1 for PK
+    /**
+     * Creates a new Client certificate wrapper.
+     *
+     * @param alias
+     * @param certAccessorType The Key AccessorType describing the certificate
+     * @param privateKeyAccessorType The key accessor type describing the private key
+     * @return Persisted, empty ClientCertificateWrapper
+     */
+    ClientCertificateWrapper newClientCertificateWrapper(String alias, KeyAccessorType certAccessorType, KeyAccessorType privateKeyAccessorType);
 
     /**
      * Creates a new, empty trust store in Connexo.

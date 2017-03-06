@@ -6,7 +6,7 @@ package com.elster.jupiter.pki;
  */
 public enum CryptographicType {
     Certificate(false),
-    ClientCertificate(true),
+    ClientCertificate(false),
     TrustedCertificate(false),
     SymmetricKey(true),
     Passphrase(true),

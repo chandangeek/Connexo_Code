@@ -1,5 +1,7 @@
 package com.elster.jupiter.pki;
 
+import com.elster.jupiter.util.HasId;
+
 import aQute.bnd.annotation.ProviderType;
 
 import java.security.cert.X509Certificate;
@@ -15,7 +17,14 @@ import java.util.Optional;
  *
  */
 @ProviderType
-public interface CertificateWrapper {
+public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableValues, HasId {
+    /**
+     * A certificate alias is the name given to a CA certificate located in the certificate store.
+     * Each entry in the certificate store has an alias to help identify it.
+     * @return This certificate's alias
+     */
+    String getAlias();
+
     /**
      * If a Certificate is available in this wrapper, it will be returned, if not, Optional.empty() will be returned.
      * The certificate could be empty if this placeholder has issued a CSR but no certificate has been received/imported yet.
@@ -32,7 +41,6 @@ public interface CertificateWrapper {
 
     /**
      * Sets a value for the certificate. Any existing value will be overridden.
-     * // TODO should we block overwriting a value and force renew process?
      */
     void setCertificate(X509Certificate certificate);
 }

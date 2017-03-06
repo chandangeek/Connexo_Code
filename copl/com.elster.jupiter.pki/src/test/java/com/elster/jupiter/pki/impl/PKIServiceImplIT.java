@@ -3,6 +3,7 @@ package com.elster.jupiter.pki.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
+import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
 import com.elster.jupiter.pki.KeyAccessorType;
@@ -308,7 +309,7 @@ public class PKIServiceImplIT {
                 .description("Main trust store")
                 .add();
         X509Certificate certificate = loadCertificate("myRootCA.cert");
-        main.addCertificate(certificate);
+        main.addCertificate("myCert", certificate);
 
         Optional<TrustStore> reloaded = inMemoryPersistence.getPkiService().findTrustStore("main");
         assertThat(reloaded).isPresent();
@@ -329,7 +330,7 @@ public class PKIServiceImplIT {
                 .description("Main trust store")
                 .add();
         X509Certificate certificate = loadCertificate("myRootCA.cert");
-        TrustedCertificate trustedCertificate = main.addCertificate(certificate);
+        TrustedCertificate trustedCertificate = main.addCertificate("myRootCA", certificate);
 
         trustedCertificate.setCRL(certificateFactory.generateCRL(CertPathValidatorTest.class.getResourceAsStream("mySubCA.revoked.crl.pem")));
         Optional<TrustStore> reloaded = inMemoryPersistence.getPkiService().findTrustStore("CRL");
@@ -346,13 +347,33 @@ public class PKIServiceImplIT {
                 .description("Main trust store")
                 .add();
         X509Certificate certificate = loadCertificate("myRootCA.cert");
-        main.addCertificate(certificate);
+        main.addCertificate("MyRootCa", certificate);
 
         Optional<TrustStore> reloaded = inMemoryPersistence.getPkiService().findTrustStore("DEL");
         assertThat(reloaded.get().getCertificates()).hasSize(1);
-        reloaded.get().removeCertificate(loadCertificate("myRootCA.cert"));
+        reloaded.get().removeCertificate("MyRootCa");
         Optional<TrustStore> rereloaded = inMemoryPersistence.getPkiService().findTrustStore("DEL");
         assertThat(rereloaded.get().getCertificates()).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void testCreateClientCertificate() throws Exception {
+        KeyType privateKeyType = inMemoryPersistence.getPkiService()
+                .newAsymmetricKeyType("secp256r1")
+                .description("check")
+                .ECDSA()
+                .curve("secp256r1")
+                .add();
+        KeyType certificateType = inMemoryPersistence.getPkiService().newClientCertificateType("TLS", "SHA256withECDSA").add();
+        KeyAccessorType certificateAccessorType = mock(KeyAccessorType.class);
+        when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
+        KeyAccessorType privateKeyAccessorType = mock(KeyAccessorType.class);
+        when(privateKeyAccessorType.getKeyType()).thenReturn(privateKeyType);
+        when(privateKeyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
+        ClientCertificateWrapper comserver = inMemoryPersistence.getPkiService()
+                .newClientCertificateWrapper("comserver", certificateAccessorType, privateKeyAccessorType);
+
     }
 
     private X509Certificate createSelfSignedCertificate(String myself) throws Exception {

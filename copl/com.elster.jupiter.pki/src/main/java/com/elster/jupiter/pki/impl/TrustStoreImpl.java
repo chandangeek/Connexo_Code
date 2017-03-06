@@ -91,24 +91,22 @@ public class TrustStoreImpl implements TrustStore {
     }
 
     @Override
-    public TrustedCertificate addCertificate(X509Certificate x509Certificate) {
+    public TrustedCertificate addCertificate(String alias, X509Certificate x509Certificate) {
         TrustedCertificateImpl trustedCertificate = dataModel.getInstance(TrustedCertificateImpl.class);
-        trustedCertificate.init(this, x509Certificate);
+        trustedCertificate.init(this, alias, x509Certificate);
+        trustedCertificate.save();
         this.trustedCertificates.add(trustedCertificate);
         this.save();
         return trustedCertificate;
     }
 
     @Override
-    public void removeCertificate(X509Certificate x509Certificate) {
+    public void removeCertificate(String alias) {
         List<TrustedCertificate> toBeRemoved = this.trustedCertificates.stream()
-                .filter(trustedCertificate -> trustedCertificate.getCertificate()
-                        .get()
-                        .getSerialNumber()
-                        .equals(x509Certificate.getSerialNumber()))
+                .filter(trustedCertificate -> trustedCertificate.getAlias().equals(alias))
                 .collect(toList());
         this.trustedCertificates.removeAll(toBeRemoved);
-
+        toBeRemoved.stream().forEach(dataModel::remove);
     }
 
     public void save() {

@@ -26,7 +26,9 @@ public enum MessageSeeds implements MessageSeed {
     CRL_EXCEPTION(1011, "CrlException", "Could not read CRL"),
     CERTIFICATE_EXCEPTION(1012, "CertificateException", "Could not read certificate"),
     CSR_EXCEPTION(1012, "CsrException", "Could not read CSR"),
-    CERTIFICATE_ENCODING_EXCEPTION(1013, "CertificateEncodingException", "The certificate could not be properly encoded");
+    CERTIFICATE_ENCODING_EXCEPTION(1013, "CertificateEncodingException", "The certificate could not be properly encoded"),
+    ALIAS_IS_UNIQUE(1014, Keys.ALIAS_UNIQUE, "Alias must be unique"),
+    ;
 
     private final int number;
     private final String key;
@@ -72,6 +74,7 @@ public enum MessageSeeds implements MessageSeed {
     public static class Keys {
         public static final String NAME_REQUIRED = "X.name.required";
         public static final String NAME_UNIQUE = "X.name.unique";
+        public static final String ALIAS_UNIQUE = "X.alias.unique";
         public static final String FIELD_TOO_LONG = "fieldTooLong";
         public static final String FIELD_IS_REQUIRED = "field.required";
         public static final String NO_SUCH_ENCRYPTION_METHOD = "no.such.encryption.method";

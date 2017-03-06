@@ -4,8 +4,12 @@
 
 package com.elster.jupiter.pki.impl.gogo;
 
+import com.elster.jupiter.pki.ExtendedKeyUsage;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.KeyUsage;
 import com.elster.jupiter.pki.PkiService;
+
+import java.util.EnumSet;
 
 /**
  * This enum is prototype KeyType creator/referencer, as could be made by protocols
@@ -63,6 +67,22 @@ public enum ProtocolKeyTypes {
             return pkiService.newAsymmetricKeyType(getName()).ECDSA().curve("secp384r1").add();
         }
     },
+    TLS_CLIENT {
+        @Override
+        public String getName() {
+            return "TLS Client";
+        }
+
+        @Override
+        public KeyType createKeyType(PkiService pkiService) {
+            return pkiService
+                    .newClientCertificateType(getName(), "SHA256withECDSA")
+                    .description("TLS client certificate")
+                    .setKeyUsages(EnumSet.of(KeyUsage.keyAgreement, KeyUsage.keyCertSign))
+                    .setExtendedKeyUsages(EnumSet.of(ExtendedKeyUsage.tlsWebClientAuthentication, ExtendedKeyUsage.tlsWebServerAuthentication))
+                    .add();
+        }
+    }
     ;
 
     abstract public String getName();

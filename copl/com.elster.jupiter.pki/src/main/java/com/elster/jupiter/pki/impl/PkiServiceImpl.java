@@ -9,7 +9,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.CertificateWrapper;
-import com.elster.jupiter.pki.ClientCertificate;
+import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
 import com.elster.jupiter.pki.KeyAccessorType;
@@ -21,9 +21,10 @@ import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.SymmetricKeyFactory;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.TrustStore;
-import com.elster.jupiter.pki.impl.wrappers.assymetric.AbstractPlaintextPrivateKeyImpl;
-import com.elster.jupiter.pki.impl.wrappers.certificate.ClientCertificateImpl;
-import com.elster.jupiter.pki.impl.wrappers.certificate.RenewableCertificateImpl;
+import com.elster.jupiter.pki.impl.wrappers.assymetric.AbstractPlaintextPrivateKeyWrapperImpl;
+import com.elster.jupiter.pki.impl.wrappers.certificate.ClientCertificateWrapperImpl;
+import com.elster.jupiter.pki.impl.wrappers.certificate.RequestableCertificateWrapperImpl;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 
@@ -64,13 +65,16 @@ public class PkiServiceImpl implements PkiService {
     private volatile Thesaurus thesaurus;
     private volatile DataVaultService dataVaultService;
     private volatile OrmService ormService;
+    private volatile PropertySpecService propertySpecService;
 
     @Inject
-    public PkiServiceImpl(OrmService ormService, UpgradeService upgradeService, NlsService nlsService, DataVaultService dataVaultService) {
+    public PkiServiceImpl(OrmService ormService, UpgradeService upgradeService, NlsService nlsService,
+                          DataVaultService dataVaultService, PropertySpecService propertySpecService) {
         this.setOrmService(ormService);
         this.setUpgradeService(upgradeService);
         this.setNlsService(nlsService);
         this.setDataVaultService(dataVaultService);
+        this.setPropertySpecService(propertySpecService);
         this.activate();
     }
 
@@ -118,6 +122,11 @@ public class PkiServiceImpl implements PkiService {
     }
 
     @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
+    @Reference
     public void setDataVaultService(DataVaultService dataVaultService) {
         this.dataVaultService = dataVaultService;
     }
@@ -155,6 +164,7 @@ public class PkiServiceImpl implements PkiService {
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(PkiService.class).toInstance(PkiServiceImpl.this);
+                bind(PropertySpecService.class).toInstance(propertySpecService);
             }
         };
     }
@@ -229,11 +239,11 @@ public class PkiServiceImpl implements PkiService {
     }
 
     @Override
-    public PrivateKeyWrapper newPrivateKeyWrapper(KeyAccessorType keyAccessorType) {
+    public PrivateKeyWrapper newPrivateKeyWrapper(KeyAccessorType keyAccessorType) { // TODO remove from interface?
         if (!privateKeyFactories.containsKey(keyAccessorType.getKeyEncryptionMethod())) {
             throw new NoSuchKeyEncryptionMethod(thesaurus);
         }
-        return privateKeyFactories.get(keyAccessorType.getKeyEncryptionMethod()).newPrivateKey(keyAccessorType);
+        return privateKeyFactories.get(keyAccessorType.getKeyEncryptionMethod()).newPrivateKeyWrapper(keyAccessorType);
     }
 
     @Override
@@ -246,16 +256,16 @@ public class PkiServiceImpl implements PkiService {
 
     @Override
     public CertificateWrapper newCertificateWrapper() {
-        RenewableCertificateImpl renewableCertificate = getDataModel().getInstance(RenewableCertificateImpl.class);
+        RequestableCertificateWrapperImpl renewableCertificate = getDataModel().getInstance(RequestableCertificateWrapperImpl.class);
         renewableCertificate.save();
         return renewableCertificate;
     }
 
     @Override
-    public ClientCertificate newClientCertificateWrapper(KeyAccessorType keyAccessorType) {
-        AbstractPlaintextPrivateKeyImpl privateKeyWrapper = (AbstractPlaintextPrivateKeyImpl) this.newPrivateKeyWrapper(keyAccessorType);
-        privateKeyWrapper.save();
-        ClientCertificateImpl clientCertificate = getDataModel().getInstance(ClientCertificateImpl.class).init(privateKeyWrapper);
+    public ClientCertificateWrapper newClientCertificateWrapper(String alias, KeyAccessorType certAccessorType, KeyAccessorType privateKeyAccessorType) {
+        AbstractPlaintextPrivateKeyWrapperImpl privateKeyWrapper = (AbstractPlaintextPrivateKeyWrapperImpl) this.newPrivateKeyWrapper(privateKeyAccessorType);
+        ClientCertificateWrapperImpl clientCertificate = getDataModel().getInstance(ClientCertificateWrapperImpl.class)
+                .init(alias, privateKeyWrapper, certAccessorType.getKeyType());
         clientCertificate.save();
         return clientCertificate;
     }
