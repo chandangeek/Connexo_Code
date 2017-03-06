@@ -47,6 +47,12 @@ public interface Channel {
 
     List<IntervalReadingRecord> getIntervalReadings(ReadingType readingType, Range<Instant> interval);
 
+    default List<IntervalReadingJournalRecord> getIntervalJournalReadings(ReadingType readingType, Range<Instant> interval, Range<Instant> changed) {
+        return null;
+    }
+
+    ;
+
     List<BaseReadingRecord> getReadings(ReadingType readingType, Range<Instant> interval);
 
     Optional<BaseReadingRecord> getReading(Instant when);

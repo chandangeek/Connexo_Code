@@ -7,7 +7,9 @@ package com.elster.jupiter.metering;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.orm.JournalEntry;
 
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -15,6 +17,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface Meter extends EndDevice, ReadingContainer {
 
     String TYPE_IDENTIFIER = "M";
@@ -49,6 +52,8 @@ public interface Meter extends EndDevice, ReadingContainer {
     Optional<? extends MeterActivation> getMeterActivation(Instant when);
 
     List<? extends ReadingQualityRecord> getReadingQualities(Range<Instant> range);
+
+    List<JournalEntry<? extends ReadingQualityRecord>> getReadingQualitiesJournal(ReadingQualityRecord readingQualityRecord, Range<Instant> range);
 
     MeterConfigurationBuilder startingConfigurationOn(Instant startTime);
 

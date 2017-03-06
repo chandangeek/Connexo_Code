@@ -43,6 +43,14 @@ public class MeterActivationsImpl implements ReadingContainer {
     }
 
     @Override
+    public List<? extends BaseReadingRecord> getJournalReadings(Range<Instant> range, Range<Instant> changed, ReadingType readingType) {
+        return meterActivations.stream()
+                .map(MeterActivation::getChannelsContainer)
+                .flatMap(channelsContainer -> channelsContainer.getJournalReadings(range, changed, readingType).stream())
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<? extends BaseReadingRecord> getReadingsUpdatedSince(Range<Instant> range, ReadingType readingType, Instant since) {
         return meterActivations.stream()
                 .map(MeterActivation::getChannelsContainer)

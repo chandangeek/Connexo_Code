@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.EventType;
+import com.elster.jupiter.metering.IntervalReadingJournalRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterConfiguration;
@@ -473,6 +474,17 @@ public final class ChannelImpl implements ChannelContract {
         }
         return getTimeSeries().getEntries(interval).stream()
                 .map(entry -> new IntervalReadingRecordImpl(this, entry))
+                .map(reading -> reading.filter(readingType))
+                .collect(ExtraCollectors.toImmutableList());
+    }
+
+    @Override
+    public List<IntervalReadingJournalRecord> getIntervalJournalReadings(ReadingType readingType, Range<Instant> interval, Range<Instant> changed) {
+        if (!isRegular()) {
+            return Collections.emptyList();
+        }
+        return getTimeSeries().getJournalEntries(interval, changed).stream()
+                .map(entry -> new IntervalReadingJournalRecordImpl(this, entry))
                 .map(reading -> reading.filter(readingType))
                 .collect(ExtraCollectors.toImmutableList());
     }

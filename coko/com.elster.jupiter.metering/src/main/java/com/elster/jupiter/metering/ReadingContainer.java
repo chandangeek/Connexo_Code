@@ -23,6 +23,12 @@ public interface ReadingContainer {
 
     List<? extends BaseReadingRecord> getReadings(Range<Instant> range, ReadingType readingType);
 
+    default List<? extends BaseReadingRecord> getJournalReadings(Range<Instant> range, Range<Instant> changed, ReadingType readingType) {
+        return null;
+    }
+
+    ;
+
     List<? extends BaseReadingRecord> getReadingsUpdatedSince(Range<Instant> range, ReadingType readingType, Instant since);
 
     List<? extends BaseReadingRecord> getReadingsBefore(Instant when, ReadingType readingType, int count);
