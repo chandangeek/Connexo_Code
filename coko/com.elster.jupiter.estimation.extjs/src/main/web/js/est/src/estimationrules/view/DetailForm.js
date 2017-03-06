@@ -10,7 +10,7 @@ Ext.define('Est.estimationrules.view.DetailForm', {
         'Est.estimationrules.view.ActionMenu'
     ],
     alias: 'widget.estimation-rules-detail-form',
-    title: Uni.I18n.translate('general.overview', 'EST', 'Overview'),
+    title: Uni.I18n.translate('general.details', 'EST', 'Details'),
     layout: 'form',
     actionMenuItemId: null,
     defaults: {

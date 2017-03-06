@@ -7,12 +7,13 @@ Ext.define('Est.estimationtasks.view.LogSideMenu', {
     alias: 'widget.estimationtasks-log-menu',
     router: null,
     title: Uni.I18n.translate('general.estimationTask', 'EST', 'Estimation task'),
+    objectType: Uni.I18n.translate('general.estimationTask', 'EST', 'Estimation task'),
 
     initComponent: function () {
         var me = this;
         me.callParent(me);
         me.add({
-                text: Uni.I18n.translate('general.overview', 'EST', 'Overview'),
+                text: Uni.I18n.translate('general.details', 'EST', 'Details'),
                 itemId: 'estimationtasks-overview-link',
                 href: me.router.getRoute('administration/estimationtasks/estimationtask').buildUrl({taskId: me.taskId})
         });

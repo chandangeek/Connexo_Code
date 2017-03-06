@@ -49,7 +49,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksHistory', {
                 widget = Ext.widget('estimationtasks-history', {router: router, taskId: currentTaskId});
                 me.getApplication().fireEvent('changecontentevent', widget);
                 Ext.suspendLayouts();
-                me.getOverviewLink().setText(record.get('name'));
+                widget.down('#estimationtasks-side-menu').setHeader(record.get('name'));
                 me.getApplication().fireEvent('estimationTaskLoaded', record);
                 Ext.resumeLayouts(true);
             },

@@ -19,7 +19,7 @@ Ext.define('Est.estimationrulesets.view.RuleSetDetails', {
         me.content = [
             {
                 xtype: 'form',
-                title: Uni.I18n.translate('general.overview', 'EST', 'Overview'),
+                title: Uni.I18n.translate('general.details', 'EST', 'Details'),
                 ui: 'large',
                 itemId: 'rule-set-form',
                 defaults: {
