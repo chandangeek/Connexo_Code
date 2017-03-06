@@ -76,7 +76,7 @@ public class DeviceMessageSpecImpl implements DeviceMessageSpec {
             DeviceMessageSpecSupplier that = (DeviceMessageSpecSupplier) o;
             return getId() == that.id();
         } else if (o instanceof DeviceMessageSpec) {
-            DeviceMessageSpecImpl that = (DeviceMessageSpec) o;
+            DeviceMessageSpec that = (DeviceMessageSpec) o;
             return getId() == that.getId();
         } else {
             return false;
