@@ -5,6 +5,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.bpm.ProcessInstanceInfos;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
@@ -40,10 +41,13 @@ import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPrope
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
+import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfo;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.conditions.Condition;
@@ -125,6 +129,8 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     private UsagePointLifeCycle usagePointLifeCycle;
     @Mock
     private UsagePointStage usagePointStage;
+    @Mock
+    private EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint;
     @Mock
     private ChannelsContainer channelsContainer;
     @Mock
@@ -225,6 +231,24 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         when(usagePointLifeCycleService.getLastUsagePointStateChangeRequest(usagePoint)).thenReturn(Optional.of(usagePointStateChangeRequest));
         when(usagePointStateChangeRequest.getTransitionTime()).thenReturn(Instant.EPOCH);
+        when(validationService.findValidationTasks()).thenReturn(Collections.singletonList(validationTask));
+        when(validationTask.getUsagePointGroup()).thenReturn(Optional.of(usagePointGroup));
+        when(validationTask.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
+        when(validationTask.getScheduleExpression()).thenReturn(PeriodicalScheduleExpression
+                .every(6)
+                .hours()
+                .at(10, 0)
+                .build());
+        when(validationTask.getMetrologyPurpose()).thenReturn(Optional.empty());
+        when(validationTask.getEndDeviceGroup()).thenReturn(Optional.empty());
+        when(validationTask.getLastRun()).thenReturn(Optional.empty());
+        when(validationTask.getLastOccurrence()).thenReturn(Optional.empty());
+        when(validationTask.getId()).thenReturn(31L);
+        doReturn(usagePointQuery).when(meteringService).getUsagePointQuery();
+        doReturn(Collections.singletonList(usagePoint)).when(usagePointQuery)
+                .select(any(Condition.class), anyInt(), anyInt());
+        when(usagePointGroup.toSubQuery()).thenReturn(mock(Subquery.class));
+        when(usagePointGroup.getId()).thenReturn(51L);
     }
 
     @Test
@@ -296,19 +320,8 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     }
 
     @Test
-    public void testCreateUsagePoint() {
-        UsagePointInfo info = new UsagePointInfo();
-        info.name = "test";
-        info.installationTime = Instant.EPOCH.toEpochMilli();
-        info.isSdp = true;
-        info.isVirtual = true;
-        info.techInfo = new ElectricityUsagePointDetailsInfo();
-        info.geoCoordinates = "";
-        info.location = "";
-        info.extendedGeoCoordinates = new CoordinatesInfo();
-        info.extendedLocation = new LocationInfo();
-
-        Response response = target("usagepoints").request().post(Entity.json(info));
+    public void testUsagePointCreating() {
+        Response response = target("usagepoints").request().post(Entity.json(getBasicUsagePointInfo()));
         assertThat(response.getStatus()).isEqualTo(201);
     }
 
@@ -353,7 +366,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         CustomPropertySetAttributeInfo attributeInfo = new CustomPropertySetAttributeInfo();
         attributeInfo.key = propertySpec.getName();
-        attributeInfo.propertyValueInfo = new PropertyValueInfo<>("Poor", "Fine", true);
+        attributeInfo.propertyValueInfo = new PropertyValueInfo<>("Poor", null, true);
         CustomPropertySetInfo casInfo = new CustomPropertySetInfo();
         casInfo.id = registeredCustomPropertySet.getId();
         casInfo.properties = Collections.singletonList(attributeInfo);
@@ -392,7 +405,50 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         CustomPropertySetAttributeInfo attributeInfo = new CustomPropertySetAttributeInfo();
         attributeInfo.key = propertySpec.getName();
-        attributeInfo.propertyValueInfo = new PropertyValueInfo<>("Poor", "Fine", true);
+        attributeInfo.propertyValueInfo = new PropertyValueInfo<>("Poor", null, true);
+        CustomPropertySetInfo casInfo = new CustomPropertySetInfo();
+        casInfo.id = registeredCustomPropertySet.getId();
+        casInfo.properties = Collections.singletonList(attributeInfo);
+        UsagePointInfo info = new UsagePointInfo();
+        info.id = 1L;
+        info.mRID = "upd";
+        info.name = "upd";
+        info.installationTime = Instant.EPOCH.toEpochMilli();
+        info.isSdp = true;
+        info.isVirtual = true;
+        info.readRoute = "upd";
+        info.serviceDeliveryRemark = "upd";
+        info.version = 1L;
+        info.techInfo = new ElectricityUsagePointDetailsInfo();
+        info.geoCoordinates = "";
+        info.location = "";
+        info.extendedGeoCoordinates = new CoordinatesInfo();
+        info.extendedLocation = new LocationInfo();
+        info.customPropertySets = Collections.singletonList(casInfo);
+
+        Response response = target("usagepoints/1").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(usagePoint).setName("upd");
+        verify(usagePoint, never()).setInstallationTime(any(Instant.class));
+        verify(usagePoint, never()).setSdp(anyBoolean());
+        verify(usagePoint, never()).setVirtual(anyBoolean());
+        verify(usagePoint).setReadRoute("upd");
+        verify(usagePoint).setServiceDeliveryRemark("upd");
+        verify(usagePoint).update();
+        verify(usagePoint).newElectricityDetailBuilder(any(Instant.class));
+        verify(usagePointPropertySet, never()).setValues(any(CustomPropertySetValues.class));
+    }
+
+    @Test
+    public void testUpdateUsagePointWithCustomPropertySetEquivalent() {
+        when(meteringService.findUsagePointById(1L)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findAndLockUsagePointByIdAndVersion(1L, 1L)).thenReturn(Optional.of(usagePoint));
+        when(customPropertySet.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
+        when(usagePointPropertySet.getValues()).thenReturn(CustomPropertySetValues.empty());
+
+        CustomPropertySetAttributeInfo attributeInfo = new CustomPropertySetAttributeInfo();
+        attributeInfo.key = propertySpec.getName();
+        attributeInfo.propertyValueInfo = new PropertyValueInfo<>(null, null, true);
         CustomPropertySetInfo casInfo = new CustomPropertySetInfo();
         casInfo.id = registeredCustomPropertySet.getId();
         casInfo.properties = Collections.singletonList(attributeInfo);
@@ -465,7 +521,6 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
                 .put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(202);
         verify(usagePoint, never()).apply(any(UsagePointMetrologyConfiguration.class));
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
         when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
 
@@ -560,7 +615,6 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(metrologyConfiguration.getId()).thenReturn(100L);
         when(metrologyConfiguration.getName()).thenReturn("conf");
         when(metrologyConfiguration.getMeterRoles()).thenReturn(Arrays.asList(meterRole1, meterRole2));
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
         when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
 
@@ -608,7 +662,6 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(metrologyContract.getStatus(usagePoint).getKey()).thenReturn("INCOMPLETE");
         when(metrologyContract.getStatus(usagePoint).getName()).thenReturn("Incomplete");
 
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
         when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
         when(effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(any(MetrologyContract.class), any(Instant.class)))
@@ -665,5 +718,103 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         Response response = target("usagepoints/locations/1").request().get();
         assertThat(response.getStatus()).isEqualTo(200);
+    }
+
+    @Test
+    public void testGetValidationTasksOnUsagePoint() throws Exception {
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/validationtasks").request().get();
+        assertThat(response.getStatus()).isEqualTo(200);
+        JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(model.<List>get("$.dataValidationTasks")).hasSize(1);
+        assertThat(model.<Integer>get("$.dataValidationTasks[0].id")).isEqualTo(31);
+        assertThat(model.<Integer>get("$.dataValidationTasks[0].usagePointGroup.id")).isEqualTo(51);
+    }
+
+    @Test
+    public void testUsagePointCreationWithMetrologyConfigurationAndMeters() throws Exception {
+        UsagePointInfo usagePointInfo = getInfoWithMetrologyConfigurationAndMeters();
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
+        when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
+
+        Response response = target("usagepoints").request().post(Entity.json(usagePointInfo));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        verify(usagePointBuilder).create();
+        verify(transactionService).getContext();
+        verify(usagePoint).apply(any());
+    }
+
+    @Test
+    public void testUsagePointCreationWithTransition() throws Exception {
+        UsagePointTransition transition = mock(UsagePointTransition.class);
+        UsagePointInfo usagePointInfo = getInfoWithMetrologyConfigurationAndMeters();
+        UsagePointTransitionInfo transitionToPerform = new UsagePointTransitionInfo();
+        transitionToPerform.properties = Collections.emptyList();
+
+        transitionToPerform.name = "Install active";
+        transitionToPerform.effectiveTimestamp = clock.instant();
+        usagePointInfo.transitionToPerform = transitionToPerform;
+
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
+        when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
+        when(usagePointLifeCycleConfigurationService.findUsagePointTransition(any(Long.class))).thenReturn(Optional.of(transition));
+
+        Response response = target("usagepoints").request().post(Entity.json(usagePointInfo));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        verify(usagePointLifeCycleService).scheduleTransition(usagePoint, transition, transitionToPerform.effectiveTimestamp, "INS", Collections.emptyMap());
+        verify(usagePointBuilder).create();
+        verify(transactionService).getContext();
+        verify(usagePoint).apply(any());
+        verify(usagePointLifeCycleService).scheduleTransition(any(), any(), any(), any(),any());
+    }
+
+    private UsagePointInfo getInfoWithMetrologyConfigurationAndMeters() {
+        UsagePointInfo usagePointInfo = getBasicUsagePointInfo();
+        CustomPropertySetInfo casInfo = new CustomPropertySetInfo();
+        casInfo.id = 1L;
+
+        MetrologyConfigurationInfo configurationInfo = new MetrologyConfigurationInfo();
+        configurationInfo.id = 1L;
+        configurationInfo.name = "Test";
+        configurationInfo.version = 1L;
+        configurationInfo.customPropertySets = Collections.singletonList(casInfo);
+        Meter meter1 = mock(Meter.class);
+        when(meter1.getName()).thenReturn("meter1");
+        when(meteringService.findMeterByName("meter1")).thenReturn(Optional.of(meter1));
+
+        MeterRole meterRole = mock(MeterRole.class);
+        when(meterRole.getKey()).thenReturn("key1");
+        when(metrologyConfigurationService.findMeterRole("key1")).thenReturn(Optional.of(meterRole));
+
+        UsagePointMeterActivator linker = mock(UsagePointMeterActivator.class);
+        when(usagePoint.linkMeters()).thenReturn(linker);
+
+        MeterActivationInfo meterActivation = new MeterActivationInfo();
+        meterActivation.meter = new MeterInfo();
+        meterActivation.meter.name = meter1.getName();
+        meterActivation.meterRole = new MeterRoleInfo();
+        meterActivation.meterRole.id = meterRole.getKey();
+
+        usagePointInfo.version = usagePoint.getVersion();
+        usagePointInfo.meterActivations = Collections.singletonList(meterActivation);
+
+        configurationInfo.meterRoles = Collections.singletonList(new MeterRoleInfo());
+        usagePointInfo.metrologyConfiguration = configurationInfo;
+
+        return usagePointInfo;
+    }
+    private UsagePointInfo getBasicUsagePointInfo() {
+        UsagePointInfo info = new UsagePointInfo();
+        info.name = "test";
+        info.installationTime = Instant.EPOCH.toEpochMilli();
+        info.isSdp = true;
+        info.isVirtual = true;
+        info.techInfo = new ElectricityUsagePointDetailsInfo();
+        info.geoCoordinates = "";
+        info.location = "";
+        info.extendedGeoCoordinates = new CoordinatesInfo();
+        info.extendedLocation = new LocationInfo();
+
+        return info;
     }
 }

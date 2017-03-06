@@ -43,6 +43,7 @@ import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfoFactory;
@@ -85,6 +86,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     private volatile UsagePointLifeCycleStateInfoFactory stateInfoFactory;
     private volatile UsagePointLifeCycleInfoFactory lifeCycleInfoFactory;
     private volatile UsagePointLifeCycleService usagePointLifeCycleService;
+    private volatile TransactionService transactionService;
 
     public UsagePointInfoFactory() {
     }
@@ -102,7 +104,9 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                                  ReadingTypeDeliverableFactory readingTypeDeliverableFactory,
                                  PropertyValueInfoService propertyValueInfoService,
                                  UsagePointLifeCycleStateInfoFactory stateInfoFactory,
-                                 UsagePointLifeCycleInfoFactory lifeCycleInfoFactory, UsagePointLifeCycleService usagePointLifeCycleService) {
+                                 UsagePointLifeCycleInfoFactory lifeCycleInfoFactory,
+                                 UsagePointLifeCycleService usagePointLifeCycleService,
+                                 TransactionService transactionService) {
         this();
         this.setClock(clock);
         this.setNlsService(nlsService);
@@ -118,6 +122,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         this.stateInfoFactory = stateInfoFactory;
         this.lifeCycleInfoFactory = lifeCycleInfoFactory;
         this.usagePointLifeCycleService = usagePointLifeCycleService;
+        this.transactionService = transactionService;
         activate();
     }
 
@@ -172,6 +177,10 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         this.licenseService = licenseService;
     }
 
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
     /**
      * for search only - so only populate fields that will be used/shown (see {@link #modelStructure()}) !!!
      */

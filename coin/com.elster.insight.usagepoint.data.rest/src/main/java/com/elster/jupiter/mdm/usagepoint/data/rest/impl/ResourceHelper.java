@@ -5,13 +5,16 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -19,6 +22,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
@@ -26,6 +30,10 @@ import com.elster.jupiter.rest.util.ConcurrentModificationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 
 import javax.inject.Inject;
@@ -33,6 +41,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -45,21 +54,25 @@ public class ResourceHelper {
     private final ExceptionFactory exceptionFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final MetrologyConfigurationService metrologyConfigurationService;
+    private final UsagePointLifeCycleService usagePointLifeCycleService;
     private final Clock clock;
+    private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
 
     @Inject
-    public ResourceHelper(MeteringService meteringService,
-                          MeteringGroupsService meteringGroupsService,
+    public ResourceHelper(MeteringService meteringService, MeteringGroupsService meteringGroupsService,
                           ExceptionFactory exceptionFactory,
                           ConcurrentModificationExceptionFactory conflictFactory,
-                          MetrologyConfigurationService metrologyConfigurationService, Clock clock) {
+                          MetrologyConfigurationService metrologyConfigurationService, UsagePointLifeCycleService usagePointLifeCycleService, Clock clock,
+                          UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
         super();
         this.meteringService = meteringService;
         this.meteringGroupsService = meteringGroupsService;
         this.exceptionFactory = exceptionFactory;
         this.conflictFactory = conflictFactory;
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.usagePointLifeCycleService = usagePointLifeCycleService;
         this.clock = clock;
+        this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
     }
 
     public MeterRole findMeterRoleOrThrowException(String key) {
@@ -163,6 +176,16 @@ public class ResourceHelper {
         return metrologyContract;
     }
 
+    public UsagePointTransition findUsagePointTransitionOrThrowException(long transitionId) {
+        return usagePointLifeCycleConfigurationService.findUsagePointTransition(transitionId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_USAGEPOINT_TRANSITION_WITH_ID, transitionId));
+    }
+
+    public MetrologyConfiguration findMetrologyConfigurationOrThrowException(long metrologyConfigurationId) {
+        return metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigurationId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGYCONFIG_FOR_ID, metrologyConfigurationId));
+    }
+
     public ReadingTypeDeliverable findReadingTypeDeliverableOrThrowException(MetrologyContract metrologyContract, long outputId, String usagePointName) {
         return metrologyContract.getDeliverables().stream()
                 .filter(deliverable -> deliverable.getId() == outputId)
@@ -181,6 +204,54 @@ public class ResourceHelper {
                                 .map(UsagePointGroup::getVersion)
                                 .orElse(null))
                         .supplier());
+    }
+
+    public List<MetrologyConfigurationInfo> getAvailableMetrologyConfigurations(UsagePoint usagePoint, CustomPropertySetInfoFactory customPropertySetInfoFactory) {
+        return metrologyConfigurationService
+                .findLinkableMetrologyConfigurations(usagePoint)
+                .stream()
+                .filter(mc -> !mc.getCustomPropertySets().stream().anyMatch(cas -> !cas.isEditableByCurrentUser()))
+                .map(mc -> new MetrologyConfigurationInfo(mc, mc.getCustomPropertySets()
+                        .stream()
+                        .sorted(Comparator.comparing(rcps -> rcps.getCustomPropertySet()
+                                .getName(), String.CASE_INSENSITIVE_ORDER))
+                        .map(customPropertySetInfoFactory::getGeneralAndPropertiesInfo)
+                        .collect(Collectors.toList())))
+                .collect(Collectors.toList());
+    }
+
+    public void activateMeters(UsagePointInfo info, UsagePoint usagePoint) {
+        if (info.meterActivations != null && !info.meterActivations.isEmpty()) {
+            UsagePointMeterActivator linker = usagePoint.linkMeters();
+            info.meterActivations
+                    .stream()
+                    .filter(meterActivation -> meterActivation.meterRole != null && !Checks.is(meterActivation.meterRole.id).emptyOrOnlyWhiteSpace())
+                    .forEach(meterActivation -> {
+                        MeterRole meterRole = findMeterRoleOrThrowException(meterActivation.meterRole.id);
+                        linker.clear(meterRole);
+                        if (meterActivation.meter != null && !Checks.is(meterActivation.meter.name).emptyOrOnlyWhiteSpace()) {
+                            Meter meter = findMeterByNameOrThrowException(meterActivation.meter.name);
+                            linker.activate(meter, meterRole);
+                        }
+                    });
+            linker.complete();
+        }
+    }
+
+    public List<UsagePointTransition> getAvailableTransitions(UsagePoint usagePoint) {
+        return usagePointLifeCycleService.getAvailableTransitions(usagePoint.getState(), "INS");
+    }
+
+
+
+    public List<ReadingTypeRequirement> getReadingTypeRequirements(MetrologyContract metrologyContract) {
+        ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
+        metrologyContract.getDeliverables()
+                .stream()
+                .map(ReadingTypeDeliverable::getFormula)
+                .map(Formula::getExpressionNode)
+                .forEach(expressionNode -> expressionNode.accept(requirementsCollector));
+        return requirementsCollector.getReadingTypeRequirements();
     }
 
     public void checkMeterRequirements(UsagePoint usagePoint, MetrologyContract metrologyContract) {
