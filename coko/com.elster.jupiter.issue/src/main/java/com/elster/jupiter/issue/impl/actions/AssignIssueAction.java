@@ -68,12 +68,8 @@ public class AssignIssueAction extends AbstractIssueAction {
         getCommentFromParameters(properties).ifPresent(comment -> issue.addComment(comment, (User) threadPrincipalService.getPrincipal()));
         if (assignee.getUser() == null && assignee.getWorkGroup() == null) {
             result.success(getThesaurus().getFormat(TranslationKeys.ACTION_ISSUE_UNASSIGNED).format());
-        } else if (assignee.getUser() == null) {
-            result.success(getThesaurus().getFormat(TranslationKeys.ACTION_ISSUE_ASSIGNED_WORKGROUP).format(assignee.getWorkGroup().getName()));
-        } else if (assignee.getWorkGroup() == null) {
-            result.success(getThesaurus().getFormat(TranslationKeys.ACTION_ISSUE_ASSIGNED_USER).format(assignee.getUser().getName()));
         } else {
-            result.success(getThesaurus().getFormat(TranslationKeys.ACTION_ISSUE_ASSIGNED_USER_AND_WORKGROUP).format(assignee.getUser().getName(), assignee.getWorkGroup().getName()));
+            result.success(getThesaurus().getFormat(TranslationKeys.ACTION_ISSUE_ASSIGNED).format());
         }
         return result;
     }
