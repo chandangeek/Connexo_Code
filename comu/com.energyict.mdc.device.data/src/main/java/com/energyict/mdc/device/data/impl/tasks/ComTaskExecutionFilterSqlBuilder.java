@@ -89,6 +89,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
             if (statusIterator.hasNext()) {
                 this.unionAll();
                 this.append(sqlStartClause);
+                this.appendDeviceStateJoinClauses(communicationTaskAliasName);
             }
         }
         if (this.taskStatuses.isEmpty()) {

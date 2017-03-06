@@ -283,6 +283,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     Optional<? extends MeterActivation> getCurrentMeterActivation();
 
+    Optional<? extends MeterActivation> getMeterActivation(Instant when);
+
     List<MeterActivation> getMeterActivationsMostRecentFirst();
 
     /**
