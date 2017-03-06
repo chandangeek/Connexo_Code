@@ -134,6 +134,13 @@ Ext.define('Imt.usagepointsetup.view.ActivateMeters', {
                 ]
             }
         ];
+        me.content[0].items[0].items.push({
+            xtype: 'label',
+            hidden: true,
+            cls: 'x-form-invalid-under',
+            itemId: 'stageErrorLabel',
+            margin: '0 0 0 135' // labelWidth (120) + 15
+        });
         me.callParent(arguments);
 
     }
