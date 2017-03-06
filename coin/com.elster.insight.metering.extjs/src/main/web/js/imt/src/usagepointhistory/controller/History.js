@@ -166,13 +166,13 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             metersStore = me.getStore('Imt.usagepointhistory.store.HistoricalMeters');
 
         metersStore.getProxy().setParams(me.usagePointId);
-        me.newCard.add({
-            xtype: 'usage-point-history-meters',
-            itemId: 'usage-point-history-meters',
-            router: router,
-            margin: '10 0 0 0'
-        });
         metersStore.load(function() {
+            me.newCard.add({
+                xtype: 'usage-point-history-meters',
+                itemId: 'usage-point-history-meters',
+                router: router,
+                margin: '10 0 0 0'
+            });
             me.getMetersPage().setLoading(false);
         });
     },
