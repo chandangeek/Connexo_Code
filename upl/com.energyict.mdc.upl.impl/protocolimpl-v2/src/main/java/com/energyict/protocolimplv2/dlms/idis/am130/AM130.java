@@ -13,7 +13,6 @@ import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -23,7 +22,6 @@ import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
-import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
@@ -219,11 +217,6 @@ public class AM130 extends AM500 {
             this.registerFactory = new AM130RegisterFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return registerFactory;
-    }
-
-    @Override
-    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
-        return messageAttribute.toString();
     }
 
     @Override
