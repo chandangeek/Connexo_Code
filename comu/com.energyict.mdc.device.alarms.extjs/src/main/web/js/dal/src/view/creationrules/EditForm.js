@@ -56,6 +56,7 @@ Ext.define('Dal.view.creationrules.EditForm', {
                         queryMode: 'local',
                         displayField: 'displayName',
                         valueField: 'name',
+                        editable: false,
                         width: 320,
                         forceSelection: true,
                         listeners: {
