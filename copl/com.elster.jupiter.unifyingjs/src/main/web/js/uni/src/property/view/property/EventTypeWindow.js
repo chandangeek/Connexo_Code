@@ -88,7 +88,6 @@ Ext.define('Uni.property.view.property.EventTypeWindow', {
                                         itemId: 'uni-eventtype-device-code-specific',
                                         width: 580,
                                         fieldLabel: Uni.I18n.translate('uni.eventType.deviceCode', 'UNI', 'Device code'),
-                                        required: true,
                                         maskRe: /[0-9.]/,
                                         disabled: true
                                     }
@@ -184,7 +183,6 @@ Ext.define('Uni.property.view.property.EventTypeWindow', {
                                         itemId: 'uni-eventtype-device-code-part',
                                         width: 580,
                                         fieldLabel: Uni.I18n.translate('uni.eventType.deviceCode', 'UNI', 'Device code'),
-                                        required: true,
                                         maskRe: /[0-9.]/,
                                         disabled: true
                                     }
