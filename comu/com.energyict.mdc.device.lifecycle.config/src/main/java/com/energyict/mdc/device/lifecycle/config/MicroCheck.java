@@ -102,7 +102,12 @@ public enum MicroCheck {
     /**
      * Check if no active service calls exist for the device.
      */
-    NO_ACTIVE_SERVICE_CALLS(MicroCategory.MONITORING);
+    NO_ACTIVE_SERVICE_CALLS(MicroCategory.MONITORING),
+
+    /**
+     * Checks if the metrology configuration of the usage point is in a correct state (if any)
+     */
+    METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY(MicroCategory.INSTALLATION);
 
     private MicroCategory category;
 
