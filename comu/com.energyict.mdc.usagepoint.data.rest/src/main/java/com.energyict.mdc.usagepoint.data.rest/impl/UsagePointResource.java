@@ -61,12 +61,14 @@ public class UsagePointResource {
     private final ResourceHelper resourceHelper;
     private final ChannelDataInfoFactory channelDataInfoFactory;
     private final UsagePointChannelInfoFactory usagePointChannelInfoFactory;
+    private final UsagePointRegisterInfoFactory usagePointRegisterInfoFactory;
     private final ExceptionFactory exceptionFactory;
     private final Clock clock;
 
     @Inject
     public UsagePointResource(MeterInfoFactory meterInfoFactory,
                               UsagePointChannelInfoFactory usagePointChannelInfoFactory,
+                              UsagePointRegisterInfoFactory usagePointRegisterInfoFactory,
                               ResourceHelper resourceHelper,
                               ChannelDataInfoFactory channelDataInfoFactory,
                               ValidationService validationService,
@@ -74,6 +76,7 @@ public class UsagePointResource {
                               Clock clock) {
         this.meterInfoFactory = meterInfoFactory;
         this.usagePointChannelInfoFactory = usagePointChannelInfoFactory;
+        this.usagePointRegisterInfoFactory = usagePointRegisterInfoFactory;
         this.resourceHelper = resourceHelper;
         this.channelDataInfoFactory = channelDataInfoFactory;
         this.validationService = validationService;
@@ -95,19 +98,35 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Transactional
     public PagedInfoList getChannels(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
-        List<UsagePointChannelInfo> channelInfos = new ArrayList<>();
-        UsagePoint usagePoint = resourceHelper.findUsagePointOrThrowException(name);
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().orElse(null);
+        List<UsagePointChannelInfo> channelInfos = getInfos(name, usagePointChannelInfoFactory);
+        return PagedInfoList.fromPagedList("channels", channelInfos, queryParameters);
+    }
+
+    @GET
+    @Path("/{name}/registers")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Transactional
+    public PagedInfoList getRegisters(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
+        List<UsagePointRegisterInfo> registerInfos = getInfos(name, usagePointRegisterInfoFactory);
+        return PagedInfoList.fromPagedList("registers", registerInfos, queryParameters);
+    }
+
+    private <T,I> List<T> getInfos(String usagePointName, AbstractUsagePointChannelInfoFactory<T, I> factory) {
+        List<T> infos = new ArrayList<>();
+        UsagePoint usagePoint = resourceHelper.findUsagePointOrThrowException(usagePointName);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                .orElse(null);
         if (effectiveMetrologyConfiguration != null) {
             UsagePointMetrologyConfiguration metrologyConfiguration = effectiveMetrologyConfiguration.getMetrologyConfiguration();
-            channelInfos = metrologyConfiguration.getContracts().stream()
+            infos = metrologyConfiguration.getContracts().stream()
                     .map(effectiveMetrologyConfiguration::getChannelsContainer)
                     .flatMap(Functions.asStream())
                     .flatMap(channelsContainer -> channelsContainer.getChannels().stream())
-                    .map(channel -> usagePointChannelInfoFactory.from(channel, usagePoint, metrologyConfiguration))
+                    .filter(factory.getRegisterFilter())
+                    .map(channel -> factory.from(channel, usagePoint, metrologyConfiguration))
                     .collect(Collectors.toList());
         }
-        return PagedInfoList.fromPagedList("channels", channelInfos, queryParameters);
+        return infos;
     }
 
     @GET
@@ -118,7 +137,8 @@ public class UsagePointResource {
     public UsagePointChannelInfo getChannel(@PathParam("name") String name, @PathParam("channelId") long channelId) {
         UsagePoint usagePoint = resourceHelper.findUsagePointOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGY_CONFIG_FOR_USAGE_POINT, usagePoint.getName()));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGY_CONFIG_FOR_USAGE_POINT, usagePoint
+                        .getName()));
         Channel channel = resourceHelper.findChannelOnUsagePointOrThrowException(effectiveMetrologyConfiguration, channelId);
         return usagePointChannelInfoFactory.from(channel, usagePoint, effectiveMetrologyConfiguration.getMetrologyConfiguration());
     }
@@ -134,19 +154,23 @@ public class UsagePointResource {
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
             Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
             EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
-                    .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGY_CONFIG_FOR_USAGE_POINT, usagePoint.getName()));
+                    .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGY_CONFIG_FOR_USAGE_POINT, usagePoint
+                            .getName()));
             Channel channel = resourceHelper.findChannelOnUsagePointOrThrowException(effectiveMetrologyConfiguration, channelId);
             Range<Instant> usagePointActivationInterval = getUsagePointActivationInterval(usagePoint);
             if (usagePointActivationInterval.isConnected(requestedInterval)) {
                 Range<Instant> effectiveInterval = usagePointActivationInterval.intersection(requestedInterval);
                 TemporalAmount intervalLength = channel.getIntervalLength().get();
-                Map<Instant, IntervalReadingWithValidationStatus> preFilledChannelDataMap = channel.toList(effectiveInterval).stream()
-                        .collect(Collectors.toMap(Function.identity(), timeStamp -> new IntervalReadingWithValidationStatus(ZonedDateTime.ofInstant(timeStamp, clock.getZone()), intervalLength)));
+                Map<Instant, IntervalReadingWithValidationStatus> preFilledChannelDataMap = channel.toList(effectiveInterval)
+                        .stream()
+                        .collect(Collectors.toMap(Function.identity(), timeStamp -> new IntervalReadingWithValidationStatus(ZonedDateTime
+                                .ofInstant(timeStamp, clock.getZone()), intervalLength)));
 
                 // add readings to pre filled channel data map
                 List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(effectiveInterval);
                 for (IntervalReadingRecord intervalReadingRecord : intervalReadings) {
-                    IntervalReadingWithValidationStatus readingHolder = preFilledChannelDataMap.get(intervalReadingRecord.getTimeStamp());
+                    IntervalReadingWithValidationStatus readingHolder = preFilledChannelDataMap.get(intervalReadingRecord
+                            .getTimeStamp());
                     if (readingHolder != null) {
                         readingHolder.setIntervalReadingRecord(intervalReadingRecord);
                     }
@@ -180,7 +204,8 @@ public class UsagePointResource {
     }
 
     private Optional<ReadingTypeRequirement> getReadingTypeRequirement(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, Channel channel) {
-        MetrologyContract contract = resourceHelper.findMetrologyContractOfChannelOrThrowException(effectiveMetrologyConfiguration, channel.getId());
+        MetrologyContract contract = resourceHelper.findMetrologyContractOfChannelOrThrowException(effectiveMetrologyConfiguration, channel
+                .getId());
         Optional<ReadingTypeDeliverable> readingTypeDeliverable = contract.getDeliverables().stream()
                 .filter(deliverable -> deliverable.getReadingType().equals(channel.getMainReadingType()))
                 .findFirst();
@@ -188,7 +213,8 @@ public class UsagePointResource {
         readingTypeDeliverable.get().getFormula().getExpressionNode().accept(readingTypeRequirementsCollector);
         List<ReadingTypeRequirement> readingTypeRequirements = readingTypeRequirementsCollector.getReadingTypeRequirements();
         if (!readingTypeRequirements.isEmpty()) {
-            FullySpecifiedReadingTypeRequirement readingTypeRequirement = (FullySpecifiedReadingTypeRequirement) readingTypeRequirements.get(0);// expecting max 1 requirement
+            FullySpecifiedReadingTypeRequirement readingTypeRequirement = (FullySpecifiedReadingTypeRequirement) readingTypeRequirements
+                    .get(0);// expecting max 1 requirement
             return Optional.of(readingTypeRequirement);
         }
         return Optional.empty();
@@ -196,7 +222,8 @@ public class UsagePointResource {
 
     private List<Channel> findSourceChannelsOnUsagePoint(ReadingTypeRequirement readingTypeRequirement, UsagePoint usagePoint) {
         return usagePoint.getMeterActivations().stream()
-                .flatMap(meterActivation -> readingTypeRequirement.getMatchingChannelsFor(meterActivation.getChannelsContainer()).stream())
+                .flatMap(meterActivation -> readingTypeRequirement.getMatchingChannelsFor(meterActivation.getChannelsContainer())
+                        .stream())
                 .collect(Collectors.toList());
     }
 
@@ -206,6 +233,8 @@ public class UsagePointResource {
 
     private Instant getLastChecked(Channel channel) {
         Meter meter = channel.getChannelsContainer().getMeter().get();
-        return validationService.getEvaluator(meter).getLastChecked(meter, channel.getMainReadingType()).orElse(Instant.MIN);
+        return validationService.getEvaluator(meter)
+                .getLastChecked(meter, channel.getMainReadingType())
+                .orElse(Instant.MIN);
     }
 }
