@@ -6,7 +6,6 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.util.List;
@@ -71,4 +70,19 @@ public class DeviceMessageCategoryImpl implements DeviceMessageCategory {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DeviceMessageCategoryImpl that = (DeviceMessageCategoryImpl) o;
+
+        return getId() == that.getId();
+
+    }
+
+    @Override
+    public int hashCode() {
+        return getId();
+    }
 }

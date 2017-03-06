@@ -7,7 +7,6 @@ import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.util.List;
@@ -67,4 +66,25 @@ public class DeviceMessageSpecImpl implements DeviceMessageSpec {
         return this.propertySpecs;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o instanceof DeviceMessageSpecSupplier) {
+            DeviceMessageSpecSupplier that = (DeviceMessageSpecSupplier) o;
+            return getId() == that.id();
+        } else if (o instanceof DeviceMessageSpec) {
+            DeviceMessageSpecImpl that = (DeviceMessageSpec) o;
+            return getId() == that.getId();
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (getId() ^ (getId() >>> 32));
+    }
 }
