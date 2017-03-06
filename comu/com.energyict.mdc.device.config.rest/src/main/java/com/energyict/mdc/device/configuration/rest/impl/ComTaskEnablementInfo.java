@@ -116,7 +116,7 @@ public class ComTaskEnablementInfo {
             PartialConnectionTaskInfo partialConnectionTaskInfo = new PartialConnectionTaskInfo();
             if(partialConnectionTask.isDefault()) {
                 partialConnectionTaskInfo.id = useDefaultConnectionTask ? DEFAULT_PARTIAL_CONNECTION_TASK_ID : partialConnectionTask.getId();
-                partialConnectionTaskInfo.name = thesaurus.getFormat(TranslationKeys.DEFAULT).format();
+                partialConnectionTaskInfo.name = thesaurus.getFormat(TranslationKeys.DEFAULT).format() + " (" + partialConnectionTask.getName() + ")";
             } else {
                 partialConnectionTaskInfo.id = partialConnectionTask.getId();
                 partialConnectionTaskInfo.name = partialConnectionTask.getName();
