@@ -56,32 +56,26 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Edit', {
                             xtype: 'container'
                         }
                     },
-                    //{
-                    //    xtype: 'date-time',
-                    //    name: 'timeStamp',
-                    //    valueInMilliseconds: true,
-                    //    hidden: true
-                    //},
-                    {
-                        xtype: 'fieldcontainer',
-                        itemId: 'hiddenContainer',
-                        required: true,
-                        fieldLabel: this.hasEvent?Uni.I18n.translate('device.registerData.eventTime', 'MDC', 'Event time'):Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
-                        hidden: true,
-                        defaults: {
-                            width: '100%'
-                        },
-                        items: [
-                            {
-                                xtype: 'date-time',
-                                itemId: 'timeStampField',
-                                name: 'timeStamp',
-                                layout: 'hbox',
-                                valueInMilliseconds: true,
-                                value: 0
-                            }
-                        ]
-                    },
+                   // {
+                   //     xtype: 'fieldcontainer',
+                   //     itemId: 'hiddenContainer',
+                   // //    required: true,
+                   //     fieldLabel: this.hasEvent?Uni.I18n.translate('device.registerData.eventTime', 'MDC', 'Event time'):Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
+                   ////     hidden: true,
+                   //     defaults: {
+                   //         width: '100%'
+                   //     },
+                   //     items: [
+                   //         {
+                   //             xtype: 'date-time',
+                   //             itemId: 'timeStampField',
+                   //             name: 'timeStamp',
+                   //             layout: 'hbox',
+                   //             valueInMilliseconds: true,
+                   //             value: 0
+                   //         }
+                   //     ]
+                   // },
                     {
                         xtype: 'fieldcontainer',
                         itemId: 'timeStampContainer',
@@ -140,7 +134,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Edit', {
                         xtype: 'fieldcontainer',
                         itemId: 'valueContainer',
                         fieldLabel: Uni.I18n.translate('device.registerData.value', 'MDC', 'Value'),
-                        required: true,
+                    //    required: true,
                         layout: 'hbox',
                         items: [
                             {
