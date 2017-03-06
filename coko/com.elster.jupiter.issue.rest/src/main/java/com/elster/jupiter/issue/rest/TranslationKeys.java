@@ -15,9 +15,7 @@ public enum TranslationKeys implements TranslationKey {
     ISSUE_ACTION_PHASE_CREATE_DESCRIPTION("IssueActionPhaseCreationDescription", "The action will be performed at the issue creation time"),
     ISSUE_ACTION_PHASE_OVERDUE_DESCRIPTION("IssueActionPhaseOverdueDescription", "The action will be performed when the issue becomes overdue"),
     ISSUE_ACTION_UNASSIGNED("action.issue.unassigned", "Issue unassigned"),
-    ISSUE_ACTION_ASSIGNED_USER("action.issue.assigned.user", "Issue assigned to user {0}"),
-    ISSUE_ACTION_ASSIGNED_WORKGROUP("action.issue.assigned.workgroup", "Issue assigned to workgroup {0}"),
-    ISSUE_ACTION_ASSIGNED_USER_AND_WORKGROUP("action.issue.assigned.user.workgroup", "Issue assigned to user {0} and workgroup {1}"),
+    ISSUE_ACTION_ASSIGNED("action.issue.assigned.user", "Issue assigned"),
     ISSUE_ACTION_PRIORITY_CHANGED("action.issue.priority.changed", "Issue priority changed");
 
     private final String key;

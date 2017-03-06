@@ -36,7 +36,7 @@ public class AssignToMeSingleIssueTransaction implements Transaction<ActionInfo>
         Long workGroupId = issue.getAssignee().getWorkGroup() != null ? issue.getAssignee().getWorkGroup().getId() : -1L;
         issue.assignTo(userId, workGroupId);
         issue.update();
-        response.addSuccess(issue.getId(), thesaurus.getFormat(TranslationKeys.ISSUE_ACTION_ASSIGNED_USER).format(issue.getAssignee().getUser().getName()));
+        response.addSuccess(issue.getId(), thesaurus.getFormat(TranslationKeys.ISSUE_ACTION_ASSIGNED).format());
 
         return response;
     }

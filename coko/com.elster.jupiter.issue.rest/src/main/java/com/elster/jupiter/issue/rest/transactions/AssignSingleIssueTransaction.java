@@ -40,13 +40,8 @@ public class AssignSingleIssueTransaction implements Transaction<ActionInfo> {
             issue.update();
             if(request.assignee.userId == -1L && request.assignee.workGroupId == -1L){
                 response.addSuccess(issue.getId(), thesaurus.getFormat(TranslationKeys.ISSUE_ACTION_UNASSIGNED).format());
-            }else if(request.assignee.userId == -1L){
-                response.addSuccess(issue.getId(), thesaurus.getFormat(TranslationKeys.ISSUE_ACTION_ASSIGNED_WORKGROUP).format(issue.getAssignee().getWorkGroup().getName()));
-            }else if(request.assignee.workGroupId == -1L){
-                response.addSuccess(issue.getId(), thesaurus.getFormat(TranslationKeys.ISSUE_ACTION_ASSIGNED_USER).format(issue.getAssignee().getUser().getName()));
-            }else{
-                response.addSuccess(issue.getId(), thesaurus.getFormat(TranslationKeys.ISSUE_ACTION_ASSIGNED_USER_AND_WORKGROUP)
-                        .format(issue.getAssignee().getUser().getName(), issue.getAssignee().getWorkGroup().getName()));
+            } else {
+                response.addSuccess(issue.getId(), thesaurus.getFormat(TranslationKeys.ISSUE_ACTION_ASSIGNED).format());
             }
         } else {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
