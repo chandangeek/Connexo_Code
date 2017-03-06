@@ -16,8 +16,8 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import org.junit.Test;
 
 import static com.energyict.mdc.device.data.rest.impl.SecurityPropertySetResourceTest.Editability.CAN_EDIT;
 import static com.energyict.mdc.device.data.rest.impl.SecurityPropertySetResourceTest.Editability.CAN_NOT_EDIT;
@@ -280,8 +278,6 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         SecurityProperty securityProperty = mock(SecurityProperty.class);
         when(securityProperty.getName()).thenReturn(name);
         when(securityProperty.getValue()).thenReturn(value);
-        when(securityProperty.getAuthenticationDeviceAccessLevel()).thenReturn(authenticationDeviceAccessLevel);
-        when(securityProperty.getEncryptionDeviceAccessLevel()).thenReturn(encryptionDeviceAccessLevel);
         PropertySpec propertySpec1 = mock(PropertySpec.class);
         when(propertySpec1.getName()).thenReturn(name);
         when(propertySpec1.isRequired()).thenReturn(true);
