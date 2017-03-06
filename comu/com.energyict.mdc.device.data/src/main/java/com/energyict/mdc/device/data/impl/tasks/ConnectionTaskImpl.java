@@ -271,7 +271,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties() {
-        return this.protocolDialectConfigurationProperties.get();
+        return this.protocolDialectConfigurationProperties.orNull();
     }
     @Override
     public void setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties dialectConfigurationProperties) {
