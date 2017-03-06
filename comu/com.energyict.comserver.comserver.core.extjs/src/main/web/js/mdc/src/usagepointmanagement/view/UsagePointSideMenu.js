@@ -6,17 +6,18 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointSideMenu', {
     extend: 'Uni.view.menu.SideMenu',
     alias: 'widget.usage-point-management-side-menu',
     router: null,
-    title: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point'),
+    objectType: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point'),
     usagePointId: null,
 
     initComponent: function () {
         var me = this;
+        me.title = me.usagePointId ||  Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point');
         me.menuItems = [
             {
                 xtype: 'menu',
                 items: [
                     {
-                        text: me.usagePointId,
+                        text: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
                         itemId: 'usage-point-overview-link',
                         href: me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: encodeURIComponent(me.usagePointId)})
                     },
