@@ -249,32 +249,28 @@ public class DeviceResource {
     public PagedInfoList getAllDevices(@BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
         Condition condition;
         MultivaluedMap<String, String> uriParams = uriInfo.getQueryParameters();
-        if (uriParams.containsKey("filter")) {
+        if (uriParams.containsKey("nameOnly")) {
+            condition = Condition.TRUE;
+            if (!params.getQueryParameters().isEmpty()) {
+                String name = params.getFirst("name");
+                if (name != null) {
+                    condition = condition.and(where("name").likeIgnoreCase( name.length()==0 ? "*" : "*" + name + "*" ));
+                }
+            }
+        } else if (uriParams.containsKey("filter")) {
             condition = resourceHelper.getQueryConditionForDevice(uriInfo.getQueryParameters());
         } else {
             condition = resourceHelper.getQueryConditionForDevice(params);
         }
         Finder<Device> allDevicesFinder = deviceService.findAllDevices(condition);
         List<Device> allDevices = allDevicesFinder.from(queryParameters).find();
-        List<DeviceInfo> deviceInfos = deviceInfoFactory.fromDevices(allDevices); //DeviceInfo.from(allDevices);
-        return PagedInfoList.fromPagedList("devices", deviceInfos, queryParameters);
-    }
-
-    @GET @Transactional
-    @Path("/forcombo")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList getAllDevices2(@BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
-        Condition condition = Condition.TRUE;
-        if (!params.getQueryParameters().isEmpty()) {
-            String name = params.getFirst("name");
-            if (name != null) {
-                condition = condition.and(where("name").likeIgnoreCase( name.length()==0 ? "*" : "*" + name + "*" ));
-            }
+        if (uriParams.containsKey("nameOnly")) {
+            List<DeviceVersionInfo> deviceVersionInfos = DeviceVersionInfo.fromDevices(allDevices);
+            return PagedInfoList.fromPagedList("devices", deviceVersionInfos, queryParameters);
+        } else {
+            List<DeviceInfo> deviceInfos = deviceInfoFactory.fromDevices(allDevices);
+            return PagedInfoList.fromPagedList("devices", deviceInfos, queryParameters);
         }
-        Finder<Device> allDevicesFinder = deviceService.findAllDevices(condition);
-        List<Device> allDevices = allDevicesFinder.from(queryParameters).find();
-        List<DeviceVersionInfo> deviceVersionInfos = DeviceVersionInfo.fromDevices(allDevices);
-        return PagedInfoList.fromPagedList("devices", deviceVersionInfos, queryParameters);
     }
 
     @POST @Transactional
