@@ -9,6 +9,7 @@ import com.elster.jupiter.issue.share.UnableToCreateEventException;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.util.json.JsonService;
 
 import com.google.inject.Injector;
@@ -37,6 +38,9 @@ public class DataValidationEventHandler implements MessageHandler {
     public void process(Message message) {
         createEvent(jsonService.deserialize(message.getPayload(), Map.class))
                 .filter(e -> e.getEndDevice().isPresent())
+                .filter(e -> e.getEndDevice().get().getState().isPresent())
+                .filter(e -> e.getEndDevice().get().getState().get().getStage().isPresent())
+                .filter(e -> e.getEndDevice().get().getState().get().getStage().get().getName().equals(EndDeviceStage.OPERATIONAL.name()))
                 .ifPresent(event -> issueCreationService.dispatchCreationEvent(Collections.singletonList(event)));
     }
 
