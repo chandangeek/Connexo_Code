@@ -393,7 +393,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
                         collectedLoadProfile.getChannelInfo().forEach(collectedChannelInfo -> collectedChannelInfo.setReadingTypeMRID(
                                 loadProfileReader.getChannelInfos()
                                         .stream()
-                                        .filter(configuredChannelInfo -> configuredChannelInfo.equalsIgnoreReadingType(collectedChannelInfo))
+                                        .filter(configuredChannelInfo -> configuredChannelInfo.equals(collectedChannelInfo))
                                         .findAny()
                                         .get()
                                         .getReadingTypeMRID()

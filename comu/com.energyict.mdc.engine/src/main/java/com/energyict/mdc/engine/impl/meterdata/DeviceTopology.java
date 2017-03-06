@@ -51,7 +51,6 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
      */
     private TopologyAction topologyAction = TopologyAction.UPDATE;
 
-    private ComTaskExecution comTaskExecution;
     private List<TopologyPathSegment> topologyPathSegments;
     private List<TopologyNeighbour> topologyNeighbours;
     private G3TopologyDeviceAddressInformation g3IDeviceAddressInformation;
@@ -81,7 +80,7 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
 
     @Override
     public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
-        return new CollectedDeviceTopologyDeviceCommand(this, comTaskExecution, meterDataStoreCommand, serviceProvider);
+        return new CollectedDeviceTopologyDeviceCommand(this, getComTaskExecution(), meterDataStoreCommand, serviceProvider);
     }
 
     @Override

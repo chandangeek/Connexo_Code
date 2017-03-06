@@ -33,7 +33,6 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
@@ -85,7 +84,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     private static final byte MESSAGE_DATA = 0x08;
     private static final byte TOPOLOGY_DATA = 0x10;
 
-    private final InboundDeviceProtocol inboundDeviceProtocol;
+    private final com.energyict.mdc.upl.InboundDeviceProtocol inboundDeviceProtocol;
     private final OfflineDevice offlineDevice;
     private final InboundCommunicationHandler inboundCommunicationHandler;
     private final ComPortDiscoveryLogger comPortDiscoveryLogger;
@@ -104,7 +103,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     private Map<ComTaskExecution, List<ProtocolTask>> protocolTasksAlreadyExecutedForComTask = new HashMap<>();
 
 
-    public InboundJobExecutionDataProcessor(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundDiscoveryContextImpl inboundDiscoveryContext, InboundDeviceProtocol inboundDeviceProtocol, OfflineDevice offlineDevice, ServiceProvider serviceProvider, InboundCommunicationHandler inboundCommunicationHandler, ComPortDiscoveryLogger logger, boolean executePendingTaskOnInboundConnection) {
+    public InboundJobExecutionDataProcessor(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundDiscoveryContextImpl inboundDiscoveryContext, com.energyict.mdc.upl.InboundDeviceProtocol inboundDeviceProtocol, OfflineDevice offlineDevice, ServiceProvider serviceProvider, InboundCommunicationHandler inboundCommunicationHandler, ComPortDiscoveryLogger logger, boolean executePendingTaskOnInboundConnection) {
         super(comPort, comServerDAO, deviceCommandExecutor, inboundDiscoveryContext, serviceProvider, inboundCommunicationHandler);
         this.inboundDeviceProtocol = inboundDeviceProtocol;
         this.offlineDevice = offlineDevice;
@@ -223,7 +222,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
                 }
             }
 
-            for (CollectedData collectedData : inboundDeviceProtocol.getCollectedData(offlineDevice)) {
+            for (CollectedData collectedData : inboundDeviceProtocol.getCollectedData()) {
                 if (!dataWasProcessed(processedCollectedData, collectedData)) {
                     getInboundDiscoveryContext().markNotAllCollectedDataWasProcessed();
                     logDroppedDataOnComPortDiscoveryLogger(collectedData.getClass().getSimpleName());
@@ -390,7 +389,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     private List<ServerCollectedData> receivedCollectedDataFor(ComTaskExecution comTaskExecution) {
         List<ServerCollectedData> collectedDatas = new ArrayList<>();
         resetReceivedDataFlags();
-        for (CollectedData collectedData : inboundDeviceProtocol.getCollectedData(offlineDevice)) {
+        for (CollectedData collectedData : inboundDeviceProtocol.getCollectedData()) {
             if (collectedData.isConfiguredIn(comTaskExecution)) {
                 ServerCollectedData dataItem = (ServerCollectedData) collectedData;
                 collectedDatas.add(dataItem);

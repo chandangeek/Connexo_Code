@@ -103,7 +103,7 @@ public class ProvideInboundResponseDeviceCommandImplTest {
 
     @Test
     public void provideResponseFailedTest() {
-        doThrow(new RuntimeException("It's oké, the exception is just for my test purposes")).when(inboundCommunicationHandler).provideResponse(inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType.SUCCESS);
+        doThrow(new RuntimeException("It's oké, the exception is just for my test purposes")).when(inboundCommunicationHandler).provideResponse(inboundDeviceProtocol, com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.SUCCESS);
         ProvideInboundResponseDeviceCommandImpl testInstance = getTestInstance();
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         CreateComSessionDeviceCommand createComSessionDeviceCommand = mock(CreateComSessionDeviceCommand.class);

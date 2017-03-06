@@ -5,7 +5,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -38,7 +37,7 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
     private ProtocolPluggableService protocolPluggableService;
     private DeviceMessageSpec specification;
     private DeviceMessageStatus deviceMessageStatus;
-    private DeviceMessageId deviceMessageId;
+    private long deviceMessageId;
     private List<OfflineDeviceMessageAttribute> deviceMessageAttributes;
     private long deviceId;
     private String deviceSerialNumber;
@@ -70,7 +69,7 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
     private void goOffline() {
         Device device = ((Device) this.deviceMessage.getDevice());      //Downcast to Connexo Device
 
-        this.deviceMessageId = this.deviceMessage.getDeviceMessageId();
+        this.deviceMessageId = this.deviceMessage.getId();
         this.specification = this.protocolPluggableService.adapt(this.deviceMessage.getSpecification());
         this.deviceId = device.getId();
         this.deviceSerialNumber = device.getSerialNumber();
@@ -96,7 +95,7 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
 
     @Override
     public long getDeviceMessageId() {
-        return deviceMessageId.dbValue();
+        return deviceMessageId;
     }
 
     @Override

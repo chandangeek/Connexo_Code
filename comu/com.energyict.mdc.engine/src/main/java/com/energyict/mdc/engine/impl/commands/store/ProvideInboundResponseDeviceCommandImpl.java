@@ -8,7 +8,6 @@ import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
-import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.upl.issue.Problem;
 
 /**
@@ -20,11 +19,11 @@ public class ProvideInboundResponseDeviceCommandImpl extends DeviceCommandImpl i
     private final static String DESCRIPTION_TITLE = "Provide response to inbound device";
 
     private final InboundCommunicationHandler inboundCommunicationHandler;
-    private final InboundDeviceProtocol inboundDeviceProtocol;
+    private final com.energyict.mdc.upl.InboundDeviceProtocol inboundDeviceProtocol;
     private final ExecutionContext executionContext;
-    private InboundDeviceProtocol.DiscoverResponseType responseType = InboundDeviceProtocol.DiscoverResponseType.SUCCESS; // optimistic
+    private com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType responseType = com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.SUCCESS; // optimistic
 
-    public ProvideInboundResponseDeviceCommandImpl(InboundCommunicationHandler inboundCommunicationHandler, InboundDeviceProtocol inboundDeviceProtocol, ExecutionContext executionContext) {
+    public ProvideInboundResponseDeviceCommandImpl(InboundCommunicationHandler inboundCommunicationHandler, com.energyict.mdc.upl.InboundDeviceProtocol inboundDeviceProtocol, ExecutionContext executionContext) {
         super(executionContext.getComTaskExecution(), executionContext.getDeviceCommandServiceProvider());
         this.inboundCommunicationHandler = inboundCommunicationHandler;
         this.inboundDeviceProtocol = inboundDeviceProtocol;
@@ -34,8 +33,8 @@ public class ProvideInboundResponseDeviceCommandImpl extends DeviceCommandImpl i
     @Override
     protected void doExecute(ComServerDAO comServerDAO) {
         try {
-            if (responseType.equals(InboundDeviceProtocol.DiscoverResponseType.SUCCESS) && !inboundCommunicationHandler.getContext().isAllCollectedDataWasProcessed()) {
-                this.responseType = InboundDeviceProtocol.DiscoverResponseType.DATA_ONLY_PARTIALLY_HANDLED;
+            if (responseType.equals(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.SUCCESS) && !inboundCommunicationHandler.getContext().isAllCollectedDataWasProcessed()) {
+                this.responseType = com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.DATA_ONLY_PARTIALLY_HANDLED;
             }
             inboundCommunicationHandler.provideResponse(inboundDeviceProtocol, responseType);
         } catch (Exception e) {
@@ -52,7 +51,7 @@ public class ProvideInboundResponseDeviceCommandImpl extends DeviceCommandImpl i
                                 createCouldNotProvideProperResponseIssue(),
                                 executionContext.getComTaskExecution());
                         createComSessionDeviceCommand.updateSuccessIndicator(ComSession.SuccessIndicator.Broken);
-            });
+                    });
         }
     }
 
@@ -74,7 +73,7 @@ public class ProvideInboundResponseDeviceCommandImpl extends DeviceCommandImpl i
 
     @Override
     public void dataStorageFailed() {
-        this.responseType = InboundDeviceProtocol.DiscoverResponseType.STORING_FAILURE;
+        this.responseType = com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.STORING_FAILURE;
     }
 
 }

@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -47,10 +48,16 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
 
     private volatile Clock clock;
     private volatile IdentificationService identificationService;
+    private volatile DeviceMessageService deviceMessageService;
 
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
+        this.deviceMessageService = deviceMessageService;
     }
 
     @Activate
@@ -163,7 +170,7 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     }
 
     public CollectedMessageList createCollectedMessageList(List<OfflineDeviceMessage> offlineDeviceMessages) {
-        return new DeviceProtocolMessageList(offlineDeviceMessages);
+        return new DeviceProtocolMessageList(offlineDeviceMessages, deviceMessageService);
     }
 
     public CollectedMessageList createEmptyCollectedMessageList() {

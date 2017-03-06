@@ -55,13 +55,12 @@ import com.energyict.mdc.engine.monitor.InboundComPortMonitor;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.crypto.Cryptographer;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.upl.InboundDeviceProtocol;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.FindMultipleDevices;
@@ -87,9 +86,9 @@ import java.util.logging.Logger;
  * It is assumed that the {@link InboundDeviceProtocol} that is provided
  * has already been initialized, i.e. the proper init methods has already been called.
  * Which method needs to be called will depend on how the communication data
- * is obtained {@link InboundDeviceProtocol.InputDataType}.
+ * is obtained {@link com.energyict.mdc.upl.InboundDeviceProtocol.InputDataType}.
  * All events, either success or failure is communicated to the Device via the
- * {@link InboundDeviceProtocol#provideResponse(InboundDeviceProtocol.DiscoverResponseType)
+ * {@link InboundDeviceProtocol#provideResponse(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType)
  * InboundDeviceProtocol.provideResponse}.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -105,7 +104,7 @@ public class InboundCommunicationHandler {
     private List<ComTaskExecution> deviceComTaskExecutions;
     private InboundConnectionTask connectionTask;
     private InboundDiscoveryContextImpl context;
-    private InboundDeviceProtocol.DiscoverResponseType responseType;
+    private com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType responseType;
     private StopWatch discovering;
     private CompositeComPortDiscoveryLogger logger;
     private InboundComPortMonitor comPortMonitor;
@@ -125,13 +124,13 @@ public class InboundCommunicationHandler {
      *                              started the inbound communication session
      * @param context               The InboundDiscoveryContext
      */
-    public void handle(InboundDeviceProtocol inboundDeviceProtocol, InboundDiscoveryContextImpl context) {
+    public void handle(com.energyict.mdc.upl.InboundDeviceProtocol inboundDeviceProtocol, InboundDiscoveryContextImpl context) {
         this.publish(new UndiscoveredEstablishConnectionEvent(new ComServerEventServiceProvider(), this.comPort));
         this.initializeContext(context);
         this.initializeLogging();
         this.initializeMonitoring();
         Optional<OfflineDevice> device;
-        InboundDeviceProtocol.DiscoverResultType discoverResultType;
+        com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType discoverResultType;
         try {
             discoverResultType = this.doDiscovery(inboundDeviceProtocol);
             this.publishDiscoveryResult(discoverResultType, inboundDeviceProtocol);
@@ -149,7 +148,7 @@ public class InboundCommunicationHandler {
         this.closeContext();
     }
 
-    private void publishDiscoveryResult(InboundDeviceProtocol.DiscoverResultType discoverResultType, InboundDeviceProtocol inboundDeviceProtocol) {
+    private void publishDiscoveryResult(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType discoverResultType, com.energyict.mdc.upl.InboundDeviceProtocol inboundDeviceProtocol) {
         switch (discoverResultType) {
             case IDENTIFIER: {
                 this.logger.discoveryFoundIdentifierOnly(inboundDeviceProtocol.getDeviceIdentifier(), this.getComPort());
@@ -173,13 +172,13 @@ public class InboundCommunicationHandler {
      * @param t                     the exception
      */
     private void handleRuntimeExceptionDuringDiscovery(InboundDeviceProtocol inboundDeviceProtocol, Throwable t) {
-        this.responseType = InboundDeviceProtocol.DiscoverResponseType.FAILURE;
+        this.responseType = com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.FAILURE;
         if (inboundDeviceProtocol.getDeviceIdentifier() != null) {
             List<? extends Device> allDevices = getAllPossiblyRelatedDevices(inboundDeviceProtocol);
             if (allDevices.size() > 1) {
-                this.responseType = InboundDeviceProtocol.DiscoverResponseType.DUPLICATE_DEVICE;
+                this.responseType = com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.DUPLICATE_DEVICE;
             } else if (allDevices.isEmpty()) {
-                this.responseType = InboundDeviceProtocol.DiscoverResponseType.DEVICE_NOT_FOUND;
+                this.responseType = com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.DEVICE_NOT_FOUND;
             }
             allDevices.stream().filter(device -> {
                 com.energyict.mdc.device.data.Device cxoDevice = (com.energyict.mdc.device.data.Device) device;
@@ -188,11 +187,11 @@ public class InboundCommunicationHandler {
                 List<DeviceCommandExecutionToken> tokens = this.deviceCommandExecutor.tryAcquireTokens(1);
                 if (!tokens.isEmpty() && this.connectionTask != null) {
                     CompositeDeviceCommand storeCommand = new ComSessionRootDeviceCommand();
-                    storeCommand.add(createFailedInboundComSessionDeviceCommand(this.responseType.equals(InboundDeviceProtocol.DiscoverResponseType.DUPLICATE_DEVICE) ?
+                    storeCommand.add(createFailedInboundComSessionDeviceCommand(this.responseType.equals(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.DUPLICATE_DEVICE) ?
                             createDuplicateSerialNumberComSessionBuilder(((com.energyict.mdc.device.data.Device) device).getSerialNumber()) : createErrorComSessionBuilder(t)));
                     this.deviceCommandExecutor.execute(storeCommand, tokens.get(0));
                 } else {
-                    this.responseType = InboundDeviceProtocol.DiscoverResponseType.SERVER_BUSY;
+                    this.responseType = com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.SERVER_BUSY;
                 }
             });
         }
@@ -248,32 +247,31 @@ public class InboundCommunicationHandler {
             this.comServerDAO.signalEvent(EventType.UNKNOWN_INBOUND_DEVICE.topic(), event);
         }
         // Todo: do something for the DoS attacks?
-        this.provideResponse(inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType.DEVICE_NOT_FOUND);
+        this.provideResponse(inboundDeviceProtocol, com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.DEVICE_NOT_FOUND);
     }
 
-    private void handleKnownDevice(InboundDeviceProtocol inboundDeviceProtocol, InboundDiscoveryContext context, InboundDeviceProtocol.DiscoverResultType discoverResultType, OfflineDevice device) {
+    private void handleKnownDevice(com.energyict.mdc.upl.InboundDeviceProtocol inboundDeviceProtocol, InboundDiscoveryContext context, com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType discoverResultType, OfflineDevice device) {
         ((ServerInboundComPortOperationalStatistics) this.comPortMonitor.getOperationalStatistics()).deviceRecognized(device.getDeviceIdentifier().toString());
-        Cryptographer cryptographer = context.getCryptographer();
-        if (this.deviceRequiresEncryption(device) && cryptographer != null && !cryptographer.wasUsed()) {
-            this.provideResponse(inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType.ENCRYPTION_REQUIRED);
+        if (context.encryptionRequired()) {
+            this.provideResponse(inboundDeviceProtocol, com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.ENCRYPTION_REQUIRED);
         } else {
             if (this.deviceIsReadyForInboundCommunicationOnThisPort(device)) {
                 this.startDeviceSessionInContext();
                 this.handleDeviceReadyForInboundCommunicationOnThisPort(inboundDeviceProtocol, discoverResultType, device);
             } else {
-                this.provideResponse(inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType.DEVICE_DOES_NOT_EXPECT_INBOUND);
+                this.provideResponse(inboundDeviceProtocol, com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.DEVICE_DOES_NOT_EXPECT_INBOUND);
             }
         }
     }
 
-    private void handleDeviceReadyForInboundCommunicationOnThisPort(InboundDeviceProtocol inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResultType discoverResultType, OfflineDevice offlineDevice) {
+    private void handleDeviceReadyForInboundCommunicationOnThisPort(InboundDeviceProtocol inboundDeviceProtocol, com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType discoverResultType, OfflineDevice offlineDevice) {
         List<DeviceCommandExecutionToken> tokens = this.deviceCommandExecutor.tryAcquireTokens(1);
         if (tokens.isEmpty()) {
-            this.provideResponse(inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType.SERVER_BUSY);
+            this.provideResponse(inboundDeviceProtocol, com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.SERVER_BUSY);
         } else {
             DeviceCommandExecutionToken singleToken = tokens.get(0);
-            if (InboundDeviceProtocol.DiscoverResultType.IDENTIFIER.equals(discoverResultType)) {
-                this.provideResponse(inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType.SUCCESS);
+            if (com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.IDENTIFIER.equals(discoverResultType)) {
+                this.provideResponse(inboundDeviceProtocol, com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.SUCCESS);
                 this.handOverToDeviceProtocol(singleToken);
             } else {
                 //Note that the provideResponse method is called in the storing service. Depending on the result of the storing, either success or failure is returned.
@@ -303,7 +301,7 @@ public class InboundCommunicationHandler {
         return context;
     }
 
-    private InboundDeviceProtocol.DiscoverResultType doDiscovery(InboundDeviceProtocol inboundDeviceProtocol) {
+    private com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType doDiscovery(com.energyict.mdc.upl.InboundDeviceProtocol inboundDeviceProtocol) {
         this.logger.discoveryStarted(inboundDeviceProtocol.getClass().getName(), this.getComPort());
         this.discovering = new StopWatch();
         try {
@@ -437,13 +435,13 @@ public class InboundCommunicationHandler {
         }
     }
 
-    public void provideResponse(InboundDeviceProtocol inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType responseType) {
+    public void provideResponse(com.energyict.mdc.upl.InboundDeviceProtocol inboundDeviceProtocol, com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType responseType) {
         this.publishResponse(inboundDeviceProtocol, responseType);
         inboundDeviceProtocol.provideResponse(responseType);
         this.responseType = responseType;
     }
 
-    private void publishResponse(InboundDeviceProtocol inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType responseType) {
+    private void publishResponse(com.energyict.mdc.upl.InboundDeviceProtocol inboundDeviceProtocol, com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType responseType) {
         switch (responseType) {
             case DEVICE_NOT_FOUND: {
                 this.logger.deviceNotFound(inboundDeviceProtocol.getDeviceIdentifier(), this.getComPort());
@@ -484,7 +482,7 @@ public class InboundCommunicationHandler {
         }
     }
 
-    public InboundDeviceProtocol.DiscoverResponseType getResponseType() {
+    public com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType getResponseType() {
         return responseType;
     }
 

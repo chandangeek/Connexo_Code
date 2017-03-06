@@ -18,7 +18,6 @@ import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.inbound.InboundDAO;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
@@ -48,7 +47,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * Tests the methods of the {@link ComServerDAOImpl}
- * that relate to the {@link InboundDAO} interface.
+ * that relate to the {@link com.energyict.mdc.upl.InboundDAO} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-17 (10:32)

@@ -233,7 +233,7 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
     }
 
     private CollectedMessageList executeInvalidPendingMessages() {
-        DeviceProtocolMessageList messageList = new DeviceProtocolMessageList(this.pendingInvalidMessages);
+        DeviceProtocolMessageList messageList = new DeviceProtocolMessageList(this.pendingInvalidMessages, getGroupedDeviceCommand().getCommandRoot().getServiceProvider().deviceMessageService());
         this.pendingInvalidMessages
                 .stream()
                 .map(this::toCollectedMessage)

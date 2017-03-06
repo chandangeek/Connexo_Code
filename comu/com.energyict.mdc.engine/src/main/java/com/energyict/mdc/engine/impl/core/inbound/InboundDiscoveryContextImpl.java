@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
@@ -9,14 +8,25 @@ import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
-import com.energyict.mdc.protocol.api.crypto.Cryptographer;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.DeviceGroupExtractor;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
+import com.energyict.mdc.upl.ObjectMapperService;
+import com.energyict.mdc.upl.crypto.KeyStoreService;
+import com.energyict.mdc.upl.crypto.X509Service;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.legacy.CertificateAliasFinder;
+import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,8 +34,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Handler;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -37,18 +45,32 @@ import java.util.logging.Logger;
 public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
 
     private final ConnectionTaskService connectionTaskService;
-
+    private final InboundComPort comPort;
     private Logger logger;
-    private Cryptographer cryptographer;
-    private InboundDAO inboundDAO;
+    private ComServerDAO comServerDAO;
     private ComSessionBuilder sessionBuilder;
     private JournalEntryBacklog journalEntryBacklog = new JournalEntryBacklog();
-    private final InboundComPort comPort;
     private ComPortRelatedComChannel comChannel;
     private HttpServletRequest servletRequest;
     private HttpServletResponse servletResponse;
     private boolean allCollectedDataWasProcessed = true;
-    private List<Handler> loggerExtraHandlers = new ArrayList<>();
+    private boolean encryptionRequired;
+
+    private ObjectMapperService objectMapperService;
+    private CollectedDataFactory collectedDataFactory;
+    private IssueFactory issueFactory;
+    private PropertySpecService propertySpecService;
+    private NlsService nlsService;
+    private Converter converter;
+    private DeviceGroupExtractor deviceGroupExtractor;
+    private DeviceMasterDataExtractor deviceMasterDataExtractor;
+    private DeviceExtractor deviceExtractor;
+    private DeviceMessageFileExtractor messageFileExtractor;
+    private KeyStoreService keyStoreService;
+    private X509Service x509Service;
+    private CertificateWrapperExtractor certificateWrapperExtractor;
+    private CertificateAliasFinder certificateAliasFinder;
+
 
     public InboundDiscoveryContextImpl(InboundComPort comPort, ComPortRelatedComChannel comChannel, ConnectionTaskService connectionTaskService) {
         super();
@@ -70,51 +92,81 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
         return logger;
     }
 
-    public void logOnAllLoggerHandlers(String info, Level level) {
-        //TODO see if you can fix this. We keep getting the set on a 'completed' comSession
-        attachAllExtraHandlersToLogger();
-        logger.log(level, info);
-        detachAllExtraHandlersToLogger();
-    }
-
-    @Override
-    public Optional<OfflineDevice> getOfflineDevice(DeviceIdentifier deviceIdentifier, DeviceOfflineFlags deviceOfflineFlags) {
-        return this.inboundDAO.findOfflineDevice(deviceIdentifier);
-    }
-
-    private void attachAllExtraHandlersToLogger() {
-        for (Handler handler : loggerExtraHandlers) {
-            logger.addHandler(handler);
-        }
-    }
-
-    private void detachAllExtraHandlersToLogger() {
-        for (Handler handler : loggerExtraHandlers) {
-            logger.removeHandler(handler);
-        }
-    }
-
     @Override
     public void setLogger(Logger logger) {
         this.logger = logger;
     }
 
     @Override
-    public Cryptographer getCryptographer() {
-        return cryptographer;
+    public boolean encryptionRequired() {
+        return encryptionRequired;
     }
 
     @Override
-    public void setCryptographer(Cryptographer cryptographer) {
-        this.cryptographer = cryptographer;
+    public void markEncryptionRequired() {
+        encryptionRequired = true;
     }
 
-    private InboundDAO getInboundDAO() {
-        return inboundDAO;
+    @Override
+    public CollectedDataFactory getCollectedDataFactory() {
+        return collectedDataFactory;
     }
 
-    public void setInboundDAO(InboundDAO inboundDAO) {
-        this.inboundDAO = inboundDAO;
+    public void setCollectedDataFactory(CollectedDataFactory collectedDataFactory) {
+        this.collectedDataFactory = collectedDataFactory;
+    }
+
+    @Override
+    public ObjectMapperService getObjectMapperService() {
+        return objectMapperService;
+    }
+
+    public void setObjectMapperService(ObjectMapperService objectMapperService) {
+        this.objectMapperService = objectMapperService;
+    }
+
+    @Override
+    public IssueFactory getIssueFactory() {
+        return issueFactory;
+    }
+
+    public void setIssueFactory(IssueFactory issueFactory) {
+        this.issueFactory = issueFactory;
+    }
+
+    @Override
+    public PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
+    @Override
+    public NlsService getNlsService() {
+        return nlsService;
+    }
+
+    public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
+    }
+
+    @Override
+    public Converter getConverter() {
+        return converter;
+    }
+
+    public void setConverter(Converter converter) {
+        this.converter = converter;
+    }
+
+    public com.energyict.mdc.upl.InboundDAO getInboundDAO() {
+        return comServerDAO;
+    }
+
+    public void setComServerDAO(ComServerDAO comServerDAO) {
+        this.comServerDAO = comServerDAO;
     }
 
     public ComSessionBuilder getComSessionBuilder() {
@@ -157,28 +209,95 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     }
 
     @Override
-    public List<OfflineDeviceMessage> confirmSentMessagesAndGetPending(DeviceIdentifier deviceIdentifier, int confirmationCount) {
-        return this.getInboundDAO().confirmSentMessagesAndGetPending(deviceIdentifier, confirmationCount);
+    public DeviceGroupExtractor getDeviceGroupExtractor() {
+        return deviceGroupExtractor;
+    }
+
+    public void setDeviceGroupExtractor(DeviceGroupExtractor deviceGroupExtractor) {
+        this.deviceGroupExtractor = deviceGroupExtractor;
     }
 
     @Override
-    public List<SecurityProperty> getDeviceProtocolSecurityProperties(DeviceIdentifier deviceIdentifier) {
-        return this.getInboundDAO().getDeviceProtocolSecurityProperties(deviceIdentifier, this.getComPort());
+    public DeviceMasterDataExtractor getDeviceMasterDataExtractor() {
+        return deviceMasterDataExtractor;
+    }
+
+    public void setDeviceMasterDataExtractor(DeviceMasterDataExtractor deviceMasterDataExtractor) {
+        this.deviceMasterDataExtractor = deviceMasterDataExtractor;
     }
 
     @Override
-    public TypedProperties getDeviceConnectionTypeProperties(DeviceIdentifier deviceIdentifier) {
-        return this.getInboundDAO().getDeviceConnectionTypeProperties(deviceIdentifier, this.getComPort());
+    public DeviceExtractor getDeviceExtractor() {
+        return deviceExtractor;
+    }
+
+    public void setDeviceExtractor(DeviceExtractor deviceExtractor) {
+        this.deviceExtractor = deviceExtractor;
     }
 
     @Override
-    public TypedProperties getOutboundConnectionTypeProperties(DeviceIdentifier deviceIdentifier) {
-        return this.getInboundDAO().getOutboundConnectionTypeProperties(deviceIdentifier);
+    public DeviceMessageFileExtractor getMessageFileExtractor() {
+        return messageFileExtractor;
+    }
+
+    public void setMessageFileExtractor(DeviceMessageFileExtractor messageFileExtractor) {
+        this.messageFileExtractor = messageFileExtractor;
     }
 
     @Override
-    public TypedProperties getDeviceProtocolProperties(DeviceIdentifier deviceIdentifier) {
-        return this.getInboundDAO().getDeviceProtocolProperties(deviceIdentifier);
+    public KeyStoreService getKeyStoreService() {
+        return keyStoreService;
+    }
+
+    public void setKeyStoreService(KeyStoreService keyStoreService) {
+        this.keyStoreService = keyStoreService;
+    }
+
+    @Override
+    public CertificateWrapperExtractor getCertificateWrapperExtractor() {
+        return certificateWrapperExtractor;
+    }
+
+    public void setCertificateWrapperExtractor(CertificateWrapperExtractor certificateWrapperExtractor) {
+        this.certificateWrapperExtractor = certificateWrapperExtractor;
+    }
+
+    @Override
+    public CertificateAliasFinder getCertificateAliasFinder() {
+        return certificateAliasFinder;
+    }
+
+    public void setCertificateAliasFinder(CertificateAliasFinder certificateAliasFinder) {
+        this.certificateAliasFinder = certificateAliasFinder;
+    }
+
+    @Override
+    public X509Service getX509Service() {
+        return x509Service;
+    }
+
+    public void setX509Service(X509Service x509Service) {
+        this.x509Service = x509Service;
+    }
+
+    @Override
+    public Optional<List<? extends com.energyict.mdc.upl.security.SecurityProperty>> getProtocolSecurityProperties(DeviceIdentifier deviceIdentifier) {
+        return Optional.ofNullable(comServerDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, getComPort()));
+    }
+
+    @Override
+    public Optional<TypedProperties> getDeviceDialectProperties(DeviceIdentifier deviceIdentifier) {
+        return Optional.ofNullable(comServerDAO.getDeviceDialectProperties(deviceIdentifier, getComPort()));
+    }
+
+    @Override
+    public Optional<Boolean> isInboundOnHold(DeviceIdentifier deviceIdentifier) {
+        return Optional.ofNullable(comServerDAO.getInboundComTaskOnHold(deviceIdentifier, this.comPort));
+    }
+
+    @Override
+    public Optional<com.energyict.mdc.upl.properties.TypedProperties> getConnectionTypeProperties(DeviceIdentifier deviceIdentifier) {
+        return Optional.ofNullable(comServerDAO.getDeviceConnectionTypeProperties(deviceIdentifier, this.comPort));
     }
 
     @Override

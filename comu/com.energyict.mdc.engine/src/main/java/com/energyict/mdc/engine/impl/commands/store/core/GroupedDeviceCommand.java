@@ -533,6 +533,7 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
 
     public MessagesCommand createMessagesCommand(MessagesTask messagesTask, GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution) {
         MessagesCommand messagesCommand = new MessagesCommandImpl(this, messagesTask, comTaskExecution);
+
         groupedDeviceCommand.addCommand(messagesCommand, comTaskExecution);
         return messagesCommand;
     }

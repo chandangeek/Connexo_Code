@@ -46,7 +46,6 @@ import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.crypto.Cryptographer;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
@@ -237,7 +236,7 @@ public class InboundCommunicationHandlerTest {
 
     private void testCommunicationWithDeviceThatDoesNotExist(InboundDiscoveryContextImpl context) {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
-        when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
+        when(inboundDeviceProtocol.doDiscovery()).thenReturn(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.DATA);
         when(inboundDeviceProtocol.getDeviceIdentifier()).thenReturn(mock(DeviceIdentifier.class));
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(null);
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(null);
@@ -248,7 +247,7 @@ public class InboundCommunicationHandlerTest {
         // Asserts
         verify(this.comServerDAO, never()).findExecutableInboundComTasks(any(OfflineDevice.class), any(InboundComPort.class));
         verify(this.deviceCommandExecutor, never()).tryAcquireTokens(anyInt());
-        verify(inboundDeviceProtocol).provideResponse(InboundDeviceProtocol.DiscoverResponseType.DEVICE_NOT_FOUND);
+        verify(inboundDeviceProtocol).provideResponse(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.DEVICE_NOT_FOUND);
         verify(this.eventService, never()).postEvent(anyString(), anyObject());
     }
 
@@ -287,7 +286,7 @@ public class InboundCommunicationHandlerTest {
                 sessionStopClock,
                 connectionClosedEventOccurrenceClock);
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
-        when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
+        when(inboundDeviceProtocol.doDiscovery()).thenReturn(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.DATA);
         when(inboundDeviceProtocol.getDeviceIdentifier()).thenReturn(mock(DeviceIdentifier.class));
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(null);
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(null);
@@ -319,7 +318,7 @@ public class InboundCommunicationHandlerTest {
 
     private void testCommunicationWithDeviceThatIsNotReadyForCommunication(InboundDiscoveryContextImpl context) {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
-        when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
+        when(inboundDeviceProtocol.doDiscovery()).thenReturn(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.DATA);
         OfflineDevice device = mock(OfflineDevice.class);
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(Optional.of(device));
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(device));
@@ -331,7 +330,7 @@ public class InboundCommunicationHandlerTest {
         // Asserts
         verify(this.comServerDAO).findExecutableInboundComTasks(any(OfflineDevice.class), any(InboundComPort.class));
         verify(this.deviceCommandExecutor, never()).tryAcquireTokens(anyInt());
-        verify(inboundDeviceProtocol).provideResponse(InboundDeviceProtocol.DiscoverResponseType.DEVICE_DOES_NOT_EXPECT_INBOUND);
+        verify(inboundDeviceProtocol).provideResponse(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.DEVICE_DOES_NOT_EXPECT_INBOUND);
         verify(this.eventService, never()).postEvent(anyString(), anyObject());
     }
 
@@ -370,7 +369,7 @@ public class InboundCommunicationHandlerTest {
                 sessionStopClock,
                 connectionClosedEventOccurrenceClock);
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
-        when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
+        when(inboundDeviceProtocol.doDiscovery()).thenReturn(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.DATA);
         OfflineDevice device = mock(OfflineDevice.class);
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(Optional.of(device));
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(device));
@@ -399,7 +398,7 @@ public class InboundCommunicationHandlerTest {
     private void testCommunicationWhenServerIsBusy(InboundDiscoveryContextImpl context) throws ExecutionException, InterruptedException {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
+        when(inboundDeviceProtocol.doDiscovery()).thenReturn(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.DATA);
         OfflineDevice device = mock(OfflineDevice.class);
         when(device.getDeviceIdentifier()).thenReturn(deviceIdentifier);
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(Optional.of(device));
@@ -423,7 +422,7 @@ public class InboundCommunicationHandlerTest {
         verify(this.comServerDAO).findExecutableInboundComTasks(any(OfflineDevice.class), any(InboundComPort.class));
         verify(this.deviceCommandExecutor).tryAcquireTokens(anyInt());
         verify(this.deviceCommandExecutor, never()).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
-        verify(inboundDeviceProtocol).provideResponse(InboundDeviceProtocol.DiscoverResponseType.SERVER_BUSY);
+        verify(inboundDeviceProtocol).provideResponse(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.SERVER_BUSY);
         verify(this.eventService, never()).postEvent(anyString(), anyObject());
     }
 
@@ -439,7 +438,7 @@ public class InboundCommunicationHandlerTest {
 
     private void testComSessionShadowWhenServerIsBusy(InboundDiscoveryContextImpl context) throws ExecutionException, InterruptedException {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
-        when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
+        when(inboundDeviceProtocol.doDiscovery()).thenReturn(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.DATA);
         OfflineDevice device = mock(OfflineDevice.class);
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(Optional.of(device));
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(device));
@@ -477,12 +476,12 @@ public class InboundCommunicationHandlerTest {
     private void testSuccessFulCommunication(InboundDiscoveryContextImpl context, final boolean storingSuccess) throws ExecutionException, InterruptedException {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
-        when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
+        when(inboundDeviceProtocol.doDiscovery()).thenReturn(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.DATA);
         when(inboundDeviceProtocol.getDeviceIdentifier()).thenReturn(deviceIdentifier);
         DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class));
         List<CollectedData> collectedData = new ArrayList<>();
         collectedData.add(collectedRegister);
-        when(inboundDeviceProtocol.getCollectedData(any(OfflineDevice.class))).thenReturn(collectedData);
+        when(inboundDeviceProtocol.getCollectedData()).thenReturn(collectedData);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(mock(DeviceProtocol.class));
@@ -531,7 +530,7 @@ public class InboundCommunicationHandlerTest {
         verify(this.deviceCommandExecutor).tryAcquireTokens(anyInt());
         ArgumentCaptor<DeviceCommand> deviceCommandArgumentCaptor = ArgumentCaptor.forClass(DeviceCommand.class);
         verify(this.deviceCommandExecutor).execute(deviceCommandArgumentCaptor.capture(), any(DeviceCommandExecutionToken.class));
-        verify(inboundDeviceProtocol).provideResponse(storingSuccess ? InboundDeviceProtocol.DiscoverResponseType.SUCCESS : InboundDeviceProtocol.DiscoverResponseType.STORING_FAILURE);
+        verify(inboundDeviceProtocol).provideResponse(storingSuccess ? com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.SUCCESS : com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.STORING_FAILURE);
         DeviceCommand deviceCommand = deviceCommandArgumentCaptor.getValue();
         assertThat(deviceCommand).isInstanceOf(ComSessionRootDeviceCommand.class);
         ComSessionRootDeviceCommand compositeDeviceCommand = (ComSessionRootDeviceCommand) deviceCommand;
@@ -555,11 +554,11 @@ public class InboundCommunicationHandlerTest {
 
     private void testComSessionShadowForSuccessFulCommunication(InboundDiscoveryContextImpl context) throws ExecutionException, InterruptedException {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
-        when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
+        when(inboundDeviceProtocol.doDiscovery()).thenReturn(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.DATA);
         DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class));
         List<CollectedData> collectedData = new ArrayList<>();
         collectedData.add(collectedRegister);
-        when(inboundDeviceProtocol.getCollectedData(any(OfflineDevice.class))).thenReturn(collectedData);
+        when(inboundDeviceProtocol.getCollectedData()).thenReturn(collectedData);
         Device device = getMockedDevice();
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         when(offlineDevice.getId()).thenReturn(DEVICE_ID);
@@ -604,7 +603,7 @@ public class InboundCommunicationHandlerTest {
     private void testSuccessFulCommunicationWithHandOverToProtocol(InboundDiscoveryContextImpl inboundDiscoveryContext) throws ExecutionException, InterruptedException {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
-        when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.IDENTIFIER);
+        when(inboundDeviceProtocol.doDiscovery()).thenReturn(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.IDENTIFIER);
         when(inboundDeviceProtocol.getDeviceIdentifier()).thenReturn(deviceIdentifier);
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
@@ -661,7 +660,7 @@ public class InboundCommunicationHandlerTest {
         verify(this.deviceCommandExecutor).tryAcquireTokens(anyInt());
         ArgumentCaptor<DeviceCommand> deviceCommandArgumentCaptor = ArgumentCaptor.forClass(DeviceCommand.class);
         verify(this.deviceCommandExecutor).execute(deviceCommandArgumentCaptor.capture(), any(DeviceCommandExecutionToken.class));
-        verify(inboundDeviceProtocol).provideResponse(InboundDeviceProtocol.DiscoverResponseType.SUCCESS);
+        verify(inboundDeviceProtocol).provideResponse(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.SUCCESS);
         DeviceCommand deviceCommand = deviceCommandArgumentCaptor.getValue();
         assertThat(deviceCommand).isInstanceOf(CompositeDeviceCommand.class);
         CompositeDeviceCommand compositeDeviceCommand = (CompositeDeviceCommand) deviceCommand;
@@ -707,9 +706,6 @@ public class InboundCommunicationHandlerTest {
 
     private void initializeInboundDiscoveryContext(InboundDiscoveryContext context) {
         context.setLogger(Logger.getAnonymousLogger());
-        Cryptographer cryptographer = mock(Cryptographer.class);
-        when(cryptographer.wasUsed()).thenReturn(true);
-        context.setCryptographer(cryptographer);
         // TODO need initialization of ComSessionBuilder on context
     }
 

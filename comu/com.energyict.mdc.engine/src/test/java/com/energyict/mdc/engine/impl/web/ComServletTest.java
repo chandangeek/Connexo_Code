@@ -15,10 +15,9 @@ import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.monitor.InboundComPortMonitorImpl;
 import com.energyict.mdc.engine.impl.monitor.InboundComPortOperationalStatisticsImpl;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
-import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
-import com.energyict.mdc.protocol.api.inbound.ServletBasedInboundDeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.upl.ServletBasedInboundDeviceProtocol;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import org.junit.Before;
 import org.junit.Test;
@@ -93,7 +92,7 @@ public class ComServletTest {
     }
 
     @Test
-    public void testDoGetDoesNotFail () throws IOException, ServletException {
+    public void testDoGetDoesNotFail() throws IOException, ServletException {
         ComServlet comServlet = new ComServlet(mock(ServletBasedInboundComPort.class), getMockedComServerDAO(), mock(DeviceCommandExecutor.class), this.serviceProvider);
         HttpServletResponse servletResponse = mock(HttpServletResponse.class);
         PrintWriter printWriter = mock(PrintWriter.class);
@@ -116,10 +115,10 @@ public class ComServletTest {
     }
 
     @Test
-    public void testDoPostCallsDoDiscovery () throws IOException, ServletException {
+    public void testDoPostCallsDoDiscovery() throws IOException, ServletException {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         ServletBasedInboundDeviceProtocol inboundDeviceProtocol = mock(ServletBasedInboundDeviceProtocol.class);
-        when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
+        when(inboundDeviceProtocol.doDiscovery()).thenReturn(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.DATA);
         when(inboundDeviceProtocol.getDeviceIdentifier()).thenReturn(deviceIdentifier);
         InboundDeviceProtocolPluggableClass discoveryProtocolPluggableClass = mock(InboundDeviceProtocolPluggableClass.class);
         when(discoveryProtocolPluggableClass.getInboundDeviceProtocol()).thenReturn(inboundDeviceProtocol);

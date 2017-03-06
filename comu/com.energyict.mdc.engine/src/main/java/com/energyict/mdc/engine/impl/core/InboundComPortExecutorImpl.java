@@ -4,7 +4,9 @@ import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
-import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLInboundDeviceProtocolAdapter;
+import com.energyict.mdc.upl.BinaryInboundDeviceProtocol;
+import com.energyict.mdc.upl.Services;
 
 import java.util.logging.Logger;
 
@@ -14,9 +16,6 @@ import java.util.logging.Logger;
  * Time: 11:14
  */
 public class InboundComPortExecutorImpl implements InboundComPortExecutor {
-
-    public interface ServiceProvider extends InboundCommunicationHandler.ServiceProvider {
-    }
 
     private final InboundComPort comPort;
     private final ComServerDAO comServerDAO;
@@ -48,12 +47,34 @@ public class InboundComPortExecutorImpl implements InboundComPortExecutor {
         InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(comPort, comChannel, this.serviceProvider.connectionTaskService());
         // Todo: needs revision as soon as we get more experience with inbound protocols that need encryption
         context.setLogger(Logger.getAnonymousLogger());
-        context.setInboundDAO(comServerDAO);
+        context.setComServerDAO(comServerDAO);
+
+        context.setObjectMapperService(Services.objectMapperService());
+        context.setCollectedDataFactory(Services.collectedDataFactory());
+        context.setIssueFactory(Services.issueFactory());
+        context.setPropertySpecService(Services.propertySpecService());
+        context.setNlsService(Services.nlsService());
+        context.setConverter(Services.converter());
+        context.setDeviceGroupExtractor(Services.deviceGroupExtractor());
+        context.setDeviceExtractor(Services.deviceExtractor());
+        context.setDeviceMasterDataExtractor(Services.deviceMasterDataExtractor());
+        context.setMessageFileExtractor(Services.deviceMessageFileExtractor());
+        context.setX509Service(Services.x509Service());
+        context.setKeyStoreService(Services.keyStoreService());
+        context.setCertificateWrapperExtractor(Services.certificateWrapperExtractor());
+        context.setCertificateAliasFinder(Services.certificateAliasFinder());
+
         return context;
     }
 
     private BinaryInboundDeviceProtocol newInboundDeviceProtocol() {
-        return (BinaryInboundDeviceProtocol) this.comPort.getComPortPool().getDiscoveryProtocolPluggableClass().getInboundDeviceProtocol();
+        com.energyict.mdc.upl.InboundDeviceProtocol inboundDeviceProtocol = this.comPort.getComPortPool().getDiscoveryProtocolPluggableClass().getInboundDeviceProtocol();
+        if (inboundDeviceProtocol instanceof UPLInboundDeviceProtocolAdapter) {
+            inboundDeviceProtocol = ((UPLInboundDeviceProtocolAdapter) inboundDeviceProtocol).getUplInboundDeviceProtocol();
+        }
+        return (BinaryInboundDeviceProtocol) inboundDeviceProtocol;
     }
 
+    public interface ServiceProvider extends InboundCommunicationHandler.ServiceProvider {
+    }
 }
