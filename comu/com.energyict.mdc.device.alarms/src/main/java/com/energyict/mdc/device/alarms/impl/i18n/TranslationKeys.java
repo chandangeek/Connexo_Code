@@ -26,9 +26,7 @@ public enum TranslationKeys implements TranslationKey {
     ALARM_REASON(ModuleConstants.ALARM_REASON, "Alarm reason"),
     ALARM_REASON_DESCRIPTION(ModuleConstants.ALARM_REASON_DESCRIPTION, "Alarm reason {0}"),
     ACTION_ASSIGN_ALARM("alarm.action.assignAlarm", "Assign alarm"),
-    ACTION_ALARM_ASSIGNED_USER_AND_WORKGROUP("action.alarm.assigned.user.workgorup", "Alarm assigned to user {0} and workgroup {1}"),
-    ACTION_ALARM_ASSIGNED_USER("action.alarm.assigned.user", "Alarm assigned to user {0}"),
-    ACTION_ALARM_ASSIGNED_WORKGROUP("action.alarm.assigned.workgorup", "Alarm assigned to workgroup {0}"),
+    ACTION_ALARM_ASSIGNED("action.alarm.assigned", "Alarm assigned"),
     ACTION_ALARM_UNASSIGNED("action.alarm.unassigned", "Alarm unassigned"),
 
     //TODO - update list

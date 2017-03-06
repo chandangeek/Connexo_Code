@@ -67,12 +67,8 @@ public class AssignDeviceAlarmAction extends AbstractIssueAction {
         getCommentFromParameters(properties).ifPresent(comment -> issue.addComment(comment, (User) threadPrincipalService.getPrincipal()));
         if (assignee.getUser() == null && assignee.getWorkGroup() == null) {
             result.success(getThesaurus().getFormat(TranslationKeys.ACTION_ALARM_UNASSIGNED).format());
-        } else if (assignee.getUser() == null) {
-            result.success(getThesaurus().getFormat(TranslationKeys.ACTION_ALARM_ASSIGNED_WORKGROUP).format(assignee.getWorkGroup().getName()));
-        } else if (assignee.getWorkGroup() == null) {
-            result.success(getThesaurus().getFormat(TranslationKeys.ACTION_ALARM_ASSIGNED_USER).format(assignee.getUser().getName()));
         } else {
-            result.success(getThesaurus().getFormat(TranslationKeys.ACTION_ALARM_ASSIGNED_USER_AND_WORKGROUP).format(assignee.getUser().getName(), assignee.getWorkGroup().getName()));
+            result.success(getThesaurus().getFormat(TranslationKeys.ACTION_ALARM_ASSIGNED).format());
         }
         return result;
     }
