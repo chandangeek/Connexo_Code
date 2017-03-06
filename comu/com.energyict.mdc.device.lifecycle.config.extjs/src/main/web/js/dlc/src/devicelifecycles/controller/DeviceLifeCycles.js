@@ -240,9 +240,9 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
             url: '/api/dld/devicelifecycles/' + router.arguments.deviceLifeCycleId + '/clone',
             method: 'POST',
             jsonData: data,
-            success: function () {
-                route = me.fromOverview ? 'administration/devicelifecycles/devicelifecycle' : 'administration/devicelifecycles';
-                router.getRoute(route).forward();
+            success: function (response) {
+                var id = Ext.decode(response.responseText).id;
+                router.getRoute('administration/devicelifecycles/devicelifecycle').forward({deviceLifeCycleId: id});
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycles.clone.successMsg', 'DLC', 'Device life cycle cloned'));
             },
             failure: function (response) {
