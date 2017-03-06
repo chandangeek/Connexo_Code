@@ -92,6 +92,38 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
         return result;
     }
 
+
+    @Override
+    public DataValidationStatus getValidationStatus(Set<QualityCodeSystem> qualityCodeSystems, List<CimChannel> channels,
+                                                    Instant timeStamp, List<List<ReadingQualityRecord>> readingQualities) {
+
+        List<DataValidationStatus> result = new ArrayList<>();
+        List<ChannelValidationContainer> channelValidations = channels.stream()
+                .map(channel -> getChannelValidationContainer(channel.getChannel()))
+                .collect(Collectors.toList());
+
+        ChannelValidationContainer mainChannelValidations = channelValidations.get(0);
+        boolean configured = !mainChannelValidations.isEmpty();
+        int requestedQCSNumber = qualityCodeSystems == null ? 0 : qualityCodeSystems.size();
+        Multimap<QualityCodeSystem, ChannelValidation> mainChannelValidationsPerSystemMultimap
+                = indexValidationsBySystem(mainChannelValidations, requestedQCSNumber, qualityCodeSystems);
+
+        List<Multimap<String, IValidationRule>> validationRuleMaps = channelValidations.stream()
+                .map(this::getMapQualityToRule)
+                .collect(Collectors.toList());
+
+        List<ListMultimap<Instant, ReadingQualityRecord>> readingQualityMaps = new ArrayList<>(2);
+        ListMultimap<Instant, ReadingQualityRecord> readingQualitiesList = ArrayListMultimap.create();
+        readingQualities.get(0).stream().forEach(readingQualityRecord -> readingQualitiesList.put(timeStamp, readingQualityRecord));
+        readingQualityMaps.add(readingQualitiesList);
+        ListMultimap<Instant, ReadingQualityRecord> readingQualitiesBulkList = ArrayListMultimap.create();
+        readingQualities.get(1).stream().forEach(readingQualityRecord -> readingQualitiesBulkList.put(timeStamp, readingQualityRecord));
+        readingQualityMaps.add(readingQualitiesBulkList);
+
+        return getValidationStatusForTimeStamp(timeStamp, channels, configured,
+                readingQualityMaps, validationRuleMaps, mainChannelValidationsPerSystemMultimap);
+    }
+
     /**
      * @param timeStamp
      * @param channels must be of the same length as validationRuleMaps and readingQualityMaps, all of 1 or 2 elements, 1st is main channel, 2nd is bulk.
