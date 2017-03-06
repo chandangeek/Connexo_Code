@@ -15,9 +15,11 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -29,10 +31,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -62,16 +60,12 @@ public class DeviceSecurityPropertySetResourceTest extends MultisensePublicApiJe
         device = mockDevice("XAS", "10101010101011", deviceConfiguration, 1005L);
         SecurityProperty securityProperty1 = mock(SecurityProperty.class);
         when(securityProperty1.getName()).thenReturn("string.property");
-        when(securityProperty1.getAuthenticationDeviceAccessLevel()).thenReturn(authenticationDeviceAccessLevel);
-        when(securityProperty1.getEncryptionDeviceAccessLevel()).thenReturn(encryptionDeviceAccessLevel);
         when(securityProperty1.getActivePeriod()).thenReturn(Interval.of(Range.closed(Instant.now(clock), Instant.now(clock).plusSeconds(60))));
         when(securityProperty1.getValue()).thenReturn("Hello world 1");
         when(securityProperty1.isComplete()).thenReturn(true);
         when(device.getSecurityProperties(sps1)).thenReturn(Collections.singletonList(securityProperty1));
         SecurityProperty securityProperty2 = mock(SecurityProperty.class);
         when(securityProperty2.getName()).thenReturn("string.property");
-        when(securityProperty2.getAuthenticationDeviceAccessLevel()).thenReturn(authenticationDeviceAccessLevel);
-        when(securityProperty2.getEncryptionDeviceAccessLevel()).thenReturn(encryptionDeviceAccessLevel);
         when(securityProperty2.getActivePeriod()).thenReturn(Interval.of(Range.closed(Instant.now(clock), Instant.now(clock).plusSeconds(60))));
         when(securityProperty2.getValue()).thenReturn("Hello world 2");
         when(securityProperty2.isComplete()).thenReturn(true);
@@ -107,7 +101,7 @@ public class DeviceSecurityPropertySetResourceTest extends MultisensePublicApiJe
         assertThat(model.<Integer>get("$.version")).isEqualTo(1003);
         assertThat(model.<String>get("$.complete")).isNull();
         assertThat(model.<String>get("$.link")).isNull();
-        assertThat(model.<Object>get("$.configuredSecurityPropertySet")).isNull();
+        assertThat(model.get("$.configuredSecurityPropertySet")).isNull();
     }
 
     @Test
