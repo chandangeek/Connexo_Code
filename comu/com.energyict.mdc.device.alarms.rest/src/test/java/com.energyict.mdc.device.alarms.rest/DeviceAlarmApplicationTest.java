@@ -42,6 +42,7 @@ import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
@@ -62,6 +63,7 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 import java.io.IOException;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -111,7 +113,11 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
     @Mock
     IssueAssignmentService issueAssignmentService;
     @Mock
+    TimeService timeService;
+    @Mock
     static SecurityContext securityContext;
+    @Mock
+    static Clock clock;
 
     @Provider
     @Priority(Priorities.AUTHORIZATION)
@@ -152,6 +158,8 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
         deviceAlarmApplication.setNlsService(nlsService);
         deviceAlarmApplication.setBpmService(bpmService);
         deviceAlarmApplication.setPropertyValueInfoService(propertyValueInfoService);
+        deviceAlarmApplication.setTimeService(timeService);
+        deviceAlarmApplication.setClock(clock);
         return deviceAlarmApplication;
     }
 
