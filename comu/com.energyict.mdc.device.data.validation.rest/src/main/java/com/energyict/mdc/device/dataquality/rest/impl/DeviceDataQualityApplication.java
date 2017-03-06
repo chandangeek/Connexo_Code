@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.dataquality.DeviceDataQualityService;
 
 import com.google.common.collect.ImmutableSet;
@@ -29,7 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.energyict.dvr.rest", service = {Application.class}, immediate = true, property = {"alias=/ddq", "app=MDC", "name=" + DeviceDataQualityApplication.COMPONENT_NAME})
+@Component(name = "com.energyict.ddq.rest", service = {Application.class}, immediate = true, property = {"alias=/ddq", "app=MDC", "name=" + DeviceDataQualityApplication.COMPONENT_NAME})
 public class DeviceDataQualityApplication extends Application implements MessageSeedProvider {
 
     public static final String APP_KEY = "MDC";
@@ -40,6 +41,7 @@ public class DeviceDataQualityApplication extends Application implements Message
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile ValidationService validationService;
     private volatile EstimationService estimationService;
+    private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile Thesaurus thesaurus;
     private volatile License license;
 
@@ -85,6 +87,11 @@ public class DeviceDataQualityApplication extends Application implements Message
     }
 
     @Reference
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
+    }
+
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
     }
@@ -113,9 +120,11 @@ public class DeviceDataQualityApplication extends Application implements Message
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(validationService).to(ValidationService.class);
             bind(estimationService).to(EstimationService.class);
+            bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(DataQualityOverviewInfoFactory.class).to(DataQualityOverviewInfoFactory.class);
+            bind(ResourceHelper.class).to(ResourceHelper.class);
         }
     }
 }

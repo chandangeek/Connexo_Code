@@ -9,7 +9,7 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import java.time.Instant;
 import java.util.List;
 
-public final class DataQualityOverviewInfo {
+public class DataQualityOverviewInfo {
 
     public String deviceName;
     public String deviceSerialNumber;
