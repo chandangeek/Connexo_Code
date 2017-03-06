@@ -21,6 +21,7 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.ChannelDataUpdater;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileJournalReading;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.impl.configchange.ServerLoadProfileForConfigChange;
@@ -319,6 +320,11 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
         @Override
         public List<LoadProfileReading> getChannelData(Range<Instant> interval) {
             return LoadProfileImpl.this.device.get().getChannelData(this, interval);
+        }
+
+        @Override
+        public List<LoadProfileJournalReading> getChannelWithHistoryData(Range<Instant> interval, Range<Instant> changed) {
+            return LoadProfileImpl.this.device.get().getChannelWithHistoryData(this, interval, changed);
         }
 
         @Override

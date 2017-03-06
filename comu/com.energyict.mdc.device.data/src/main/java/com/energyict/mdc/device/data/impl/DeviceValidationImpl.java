@@ -8,6 +8,7 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
@@ -205,6 +206,15 @@ class DeviceValidationImpl implements DeviceValidation {
                 .flatMap(k -> getEvaluator().getValidationStatus(ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM), k, readings,
                         k.getChannelsContainer().getRange().intersection(interval)).stream())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public DataValidationStatus getValidationStatus(Channel channel, Instant timeStamp, List<ReadingQualityRecord> readingQualities, Range<Instant> interval) {
+        Stream<com.elster.jupiter.metering.Channel> koreChannels = ((DeviceImpl) channel.getDevice()).findKoreChannels(channel).stream();
+        return koreChannels
+                .filter(k -> does(k.getChannelsContainer().getRange()).overlap(interval))
+                .map(k -> getEvaluator().getValidationStatus(ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM), k, timeStamp, readingQualities))
+                .collect(Collectors.toList()).get(0);
     }
 
     @Override
