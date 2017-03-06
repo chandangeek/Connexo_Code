@@ -2,7 +2,6 @@ package com.energyict.mdc.pluggable.rest.impl.properties;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
-import com.energyict.mdc.common.HexString;
 
 /**
  * Created by mbarinov on 31.08.2016.
@@ -11,7 +10,7 @@ public class HexStringPropertyValueConverter implements PropertyValueConverter {
 
     @Override
     public boolean canProcess(PropertySpec propertySpec) {
-        return propertySpec != null && HexString.class.isAssignableFrom(propertySpec.getValueFactory().getValueType());
+        return propertySpec != null && com.energyict.mdc.upl.properties.HexString.class.isAssignableFrom(propertySpec.getValueFactory().getValueType());
     }
 
     @Override

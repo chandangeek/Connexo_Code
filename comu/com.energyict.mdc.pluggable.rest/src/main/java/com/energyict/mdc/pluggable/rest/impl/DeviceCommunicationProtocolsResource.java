@@ -14,6 +14,7 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLConnectionTypeAdapter;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -54,8 +55,9 @@ public class DeviceCommunicationProtocolsResource {
         this.resourceHelper = resourceHelper;
     }
 
-    @GET @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
     public PagedInfoList getDeviceCommunicationProtocols(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         List<DeviceProtocolPluggableClass> deviceProtocolPluggableClasses = this.protocolPluggableService.findAllDeviceProtocolPluggableClasses().from(queryParameters).find();
@@ -67,9 +69,10 @@ public class DeviceCommunicationProtocolsResource {
         return PagedInfoList.fromPagedList("DeviceProtocolPluggableClass", deviceCommunicationProtocolInfos, queryParameters);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
     public DeviceCommunicationProtocolInfo getDeviceCommunicationProtocol(@Context UriInfo uriInfo, @PathParam("id") long id) {
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = resourceHelper.findDeviceProtocolPluggableClassByMrIdOrThrowException(id);
@@ -77,9 +80,10 @@ public class DeviceCommunicationProtocolsResource {
         return new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass, licensedProtocol, true, mdcPropertyUtils);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/connectiontypes")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE, com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
     public List<ConnectionTypeInfo> getAllConnectionTypes(@Context UriInfo uriInfo, @BeanParam JsonQueryFilter queryFilter) {
         return this.protocolPluggableService.findAllConnectionTypePluggableClasses().stream()
@@ -87,9 +91,10 @@ public class DeviceCommunicationProtocolsResource {
                 .collect(Collectors.toList());
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{deviceProtocolId}/connectiontypes")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE, com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
     public List<ConnectionTypeInfo> getSupportedConnectionTypes(@PathParam("deviceProtocolId") long deviceProtocolId, @Context UriInfo uriInfo, @BeanParam JsonQueryFilter queryFilter) {
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = resourceHelper.findDeviceProtocolPluggableClassByMrIdOrThrowException(deviceProtocolId);
@@ -100,7 +105,15 @@ public class DeviceCommunicationProtocolsResource {
         for (ConnectionType supportedConnectionType : supportedConnectionTypes) {
             if (ConnectionType.ConnectionTypeDirection.NULL.equals(connectionTypeDirection) || supportedConnectionType.getDirection().equals(connectionTypeDirection)) {
                 for (ConnectionTypePluggableClass registeredConnectionTypePluggableClass : allConnectionTypePluggableClassesToCheck) {
-                    if (registeredConnectionTypePluggableClass.getJavaClassName().equals(supportedConnectionType.getClass().getCanonicalName())) {
+
+                    Class clazz;
+                    if (supportedConnectionType instanceof UPLConnectionTypeAdapter) {
+                        clazz = ((UPLConnectionTypeAdapter) supportedConnectionType).getUplConnectionType().getClass();
+                    } else {
+                        clazz = supportedConnectionType.getClass();
+                    }
+
+                    if (registeredConnectionTypePluggableClass.getJavaClassName().equals(clazz.getCanonicalName())) {
                         infos.add(ConnectionTypeInfo.from(registeredConnectionTypePluggableClass, uriInfo, mdcPropertyUtils));
                     }
                 }
@@ -109,9 +122,10 @@ public class DeviceCommunicationProtocolsResource {
         return infos;
     }
 
-    @DELETE @Transactional
+    @DELETE
+    @Transactional
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public Response deleteDeviceCommunicationProtocol(@PathParam("id") long id, DeviceCommunicationProtocolInfo info) {
         info.id = id;
@@ -126,9 +140,10 @@ public class DeviceCommunicationProtocolsResource {
         return Response.ok().build();
     }
 
-    @POST @Transactional
+    @POST
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public DeviceCommunicationProtocolInfo createDeviceCommunicationProtocol(@Context final UriInfo uriInfo, final DeviceCommunicationProtocolInfo deviceCommunicationProtocolInfo) throws WebApplicationException {
         try {
@@ -145,10 +160,11 @@ public class DeviceCommunicationProtocolsResource {
         }
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public DeviceCommunicationProtocolInfo updateDeviceCommunicationProtocol(@Context final UriInfo uriInfo, @PathParam("id") final long id, final DeviceCommunicationProtocolInfo info) {
         try {
