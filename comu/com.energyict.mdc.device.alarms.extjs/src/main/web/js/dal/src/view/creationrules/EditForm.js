@@ -314,6 +314,9 @@ Ext.define('Dal.view.creationrules.EditForm', {
     },
 
     loadRecord: function (record) {
+        if(!record){
+            return;
+        }
         var me = this,
             templateCombo = me.down('[name=template]'),
             actionsGrid = me.down('alarms-creation-rules-actions-list'),
