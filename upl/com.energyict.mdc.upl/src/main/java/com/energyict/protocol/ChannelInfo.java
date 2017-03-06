@@ -423,20 +423,14 @@ public class ChannelInfo implements java.io.Serializable {
 
 
     /**
-     * 2 channel infos are considered equal if they have the same ObisCode (or text name), BaseUnit and serial number.
+     * 2 channel infos are considered equal if they have the same ObisCode (or text name), BaseUnit, serial number and readingTypeMRID.
+     * Remarks:
      * - Scale of the unit is ignored, only BaseUnit is compared
      * - Wild cards at the B-field of the ObisCode is equal to any b-field value
+     * - Reading type MRIDs are not compared if one of them is null. This is because it is an optional field for the protocols.
      */
     @Override
     public boolean equals(Object o) {
-        return equals(o, false);
-    }
-
-    public boolean equalsIgnoreReadingType(Object o) {
-        return equals(o, true);
-    }
-
-    private boolean equals(Object o, boolean ignoreReadingType) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -478,14 +472,8 @@ public class ChannelInfo implements java.io.Serializable {
             return true;
         }
 
-        if (!ignoreReadingType) {
-            if (this.getReadingTypeMRID() == null && that.getReadingTypeMRID() != null) {
-                return false;
-            }
-            if (this.getReadingTypeMRID() != null && that.getReadingTypeMRID() == null) {
-                return false;
-            }
-            if (this.getReadingTypeMRID() != null && that.getReadingTypeMRID() != null && !this.getReadingTypeMRID().equals(that.getReadingTypeMRID())) {
+        if (this.getReadingTypeMRID() != null && that.getReadingTypeMRID() != null) {
+            if (!this.getReadingTypeMRID().equals(that.getReadingTypeMRID())) {
                 return false;
             }
         }
