@@ -5,6 +5,7 @@
 package com.elster.jupiter.ids.impl;
 
 import com.elster.jupiter.ids.TimeSeriesEntry;
+import com.elster.jupiter.ids.TimeSeriesJournalEntry;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.sql.SqlFragment;
@@ -28,5 +29,7 @@ public interface IVault extends Vault {
     List<TimeSeriesEntry> getEntriesBefore(TimeSeriesImpl timeSeries, Instant when, int entryCount, boolean includeBoundary);
 
     void removeEntries(TimeSeriesImpl timeSeries, Range<Instant> range);
+
+    List<TimeSeriesJournalEntry> getJournalEntries(TimeSeriesImpl timeSeries, Range<Instant> interval, Range<Instant> changed);
 
 }

@@ -10,6 +10,7 @@ import com.elster.jupiter.ids.StorerStats;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.TimeSeriesEntry;
+import com.elster.jupiter.ids.TimeSeriesJournalEntry;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.orm.associations.Reference;
@@ -293,6 +294,11 @@ public final class TimeSeriesImpl implements TimeSeries {
     @Override
 	public List<TimeSeriesEntry> getEntries(Range<Instant> interval) {
 		return getVault().getEntries(this, interval);
+	}
+
+	@Override
+	public List<TimeSeriesJournalEntry> getJournalEntries(Range<Instant> interval, Range<Instant> changed) {
+		return getVault().getJournalEntries(this, interval, changed);
 	}
 
 	@Override

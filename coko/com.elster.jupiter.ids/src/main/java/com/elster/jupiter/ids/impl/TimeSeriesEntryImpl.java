@@ -20,11 +20,11 @@ import java.util.List;
 import java.util.Optional;
 
 public class TimeSeriesEntryImpl implements TimeSeriesEntry {
-    private final TimeSeriesImpl timeSeries;
-    private final long timeStamp;
-    private final long version;
-    private final long recordTime;
-    private final Object[] values;
+    protected final TimeSeriesImpl timeSeries;
+    protected final long timeStamp;
+    protected final long version;
+    protected final long recordTime;
+    protected final Object[] values;
 
     TimeSeriesEntryImpl(TimeSeriesImpl timeSeries, ResultSet resultSet) throws SQLException {
         this.timeSeries = timeSeries;
