@@ -454,7 +454,7 @@ public class DeviceAlarmResource extends BaseAlarmResource{
 
         return query.select(condition).stream()
                 .filter(actionType -> actionType.createIssueAction()
-                        .map(action -> action.isApplicable(deviceAlarm) && action.isApplicableForUser(user))
+                        .map(action -> action.isApplicable(deviceAlarm) && action.isApplicableForUser(user) && action.isApplicable(""))
                         .orElse(false))
                 .collect(Collectors.toList());
     }
