@@ -178,7 +178,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
                                         name: 'showValues',
                                         checked: false,
                                         margin: '0 16 0 0',
-                                        itemId: 'device-security-setting-show-value-checkbox',
+                                        itemId: 'device-security-setting-show-value-checkbox'
                                     },
                                     {
                                         xtype: 'label',
