@@ -10,12 +10,12 @@ Ext.define('Ddv.store.Validations', {
 
     proxy: {
         type: 'rest',
-        url: '/api/ddq/validationresults/devicegroups',
+        url: '/api/ddq/dataQualityResults',
 
         appendId: false,
         reader: {
             type: 'json',
-            root: 'summary',
+            root: 'dataQualityResults',
             totalProperty: 'total'
         }
     }
