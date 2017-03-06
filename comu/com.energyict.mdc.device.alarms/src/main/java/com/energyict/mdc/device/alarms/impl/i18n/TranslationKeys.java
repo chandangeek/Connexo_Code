@@ -23,6 +23,7 @@ public enum TranslationKeys implements TranslationKey {
     ALARM_REASON(ModuleConstants.ALARM_REASON, "Alarm reason"),
     ALARM_REASON_DESCRIPTION(ModuleConstants.ALARM_REASON_DESCRIPTION, "Alarm reason {0}"),
     ACTION_ASSIGN_ALARM("alarm.action.assignAlarm", "Assign alarm"),
+    ACTION_START_ALARM_PROCESS("alarm.action.startProcess", "Start process"),
     EVENT_TEMPORAL_THRESHOLD(ModuleConstants.EVENT_TEMPORAL_THRESHOLD, "Event time threshold"),
     RAISE_EVENT_PROPS(ModuleConstants.RAISE_EVENT_PROPS, "On new raise event"),
     TRIGGERING_EVENTS(ModuleConstants.TRIGGERING_EVENTS, "Raised on event types"),
