@@ -25,7 +25,7 @@ Ext.define('Dsh.view.widget.FavoriteDeviceGroups', {
                         xtype: 'dataview',
                         store: me.store,
                         itemSelector: 'p a',
-                        emptyText: Uni.I18n.translate('overview.widget.favoriteDeviceGroups.notFound', 'DSH', 'No favorite device groups found'),
+                        emptyText: Uni.I18n.translate('overview.widget.favouriteDeviceGroups.notFound', 'DSH', 'No favourite device groups found'),
                         overflowY: 'auto',
                         style: 'max-height: 160px',
                         tpl: new Ext.XTemplate(
@@ -59,8 +59,8 @@ Ext.define('Dsh.view.widget.FavoriteDeviceGroups', {
                 me.setTitle(
                     '<h3>' +
                     ( store.count() > 0
-                        ? Uni.I18n.translate('overview.widget.favoriteDeviceGroups.header', 'DSH', 'My favorite device groups ({0})', store.count())
-                        : Uni.I18n.translate('overview.widget.favoriteDeviceGroups.headerNoItemsFound', 'DSH', 'My favorite device groups')
+                            ? Uni.I18n.translate('overview.widget.favouriteDeviceGroups.header', 'DSH', 'My favourite device groups ({0})', store.count())
+                            : Uni.I18n.translate('overview.widget.favouriteDeviceGroups.headerNoItemsFound', 'DSH', 'My favourite device groups')
                     )
                     + '</h3>'
                 );

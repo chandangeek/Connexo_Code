@@ -6,7 +6,7 @@ Ext.define('Dsh.view.MyFavoriteDeviceGroups', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.my-favorite-device-groups',
     itemId: 'my-favorite-device-groups',
-    title: Uni.I18n.translate('general.selectFavoriteDeviceGroups', 'DSH', 'Select favorite device groups'),
+    title: Uni.I18n.translate('general.selectFavouriteDeviceGroups', 'DSH', 'Select favourite device groups'),
     ui: 'large',
     margin: '0 20',
     requires: [

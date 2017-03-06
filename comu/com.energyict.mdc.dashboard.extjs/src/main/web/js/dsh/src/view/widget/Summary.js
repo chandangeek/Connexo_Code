@@ -134,7 +134,7 @@ Ext.define('Dsh.view.widget.Summary', {
                 title = Uni.I18n.translate('overview.widget.communicationServers.header', 'DSH', 'Active communication servers ({0})', [total]);
                 break;
             case 'favoriteDeviceGroups':
-                title = Uni.I18n.translate('overview.widget.favoriteDeviceGroups.header', 'DSH', 'My favorite device groups ({0})', [total]);
+                title = Uni.I18n.translate('overview.widget.favouriteDeviceGroups.header', 'DSH', 'My favourite device groups ({0})', [total]);
                 break;
             case 'flaggedDevices':
                 title = Uni.I18n.translate('overview.widget.flaggedDevices.header', 'DSH', 'My flagged devices ({0})', [total]);
