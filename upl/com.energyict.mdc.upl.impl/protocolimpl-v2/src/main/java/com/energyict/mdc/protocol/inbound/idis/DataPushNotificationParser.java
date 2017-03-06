@@ -115,13 +115,19 @@ public class DataPushNotificationParser {
 
     public void parseInboundFrame() {
         ByteBuffer inboundFrame = readInboundFrame();
+        parseFrame(inboundFrame, true);
+    }
+
+    protected void parseFrame(ByteBuffer frame, boolean expectHeader){
         byte[] header = new byte[8];
-        inboundFrame.get(header);
-        byte tag = inboundFrame.get();
+        if (expectHeader) {
+            frame.get(header);
+        }
+        byte tag = frame.get();
         if (tag == getCosemNotificationAPDUTag()) {
-            parseAPDU(inboundFrame);
+            parseAPDU(frame);
         } else if (tag == DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING) {
-            parseEncryptedFrame(inboundFrame);
+            parseEncryptedFrame(frame);
         } else {
             //TODO support general ciphering & general signing (suite 0, 1 and 2)
             throw DataParseException.ioException(new ProtocolException("Unexpected tag '" + tag + "' in received push event notification. Expected '" + getCosemNotificationAPDUTag() + "' or '" + DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING + "'"));
@@ -207,6 +213,7 @@ public class DataPushNotificationParser {
         byte[] cipherFrame = new byte[inboundFrame.remaining()];
         inboundFrame.get(cipherFrame);
         byte[] fullCipherFrame = ProtocolTools.concatByteArrays(new byte[]{(byte) 0x00, (byte) remainingLength, (byte) securityPolicy}, cipherFrame);
+        getContext().getLogger().info("Decoding ciphered frame: "+ProtocolTools.getHexStringFromBytes(fullCipherFrame));
         try {
             decryptedFrame = ByteBuffer.wrap(SecurityContextV2EncryptionHandler.dataTransportDecryption(securityContext, fullCipherFrame));
         } catch (DLMSConnectionException e) {

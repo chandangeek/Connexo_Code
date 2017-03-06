@@ -140,7 +140,13 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     }
 
     private MeterProtocolEvent getMeterProtocolEvent() {
-        return collectedLogBook.getCollectedMeterEvents().get(0);
+        if (collectedLogBook!=null){
+            if (collectedLogBook.getCollectedMeterEvents().size()>0) {
+                return collectedLogBook.getCollectedMeterEvents().get(0);
+            }
+        }
+
+        return null;
     }
 
     protected EventPushNotificationParser getEventPushNotificationParser() {

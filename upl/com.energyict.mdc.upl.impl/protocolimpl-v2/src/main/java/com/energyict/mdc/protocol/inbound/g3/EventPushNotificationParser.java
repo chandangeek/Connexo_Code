@@ -383,6 +383,23 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
             parseNotificationWith6Elements(eventPayload);
         } else if (eventPayload.nrOfDataTypes() == 7) { // WRAP_AS_SERVER_EVENT data notification
             parseNotificationWith7Elements(eventPayload);
+        } else if (eventPayload.nrOfDataTypes() == 2) {
+            parseNotificationWith2Elements(eventPayload);
+        }
+    }
+
+    private void parseNotificationWith2Elements(Structure eventPayload) {
+        OctetString equipmentIdentifier = eventPayload.getDataType(0).getOctetString();
+        if (equipmentIdentifier == null) {
+            throw DataParseException.ioException(new ProtocolException("Expected the first element of the received structure (equipment identifier) to be of type OctetString"));
+        }
+        originDeviceId = new DeviceIdentifierBySerialNumber(equipmentIdentifier.stringValue());
+
+        if (eventPayload.peekAtNextDataType().isOctetString()) {
+            OctetString relayedFrame = eventPayload.getDataType(1).getOctetString();
+            parseFrame(ByteBuffer.wrap(relayedFrame.toByteArray()), false);
+        } else {
+            throw DataParseException.ioException(new ProtocolException("Expected the second element of the received structure to be of type OctetString"));
         }
     }
 
@@ -594,7 +611,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
             log(" - this frame is an internal event");
         } else {
             setNotificatioType(RELAYED_EVENT);
-            log(" - this frame is a relayed event");
+            log(" - this frame is relayed");
         }
 
         int length = ProtocolTools.getIntFromBytes(header, 6, 2);
