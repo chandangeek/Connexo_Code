@@ -88,7 +88,10 @@ Ext.define('Uni.property.view.property.LifeCycleStatusInDeviceType', {
                 deviceStateValues.push(item);
             }
         });
-        deviceTypeCombo.setValue(deviceTypeValues);
+        var uniqueDeviceTypeValues = deviceTypeValues.filter(function(item, pos, self) {
+            return self.indexOf(item) == pos;
+        })
+        deviceTypeCombo.setValue(uniqueDeviceTypeValues);
         deviceStateCombo.setValue(deviceStateValues);
     },
 
