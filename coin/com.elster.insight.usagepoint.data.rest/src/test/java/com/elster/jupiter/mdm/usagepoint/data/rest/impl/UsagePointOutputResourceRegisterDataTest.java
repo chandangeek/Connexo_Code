@@ -301,7 +301,6 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
 
     @Test
     public void testEditRegisterData() throws Exception {
-        when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.of(effectiveMC));
         when(channelsContainer.getRange()).thenReturn(Range.atLeast(readingTimeStamp1));
         when(channel.getRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3)))
                 .thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
@@ -328,7 +327,6 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
 
     @Test
     public void testConfirmRegisterData() throws Exception {
-        when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.of(effectiveMC));
         when(channelsContainer.getRange()).thenReturn(Range.atLeast(readingTimeStamp1));
         when(channel.getRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3)))
                 .thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
