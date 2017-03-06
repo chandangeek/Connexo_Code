@@ -13,7 +13,8 @@ public enum DeviceAlarmTranslationKeys implements TranslationKey {
     ALARM_DOES_NOT_EXIT("AlarmDoesNotExist", "Alarm doesn't exist"),
     ALARM_ALREADY_CLOSED("AlarmAlreadyClosed", "Alarm already closed"),
     ACTION_ALARM_UNASSIGNED("action.alarm.unassigned", "Alarm unassigned"),
-    ACTION_ALARM_ASSIGNED_USER("action.alarm.assigned.user", "Alarm assigned to user {0}"),;
+    ACTION_ALARM_ASSIGNED("action.alarm.assigned", "Alarm assigned");
+
 
     private final String value;
     private final String defaultFormat;
