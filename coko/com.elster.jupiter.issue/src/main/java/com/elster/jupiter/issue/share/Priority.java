@@ -91,18 +91,17 @@ public final class Priority implements Comparable<Priority>, Cloneable {
     }
 
     public boolean isHighest() {
-        return urgency > 50 || impact > 50;
+        return urgency >= 50 || impact >= 50;
     }
 
     public boolean isLowest() {
-        return urgency < 1 || impact < 1;
+        return urgency <= 1 || impact <= 1;
     }
 
     public int increaseUrgency() {
 
         if (!isHighest()) {
            return ++this.urgency;
-
         } else {
             return 50;
         }
@@ -111,7 +110,6 @@ public final class Priority implements Comparable<Priority>, Cloneable {
     public int lowerUrgency() {
         if (!isLowest()) {
             return --this.urgency;
-
         } else {
             return 1;
         }
@@ -162,13 +160,11 @@ public final class Priority implements Comparable<Priority>, Cloneable {
             throw new IllegalArgumentException("Incorrectly formatted priority.Please check format and range.");
         }
 
-        if (Arrays.asList(parts)
-                .stream()
+        if (Arrays.stream(parts)
                 .anyMatch(element -> element.split(",").length > 2
                         || element.split(".").length > 2)) {
             throw new IllegalArgumentException("Incorrectly formatted priority.Please check format and range.");
         }
-
 
         int urgency = Integer.valueOf(parts[0].contains(",") ? String.valueOf(parts[0].replace(",", ".")) : parts[0]);
         int impact = Integer.valueOf(parts[1].contains(",") ? String.valueOf(parts[1].replace(",", ".")) : parts[1]);
