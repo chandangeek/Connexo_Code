@@ -66,6 +66,7 @@ Ext.define('Uni.property.controller.Registry', {
         ADVANCEREADINGSSETTINGSWITHOUTNONE: 'Uni.property.view.property.AdvanceReadingsSettingsWithoutNone',
         ASSIGN: 'Uni.property.view.property.Assign',
         BOOLEAN: 'Uni.property.view.property.Boolean',
+        BPM_PROCESS: 'Uni.property.view.property.Reference',
         CLOCK: 'Uni.property.view.property.DateTime',
         CODETABLE: 'Uni.property.view.property.CodeTable',
         COMBOBOX: 'Uni.property.view.property.Combobox',
