@@ -53,6 +53,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
             validationResult = record.get('validationResult'),
             readingType = me.output.get('readingType'),
             unitOfMeasure = readingType.names ? readingType.names.unitOfMeasure : readingType.unit,
+            estimatedByRule = record.get('estimatedByRule'),
             validationResultText = '';
 
         if (!Ext.isEmpty(record) && record.get('isConfirmed')) {
@@ -70,6 +71,16 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                     break;
                 case 'ok':
                     validationResultText = '(' + Uni.I18n.translate('reading.validationResult.notsuspect', 'IMT', 'Not suspect') + ')';
+                    if (record.get('action') == 'WARN_ONLY') {
+                        validationResultText += '<span class="icon-flag5" style="margin-left:10px; color:#dedc49;"></span>';
+                    } else if (!Ext.isEmpty(estimatedByRule)) {
+                        validationResultText += '<span class="icon-flag5" style="margin-left:10px; color:#33CC33;" data-qtip="'
+                            + Uni.I18n.translate('reading.estimated', 'IMT', 'Estimated in {0} on {1} at {2}',[
+                                estimatedByRule.application.name,
+                                Uni.DateTime.formatDateLong(new Date(estimatedByRule.when)),
+                                Uni.DateTime.formatTimeLong(new Date(estimatedByRule.when))
+                            ], false) + '"></span>';
+                    }
                     break;
             }
         }
@@ -84,7 +95,9 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
     getValidationResult: function (validationResult) {
         var me = this,
             validationResultText = '',
-            record = me.down('form').getRecord();
+            record = me.down('form').getRecord(),
+            estimatedByRule;
+
         if (!Ext.isEmpty(record) && record.get('isConfirmed')) {
             validationResultText = Uni.I18n.translate('reading.validationResult.notsuspect', 'IMT', 'Not suspect');
             validationResultText += '<span class="icon-checkmark" style="margin-left:10px; position:absolute;"></span>';
@@ -101,11 +114,20 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                     '<span class="icon-flag5" style="margin-left:10px; display:inline-block; vertical-align:top; color:red;"></span>';
                 break;
             case 'ok':
+                estimatedByRule = record.get('estimatedByRule');
                 validationResultText = Uni.I18n.translate('reading.validationResult.notsuspect', 'IMT', 'Not suspect');
                 if (record.get('isConfirmed')) {
                     validationResultText += '<span class="icon-checkmark" style="margin-left:10px; position:absolute;"></span>';
+                } else if (record.get('action') == 'WARN_ONLY') {
+                    validationResultText += '<span class="icon-flag5" style="margin-left:10px; color:#dedc49;"></span>';
+                } else if (!Ext.isEmpty(estimatedByRule)) {
+                    validationResultText += '<span class="icon-flag5" style="margin-left:10px; color:#33CC33;" data-qtip="'
+                        + Uni.I18n.translate('reading.estimated', 'IMT', 'Estimated in {0} on {1} at {2}',[
+                            estimatedByRule.application.name,
+                            Uni.DateTime.formatDateLong(new Date(estimatedByRule.when)),
+                            Uni.DateTime.formatTimeLong(new Date(estimatedByRule.when))
+                        ], false) + '"></span>';
                 }
-
                 break;
         }
 

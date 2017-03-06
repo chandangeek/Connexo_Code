@@ -486,14 +486,7 @@ Ext.define('Imt.controller.History', {
                                     route: 'edit',
                                     controller: 'Imt.usagepointlifecycle.controller.UsagePointLifeCycles',
                                     privileges: Imt.privileges.UsagePointLifeCycle.configure,
-                                    action: 'showEditUsagePointLifeCycle',
-                                    callback: function (route) {
-                                        this.getApplication().on('usagePointLifeCycleEdit', function (record) {
-                                            route.setTitle(Uni.I18n.translate('usagePointLifeCycles.edit.title', 'IMT', "Edit '{0}'", record.get('name'), false));
-                                            return true;
-                                        }, {single: true});
-                                        return this;
-                                    }
+                                    action: 'showEditUsagePointLifeCycle'
                                 },
                                 states: {
                                     title: Uni.I18n.translate('general.states', 'IMT', 'States'),

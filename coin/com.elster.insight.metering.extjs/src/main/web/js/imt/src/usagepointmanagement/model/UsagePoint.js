@@ -79,6 +79,12 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
             name: 'metrologyConfiguration_purposes',
             persist: false,
             mapping: 'metrologyConfiguration.purposes'
+        },
+        {
+            // needed for adding life cycle transition during usage point creation
+            name: 'transitionToPerform',
+            type: 'auto',
+            defaultValue: null
         }
     ],
 

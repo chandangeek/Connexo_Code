@@ -211,7 +211,8 @@ Ext.define('Imt.purpose.view.OutputReadings', {
         me.store.each(function (record) {
             var point = {},
                 interval = record.get('interval'),
-                properties = record.get('readingProperties');
+                properties = record.get('readingProperties'),
+                readinqQualities = record.get('readingQualities');
 
             point.x = interval.start;
             point.id = point.x;
@@ -221,7 +222,11 @@ Ext.define('Imt.purpose.view.OutputReadings', {
             point.unitOfMeasure = unitOfMeasure;
             point.color = okColor;
             point.tooltipColor = tooltipOkColor;
-            point.showQualityIcon = !Ext.isEmpty(record.get('readingQualities'));
+            if (!Ext.isEmpty(readinqQualities)) {
+                point.showQualityIcon = readinqQualities.find(function (rq) {
+                    return rq.cimCode.slice(0,2) != '3.';
+                });
+            }
 
             point.validationRules = record.get('validationRules');
 
