@@ -15,11 +15,11 @@
     </parent>
 
     <artifactId>mdc.device.data.validation</artifactId>
-    <version>3.0.0${revision}</version>
+    <version>4.0.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.device.data.validation</name>
     <description>
-        Contains device related data validation components.
+        Contains device related data quality components.
     </description>
 
     <dependencies>

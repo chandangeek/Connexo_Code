@@ -104,7 +104,7 @@ class DataQualityOverviewBuilderImpl implements DeviceDataQualityService.DataQua
 
     @Override
     public DeviceDataQualityService.DataQualityOverviewBuilder havingEdited() {
-        this.specification.addKpiType(KpiType.ADDED, KpiType.EDITED, KpiType.REMOVED);
+        this.specification.addKpiType();
         return this;
     }
 
