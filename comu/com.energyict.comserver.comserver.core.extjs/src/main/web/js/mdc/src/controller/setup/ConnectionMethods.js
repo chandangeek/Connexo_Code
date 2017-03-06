@@ -150,7 +150,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                             methodsStore = widget.down('connectionMethodsGrid').getStore();
 
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
-                        widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
+                        widget.down('#stepsMenu').setHeader(deviceConfig.get('name'));
                         widget.down('#connectionMethodSetupPanel').setTitle(Uni.I18n.translate('general.connectionMethods', 'MDC', 'Connection methods'));
                         if (mainView) mainView.setLoading(false);
                         methodsStore.on('load', function () {

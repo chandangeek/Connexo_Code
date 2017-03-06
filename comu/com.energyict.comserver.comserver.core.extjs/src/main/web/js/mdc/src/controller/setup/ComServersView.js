@@ -204,7 +204,7 @@ Ext.define('Mdc.controller.setup.ComServersView', {
         var router = this.getController('Uni.controller.history.Router'),
             id = record.getId();
 
-        router.getRoute('administration/comservers/edit').forward({id: id});
+        router.getRoute('administration/comservers/detail/edit').forward({id: id});
     },
 
     showDeleteConfirmation: function (record) {

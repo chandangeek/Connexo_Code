@@ -5,12 +5,13 @@
 Ext.define('Mdc.view.setup.device.DeviceMenu', {
     extend: 'Uni.view.menu.SideMenu',
     xtype: 'deviceMenu',
+    uniqueMenuId: 'device-side-menu',
 
     // TODO See what impact removing the 'toggleById' function has.
 //    toggleId: null,
     device: null,
 
-    title: Uni.I18n.translate('devicemenu.title', 'MDC', 'Device'),
+    objectType: Uni.I18n.translate('devicemenu.title', 'MDC', 'Device'),
 
     initComponent: function () {
         var me = this,
@@ -19,7 +20,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 xtype: 'menu',
                 items: [
                     {
-                        text: deviceId,
+                        text: Uni.I18n.translate('devicemenu.overviewx', 'MDC', 'Overview'),
                         itemId: 'deviceOverviewLink',
                         href: '#/devices/' + encodeURIComponent(deviceId)
                     },
@@ -37,6 +38,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                     }
                 ]
             };
+        me.title = deviceId || Uni.I18n.translate('devicemenu.title', 'MDC', 'Device');
 
         if ( !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger') ) {
             menu.items.push(
