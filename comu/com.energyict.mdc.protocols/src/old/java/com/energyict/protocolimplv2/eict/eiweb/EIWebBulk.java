@@ -8,7 +8,7 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
-import com.energyict.mdc.protocol.api.inbound.ServletBasedInboundDeviceProtocol;
+import com.energyict.mdc.upl.ServletBasedInboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;

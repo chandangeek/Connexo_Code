@@ -6,7 +6,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
-import com.energyict.mdc.protocol.api.inbound.ServletBasedInboundDeviceProtocol;
+import com.energyict.mdc.upl.ServletBasedInboundDeviceProtocol;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

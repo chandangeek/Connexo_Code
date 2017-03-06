@@ -6,7 +6,7 @@ import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExce
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.UnableToCreateProtocolInstance;
-
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLInboundDeviceProtocolAdapter;
 import org.osgi.service.component.annotations.Component;
 
 import java.util.Arrays;
@@ -32,11 +32,11 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
     @Override
     public InboundDeviceProtocol createInboundDeviceProtocolFor(String className) {
         try {
-            return (InboundDeviceProtocol) uplFactories
-                        .computeIfAbsent(className, ConstructorBasedUplServiceInjection::from)
-                        .newInstance();
-        }
-        catch (UnableToCreateProtocolInstance e) {
+            com.energyict.mdc.upl.InboundDeviceProtocol inboundDeviceProtocol = (com.energyict.mdc.upl.InboundDeviceProtocol) uplFactories
+                    .computeIfAbsent(className, ConstructorBasedUplServiceInjection::from)
+                    .newInstance();
+            return new UPLInboundDeviceProtocolAdapter(inboundDeviceProtocol);
+        } catch (UnableToCreateProtocolInstance e) {
             throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(MessageSeeds.GENERIC_JAVA_REFLECTION_ERROR, e, className);
         }
     }
@@ -45,5 +45,4 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
     public Collection<PluggableClassDefinition> getExistingInboundDeviceProtocolPluggableClasses() {
         return Arrays.asList((PluggableClassDefinition[]) InboundDeviceProtocolRule.values());
     }
-
 }
