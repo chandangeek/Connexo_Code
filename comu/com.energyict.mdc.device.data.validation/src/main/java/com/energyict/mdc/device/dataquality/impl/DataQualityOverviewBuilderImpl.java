@@ -17,6 +17,7 @@ import com.energyict.mdc.device.dataquality.DeviceDataQualityService;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -48,13 +49,13 @@ class DataQualityOverviewBuilderImpl implements DeviceDataQualityService.DataQua
     }
 
     @Override
-    public DeviceDataQualityService.DataQualityOverviewBuilder in(List<EndDeviceGroup> deviceGroups) {
+    public DeviceDataQualityService.DataQualityOverviewBuilder in(Collection<EndDeviceGroup> deviceGroups) {
         this.specification.addDeviceGroups(deviceGroups);
         return this;
     }
 
     @Override
-    public DeviceDataQualityService.DataQualityOverviewBuilder of(List<DeviceType> deviceTypes) {
+    public DeviceDataQualityService.DataQualityOverviewBuilder of(Collection<DeviceType> deviceTypes) {
         this.specification.addDeviceTypes(deviceTypes);
         return this;
     }
@@ -72,7 +73,7 @@ class DataQualityOverviewBuilderImpl implements DeviceDataQualityService.DataQua
     }
 
     @Override
-    public DeviceDataQualityService.DataQualityOverviewBuilder suspectedBy(List<Validator> validators) {
+    public DeviceDataQualityService.DataQualityOverviewBuilder suspectedBy(Collection<Validator> validators) {
         this.specification.addKpiType(validators.stream().map(KpiType.ValidatorKpiType::new).toArray(KpiType[]::new));
         return this;
     }
@@ -90,7 +91,7 @@ class DataQualityOverviewBuilderImpl implements DeviceDataQualityService.DataQua
     }
 
     @Override
-    public DeviceDataQualityService.DataQualityOverviewBuilder estimatedBy(List<Estimator> estimators) {
+    public DeviceDataQualityService.DataQualityOverviewBuilder estimatedBy(Collection<Estimator> estimators) {
         this.specification.addKpiType(estimators.stream().map(KpiType.EstimatorKpiType::new).toArray(KpiType[]::new));
         return this;
     }

@@ -82,7 +82,7 @@ public class DeviceDataQualityServiceImpl implements DeviceDataQualityService {
 
     DataQualityOverviews queryWith(DataQualityOverviewSpecificationImpl specification) {
         DataQualityOverviewSqlBuilder sqlBuilder = new DataQualityOverviewSqlBuilder(specification);
-        try (Connection connection = this.dataModel.getConnection(true);
+        try (Connection connection = this.dataModel.getConnection(false);
              PreparedStatement statement = sqlBuilder.prepare(connection)) {
             return this.execute(statement, specification);
         } catch (SQLException e) {

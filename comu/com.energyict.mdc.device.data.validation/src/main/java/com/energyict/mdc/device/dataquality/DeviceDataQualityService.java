@@ -13,7 +13,7 @@ import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
-import java.util.List;
+import java.util.Collection;
 
 @ProviderType
 public interface DeviceDataQualityService {
@@ -28,19 +28,19 @@ public interface DeviceDataQualityService {
     @ProviderType
     interface DataQualityOverviewBuilder {
 
-        DataQualityOverviewBuilder in(List<EndDeviceGroup> deviceGroups);
+        DataQualityOverviewBuilder in(Collection<EndDeviceGroup> deviceGroups);
 
-        DataQualityOverviewBuilder of(List<DeviceType> deviceTypes);
+        DataQualityOverviewBuilder of(Collection<DeviceType> deviceTypes);
 
         DataQualityOverviewBuilder in(Range<Instant> range);
 
         DataQualityOverviewBuilder havingSuspects();
 
-        DataQualityOverviewBuilder suspectedBy(List<Validator> validators);
+        DataQualityOverviewBuilder suspectedBy(Collection<Validator> validators);
 
         DataQualityOverviewBuilder havingEstimates();
 
-        DataQualityOverviewBuilder estimatedBy(List<Estimator> estimators);
+        DataQualityOverviewBuilder estimatedBy(Collection<Estimator> estimators);
 
         DataQualityOverviewBuilder havingEdited();
 
