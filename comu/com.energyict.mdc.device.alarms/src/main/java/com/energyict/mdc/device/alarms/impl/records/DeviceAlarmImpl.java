@@ -169,7 +169,7 @@ public class DeviceAlarmImpl implements DeviceAlarm {
     }
 
     @Override
-    public void setClearedStatus() {
+    public void toggleClearedStatus() {
         clearedStatus = !clearedStatus;
     }
 

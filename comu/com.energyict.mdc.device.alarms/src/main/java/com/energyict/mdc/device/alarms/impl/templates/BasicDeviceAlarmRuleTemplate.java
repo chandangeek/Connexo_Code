@@ -156,14 +156,35 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
 
                 "global java.util.logging.Logger LOGGER;\n" +
                 "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
-                "rule \"Basic device alarm rule @{ruleId}\"\n" +
+                "rule \"Basic clearing event device alarm rule @{ruleId}\"\n" +
                 "when\n" +
                 "\tevent : DeviceAlarmEvent( eventType == \"" + DeviceAlarmEventDescription.END_DEVICE_EVENT_CREATED.getUniqueKey() + "\" )\n" +
-                "\teval( event.checkOccurrenceConditions(@{ruleId}, \"@{" + THRESHOLD + "}\", \"@{" + RAISE_EVENT_PROPS + "}\", \"@{" + TRIGGERING_EVENTS + "}\", \"@{" + CLEARING_EVENTS + "}\") == true )\n" +
+                "\teval( event.isClearing(@{ruleId}, \"@{" + CLEARING_EVENTS + "}\") == true )\n" +
+                "then\n" +
+                "\tSystem.out.println(\"Processing clearing event device alarm based on rule template number @{ruleId}\");\n" +
+                "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event, true);\n" +
+                "end\n"+
+
+                "rule \"Basic triggering event device alarm rule @{ruleId} logged on same alarm\"\n" +
+                "when\n" +
+                "\tevent : DeviceAlarmEvent( eventType == \"" + DeviceAlarmEventDescription.END_DEVICE_EVENT_CREATED.getUniqueKey() + "\" )\n" +
+                "\teval( event.logOnSameAlarm(\"@{" + RAISE_EVENT_PROPS + "}\") == true )\n" +
+                "\teval( event.checkOccurrenceConditions(@{ruleId}, \"@{" + THRESHOLD + "}\", \"@{" + TRIGGERING_EVENTS + "}\") == true )\n" +
                 "\teval( event.hasAssociatedDeviceLifecycleStatesInDeviceTypes(\"@{" + DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES + "}\") == true )\n" +
                 "then\n" +
-                "\tSystem.out.println(\"Processing device alarm based on rule template number @{ruleId}\");\n" +
-                "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event," + "\"@{" + RAISE_EVENT_PROPS + "}\");\n" +
+                "\tSystem.out.println(\"Processing triggering event device alarm based on rule template number @{ruleId} logged on same alarm\");\n" +
+                "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event, true);\n" +
+                "end\n"+
+
+                "rule \"Basic triggering event device alarm rule @{ruleId} create new alarm\"\n" +
+                "when\n" +
+                "\tevent : DeviceAlarmEvent( eventType == \"" + DeviceAlarmEventDescription.END_DEVICE_EVENT_CREATED.getUniqueKey() + "\" )\n" +
+                "\teval( event.logOnSameAlarm(\"@{" + RAISE_EVENT_PROPS + "}\") == false )\n" +
+                "\teval( event.checkOccurrenceConditions(@{ruleId}, \"@{" + THRESHOLD + "}\", \"@{" + TRIGGERING_EVENTS + "}\") == true )\n" +
+                "\teval( event.hasAssociatedDeviceLifecycleStatesInDeviceTypes(\"@{" + DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES + "}\") == true )\n" +
+                "then\n" +
+                "\tSystem.out.println(\"Processing triggering event device alarm based on rule template number @{ruleId} create new alarm\");\n" +
+                "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event, false);\n" +
                 "end";
     }
 
@@ -202,7 +223,6 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         RaiseEventPropsInfo[] raiseEventPropsPossibleValues = RAISE_EVENT_PROPS_POSSIBLE_VALUES.stream()
                 .map(RaiseEventPropsInfo::new)
                 .toArray(RaiseEventPropsInfo[]::new);
-
 
         builder.add(propertySpecService
                 .specForValuesOf(new EventTypeInfoValueFactory())
@@ -254,22 +274,29 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         if (openIssue instanceof OpenDeviceAlarm && event instanceof DeviceAlarmEvent) {
             OpenDeviceAlarm alarm = OpenDeviceAlarm.class.cast(openIssue);
             List<String> clearingEvents = new ArrayList<>();
-            //noinspection unchecked
             alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(CLEARING_EVENTS))
                     .findFirst().ifPresent(element ->
                     ((ArrayList<EventTypeInfo>) (element.getValue())).forEach(value -> clearingEvents.add(value.getName())));
             Optional<RaiseEventPropsInfo> newEventProps = alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(RAISE_EVENT_PROPS))
-                    .findFirst().map(found -> (RaiseEventPropsInfo)found.getValue());
+                    .findFirst().map(found -> (RaiseEventPropsInfo) found.getValue());
 
-            if (!clearingEvents.isEmpty() && ((DeviceAlarmEvent) event).isClearing(clearingEvents)) {
+            if (!clearingEvents.isEmpty() &&
+                    ((DeviceAlarmEvent) event).isClearing(clearingEvents)) {
                 if (!alarm.isStatusCleared()) {
-                    alarm.setClearedStatus();
+                    alarm.toggleClearedStatus();
                 }
-                if (newEventProps.isPresent() && newEventProps.get().hasDecreaseUrgency()) {
+                if (newEventProps.isPresent() &&
+                        newEventProps.get().hasDecreaseUrgency()) {
                     alarm.setPriority(Priority.get(alarm.getPriority().lowerUrgency(), alarm.getPriority().getImpact()));
                 }
-            } else if (newEventProps.isPresent() && newEventProps.get().hasIncreaseUrgency() && !((DeviceAlarmEvent) event).isClearing(clearingEvents)) {
-                alarm.setPriority(Priority.get(alarm.getPriority().increaseUrgency(), alarm.getPriority().getImpact()));
+            } else {
+                if (alarm.isStatusCleared()) {
+                    alarm.toggleClearedStatus();
+                }
+                if (newEventProps.isPresent() &&
+                        newEventProps.get().hasIncreaseUrgency()) {
+                    alarm.setPriority(Priority.get(alarm.getPriority().increaseUrgency(), alarm.getPriority().getImpact()));
+                }
             }
             alarm.addRelatedAlarmEvent(alarm.getDevice().getId(), ((EndDeviceEventCreatedEvent) event).getEventTypeMrid(), ((EndDeviceEventCreatedEvent) event).getTimestamp());
             return alarm;
@@ -287,7 +314,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     private class EventTypeInfoValueFactory implements ValueFactory<HasIdAndName>, EndDeviceEventTypePropertyFactory {
         @Override
         public HasIdAndName fromStringValue(String stringValue) {
-            if(stringValue.equals(EMPTY_CODE.concat(SEPARATOR).concat(EMPTY_CODE))){
+            if (stringValue.equals(EMPTY_CODE.concat(SEPARATOR).concat(EMPTY_CODE))) {
                 return new EventTypeInfo(EMPTY_CODE, EMPTY_CODE);
             }
             List<String> splitEventTypeAndDeviceCode = Arrays.asList(stringValue.split(SEPARATOR));

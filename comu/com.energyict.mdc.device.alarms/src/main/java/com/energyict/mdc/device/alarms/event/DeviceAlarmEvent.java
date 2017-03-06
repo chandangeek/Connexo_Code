@@ -121,7 +121,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         getEventTimestamp(rawEvent);
     }
 
-    public boolean checkOccurrenceConditions(int ruleId, String relativePeriodWithCount, String raiseEventProps, String triggeringEndDeviceEventTypes, String clearingEndDeviceEventTypes) {
+    public boolean checkOccurrenceConditions(int ruleId, String relativePeriodWithCount, String triggeringEndDeviceEventTypes) {
         List<String> relativePeriodWithCountValues = Arrays.asList(relativePeriodWithCount.split(SEPARATOR));
         if (relativePeriodWithCountValues.size() != 2) {
             throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS, "Relative period with occurrence count for device alarms");
@@ -133,14 +133,6 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         if (!relativePeriod.isPresent()) {
             return false;
         }
-        if (getEndDeviceEventTypes(clearingEndDeviceEventTypes).contains(this.getEventTypeMrid()) ||
-                getEndDeviceEventTypes(clearingEndDeviceEventTypes).stream().anyMatch(event -> checkMatchingEvent(event, this.getEventTypeMrid()))) {
-            return raiseEventProps != null && !raiseEventProps.isEmpty() && logOnSameAlarm(raiseEventProps) &&
-                    issueService.findOpenIssuesForDevice(getDevice().getName())
-                            .find()
-                            .stream()
-                            .anyMatch(issue -> issue.getRule().getId() == ruleId);
-        }
         List<String> inputTriggeringEventTypeList = getEndDeviceEventTypes(triggeringEndDeviceEventTypes);
         if (isAllEventTypesList(inputTriggeringEventTypeList)) {
             return getLoggedEvents(relativePeriod.get()).size() > eventCountThreshold;
@@ -150,6 +142,30 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         return getTotalOccurenceCount(getLoggedEvents(relativePeriod.get()), getEndDeviceEventTypes(triggeringEndDeviceEventTypes), getDeviceCodes(triggeringEndDeviceEventTypes)) >= eventCountThreshold;
     }
 
+    public boolean logOnSameAlarm(String raiseEventProps) {
+        List<String> values = Arrays.asList(raiseEventProps.split(SEPARATOR));
+        if (values.size() != 3) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS, "Device Life Cycle in Device Type");
+        }
+        return Integer.parseInt(values.get(0)) == 1;
+    }
+
+    public boolean isClearing(List<String> endDeviceEventTypes) {
+        return endDeviceEventTypes.contains(this.getEventTypeMrid());
+    }
+
+    public boolean isClearing(int ruleId, String endDeviceEventTypes) {
+        return (isClearing(getEndDeviceEventTypes(endDeviceEventTypes)) || getEndDeviceEventTypes(endDeviceEventTypes).stream()
+                .anyMatch(event -> checkMatchingEvent(event, this.getEventTypeMrid()))) && issueService.findOpenIssuesForDevice(getDevice().getName())
+                .find()
+                .stream()
+                .anyMatch(issue -> issue.getRule().getId() == ruleId);
+    }
+
+    public boolean hasAssociatedDeviceLifecycleStatesInDeviceTypes(String statesInDeviceTypes) {
+        String stateInDeviceType = getDevice().getDeviceType().getId() + SEPARATOR + getDevice().getState().getId();
+        return parseRawInputToEventTypeCodeList(statesInDeviceTypes).contains(stateInDeviceType);
+    }
 
     private List<String> parseRawInputToEventTypeCodeList(String rawInput) {
         return Arrays.stream(rawInput.split(",")).collect(Collectors.toList());
@@ -220,25 +236,9 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         return cimCode.replaceAll("\\.", "\\\\.");
     }
 
-    private boolean logOnSameAlarm(String raiseEventProps) {
-        List<String> values = Arrays.asList(raiseEventProps.split(SEPARATOR));
-        if (values.size() != 3) {
-            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS, "Device Life Cycle in Device Type");
-        }
-        return Integer.parseInt(values.get(0)) == 1;
-    }
 
     private boolean isAllEventTypesList(List<String> eventTypeist) {
         return eventTypeist.contains(ALL_EVENT_TYPES);
-    }
-
-    public boolean hasAssociatedDeviceLifecycleStatesInDeviceTypes(String statesInDeviceTypes) {
-        String stateInDeviceType = getDevice().getDeviceType().getId() + SEPARATOR + getDevice().getState().getId();
-        return parseRawInputToEventTypeCodeList(statesInDeviceTypes).contains(stateInDeviceType);
-    }
-
-    public boolean isClearing(List<String> endDeviceEventTypes) {
-        return endDeviceEventTypes.contains(this.getEventTypeMrid());
     }
 
 
