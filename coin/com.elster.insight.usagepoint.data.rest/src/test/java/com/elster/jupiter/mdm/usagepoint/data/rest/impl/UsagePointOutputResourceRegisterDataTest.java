@@ -62,7 +62,7 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
     private static final Instant readingTimeStamp1 = Instant.ofEpochMilli(1410774620100L);
     private static final Instant readingTimeStamp2 = readingTimeStamp1.plus(5, ChronoUnit.MINUTES);
     private static final Instant readingTimeStamp3 = readingTimeStamp2.plus(10, ChronoUnit.MINUTES);
-;
+
     @Mock
     private UsagePoint usagePoint;
     @Mock
