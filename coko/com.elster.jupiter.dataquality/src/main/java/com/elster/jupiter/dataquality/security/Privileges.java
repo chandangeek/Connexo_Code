@@ -14,7 +14,8 @@ public enum Privileges implements TranslationKey {
 
     //Privileges
     ADMINISTER_DATA_QUALITY_KPI_CONFIGURATION(Constants.ADMINISTER_DATA_QUALITY_KPI_CONFIGURATION, "Administer"),
-    VIEW_DATA_QUALITY_KPI_CONFIGURATION(Constants.VIEW_DATA_QUALITY_KPI_CONFIGURATION, "View KPIs");
+    VIEW_DATA_QUALITY_KPI_CONFIGURATION(Constants.VIEW_DATA_QUALITY_KPI_CONFIGURATION, "View KPIs"),
+    VIEW_DATA_QUALITY_RESULTS(Constants.VIEW_DATA_QUALITY_RESULTS, "View results");
 
     private final String key;
     private final String description;
@@ -41,6 +42,7 @@ public enum Privileges implements TranslationKey {
 
         String ADMINISTER_DATA_QUALITY_KPI_CONFIGURATION = "privilege.administer.dataQualityKpi";
         String VIEW_DATA_QUALITY_KPI_CONFIGURATION = "privilege.view.dataQualityKpi";
+        String VIEW_DATA_QUALITY_RESULTS = "privilege.view.dataQualityResults";
 
     }
 }

@@ -155,7 +155,8 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                 Privileges.RESOURCE_QUALITY_DESCRIPTION.getKey(),
                 Arrays.asList(
                         Privileges.Constants.ADMINISTER_DATA_QUALITY_KPI_CONFIGURATION,
-                        Privileges.Constants.VIEW_DATA_QUALITY_KPI_CONFIGURATION
+                        Privileges.Constants.VIEW_DATA_QUALITY_KPI_CONFIGURATION,
+                        Privileges.Constants.VIEW_DATA_QUALITY_RESULTS
                 )
         );
     }
