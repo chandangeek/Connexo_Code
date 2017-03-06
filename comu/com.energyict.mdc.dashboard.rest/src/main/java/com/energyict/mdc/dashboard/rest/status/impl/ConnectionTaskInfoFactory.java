@@ -76,8 +76,10 @@ public class ConnectionTaskInfoFactory {
             info.connectionStrategyInfo.connectionStrategy = scheduledConnectionTask.getConnectionStrategy().name();
             info.connectionStrategyInfo.localizedValue = ConnectionStrategyTranslationKeys.translationFor(scheduledConnectionTask.getConnectionStrategy(), thesaurus);
             ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = scheduledConnectionTask.getProtocolDialectConfigurationProperties();
-            info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
-            info.protocolDialectDisplayName = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
+            if (protocolDialectConfigurationProperties != null) {
+                info.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
+                info.protocolDialectDisplayName = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
+            }
             ComWindow communicationWindow = scheduledConnectionTask.getCommunicationWindow();
             if (communicationWindow!=null &&
                     (communicationWindow.getStart().getMillis()!=0 || communicationWindow.getEnd().getMillis()!=0)) {

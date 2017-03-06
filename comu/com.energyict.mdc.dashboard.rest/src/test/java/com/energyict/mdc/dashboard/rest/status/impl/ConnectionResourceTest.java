@@ -24,6 +24,7 @@ import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -42,6 +43,7 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
@@ -384,8 +386,8 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionType")).isEqualTo(CONNECTION_TYPE_PLUGGABLE_CLASS_NAME);
         assertThat(jsonModel.<Integer>get("$.connectionTasks[0].connectionMethod.id")).isEqualTo(991);
         assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionMethod.name")).isEqualTo("partial connection task name (default)");
-        assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionStrategy.id")).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE.name());
-        assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionStrategy.displayValue")).isEqualTo(ConnectionStrategyTranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat());
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionStrategyInfo.connectionStrategy")).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE.name());
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionStrategyInfo.localizedValue")).isEqualTo(ConnectionStrategyTranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat());
         assertThat(jsonModel.<String>get("$.connectionTasks[0].window")).isEqualTo("09:00 - 17:00");
         assertThat(jsonModel.<Long>get("$.connectionTasks[0].nextExecution")).isEqualTo(plannedNext.toEpochMilli());
     }
@@ -508,10 +510,18 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
     }
 
     private Optional<ConnectionTask> mockConnectionTask(String javaClassName) {
+        DeviceProtocolDialect dialect = mock(DeviceProtocolDialect.class);
+        when(dialect.getDeviceProtocolDialectName()).thenReturn("Device protocol dialect name");
+        when(dialect.getDisplayName()).thenReturn("Device protocol display name");
+        ProtocolDialectConfigurationProperties dialectProperties = mock(ProtocolDialectConfigurationProperties.class);
+        when(dialectProperties.getDeviceProtocolDialect()).thenReturn(dialect);
+        when(dialectProperties.getDeviceProtocolDialectName()).thenReturn("Device protocol display name");
+
         ConnectionTask mock = mock(ConnectionTask.class);
         PluggableClass pluggableClass = mockConnectionType();
         when(mock.getPluggableClass()).thenReturn(pluggableClass);
         when(pluggableClass.getJavaClassName()).thenReturn(javaClassName);
+        when(mock.getProtocolDialectConfigurationProperties()).thenReturn(dialectProperties);
         return Optional.of(mock);
     }
 
