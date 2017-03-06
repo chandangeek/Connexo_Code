@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.CollectedData;
@@ -34,12 +33,12 @@ public class SimpleDiscoveryProtocol implements InboundDeviceProtocol {
     }
 
     @Override
-    public DiscoverResultType doDiscovery() {
-        return DiscoverResultType.IDENTIFIER;
+    public com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType doDiscovery() {
+        return com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.IDENTIFIER;
     }
 
     @Override
-    public void provideResponse(DiscoverResponseType responseType) {
+    public void provideResponse(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType responseType) {
     }
 
     @Override
@@ -48,7 +47,7 @@ public class SimpleDiscoveryProtocol implements InboundDeviceProtocol {
     }
 
     @Override
-    public List<CollectedData> getCollectedData(OfflineDevice device) {
+    public List<CollectedData> getCollectedData() {
         return Collections.emptyList();
     }
 

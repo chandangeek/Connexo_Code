@@ -3,8 +3,6 @@ package com.energyict.mdc.device.data.impl.security;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.google.common.collect.Range;
@@ -26,7 +24,7 @@ public class SecurityPropertyImpl implements SecurityProperty {
     private Interval activePeriod;
     private Boolean isComplete;
 
-    public SecurityPropertyImpl (Device device, SecurityPropertySet securityPropertySet, PropertySpec specification, Object value, Range<Instant> activePeriod, Boolean isComplete) {
+    public SecurityPropertyImpl(Device device, SecurityPropertySet securityPropertySet, PropertySpec specification, Object value, Range<Instant> activePeriod, Boolean isComplete) {
         super();
         this.device = device;
         this.securityPropertySet = securityPropertySet;
@@ -36,41 +34,30 @@ public class SecurityPropertyImpl implements SecurityProperty {
         this.isComplete = isComplete;
     }
 
-    public Device getDevice () {
+    public Device getDevice() {
         return device;
     }
 
-    public SecurityPropertySet getSecurityPropertySet () {
-        return securityPropertySet;
+    public com.energyict.mdc.upl.security.SecurityPropertySet getSecurityPropertySet() {
+        return new UPLSecurityPropertySetAdapter(securityPropertySet);
     }
 
     @Override
-    public AuthenticationDeviceAccessLevel getAuthenticationDeviceAccessLevel() {
-        return this.getSecurityPropertySet().getAuthenticationDeviceAccessLevel();
-    }
-
-    @Override
-    public EncryptionDeviceAccessLevel getEncryptionDeviceAccessLevel() {
-        return this.getSecurityPropertySet().getEncryptionDeviceAccessLevel();
-    }
-
-    @Override
-    public String getName () {
+    public String getName() {
         return this.specification.getName();
     }
 
     @Override
-    public Object getValue () {
+    public Object getValue() {
         return value;
     }
 
     @Override
-    public Interval getActivePeriod () {
+    public Interval getActivePeriod() {
         return this.activePeriod;
     }
 
-    public boolean isComplete () {
+    public boolean isComplete() {
         return this.isComplete;
     }
-
 }

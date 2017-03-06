@@ -6,7 +6,6 @@ import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
-
 import com.energyict.obis.ObisCode;
 
 import javax.inject.Inject;
@@ -63,7 +62,7 @@ public class LogBookServiceImpl implements ServerLogBookService {
                 return this.findByIdentifier((LogBookIdentifier) introspector.getValue("other"));
             }
             case "DatabaseId": {
-                return this.findById((long) introspector.getValue("databaseValue"));
+                return this.findById(Long.valueOf(introspector.getValue("databaseValue").toString()));
             }
             case "DeviceIdentifierAndObisCode": {
                 DeviceIdentifier deviceIdentifier = (DeviceIdentifier) introspector.getValue("device");

@@ -328,13 +328,17 @@ class DeviceServiceImpl implements ServerDeviceService {
             }
             case "DatabaseId": {
                 return this
-                        .findDeviceById((long) introspector.getValue("protocolInfo"))
+                        .findDeviceById(Long.valueOf(introspector.getValue("databaseValue").toString()))
                         .map(Collections::singletonList)
                         .orElseGet(Collections::emptyList);
             }
             case "CallHomeId": {
                 String callHomeID = (String) introspector.getValue("callHomeId");
                 return this.findDevicesByPropertySpecValue(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, callHomeID);
+            }
+            case "systemTitle": {
+                String systemTitle = (String) introspector.getValue("systemTitle");
+                return this.findDevicesByPropertySpecValue("DeviceSystemTitle", systemTitle);
             }
             case "PhoneNumber": {
                 Class<ConnectionType> connectionTypeClass = (Class) introspector.getValue("connectionTypeClass");

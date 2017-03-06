@@ -19,12 +19,6 @@ import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
 import javax.inject.Inject;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoField;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -148,7 +142,7 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
         switch (introspector.getTypeName()) {
             case "DatabaseId": {
                 return this
-                        .findDeviceMessageById((long) introspector.getValue("databaseValue"))
+                        .findDeviceMessageById(Long.valueOf(introspector.getValue("databaseValue").toString()))
                         .map(Collections::singletonList)
                         .orElseGet(Collections::emptyList);
             }
@@ -160,6 +154,9 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
                         .map(device -> this.findByDeviceAndProtocolInfoParts(device, messageProtocolInfoParts))
                         .orElseGet(Collections::emptyList);
             }
+            case "Actual": {
+                return Collections.singletonList((DeviceMessage) introspector.getValue("actual"));
+            }
             default: {
                 throw new UnsupportedDeviceMessageIdentifierTypeName();
             }
@@ -169,12 +166,10 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
     private Optional<DeviceMessage> exactlyOne(List<DeviceMessage> allMessages, MessageIdentifier identifier) {
         if (allMessages.isEmpty()) {
             return Optional.empty();
-        }
-        else {
+        } else {
             if (allMessages.size() > 1) {
                 throw new NotUniqueException(identifier.toString());
-            }
-            else {
+            } else {
                 return Optional.of(allMessages.get(0));
             }
         }
@@ -183,16 +178,16 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
     public List<DeviceMessage> findByDeviceAndProtocolInfoParts(Device device, String... protocolInfoParts) {
         Condition protocolInfoPartsCondition =
                 Stream
-                    .of(protocolInfoParts)
-                    .reduce(
-                        Condition.TRUE,
-                        (condition, protocolInfoPart) -> condition.and(where(DeviceMessageImpl.Fields.PROTOCOLINFO.fieldName()).like(protocolInfoPart)),
-                        Condition::and);
+                        .of(protocolInfoParts)
+                        .reduce(
+                                Condition.TRUE,
+                                (condition, protocolInfoPart) -> condition.and(where(DeviceMessageImpl.Fields.PROTOCOLINFO.fieldName()).like(protocolInfoPart)),
+                                Condition::and);
         Condition deviceCondition = where(DeviceMessageImpl.Fields.DEVICE.fieldName()).isEqualTo(device);
         return this.deviceDataModelService
-                    .dataModel()
-                    .query(DeviceMessage.class)
-                    .select(deviceCondition.and(protocolInfoPartsCondition));
+                .dataModel()
+                .query(DeviceMessage.class)
+                .select(deviceCondition.and(protocolInfoPartsCondition));
     }
 
     private static class UnsupportedDeviceMessageIdentifierTypeName extends RuntimeException {
