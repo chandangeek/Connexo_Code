@@ -9,8 +9,10 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
     store: 'Dsh.store.CommunicationTasks',
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            devicesStore = Ext.getStore('Dsh.store.filter.Devices') || Ext.create('Dsh.store.filter.Devices');
 
+        devicesStore.getProxy().setExtraParam('nameOnly', true);
         me.filters = [
             {
                 type: 'combobox',
@@ -19,7 +21,7 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
                 multiSelect: true,
                 displayField: 'name',
                 valueField: 'id',
-                store: 'Dsh.store.filter.CommunicationTask',
+                store: devicesStore,
                 itemId: 'com-task-filter'
             },
             {

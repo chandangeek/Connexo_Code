@@ -9,8 +9,10 @@ Ext.define('Dsh.view.widget.ConnectionsTopFilter', {
     store: 'Dsh.store.ConnectionTasks',
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            devicesStore = Ext.getStore('Dsh.store.filter.Devices') || Ext.create('Dsh.store.filter.Devices');
 
+        devicesStore.getProxy().setExtraParam('nameOnly', true);
         me.filters = [
             {
                 type: 'combobox',
@@ -19,7 +21,7 @@ Ext.define('Dsh.view.widget.ConnectionsTopFilter', {
                 emptyText: Uni.I18n.translate('general.device', 'DSH', 'Device'),
                 displayField: 'name',
                 valueField: 'name',
-                store: 'Dsh.store.filter.Devices',
+                store: devicesStore,
                 queryMode: 'remote',
                 queryParam: 'name',
                 queryCaching: false,

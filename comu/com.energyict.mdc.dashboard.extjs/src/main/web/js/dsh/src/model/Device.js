@@ -10,7 +10,7 @@ Ext.define('Dsh.model.Device', {
 
     proxy: {
         type: 'rest',
-        url: '/api/ddr/devices/forcombo',
+        url: '/api/ddr/devices',
         reader: {
             type: 'json',
             root: 'devices'
