@@ -2,7 +2,6 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.CollectedData;
@@ -30,12 +29,12 @@ public class DummyInboundDiscoveryProtocol implements InboundDeviceProtocol {
     }
 
     @Override
-    public DiscoverResultType doDiscovery() {
+    public com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType doDiscovery() {
         return null;
     }
 
     @Override
-    public void provideResponse(DiscoverResponseType responseType) {
+    public void provideResponse(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType responseType) {
 
     }
 
@@ -45,7 +44,7 @@ public class DummyInboundDiscoveryProtocol implements InboundDeviceProtocol {
     }
 
     @Override
-    public List<CollectedData> getCollectedData(OfflineDevice device) {
+    public List<CollectedData> getCollectedData() {
         return null;
     }
 
