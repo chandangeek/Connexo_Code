@@ -8,10 +8,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Represents an event in a device.
@@ -308,6 +305,10 @@ public class MeterEvent implements java.io.Serializable, Comparable {
      * Identifies the (sequential) ID of the event in the particular logbook.
      */
     private final int deviceEventId;
+    /**
+     * Keeps track of a list of additional information for this meterevent
+     */
+    private Map<String, String> additionalInfo = new HashMap<>();
 
     /**
      * String representation of this MeterEvent
@@ -460,7 +461,7 @@ public class MeterEvent implements java.io.Serializable, Comparable {
     /**
      * <p></p>
      *
-     * @param time   event time
+     * @param time event time
      * @param eiCode generic event code
      */
     public MeterEvent(Date time, int eiCode) {
@@ -470,8 +471,8 @@ public class MeterEvent implements java.io.Serializable, Comparable {
     /**
      * <p></p>
      *
-     * @param time         event time
-     * @param eiCode       generic event code
+     * @param time event time
+     * @param eiCode generic event code
      * @param protocolCode protocol specific event code
      */
     public MeterEvent(Date time, int eiCode, int protocolCode) {
@@ -481,8 +482,8 @@ public class MeterEvent implements java.io.Serializable, Comparable {
     /**
      * <p></p>
      *
-     * @param time    event time
-     * @param eiCode  generic event code
+     * @param time event time
+     * @param eiCode generic event code
      * @param message event message
      */
     public MeterEvent(Date time, int eiCode, String message) {
@@ -492,21 +493,21 @@ public class MeterEvent implements java.io.Serializable, Comparable {
     /**
      * <p></p>
      *
-     * @param time         event time
-     * @param eiCode       generic event code
+     * @param time event time
+     * @param eiCode generic event code
      * @param protocolCode the protocol specific event code
-     * @param message      event message
+     * @param message event message
      */
     public MeterEvent(Date time, int eiCode, int protocolCode, String message) {
         this(time, eiCode, protocolCode, message, 0, 0);
     }
 
     /**
-     * @param time          event time
-     * @param eiCode        generic event code
-     * @param protocolCode  the protocol specific event code
-     * @param message       event message
-     * @param eventLogId    device specific event Logbook Identification
+     * @param time event time
+     * @param eiCode generic event code
+     * @param protocolCode the protocol specific event code
+     * @param message event message
+     * @param eventLogId device specific event Logbook Identification
      * @param deviceEventId device specific event ID
      */
     public MeterEvent(Date time, int eiCode, int protocolCode, String message, int eventLogId, int deviceEventId) {
@@ -551,17 +552,21 @@ public class MeterEvent implements java.io.Serializable, Comparable {
         for (MeterEvent event : meterEvents) {
             Optional<EndDeviceEventType> endDeviceEventType = EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(event.getEiCode(), meteringService);
             if (endDeviceEventType.isPresent()) {
-                meterProtocolEvents.add(
-                        new MeterProtocolEvent(event.getTime(),
-                                event.getEiCode(),
-                                event.getProtocolCode(),
-                                endDeviceEventType.get(),
-                                event.getMessage(),
-                                UNKNOWN_ID,
-                                UNKNOWN_ID));
+                MeterProtocolEvent meterProtocolEvent = new MeterProtocolEvent(event.getTime(),
+                        event.getEiCode(),
+                        event.getProtocolCode(),
+                        endDeviceEventType.get(),
+                        event.getMessage(),
+                        event.getEventLogId(),
+                        event.getDeviceEventId());
+                event.additionalInfo.entrySet().stream().forEach(keyValue -> meterProtocolEvent.addAdditionalInformation(keyValue.getKey(), keyValue.getValue()));
+                meterProtocolEvents.add(meterProtocolEvent);
             }
         }
         return meterProtocolEvents;
     }
 
+    public void addAdditionalInfo(String key, String value) {
+        this.additionalInfo.put(key, value);
+    }
 }
