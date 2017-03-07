@@ -6,6 +6,7 @@ package com.elster.jupiter.validation;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.util.time.ScheduleExpression;
@@ -25,11 +26,15 @@ public interface DataValidationTaskBuilder {
 
     DataValidationTaskBuilder setUsagePointGroup(UsagePointGroup usagePointGroup);
 
+    DataValidationTaskBuilder setMetrologyPurpose(MetrologyPurpose metrologyPurpose);
+
     DataValidationTaskBuilder setScheduleExpression(ScheduleExpression scheduleExpression);
 
     DataValidationTaskBuilder scheduleImmediately();
 
     DataValidationTaskBuilder setNextExecution(Instant nextExecution);
+
+    DataValidationTaskBuilder setLogLevel(int logLevel);
 
     DataValidationTask create();
 
