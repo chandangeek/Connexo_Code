@@ -23,4 +23,8 @@ public interface DataQualityKpi {
 
     void delete();
 
+    void makeObsolete();
+
+    Optional<Instant> getObsoleteTime();
+
 }

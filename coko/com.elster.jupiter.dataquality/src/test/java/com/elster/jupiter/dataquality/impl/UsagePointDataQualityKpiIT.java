@@ -152,6 +152,27 @@ public class UsagePointDataQualityKpiIT extends BaseTestIT {
         assertThat(recurrentTask).isEmpty();
     }
 
+    @Test
+    @Transactional
+    public void makeObsolete() {
+        UsagePointGroup usagePointGroup = createUsagePointGroup();
+        UsagePointDataQualityKpiImpl kpi = (UsagePointDataQualityKpiImpl) dataQualityKpiService.newDataQualityKpi(usagePointGroup, metrologyPurpose, ONE_HOUR);
+
+        // Business method
+        kpi.makeObsolete();
+
+        // Asserts
+        Optional<UsagePointDataQualityKpi> dataQualityKpi = dataQualityKpiService.findUsagePointDataQualityKpi(kpi.getId());
+        assertThat(dataQualityKpi).isPresent();
+        assertThat(dataQualityKpi.get().getObsoleteTime()).isPresent();
+
+        List<UsagePointDataQualityKpi> found = dataQualityKpiService.usagePointDataQualityKpiFinder().forGroup(usagePointGroup).forPurpose(metrologyPurpose).find();
+        assertThat(found).isEmpty();
+
+        Optional<RecurrentTask> recurrentTask = get(TaskService.class).getRecurrentTask(kpi.getRecurrentTaskName());
+        assertThat(recurrentTask).isEmpty();
+    }
+
     private UsagePointGroup createUsagePointGroup() {
         return createUsagePointGroup("UPG");
     }

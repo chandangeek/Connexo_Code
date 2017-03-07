@@ -61,7 +61,7 @@ public class DeviceDataQualityKpiFinderImpl implements DataQualityKpiService.Dev
     }
 
     private Condition buildCondition() {
-        Condition condition = Condition.TRUE;
+        Condition condition = where(DataQualityKpiImpl.Fields.OBSOLETE_TIME.fieldName()).isNull();
         if (this.endDeviceGroup != null) {
             condition = condition.and(where(DeviceDataQualityKpiImpl.Fields.ENDDEVICE_GROUP.fieldName()).isEqualTo(endDeviceGroup));
         }

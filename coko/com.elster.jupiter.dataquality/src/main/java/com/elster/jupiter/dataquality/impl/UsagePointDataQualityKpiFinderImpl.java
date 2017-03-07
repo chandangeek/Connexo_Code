@@ -69,7 +69,7 @@ public class UsagePointDataQualityKpiFinderImpl implements DataQualityKpiService
     }
 
     private Condition buildCondition() {
-        Condition condition = Condition.TRUE;
+        Condition condition = where(DataQualityKpiImpl.Fields.OBSOLETE_TIME.fieldName()).isNull();
         if (this.usagePointGroup != null) {
             condition = condition.and(where(UsagePointDataQualityKpiImpl.Fields.USAGEPOINT_GROUP.fieldName()).isEqualTo(this.usagePointGroup));
         }

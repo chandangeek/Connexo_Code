@@ -53,7 +53,8 @@ public abstract class DataQualityKpiImpl implements HasId, DataQualityKpi, Persi
 
     public enum Fields {
         KPI_MEMBERS("kpiMembers"),
-        DATA_QUALITY_KPI_TASK("dataQualityKpiTask");
+        DATA_QUALITY_KPI_TASK("dataQualityKpiTask"),
+        OBSOLETE_TIME("obsoleteTime");
 
         private final String javaFieldName;
 
@@ -68,6 +69,8 @@ public abstract class DataQualityKpiImpl implements HasId, DataQualityKpi, Persi
 
     @SuppressWarnings("unused") // Managed by ORM
     private long id;
+
+    private Instant obsoleteTime;
 
     @SuppressWarnings("unused") // Managed by ORM
     private String userName;
@@ -138,7 +141,7 @@ public abstract class DataQualityKpiImpl implements HasId, DataQualityKpi, Persi
                 .map(TemporalExpression.class::cast)
                 .map(TemporalExpression::getEvery)
                 .map(TimeDuration::asTemporalAmount)
-                .orElseThrow(() -> new IllegalStateException("No recurrent task attached"));
+                .orElse(null);
     }
 
     public void save() {
@@ -283,5 +286,21 @@ public abstract class DataQualityKpiImpl implements HasId, DataQualityKpi, Persi
         Stream<DataQualityKpiMemberType> estimators = getEstimationService().getAvailableEstimators(QualityCodeSystem.MDC)
                 .stream().map(DataQualityKpiMemberType.EstimatorKpiMemberType::new);
         return Stream.of(predefined, estimators, validators).flatMap(Function.identity());
+    }
+
+    @Override
+    public void makeObsolete() {
+        RecurrentTask recurrentTask = this.dataQualityKpiTask.get();
+        this.dataQualityKpiTask.setNull();
+        this.obsoleteTime = clock.instant();
+        this.dataModel.update(this,
+                Fields.OBSOLETE_TIME.fieldName(),
+                Fields.DATA_QUALITY_KPI_TASK.fieldName());
+        recurrentTask.delete();
+    }
+
+    @Override
+    public Optional<Instant> getObsoleteTime() {
+        return Optional.ofNullable(this.obsoleteTime);
     }
 }

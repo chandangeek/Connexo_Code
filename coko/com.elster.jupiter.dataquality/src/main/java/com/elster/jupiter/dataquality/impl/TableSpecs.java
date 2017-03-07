@@ -43,6 +43,7 @@ public enum TableSpecs {
             Column usagePointGroup = table.column("USAGEPOINTGROUP").number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column metrologyPurpose = table.column("METROLOGYPURPOSE").number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column dataQualityKpiTask = table.column("DATAQUALITYKPITASK").number().conversion(ColumnConversion.NUMBER2LONG).add();
+            table.column("OBSOLETETIME").number().map(DataQualityKpiImpl.Fields.OBSOLETE_TIME.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
 
             table.primaryKey("PK_DQK_DATA_QUALITY_KPI").on(id).add();
             table.foreignKey("FK_DQK_ENDDEVICEGROUP")

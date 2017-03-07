@@ -322,6 +322,27 @@ public class DeviceDataQualityKpiIT extends BaseTestIT {
         assertThat(kpiMemberNames).containsOnly(expectedKpiMemberNames);
     }
 
+    @Test
+    @Transactional
+    public void makeObsolete() {
+        EndDeviceGroup endDeviceGroup = createEndDeviceGroup();
+        DeviceDataQualityKpiImpl kpi = (DeviceDataQualityKpiImpl) dataQualityKpiService.newDataQualityKpi(endDeviceGroup, ONE_HOUR);
+
+        // Business method
+        kpi.makeObsolete();
+
+        // Asserts
+        Optional<DeviceDataQualityKpi> dataQualityKpi = dataQualityKpiService.findDeviceDataQualityKpi(kpi.getId());
+        assertThat(dataQualityKpi).isPresent();
+        assertThat(dataQualityKpi.get().getObsoleteTime()).isPresent();
+
+        List<DeviceDataQualityKpi> found = dataQualityKpiService.deviceDataQualityKpiFinder().forGroup(endDeviceGroup).find();
+        assertThat(found).isEmpty();
+
+        Optional<RecurrentTask> recurrentTask = get(TaskService.class).getRecurrentTask(kpi.getRecurrentTaskName());
+        assertThat(recurrentTask).isEmpty();
+    }
+
     private EndDeviceGroup createEndDeviceGroup() {
         return createEndDeviceGroup("EDG");
     }
