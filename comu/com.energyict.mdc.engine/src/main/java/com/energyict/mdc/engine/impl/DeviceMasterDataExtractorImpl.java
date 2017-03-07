@@ -12,6 +12,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.LoadProfilesTask;
@@ -113,8 +114,8 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     @Override
     public Optional<DeviceConfiguration> configuration(long id) {
         return this.deviceConfigurationService
-                    .findDeviceConfiguration(id)
-                    .map(use(DeviceConfigurationAdapter::new).with(this.protocolPluggableService));
+                .findDeviceConfiguration(id)
+                .map(use(DeviceConfigurationAdapter::new).with(this.protocolPluggableService));
     }
 
     @Override
@@ -152,9 +153,9 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     @Override
     public String protocolJavaClassName(com.energyict.mdc.upl.meterdata.Device device) {
         return ((Device) device)
-                    .getDeviceProtocolPluggableClass()
-                    .map(PluggableClass::getJavaClassName)
-                    .orElse(null);
+                .getDeviceProtocolPluggableClass()
+                .map(PluggableClass::getJavaClassName)
+                .orElse(null);
     }
 
     @Override
@@ -189,9 +190,8 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     }
 
     private TypedProperties protocolProperties(Device device) {
-        return device.getDeviceProtocolProperties();
+        return TypedPropertiesValueAdapter.adaptToUPLValues(device.getDeviceProtocolProperties());
     }
-
 
     @Override
     public Optional<TypedProperties> dialectProperties(com.energyict.mdc.upl.meterdata.Device device, String dialectName) {
@@ -201,7 +201,8 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     private Optional<TypedProperties> dialectProperties(Device device, String dialectName) {
         return device
                 .getProtocolDialectProperties(dialectName)
-                .map(ProtocolDialectProperties::getTypedProperties);
+                .map(ProtocolDialectProperties::getTypedProperties)
+                .map(TypedPropertiesValueAdapter::adaptToUPLValues);
     }
 
     @Override
@@ -245,15 +246,15 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
         @Override
         public String protocolJavaClassName() {
             return this.actual
-                        .getDeviceType()
-                        .getDeviceProtocolPluggableClass()
-                        .map(DeviceProtocolPluggableClass::getJavaClassName)
-                        .orElse("");
+                    .getDeviceType()
+                    .getDeviceProtocolPluggableClass()
+                    .map(DeviceProtocolPluggableClass::getJavaClassName)
+                    .orElse("");
         }
 
         @Override
         public TypedProperties properties() {
-            return this.actual.getDeviceProtocolProperties().getTypedProperties();
+            return TypedPropertiesValueAdapter.adaptToUPLValues(this.actual.getDeviceProtocolProperties().getTypedProperties());
         }
 
         @Override
@@ -263,7 +264,8 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
                     .stream()
                     .filter(each -> each.getDeviceProtocolDialectName().equals(dialectName))
                     .findAny()
-                    .map(ProtocolDialectConfigurationProperties::getTypedProperties);
+                    .map(ProtocolDialectConfigurationProperties::getTypedProperties)
+                    .map(TypedPropertiesValueAdapter::adaptToUPLValues);
         }
 
         @Override
@@ -307,192 +309,6 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
                 return false;
             }
             DeviceConfigurationAdapter that = (DeviceConfigurationAdapter) o;
-            return this.id() == that.id();
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(this.id());
-        }
-    }
-
-    private class NextExecutionSpecsAdapter implements NextExecutionSpecs {
-        private final com.energyict.mdc.scheduling.NextExecutionSpecs actual;
-
-        private NextExecutionSpecsAdapter(com.energyict.mdc.scheduling.NextExecutionSpecs actual) {
-            this.actual = actual;
-        }
-
-        @Override
-        public long id() {
-            return this.actual.getId();
-        }
-
-        @Override
-        public String displayName() {
-            return new NextExecutionSpecsFormat(engineService.thesaurus()).format(this.actual);
-        }
-
-        @Override
-        public SchedulingSpecificationType type() {
-            if (this.actual.getTemporalExpression() != null) {
-                return SchedulingSpecificationType.TEMPORAL;
-            } else {
-                return SchedulingSpecificationType.DIAL_CALENDAR;
-            }
-        }
-
-        @Override
-        public String toCronExpression(TimeZone targetTimeZone, TimeZone definitionTimeZone) {
-            return this.actual.getTemporalExpression().toCronExpression(targetTimeZone, definitionTimeZone);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            NextExecutionSpecsAdapter that = (NextExecutionSpecsAdapter) o;
-            return this.id() == that.id();
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(this.id());
-        }
-    }
-
-    private class CommunicationTaskAdapter implements CommunicationTask {
-        private final ComTaskExecution actual;
-
-        private CommunicationTaskAdapter(ComTaskExecution actual) {
-            this.actual = actual;
-        }
-
-        @Override
-        public long id() {
-            return this.actual.getId();
-        }
-
-        @Override
-        public String name() {
-            return this.actual.getComTask().getName();
-        }
-
-        @Override
-        public SecurityPropertySet securityPropertySet() {
-            /* ScheduledComTaskExecutions:
-             *   1. have at least one ComTasks (so get(0) is not returning null)
-             *   2. all ComTasks in the ComSchedule must use the same SecurityPropertySet
-             * Therefore, it suffices to take the first ComTask. */
-            ComTask anyComTask = this.actual.getComTasks().get(0);
-            return this.actual
-                        .getDevice()
-                        .getDeviceConfiguration()
-                        .getComTaskEnablementFor(anyComTask)
-                        .map(ComTaskEnablement::getSecurityPropertySet)
-                        .map(SecurityPropertySetAdapter::new)
-                        .orElse(null);
-        }
-
-        @Override
-        public Optional<NextExecutionSpecs> nextExecutionSpecs() {
-            return this.actual
-                        .getNextExecutionSpecs()
-                        .map(NextExecutionSpecsAdapter::new);
-        }
-
-        @Override
-        public List<ProtocolTask> protocolTasks() {
-            return this.actual
-                    .getProtocolTasks()
-                    .stream()
-                    .map(ProtocolTaskAdapterFactory::adapt)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .collect(Collectors.toList());
-        }
-
-        @Override
-        public boolean isConfiguredToCollectLoadProfileData() {
-            return this.actual.isConfiguredToCollectLoadProfileData();
-        }
-
-        @Override
-        public boolean isConfiguredToCollectRegisterData() {
-            return this.actual.isConfiguredToCollectRegisterData();
-        }
-
-        @Override
-        public boolean isConfiguredToCollectEvents() {
-            return this.actual.isConfiguredToCollectEvents();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            CommunicationTaskAdapter that = (CommunicationTaskAdapter) o;
-            return this.id() == that.id();
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(this.id());
-        }
-    }
-
-    private class SecurityPropertySetAdapter implements SecurityPropertySet {
-        private final com.energyict.mdc.device.config.SecurityPropertySet actual;
-
-        private SecurityPropertySetAdapter(com.energyict.mdc.device.config.SecurityPropertySet actual) {
-            this.actual = actual;
-        }
-
-        com.energyict.mdc.device.config.SecurityPropertySet getActual() {
-            return actual;
-        }
-
-        @Override
-        public long id() {
-            return this.actual.getId();
-        }
-
-        @Override
-        public int authenticationDeviceAccessLevelId() {
-            return this.actual.getAuthenticationDeviceAccessLevel().getId();
-        }
-
-        @Override
-        public int encryptionDeviceAccessLevelId() {
-            return this.actual.getEncryptionDeviceAccessLevel().getId();
-        }
-
-        @Override
-        public Set<PropertySpec> propertySpecs() {
-            return this.actual
-                    .getPropertySpecs()
-                    .stream()
-                    .map(protocolPluggableService::adapt)
-                    .collect(Collectors.toSet());
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            SecurityPropertySetAdapter that = (SecurityPropertySetAdapter) o;
             return this.id() == that.id();
         }
 
@@ -647,10 +463,10 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
         @Override
         public boolean contains(RegisterGroup group) {
             return this.actual
-                        .getRegisterType()
-                        .getRegisterGroups()
-                        .stream()
-                        .anyMatch(each -> each.getId() == group.id());
+                    .getRegisterType()
+                    .getRegisterGroups()
+                    .stream()
+                    .anyMatch(each -> each.getId() == group.id());
         }
 
         @Override
@@ -699,9 +515,9 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
         public Duration minimumClockDifference() {
             return Duration.ofSeconds(
                     this.actual
-                        .getMinimumClockDifference()
-                        .map(TimeDuration::getSeconds)
-                        .orElse(0));
+                            .getMinimumClockDifference()
+                            .map(TimeDuration::getSeconds)
+                            .orElse(0));
         }
 
         @Override
@@ -946,7 +762,193 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
 
         @Override
         public Object value() {
-            return this.actual.getValue();
+            return TypedPropertiesValueAdapter.adaptToUPLValue(this.actual.getValue());
+        }
+    }
+
+    private class NextExecutionSpecsAdapter implements NextExecutionSpecs {
+        private final com.energyict.mdc.scheduling.NextExecutionSpecs actual;
+
+        private NextExecutionSpecsAdapter(com.energyict.mdc.scheduling.NextExecutionSpecs actual) {
+            this.actual = actual;
+        }
+
+        @Override
+        public long id() {
+            return this.actual.getId();
+        }
+
+        @Override
+        public String displayName() {
+            return new NextExecutionSpecsFormat(engineService.thesaurus()).format(this.actual);
+        }
+
+        @Override
+        public SchedulingSpecificationType type() {
+            if (this.actual.getTemporalExpression() != null) {
+                return SchedulingSpecificationType.TEMPORAL;
+            } else {
+                return SchedulingSpecificationType.DIAL_CALENDAR;
+            }
+        }
+
+        @Override
+        public String toCronExpression(TimeZone targetTimeZone, TimeZone definitionTimeZone) {
+            return this.actual.getTemporalExpression().toCronExpression(targetTimeZone, definitionTimeZone);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            NextExecutionSpecsAdapter that = (NextExecutionSpecsAdapter) o;
+            return this.id() == that.id();
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.id());
+        }
+    }
+
+    private class CommunicationTaskAdapter implements CommunicationTask {
+        private final ComTaskExecution actual;
+
+        private CommunicationTaskAdapter(ComTaskExecution actual) {
+            this.actual = actual;
+        }
+
+        @Override
+        public long id() {
+            return this.actual.getId();
+        }
+
+        @Override
+        public String name() {
+            return this.actual.getComTask().getName();
+        }
+
+        @Override
+        public SecurityPropertySet securityPropertySet() {
+            /* ScheduledComTaskExecutions:
+             *   1. have at least one ComTasks (so get(0) is not returning null)
+             *   2. all ComTasks in the ComSchedule must use the same SecurityPropertySet
+             * Therefore, it suffices to take the first ComTask. */
+            ComTask anyComTask = this.actual.getComTasks().get(0);
+            return this.actual
+                    .getDevice()
+                    .getDeviceConfiguration()
+                    .getComTaskEnablementFor(anyComTask)
+                    .map(ComTaskEnablement::getSecurityPropertySet)
+                    .map(SecurityPropertySetAdapter::new)
+                    .orElse(null);
+        }
+
+        @Override
+        public Optional<NextExecutionSpecs> nextExecutionSpecs() {
+            return this.actual
+                    .getNextExecutionSpecs()
+                    .map(NextExecutionSpecsAdapter::new);
+        }
+
+        @Override
+        public List<ProtocolTask> protocolTasks() {
+            return this.actual
+                    .getProtocolTasks()
+                    .stream()
+                    .map(ProtocolTaskAdapterFactory::adapt)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList());
+        }
+
+        @Override
+        public boolean isConfiguredToCollectLoadProfileData() {
+            return this.actual.isConfiguredToCollectLoadProfileData();
+        }
+
+        @Override
+        public boolean isConfiguredToCollectRegisterData() {
+            return this.actual.isConfiguredToCollectRegisterData();
+        }
+
+        @Override
+        public boolean isConfiguredToCollectEvents() {
+            return this.actual.isConfiguredToCollectEvents();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            CommunicationTaskAdapter that = (CommunicationTaskAdapter) o;
+            return this.id() == that.id();
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.id());
+        }
+    }
+
+    private class SecurityPropertySetAdapter implements SecurityPropertySet {
+        private final com.energyict.mdc.device.config.SecurityPropertySet actual;
+
+        private SecurityPropertySetAdapter(com.energyict.mdc.device.config.SecurityPropertySet actual) {
+            this.actual = actual;
+        }
+
+        com.energyict.mdc.device.config.SecurityPropertySet getActual() {
+            return actual;
+        }
+
+        @Override
+        public long id() {
+            return this.actual.getId();
+        }
+
+        @Override
+        public int authenticationDeviceAccessLevelId() {
+            return this.actual.getAuthenticationDeviceAccessLevel().getId();
+        }
+
+        @Override
+        public int encryptionDeviceAccessLevelId() {
+            return this.actual.getEncryptionDeviceAccessLevel().getId();
+        }
+
+        @Override
+        public Set<PropertySpec> propertySpecs() {
+            return this.actual
+                    .getPropertySpecs()
+                    .stream()
+                    .map(protocolPluggableService::adapt)
+                    .collect(Collectors.toSet());
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            SecurityPropertySetAdapter that = (SecurityPropertySetAdapter) o;
+            return this.id() == that.id();
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.id());
         }
     }
 }
