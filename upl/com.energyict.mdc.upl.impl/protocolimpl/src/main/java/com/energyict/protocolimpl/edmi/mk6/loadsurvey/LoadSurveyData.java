@@ -10,17 +10,17 @@
 
 package com.energyict.protocolimpl.edmi.mk6.loadsurvey;
 
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.edmi.common.command.GeniusFileAccessReadCommand;
+import com.energyict.protocolimpl.edmi.common.command.GeniusFileAccessSearchCommand;
+import com.energyict.protocolimpl.edmi.common.core.AbstractRegisterType;
+import com.energyict.protocolimpl.edmi.common.core.RegisterTypeParser;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
-
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.edmi.mk6.command.FileAccessReadCommand;
-import com.energyict.protocolimpl.edmi.mk6.command.FileAccessSearchCommand;
-import com.energyict.protocolimpl.edmi.mk6.core.AbstractRegisterType;
-import com.energyict.protocolimpl.edmi.mk6.core.RegisterTypeParser;
 
 /**
  *
@@ -53,8 +53,8 @@ public class LoadSurveyData implements Serializable{
 		}
         
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        FileAccessReadCommand farc;
-        FileAccessSearchCommand fasc;
+        GeniusFileAccessReadCommand farc;
+        GeniusFileAccessSearchCommand fasc;
         long beforeStoredEntries = 0;
         long afterStoredEntries = 0;
         int records;
@@ -69,14 +69,14 @@ public class LoadSurveyData implements Serializable{
         	byteArrayOutputStream = new ByteArrayOutputStream();
   			byteArrayOutputStream.reset();
   			
-  			fasc = getLoadSurvey().getCommandFactory().getFileAccessSearchForwardCommand((getLoadSurvey().getRegisterId()<<16)|0x5F008, from);
+  			fasc = getLoadSurvey().getCommandFactory().getGeniusFileAccessSearchForwardCommand((getLoadSurvey().getRegisterId()<<16)|0x5F008, from);
   			long startRecord = fasc.getStartRecord();
   			
   			farc=null;
   			int nrOfRecords2Request = 2013 / getLoadSurvey().getEntryWidth();
   			
   			do {
-  				farc = getLoadSurvey().getCommandFactory().getFileAccessReadCommand(
+  				farc = getLoadSurvey().getCommandFactory().getGeniusFileAccessReadCommand(
 					(getLoadSurvey().getRegisterId() << 16) | 0x5F008,
 					startRecord, nrOfRecords2Request, 0,
 					getLoadSurvey().getEntryWidth());
@@ -99,7 +99,7 @@ public class LoadSurveyData implements Serializable{
 
         // set first record timestamp...
         
-        Calendar cal = ProtocolUtils.getCleanCalendar(getLoadSurvey().getCommandFactory().getMk6().getTimeZone());
+        Calendar cal = ProtocolUtils.getCleanCalendar(getLoadSurvey().getCommandFactory().getProtocol().getTimeZone());
         if (getLoadSurvey().isEventLog()) {
             setFirstTimeStamp(getChannelValues(0)[1].getDate());
         }
@@ -122,7 +122,7 @@ public class LoadSurveyData implements Serializable{
              * are reading profileData, then the data will be shifted. With the fasc date is will probably not be shifted, 
              * but if you collect data larger then the buffer, then you get incorrect intervals!!!
              */
-            if(getLoadSurvey().getCommandFactory().getMk6().useOldProfileFromDate()){
+            if(getLoadSurvey().getCommandFactory().getProtocol().useOldProfileFromDate()){
             	setFirstTimeStamp(fasc.getDate());
             } else {
             	setFirstTimeStamp(cal.getTime());
@@ -176,7 +176,7 @@ public class LoadSurveyData implements Serializable{
     
     public AbstractRegisterType[] getChannelValues(int intervalIndex) throws IOException {
         AbstractRegisterType[] channelValues = new AbstractRegisterType[loadSurvey.getNrOfChannels()];
-        RegisterTypeParser rtp = new RegisterTypeParser(loadSurvey.getCommandFactory().getMk6().getTimeZone());
+        RegisterTypeParser rtp = new RegisterTypeParser(loadSurvey.getCommandFactory().getProtocol().getTimeZone());
         for (int channel=0;channel<loadSurvey.getNrOfChannels();channel++) {
             AbstractRegisterType channelValue = rtp.parse2Internal((char)loadSurvey.getLoadSurveyChannels()[channel].getType(), getData(intervalIndex, channel));
             channelValues[channel] = channelValue;

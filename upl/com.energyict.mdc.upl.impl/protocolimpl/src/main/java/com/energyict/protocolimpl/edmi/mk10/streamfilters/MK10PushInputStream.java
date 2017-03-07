@@ -2,13 +2,14 @@ package com.energyict.protocolimpl.edmi.mk10.streamfilters;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.CircularByteBuffer;
+import com.energyict.protocolimpl.edmi.common.packets.PushPacket;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

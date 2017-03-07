@@ -1,5 +1,20 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.logging.Logger;
+
+import org.codehaus.jackson.map.ObjectMapper;
+
 import com.energyict.cpo.ObjectMapperFactory;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecPossibleValues;
@@ -9,35 +24,43 @@ import com.energyict.dlms.cosem.Clock;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdc.protocol.security.SecurityPropertySet;
-import com.energyict.mdc.protocol.tasks.*;
-import com.energyict.mdc.tasks.*;
+import com.energyict.mdc.protocol.tasks.ClockTask;
+import com.energyict.mdc.protocol.tasks.LoadProfilesTask;
+import com.energyict.mdc.protocol.tasks.LogBooksTask;
+import com.energyict.mdc.protocol.tasks.ProtocolTask;
+import com.energyict.mdc.protocol.tasks.RegistersTask;
+import com.energyict.mdc.tasks.ComTaskEnablement;
+import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.tasks.GatewayTcpDeviceProtocolDialect;
+import com.energyict.mdc.tasks.NextExecutionSpecs;
+import com.energyict.mdc.tasks.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.tasks.ServerComTask;
 import com.energyict.mdw.amr.RegisterGroup;
 import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.amr.RegisterSpec;
-import com.energyict.mdw.core.*;
-import com.energyict.mdw.coreimpl.DeviceImpl;
-import com.energyict.mdw.coreimpl.DeviceTypeImpl;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.DeviceConfiguration;
+import com.energyict.mdw.core.DeviceType;
+import com.energyict.mdw.core.LoadProfileSpec;
+import com.energyict.mdw.core.LoadProfileType;
+import com.energyict.mdw.core.LogBookSpec;
+import com.energyict.mdw.core.LogBookType;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.TimeZoneInUse;
 import com.energyict.mdwswing.decorators.mdc.NextExecutionSpecsShadowDecorator;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
-import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
+import com.energyict.protocolimplv2.dlms.idis.am540.AM540;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540ConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
-import org.codehaus.jackson.map.ObjectMapper;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.logging.Logger;
 
 /**
  * Helper class that takes a group of slave devices and returns a JSon serialized version of all their devicetypes, tasks & master data.
@@ -54,6 +77,14 @@ import java.util.logging.Logger;
 public class MasterDataSerializer {
 
     public static final ObisCode FIXED_SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
+    
+    /** Contains protocol class names that need to be mapped to another protocol, for example if the EIServer protocol uses the HSM, where the Beacon doesn't. */
+    private static final Map<String, String> MAPPED_PROTOCOL_CLASSNAMES = new HashMap<>();
+    
+    /** Populate the mapped protocol class names. */
+    static {
+    	MAPPED_PROTOCOL_CLASSNAMES.put("com.evn.protocolimplv2.dlms.idis.am540.CryptoAM540", AM540.class.getName());
+    }
 
     private static final int NO_SCHEDULE = -1;
     private static Logger logger;
@@ -665,8 +696,14 @@ public class MasterDataSerializer {
     /**
      * Subclasses can override this implementation
      */
-    protected String getJavaClassName(DeviceType deviceType) {
-        return deviceType.getDeviceProtocolPluggableClass().getJavaClassName();
+    protected final String getJavaClassName(DeviceType deviceType) {
+    	String protocolClassName = deviceType.getDeviceProtocolPluggableClass().getJavaClassName();
+    	
+    	if (protocolClassName != null && MAPPED_PROTOCOL_CLASSNAMES.containsKey(protocolClassName)) {
+    		protocolClassName = MAPPED_PROTOCOL_CLASSNAMES.get(protocolClassName);
+    	}
+    	
+        return protocolClassName;
     }
 
     /**
@@ -779,11 +816,11 @@ public class MasterDataSerializer {
         }
     }
 
-    protected ProtocolRuntimeException invalidFormatException(String propertyName, String propertyValue, String message) {
+    protected DeviceConfigurationException invalidFormatException(String propertyName, String propertyValue, String message) {
         return DeviceConfigurationException.invalidPropertyFormat(propertyName, propertyValue, message);
     }
 
-    protected ProtocolRuntimeException missingProperty(String propertyName) {
+    protected DeviceConfigurationException missingProperty(String propertyName) {
         return DeviceConfigurationException.missingProperty(propertyName);
     }
 

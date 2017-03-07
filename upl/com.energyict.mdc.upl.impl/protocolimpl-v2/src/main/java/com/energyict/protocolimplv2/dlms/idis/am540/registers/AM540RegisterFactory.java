@@ -6,6 +6,7 @@ import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.ComposedCosemObject;
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.G3NetworkManagement;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
@@ -16,6 +17,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.g3.registers.G3Mapping;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.common.composedobjects.ComposedData;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedObject;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.dlms.idis.am130.registers.AM130RegisterFactory;
@@ -38,9 +40,19 @@ import java.util.Map;
  */
 public class AM540RegisterFactory extends AM130RegisterFactory {
 
-    private AM540PLCRegisterMapper plcRegisterMapper;
     private static final ObisCode MULTICAST_FIRMWARE_UPGRADE_OBISCODE = ObisCode.fromString("0.0.44.0.128.255");
     private static final ObisCode MULTICAST_METER_PROGRESS = ProtocolTools.setObisCodeField(MULTICAST_FIRMWARE_UPGRADE_OBISCODE, 1, (byte) (-1 * ImageTransfer.ATTRIBUTE_UPGRADE_PROGRESS));
+    
+    /** OBIS code of the image transfer instance. */
+    private static final ObisCode OBIS_IMAGE_TRANSFER = ObisCode.fromString("0.0.44.0.0.255");
+    
+    /** Image block size attribute. */
+    private static final byte ATTRIBUTE_IMAGE_BLOCK_SIZE = 2;
+    
+    /** Mapped register (0.2.44.0.0.255), maps to the image block size. */
+    private static final ObisCode MAPPED_IMAGE_TRANSFER_BLOCK_SIZE = ProtocolTools.setObisCodeField(OBIS_IMAGE_TRANSFER, 1, ATTRIBUTE_IMAGE_BLOCK_SIZE);
+    
+    private AM540PLCRegisterMapper plcRegisterMapper;
 
     public AM540RegisterFactory(AM540 am540) {
         super(am540);
@@ -48,34 +60,41 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
 
     @Override
     protected Boolean addComposedObjectToComposedRegisterMap(Map<ObisCode, ComposedObject> composedObjectMap, List<DLMSAttribute> dlmsAttributes, OfflineRegister register) {
-        G3Mapping g3Mapping = getPLCRegisterMapper().getG3Mapping(register.getObisCode());
-        if (g3Mapping != null) {
-            ComposedRegister composedRegister = new ComposedRegister();
-            int[] attributeNumbers = g3Mapping.getAttributeNumbers();
-
-            if (dlmsAttributes.size() + attributeNumbers.length > BULK_REQUEST_ATTRIBUTE_LIMIT) {
-                return null; //Don't add the new attributes, no more room
-            }
-
-            for (int index = 0; index < attributeNumbers.length; index++) {
-                int attributeNumber = attributeNumbers[index];
-                DLMSAttribute dlmsAttribute = new DLMSAttribute(g3Mapping.getBaseObisCode(), attributeNumber, g3Mapping.getDLMSClassId());
-                dlmsAttributes.add(dlmsAttribute);
-
-                //If the mapping contains more than 1 attribute, the order is always value, unit, captureTime
-                if (index == 0) {
-                    composedRegister.setRegisterValue(dlmsAttribute);
-                } else if (index == 1) {
-                    composedRegister.setRegisterUnit(dlmsAttribute);
-                } else if (index == 2) {
-                    composedRegister.setRegisterCaptureTime(dlmsAttribute);
-                }
-            }
-            composedObjectMap.put(register.getObisCode(), composedRegister);
-            return true;
-        } else {
-            return super.addComposedObjectToComposedRegisterMap(composedObjectMap, dlmsAttributes, register);
-        }
+    	if (register.getObisCode() != null && register.getObisCode().equals(MAPPED_IMAGE_TRANSFER_BLOCK_SIZE)) {
+    		composedObjectMap.put(register.getObisCode(), this.getImageTransferBlockSizeMapping());
+    		
+    		return true;
+    	} else {
+	        G3Mapping g3Mapping = getPLCRegisterMapper().getG3Mapping(register.getObisCode());
+	        
+	        if (g3Mapping != null) {
+	            ComposedRegister composedRegister = new ComposedRegister();
+	            int[] attributeNumbers = g3Mapping.getAttributeNumbers();
+	
+	            if (dlmsAttributes.size() + attributeNumbers.length > BULK_REQUEST_ATTRIBUTE_LIMIT) {
+	                return null; //Don't add the new attributes, no more room
+	            }
+	
+	            for (int index = 0; index < attributeNumbers.length; index++) {
+	                int attributeNumber = attributeNumbers[index];
+	                DLMSAttribute dlmsAttribute = new DLMSAttribute(g3Mapping.getBaseObisCode(), attributeNumber, g3Mapping.getDLMSClassId());
+	                dlmsAttributes.add(dlmsAttribute);
+	
+	                //If the mapping contains more than 1 attribute, the order is always value, unit, captureTime
+	                if (index == 0) {
+	                    composedRegister.setRegisterValue(dlmsAttribute);
+	                } else if (index == 1) {
+	                    composedRegister.setRegisterUnit(dlmsAttribute);
+	                } else if (index == 2) {
+	                    composedRegister.setRegisterCaptureTime(dlmsAttribute);
+	                }
+	            }
+	            composedObjectMap.put(register.getObisCode(), composedRegister);
+	            return true;
+	        } else {
+	            return super.addComposedObjectToComposedRegisterMap(composedObjectMap, dlmsAttributes, register);
+	        }
+    	}
     }
 
     @Override
@@ -93,6 +112,15 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
         } else {
             return super.getRegisterValueForComposedRegister(offlineRegister, captureTime, attributeValue, unit);
         }
+    }
+    
+    /**
+     * Treat the image transfer block size mapping as a data object.
+     * 
+     * @return	The image transfer block size mapping.
+     */
+    private final ComposedData getImageTransferBlockSizeMapping() {
+    	return new ComposedData(new DLMSAttribute(OBIS_IMAGE_TRANSFER, 2, DLMSClassId.IMAGE_TRANSFER.getClassId()));
     }
 
     /**

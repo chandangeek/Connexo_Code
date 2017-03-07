@@ -10,11 +10,11 @@
 
 package com.energyict.protocolimpl.edmi.mk6.registermapping;
 
+import com.energyict.protocolimpl.edmi.common.command.CommandFactory;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
-
-import com.energyict.protocolimpl.edmi.mk6.command.CommandFactory;
 
 
 

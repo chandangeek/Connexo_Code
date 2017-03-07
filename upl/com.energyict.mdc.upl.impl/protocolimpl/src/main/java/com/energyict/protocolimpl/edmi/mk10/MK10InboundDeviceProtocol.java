@@ -1,17 +1,18 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
+
+import com.energyict.cbo.TimeDuration;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.InboundFrameException;
-import com.energyict.protocolimpl.edmi.mk10.packets.PushPacket;
+import com.energyict.protocolimpl.edmi.common.packets.PushPacket;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 
 import java.io.ByteArrayOutputStream;

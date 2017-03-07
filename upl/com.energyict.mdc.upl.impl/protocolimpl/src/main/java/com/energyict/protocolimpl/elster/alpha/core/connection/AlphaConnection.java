@@ -66,7 +66,7 @@ public class AlphaConnection extends Connection  implements ProtocolConnection {
     
     
     
-    public void delayAndFlush(long delay)  throws ConnectionException,NestedIOException {
+    public void delayAndFlush(long delay)  throws ConnectionException {
         super.delayAndFlush(delay);
     }
 

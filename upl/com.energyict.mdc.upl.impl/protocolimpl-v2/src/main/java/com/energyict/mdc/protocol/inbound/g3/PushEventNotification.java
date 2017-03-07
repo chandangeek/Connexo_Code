@@ -84,27 +84,31 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     protected String getLoggingMessage() {
         StringBuilder logMessage = new StringBuilder();
         try {
-            logMessage.append("Received inbound event notification from [");
+            logMessage.append("Received inbound notification from [");
             if (getDeviceIdentifier() != null) {
                 logMessage.append(getDeviceIdentifier().toString());
             } else {
                 logMessage.append("unknown");
             }
 
-            if (collectedLogBook.getCollectedMeterEvents() != null) {
-                logMessage.append("].  Message: '");
-                Iterator<MeterProtocolEvent> iterator = collectedLogBook.getCollectedMeterEvents().iterator();
-                while (iterator.hasNext()) {
-                    MeterProtocolEvent collectedEvent = iterator.next();
-                    if (collectedEvent != null) {
-                        logMessage.append(collectedEvent.getMessage());
-                        logMessage.append("', protocol code: '");
-                        logMessage.append(collectedEvent.getProtocolCode());
-                        logMessage.append("'.");
-                    } else {
-                        logMessage.append("NULL.'");
+            if (collectedLogBook!=null) {
+                if (collectedLogBook.getCollectedMeterEvents() != null) {
+                    logMessage.append("].  Message: '");
+                    Iterator<MeterProtocolEvent> iterator = collectedLogBook.getCollectedMeterEvents().iterator();
+                    while (iterator.hasNext()) {
+                        MeterProtocolEvent collectedEvent = iterator.next();
+                        if (collectedEvent != null) {
+                            logMessage.append(collectedEvent.getMessage());
+                            logMessage.append("', protocol code: '");
+                            logMessage.append(collectedEvent.getProtocolCode());
+                            logMessage.append("'.");
+                        } else {
+                            logMessage.append("NULL.'");
+                        }
                     }
                 }
+            } else {
+                logMessage.append("] - there are no events included.");
             }
         } catch (Exception ex){
             logMessage.append(ex.getCause()).append(ex.getMessage());

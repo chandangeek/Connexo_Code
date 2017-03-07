@@ -378,8 +378,6 @@
 
 -keepnames class com.energyict.protocolimpl.landisgyr.maxsys2510.MaxSys
 
--keepnames class com.elster.us.protocolimpl.landisgyr.quad4.Quad4
-
 -keepnames class com.energyict.protocolimpl.powermeasurement.ion.Ion
 
 -keepnames class com.energyict.protocolimpl.landisgyr.sentry.s200.S200
@@ -761,3 +759,7 @@
 -keepnames class com.energyict.protocolimpl.modbus.emco.FP93B
 -keepnames class com.energyict.protocolimpl.modbus.spiraxsarco.VLM20
 -keepnames class com.energyict.protocolimpl.modbus.spiraxsarco.RIM20
+
+-keepnames class com.energyict.protocolimpl.edmi.common.**  { public *; protected *; }
+-keep class com.energyict.protocolimpl.edmi.mk10.registermapping.MK10Register { *;}
+-keep class com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeMapper { public *; }

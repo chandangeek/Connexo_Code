@@ -87,7 +87,7 @@ public class S200Connection extends Connection  implements ProtocolConnection {
     public void setHHUSignOn(HHUSignOn hhuSignOn) {
     }
     
-    public void delayAndFlush(long delay)  throws ConnectionException,NestedIOException {
+    public void delayAndFlush(long delay)  throws ConnectionException {
         super.delayAndFlush(delay);
     }
     
