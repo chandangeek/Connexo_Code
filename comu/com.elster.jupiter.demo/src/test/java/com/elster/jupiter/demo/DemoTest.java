@@ -11,6 +11,7 @@ import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.calendar.impl.importers.CalendarImporterFactory;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
+import com.elster.jupiter.dataquality.impl.DataQualityKpiModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.datavault.impl.DataVaultServiceImpl;
 import com.elster.jupiter.demo.impl.ConsoleUser;
@@ -394,7 +395,8 @@ public class DemoTest {
                 new DemoModule(),
                 new CalendarModule(),
                 new PropertyValueInfoServiceModule(),
-                new DeviceAlarmModule()
+                new DeviceAlarmModule(),
+                new DataQualityKpiModule()
         );
         doPreparations();
     }
