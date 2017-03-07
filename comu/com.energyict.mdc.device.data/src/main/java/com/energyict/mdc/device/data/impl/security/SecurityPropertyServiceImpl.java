@@ -177,11 +177,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService, Ser
 
     @Override
     public void setSecurityProperties(Device device, SecurityPropertySet securityPropertySet, TypedProperties properties) {
-        if (securityPropertySet.currentUserIsAllowedToEditDeviceProperties()) {
-            this.doSetSecurityProperties(device, securityPropertySet, properties);
-        } else {
-            throw new SecurityPropertyException(securityPropertySet, this.thesaurus, MessageSeeds.USER_IS_NOT_ALLOWED_TO_EDIT_SECURITY_PROPERTIES);
-        }
+        this.doSetSecurityProperties(device, securityPropertySet, properties);
     }
 
     private void doSetSecurityProperties(Device device, SecurityPropertySet securityPropertySet, TypedProperties properties) {
