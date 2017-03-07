@@ -11,13 +11,14 @@ Ext.define('Cfg.view.validation.RuleSubMenu', {
     ruleId: null,
 
     title: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule'),
+    objectType: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule'),
 
     initComponent: function () {
         var me = this;
 
         me.menuItems = [
             {
-                text: Uni.I18n.translate('general.overview', 'CFG', 'Overview'),
+                text: Uni.I18n.translate('general.details', 'CFG', 'Details'),
                 itemId: 'ruleSetOverviewLink',
                 href: '#/administration/validation/rulesets/' + me.ruleSetId + '/versions/' + me.versionId + '/rules/' + me.ruleId
             }

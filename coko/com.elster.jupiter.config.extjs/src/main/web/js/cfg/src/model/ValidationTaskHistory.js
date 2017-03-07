@@ -32,10 +32,24 @@ Ext.define('Cfg.model.ValidationTaskHistory', {
             }
         },
         {
+            name: 'metrologyPurpose',
+            persist:false,
+            mapping:  function (data) {
+                return data.task.metrologyPurpose;
+            }
+        },
+        {
             name: 'name',
             persist:false,
             mapping:  function (data) {
                 return data.task.name;
+            }
+        },
+        {
+            name: 'logLevel',
+            persist:false,
+            mapping:  function (data) {
+                return data.task.logLevel;
             }
         },
         {

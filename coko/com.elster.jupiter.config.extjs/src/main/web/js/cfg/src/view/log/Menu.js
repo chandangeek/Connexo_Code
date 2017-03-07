@@ -7,6 +7,7 @@ Ext.define('Cfg.view.log.Menu', {
     alias: 'widget.log-menu',
     router: null,
     title: Uni.I18n.translate('validationTasks.general.validationTask', 'CFG', 'Validation task'),
+    objectType: Uni.I18n.translate('validationTasks.general.validationTask', 'CFG', 'Validation task'),
 
     initComponent: function () {
         var me = this;
@@ -14,7 +15,7 @@ Ext.define('Cfg.view.log.Menu', {
         if (me.router.arguments.taskId) {
             me.menuItems = [
                 {
-                    text: Uni.I18n.translate('general.overview', 'CFG', 'Overview'),
+                    text: Uni.I18n.translate('general.details', 'CFG', 'Details'),
                     itemId: 'tasks-view-link',
                     href: '#/administration/validationtasks/' + me.router.arguments.taskId
                 }
