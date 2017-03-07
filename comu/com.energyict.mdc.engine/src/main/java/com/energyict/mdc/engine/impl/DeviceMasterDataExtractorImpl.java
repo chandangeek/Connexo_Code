@@ -408,10 +408,12 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
         @Override
         public List<ProtocolTask> protocolTasks() {
             return this.actual
-                        .getProtocolTasks()
-                        .stream()
-                        .map(ProtocolTaskAdapterFactory::adapt)
-                        .collect(Collectors.toList());
+                    .getProtocolTasks()
+                    .stream()
+                    .map(ProtocolTaskAdapterFactory::adapt)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList());
         }
 
         @Override
@@ -670,20 +672,20 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     }
 
     private static class ProtocolTaskAdapterFactory {
-        static ProtocolTask adapt(com.energyict.mdc.tasks.ProtocolTask mdwTask) {
-            if (mdwTask instanceof ClockTask) {
-                return new ClockTaskAdapter((ClockTask) mdwTask);
-            } else if (mdwTask instanceof RegistersTask) {
-                return new RegistersAdapter((RegistersTask) mdwTask);
-            } else if (mdwTask instanceof LoadProfilesTask) {
-                return new LoadProfilesAdapter((LoadProfilesTask) mdwTask);
-            } else if (mdwTask instanceof LogBooksTask) {
-                return new LogBooksAdapter((LogBooksTask) mdwTask);
+        //Note that other tasks are not sync'ed to the Beacon
+        static Optional<ProtocolTask> adapt(com.energyict.mdc.tasks.ProtocolTask cxoTask) {
+            if (cxoTask instanceof ClockTask) {
+                return Optional.of(new ClockTaskAdapter((ClockTask) cxoTask));
+            } else if (cxoTask instanceof RegistersTask) {
+                return Optional.of(new RegistersAdapter((RegistersTask) cxoTask));
+            } else if (cxoTask instanceof LoadProfilesTask) {
+                return Optional.of(new LoadProfilesAdapter((LoadProfilesTask) cxoTask));
+            } else if (cxoTask instanceof LogBooksTask) {
+                return Optional.of(new LogBooksAdapter((LogBooksTask) cxoTask));
             } else {
-                throw new IllegalArgumentException("ProtocolTask type not supported yet: " + mdwTask.getClass().getName());
+                return Optional.empty();
             }
         }
-
     }
 
     private static class ClockTaskAdapter implements Clock {

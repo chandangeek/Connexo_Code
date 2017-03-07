@@ -27,9 +27,9 @@ class NextExecutionSpecsFormat {
         THURSDAY("Thursday"),
         FRIDAY("Friday"),
         SATURDAY("Saturday"),
-        EVERY_MONTH("Every {0} month(s) on day {1} at {2,integer,00}:{3,integer,00}"),
-        EVERY_WEEK("Every {0} week(s) on {1} at {2,integer,00}:{3,integer,00}"),
-        EVERY_DAY("Every {0} day(s) at {1,integer,00}:{2,integer,00}"),
+        EVERY_MONTH("Every {0} month(s) on day {1} at {2,number,00}:{3,number,00}"),
+        EVERY_WEEK("Every {0} week(s) on {1} at {2,number,00}:{3,number,00}"),
+        EVERY_DAY("Every {0} day(s) at {1,number,00}:{2,number,00}"),
         EVERY_HOUR("Every {0} hour(s) at {1} minute(s)"),
         EVERY_MINUTE("Every {0} minute(s)");
 

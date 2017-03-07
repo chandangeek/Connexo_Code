@@ -1,8 +1,7 @@
 package com.energyict.mdc.engine.impl;
 
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.upl.ObjectMapperService;
-
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.Version;
@@ -102,14 +101,14 @@ public class ObjectMapperServiceImpl implements ObjectMapperService {
          * @param typedPropertiesHashMap the JSON marsahlled version of the TypedProperties object
          * @return a proper TypedProperties object (including its inherited TypedProperties)
          */
-        private TypedProperties createTypedPropertiesFor(Map typedPropertiesHashMap) throws JsonMappingException {
+        private com.energyict.mdc.common.TypedProperties createTypedPropertiesFor(Map typedPropertiesHashMap) throws JsonMappingException {
             if (typedPropertiesHashMap != null) {
-                TypedProperties typedProperties;
+                com.energyict.mdc.common.TypedProperties typedProperties;
                 if (typedPropertiesHashMap.containsKey("inheritedProperties")) {
                     Map inheritedProperties = (LinkedHashMap) typedPropertiesHashMap.get("inheritedProperties");
-                    typedProperties = TypedProperties.inheritingFrom(this.createTypedPropertiesFor(inheritedProperties)); // Recursively parse the inherited TypedProperties
+                    typedProperties = com.energyict.mdc.common.TypedProperties.inheritingFrom(this.createTypedPropertiesFor(inheritedProperties)); // Recursively parse the inherited TypedProperties
                 } else {
-                    typedProperties = TypedProperties.empty();
+                    typedProperties = com.energyict.mdc.common.TypedProperties.empty();
                 }
 
                 if (typedPropertiesHashMap.containsKey("hashTable")) {
@@ -132,7 +131,7 @@ public class ObjectMapperServiceImpl implements ObjectMapperService {
                 }
                 return typedProperties;
             } else {
-                return TypedProperties.empty();
+                return com.energyict.mdc.common.TypedProperties.empty();
             }
         }
     }
