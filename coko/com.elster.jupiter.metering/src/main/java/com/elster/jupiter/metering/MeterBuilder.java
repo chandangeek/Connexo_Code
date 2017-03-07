@@ -10,6 +10,7 @@ import com.elster.jupiter.util.geo.SpatialCoordinates;
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
+
 @ProviderType
 public interface MeterBuilder {
 

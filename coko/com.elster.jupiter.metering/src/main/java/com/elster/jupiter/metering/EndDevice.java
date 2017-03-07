@@ -127,33 +127,42 @@ public interface EndDevice extends HasId, IdentifiedObject {
 
     /**
      * Gets the manufacturer of this EndDevice
+     *
      * @return the manufacturer
      */
     String getManufacturer();
 
     /**
      * Sets the manufacturer of this EndDevice
+     *
      * @param manufacturer new value
      */
     void setManufacturer(String manufacturer);
+
     /**
      * Gets the model number of this EndDevice
+     *
      * @return the model number as known by the manufacturer
-    */
+     */
     String getModelNumber();
 
     /**
      * Sets the modelNumber of the device
+     *
      * @param modelNumber as known by the manufacturer
      */
     void setModelNumber(String modelNumber);
+
     /**
      * Gets the model number of this EndDevice
+     *
      * @return the model number as known by the manufacturer
-    */
+     */
     String getModelVersion();
+
     /**
      * Sets the modelNumber of the device
+     *
      * @param modelVersion as known by the manufacturer
      */
     void setModelVersion(String modelVersion);

@@ -3,7 +3,6 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterBuilder;
 import com.elster.jupiter.metering.MeteringService;
@@ -49,11 +48,11 @@ public class MeterBuilderImplTest {
 
     @Test
     @Transactional
-    public void createMeterUsingMeterBuilder(){
+    public void createMeterUsingMeterBuilder() {
         MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
         AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
 
-        MeterBuilder meterBuilder = amrSystem.newMeter("ABCD","EFGHIJKLMNO");
+        MeterBuilder meterBuilder = amrSystem.newMeter("ABCD", "EFGHIJKLMNO");
         meterBuilder.setManufacturer("MANUFACTURER");
         meterBuilder.setModelNumber("MODELNUMBER");
         meterBuilder.setModelVersion("MODELVERSION");
