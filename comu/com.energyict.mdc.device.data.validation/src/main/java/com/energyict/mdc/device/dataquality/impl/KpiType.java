@@ -100,7 +100,7 @@ class KpiType {
         sqlBuilder.append(this.withClauseAliasName());
         sqlBuilder.append(" (devicegroup, device, value, timestamp) as (select devicegroup, device, value, timestamp from allData where kpitype ='");
         sqlBuilder.append(this.getKpiType());
-        sqlBuilder.append("')");
+        sqlBuilder.append("' and latest = 'Y')");
     }
 
     void appendSelectTo(SqlBuilder sqlBuilder) {

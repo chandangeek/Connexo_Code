@@ -38,7 +38,7 @@ public class KpiTypeTest {
         // Asserts
         assertThat(sqlBuilder.toString()).isEqualTo(
                 ", " + WITH_CLAUSE_ALIAS + " (devicegroup, device, value, timestamp) as" +
-                        " (select devicegroup, device, value, timestamp from allData where kpitype ='" + KPI_TYPE + "')");
+                        " (select devicegroup, device, value, timestamp from allData where kpitype ='" + KPI_TYPE + "' and latest = 'Y')");
     }
 
     @Test

@@ -115,12 +115,13 @@ class DataQualityOverviewSqlBuilder {
     }
 
     private void appendAllDataWithClause() {
-        this.sqlBuilder.append("allData (devicegroup, device, kpitype, value, timestamp) as (");
+        this.sqlBuilder.append("allData (devicegroup, device, kpitype, value, timestamp, latest) as (");
         this.sqlBuilder.append("     select dqkpi.enddevicegroup,");
         this.sqlBuilder.append("            to_number(substr(kpim.name, instr(kpim.name, '_') + 1)),");
         this.sqlBuilder.append("            substr(kpim.name, 1, instr(kpim.name, '_') - 1),");
         this.sqlBuilder.append("            sum(slot0),");
-        this.sqlBuilder.append("            max(kpivalues.utcstamp)");
+        this.sqlBuilder.append("            max(kpivalues.utcstamp),");
+        this.sqlBuilder.append("            case when max(kpivalues.recordtime) = max(kpivalues.recordtime) over (partition by max(kpivalues.utcstamp)) then 'Y' else 'N' end");
         this.sqlBuilder.append("     from DQK_DATAQUALITYKPI dqkpi");
         this.sqlBuilder.append("     join DQK_DATAQUALITYKPIMEMBER dqkpim on dqkpim.dataqualitykpi = dqkpi.id");
         this.sqlBuilder.append("     join KPI_KPIMEMBER kpim on kpim.kpi = dqkpim.childkpi");
@@ -135,7 +136,8 @@ class DataQualityOverviewSqlBuilder {
         this.sqlBuilder.append("            and kpivalues.slot0 > 0");
         this.sqlBuilder.append("      group by dqkpi.enddevicegroup,");
         this.sqlBuilder.append("               to_number(substr(kpim.name, instr(kpim.name, '_') + 1)),");
-        this.sqlBuilder.append("               substr(kpim.name, 1, instr(kpim.name, '_') - 1)");
+        this.sqlBuilder.append("               substr(kpim.name, 1, instr(kpim.name, '_') - 1),");
+        this.sqlBuilder.append("               kpivalues.recordtime");
         this.sqlBuilder.append(")");
     }
 
