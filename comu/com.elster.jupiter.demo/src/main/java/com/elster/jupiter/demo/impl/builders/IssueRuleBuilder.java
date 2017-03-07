@@ -18,6 +18,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -33,6 +34,7 @@ import org.json.JSONObject;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -273,29 +275,35 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                 .find().stream()
                 .sorted(Comparator.comparing(DeviceType::getId))
                 .forEach(deviceType ->
-                        deviceType.getDeviceLifeCycle().getFiniteStateMachine().getStates().stream().distinct()
-                                .sorted(Comparator.comparing(State::getId))
-                                .forEach(lifeCycleState -> list.add(new HasIdAndName() {
-                                                               @Override
-                                                               public String getId() {
-                                                                   return deviceType.getId() + SEPARATOR + lifeCycleState.getId();
-                                                               }
+                        list.add(new HasIdAndName() {
+                                     @Override
+                                     public String getId() {
+                                         return deviceType.getId() + SEPARATOR + deviceType.getDeviceLifeCycle().getId() + SEPARATOR + deviceType.getDeviceLifeCycle()
+                                                 .getFiniteStateMachine()
+                                                 .getStates()
+                                                 .stream()
+                                                 .sorted(Comparator.comparing(State::getId))
+                                                 .map(HasId::getId)
+                                                 .map(String::valueOf)
+                                                 .collect(Collectors.joining(","));
+                                     }
 
-                                                               @Override
-                                                               public String getName() {
-                                                                   try {
-                                                                       JSONObject jsonObj = new JSONObject();
-                                                                       jsonObj.put("deviceTypeName", deviceType.getName());
-                                                                       jsonObj.put("lifeCycleStateName", getStateName(lifeCycleState) + " (" + deviceType.getDeviceLifeCycle().getName() + ")");
-                                                                       return jsonObj.toString();
-                                                                   } catch (JSONException e) {
-                                                                       e.printStackTrace();
-                                                                   }
-                                                                   return "";
-                                                               }
-                                                           }
-                                )));
-
+                                     @Override
+                                     public String getName() {
+                                         try {
+                                             JSONObject jsonObj = new JSONObject();
+                                             jsonObj.put("deviceTypeName", deviceType.getName());
+                                             jsonObj.put("lifeCycleStateName", deviceType.getDeviceLifeCycle().getFiniteStateMachine().getStates().stream()
+                                                     .sorted(Comparator.comparing(State::getId)).collect(Collectors.collectingAndThen(Collectors.toList(), Collection::stream))
+                                                     .map(state -> getStateName(state) + " (" + deviceType.getDeviceLifeCycle().getName() + ")").collect(Collectors.toList()));
+                                             return jsonObj.toString();
+                                         } catch (JSONException e) {
+                                             e.printStackTrace();
+                                         }
+                                         return "";
+                                     }
+                                 }
+                        ));
         return list;
     }
 
