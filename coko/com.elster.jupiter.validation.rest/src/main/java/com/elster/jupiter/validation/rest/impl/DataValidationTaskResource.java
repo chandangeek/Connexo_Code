@@ -7,6 +7,7 @@ package com.elster.jupiter.validation.rest.impl;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
@@ -28,7 +29,6 @@ import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationOccurrenceFinder;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
-import com.elster.jupiter.validation.DataValidationTaskStatus;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.DataValidationOccurrenceLogInfos;
 import com.elster.jupiter.validation.rest.DataValidationTaskHistoryInfo;
@@ -103,6 +103,7 @@ public class DataValidationTaskResource {
                                              @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName) {
         DataValidationTaskBuilder builder = validationService.newTaskBuilder()
                 .setName(info.name)
+                .setLogLevel(info.logLevel)
                 .setQualityCodeSystem(getQualityCodeSystemForApplication(applicationName))
                 .setScheduleExpression(getScheduleExpression(info))
                 .setNextExecution(info.nextRun);
@@ -111,6 +112,9 @@ public class DataValidationTaskResource {
         }
         if (info.usagePointGroup != null) {
             builder = builder.setUsagePointGroup(usagePointGroup(info.usagePointGroup.id));
+        }
+        if(info.metrologyPurpose != null) {
+            builder = builder.setMetrologyPurpose(metrologyPurpose(info.metrologyPurpose.id));
         }
         DataValidationTask dataValidationTask = builder.create();
 
@@ -168,6 +172,7 @@ public class DataValidationTaskResource {
         info.id = dataValidationTaskId;
         DataValidationTask task = findAndLockDataValidationTask(info, getQualityCodeSystemForApplication(applicationName));
         task.setName(info.name);
+        task.setLogLevel(info.logLevel);
         task.setScheduleExpression(getScheduleExpression(info));
         if (info.deviceGroup != null) {
             task.setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id));
@@ -175,6 +180,7 @@ public class DataValidationTaskResource {
         }
         if (info.usagePointGroup != null) {
             task.setUsagePointGroup(usagePointGroup(info.usagePointGroup.id));
+            task.setMetrologyPurpose(metrologyPurpose(info.metrologyPurpose.id));
             task.setEndDeviceGroup(null);
         }
         if (info.deviceGroup == null && info.usagePointGroup == null) {
@@ -284,6 +290,10 @@ public class DataValidationTaskResource {
 
     private UsagePointGroup usagePointGroup(long usagePointGroupId) {
         return meteringGroupsService.findUsagePointGroup(usagePointGroupId).orElse(null);
+    }
+
+    private MetrologyPurpose metrologyPurpose(long metrologyPurposeId) {
+        return metrologyConfigurationService.findMetrologyPurpose(metrologyPurposeId).orElse(null);
     }
 
     private MetrologyContract metrologyContract(long metrologyContractId) {

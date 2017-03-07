@@ -4,8 +4,6 @@
 
 package com.elster.jupiter.validation.rest;
 
-import com.elster.jupiter.metering.config.MetrologyContract;
-import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
@@ -53,6 +51,7 @@ public class DataValidationTaskInfoFactory {
     private void populate(DataValidationTaskMinimalInfo info, DataValidationTask dataValidationTask) {
         info.id = dataValidationTask.getId();
         info.name = dataValidationTask.getName();
+        info.logLevel = dataValidationTask.getLogLevel();
         info.nextRun = dataValidationTask.getNextExecution();
         ScheduleExpression scheduleExpression = dataValidationTask.getScheduleExpression();
         if (Never.NEVER.equals(dataValidationTask.getScheduleExpression())) {
@@ -69,13 +68,19 @@ public class DataValidationTaskInfoFactory {
     private DataValidationTaskInfo asInfoWithoutLastOccurrence(DataValidationTask dataValidationTask) {
         DataValidationTaskInfo info = new DataValidationTaskInfo();
         populate(info, dataValidationTask);
-        if (dataValidationTask.getEndDeviceGroup().isPresent()) {
-            info.deviceGroup = new IdWithDisplayValueInfo<>(dataValidationTask.getEndDeviceGroup().get().getId(), dataValidationTask.getEndDeviceGroup().get().getName());
-        }
-        if (dataValidationTask.getUsagePointGroup().isPresent()) {
-            UsagePointGroup usagePointGroup = dataValidationTask.getUsagePointGroup().get();
+        info.deviceGroup =
+                dataValidationTask
+                        .getEndDeviceGroup()
+                        .map(endDeviceGroup -> new IdWithDisplayValueInfo<>(endDeviceGroup.getId(), endDeviceGroup.getName()))
+                        .orElse(null);
+        dataValidationTask.getUsagePointGroup().ifPresent(usagePointGroup -> {
             info.usagePointGroup = new IdWithDisplayValueInfo<>(usagePointGroup.getId(), usagePointGroup.getName());
-        }
+            info.metrologyPurpose =
+                    dataValidationTask
+                            .getMetrologyPurpose()
+                            .map(metrologyPurpose -> new IdWithDisplayValueInfo<>(metrologyPurpose.getId(), metrologyPurpose.getName()))
+                            .orElse(null);
+        });
         ScheduleExpression scheduleExpression = dataValidationTask.getScheduleExpression();
         if (Never.NEVER.equals(dataValidationTask.getScheduleExpression())) {
             info.recurrence = thesaurus.getFormat(TranslationKeys.NONE).format();
