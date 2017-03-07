@@ -157,6 +157,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>datavault</artifactId>
+         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>security.thread</artifactId>
         </dependency>
         <dependency>
@@ -201,10 +205,6 @@
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>datavault</artifactId>
         </dependency>
 
         <!-- Testing -->
@@ -278,11 +278,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>net.minidev</groupId>
-            <artifactId>json-smart</artifactId>
-            <version>1.3.1</version>
-        </dependency>
-        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>usagepoint.lifecycle.config</artifactId>
             <scope>test</scope>
@@ -291,6 +286,11 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>usagepoint.lifecycle</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+            <version>1.3.1</version>
         </dependency>
     </dependencies>
 </project>
