@@ -185,7 +185,7 @@ public class MeterActivationResource {
         return meterActivationInfoFactory.from(activation, uriInfo, Collections.emptyList());
     }
 
-    public void validateMeterActivationRequirements(UsagePoint usagePoint, Meter meter, MeterRole meterRole) {
+    private void validateMeterActivationRequirements(UsagePoint usagePoint, Meter meter, MeterRole meterRole) {
         EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationOnUsagePoint = usagePoint.getCurrentEffectiveMetrologyConfiguration()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION, usagePoint.getName()));
 
