@@ -5,11 +5,11 @@
 package com.energyict.mdc.device.data.importers.impl;
 
 import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.fileimport.csvimport.exceptions.FileImportParserException;
+import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.data.importers.impl.exceptions.FileImportParserException;
-import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
 
 import org.apache.commons.csv.CSVRecord;
 
