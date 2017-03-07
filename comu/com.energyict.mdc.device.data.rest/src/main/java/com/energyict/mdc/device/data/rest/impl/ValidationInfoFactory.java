@@ -298,10 +298,16 @@ public class ValidationInfoFactory {
                 .findFirst()
                 .orElse(null);
         // Estimation
-        veeReadingInfo.estimatedByRule = readingQualities.stream()
+        Optional<ReadingQualityType> estimationReadingQualityType = readingQualities.stream()
                 .map(ReadingQuality::getType)
-                .anyMatch(ReadingQualityType::hasEstimatedCategory);
+                .filter(ReadingQualityType::hasEstimatedCategory)
+                .findAny();
+        veeReadingInfo.estimatedByRule = estimationReadingQualityType.isPresent();
         // Editing
+        if(veeReadingInfo.estimatedByRule) {
+            veeReadingInfo.editedInApp = estimationRuleInfoFactory.getEstimationApplicationInfo(estimationReadingQualityType.get());
+        }
+        //hier
         Pair<ReadingModificationFlag, QualityCodeSystem> modificationFlag = ReadingModificationFlag.getModificationFlag(reading, readingQualities);
         if (modificationFlag != null) {
             veeReadingInfo.valueModificationFlag = modificationFlag.getFirst();

@@ -264,11 +264,11 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE)
     public Response addDevice(DeviceInfo info, @Context SecurityContext securityContext) {
-        Device newDevice = newDevice(info.deviceConfigurationId, info.batch, info.name, info.serialNumber, info.yearOfCertification, info.shipmentDate);
+        Device newDevice = newDevice(info.deviceConfigurationId, info.batch, info.name, info.serialNumber, info.manufacturer, info.modelNbr, info.modelVersion, info.yearOfCertification, info.shipmentDate);
         return Response.status(Response.Status.CREATED).entity(deviceInfoFactory.from(newDevice, getSlaveDevicesForDevice(newDevice))).build();
     }
 
-    private Device newDevice(long deviceConfigurationId, String batch, String name, String serialNumber, int yearOfCertification, Instant shipmentDate) {
+    private Device newDevice(long deviceConfigurationId, String batch, String name, String serialNumber, String manufacturer, String modelNbr, String modelVersion, int yearOfCertification, Instant shipmentDate) {
         Optional<DeviceConfiguration> deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(deviceConfigurationId);
         Device newDevice;
         if (!is(batch).emptyOrOnlyWhiteSpace()) {
@@ -277,6 +277,9 @@ public class DeviceResource {
             newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), name, shipmentDate);
         }
         newDevice.setSerialNumber(serialNumber);
+        newDevice.setManufacturer(manufacturer);
+        newDevice.setModelNumber(modelNbr);
+        newDevice.setModelVersion(modelVersion);
         newDevice.setYearOfCertification(yearOfCertification);
         newDevice.save();
         newDevice.getCurrentMeterActivation().ifPresent(meterActivation -> newDevice.getLifecycleDates().setReceivedDate(meterActivation.getStart()).save());
@@ -370,7 +373,7 @@ public class DeviceResource {
             if (slaveDeviceInfo.id == 0 && slaveDeviceInfo.version == 0) {
                 validateBeforeCreatingNewSlaveViaWizard(slaveDeviceInfo.name);
                 slave = newDevice(slaveDeviceInfo.deviceConfigurationId, slaveDeviceInfo.batch, slaveDeviceInfo.name,
-                        slaveDeviceInfo.serialNumber, slaveDeviceInfo.yearOfCertification, Instant.ofEpochMilli(slaveDeviceInfo.shipmentDate));
+                        slaveDeviceInfo.serialNumber, slaveDeviceInfo.manufacturer, slaveDeviceInfo.modelNbr, slaveDeviceInfo.modelVersion , slaveDeviceInfo.yearOfCertification, Instant.ofEpochMilli(slaveDeviceInfo.shipmentDate));
             } else {
                 if (slaveDeviceInfo.isFromExistingLink()) {
                     // No new link, came along with deviceinfo
@@ -807,7 +810,6 @@ public class DeviceResource {
     @Path("/{name}/runningservicecalls")
     public PagedInfoList getServiceCallsFor(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
         Set<DefaultState> states = EnumSet.of(
                 DefaultState.CREATED,
                 DefaultState.SCHEDULED,
@@ -816,9 +818,17 @@ public class DeviceResource {
                 DefaultState.ONGOING,
                 DefaultState.WAITING);
 
-        serviceCallService.findServiceCalls(device, states).forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
+        ServiceCallFilter filter = new ServiceCallFilter();
+        filter.targetObject = device;
+        filter.states = states.stream().map(Enum::name).collect(Collectors.toList());
 
-        return PagedInfoList.fromCompleteList("serviceCalls", serviceCallInfos, queryParameters);
+        List<ServiceCallInfo> serviceCallInfos = serviceCallService.getServiceCallFinder(filter)
+                .from(queryParameters)
+                .stream()
+                .map(serviceCallInfoFactory::summarized)
+                .collect(Collectors.toList());
+
+        return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }
 
     @PUT
@@ -841,12 +851,13 @@ public class DeviceResource {
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
 
         ServiceCallFilter filter = serviceCallInfoFactory.convertToServiceCallFilter(jsonQueryFilter);
+        filter.targetObject = device;
         serviceCallService.getServiceCallFinder(filter)
+                .from(queryParameters)
                 .stream()
-                .filter(serviceCall -> serviceCall.getTargetObject().map(device::equals).orElse(false))
                 .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
 
-        return PagedInfoList.fromCompleteList("serviceCalls", serviceCallInfos, queryParameters);
+        return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }
 
     @PUT
