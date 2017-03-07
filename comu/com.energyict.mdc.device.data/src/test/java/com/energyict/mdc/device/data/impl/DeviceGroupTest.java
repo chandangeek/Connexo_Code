@@ -29,7 +29,6 @@ import org.joda.time.DateTime;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -60,7 +59,7 @@ public class DeviceGroupTest extends PersistenceIntegrationTest {
                 .setName(QUERY_EDG_NAME)
                 .setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_END_DEVICE_QUERY_PROVIDER)
                 .setSearchDomain(inMemoryPersistence.getDeviceSearchDomain())
-                .withConditions(buildSearchablePropertyCondition("name", SearchablePropertyOperator.EQUAL, Collections.singletonList("devicename*")))
+                .withConditions(buildSearchablePropertyCondition("name", SearchablePropertyOperator.EQUAL, "devicename*"))
                 .create();
 
         //Business method
@@ -134,16 +133,12 @@ public class DeviceGroupTest extends PersistenceIntegrationTest {
         // Asserts: see expected exception
     }
 
-    private SearchablePropertyValue buildSearchablePropertyCondition(String property, SearchablePropertyOperator operator, List<String> values) {
+    private SearchablePropertyValue buildSearchablePropertyCondition(String property, SearchablePropertyOperator operator, String... values) {
         SearchDomain deviceSearchDomain = inMemoryPersistence.getDeviceSearchDomain();
         Optional<SearchableProperty> searchableProperty = deviceSearchDomain.getProperties().stream().filter(p -> property.equals(p.getName())).findFirst();
         if (searchableProperty.isPresent()) {
-            SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
-            valueBean.operator = operator;
-            valueBean.values = values;
-            SearchablePropertyValue searchablePropertyValue = new SearchablePropertyValue(searchableProperty.get());
-            searchablePropertyValue.setValueBean(valueBean);
-            return searchablePropertyValue;
+            return new SearchablePropertyValue(searchableProperty.get(), new SearchablePropertyValue.ValueBean(searchableProperty.get().getName(), operator, values));
+
         }
         throw new IllegalArgumentException("Searchable property with name '" + property + "' is not found");
     }
