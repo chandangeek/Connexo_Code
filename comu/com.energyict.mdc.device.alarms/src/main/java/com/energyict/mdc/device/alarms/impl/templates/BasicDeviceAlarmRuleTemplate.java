@@ -163,7 +163,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 "then\n" +
                 "\tSystem.out.println(\"Processing clearing event device alarm based on rule template number @{ruleId}\");\n" +
                 "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event, true);\n" +
-                "end\n"+
+                "end\n" +
 
                 "rule \"Basic triggering event device alarm rule @{ruleId} logged on same alarm\"\n" +
                 "when\n" +
@@ -174,7 +174,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 "then\n" +
                 "\tSystem.out.println(\"Processing triggering event device alarm based on rule template number @{ruleId} logged on same alarm\");\n" +
                 "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event, true);\n" +
-                "end\n"+
+                "end\n" +
 
                 "rule \"Basic triggering event device alarm rule @{ruleId} create new alarm\"\n" +
                 "when\n" +
@@ -466,10 +466,10 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         @Override
         public String getName() {
             try {
-                JSONObject jsonId = new JSONObject();
-                jsonId.put("deviceTypeName", deviceType.getName());
-                jsonId.put("lifeCycleStateName", deviceType.getName() + "." + getStateName(lifeCycleState));
-                return jsonId.toString();
+                JSONObject jsonObj = new JSONObject();
+                jsonObj.put("deviceTypeName", deviceType.getName());
+                jsonObj.put("lifeCycleStateName", getStateName(lifeCycleState) + " (" + deviceType.getDeviceLifeCycle().getName() + ")");
+                return jsonObj.toString();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
