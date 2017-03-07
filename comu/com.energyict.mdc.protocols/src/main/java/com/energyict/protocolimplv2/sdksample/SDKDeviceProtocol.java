@@ -6,6 +6,7 @@ package com.energyict.protocolimplv2.sdksample;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
@@ -14,28 +15,11 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceFunction;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
-import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.LogBookReader;
-import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.*;
+import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
-import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
-import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
@@ -48,21 +32,13 @@ import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.protocols.impl.channels.ConnectionTypeRule;
-
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
+import com.energyict.protocols.impl.channels.ConnectionTypeRule;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.time.Instant;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -91,6 +67,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
      * As an example the {@link DlmsSecuritySupport} component is used
      */
     private DeviceProtocolSecurityCapabilities deviceProtocolSecurityCapabilities;
+    private final MeteringService meteringService;
     /**
      * Will hold the cache object of the Device related to this protocol
      */
@@ -110,7 +87,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     public SDKDeviceProtocol(
             ProtocolPluggableService protocolPluggableService, Thesaurus thesaurus, PropertySpecService propertySpecService,
             IdentificationService identificationService, CollectedDataFactory collectedDataFactory,
-            DlmsSecuritySupport dlmsSecuritySupport) {
+            DlmsSecuritySupport dlmsSecuritySupport, MeteringService meteringService) {
         super();
         this.protocolPluggableService = protocolPluggableService;
         this.thesaurus = thesaurus;
@@ -118,6 +95,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
         this.deviceProtocolSecurityCapabilities = dlmsSecuritySupport;
+        this.meteringService = meteringService;
     }
 
     @Override
@@ -298,9 +276,31 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
-        //TODO
+        List<CollectedLogBook> collectedLogBooks = new ArrayList<>();
         simulateRealCommunicationIfApplicable();
-        return Collections.emptyList();
+        logBooks.stream().forEach(logBookReader -> {
+            CollectedLogBook collectedLogBook = collectedDataFactory.createCollectedLogBook(logBookReader.getLogBookIdentifier());
+            Instant powerDownDate = Instant.now().minusSeconds(13);
+            Instant powerUpDate = powerDownDate.plusSeconds(2);
+            MeterProtocolEvent powerDown = new MeterProtocolEvent(Date.from(powerDownDate), 1, 13,
+                    EndDeviceEventTypeMapping.POWERDOWN.getEventType(this.meteringService).get(),
+                    "The power went down for the SDK protocol", 1, 1);
+            powerDown.addAdditionalInformation("Voltage", "0V");
+            powerDown.addAdditionalInformation("Current", "0A");
+            powerDown.addAdditionalInformation("Max. power", "35461W");
+            powerDown.addAdditionalInformation("Reason", "Testing purpose");
+            MeterProtocolEvent powerUp = new MeterProtocolEvent(Date.from(powerUpDate), 2, 17,
+                    EndDeviceEventTypeMapping.POWERUP.getEventType(this.meteringService).get(),
+                    "The power went back up", 1, 2);
+            powerUp.addAdditionalInformation("Voltage", "231V");
+            powerUp.addAdditionalInformation("Current", "2.61A");
+            powerUp.addAdditionalInformation("Max. power", "35461W");
+            powerUp.addAdditionalInformation("Reason", "Testing purpose");
+            collectedLogBook.setMeterEvents(Arrays.asList(powerDown, powerUp));
+
+            collectedLogBooks.add(collectedLogBook);
+        });
+        return collectedLogBooks;
     }
 
     @Override
@@ -486,7 +486,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
         return collectedCalendar;
     }
 
-    private void simulateRealCommunicationIfApplicable(){
+    private void simulateRealCommunicationIfApplicable() {
         TimeDuration delayAfterRequest = getDelayAfterRequest();
         if (!delayAfterRequest.isEmpty()) {
             try {
@@ -499,7 +499,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
         }
     }
 
-    private TimeDuration getDelayAfterRequest(){
+    private TimeDuration getDelayAfterRequest() {
         return (TimeDuration) this.typedProperties.getProperty(delayAfterRequest, TimeDuration.NONE);
     }
 

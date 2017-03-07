@@ -27,6 +27,7 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
     public static final String DEFAULT_TIMEOUT = "10000";
     public static final String DEFAULT_RETRIES = "3";
     public static final String DEFAULT_FORCED_DELAY = "0 seconds";
+    public static final String DEFAULT_FORCED_DELAY_IN_SECONDS = "0";
     public static final String DEFAULT_DELAY_AFTER_ERROR = "100";
     public static final String DEFAULT_PROFILE_INTERVAL = "900";
 
@@ -72,7 +73,7 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
 
     @ProtocolProperty
     public int getForcedDelay() {
-        return getIntProperty(FORCED_DELAY, DEFAULT_FORCED_DELAY);
+        return getIntProperty(FORCED_DELAY, DEFAULT_FORCED_DELAY_IN_SECONDS);
     }
 
     @ProtocolProperty
