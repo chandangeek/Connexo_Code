@@ -14,4 +14,5 @@ public interface IssueGroup {
     String getGroupName();
 
     long getCount();
+
 }
