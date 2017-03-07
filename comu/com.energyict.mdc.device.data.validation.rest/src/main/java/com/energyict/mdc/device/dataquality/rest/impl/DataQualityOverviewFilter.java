@@ -189,7 +189,7 @@ public enum DataQualityOverviewFilter {
         }
         String operatorName = operatorNode.asText();
         Operator operator = Operator.findOperator(operatorName).orElseThrow(
-                () -> resourceHelper.newException(MessageSeeds.UNSUPPORTED_OPERATOR, operatorName,
+                () -> resourceHelper.newException(MessageSeeds.UNSUPPORTED_OPERATOR, filterProperty, operatorName,
                         Stream.of(Operator.values()).map(Operator::jsonName).collect(Collectors.joining(", "))));
         return Pair.of(operator, criteriaNode);
     }

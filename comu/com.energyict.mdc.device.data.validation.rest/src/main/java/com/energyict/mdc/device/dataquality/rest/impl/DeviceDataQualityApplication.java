@@ -30,7 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.energyict.ddq.rest", service = {Application.class}, immediate = true, property = {"alias=/ddq", "app=MDC", "name=" + DeviceDataQualityApplication.COMPONENT_NAME})
+@Component(name = "com.energyict.ddq.rest", service = {Application.class, MessageSeedProvider.class}, immediate = true, property = {"alias=/ddq", "app=MDC", "name=" + DeviceDataQualityApplication.COMPONENT_NAME})
 public class DeviceDataQualityApplication extends Application implements MessageSeedProvider {
 
     public static final String APP_KEY = "MDC";

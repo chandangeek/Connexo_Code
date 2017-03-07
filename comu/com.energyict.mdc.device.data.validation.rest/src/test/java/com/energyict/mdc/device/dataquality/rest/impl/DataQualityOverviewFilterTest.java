@@ -30,6 +30,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -137,7 +139,8 @@ public class DataQualityOverviewFilterTest {
         // Business method
         DataQualityOverviewFilter.DEVICE_GROUP.apply(jsonQueryFilter, overviewBuilder, resourceHelper);
 
-        // Asserts exception is thrown
+        // Asserts
+        // exception is thrown
     }
 
     @Test
@@ -150,7 +153,8 @@ public class DataQualityOverviewFilterTest {
         // Business method
         DataQualityOverviewFilter.DEVICE_GROUP.apply(jsonQueryFilter, overviewBuilder, resourceHelper);
 
-        // Asserts exception is thrown
+        // Asserts
+        // exception is thrown
     }
 
     @Test
@@ -178,7 +182,8 @@ public class DataQualityOverviewFilterTest {
         // Business method
         DataQualityOverviewFilter.DEVICE_TYPE.apply(jsonQueryFilter, overviewBuilder, resourceHelper);
 
-        // Asserts exception is thrown
+        // Asserts
+        // exception is thrown
     }
 
     @Test
@@ -191,7 +196,8 @@ public class DataQualityOverviewFilterTest {
         // Business method
         DataQualityOverviewFilter.DEVICE_TYPE.apply(jsonQueryFilter, overviewBuilder, resourceHelper);
 
-        // Asserts exception is thrown
+        // Asserts
+        // exception is thrown
     }
 
     @Test
@@ -238,7 +244,8 @@ public class DataQualityOverviewFilterTest {
         // Business method
         DataQualityOverviewFilter.READING_QUALITY.applyIfPresent(jsonQueryFilter, overviewBuilder, resourceHelper);
 
-        // Asserts exception is thrown
+        // Asserts
+        // exception is thrown
     }
 
     @Test
@@ -266,7 +273,8 @@ public class DataQualityOverviewFilterTest {
         // Business method
         DataQualityOverviewFilter.VALIDATOR.applyIfPresent(jsonQueryFilter, overviewBuilder, resourceHelper);
 
-        // Asserts exception is thrown
+        // Asserts
+        // exception is thrown
     }
 
     @Test
@@ -279,7 +287,8 @@ public class DataQualityOverviewFilterTest {
         // Business method
         DataQualityOverviewFilter.VALIDATOR.applyIfPresent(jsonQueryFilter, overviewBuilder, resourceHelper);
 
-        // Asserts exception is thrown
+        // Asserts
+        // exception is thrown
     }
 
     @Test
@@ -307,7 +316,8 @@ public class DataQualityOverviewFilterTest {
         // Business method
         DataQualityOverviewFilter.ESTIMATOR.applyIfPresent(jsonQueryFilter, overviewBuilder, resourceHelper);
 
-        // Asserts exception is thrown
+        // Asserts
+        // exception is thrown
     }
 
     @Test
@@ -320,7 +330,8 @@ public class DataQualityOverviewFilterTest {
         // Business method
         DataQualityOverviewFilter.ESTIMATOR.applyIfPresent(jsonQueryFilter, overviewBuilder, resourceHelper);
 
-        // Asserts exception is thrown
+        // Asserts
+        // exception is thrown
     }
 
     @Test
@@ -349,7 +360,7 @@ public class DataQualityOverviewFilterTest {
     }
 
     private void applyAmountEqualsToFilter(DataQualityOverviewFilter amountFilter, Runnable assertion) throws Exception {
-        String filter = "[{'property':'" + amountFilter.jsonName() + "', 'value': {'operator': '=', 'criteria': 10}}]";
+        String filter = "[{'property': '" + amountFilter.jsonName() + "', 'value': {'operator': '=', 'criteria': 10}}]";
         JsonQueryFilter jsonQueryFilter = jsonQueryFilter(filter);
 
         // Business method
@@ -386,7 +397,7 @@ public class DataQualityOverviewFilterTest {
     }
 
     private void applyAmountGreaterThanFilter(DataQualityOverviewFilter amountFilter, Runnable assertion) throws Exception {
-        String filter = "[{'property':'" + amountFilter.jsonName() + "', 'value': {'operator': '>', 'criteria': 10}}]";
+        String filter = "[{'property': '" + amountFilter.jsonName() + "', 'value': {'operator': '>', 'criteria': 10}}]";
         JsonQueryFilter jsonQueryFilter = jsonQueryFilter(filter);
 
         // Business method
@@ -423,7 +434,7 @@ public class DataQualityOverviewFilterTest {
     }
 
     private void applyAmountLessThanFilter(DataQualityOverviewFilter amountFilter, Runnable assertion) throws Exception {
-        String filter = "[{'property':'" + amountFilter.jsonName() + "', 'value': {'operator': '<', 'criteria': 10}}]";
+        String filter = "[{'property': '" + amountFilter.jsonName() + "', 'value': {'operator': '<', 'criteria': 10}}]";
         JsonQueryFilter jsonQueryFilter = jsonQueryFilter(filter);
 
         // Business method
@@ -460,7 +471,7 @@ public class DataQualityOverviewFilterTest {
     }
 
     private void applyAmountBetweenFilter(DataQualityOverviewFilter amountFilter, Runnable assertion) throws Exception {
-        String filter = "[{'property':'" + amountFilter.jsonName() + "', 'value': {'operator': 'BETWEEN', 'criteria': [10, 100]}}]";
+        String filter = "[{'property': '" + amountFilter.jsonName() + "', 'value': {'operator': 'BETWEEN', 'criteria': [10, 100]}}]";
         JsonQueryFilter jsonQueryFilter = jsonQueryFilter(filter);
 
         // Business method
@@ -473,5 +484,94 @@ public class DataQualityOverviewFilterTest {
 
     private JsonQueryFilter jsonQueryFilter(String filter) throws UnsupportedEncodingException {
         return new JsonQueryFilter(URLDecoder.decode(filter.replace('\'', '"'), "UTF-8"));
+    }
+
+    @Test
+    public void amountOfSuspectsFilterWrongJsonFormat() throws Exception {
+        String filter = "[{'property': 'amountOfSuspects', 'value': {'operator': 'BETWEEN'}}]";
+        JsonQueryFilter jsonQueryFilter = jsonQueryFilter(filter);
+
+        exception.expectMessage(MessageFormat.format(MessageSeeds.INVALID_FILTER_FORMAT.getDefaultFormat(),
+                "amountOfSuspects", "{operator: " + Stream.of(DataQualityOverviewFilter.Operator.values())
+                        .map(DataQualityOverviewFilter.Operator::jsonName).collect(Collectors.joining("|")) + ", criteria: <values>}"));
+
+        // Business method
+        DataQualityOverviewFilter.AMOUNT_OF_SUSPECTS.apply(jsonQueryFilter, overviewBuilder, resourceHelper);
+
+        // Asserts
+        // exception is thrown
+    }
+
+    @Test
+    public void amountOfSuspectsFilterUnsupportedRelationalOperator() throws Exception {
+        String filter = "[{'property': 'amountOfSuspects', 'value': {'operator': '>=<', 'criteria': 100}}]";
+        JsonQueryFilter jsonQueryFilter = jsonQueryFilter(filter);
+
+        exception.expectMessage(MessageFormat.format(MessageSeeds.UNSUPPORTED_OPERATOR.getDefaultFormat(),
+                "amountOfSuspects", ">=<", Stream.of(DataQualityOverviewFilter.Operator.values())
+                        .map(DataQualityOverviewFilter.Operator::jsonName)
+                        .collect(Collectors.joining(", "))));
+
+        // Business method
+        DataQualityOverviewFilter.AMOUNT_OF_SUSPECTS.apply(jsonQueryFilter, overviewBuilder, resourceHelper);
+
+        // Asserts
+        // exception is thrown
+    }
+
+    @Test
+    public void amountOfSuspectsEqualsFilterCriteriaNodeIsNotNumber() throws Exception {
+        String filter = "[{'property': 'amountOfSuspects', 'value': {'operator': '=', 'criteria': 'hundred'}}]";
+        JsonQueryFilter jsonQueryFilter = jsonQueryFilter(filter);
+
+        exception.expectMessage(MessageFormat.format(MessageSeeds.INVALID_OPERATOR_CRITERIA.getDefaultFormat(), "=", "amountOfSuspects"));
+
+        // Business method
+        DataQualityOverviewFilter.AMOUNT_OF_SUSPECTS.apply(jsonQueryFilter, overviewBuilder, resourceHelper);
+
+        // Asserts
+        // exception is thrown
+    }
+
+    @Test
+    public void amountOfSuspectsLessThanFilterCriteriaNodeIsNotNumber() throws Exception {
+        String filter = "[{'property': 'amountOfSuspects', 'value': {'operator': '<', 'criteria': 'hundred'}}]";
+        JsonQueryFilter jsonQueryFilter = jsonQueryFilter(filter);
+
+        exception.expectMessage(MessageFormat.format(MessageSeeds.INVALID_OPERATOR_CRITERIA.getDefaultFormat(), "<", "amountOfSuspects"));
+
+        // Business method
+        DataQualityOverviewFilter.AMOUNT_OF_SUSPECTS.apply(jsonQueryFilter, overviewBuilder, resourceHelper);
+
+        // Asserts
+        // exception is thrown
+    }
+
+    @Test
+    public void amountOfSuspectsGreaterThanFilterCriteriaNodeIsNotNumber() throws Exception {
+        String filter = "[{'property': 'amountOfSuspects', 'value': {'operator': '>', 'criteria': 'hundred'}}]";
+        JsonQueryFilter jsonQueryFilter = jsonQueryFilter(filter);
+
+        exception.expectMessage(MessageFormat.format(MessageSeeds.INVALID_OPERATOR_CRITERIA.getDefaultFormat(), ">", "amountOfSuspects"));
+
+        // Business method
+        DataQualityOverviewFilter.AMOUNT_OF_SUSPECTS.apply(jsonQueryFilter, overviewBuilder, resourceHelper);
+
+        // Asserts
+        // exception is thrown
+    }
+
+    @Test
+    public void amountOfSuspectsBetweenFilterCriteriaNodeIsNotArray() throws Exception {
+        String filter = "[{'property': 'amountOfSuspects', 'value': {'operator': 'BETWEEN', 'criteria': 100}}]";
+        JsonQueryFilter jsonQueryFilter = jsonQueryFilter(filter);
+
+        exception.expectMessage(MessageFormat.format(MessageSeeds.INVALID_OPERATOR_CRITERIA.getDefaultFormat(), "BETWEEN", "amountOfSuspects"));
+
+        // Business method
+        DataQualityOverviewFilter.AMOUNT_OF_SUSPECTS.apply(jsonQueryFilter, overviewBuilder, resourceHelper);
+
+        // Asserts
+        // exception is thrown
     }
 }
