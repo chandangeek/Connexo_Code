@@ -10,10 +10,12 @@ import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationTemplate;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
@@ -21,25 +23,40 @@ import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
+import com.elster.jupiter.metering.UsagePointMeterActivator;
+import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.imports.impl.properties.SupportedNumberFormat;
 import com.elster.jupiter.metering.imports.impl.usagepoint.UsagePointsImporterFactory;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.units.Quantity;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -56,9 +73,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyMap;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -142,6 +163,26 @@ public class UsagePointProcessorTest {
     private LocationBuilder locationBuilder;
     @Mock
     private LocationBuilder.LocationMemberBuilder locationMemberBuilder;
+    @Mock
+    private MetrologyConfigurationService metrologyConfigurationService;
+    @Mock
+    private MeterRole meterRole;
+    @Mock
+    private Meter meter;
+    @Mock
+    private UsagePointMetrologyConfiguration metrologyConfiguration;
+    @Mock
+    private UsagePointMeterActivator usagePointMeterActivator;
+    @Mock
+    private UsagePointLifeCycleService usagePointLifeCycleService;
+    @Mock
+    private UsagePointTransition usagePointTransition;
+    @Mock
+    private PropertyValueInfoService propertyValueInfoService;
+    @Mock
+    private UsagePointMeterActivator linker;
+    @Mock
+    private PropertySpec transitionSpec;
 
     private MeteringDataImporterContext context;
 
@@ -250,6 +291,21 @@ public class UsagePointProcessorTest {
         when(usagePointDetailBuilder.withInterruptible(any(YesNoAnswer.class))).thenReturn(usagePointDetailBuilder);
         when(usagePoint.forCustomProperties()).thenReturn(usagePointCustomPropertySetExtension);
         when(usagePointCustomPropertySetExtension.getAllPropertySets()).thenReturn(Collections.emptyList());
+        when(metrologyConfigurationService.findMetrologyConfiguration(anyString())).thenReturn(Optional.of(metrologyConfiguration));
+        when(metrologyConfiguration.isActive()).thenReturn(true);
+        when(metrologyConfiguration.getServiceCategory()).thenReturn(serviceCategoryTwo);
+        when(usagePoint.linkMeters()).thenReturn(usagePointMeterActivator);
+        when(usagePoint.getCreateDate()).thenReturn(Instant.now());
+        when(metrologyConfigurationService.findMeterRole(anyString())).thenReturn(Optional.of(meterRole));
+        when(meteringService.findMeterByName(anyString())).thenReturn(Optional.of(meter));
+        when(usagePointMeterActivator.activate(meter, meterRole)).thenReturn(usagePointMeterActivator);
+        when(usagePoint.getState()).thenReturn(anyObject());
+
+        List<UsagePointTransition> transitions = new ArrayList<>();
+        transitions.add(usagePointTransition);
+
+        when(usagePointLifeCycleService.getAvailableTransitions(anyObject(), "INS")).thenReturn(transitions);
+        when(usagePointTransition.getName()).thenReturn("install active");
 
         try {
             when(fileImportOccurrenceCorrect.getLogger()).thenReturn(logger);
@@ -263,6 +319,9 @@ public class UsagePointProcessorTest {
         context = spy(new MeteringDataImporterContext());
         context.setMeteringService(meteringService);
         context.setCustomPropertySetService(customPropertySetService);
+        context.setMetrologyConfigurationService(metrologyConfigurationService);
+        context.setUsagePointLifeCycleService(usagePointLifeCycleService);
+        context.setPropertyValueInfoService(propertyValueInfoService);
         context.setLicenseService(licenseService);
         context.setPropertySpecService(propertySpecService);
         context.setThreadPrincipalService(threadPrincipalService);
@@ -287,6 +346,102 @@ public class UsagePointProcessorTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, times(1)).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
+    }
+
+    @Test
+    public void testProcessWithInactiveMetrologyConfiguration() {
+        String content = "id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime\n" +
+                "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00";
+        FileImporter importer = createUsagePointImporter();
+        FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
+        when(occurrence.getLogger()).thenReturn(logger);
+        when(occurrence.getContents()).thenReturn(new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8"))));
+        UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
+
+        when(metrologyConfiguration.isActive()).thenReturn(false);
+        when(metrologyConfiguration.getServiceCategory()).thenReturn(serviceCategoryTwo);
+        when(metrologyConfigurationService.findMetrologyConfiguration("SP10_DEMO_1")).thenReturn(Optional.of(metrologyConfiguration));
+
+        importer.process(occurrence);
+
+        verify(usagePoint, never()).apply(any(UsagePointMetrologyConfiguration.class), any(Instant.class));
+        verify(logger, times(1)).warning(Matchers.anyString());
+    }
+
+    @Test
+    public void testFailSetUnexistingMetrologyConfiguration() {
+        String content = "id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime\n" +
+                "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00";
+        FileImporter importer = createUsagePointImporter();
+        FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
+        when(occurrence.getLogger()).thenReturn(logger);
+        when(occurrence.getContents()).thenReturn(new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8"))));
+        when(metrologyConfigurationService.findMetrologyConfiguration("SP10_DEMO_1")).thenReturn(Optional.empty());
+
+        importer.process(occurrence);
+
+        verify(usagePoint, never()).apply(any(UsagePointMetrologyConfiguration.class), any(Instant.class));
+        verify(logger, times(1)).warning(Matchers.anyString());
+    }
+
+    @Test
+    public void testSetMeterActivation() {
+        String csv = "id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime;meter1;meterrole1;activationDate1\n" +
+                "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00;meter;meter.role.default;28/07/2016 00:00";
+        FileImporter importer = createUsagePointImporter();
+        FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
+
+        when(occurrence.getLogger()).thenReturn(logger);
+        when(occurrence.getContents()).thenReturn(new ByteArrayInputStream(csv.getBytes(Charset.forName("UTF-8"))));
+        when(metrologyConfigurationService.findMetrologyConfiguration("SP10_DEMO_1")).thenReturn(Optional.of(metrologyConfiguration));
+        when(usagePoint.linkMeters()).thenReturn(linker);
+        when(meteringService.findMeterByName("meter")).thenReturn(Optional.of(meter));
+        when(metrologyConfigurationService.findMeterRole("meter.role.default")).thenReturn(Optional.of(meterRole));
+
+        importer.process(occurrence);
+
+        verify(metrologyConfigurationService, times(3)).findMetrologyConfiguration("SP10_DEMO_1");
+        verify(usagePoint, times(2)).linkMeters();
+        verify(meteringService, times(2)).findMeterByName("meter");
+        verify(metrologyConfigurationService, times(2)).findMeterRole("meter.role.default");
+        verify(linker).activate(any(), eq(meter), eq(meterRole));
+    }
+
+    @Test
+    public void testPerformTransition() {
+        String csv = "id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime;meter1;meterrole1;activationDate1;transition;transitionDate;transitionConnectionState\n" +
+                "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00;meter;meter.role.default;28/07/2016 00:00;Install active;28/07/2016 00:00;Connected";
+        FileImporter importer = createUsagePointImporter();
+        FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
+        ValueFactory valueFactory = mock(ValueFactory.class);
+        PropertyInfo propertyInfo = mock(PropertyInfo.class);
+
+        mockMeterActivation(occurrence, csv);
+        when(usagePointLifeCycleService.getAvailableTransitions(any(UsagePointState.class), eq("INS"))).thenReturn(Collections.singletonList(usagePointTransition));
+        when(usagePointTransition.getName()).thenReturn("Install active");
+        when(usagePointTransition.getChecks()).thenReturn(Collections.emptySet());
+        when(usagePointTransition.getMicroActionsProperties()).thenReturn(Collections.singletonList(transitionSpec));
+        when(transitionSpec.getDisplayName()).thenReturn("connectionState");
+        when(transitionSpec.getName()).thenReturn("connected");
+        when(transitionSpec.getValueFactory()).thenReturn(valueFactory);
+        when(valueFactory.fromStringValue("CONNECTED")).thenReturn(ConnectionState.CONNECTED);
+        when(propertyValueInfoService.getPropertyInfos(anyList(), anyMap())).thenReturn(Collections.singletonList(propertyInfo));
+        when(propertyValueInfoService.findPropertyValue(anyObject(), anyList())).thenReturn(new Object());
+        when(context.getUsagePointLifeCycleService()).thenReturn(usagePointLifeCycleService);
+
+        importer.process(occurrence);
+
+        verify(context, times(3)).getUsagePointLifeCycleService();
+        verify(usagePointLifeCycleService).scheduleTransition(eq(usagePoint), eq(usagePointTransition), any(Instant.class), anyString(), anyMap());
+    }
+
+    private void mockMeterActivation(FileImportOccurrence occurrence, String csv) {
+        when(occurrence.getLogger()).thenReturn(logger);
+        when(occurrence.getContents()).thenReturn(new ByteArrayInputStream(csv.getBytes(Charset.forName("UTF-8"))));
+        when(metrologyConfigurationService.findMetrologyConfiguration("SP10_DEMO_1")).thenReturn(Optional.of(metrologyConfiguration));
+        when(usagePoint.linkMeters()).thenReturn(linker);
+        when(meteringService.findMeterByName("meter")).thenReturn(Optional.of(meter));
+        when(metrologyConfigurationService.findMeterRole("meter.role.default")).thenReturn(Optional.of(meterRole));
     }
 
     private FileImporter createUsagePointImporter() {

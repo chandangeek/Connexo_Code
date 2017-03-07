@@ -111,6 +111,9 @@ public class UsagePointProcessorForMultisenseTest {
     private FileImportOccurrence fileImportOccurrenceFail;
     @Mock
     private LocationTemplate locationTemplate;
+    @Mock
+    private UsagePointMetrologyConfiguration metrologyConfiguration;
+
 
     private MeteringDataImporterContext context;
 
@@ -141,6 +144,9 @@ public class UsagePointProcessorForMultisenseTest {
         when(nlsMessageFormat.format()).thenReturn("message");
         when(nlsMessageFormat.format(anyInt(), anyInt())).thenReturn("message");
         when(locationTemplate.getTemplateMembers()).thenReturn(Collections.emptyList());
+        when(metrologyConfigurationService.findMetrologyConfiguration(anyString())).thenReturn(Optional.of(metrologyConfiguration));
+        when(metrologyConfiguration.isActive()).thenReturn(true);
+        when(metrologyConfiguration.getServiceCategory()).thenReturn(serviceCategoryTwo);
 
         try {
             when(fileImportOccurrenceCorrect.getLogger()).thenReturn(logger);

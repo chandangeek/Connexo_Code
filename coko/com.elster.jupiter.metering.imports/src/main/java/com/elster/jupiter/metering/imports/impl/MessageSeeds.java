@@ -42,7 +42,14 @@ public enum MessageSeeds implements MessageSeed {
     SERVICE_CATEGORIES_DO_NOT_MATCH(2004, Constants.SERVICE_CATEGORIES_DO_NOT_MATCH, "Can''t process line {0}: The service category of usage point doesn't match to service category of metrology configuration", Level.SEVERE),
     EMPTY_METROLOGY_CONFIGURATION_TIME(2005, Constants.EMPTY_METROLOGY_CONFIGURATION_TIME, "Can''t process line {0}: Start date of metrology configuration is not specified", Level.SEVERE),
     NO_SUCH_MANDATORY_CPS_VALUE(2005, Constants.NO_SUCH_MANDATORY_CPS_VALUE, "Can''t process line {0}: Missing mandatory value {1} for custom property set {2}", Level.SEVERE),
-    ;
+    NO_SUCH_METER_WITH_NAME(2006, Constants.NO_SUCH_METER, "No meter with name {0} was found", Level.WARNING),
+    NO_SUCH_METER_ROLE_WITH_KEY(2007, Constants.NO_SUCH_METER_ROLE, "No meter role with key {0} was found", Level.WARNING),
+    ACTIVATION_DATE_OF_METER_ROLE_IS_BEFORE_UP_CREATION(2008, Constants.ACTIVATION_DATE_OF_METER_ROLE_IS_BEFORE_UP_CREATION, "Activation date of meter {0} must be grater or equal than 'Created' date of usage point", Level.WARNING),
+    SOME_REQUIRED_FIELDS_ARE_EMPTY(2009, Constants.SOME_REQUIRED_FIELDS_ARE_EMPTY, "Meter and activation date must be specified together for usage point", Level.WARNING),
+    NO_SUCH_TRANSITION_FOUND(2010, Constants.NO_SUCH_TRANSITION, "Transition {0} cannot be performed on usage point", Level.WARNING),
+    TRANSITION_DATE_IS_NOT_SPECIFIED(2011, Constants.TRANSITION_DATE_IS_NOT_SPECIFIED, "Transition date isn't specified for usage point", Level.WARNING),
+    ACTIVATION_DATE_OF_TRANSITION_IS_BEFORE_UP_CREATION(2012, Constants.ACTIVATION_DATE_OF_TRANSITION_IS_BEFORE_UP_CREATION, "Transition date must be greater or equal to 'Created' date of usage point", Level.WARNING),
+    PRE_TRANSITION_CHECK_FAILED(2013, Constants.PRE_TRANSITION_CHECK_FAILED, "Pre-transition check failed {0}", Level.WARNING);
 
     private final int number;
     private final String key;
@@ -117,5 +124,13 @@ public enum MessageSeeds implements MessageSeed {
         public static final String SERVICE_CATEGORIES_DO_NOT_MATCH = "service.categories.do.not.match";
         public static final String EMPTY_METROLOGY_CONFIGURATION_TIME = "empty.metrology.configuration.time";
         public static final String NO_SUCH_MANDATORY_CPS_VALUE = "no.such.mandatory.cps.value";
+        public static final String NO_SUCH_METER = "no.such.meter";
+        public static final String NO_SUCH_METER_ROLE = "no.such.meter.role";
+        public static final String ACTIVATION_DATE_OF_METER_ROLE_IS_BEFORE_UP_CREATION = "activation.date.of.meter.role.is.before.up.creation";
+        public static final String SOME_REQUIRED_FIELDS_ARE_EMPTY = "some.fields.are.empty";
+        public static final String NO_SUCH_TRANSITION = "no.such.transition";
+        public static final String TRANSITION_DATE_IS_NOT_SPECIFIED = "transition.date.is.not.specified";
+        public static final String ACTIVATION_DATE_OF_TRANSITION_IS_BEFORE_UP_CREATION = "activation.date.of.transition.is.before.up.creation";
+        public static final String PRE_TRANSITION_CHECK_FAILED = "pre.transition.check.failed";
     }
 }

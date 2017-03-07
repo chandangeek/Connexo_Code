@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.imports.impl.exceptions.ValueParserException;
 import com.elster.jupiter.metering.imports.impl.fields.FieldSetter;
 import com.elster.jupiter.metering.imports.impl.fields.FileImportField;
 import com.elster.jupiter.metering.imports.impl.parsers.InstantParser;
+import com.elster.jupiter.metering.imports.impl.usagepoint.MeterRoleWithMeterAndActivationDate;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Checks;
 
@@ -23,10 +24,13 @@ import org.apache.commons.csv.CSVRecord;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class FileImportDescriptionBasedParser<T extends FileImportRecord> implements FileImportParser<T> {
@@ -36,6 +40,9 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
     private final FileImportDescription<T> descriptor;
     private final MeteringDataImporterContext context;
     private List<String> headers;
+
+    Pattern meterPattern = Pattern.compile("^([a-zA-Z]+)([0-9]+)$", Pattern.CASE_INSENSITIVE);
+    Pattern transitionPattern = Pattern.compile("^transition([a-zA-Z]+)$", Pattern.CASE_INSENSITIVE);
 
     public FileImportDescriptionBasedParser(FileImportDescription<T> descriptor, MeteringDataImporterContext context) {
         this.descriptor = descriptor;
@@ -94,7 +101,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
         }
 
         context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
-                .sorted((t1, t2) -> Integer.compare(t1.getRanking(), t2.getRanking()))
+                .sorted(Comparator.comparingInt(LocationTemplate.TemplateField::getRanking))
                 .map(LocationTemplate.TemplateField::getName)
                 .forEach(s -> {
                     fields.entrySet().stream()
@@ -111,6 +118,9 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
                     });
                 });
 
+        addMeterRolesWithMetersAndActivationDates(fields, csvRecord);
+        addTransitionsField(fields, csvRecord);
+
         return parseCustomProperties(record, csvRecord, fields);
     }
 
@@ -118,8 +128,9 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
         Map<String, String> csvRecordMap = csvRecord.toMap();
         FieldSetter fieldSetter = fields.get(CUSTOM_PROPERTY_FIELD).getSetter();
         FieldParser dateParser = fields.get(CUSTOM_PROPERTY_TIME_FIELD).getParser();
-        Map<RegisteredCustomPropertySet, CustomPropertySetRecord> customPropertySetValues = new HashMap<>();
-        for (RegisteredCustomPropertySet rset : context.getCustomPropertySetService().findActiveCustomPropertySets(UsagePoint.class)) {
+        Map<String, CustomPropertySetRecord> customPropertySetValues = new HashMap<>();
+        for (RegisteredCustomPropertySet rset : context.getCustomPropertySetService()
+                .findActiveCustomPropertySets(UsagePoint.class)) {
             CustomPropertySet set = rset.getCustomPropertySet();
             CustomPropertySetRecord customPropertySetRecord = new CustomPropertySetRecord();
             CustomPropertySetValues values = CustomPropertySetValues.empty();
@@ -142,7 +153,8 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
                             .ifPresent(r -> customPropertySetRecord.setEndTime(((InstantParser) dateParser).parse(r.getValue())));
                 }
             } catch (ValueParserException ex) {
-                throw new FileImportParserException(MessageSeeds.LINE_FORMAT_ERROR, csvRecord.getRecordNumber(), set.getId(), ex.getExpected());
+                throw new FileImportParserException(MessageSeeds.LINE_FORMAT_ERROR, csvRecord.getRecordNumber(),
+                        set.getId(), ex.getExpected());
             }
 
 
@@ -177,7 +189,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
             customPropertySetRecord.setLineNumber(record.getLineNumber());
 
             if (!customPropertySetRecord.isEmpty()) {
-                customPropertySetValues.put(rset, customPropertySetRecord);
+                customPropertySetValues.put(set.getId(), customPropertySetRecord);
             }
         }
         fieldSetter.setFieldWithHeader(CUSTOM_PROPERTY_FIELD, customPropertySetValues);
@@ -189,7 +201,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
         headers = parser.getHeaderMap().entrySet()
                 .stream()
                 .filter(entry -> entry.getKey() != null && !entry.getKey().isEmpty() && entry.getValue() != null)
-                .sorted((e1, e2) -> e1.getValue().compareTo(e2.getValue()))
+                .sorted(Comparator.comparing(Map.Entry::getValue))
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
         long numberOfMandatoryColumns = getNumberOfMandatoryColumns();
@@ -218,4 +230,100 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
         return rawValues;
     }
 
+    private List<MeterRoleWithMeterAndActivationDate> getMeterRoles(CSVRecord csvRecord) {
+        Map<Integer, MeterRoleWithMeterAndActivationDate> roles = new HashMap<>();
+        Map<String, String> recordMap = csvRecord.toMap();
+        recordMap.keySet().forEach(key -> {
+            String header = key.toLowerCase();
+            String value = recordMap.get(key);
+            if (getMatcher(header).matches()) {
+                String param = getMatcher(header).group(1);
+                int index = Integer.valueOf(getMatcher(header).group(2));
+                updateMeterRoles(roles, param, index, value);
+            }
+        });
+
+        return new ArrayList<>(roles.values());
+    }
+
+    private void updateMeterRoles(Map<Integer, MeterRoleWithMeterAndActivationDate> roles, String param, int index, String value) {
+        switch (param) {
+            case "meterrole": {
+                if (roles.containsKey(index)) {
+                    roles.get(index).setMeterRole(value);
+                } else {
+                    MeterRoleWithMeterAndActivationDate meterRoleWithMeterAndActivationDate = new MeterRoleWithMeterAndActivationDate();
+                    meterRoleWithMeterAndActivationDate.setMeterRole(value);
+                    roles.put(index, meterRoleWithMeterAndActivationDate);
+                }
+                break;
+            }
+            case "meter": {
+                if (roles.containsKey(index)) {
+                    roles.get(index).setMeter(value);
+                } else {
+                    MeterRoleWithMeterAndActivationDate meterRoleWithMeterAndActivationDate = new MeterRoleWithMeterAndActivationDate();
+                    meterRoleWithMeterAndActivationDate.setMeter(value);
+                    roles.put(index, meterRoleWithMeterAndActivationDate);
+                }
+                break;
+            }
+            case "activationdate": {
+                if (roles.containsKey(index)) {
+                    roles.get(index).setActivationDate(value);
+                } else {
+                    MeterRoleWithMeterAndActivationDate meterRoleWithMeterAndActivationDate = new MeterRoleWithMeterAndActivationDate();
+                    meterRoleWithMeterAndActivationDate.setActivationDate(value);
+                    roles.put(index, meterRoleWithMeterAndActivationDate);
+                }
+            }
+            break;
+        }
+    }
+
+    private Matcher getMatcher(String toMatch) {
+        Matcher matcher = meterPattern.matcher(toMatch);
+        matcher.matches();
+        return matcher;
+    }
+
+    private Matcher getTransitionMatcher(String toMatch) {
+        Matcher matcher = transitionPattern.matcher(toMatch);
+        matcher.matches();
+        return matcher;
+    }
+
+    private void addMeterRolesWithMetersAndActivationDates(Map<String, FileImportField<?>> fields, CSVRecord csvRecord) {
+        Optional<String> meterRolesField = fields.keySet()
+                .stream()
+                .filter(key -> key.equalsIgnoreCase("meterRoles"))
+                .findFirst();
+        FieldSetter<List<MeterRoleWithMeterAndActivationDate>> setter = (FieldSetter<List<MeterRoleWithMeterAndActivationDate>>) fields
+                .get(meterRolesField.get())
+                .getSetter();
+        setter.setField(getMeterRoles(csvRecord));
+    }
+
+    private void addTransitionsField(Map<String, FileImportField<?>> fields, CSVRecord csvRecord) {
+        Optional<String> transitionsField = fields.keySet()
+                .stream()
+                .filter(key -> key.equalsIgnoreCase("transitionAttributes"))
+                .findFirst();
+        FieldSetter<Map<String, String>> setter = (FieldSetter<Map<String, String>>) fields
+                .get(transitionsField.get())
+                .getSetter();
+        setter.setField(getTransitionAttributes(csvRecord));
+    }
+
+    private Map<String, String> getTransitionAttributes(CSVRecord csvRecord) {
+        Map<String, String> recordMap = csvRecord.toMap();
+        Map<String, String> transitionAttributes = new HashMap<>();
+        recordMap.keySet().forEach(key -> {
+            if (!key.equalsIgnoreCase("transitionDate") && getTransitionMatcher(key).matches()) {
+                transitionAttributes.put(getTransitionMatcher(key).group(1), recordMap.get(key));
+            }
+        });
+
+        return transitionAttributes;
+    }
 }

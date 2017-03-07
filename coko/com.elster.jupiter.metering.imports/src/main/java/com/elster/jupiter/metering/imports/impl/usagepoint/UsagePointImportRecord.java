@@ -5,8 +5,6 @@
 package com.elster.jupiter.metering.imports.impl.usagepoint;
 
 import com.elster.jupiter.cbo.PhaseCode;
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.imports.impl.CustomPropertySetRecord;
 import com.elster.jupiter.metering.imports.impl.FileImportRecord;
@@ -20,7 +18,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class UsagePointImportRecord extends FileImportRecord {
     //General
@@ -61,7 +58,11 @@ public class UsagePointImportRecord extends FileImportRecord {
 
     public String metrologyConfiguration;
     public Instant metrologyConfigurationApplyTime;
-    private Map<RegisteredCustomPropertySet, CustomPropertySetRecord> customPropertySets;
+    private Map<String, CustomPropertySetRecord> customPropertySets;
+    private List<MeterRoleWithMeterAndActivationDate> meterRoles;
+    private String transition;
+    private Instant transitionDate;
+    private Map<String, String> transitionAttributes;
 
     public UsagePointImportRecord() {
     }
@@ -334,15 +335,43 @@ public class UsagePointImportRecord extends FileImportRecord {
         this.metrologyConfigurationApplyTime = metrologyConfigurationApplyTime;
     }
 
-    public Map<RegisteredCustomPropertySet, CustomPropertySetRecord> getRegisteredCustomPropertySets() {
+    public Map<String, CustomPropertySetRecord> getRegisteredCustomPropertySets() {
         return customPropertySets;
     }
 
-    public void setCustomPropertySets(Map<RegisteredCustomPropertySet, CustomPropertySetRecord> customPropertySets) {
+    public void setCustomPropertySets(Map<String, CustomPropertySetRecord> customPropertySets) {
         this.customPropertySets = customPropertySets;
     }
 
-    public Map<CustomPropertySet, CustomPropertySetRecord> getCustomPropertySets() {
-        return this.customPropertySets.entrySet().stream().collect(Collectors.toMap(e -> e.getKey().getCustomPropertySet(), Map.Entry::getValue));
+    public List<MeterRoleWithMeterAndActivationDate> getMeterRoles() {
+        return meterRoles;
+    }
+
+    public void setMeterRoles(List<MeterRoleWithMeterAndActivationDate> meterRoles) {
+        this.meterRoles = meterRoles;
+    }
+
+    public Optional<String> getTransition() {
+        return Optional.ofNullable(transition);
+    }
+
+    public void setTransition(String transition) {
+        this.transition = transition;
+    }
+
+    public Instant getTransitionDate() {
+        return transitionDate;
+    }
+
+    public void setTransitionDate(Instant transitionDate) {
+        this.transitionDate = transitionDate;
+    }
+
+    public Map<String, String> getTransitionAttributes() {
+        return transitionAttributes;
+    }
+
+    public void setTransitionAttributes(Map<String, String> transitionAttributes) {
+        this.transitionAttributes = transitionAttributes;
     }
 }

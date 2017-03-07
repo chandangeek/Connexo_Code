@@ -5,7 +5,6 @@
 package com.elster.jupiter.metering.imports.impl.usagepoint;
 
 
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.imports.impl.CustomPropertySetRecord;
 import com.elster.jupiter.metering.imports.impl.FieldParser;
@@ -26,6 +25,7 @@ import com.elster.jupiter.metering.imports.impl.properties.SupportedNumberFormat
 import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 class UsagePointImportDescription implements FileImportDescription<UsagePointImportRecord> {
@@ -112,6 +112,8 @@ class UsagePointImportDescription implements FileImportDescription<UsagePointImp
         addTechnicalAttributesFields(fields, record);
         addLocationFields(fields, record);
         addCustomPropertySetFields(fields, record);
+        addMeterRolesFields(fields, record);
+        addTransitionFields(fields, record);
         return fields;
     }
 
@@ -214,24 +216,35 @@ class UsagePointImportDescription implements FileImportDescription<UsagePointImp
                 });
     }
 
-    public void addCustomPropertySetFields(Map<String, FileImportField<?>> fields, UsagePointImportRecord record) {
+    private void addCustomPropertySetFields(Map<String, FileImportField<?>> fields, UsagePointImportRecord record) {
         fields.put("customPropertySetTime", CommonField
                 .withParser(instantParser)
                 .build());
         fields.put("customPropertySetValue", CommonField
-                .withParser(new FieldParser<Map<RegisteredCustomPropertySet, CustomPropertySetRecord>>() {
-                    @Override
-                    public Class<Map<RegisteredCustomPropertySet, CustomPropertySetRecord>> getValueType() {
-                        throw new UnsupportedOperationException();
-                    }
-
-                    @Override
-                    public Map<RegisteredCustomPropertySet, CustomPropertySetRecord> parse(String value) throws
-                            ValueParserException {
-                        throw new UnsupportedOperationException();
-                    }
-                })
+                .withParser(new EmptyFieldParser<Map<String, CustomPropertySetRecord>>())
                 .withSetter(record::setCustomPropertySets)
+                .build());
+    }
+
+    private void addMeterRolesFields(Map<String, FileImportField<?>> fields, UsagePointImportRecord record) {
+        fields.put("meterRoles", CommonField
+                .withParser(new EmptyFieldParser<List<MeterRoleWithMeterAndActivationDate>>())
+                .withSetter(record::setMeterRoles)
+                .build());
+
+    }
+
+    private void addTransitionFields(Map<String, FileImportField<?>> fields, UsagePointImportRecord record) {
+        fields.put("transition", CommonField
+                .withParser(stringParser)
+                .withSetter(record::setTransition)
+                .build());
+        fields.put("transitionDate", CommonField
+                .withParser(instantParser)
+                .withSetter(record::setTransitionDate)
+                .build());
+        fields.put("transitionAttributes", CommonField
+                .withParser(new EmptyFieldParser<Map<String, String>>()).withSetter(record::setTransitionAttributes)
                 .build());
     }
 
@@ -248,5 +261,17 @@ class UsagePointImportDescription implements FileImportDescription<UsagePointImp
                 quantityParser
         ).forEach(fieldParser -> fieldParsers.put(fieldParser.getValueType(), fieldParser));
         return fieldParsers;
+    }
+
+    private class EmptyFieldParser<T> implements FieldParser<T> {
+        @Override
+        public Class<T> getValueType() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public T parse(String value) throws ValueParserException {
+            throw new UnsupportedOperationException();
+        }
     }
 }
