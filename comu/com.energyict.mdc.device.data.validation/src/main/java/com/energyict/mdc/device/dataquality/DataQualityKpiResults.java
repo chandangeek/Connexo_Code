@@ -12,7 +12,7 @@ import aQute.bnd.annotation.ProviderType;
 import java.time.Instant;
 
 @ProviderType
-public interface DeviceDataQualityKpiResults {
+public interface DataQualityKpiResults {
 
     Instant getLastSuspect();
 

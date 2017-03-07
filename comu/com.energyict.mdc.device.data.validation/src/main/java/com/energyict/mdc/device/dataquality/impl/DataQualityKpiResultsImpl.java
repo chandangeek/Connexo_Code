@@ -6,7 +6,7 @@ package com.energyict.mdc.device.dataquality.impl;
 
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.validation.Validator;
-import com.energyict.mdc.device.dataquality.DeviceDataQualityKpiResults;
+import com.energyict.mdc.device.dataquality.DataQualityKpiResults;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,13 +14,13 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-class DeviceDataQualityKpiResultsImpl implements DeviceDataQualityKpiResults {
+class DataQualityKpiResultsImpl implements DataQualityKpiResults {
 
     private Instant lastSuspect;
     private Map<KpiType, Long> kpiTypes = new HashMap<>();
 
-    static DeviceDataQualityKpiResultsImpl from(ResultSet resultSet, DataQualityOverviewSpecificationImpl specification) throws SQLException {
-        DeviceDataQualityKpiResultsImpl result = new DeviceDataQualityKpiResultsImpl();
+    static DataQualityKpiResultsImpl from(ResultSet resultSet, DataQualityOverviewSpecificationImpl specification) throws SQLException {
+        DataQualityKpiResultsImpl result = new DataQualityKpiResultsImpl();
         result.lastSuspect = Instant.ofEpochMilli(resultSet.getLong(DataQualityOverviewImpl.ResultSetColumn.LAST_SUSPECT.index()));
         for (KpiType kpiType : specification.getAvailableKpiTypes()) {
             result.kpiTypes.put(kpiType, resultSet.getLong(kpiType.withClauseAliasName()));

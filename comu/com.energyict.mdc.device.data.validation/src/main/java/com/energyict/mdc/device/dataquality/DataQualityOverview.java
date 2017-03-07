@@ -20,6 +20,6 @@ public interface DataQualityOverview {
 
     <H extends HasName & HasId> H getDeviceConfiguration();
 
-    DeviceDataQualityKpiResults getDataQualityKpiResults();
+    DataQualityKpiResults getDataQualityKpiResults();
 
 }

@@ -35,7 +35,7 @@ class DataQualityOverviewImpl implements DataQualityOverview {
     private final String serialNumber;
     private final IdWithNameImpl deviceType;
     private final IdWithNameImpl deviceConfiguration;
-    private final DeviceDataQualityKpiResultsImpl deviceValidationKpiResults;
+    private final DataQualityKpiResultsImpl deviceValidationKpiResults;
 
     static DataQualityOverviewImpl from(ResultSet resultSet, DataQualityOverviewSpecificationImpl specification) throws SQLException {
         String deviceName = resultSet.getString(ResultSetColumn.DEVICE_NAME.index());
@@ -53,11 +53,11 @@ class DataQualityOverviewImpl implements DataQualityOverview {
                 serialNumber,
                 deviceType,
                 deviceConfiguration,
-                DeviceDataQualityKpiResultsImpl.from(resultSet, specification));
+                DataQualityKpiResultsImpl.from(resultSet, specification));
     }
 
     private DataQualityOverviewImpl(String deviceName, String serialNumber, IdWithNameImpl deviceType,
-                            IdWithNameImpl deviceConfiguration, DeviceDataQualityKpiResultsImpl deviceValidationKpiResults) {
+                                    IdWithNameImpl deviceConfiguration, DataQualityKpiResultsImpl deviceValidationKpiResults) {
         this.deviceName = deviceName;
         this.serialNumber = serialNumber;
         this.deviceType = deviceType;
@@ -88,7 +88,7 @@ class DataQualityOverviewImpl implements DataQualityOverview {
     }
 
     @Override
-    public DeviceDataQualityKpiResultsImpl getDataQualityKpiResults() {
+    public DataQualityKpiResultsImpl getDataQualityKpiResults() {
         return deviceValidationKpiResults;
     }
 }
