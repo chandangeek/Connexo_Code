@@ -115,10 +115,10 @@ public class DataPushNotificationParser {
 
     public void parseInboundFrame() {
         ByteBuffer inboundFrame = readInboundFrame();
-        parseFrame(inboundFrame, true);
+        parseFrame(inboundFrame, true, this.deviceIdentifier);
     }
 
-    protected void parseFrame(ByteBuffer frame, boolean expectHeader){
+    protected void parseFrame(ByteBuffer frame, boolean expectHeader, DeviceIdentifier originDeviceIdentified){
         byte[] header = new byte[8];
         if (expectHeader) {
             frame.get(header);
@@ -127,7 +127,7 @@ public class DataPushNotificationParser {
         if (tag == getCosemNotificationAPDUTag()) {
             parseAPDU(frame);
         } else if (tag == DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING) {
-            parseEncryptedFrame(frame);
+            parseEncryptedFrame(frame, originDeviceIdentified);
         } else {
             //TODO support general ciphering & general signing (suite 0, 1 and 2)
             throw DataParseException.ioException(new ProtocolException("Unexpected tag '" + tag + "' in received push event notification. Expected '" + getCosemNotificationAPDUTag() + "' or '" + DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING + "'"));
@@ -152,13 +152,18 @@ public class DataPushNotificationParser {
         return ByteBuffer.wrap(ProtocolTools.concatByteArrays(header, frame));
     }
 
+
+    protected void parseAPDU(ByteBuffer inboundFrame) {
+        parseDataNotificationAPDU(inboundFrame);
+    }
+
     /**
      * Data-Notification ::= SEQUENCE
      * - long-invoke-id-and-priority
      * - date-time (OCTET STRING)
      * - notification-body
      */
-    protected void parseAPDU(ByteBuffer inboundFrame) {
+    protected void parseDataNotificationAPDU(ByteBuffer inboundFrame){
         // 1. long-invoke-id-and-priority
         byte[] invokeIdAndPriority = new byte[4];   // 32-bits long format used
         inboundFrame.get(invokeIdAndPriority);
@@ -179,6 +184,10 @@ public class DataPushNotificationParser {
             throw DataParseException.ioException(e);
         }
 
+        parseNotificationBody(structure);
+    }
+
+    protected void parseNotificationBody(Structure structure){
         AbstractDataType dataType = structure.getNextDataType();
         if (dataType instanceof OctetString) {
             ObisCode obisCode = ObisCode.fromByteArray(((OctetString) dataType).getOctetStr());
@@ -192,7 +201,12 @@ public class DataPushNotificationParser {
         parseRegisters(structure);
     }
 
+
     protected void parseEncryptedFrame(ByteBuffer inboundFrame) {
+        parseEncryptedFrame(inboundFrame, this.deviceIdentifier);
+    }
+
+    protected ByteBuffer getDecryptedPayload(ByteBuffer inboundFrame, DeviceIdentifier originDeviceIdentifier){
         int systemTitleLength = inboundFrame.get() & 0xFF;
         byte[] systemTitle = new byte[systemTitleLength];
         inboundFrame.get(systemTitle);
@@ -201,24 +215,33 @@ public class DataPushNotificationParser {
         int remainingLength = inboundFrame.get() & 0xFF;
         int securityPolicy = inboundFrame.get() & 0xFF;
 
-        if (getSecurityPropertySet().getEncryptionDeviceAccessLevel() != (securityPolicy / 16)) {
+        if (getSecurityPropertySet(originDeviceIdentifier).getEncryptionDeviceAccessLevel() != (securityPolicy / 16)) {
             throw DataParseException.ioException(new ProtocolException(
                     "Security mismatch: received incoming event push notification encrypted with security policy " + (securityPolicy / 16) + ", but device in EIServer is configured with security level " + getSecurityPropertySet().getEncryptionDeviceAccessLevel()));
         }
 
-        SecurityContext securityContext = getSecurityContext();
+        SecurityContext securityContext = getSecurityContext(originDeviceIdentifier);
         securityContext.setResponseSystemTitle(systemTitle);
 
         ByteBuffer decryptedFrame;
         byte[] cipherFrame = new byte[inboundFrame.remaining()];
         inboundFrame.get(cipherFrame);
         byte[] fullCipherFrame = ProtocolTools.concatByteArrays(new byte[]{(byte) 0x00, (byte) remainingLength, (byte) securityPolicy}, cipherFrame);
-        getContext().getLogger().info("Decoding ciphered frame: "+ProtocolTools.getHexStringFromBytes(fullCipherFrame));
+        log("Decoding ciphered frame: "+ProtocolTools.getHexStringFromBytes(fullCipherFrame));
         try {
-            decryptedFrame = ByteBuffer.wrap(SecurityContextV2EncryptionHandler.dataTransportDecryption(securityContext, fullCipherFrame));
+            byte[] decryptedFrameBytes = SecurityContextV2EncryptionHandler.dataTransportDecryption(securityContext, fullCipherFrame);
+            log(" > deciphered frame is: "+ProtocolTools.getHexStringFromBytes(decryptedFrameBytes));
+
+            decryptedFrame = ByteBuffer.wrap(decryptedFrameBytes);
         } catch (DLMSConnectionException e) {
             throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
         }
+
+        return decryptedFrame;
+    }
+
+    protected void parseEncryptedFrame(ByteBuffer inboundFrame, DeviceIdentifier originDeviceIdentifier) {
+        ByteBuffer decryptedFrame = getDecryptedPayload(inboundFrame, originDeviceIdentifier);
         byte plainTag = decryptedFrame.get();
         if (plainTag != getCosemEventNotificationAPDUTag()) {
             throw DataParseException.ioException(new ProtocolException("Unexpected tag after decrypting an incoming event push notification: " + plainTag + ", expected " + getCosemEventNotificationAPDUTag()));
@@ -227,22 +250,30 @@ public class DataPushNotificationParser {
         parseAPDU(decryptedFrame);
     }
 
+    public DeviceProtocolSecurityPropertySet getSecurityPropertySet(DeviceIdentifier anyDeviceIdentifier) {
+        List<SecurityProperty> securityProperties = inboundDAO.getDeviceProtocolSecurityProperties(anyDeviceIdentifier, inboundComPort);
+        if (securityProperties != null && !securityProperties.isEmpty()) {
+            return new DeviceProtocolSecurityPropertySetImpl(securityProperties);
+        } else {
+            throw CommunicationException.notConfiguredForInboundCommunication(anyDeviceIdentifier);
+        }
+    }
+
     public DeviceProtocolSecurityPropertySet getSecurityPropertySet() {
         if (securityPropertySet == null) {
-            List<SecurityProperty> securityProperties = inboundDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, inboundComPort);
-            if (securityProperties != null && !securityProperties.isEmpty()) {
-                this.securityPropertySet = new DeviceProtocolSecurityPropertySetImpl(securityProperties);
-            } else {
-                throw CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier);
-            }
+            this.securityPropertySet = getSecurityPropertySet(this.deviceIdentifier);
         }
         return this.securityPropertySet;
     }
 
     protected SecurityContext getSecurityContext() {
+        return getSecurityContext(this.deviceIdentifier);
+    }
+
+    protected SecurityContext getSecurityContext(DeviceIdentifier originDeviceIdentified) {
         DlmsProperties securityProperties = getNewInstanceOfProperties();
-        securityProperties.setSecurityPropertySet(getSecurityPropertySet());
-        securityProperties.addProperties(getSecurityPropertySet().getSecurityProperties());
+        securityProperties.setSecurityPropertySet(getSecurityPropertySet(originDeviceIdentified));
+        securityProperties.addProperties(getSecurityPropertySet(originDeviceIdentified).getSecurityProperties());
 
         DummyComChannel dummyComChannel = new DummyComChannel();    //Dummy channel, no bytes will be read/written
         TypedProperties comChannelProperties = TypedProperties.empty();

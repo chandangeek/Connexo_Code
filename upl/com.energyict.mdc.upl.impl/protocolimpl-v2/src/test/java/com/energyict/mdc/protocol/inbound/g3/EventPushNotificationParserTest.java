@@ -83,6 +83,7 @@ public class EventPushNotificationParserTest extends TestCase {
     private static final byte[] PRELIMINARY_PROTOCOL_EXECUTION__1_8_1 = ProtocolTools.getBytesFromHexString("0001000100010075C20000280000190900FFFF0203090E33343135373330303032303830361200010204090C07E1020E020A111606000000120000120036093D7B224D657465724964656E746966696572223A22443038343A423046463A464546313A39423045222C22526573756C74223A223939303030303130227D", "");
     private static final byte[] DATA_NOTIFICATION_1_8_0 = ProtocolTools.getBytesFromHexString("00010001000100520F000000000C07E1020E020A172D3D0000000203090E33343135373330303032303830361200010204090C07E1020E020A172D3A0000001200001200230913506C6561736520696E7365727420636F696E2E", "");
     private static final byte[] ENCRYPTED_DATA_NOTIFICATION_1_8_0 = ProtocolTools.getBytesFromHexString("0001000100010069DB08454C5363094055F05E30000000024B9DB05F324D5156C150E6BB9877EE4C3538125FE7263D58F6D37EBEA54649DACB249A3A219DF31B62D7EA70BEE6CDA85E87663D1B7FD472E667EA5B509401B9043CC9967D9BCB5467064A578C1FF93A9AC09CBCAF67812F82", "");
+    private static final byte[] CIPHERED_RELAYED_EVENT_NOTIFICATION_AM540 = ProtocolTools.getBytesFromHexString("00010024000200860F000000000C07E10306010D10352E0000000203090F3637302D3035424444432D3136333612002402020910454C532D5547572D02237EFFFEFDAB5F0948DB08454C5365700000013D30000047E2EAEF92D3283B6D37AEAB0712530A4788D1704C4E79919BA0670202D3D6720350DCE5050C30F327643F16943FFD2D80E73440E18E2D41A519", "");
 
 
     @Mock
@@ -288,6 +289,23 @@ public class EventPushNotificationParserTest extends TestCase {
         EventPushNotificationParser parser = spyParser(RELAYED_EVENT_NOTIFICATION_ORIGIN_HEADER_AM540_1_6_0);
         parser.readAndParseInboundFrame();
         assertEquals(new DialHomeIdDeviceIdentifier("020000FFFE00003B").toString(), parser.getDeviceIdentifier().toString());
+    }
+
+
+    @Test
+    public void testAM540CipheredRelayEventNotification() throws IOException, SQLException, BusinessException {
+        String ak = "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF";
+        String ek = "000102030405060708090A0B0C0D0E0F";
+        List<SecurityProperty> securityProperties = createSecurityProperties(3, ak, ek);
+        when(inboundDAO.getDeviceProtocolSecurityProperties(Matchers.<DeviceIdentifier>any(), Matchers.<InboundComPort>any())).thenReturn(securityProperties);
+        EventPushNotificationParser parser = spyParser(CIPHERED_RELAYED_EVENT_NOTIFICATION_AM540);
+        parser.readAndParseInboundFrame();
+        assertEquals(new DialHomeIdDeviceIdentifier("02237EFFFEFDAB5F").toString(), parser.getDeviceIdentifier().toString());
+        MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
+        assertEquals(meterProtocolEvent.getTime().getTime(), 1488809815000L);
+        assertEquals(meterProtocolEvent.getEiCode(), 0);
+        assertEquals(meterProtocolEvent.getProtocolCode(), 40);
+        assertEquals(meterProtocolEvent.getMessage(), "Alarm generated event: Fraud attempt");
     }
 
     @Test
@@ -502,7 +520,7 @@ public class EventPushNotificationParserTest extends TestCase {
         pushEventNotification.initializeDiscoveryContext(context);
         pushEventNotification.getEventPushNotificationParser().readAndParseInboundFrame();
         pushEventNotification.collectedLogBook = pushEventNotification.getEventPushNotificationParser().getCollectedLogBook();
-        assertEquals(pushEventNotification.getLoggingMessage(), "Received inbound event notification from [device with serial number 660-00545D-1125].  Message: 'G3 : Node [0223:7EFF:FEFD:AAE9] [0x0006] has registered on the network', protocol code: '194'.");
+        assertEquals(pushEventNotification.getLoggingMessage(), "Received inbound notification from [device with serial number 660-00545D-1125].  Message: 'G3 : Node [0223:7EFF:FEFD:AAE9] [0x0006] has registered on the network', protocol code: '194'.");
     }
 
     private EventPushNotificationParser spyParser(byte[] frame) {

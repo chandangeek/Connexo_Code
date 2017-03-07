@@ -34,6 +34,7 @@ import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -71,6 +72,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
     private static final String GATEWAY_LOGICAL_DEVICE_PREFIX = "ELS-UGW-";
     private static final int MAC_ADDRESS_LENGTH = 8;
     private static final int ATTRIBUTE_UNKNOWN = 255;
+    private static final String UTF_8 = "UTF-8";
 
     protected ObisCode logbookObisCode;
     protected CollectedLogBook collectedLogBook;
@@ -393,14 +395,74 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         if (equipmentIdentifier == null) {
             throw DataParseException.ioException(new ProtocolException("Expected the first element of the received structure (equipment identifier) to be of type OctetString"));
         }
-        originDeviceId = new DeviceIdentifierBySerialNumber(equipmentIdentifier.stringValue());
+
+        originDeviceId = getOriginDeviceIdentification(equipmentIdentifier);
+
+        log("Frame is relayed from "+originDeviceId);
 
         if (eventPayload.peekAtNextDataType().isOctetString()) {
             OctetString relayedFrame = eventPayload.getDataType(1).getOctetString();
-            parseFrame(ByteBuffer.wrap(relayedFrame.toByteArray()), false);
+            parseFrame(ByteBuffer.wrap(relayedFrame.toByteArray()), false, originDeviceId);
+        } else if (eventPayload.peekAtNextDataType().isStructure()){
+            Structure s1 = eventPayload.getNextDataType().getStructure();
+            Array array = s1.getDataType(0).getArray();
+
+            OctetString payload = array.getDataType(0).getOctetString();
+
+            createCollectedLogBook(new Date(), 0, 0, payload.toString());
         } else {
-            throw DataParseException.ioException(new ProtocolException("Expected the second element of the received structure to be of type OctetString"));
+           parseEvent(eventPayload);
         }
+    }
+
+    @Override
+    protected void parseEncryptedFrame(ByteBuffer inboundFrame, DeviceIdentifier originDeviceIdentifier) {
+        ByteBuffer decryptedFrame = getDecryptedPayload(inboundFrame, originDeviceIdentifier);
+        byte plainTag = decryptedFrame.get();
+        if (plainTag == getCosemDataNotificationAPDUTag()) {
+            parseDataNotificationAPDU(decryptedFrame);
+        } else {
+            super.parseEncryptedFrame(inboundFrame, originDeviceIdentifier);
+        }
+    }
+
+
+    @Override
+    protected void parseNotificationBody(Structure structure){
+        int nrOfDataTypes = structure.nrOfDataTypes();
+
+        if (nrOfDataTypes == 3){
+            Date dateTime = parseDateTime(structure.getDataType(0).getOctetString());
+            Unsigned32 eventCode = structure.getDataType(1).getUnsigned32();
+            Unsigned32 deviceCode = structure.getDataType(2).getUnsigned32();
+            String description = "Event code="+eventCode.getValue()+", deviceCode="+deviceCode.getValue()+", relayed by "+deviceIdentifier+", from "+originDeviceId;
+            log(description);
+            logbookObisCode = DEFAULT_OBIS_STANDARD_EVENT_LOG;
+
+            // force running of inbound task on the meter, not gateway
+            deviceIdentifier = originDeviceId;
+
+            createCollectedLogBook(MeterAlarmParser.parseAlarmCode(dateTime, eventCode.getValue(), getAlarmRegister(ALARM_EVENTOBISCODE)));
+
+        }
+    }
+
+    private DeviceIdentifier getOriginDeviceIdentification(OctetString equipmentIdentifier) {
+        byte[] logicalDeviceNameBytes = equipmentIdentifier.getOctetStr();
+
+        if (hasLogicalDevicePrefix(logicalDeviceNameBytes, GATEWAY_LOGICAL_DEVICE_PREFIX)) {
+            byte[] logicalNameMacBytes = ProtocolTools.getSubArray(logicalDeviceNameBytes, GATEWAY_LOGICAL_DEVICE_PREFIX.length(), GATEWAY_LOGICAL_DEVICE_PREFIX.length() + MAC_ADDRESS_LENGTH);
+            final String macAddress = ProtocolTools.getHexStringFromBytes(logicalNameMacBytes, "");
+            return new DialHomeIdDeviceIdentifier(macAddress);
+        } else {
+            return new DeviceIdentifierBySerialNumber(equipmentIdentifier.stringValue());
+        }
+    }
+
+    private boolean hasLogicalDevicePrefix(byte[] logicalDeviceNameBytes, String expectedPrefix) {
+        byte[] actualPrefixBytes = ProtocolTools.getSubArray(logicalDeviceNameBytes, 0, expectedPrefix.length());
+        String actualPrefix = new String(actualPrefixBytes, Charset.forName(UTF_8));
+        return actualPrefix.equals(expectedPrefix);
     }
 
     private void parseNotificationWith6Elements(Structure eventPayload) {
@@ -543,14 +605,23 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
     }
 
     private void parseEvent(Structure structure) {
-        Date dateTime = parseDateTime(structure);
-        int eiCode = structure.getDataType(2).intValue();
-        int protocolCode = structure.getDataType(3).intValue();
-        String description = parseDescription(structure);
-
         List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
-        meterProtocolEvents.add(MeterEvent.mapMeterEventToMeterProtocolEvent(new MeterEvent(dateTime, eiCode, protocolCode, description)));
-        collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, logbookObisCode));
+        int numberOfElements = structure.nrOfDataTypes();
+
+        if (numberOfElements == 2){
+            Date dateTime = new Date();
+            Unsigned32 protocolCode = structure.getDataType(1).getUnsigned32();
+            logbookObisCode = DEFAULT_OBIS_STANDARD_EVENT_LOG;
+            createCollectedLogBook(MeterAlarmParser.parseAlarmCode(dateTime, protocolCode.getValue(), getAlarmRegister(ALARM_EVENTOBISCODE)));
+        } else {
+            Date dateTime = parseDateTime(structure);
+            int eiCode = structure.getDataType(2).intValue();
+            int protocolCode = structure.getDataType(3).intValue();
+            String description = parseDescription(structure);
+
+            meterProtocolEvents.add(MeterEvent.mapMeterEventToMeterProtocolEvent(new MeterEvent(dateTime, eiCode, protocolCode, description)));
+            collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, logbookObisCode));
+        }
         collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
     }
 
@@ -802,6 +873,12 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
     }
 
+
+    protected void createCollectedLogBookFromProtocolEvents(List<MeterProtocolEvent> meterProtocolEvents) {
+        collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, logbookObisCode));
+        collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
+    }
+
     public CollectedLogBook getCollectedLogBook() {
         return collectedLogBook;
     }
@@ -837,7 +914,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
     }
 
     private int getAlarmRegister(ObisCode obisCode) {
-        if (obisCode.equals(ObisCode.fromString("0.0.97.98.20.255"))) {
+        if (obisCode.equals(ALARM_EVENTOBISCODE)) {
             return 1;
         } else if (obisCode.equals(ObisCode.fromString("0.0.97.98.21.255"))) {
             return 2;
