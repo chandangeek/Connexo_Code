@@ -275,19 +275,19 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                 .forEach(deviceType ->
                         deviceType.getDeviceLifeCycle().getFiniteStateMachine().getStates().stream().distinct()
                                 .sorted(Comparator.comparing(State::getId))
-                                .forEach(state -> list.add(new HasIdAndName() {
+                                .forEach(lifeCycleState -> list.add(new HasIdAndName() {
                                                                @Override
                                                                public String getId() {
-                                                                   return deviceType.getId() + SEPARATOR + state.getId();
+                                                                   return deviceType.getId() + SEPARATOR + lifeCycleState.getId();
                                                                }
 
                                                                @Override
                                                                public String getName() {
                                                                    try {
-                                                                       JSONObject jsonId = new JSONObject();
-                                                                       jsonId.put("deviceTypeName", deviceType.getName());
-                                                                       jsonId.put("lifeCycleStateName", deviceType.getName() + "." + getStateName(state));
-                                                                       return jsonId.toString();
+                                                                       JSONObject jsonObj = new JSONObject();
+                                                                       jsonObj.put("deviceTypeName", deviceType.getName());
+                                                                       jsonObj.put("lifeCycleStateName", getStateName(lifeCycleState) + " (" + deviceType.getDeviceLifeCycle().getName() + ")");
+                                                                       return jsonObj.toString();
                                                                    } catch (JSONException e) {
                                                                        e.printStackTrace();
                                                                    }
