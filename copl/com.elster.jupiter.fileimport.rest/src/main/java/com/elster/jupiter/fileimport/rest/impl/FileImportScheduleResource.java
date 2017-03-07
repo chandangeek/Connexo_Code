@@ -151,7 +151,7 @@ public class FileImportScheduleResource {
     @POST
     @Path("/fileupload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES, Privileges.Constants.IMPORT_FILE})
     @Transactional
     public Response uploadFile(@FormDataParam("file")InputStream inputStream,

@@ -19,6 +19,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.json.JsonService;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -63,6 +64,7 @@ public class FileImportApplication extends Application implements MessageSeedPro
     private volatile PropertyValueInfoService propertyValueInfoService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Clock clock;
+    private volatile JsonService jsonService;
 
     private List<App> apps = new CopyOnWriteArrayList<>();
 
@@ -132,6 +134,11 @@ public class FileImportApplication extends Application implements MessageSeedPro
         this.clock = clock;
     }
 
+    @Reference
+    public void setJsonService(JsonService jsonService) {
+        this.jsonService = jsonService;
+    }
+
     @SuppressWarnings("unused")
     public void removeApplication(App app) {
         apps.remove(app);
@@ -164,6 +171,7 @@ public class FileImportApplication extends Application implements MessageSeedPro
                 bind(FileImporterInfoFactory.class).to(FileImporterInfoFactory.class);
                 bind(threadPrincipalService).to(ThreadPrincipalService.class);
                 bind(clock).to(Clock.class);
+                bind(jsonService).to(JsonService.class);
                 bind(ExceptionFactory.class).to(ExceptionFactory.class);
                 bindFactory(getValidatorFactory()).to(Validator.class);
             }

@@ -13,6 +13,7 @@ import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.json.JsonService;
 
 import javax.ws.rs.core.Application;
 import java.nio.file.FileSystem;
@@ -42,6 +43,8 @@ public class FileImportApplicationTest extends FelixRestApplicationJerseyTest {
     protected ThreadPrincipalService threadPrincipalService;
     @Mock
     protected Clock clock;
+    @Mock
+    protected JsonService jsonService;
 
     @Override
     protected Application getApplication() {
@@ -58,6 +61,7 @@ public class FileImportApplicationTest extends FelixRestApplicationJerseyTest {
         application.setAppService(appService);
         application.setThreadPrincipalService(threadPrincipalService);
         application.setClock(clock);
+        application.setJsonService(jsonService);
         application.addApplication(mockApp("SYS", "Admin"));
         application.addApplication(mockApp("MDC", "MultiSense"));
         return application;
