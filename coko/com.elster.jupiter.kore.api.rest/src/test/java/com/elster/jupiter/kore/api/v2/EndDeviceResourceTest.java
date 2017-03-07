@@ -36,6 +36,8 @@ import static org.mockito.Mockito.when;
 
 public class EndDeviceResourceTest extends PlatformPublicApiJerseyTest {
 
+    private static final String METER_MRID = "7e1d25cf-c21c-4fe4-899a-3eb07d3f2d23";
+
     @Mock
     Meter meter;
 
@@ -48,9 +50,11 @@ public class EndDeviceResourceTest extends PlatformPublicApiJerseyTest {
         when(meter.getState()).thenReturn(Optional.of(state));
         when(meter.getState(any(Instant.class))).thenReturn(Optional.of(state));
         when(meter.getId()).thenReturn(123L);
+        when(meter.getMRID()).thenReturn(METER_MRID);
         when(meter.getName()).thenReturn("testName");
         when(meter.getVersion()).thenReturn(1L);
         when(meteringService.findMeterById(123)).thenReturn(Optional.of(meter));
+        when(meteringService.findMeterByMRID(METER_MRID)).thenReturn(Optional.of(meter));
         ReadingType readingType1 = mockReadingType("0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
         when(readingType1.isRegular()).thenReturn(true);
         ReadingType readingType2 = mockReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
@@ -69,7 +73,7 @@ public class EndDeviceResourceTest extends PlatformPublicApiJerseyTest {
 
     @Test
     public void testGetSingleMeterWithFields() throws Exception {
-        Response response = target("enddevices/123").queryParam("fields", "id,name").request().get();
+        Response response = target("enddevices/" + METER_MRID).queryParam("fields", "id,name").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         assertThat(model.<Integer>get("$.id")).isEqualTo(123);
@@ -79,7 +83,7 @@ public class EndDeviceResourceTest extends PlatformPublicApiJerseyTest {
 
     @Test
     public void testGetSingleMeterAllFields() throws Exception {
-        Response response = target("enddevices/123").request().get();
+        Response response = target("enddevices/"  + METER_MRID).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         assertThat(model.<Integer>get("$.id")).isEqualTo(123);
@@ -102,7 +106,7 @@ public class EndDeviceResourceTest extends PlatformPublicApiJerseyTest {
 
     @Test
     public void testGetReadings() throws Exception {
-        Response response = target("enddevices/123/readings").queryParam("from", 1468343333330L).request().get();
+        Response response = target("enddevices/" + METER_MRID + "/readings").queryParam("from", 1468343333330L).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         assertThat(model.<List>get("$.readings")).hasSize(1);

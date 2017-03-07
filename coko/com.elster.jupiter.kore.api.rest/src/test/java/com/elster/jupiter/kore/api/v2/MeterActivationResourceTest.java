@@ -8,7 +8,16 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointMeterActivator;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
 import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.util.time.Interval;
@@ -23,11 +32,14 @@ import java.io.InputStream;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -38,16 +50,31 @@ import static org.mockito.Mockito.when;
 
 public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
 
+    private static final String METER_MRID = "7e1d25cf-c21c-4fe4-899a-3eb07d3f2d23";
+
     private UsagePoint usagePoint;
+    private UsagePointMetrologyConfiguration metrologyConfiguration;
+
+    @Mock
+    MeterRole meterRole;
+    @Mock
+    UsagePointMeterActivator linker;
+    @Mock
+    EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint;
 
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
         usagePoint = mockUsagePoint(MRID, 1, ServiceKind.ELECTRICITY);
+        metrologyConfiguration = mockMetrologyConfiguration(1L, "MC", 1L);
         MeterActivation meterActivation = mockMeterActivation(11L, 1L, 111L, usagePoint);
         MeterActivation meterActivation2 = mockMeterActivation(12L, 1L, 112L, usagePoint);
         doReturn(Arrays.asList(meterActivation, meterActivation2)).when(usagePoint).getMeterActivations();
+        when(metrologyConfigurationService.findMeterRole("meterRole")).thenReturn(Optional.of(meterRole));
+        when(usagePoint.linkMeters()).thenReturn(linker);
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
+        when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
     }
 
     @Test
@@ -144,20 +171,25 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         MeterActivationInfo meterActivationInfo = new MeterActivationInfo();
         meterActivationInfo.interval = new IntervalInfo();
         meterActivationInfo.interval.start = clock.millis();
-        meterActivationInfo.meter = "123L";
+        meterActivationInfo.meter = METER_MRID;
+        meterActivationInfo.meterRole = "meterRole";
 
         Meter mock = mock(Meter.class);
         when(mock.getId()).thenReturn(123L);
-        when(meteringService.findMeterById(123L)).thenReturn(Optional.of(mock));
+        when(mock.getMRID()).thenReturn(METER_MRID);
+        when(meteringService.findMeterByMRID(METER_MRID)).thenReturn(Optional.of(mock));
         MeterActivation meterActivation = mockMeterActivation(1001L, 1L, usagePoint);
         when(meterActivation.getMeter()).thenReturn(Optional.of(mock));
         when(usagePoint.activate(any(), any())).thenReturn(meterActivation);
+
 
         // Business method
         target("/usagepoints/" + MRID + "/meteractivations").request().post(Entity.json(meterActivationInfo));
 
         // Asserts
-        verify(usagePoint).activate(mock, clock.instant());
+        verify(linker).clear(Instant.ofEpochMilli(meterActivationInfo.interval.start), meterRole);
+        verify(linker).activate(Instant.ofEpochMilli(meterActivationInfo.interval.start), mock, meterRole);
+        verify(linker).complete();
     }
 
     @Test
@@ -218,12 +250,13 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
     public void testCreateMeterActivationWithoutPreviousMeterActivation() throws Exception {
         MeterActivationInfo meterActivationInfo = new MeterActivationInfo();
         meterActivationInfo.interval = new IntervalInfo();
-        meterActivationInfo.meter = "123456789L";
+        meterActivationInfo.meter = METER_MRID;
+        meterActivationInfo.meterRole = "meterRole";
         Instant now = clock.instant();
         meterActivationInfo.interval.start = now.toEpochMilli();
         Meter mock = mock(Meter.class);
         when(mock.getId()).thenReturn(123456789L);
-        when(meteringService.findMeterById(123456789L)).thenReturn(Optional.of(mock));
+        when(meteringService.findMeterByMRID(METER_MRID)).thenReturn(Optional.of(mock));
 
         MeterActivation meterActivation = mockMeterActivation(1001L, 1L, usagePoint);
         when(usagePoint.activate(any(), any())).thenReturn(meterActivation);
@@ -232,7 +265,10 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         Response post = target("/usagepoints/" + MRID + "/meteractivations").request().post(Entity.json(meterActivationInfo));
 
         // Asserts
-        assertThat(post.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        // Asserts
+        verify(linker).clear(Instant.ofEpochMilli(meterActivationInfo.interval.start), meterRole);
+        verify(linker).activate(Instant.ofEpochMilli(meterActivationInfo.interval.start), mock, meterRole);
+        verify(linker).complete();
     }
 
     @Test
@@ -240,9 +276,10 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         MeterActivationInfo meterActivationInfo = new MeterActivationInfo();
         meterActivationInfo.interval = new IntervalInfo();
         meterActivationInfo.interval.start = clock.millis();
-        meterActivationInfo.meter = "123456789L";
+        meterActivationInfo.meter = METER_MRID;
+        meterActivationInfo.meterRole = "meterRole";
 
-        when(meteringService.findMeterById(123456789L)).thenReturn(Optional.empty());
+        when(meteringService.findMeterByMRID(METER_MRID)).thenReturn(Optional.empty());
 
         // Business method
         Response post = target("/usagepoints/" + MRID + "/meteractivations").request().post(Entity.json(meterActivationInfo));
@@ -251,6 +288,65 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         assertThat(post.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel model = JsonModel.model((ByteArrayInputStream) post.getEntity());
         assertThat(model.<String>get("$.errors[0].id")).isEqualTo("meter");
+    }
+
+    @Test
+    public void testValidateMeterActivationWithMeter() throws Exception {
+        MeterActivationInfo meterActivationInfo = new MeterActivationInfo();
+        meterActivationInfo.interval = new IntervalInfo();
+        meterActivationInfo.interval.start = clock.millis();
+        meterActivationInfo.meter = METER_MRID;
+        meterActivationInfo.meterRole = "meterRole";
+
+        Meter mock = mock(Meter.class);
+        when(mock.getId()).thenReturn(123L);
+        when(mock.getMRID()).thenReturn(METER_MRID);
+        when(meteringService.findMeterByMRID(METER_MRID)).thenReturn(Optional.of(mock));
+        MeterActivation meterActivation = mockMeterActivation(1001L, 1L, usagePoint);
+        when(meterActivation.getMeter()).thenReturn(Optional.of(mock));
+        when(usagePoint.activate(any(), any())).thenReturn(meterActivation);
+        when(mock.getHeadEndInterface()).thenReturn(Optional.empty());
+
+        // Business method
+        Response response = target("/usagepoints/" + MRID + "/meteractivations").queryParam("validateOnly", true).request().post(Entity.json(meterActivationInfo));
+
+        assertThat(response.getStatus()).isEqualTo(200);
+    }
+
+    @Test
+    public void testValidateMeterActivationWithWrongMeter() throws Exception {
+        MeterActivationInfo meterActivationInfo = new MeterActivationInfo();
+        meterActivationInfo.interval = new IntervalInfo();
+        meterActivationInfo.interval.start = clock.millis();
+        meterActivationInfo.meter = METER_MRID;
+        meterActivationInfo.meterRole = "meterRole";
+
+        Meter mock = mock(Meter.class);
+        when(mock.getId()).thenReturn(123L);
+        when(mock.getMRID()).thenReturn(METER_MRID);
+        when(meteringService.findMeterByMRID(METER_MRID)).thenReturn(Optional.of(mock));
+        MeterActivation meterActivation = mockMeterActivation(1001L, 1L, usagePoint);
+        when(meterActivation.getMeter()).thenReturn(Optional.of(mock));
+        when(usagePoint.activate(any(), any())).thenReturn(meterActivation);
+        when(mock.getHeadEndInterface()).thenReturn(Optional.empty());
+        MetrologyContract contract = mock(MetrologyContract.class);
+        ReadingTypeRequirement requirement = mock(ReadingTypeRequirement.class);
+        MetrologyPurpose purpose = mock(MetrologyPurpose.class);
+        when(contract.isMandatory()).thenReturn(true);
+        when(contract.getMetrologyPurpose()).thenReturn(purpose);
+        when(purpose.getName()).thenReturn("puropse");
+        when(metrologyConfiguration.getMeterRoleFor(requirement)).thenReturn(Optional.of(meterRole));
+        when(metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(contract));
+        when(contract.getRequirements()).thenReturn(Collections.singleton(requirement));
+
+        // Business method
+        Response response = target("/usagepoints/" + MRID + "/meteractivations").queryParam("validateOnly", true).request().post(Entity.json(meterActivationInfo));
+
+        // Asserts
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+        assertThat(response.getStatus()).isEqualTo(400);
+        assertThat(model.<Boolean>get("success")).isEqualTo(false);
+        assertThat(model.<List>get("errors")).hasSize(1);
     }
 
     @Test
