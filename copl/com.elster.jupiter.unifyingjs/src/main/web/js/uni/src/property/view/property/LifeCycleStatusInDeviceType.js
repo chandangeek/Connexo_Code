@@ -81,25 +81,27 @@ Ext.define('Uni.property.view.property.LifeCycleStatusInDeviceType', {
             deviceTypeCombo = me.down('#device-type'),
             deviceStateCombo = me.down('#device-state');
 
-        value = [].concat( value );
-        Ext.Array.forEach(value, function (item) {
-            if(item !== '') {
-                deviceTypeValues.push(item.split(':')[0]);
-                deviceStateValues.push(item);
-            }
-        });
-        var uniqueDeviceTypeValues = deviceTypeValues.filter(function(item, pos, self) {
-            return self.indexOf(item) == pos;
-        })
-        deviceTypeCombo.setValue(uniqueDeviceTypeValues);
-        deviceStateCombo.setValue(deviceStateValues);
+        if(value) {
+            value = [].concat(value);
+            Ext.Array.forEach(value, function (item) {
+                if (item !== '') {
+                    deviceTypeValues.push(item.split(':')[0]);
+                    deviceStateValues.push(item);
+                }
+            });
+            var uniqueDeviceTypeValues = deviceTypeValues.filter(function (item, pos, self) {
+                return self.indexOf(item) == pos;
+            });
+            deviceTypeCombo.setValue(uniqueDeviceTypeValues);
+            deviceStateCombo.setValue(deviceStateValues);
+        }
     },
 
     getValue: function () {
         var me = this,
             deviceStateCombo = me.down('#device-state');
 
-        return deviceStateCombo.getValue()
+        return deviceStateCombo.getValue().length > 0 ? deviceStateCombo.getValue() : null;
     },
 
     getDeviceTypeStore: function () {
