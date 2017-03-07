@@ -2,17 +2,17 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.keyfunctiontypes.store.KeyTypes', {
+Ext.define('Mdc.securityaccessors.store.KeyTypes', {
     extend: 'Ext.data.Store',
     storeId: 'keyTypesStore',
     requires: [
-        'Mdc.keyfunctiontypes.model.KeyType'
+        'Mdc.securityaccessors.model.KeyType'
     ],
-    model: 'Mdc.keyfunctiontypes.model.KeyType',
+    model: 'Mdc.securityaccessors.model.KeyType',
     autoLoad: false,
     proxy: {
         type: 'rest',
-        urlTpl: '/api/dtc/devicetypes/{deviceTypeId}/keyfunctiontypes/keytypes',
+        urlTpl: '/api/dtc/devicetypes/{deviceTypeId}/securityaccessors/keytypes',
         reader: {
             type: 'json'
         },
@@ -24,5 +24,4 @@ Ext.define('Mdc.keyfunctiontypes.store.KeyTypes', {
             this.url = this.urlTpl.replace('{deviceTypeId}', deviceTypeId);
         }
     }
-})
-;
+});

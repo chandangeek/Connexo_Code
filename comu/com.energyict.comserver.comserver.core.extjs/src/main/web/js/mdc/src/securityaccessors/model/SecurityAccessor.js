@@ -1,11 +1,10 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
-Ext.define('Mdc.keyfunctiontypes.model.KeyFunctionType', {
+Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
     extend: 'Uni.model.ParentVersion',
     requires: [
-      'Mdc.keyfunctiontypes.model.KeyType'
+        'Mdc.securityaccessors.model.KeyType'
     ],
     fields: [
         {name: 'id', type: 'int', useNull: true},
@@ -13,10 +12,10 @@ Ext.define('Mdc.keyfunctiontypes.model.KeyFunctionType', {
         {name: 'description', type: 'string'},
         {name: 'keyType', type: 'auto'},
         {name: 'validityPeriod', type: 'auto', useNull: true},
-        {name: 'viewLevels', type: 'auto'},
-        {name: 'editLevels', type: 'auto'},
-        {name: 'defaultViewLevels', type: 'auto'},
-        {name: 'defaultEditLevels', type: 'auto'},
+        {name: 'viewLevels', type: 'auto', useNull: true},
+        {name: 'editLevels', type: 'auto', useNull: true},
+        {name: 'defaultViewLevels', type: 'auto', useNull: true},
+        {name: 'defaultEditLevels', type: 'auto', useNull: true},
         {
             name: 'viewLevelsInfo',
             persist: false,
@@ -41,9 +40,10 @@ Ext.define('Mdc.keyfunctiontypes.model.KeyFunctionType', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/dtc/devicetypes/{deviceTypeId}/keyfunctiontypes',
+        urlTpl: '/api/dtc/devicetypes/{deviceTypeId}/securityaccessors',
         reader: {
-            type: 'json'
+            type: 'json',
+            root: 'securityaccessors'
         },
 
         setUrl: function (deviceTypeId) {
@@ -54,7 +54,7 @@ Ext.define('Mdc.keyfunctiontypes.model.KeyFunctionType', {
         {
             name: 'keyType',
             type: 'hasOne',
-            model: 'Mdc.keyfunctiontypes.model.KeyType',
+            model: 'Mdc.securityaccessors.model.KeyType',
             associationKey: 'keyType',
             getterName: 'getKeyType',
             setterName: 'setKeyType',

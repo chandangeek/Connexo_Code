@@ -1,21 +1,20 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
-Ext.define('Mdc.keyfunctiontypes.store.KeyFunctionTypes', {
+Ext.define('Mdc.securityaccessors.store.SecurityAccessors', {
     extend: 'Ext.data.Store',
-    storeId: 'keyFunctionTypesStore',
+    storeId: 'SecurityAccessorsStore',
     requires: [
-        'Mdc.keyfunctiontypes.model.KeyFunctionType'
+        'Mdc.securityaccessors.model.SecurityAccessor'
     ],
-    model: 'Mdc.keyfunctiontypes.model.KeyFunctionType',
+    model: 'Mdc.securityaccessors.model.SecurityAccessor',
     autoLoad: false,
     proxy: {
         type: 'rest',
-        urlTpl: '/api/dtc/devicetypes/{deviceTypeId}/keyfunctiontypes',
+        urlTpl: '/api/dtc/devicetypes/{deviceTypeId}/securityaccessors',
         reader: {
             type: 'json',
-            root: 'keyfunctiontypes'
+            root: 'securityaccessors'
         },
 
         setUrl: function(deviceTypeId) {
@@ -28,13 +27,12 @@ Ext.define('Mdc.keyfunctiontypes.store.KeyFunctionTypes', {
             instanceName: 'keyType',
             name: 'keyType',
             type: 'hasOne',
-            model: 'Mdc.keyfunctiontypes.model.KeyType',
+            model: 'Mdc.securityaccessors.model.KeyType',
             associationKey: 'keyType',
             foreignKey: 'keyType',
             getTypeDiscriminator: function (node) {
-                return 'Mdc.keyfunctiontypes.model.KeyType';
+                return 'Mdc.securityaccessors.model.KeyType';
             }
         }
     ]
-})
-;
+});

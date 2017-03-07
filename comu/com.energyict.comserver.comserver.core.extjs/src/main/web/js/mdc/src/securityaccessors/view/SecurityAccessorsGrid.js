@@ -1,16 +1,15 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
-Ext.define('Mdc.keyfunctiontypes.view.KeyFunctionTypesGrid', {
+Ext.define('Mdc.securityaccessors.view.SecurityAccessorsGrid', {
     extend: 'Ext.grid.Panel',
-    alias: 'widget.key-function-types-grid',
-    store: 'Mdc.keyfunctiontypes.store.KeyFunctionTypes',
+    alias: 'widget.security-accessors-grid',
+    store: 'Mdc.securityaccessors.store.SecurityAccessors',
     deviceTypeId: null,
     requires: [
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
-        'Mdc.keyfunctiontypes.view.KeyFunctionTypesActionMenu'
+        'Mdc.securityaccessors.view.SecurityAccessorsActionMenu'
     ],
     forceFit: true,
 
@@ -43,8 +42,8 @@ Ext.define('Mdc.keyfunctiontypes.view.KeyFunctionTypesGrid', {
             {
                 xtype: 'uni-actioncolumn',
                 menu: {
-                    xtype: 'key-function-types-action-menu',
-                    itemId: 'key-function-types-action-menu'
+                    xtype: 'security-accessors-action-menu',
+                    itemId: 'mdc-security-accessors-action-menu'
                 }
             }
         ];
@@ -55,14 +54,14 @@ Ext.define('Mdc.keyfunctiontypes.view.KeyFunctionTypesGrid', {
                 isFullTotalCount: true,
                 store: me.store,
                 dock: 'top',
-                emptyMsg: Uni.I18n.translate('keyfunctiontype.pagingtoolbartop.emptyMsg', 'MDC', 'No key function types'),
-                displayMsg: Uni.I18n.translate('keyfunctiontype.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} key function types'),
-                displayMoreMsg: Uni.I18n.translate('keyfunctiontype.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} key function types'),
+                emptyMsg: Uni.I18n.translate('securityaccessors.pagingtoolbartop.emptyMsg', 'MDC', 'No security accessors'),
+                displayMsg: Uni.I18n.translate('securityaccessors.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} security accessors'),
+                displayMoreMsg: Uni.I18n.translate('securityaccessors.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} security accessors'),
                 items: [
                     {
                         xtype: 'button',
-                        text: Uni.I18n.translate('general.addKeyFunctionType', 'MDC', 'Add key function type'),
-                        itemId: 'add-key-function-type',
+                        text: Uni.I18n.translate('general.addSecurityAccessor', 'MDC', 'Add security accessor'),
+                        itemId: 'mdc-add-security-accessor',
                         deviceTypeId: me.deviceTypeId
                     }
 
@@ -72,7 +71,7 @@ Ext.define('Mdc.keyfunctiontypes.view.KeyFunctionTypesGrid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('keyfunctiontype.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Key function types per page'),
+                itemsPerPageMsg: Uni.I18n.translate('securityaccessors.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Security accessors per page'),
                 dock: 'bottom'
             }
         ];

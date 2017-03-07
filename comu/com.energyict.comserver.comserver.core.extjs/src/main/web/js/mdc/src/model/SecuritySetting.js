@@ -6,8 +6,7 @@ Ext.define('Mdc.model.SecuritySetting', {
     extend: 'Uni.model.ParentVersion',
     requires: [
         'Mdc.model.AuthenticationLevel',
-        'Mdc.model.EncryptionLevel',
-        'Mdc.model.ExecutionLevel'
+        'Mdc.model.EncryptionLevel'
     ],
     fields: [
         {name: 'id',type:'number',useNull:true},
@@ -15,17 +14,11 @@ Ext.define('Mdc.model.SecuritySetting', {
         {name: 'authenticationLevelId', type: 'number', useNull: true},
         {name: 'authenticationLevel', persist: false},
         {name: 'encryptionLevelId', type: 'number', useNull: true },
-        {name: 'encryptionLevel', persist: false},
-        {name: 'executionLevels', persist: false}
+        {name: 'encryptionLevel', persist: false}
     ],
     associations: [
         {name: 'authenticationLevel', type: 'hasOne', model: 'Mdc.model.AuthenticationLevel'},
-        {name: 'encryptionLevel', type: 'hasOne', model: 'Mdc.model.EncryptionLevel'},
-        {name: 'executionLevels', type: 'hasMany', model: 'Mdc.model.ExecutionLevel', associationKey: 'executionLevels',
-            getTypeDiscriminator: function (node) {
-                return 'Mdc.model.ExecutionLevel';
-            }
-        }
+        {name: 'encryptionLevel', type: 'hasOne', model: 'Mdc.model.EncryptionLevel'}
     ],
     proxy: {
         type: 'rest',

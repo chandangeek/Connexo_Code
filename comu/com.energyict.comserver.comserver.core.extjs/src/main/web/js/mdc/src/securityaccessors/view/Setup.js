@@ -1,14 +1,13 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
-Ext.define('Mdc.keyfunctiontypes.view.Setup', {
+Ext.define('Mdc.securityaccessors.view.Setup', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.device-type-key-function-types-setup',
+    alias: 'widget.device-type-security-accessors-setup',
 
     requires: [
         'Mdc.view.setup.devicetype.SideMenu',
-        'Mdc.keyfunctiontypes.view.PreviewContainer',
+        'Mdc.securityaccessors.view.PreviewContainer',
         'Uni.util.FormEmptyMessage'
     ],
 
@@ -33,11 +32,11 @@ Ext.define('Mdc.keyfunctiontypes.view.Setup', {
 
         me.content = {
             ui: 'large',
-            title: Uni.I18n.translate('general.keyFunctionTypes', 'MDC', 'Key function types'),
+            title: Uni.I18n.translate('general.securityAccessors', 'MDC', 'Security accessors'),
             items: [
                 {
-                    xtype: 'key-function-types-preview-container',
-                    itemId: 'key-function-types-preview-container',
+                    xtype: 'security-accessors-preview-container',
+                    itemId: 'mdc-security-accessors-preview-container',
                     deviceTypeId: me.deviceTypeId
                 }
             ]

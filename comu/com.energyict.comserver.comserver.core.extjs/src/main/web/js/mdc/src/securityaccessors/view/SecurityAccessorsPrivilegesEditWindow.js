@@ -1,13 +1,12 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
-Ext.define('Mdc.keyfunctiontypes.view.KeyFunctionTypesPrivilegesEditWindow', {
+Ext.define('Mdc.securityaccessors.view.SecurityAccessorsPrivilegesEditWindow', {
     extend: 'Ext.window.Window',
-    alias: 'widget.keyfunctiontype-privileges-edit-window',
+    alias: 'widget.security-accessors-privileges-edit-window',
     modal: true,
     width: 400,
-    keyFunctionTypeRecord: null,
+    securityAccessorRecord: null,
 
     initComponent: function () {
         var me = this,
@@ -15,11 +14,11 @@ Ext.define('Mdc.keyfunctiontypes.view.KeyFunctionTypesPrivilegesEditWindow', {
             editItems = [],
             value = false;
 
-        me.setTitle(Uni.I18n.translate('keyfunctiontypes.changePrivilegesOfX', 'MDC', "Change privileges of '{0}'", me.keyFunctionTypeRecord.get('name')));
+        me.setTitle(Uni.I18n.translate('securityaccessors.changePrivilegesOfX', 'MDC', "Change privileges of '{0}'", me.securityAccessorRecord.get('name')));
 
-        Ext.Array.forEach(me.keyFunctionTypeRecord.get('defaultViewLevels'), function(defaultViewLevel){
+        Ext.Array.forEach(me.securityAccessorRecord.get('defaultViewLevels'), function(defaultViewLevel){
             value = false;
-            Ext.Array.each(me.keyFunctionTypeRecord.get('viewLevels'), function(viewLevel){
+            Ext.Array.each(me.securityAccessorRecord.get('viewLevels'), function(viewLevel){
                 if (viewLevel.name === defaultViewLevel.name) {
                     value = true;
                     return false;
@@ -86,7 +85,7 @@ Ext.define('Mdc.keyfunctiontypes.view.KeyFunctionTypesPrivilegesEditWindow', {
                         listeners: {
                             boxready: function(labelComponent) {
                                 var checkBox = labelComponent.up('#mdc-edit-level-container' + me.makeItemId(defaultEditLevel.name))
-                                                .down('#mdc-edit-level-checkbox-' + me.makeItemId(defaultEditLevel.name));
+                                    .down('#mdc-edit-level-checkbox-' + me.makeItemId(defaultEditLevel.name));
                                 labelComponent.getEl().on('click', function() {
                                     checkBox.setValue(!checkBox.getValue());
                                 });
@@ -99,7 +98,7 @@ Ext.define('Mdc.keyfunctiontypes.view.KeyFunctionTypesPrivilegesEditWindow', {
 
         me.items = {
             xtype: 'form',
-            itemId: 'mdc-keyfunctiontype-privileges-edit-window-form',
+            itemId: 'mdc-security-accessors-privileges-edit-window-form',
             padding: 0,
             defaults: {
                 width: 300,
@@ -109,16 +108,16 @@ Ext.define('Mdc.keyfunctiontypes.view.KeyFunctionTypesPrivilegesEditWindow', {
                 {
                     xtype: 'fieldcontainer',
                     margin: '10 0 10 0',
-                    fieldLabel: Uni.I18n.translate('keyfunctiontypes.viewPrivileges', 'MDC', 'View privileges'),
-                    itemId: 'mdc-keyfunctiontype-privileges-edit-window-view',
+                    fieldLabel: Uni.I18n.translate('securityaccessors.viewPrivileges', 'MDC', 'View privileges'),
+                    itemId: 'mdc-security-accessors-privileges-edit-window-view',
                     layout: 'vbox',
                     items: viewItems
                 },
                 {
                     xtype: 'fieldcontainer',
                     margin: '10 0 10 0',
-                    fieldLabel: Uni.I18n.translate('keyfunctiontypes.editPrivileges', 'MDC', 'Edit privileges'),
-                    itemId: 'mdc-keyfunctiontype-privileges-edit-window-edit',
+                    fieldLabel: Uni.I18n.translate('securityaccessors.editPrivileges', 'MDC', 'Edit privileges'),
+                    itemId: 'mdc-security-accessors-privileges-edit-window-edit',
                     layout: 'vbox',
                     items: editItems
                 },
@@ -129,13 +128,13 @@ Ext.define('Mdc.keyfunctiontypes.view.KeyFunctionTypesPrivilegesEditWindow', {
                     items: [
                         {
                             xtype: 'button',
-                            itemId: 'mdc-keyfunctiontype-privileges-edit-window-save',
+                            itemId: 'mdc-security-accessors-privileges-edit-window-save',
                             text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
                             ui: 'action'
                         },
                         {
                             xtype: 'button',
-                            itemId: 'mdc-keyfunctiontype-privileges-edit-window-cancel',
+                            itemId: 'mdc-security-accessors-privileges-edit-window-cancel',
                             text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                             ui: 'link',
                             handler: function () {
@@ -156,7 +155,7 @@ Ext.define('Mdc.keyfunctiontypes.view.KeyFunctionTypesPrivilegesEditWindow', {
 
     onCheckBoxClick: function(checkbox, checked, fieldName, defaultLevel) {
         var me = this,
-            levels = me.keyFunctionTypeRecord.get(fieldName),
+            levels = me.securityAccessorRecord.get(fieldName),
             indexOfLevel = -1,
             levelsChanged = false;
 
@@ -184,7 +183,7 @@ Ext.define('Mdc.keyfunctiontypes.view.KeyFunctionTypesPrivilegesEditWindow', {
             }
         }
         if (levelsChanged) {
-            me.keyFunctionTypeRecord.set(fieldName, levels);
+            me.securityAccessorRecord.set(fieldName, levels);
         }
     }
 

@@ -1705,28 +1705,28 @@ Ext.define('Mdc.controller.history.Setup', {
                                             }
                                         }
                                     },
-                                    keyfunctiontypes: {
-                                        title: Uni.I18n.translate('general.keyFunctionTypes', 'MDC', 'Key function types'),
-                                        route: 'keyfunctiontypes',
+                                    securityaccessors: {
+                                        title: Uni.I18n.translate('general.securityAccessors', 'MDC', 'Security accessors'),
+                                        route: 'securityaccessors',
                                         privileges: Mdc.privileges.DeviceType.view,
-                                        controller: 'Mdc.keyfunctiontypes.controller.KeyFunctionTypes',
-                                        action: 'showKeyFunctionTypesOverview',
+                                        controller: 'Mdc.securityaccessors.controller.SecurityAccessors',
+                                        action: 'showSecurityAccessorsOverview',
                                         items: {
                                             add: {
-                                                title: Uni.I18n.translate('keyfunctiontypes.addKeyFunctionType', 'MDC', 'Add key function type'),
+                                                title: Uni.I18n.translate('securityaccessors.addSecurityAccessor', 'MDC', 'Add security accessor'),
                                                 route: 'add',
                                                 privileges: Mdc.privileges.DeviceType.admin,
-                                                controller: 'Mdc.keyfunctiontypes.controller.KeyFunctionTypes',
-                                                action: 'showAddKeyFunctionType'
+                                                controller: 'Mdc.securityaccessors.controller.SecurityAccessors',
+                                                action: 'showAddSecurityAccessor'
                                             },
                                             edit: {
-                                                title: Uni.I18n.translate('keyfunctiontypes.editKeyFunctionType', 'MDC', 'Edit key function type'),
-                                                route: '{keyFunctionTypeId}/edit',
+                                                title: Uni.I18n.translate('securityaccessors.editSecurityAccessor', 'MDC', 'Edit security accessor'),
+                                                route: '{securityAccessorId}/edit',
                                                 privileges: Mdc.privileges.DeviceType.admin,
-                                                controller: 'Mdc.keyfunctiontypes.controller.KeyFunctionTypes',
-                                                action: 'showEditKeyFunctionType',
+                                                controller: 'Mdc.securityaccessors.controller.SecurityAccessors',
+                                                action: 'showEditSecurityAccessor',
                                                 callback: function (route) {
-                                                    this.getApplication().on('keyfunctiontypeload', function (name) {
+                                                    this.getApplication().on('securityaccessorload', function (name) {
                                                         route.setTitle(Uni.I18n.translate('general.editX', 'MDC', "Edit '{0}'", name, false));
                                                     }, {single: true});
                                                     return this;

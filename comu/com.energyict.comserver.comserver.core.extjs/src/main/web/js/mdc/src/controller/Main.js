@@ -119,7 +119,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.usagepointmanagement.controller.UsagePointHistory',
         'Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualities',
         'Mdc.controller.setup.CommandLimitationRules',
-        'Mdc.keyfunctiontypes.controller.KeyFunctionTypes'
+        'Mdc.securityaccessors.controller.SecurityAccessors'
     ],
 
     stores: [

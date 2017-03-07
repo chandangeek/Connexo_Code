@@ -1,10 +1,9 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
-Ext.define('Mdc.keyfunctiontypes.view.KeyFunctionTypesActionMenu', {
+Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
-    alias: 'widget.key-function-types-action-menu',
+    alias: 'widget.security-accessors-action-menu',
     initComponent: function () {
         this.items = [
             {

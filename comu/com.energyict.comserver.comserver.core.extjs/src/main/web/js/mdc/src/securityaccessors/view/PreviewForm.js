@@ -1,11 +1,10 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
-Ext.define('Mdc.keyfunctiontypes.view.PreviewForm', {
+Ext.define('Mdc.securityaccessors.view.PreviewForm', {
     extend: 'Ext.panel.Panel',
     frame: false,
-    alias: 'widget.devicetype-key-function-types-preview-form',
+    alias: 'widget.devicetype-security-accessors-preview-form',
     layout: 'fit',
 
     requires: [
@@ -56,12 +55,12 @@ Ext.define('Mdc.keyfunctiontypes.view.PreviewForm', {
                         }
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('keyfunctiontypes.viewPrivileges', 'MDC', 'View privileges'),
+                        fieldLabel: Uni.I18n.translate('securityaccessors.viewPrivileges', 'MDC', 'View privileges'),
                         xtype: 'execution-level-displayfield',
                         name: 'viewLevelsInfo'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('keyfunctiontypes.editPrivileges', 'MDC', 'Edit privileges'),
+                        fieldLabel: Uni.I18n.translate('securityaccessors.editPrivileges', 'MDC', 'Edit privileges'),
                         xtype: 'execution-level-displayfield',
                         name: 'editLevelsInfo'
                     }

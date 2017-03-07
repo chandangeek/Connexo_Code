@@ -1,15 +1,14 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
-Ext.define('Mdc.keyfunctiontypes.view.Preview', {
+Ext.define('Mdc.securityaccessors.view.Preview', {
     extend: 'Ext.panel.Panel',
-    alias: 'widget.key-function-types-preview',
+    alias: 'widget.security-accessors-preview',
     frame: true,
 
     requires: [
-        'Mdc.keyfunctiontypes.view.PreviewForm',
-        'Mdc.keyfunctiontypes.view.KeyFunctionTypesActionMenu'
+        'Mdc.securityaccessors.view.PreviewForm',
+        'Mdc.securityaccessors.view.SecurityAccessorsActionMenu'
     ],
 
     initComponent: function () {
@@ -18,16 +17,16 @@ Ext.define('Mdc.keyfunctiontypes.view.Preview', {
             {
                 xtype: 'uni-button-action',
                 privileges: Mdc.privileges.DeviceType.admin,
-                itemId: 'key-function-type-preview-button',
+                itemId: 'mdc-security-accessor-preview-button',
                 menu: {
-                    xtype: 'key-function-types-action-menu'
+                    xtype: 'security-accessors-action-menu'
                 }
             }
         ];
 
         me.items = {
-            xtype: 'devicetype-key-function-types-preview-form',
-            itemId: 'devicetype-key-function-types-preview-form'
+            xtype: 'devicetype-security-accessors-preview-form',
+            itemId: 'mdc-devicetype-security-accessors-preview-form'
         };
         me.callParent(arguments);
     }

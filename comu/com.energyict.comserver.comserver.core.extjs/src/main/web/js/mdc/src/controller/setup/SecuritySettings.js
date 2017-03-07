@@ -11,14 +11,13 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         'setup.securitysettings.SecuritySettingFiltering',
         'setup.securitysettings.SecuritySettingSorting',
         'setup.securitysettings.SecuritySettingSideFilter',
-        'setup.securitysettings.SecuritySettingForm',
+        'setup.securitysettings.SecuritySettingForm'
     ],
 
     stores: [
         'SecuritySettingsOfDeviceConfiguration',
         'AuthenticationLevels',
-        'EncryptionLevels',
-        'AvailableExecLevelsForSecSettingsOfDevConfig'
+        'EncryptionLevels'
     ],
 
     refs: [
