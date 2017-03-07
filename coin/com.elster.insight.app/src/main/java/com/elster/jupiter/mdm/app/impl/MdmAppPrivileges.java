@@ -27,6 +27,7 @@ class MdmAppPrivileges {
                 com.elster.jupiter.export.security.Privileges.Constants.UPDATE_DATA_EXPORT_TASK,
                 com.elster.jupiter.export.security.Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK,
                 com.elster.jupiter.export.security.Privileges.Constants.RUN_DATA_EXPORT_TASK,
+                com.elster.jupiter.export.security.Privileges.Constants.VIEW_HISTORY,
 
                 //validation
                 com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
@@ -79,6 +80,7 @@ class MdmAppPrivileges {
 
                 //Import services
                 com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
+                com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_HISTORY,
 
                 //Calendars
                 com.elster.jupiter.calendar.security.Privileges.Constants.MANAGE_TOU_CALENDARS,
@@ -96,6 +98,7 @@ class MdmAppPrivileges {
                 com.elster.jupiter.estimation.security.Privileges.Constants.RUN_ESTIMATION_TASK,
                 com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_TASK,
                 com.elster.jupiter.estimation.security.Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK,
+                com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_MANUAL,
 
                 // Usage point life cycle
                 com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER,
