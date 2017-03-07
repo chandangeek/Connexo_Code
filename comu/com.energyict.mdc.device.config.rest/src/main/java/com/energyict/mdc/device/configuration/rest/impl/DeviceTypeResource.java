@@ -439,7 +439,7 @@ public class DeviceTypeResource {
         return deviceConflictMappingResourceProvider.get();
     }
 
-    @Path("/{deviceTypeId}/keyfunctiontypes")
+    @Path("/{deviceTypeId}/securityaccessors")
     public KeyFunctionTypeResource getKeyFunctionTypeResource() {
         return keyFunctionTypeResourceProvider.get();
     }

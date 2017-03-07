@@ -47,15 +47,15 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
         when(deviceConfigurationService.findDeviceType(66)).thenReturn(Optional.of(deviceType));
         when(deviceType.getKeyAccessorTypes()).thenReturn(Arrays.asList(keyFunctionType, keyFunctionType2));
 
-        Map<String, Object> map = target("/devicetypes/66/keyfunctiontypes").request().get(Map.class);
+        Map<String, Object> map = target("/devicetypes/66/securityaccessors").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(2);
-        assertThat((List) map.get("keyfunctiontypes")).hasSize(2);
+        assertThat((List) map.get("securityaccessors")).hasSize(2);
     }
 
     @Test(expected = WebApplicationException.class)
     public void getUnexistingDeviceType() throws Exception {
         when(deviceConfigurationService.findDeviceType(66)).thenReturn(Optional.empty());
-        target("/devicetypes/66/keyfunctiontypes").request().get(Map.class);
+        target("/devicetypes/66/securityaccessors").request().get(Map.class);
     }
 
     @Test
@@ -65,7 +65,7 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
         when(deviceConfigurationService.findDeviceType(66)).thenReturn(Optional.of(deviceType));
         when(deviceType.getKeyAccessorTypes()).thenReturn(Collections.singletonList(keyFunctionType));
 
-        String response = target("/devicetypes/66/keyfunctiontypes/1").request().get(String.class);
+        String response = target("/devicetypes/66/securityaccessors/1").request().get(String.class);
 
         JsonModel model = JsonModel.model(response);
         assertThat(model.<Number>get("$.id")).isEqualTo(1);
@@ -111,7 +111,7 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
         info.keyType.name = "AES 128";
         info.keyType.requiresDuration = true;
 
-        target("/devicetypes/66/keyfunctiontypes").request().post(Entity.entity(info, MediaType.APPLICATION_JSON));
+        target("/devicetypes/66/securityaccessors").request().post(Entity.entity(info, MediaType.APPLICATION_JSON));
         verify(deviceType).addKeyAccessorType(NAME, keyType, "SSM");
         verify(builder).description(DESCRIPTION);
         verify(builder).duration(info.validityPeriod.asTimeDuration());
@@ -137,7 +137,7 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
         when(deviceType.getKeyAccessorTypeUpdater(keyFunctionType)).thenReturn(Optional.of(updater));
         when(updater.complete()).thenReturn(keyFunctionType);
 
-        target("/devicetypes/66/keyfunctiontypes/1").request().put(Entity.entity(info, MediaType.APPLICATION_JSON));
+        target("/devicetypes/66/securityaccessors/1").request().put(Entity.entity(info, MediaType.APPLICATION_JSON));
         verify(deviceType).getKeyAccessorTypeUpdater(keyFunctionType);
         verify(updater).description(info.description);
         verify(updater).name(info.name);
@@ -154,7 +154,7 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
         KeyFunctionTypeInfo info = new KeyFunctionTypeInfo();
         info.parent = new VersionInfo<>("device type 1", 1L);
 
-        target("/devicetypes/66/keyfunctiontypes/1").request().method("DELETE", Entity.json(info));
+        target("/devicetypes/66/securityaccessors/1").request().method("DELETE", Entity.json(info));
         verify(deviceType).removeKeyAccessorType(keyFunctionType);
 
     }

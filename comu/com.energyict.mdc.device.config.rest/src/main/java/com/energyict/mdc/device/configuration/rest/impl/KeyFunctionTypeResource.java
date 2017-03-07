@@ -33,7 +33,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -61,7 +63,7 @@ public class KeyFunctionTypeResource {
                 .map(keyAccessorType -> keyFunctionTypeInfoFactory.from(keyAccessorType, deviceType))
                 .sorted((k1, k2) -> k1.name.compareTo(k2.name))
                 .collect(Collectors.toList());
-        return PagedInfoList.fromCompleteList("keyfunctiontypes", infos, queryParameters);
+        return PagedInfoList.fromCompleteList("securityaccessors", infos, queryParameters);
     }
 
     @GET
@@ -70,10 +72,26 @@ public class KeyFunctionTypeResource {
     @Path("/keytypes")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public List<KeyTypeInfo> getKeyTypes(@PathParam("deviceTypeId") long id) {
-        return pkiService.findAllKeyTypes().find()
+        return pkiService.findAllKeyTypes()
                 .stream()
                 .map(KeyTypeInfo::new)
                 .collect(Collectors.toList());
+    }
+
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/keytypes/{id}/keyencryptionmethods")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    public List<String> getKeyEncryptionMethods(@PathParam("id") long id) {
+        return new ArrayList<>();
+//        return pkiService.findAllKeyTypes()
+//                .stream()
+//                .filter(keyType -> keyType.getId()==id)
+//                .findAny()
+//                .map(pkiService::getCryptographicType)
+//                .orElseThrow(NoSuchElementException::new)
+//                .collect(Collectors.toList());
     }
 
     @POST
@@ -85,7 +103,7 @@ public class KeyFunctionTypeResource {
         KeyType keyType = keyFunctionTypeInfo.keyType != null && keyFunctionTypeInfo.keyType.name != null ? pkiService.getKeyType(keyFunctionTypeInfo.keyType.name).orElse(null) : null;
         //TODO: Encryption method not hardcoded, but for the moment not programmed yet
         //Should Encryption method should come from a drop down in th FE
-        Builder keyFunctionTypeBuilder = deviceType.addKeyAccessorType(keyFunctionTypeInfo.name, keyType, "SSM");
+        Builder keyFunctionTypeBuilder = deviceType.addKeyAccessorType(keyFunctionTypeInfo.name, keyType, "DataVault");
         keyFunctionTypeBuilder.description(keyFunctionTypeInfo.description);
         if(keyFunctionTypeInfo.validityPeriod != null && keyType.getCryptographicType().requiresDuration()) {
             checkValidDurationOrThrowException(keyFunctionTypeInfo.validityPeriod);
