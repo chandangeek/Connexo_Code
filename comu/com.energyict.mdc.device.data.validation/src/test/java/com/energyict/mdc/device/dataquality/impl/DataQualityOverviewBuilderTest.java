@@ -110,7 +110,7 @@ public class DataQualityOverviewBuilderTest {
 
         // Asserts
         DataQualityOverviewSpecificationImpl spec = builder.getSpecification();
-        assertThat(spec.getEnabledKpiTypes()).containsOnly(KpiType.SUSPECT, KpiType.CHANNEL, KpiType.REGISTER);
+        assertThat(spec.getEnabledKpiTypes()).containsOnly(KpiType.SUSPECT);
     }
 
     @Test
@@ -134,7 +134,8 @@ public class DataQualityOverviewBuilderTest {
 
         // Asserts
         DataQualityOverviewSpecificationImpl spec = builder.getSpecification();
-        assertThat(spec.getEnabledKpiTypes()).containsOnly(KpiType.ADDED, KpiType.EDITED, KpiType.REMOVED);
+        assertThat(spec.getAmountOfEdited()).isInstanceOf(MetricValueRange.LongRange.class);
+        assertThat(((MetricValueRange.LongRange) spec.getAmountOfEdited()).getRange()).isEqualTo(Range.atLeast(1L));
     }
 
     @Test
@@ -172,6 +173,7 @@ public class DataQualityOverviewBuilderTest {
         // Asserts
         DataQualityOverviewSpecificationImpl spec = builder.getSpecification();
         assertThat(spec.getAmountOfSuspects()).isInstanceOf(MetricValueRange.ExactMatch.class);
+        assertThat(((MetricValueRange.ExactMatch) spec.getAmountOfSuspects()).getMatch()).isEqualTo(10);
     }
 
     @Test
@@ -185,6 +187,7 @@ public class DataQualityOverviewBuilderTest {
         // Asserts
         DataQualityOverviewSpecificationImpl spec = builder.getSpecification();
         assertThat(spec.getAmountOfSuspects()).isInstanceOf(MetricValueRange.LongRange.class);
+        assertThat(((MetricValueRange.LongRange) spec.getAmountOfSuspects()).getRange()).isEqualTo(Range.atLeast(10L));
     }
 
     @Test
@@ -198,6 +201,7 @@ public class DataQualityOverviewBuilderTest {
         // Asserts
         DataQualityOverviewSpecificationImpl spec = builder.getSpecification();
         assertThat(spec.getAmountOfEstimates()).isInstanceOf(MetricValueRange.ExactMatch.class);
+        assertThat(((MetricValueRange.ExactMatch) spec.getAmountOfEstimates()).getMatch()).isEqualTo(10);
     }
 
     @Test
@@ -211,6 +215,7 @@ public class DataQualityOverviewBuilderTest {
         // Asserts
         DataQualityOverviewSpecificationImpl spec = builder.getSpecification();
         assertThat(spec.getAmountOfEstimates()).isInstanceOf(MetricValueRange.LongRange.class);
+        assertThat(((MetricValueRange.LongRange) spec.getAmountOfEstimates()).getRange()).isEqualTo(Range.atLeast(10L));
     }
 
     @Test
@@ -224,6 +229,7 @@ public class DataQualityOverviewBuilderTest {
         // Asserts
         DataQualityOverviewSpecificationImpl spec = builder.getSpecification();
         assertThat(spec.getAmountOfEdited()).isInstanceOf(MetricValueRange.ExactMatch.class);
+        assertThat(((MetricValueRange.ExactMatch) spec.getAmountOfEdited()).getMatch()).isEqualTo(10);
     }
 
     @Test
@@ -237,6 +243,7 @@ public class DataQualityOverviewBuilderTest {
         // Asserts
         DataQualityOverviewSpecificationImpl spec = builder.getSpecification();
         assertThat(spec.getAmountOfEdited()).isInstanceOf(MetricValueRange.LongRange.class);
+        assertThat(((MetricValueRange.LongRange) spec.getAmountOfEdited()).getRange()).isEqualTo(Range.atLeast(10L));
     }
 
     @Test
@@ -250,6 +257,7 @@ public class DataQualityOverviewBuilderTest {
         // Asserts
         DataQualityOverviewSpecificationImpl spec = builder.getSpecification();
         assertThat(spec.getAmountOfConfirmed()).isInstanceOf(MetricValueRange.ExactMatch.class);
+        assertThat(((MetricValueRange.ExactMatch) spec.getAmountOfConfirmed()).getMatch()).isEqualTo(10);
     }
 
     @Test
@@ -263,6 +271,7 @@ public class DataQualityOverviewBuilderTest {
         // Asserts
         DataQualityOverviewSpecificationImpl spec = builder.getSpecification();
         assertThat(spec.getAmountOfConfirmed()).isInstanceOf(MetricValueRange.LongRange.class);
+        assertThat(((MetricValueRange.LongRange) spec.getAmountOfConfirmed()).getRange()).isEqualTo(Range.atLeast(10L));
     }
 
     @Test
@@ -276,6 +285,7 @@ public class DataQualityOverviewBuilderTest {
         // Asserts
         DataQualityOverviewSpecificationImpl spec = builder.getSpecification();
         assertThat(spec.getAmountOfInformatives()).isInstanceOf(MetricValueRange.ExactMatch.class);
+        assertThat(((MetricValueRange.ExactMatch) spec.getAmountOfInformatives()).getMatch()).isEqualTo(10);
     }
 
     @Test
@@ -289,6 +299,7 @@ public class DataQualityOverviewBuilderTest {
         // Asserts
         DataQualityOverviewSpecificationImpl spec = builder.getSpecification();
         assertThat(spec.getAmountOfInformatives()).isInstanceOf(MetricValueRange.LongRange.class);
+        assertThat(((MetricValueRange.LongRange) spec.getAmountOfInformatives()).getRange()).isEqualTo(Range.atLeast(10L));
     }
 
     @Test

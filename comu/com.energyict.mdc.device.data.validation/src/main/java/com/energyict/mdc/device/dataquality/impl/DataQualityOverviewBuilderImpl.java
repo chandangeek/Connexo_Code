@@ -68,7 +68,7 @@ class DataQualityOverviewBuilderImpl implements DeviceDataQualityService.DataQua
 
     @Override
     public DeviceDataQualityService.DataQualityOverviewBuilder havingSuspects() {
-        this.specification.addKpiType(KpiType.SUSPECT, KpiType.CHANNEL, KpiType.REGISTER);
+        this.specification.addKpiType(KpiType.SUSPECT);
         return this;
     }
 
@@ -104,7 +104,7 @@ class DataQualityOverviewBuilderImpl implements DeviceDataQualityService.DataQua
 
     @Override
     public DeviceDataQualityService.DataQualityOverviewBuilder havingEdited() {
-        this.specification.addKpiType();
+        this.specification.setAmountOfEdited(Range.atLeast(1L));
         return this;
     }
 

@@ -22,10 +22,15 @@ interface MetricValueRange {
     }
 
     class ExactMatch implements MetricValueRange {
+
         private final long match;
 
         ExactMatch(long match) {
             this.match = match;
+        }
+
+        long getMatch() {
+            return match;
         }
 
         @Override
@@ -42,6 +47,10 @@ interface MetricValueRange {
 
         LongRange(Range<Long> range) {
             this.range = range;
+        }
+
+        Range<Long> getRange() {
+            return range;
         }
 
         @Override
