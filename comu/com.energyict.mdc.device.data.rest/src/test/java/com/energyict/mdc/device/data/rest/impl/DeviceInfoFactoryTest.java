@@ -126,6 +126,10 @@ public class DeviceInfoFactoryTest {
     private static final long DATALOGGER_ID = 397L;
     private static final String DATALOGGER_NAME = "TheDataLoggersName";
     private static final String DATALOGGER_SERIAL = "TheDataLoggersSerialNumber";
+    private static final String DATALOGGER_MANUFACTURER = "TheDataLogger's manufacturer";
+    private static final String DATALOGGER_MODELNBR = "TheDataLogger's model number";
+    private static final String DATALOGGER_MODELVERSION = "TheDataLogger's model version";
+
     private static final int DATALOGGER_YEAR_OF_CERTIFICATION = 1960;
     private static final long DATALOGGER_VERSION = 1L;
     private static final String SLAVE_1 = "TheFirstSlave";
@@ -407,6 +411,9 @@ public class DeviceInfoFactoryTest {
         when(dataLogger.getId()).thenReturn(DATALOGGER_ID);
         when(dataLogger.getName()).thenReturn(DATALOGGER_NAME);
         when(dataLogger.getSerialNumber()).thenReturn(DATALOGGER_SERIAL);
+        when(dataLogger.getManufacturer()).thenReturn(DATALOGGER_MANUFACTURER);
+        when(dataLogger.getModelNumber()).thenReturn(DATALOGGER_MODELNBR);
+        when(dataLogger.getModelVersion()).thenReturn(DATALOGGER_MODELVERSION);
         when(dataLogger.getYearOfCertification()).thenReturn(DATALOGGER_YEAR_OF_CERTIFICATION);
         when(dataLogger.getConfigurationGatewayType()).thenReturn(GatewayType.NONE);
         when(dataLogger.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2));
@@ -488,6 +495,10 @@ public class DeviceInfoFactoryTest {
 
         assertThat(info.id).isEqualTo(DATALOGGER_ID);
         assertThat(info.name).isEqualTo(DATALOGGER_NAME);
+        assertThat(info.serialNumber).isEqualTo(DATALOGGER_SERIAL);
+        assertThat(info.manufacturer).isEqualTo(DATALOGGER_MANUFACTURER);
+        assertThat(info.modelNbr).isEqualTo(DATALOGGER_MODELNBR);
+        assertThat(info.modelVersion).isEqualTo(DATALOGGER_MODELVERSION);
         assertThat(info.deviceTypeId).isEqualTo(DATA_LOGGER_DEVICE_TYPE_ID);
         assertThat(info.deviceTypeName).isEqualTo(DATA_LOGGER_DEVICE_TYPE_NAME);
         assertThat(info.deviceConfigurationId).isEqualTo(DATALOGGER_DEVICE_CONFIGURATION_ID);
