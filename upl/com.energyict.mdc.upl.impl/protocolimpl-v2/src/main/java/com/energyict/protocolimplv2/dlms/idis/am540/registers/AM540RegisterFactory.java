@@ -61,7 +61,10 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
     @Override
     protected Boolean addComposedObjectToComposedRegisterMap(Map<ObisCode, ComposedObject> composedObjectMap, List<DLMSAttribute> dlmsAttributes, OfflineRegister register) {
     	if (register.getObisCode() != null && register.getObisCode().equals(MAPPED_IMAGE_TRANSFER_BLOCK_SIZE)) {
-    		composedObjectMap.put(register.getObisCode(), this.getImageTransferBlockSizeMapping());
+    		final ComposedData mapping = this.getImageTransferBlockSizeMapping();
+    		
+    		composedObjectMap.put(register.getObisCode(), mapping);
+    		dlmsAttributes.add(mapping.getDataValueAttribute());
     		
     		return true;
     	} else {

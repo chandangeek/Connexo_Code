@@ -12,6 +12,7 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.dlms.protocolimplv2.connection.FlagIEC1107Connection;
 import com.energyict.mdc.channels.ComChannelType;
+import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.Parities;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
@@ -197,7 +198,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Arrays.asList((ConnectionType) new SioOpticalConnectionType(), new RxTxOpticalConnectionType());
+        return Arrays.asList((ConnectionType)new SioOpticalConnectionType(), new RxTxOpticalConnectionType(), new OutboundTcpIpConnectionType());
     }
 
     @Override
