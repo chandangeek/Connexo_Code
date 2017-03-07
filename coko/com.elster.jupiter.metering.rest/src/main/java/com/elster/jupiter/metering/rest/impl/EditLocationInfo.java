@@ -29,7 +29,6 @@ public class EditLocationInfo {
     public String formattedLocationValue;
     public Long locationId;
     public PropertyInfo[] properties;
-    //public Long usagePointLocationId = -1L;
     public boolean isInherited = false;
 
     public EditLocationInfo() {

@@ -152,6 +152,7 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
         info.id = 1L;
         info.name = "upd";
         info.installationTime = Instant.EPOCH.toEpochMilli();
+        info.serviceCategory = ServiceKind.ELECTRICITY;
         info.version = 1L;
         info.extendedLocation = new EditLocationInfo();
         info.extendedLocation.locationId = null;
