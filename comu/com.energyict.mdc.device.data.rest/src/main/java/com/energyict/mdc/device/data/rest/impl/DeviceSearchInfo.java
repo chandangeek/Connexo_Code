@@ -40,7 +40,9 @@ public class DeviceSearchInfo {
     public String validationActive;
     public Boolean hasOpenDataValidationIssues;
     public String location;
-
+    public String manufacturer;
+    public String modelNbr;
+    public String modelVersion;
 
     public static DeviceSearchInfo from(Device device, GatewayRetriever gatewayRetriever,
                                         IssueRetriever issueService, Thesaurus thesaurus,
@@ -77,6 +79,9 @@ public class DeviceSearchInfo {
         searchInfo.hasOpenDataValidationIssues = issueService.hasOpenDataValidationIssues(device);
         searchInfo.location = device.getLocation().map(Location::toString)
                 .orElse(device.getSpatialCoordinates().map(SpatialCoordinates::toString).orElse(""));
+        searchInfo.manufacturer = device.getManufacturer();
+        searchInfo.modelNbr = device.getModelNumber();
+        searchInfo.modelVersion = device.getModelVersion();
         return searchInfo;
     }
 
