@@ -90,7 +90,7 @@ public class SyntheticLoadProfileConsoleCommands {
 
     private String toString(SyntheticLoadProfile slp) {
         return slp.getName()
-                + ", started: " + DefaultDateTimeFormatters.shortDate().withShortTime().build().format(slp.getStartTime())
+                + ", started: " + DefaultDateTimeFormatters.shortDate().withShortTime().build().format(slp.getStartTime().atZone(ZoneId.systemDefault()))
                 + ", interval: " + slp.getInterval()
                 + ", duration: " + slp.getDuration()
                 + ", readingtype: " + slp.getReadingType().getMRID();
@@ -102,7 +102,7 @@ public class SyntheticLoadProfileConsoleCommands {
         if(correctionFactor.isPresent()){
             Map<Instant, BigDecimal> returnedValues = correctionFactor.get().getValues(Range.atLeast(correctionFactor.get().getStartTime()));
             returnedValues.entrySet().stream()
-                    .map(e -> "" + DefaultDateTimeFormatters.shortDate().withShortTime().build().format(e.getKey()) + " : " + e.getValue())
+                    .map(e -> "" + DefaultDateTimeFormatters.shortDate().withShortTime().build().format(e.getKey().atZone(ZoneId.systemDefault())) + " : " + e.getValue())
                     .forEach(System.out::println);
         }
     }
