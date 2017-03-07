@@ -14,9 +14,9 @@ import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.validation.Validator;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.dataquality.DataQualityKpiResults;
 import com.energyict.mdc.device.dataquality.DataQualityOverview;
 import com.energyict.mdc.device.dataquality.DataQualityOverviews;
-import com.energyict.mdc.device.dataquality.DeviceDataQualityKpiResults;
 import com.energyict.mdc.device.dataquality.DeviceDataQualityService;
 
 import com.jayway.jsonpath.JsonModel;
@@ -92,7 +92,7 @@ public class DataQualityResultsResourceTest extends DeviceDataQualityRestApplica
                 DeviceDataQualityService.MetricSpecificationBuilder.class);
         when(deviceDataQualityService.forAllDevices()).thenReturn(overviewBuilder);
         when(dataQualityOverviews.allOverviews()).thenReturn(Collections.singletonList(dataQualityOverview));
-        DeviceDataQualityKpiResults dataQualityKpiResults = mockDataQualityKpiResults();
+        DataQualityKpiResults dataQualityKpiResults = mockDataQualityKpiResults();
         when(dataQualityOverview.getDeviceName()).thenReturn(DEVICE_NAME);
         when(dataQualityOverview.getDeviceSerialNumber()).thenReturn(DEVICE_SERIAL_NUMBER);
         HasId deviceType = mockIdWithName(DEVICE_TYPE_ID, DEVICE_TYPE_NAME);
@@ -158,8 +158,8 @@ public class DataQualityResultsResourceTest extends DeviceDataQualityRestApplica
                 .containsExactly(ESTIMATES_BY_ESTIMATOR_1.intValue(), ESTIMATES_BY_ESTIMATOR_2.intValue());
     }
 
-    private DeviceDataQualityKpiResults mockDataQualityKpiResults() {
-        DeviceDataQualityKpiResults results = mock(DeviceDataQualityKpiResults.class);
+    private DataQualityKpiResults mockDataQualityKpiResults() {
+        DataQualityKpiResults results = mock(DataQualityKpiResults.class);
 
         when(results.getRegisterSuspects()).thenReturn(REGISTER_SUSPECTS);
         when(results.getChannelSuspects()).thenReturn(CHANNEL_SUSPECTS);

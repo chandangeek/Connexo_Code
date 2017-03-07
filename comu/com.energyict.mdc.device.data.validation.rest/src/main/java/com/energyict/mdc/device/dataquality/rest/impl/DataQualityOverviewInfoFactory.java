@@ -8,8 +8,8 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.dataquality.DataQualityKpiResults;
 import com.energyict.mdc.device.dataquality.DataQualityOverview;
-import com.energyict.mdc.device.dataquality.DeviceDataQualityKpiResults;
 
 import javax.inject.Inject;
 import java.util.Comparator;
@@ -33,7 +33,7 @@ public class DataQualityOverviewInfoFactory {
         info.deviceType = new IdWithNameInfo(overview.getDeviceType());
         info.deviceConfig = new IdWithNameInfo(overview.getDeviceConfiguration());
 
-        DeviceDataQualityKpiResults results = overview.getDataQualityKpiResults();
+        DataQualityKpiResults results = overview.getDataQualityKpiResults();
 
         info.channelSuspects = results.getChannelSuspects();
         info.registerSuspects = results.getRegisterSuspects();
