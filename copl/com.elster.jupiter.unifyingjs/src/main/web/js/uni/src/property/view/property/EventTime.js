@@ -6,7 +6,7 @@
 Ext.define('Uni.property.view.property.EventTime', {
     extend: 'Uni.property.view.property.Base',
     requires: [
-        'Uni.property.store.RelativePeriods'
+        'Uni.property.store.RelativePeriodsWithCount'
     ],
     getEditCmp: function () {
         var me = this;
