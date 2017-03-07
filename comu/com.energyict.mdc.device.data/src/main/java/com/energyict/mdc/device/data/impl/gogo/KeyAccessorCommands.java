@@ -30,6 +30,11 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Created by bvn on 1/31/17.
@@ -38,7 +43,7 @@ import java.security.cert.X509Certificate;
         service = KeyAccessorCommands.class,
         property = {
                 "osgi.command.scope=ka",
-//                "osgi.command.function=keyAccessors",
+                "osgi.command.function=keyAccessors",
                 "osgi.command.function=importCertificateWithKey"
         },
         immediate = true)
@@ -68,6 +73,30 @@ public class KeyAccessorCommands {
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    public void keyAccessors() {
+        System.out.println("Usage: keyAccessors <device id>");
+        System.out.println("       List all known key accessors for a certain device");
+        System.out.println("e.g. : keyAccessors 123");
+    }
+    public void keyAccessors(long deviceId) {
+        Device device = deviceService.findDeviceById(deviceId)
+                .orElseThrow(() -> new RuntimeException("No such device"));
+        List<List<?>> collect = device.getDeviceType()
+                .getKeyAccessorTypes()
+                .stream()
+                .map(kat -> {
+                    Optional<KeyAccessor> keyAccessor = device.getKeyAccessor(kat);
+                    return Arrays.asList(kat.getName(),
+                            kat.getKeyType().getName(),
+                            keyAccessor.isPresent() && keyAccessor.get().getActualValue()!=null ? "Present":"",
+                            keyAccessor.isPresent() && keyAccessor.get().getTempValue().isPresent() ? "Present":""
+                    );
+                })
+                .collect(toList());
+
+        MYSQL_PRINT.printTableWithHeader(Arrays.asList("Key accessor type", "Key type","Current value", "Temp value"), collect);
     }
 
     public void importCertificateWithKey() {

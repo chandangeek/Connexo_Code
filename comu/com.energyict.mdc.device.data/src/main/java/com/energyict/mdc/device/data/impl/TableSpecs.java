@@ -961,11 +961,13 @@ public enum TableSpecs {
             table.map(AbstractKeyAccessorImpl.IMPLEMENTERS);
             Column device = table.column("DEVICE").number().notNull().add();
             Column keyAccessorType = table.column("KEYACCESSORTYPE").number().notNull().add();
+            table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
 
             Column actualCertificate = table.column("ACTUAL_CERT").number().add();
             Column tempCertificate = table.column("TEMP_CERT").number().add();
-//            Column actualSymmetricKey = table.column("ACTUAL_CERT").number().add();
-//            Column tempSymmetricKey = table.column("TEMP_CERT").number().add();
+//            Column actualSymmetricKey = table.column("ACTUAL_KEY").number().add();
+//            Column tempSymmetricKey = table.column("TEMP_KEY").number().add();
+
 
             table.primaryKey("PK_DCC_KEYACCESSOR").on(device, keyAccessorType).add();
             table.foreignKey("FK_KA_DEVICE")
