@@ -57,7 +57,7 @@ public abstract class AddChannelReadingsCommand extends ReadDataFromFileCommand 
 
         //System.out.println("\t" + timeForReading + " - (" + readingType.getMRID() + ") -\tvalue = " + value);
     }
-
+    
     @Override
     protected void afterParse() {
         super.afterParse();

@@ -100,6 +100,16 @@ public class ValidateStartDateCommand extends ReadDataFromFileCommand{
     }
 
     @Override
+    protected void saveRecord(ReadingType readingType, String controlValue, String value) {
+        //todo
+    }
+
+    @Override
+    protected void saveRecord(ReadingType readingType, String controlValue, Double value, String from, String to) {
+        //todo
+    }
+
+    @Override
     // Compare max allowed timestamp and max calculated timestamp
     protected void afterParse() {
         super.afterParse();

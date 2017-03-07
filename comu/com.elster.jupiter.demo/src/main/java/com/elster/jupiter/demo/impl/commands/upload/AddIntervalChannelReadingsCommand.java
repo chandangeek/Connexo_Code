@@ -41,4 +41,13 @@ public class AddIntervalChannelReadingsCommand extends AddChannelReadingsCommand
         return this.timeProvider.getTimeForReading(readingType, startDate, controlValue);
     }
 
+    @Override
+    protected void saveRecord(ReadingType readingType, String controlValue, String value) {
+        //todo
+    }
+
+    @Override
+    protected void saveRecord(ReadingType readingType, String controlValue, Double value, String from, String to) {
+        //todo
+    }
 }
