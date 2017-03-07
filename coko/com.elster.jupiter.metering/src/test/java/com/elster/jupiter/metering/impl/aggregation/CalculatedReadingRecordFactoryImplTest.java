@@ -69,7 +69,7 @@ public class CalculatedReadingRecordFactoryImplTest {
     @Before
     public void initializeMocks() {
         when(this.dataModel.getInstance(CalculatedReadingRecord.class))
-                .thenAnswer(invocationOnMock -> new CalculatedReadingRecord(new InstantTruncaterFactory(this.meteringService)));
+                .thenAnswer(invocationOnMock -> new CalculatedReadingRecord(new InstantTruncaterFactory(this.meteringService), new SourceChannelSetFactory(this.meteringService)));
         when(this.fifteenMinutesNetConsumption.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(this.fifteenMinutesNetConsumption.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
         when(this.fifteenMinutesNetConsumption.getFlowDirection()).thenReturn(FlowDirection.NET);
@@ -103,7 +103,7 @@ public class CalculatedReadingRecordFactoryImplTest {
     }
 
     @Test(expected = UnderlyingSQLFailedException.class)
-    public void sqlExecptionIsWrapped() throws SQLException {
+    public void sqlExceptionIsWrapped() throws SQLException {
         when(this.resultSet.next()).thenReturn(true);
         doThrow(SQLException.class).when(this.resultSet).getString(anyInt());
 
@@ -126,6 +126,8 @@ public class CalculatedReadingRecordFactoryImplTest {
         when(this.resultSet.getTimestamp(3)).thenReturn(ts1);
         when(this.resultSet.getLong(4)).thenReturn(ts1.getTime());
         when(this.resultSet.getLong(5)).thenReturn(1L);
+        when(this.resultSet.getString(7)).thenReturn("1001");
+
         long expectedCountFor15minRecord = 1L;
         long expectedCountForMonthlyRecord = 1L;
         when(this.resultSet.getLong(6)).thenReturn(expectedCountFor15minRecord, expectedCountForMonthlyRecord);
@@ -181,6 +183,7 @@ public class CalculatedReadingRecordFactoryImplTest {
         when(this.resultSet.getLong(4)).thenReturn(ts1.getTime(), ts2.getTime());
         when(this.resultSet.getLong(5)).thenReturn(4L, 3L);
         when(this.resultSet.getLong(6)).thenReturn(1L, 1L);
+        when(this.resultSet.getString(7)).thenReturn("1001");
 
         // Business method
         Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = this.testInstance().consume(this.resultSet, deliverablesPerMeterActivation);
@@ -216,5 +219,4 @@ public class CalculatedReadingRecordFactoryImplTest {
     private CalculatedReadingRecordFactoryImpl testInstance() {
         return new CalculatedReadingRecordFactoryImpl(this.dataModel, this.meteringService);
     }
-
 }

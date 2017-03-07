@@ -10,6 +10,7 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.util.Collections;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -124,7 +125,7 @@ final class SqlConstants {
         },
 
         /**
-         * The version of a TimeSeries interval.
+         * The record time of a TimeSeries interval.
          * @see com.elster.jupiter.ids.TimeSeriesEntry#getRecordDateTime()
          */
         RECORDTIME("recordtime", "RECORDTIME") {
@@ -144,10 +145,6 @@ final class SqlConstants {
             }
         },
 
-        /**
-         * The version of a TimeSeries interval.
-         * @see com.elster.jupiter.ids.TimeSeriesEntry#getLong(int)
-         */
         READINGQUALITY("readingQuality", null) {
             @Override
             void appendAsDeliverableSelectValue(Formula.Mode mode, ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
@@ -162,7 +159,23 @@ final class SqlConstants {
             @Override
             AggregationFunction aggregationFunctionFor(VirtualReadingType readingType) {
                 return AggregationFunction.MAX;
-                //return AggregationFunction.AGGREGATE_FLAGS;
+            }
+        },
+
+        SOURCECHANNELS("sourceChannels", null) {
+            @Override
+            void appendAsDeliverableSelectValue(Formula.Mode mode, ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
+                SourceChannelSqlNamesCollector collector = new SourceChannelSqlNamesCollector();
+                expressionNode.accept(collector);
+                String channels = collector.getSourceChannelSqlNames()
+                        .stream()
+                        .collect(Collectors.joining(" || '" + SourceChannelSetFactory.SOURCE_CHANNEL_IDS_SEPARATOR + "' || "));
+                sqlBuilder.append(channels);
+            }
+
+            @Override
+            AggregationFunction aggregationFunctionFor(VirtualReadingType readingType) {
+                return AggregationFunction.MAX;
             }
         },
 
