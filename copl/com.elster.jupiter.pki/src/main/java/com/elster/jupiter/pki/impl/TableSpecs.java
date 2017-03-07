@@ -61,10 +61,7 @@ public enum TableSpecs {
             table.map(AbstractCertificateWrapperImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
-            Column privateKeyColumn = table.column("PRIVATEKEY")
-                    .number()
-                    .conversion(ColumnConversion.NUMBER2LONG)
-                    .add();
+            table.addRefAnyColumns("PRIVATEKEY", true, AbstractCertificateWrapperImpl.Fields.PRIVATE_KEY.fieldName());
             table.column("ALIAS")
                     .varChar()
                     .notNull()
@@ -96,10 +93,6 @@ public enum TableSpecs {
             table.addMessageAuthenticationCodeColumn(encrypter);
 
             table.primaryKey("PK_PKI_CERTIFICATE").on(id).add();
-            table.foreignKey("PKI_FK_CERT_PK").on(privateKeyColumn)
-                    .references(KeyType.class)
-                    .map(AbstractCertificateWrapperImpl.Fields.PRIVATE_KEY.fieldName())
-                    .add();
             table.foreignKey("PKI_FK_CERT_TS").on(trustStoreColumn)
                     .references(TrustStoreImpl.class)
 //                    .composition() // Due to bug CXO-5905
