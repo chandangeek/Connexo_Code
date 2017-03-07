@@ -136,7 +136,8 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
         info.serviceCategory = ServiceKind.ELECTRICITY;
         info.extendedLocation = new EditLocationInfo();
         info.extendedLocation.locationId = null;
-        info.extendedGeoCoordinates = null;
+        info.extendedGeoCoordinates = new CoordinatesInfo();
+        info.extendedGeoCoordinates.spatialCoordinates = "";
         Response response = target("usagepoints").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(201);
 
@@ -154,7 +155,8 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
         info.version = 1L;
         info.extendedLocation = new EditLocationInfo();
         info.extendedLocation.locationId = null;
-        info.extendedGeoCoordinates = null;
+        info.extendedGeoCoordinates = new CoordinatesInfo();
+        info.extendedGeoCoordinates.spatialCoordinates = "";
 
         Response response = target("usagepoints/" + USAGE_POINT_NAME).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
