@@ -362,6 +362,13 @@ public final class TimeSeriesImpl implements TimeSeries {
 
 	@Override
 	public void removeEntries(Range<Instant> range) {
+		if(range.upperEndpoint().isAfter(lastTime) || range.upperEndpoint().equals(lastTime)) {
+			List<TimeSeriesEntry> entriesBefore = getEntriesBefore(lastTime, 1);
+			if(!entriesBefore.isEmpty()) {
+				lastTime = entriesBefore.get(0).getTimeStamp();
+				dataModel.update(this, "lastTime");
+			}
+		}
 		if (lockTime != null) {
 			Range<Instant> allowed = Range.greaterThan(lockTime);
 			if (allowed.isConnected(range)) {
