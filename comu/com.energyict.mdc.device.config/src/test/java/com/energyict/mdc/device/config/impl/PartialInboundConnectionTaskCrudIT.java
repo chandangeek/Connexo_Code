@@ -32,6 +32,7 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
@@ -174,6 +175,7 @@ public class PartialInboundConnectionTaskCrudIT {
                     new DomainUtilModule(),
                     new PartyModule(),
                     new UserModule(),
+                    new PkiModule(),
                     new IdsModule(),
                     new FiniteStateMachineModule(),
                     new UsagePointLifeCycleConfigurationModule(),

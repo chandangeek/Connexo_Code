@@ -35,6 +35,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
@@ -188,6 +189,7 @@ public class SecurityPropertySetImplCrudIT {
                     new PubSubModule(),
                     new TransactionModule(false),
                     new UtilModule(),
+                    new PkiModule(),
                     new NlsModule(),
                     new DomainUtilModule(),
                     new PartyModule(),
@@ -303,8 +305,6 @@ public class SecurityPropertySetImplCrudIT {
         propertySet = deviceConfiguration.createSecurityPropertySet("Name")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                 .build();
 
         Optional<SecurityPropertySet> found = deviceConfigurationService.findSecurityPropertySet(propertySet.getId());
@@ -316,7 +316,6 @@ public class SecurityPropertySetImplCrudIT {
         assertThat(reloaded.getName()).isEqualTo("Name");
         assertThat(reloaded.getAuthenticationDeviceAccessLevel()).isEqualTo(authLevel);
         assertThat(reloaded.getEncryptionDeviceAccessLevel()).isEqualTo(encLevel);
-        assertThat(reloaded.getUserActions()).isEqualTo(EnumSet.of(EDITDEVICESECURITYPROPERTIES1, EDITDEVICESECURITYPROPERTIES2));
 
     }
 
@@ -332,8 +331,6 @@ public class SecurityPropertySetImplCrudIT {
         propertySet = deviceConfiguration.createSecurityPropertySet("Name")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                 .build();
         DeviceConfiguration clonedDeviceConfig = deviceType.newConfiguration("Clone").add();
         SecurityPropertySet clonedSecurityPropertySet = ((ServerSecurityPropertySet) propertySet).cloneForDeviceConfig(clonedDeviceConfig);
@@ -342,7 +339,7 @@ public class SecurityPropertySetImplCrudIT {
         assertThat(propertySet.getEncryptionDeviceAccessLevel()).isEqualTo(clonedSecurityPropertySet.getEncryptionDeviceAccessLevel());
         assertThat(propertySet.getName()).isEqualTo(clonedSecurityPropertySet.getName());
         assertThat(clonedSecurityPropertySet.getDeviceConfiguration().getId()).isEqualTo(clonedDeviceConfig.getId());
-        assertThat(clonedSecurityPropertySet.getUserActions()).containsOnly(EDITDEVICESECURITYPROPERTIES1, EDITDEVICESECURITYPROPERTIES2);
+//        assertThat(clonedSecurityPropertySet.getUserActions()).containsOnly(EDITDEVICESECURITYPROPERTIES1, EDITDEVICESECURITYPROPERTIES2);
     }
 
     @Test
@@ -357,8 +354,6 @@ public class SecurityPropertySetImplCrudIT {
         propertySet = deviceConfiguration.createSecurityPropertySet("Name")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                 .build();
 
         deviceConfiguration.removeSecurityPropertySet(propertySet);
@@ -380,14 +375,10 @@ public class SecurityPropertySetImplCrudIT {
         propertySet = deviceConfiguration.createSecurityPropertySet("Name")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                 .build();
 
         SecurityPropertySet toUpdate = deviceConfiguration.getSecurityPropertySets().get(0);
-        toUpdate.addUserAction(VIEWDEVICESECURITYPROPERTIES4);
         toUpdate.setAuthenticationLevel(2);
-        toUpdate.removeUserAction(EDITDEVICESECURITYPROPERTIES1);
         toUpdate.update();
 
         Optional<SecurityPropertySet> found = deviceConfigurationService.findSecurityPropertySet(propertySet.getId());
@@ -399,9 +390,6 @@ public class SecurityPropertySetImplCrudIT {
         assertThat(reloaded.getName()).isEqualTo("Name");
         assertThat(reloaded.getAuthenticationDeviceAccessLevel()).isEqualTo(authLevel2);
         assertThat(reloaded.getEncryptionDeviceAccessLevel()).isEqualTo(encLevel);
-        assertThat(reloaded.getUserActions()).isEqualTo(EnumSet.of(EDITDEVICESECURITYPROPERTIES2, VIEWDEVICESECURITYPROPERTIES4));
-
-
     }
 
     @Test
@@ -416,8 +404,6 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration.createSecurityPropertySet(null)
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                 .build();
     }
 
@@ -433,8 +419,6 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration.createSecurityPropertySet("       ")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                 .build();
     }
 
@@ -450,8 +434,6 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration.createSecurityPropertySet("приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                 .build();
     }
 
@@ -467,14 +449,10 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration.createSecurityPropertySet("Name")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                 .build();
         deviceConfiguration.createSecurityPropertySet("Name")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                 .build();
     }
 
@@ -490,14 +468,10 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration.createSecurityPropertySet("A")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                 .build();
         SecurityPropertySet securityPropertySet = deviceConfiguration.createSecurityPropertySet("B")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                 .build();
 
         // Business method
@@ -518,8 +492,6 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration1.createSecurityPropertySet(expectedName)
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                 .build();
         DeviceConfiguration deviceConfiguration2 = deviceType.newConfiguration("Normal-2").add();
         deviceConfiguration2.save();
@@ -528,8 +500,6 @@ public class SecurityPropertySetImplCrudIT {
         propertySet = deviceConfiguration2.createSecurityPropertySet(expectedName)
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                 .build();
 
         // Asserts
@@ -553,8 +523,6 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration1.createSecurityPropertySet(expectedName)
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                 .build();
         DeviceConfiguration deviceConfiguration2 = deviceType.newConfiguration("Normal-2").add();
         deviceConfiguration2.save();
@@ -562,8 +530,6 @@ public class SecurityPropertySetImplCrudIT {
         propertySet = deviceConfiguration2.createSecurityPropertySet("Other")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                 .build();
 
         // Business method
@@ -589,8 +555,6 @@ public class SecurityPropertySetImplCrudIT {
 
         deviceConfiguration.createSecurityPropertySet("Name")
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                 .build();
     }
 
@@ -607,8 +571,6 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration.createSecurityPropertySet("Name")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                 .build();
     }
 
@@ -623,8 +585,6 @@ public class SecurityPropertySetImplCrudIT {
 
         deviceConfiguration.createSecurityPropertySet("Name")
                 .authenticationLevel(1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                 .build();
     }
 
@@ -641,105 +601,94 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration.createSecurityPropertySet("Name")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                 .build();
     }
 
 
-    @Test
-    @Transactional
-    public void testEditIsNotAllowedWithoutUserActions() {
-        DeviceConfiguration deviceConfiguration;
-        SecurityPropertySet propertySet;
-        DeviceType deviceType = createDeviceType("MyType");
+//    @Test
+//    @Transactional
+//    public void testEditIsNotAllowedWithoutUserActions() {
+//        DeviceConfiguration deviceConfiguration;
+//        SecurityPropertySet propertySet;
+//        DeviceType deviceType = createDeviceType("MyType");
+//
+//        deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
+//
+//        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+//                .authenticationLevel(1)
+//                .encryptionLevel(2)
+//                .build();
+//
+//        // Business method && asserts
+//        assertThat(propertySet.currentUserIsAllowedToEditDeviceProperties()).isFalse();
+//    }
 
-        deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
+//    @Test
+//    @Transactional
+//    public void testEditIsNotAllowedWithOnlyViewUserActions() {
+//        DeviceConfiguration deviceConfiguration;
+//        SecurityPropertySet propertySet;
+//        DeviceType deviceType = createDeviceType("MyType");
+//
+//        deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
+//
+//        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+//                .authenticationLevel(1)
+//                .encryptionLevel(2)
+//                .build();
+//
+//        // Business method && asserts
+//        assertThat(propertySet.currentUserIsAllowedToEditDeviceProperties()).isFalse();
+//    }
 
-        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
-                .authenticationLevel(1)
-                .encryptionLevel(2)
-                .build();
+//    @Test
+//    @Transactional
+//    public void testEditIsAllowedWithAtLeastOneEditUserAction() {
+//        DeviceConfiguration deviceConfiguration;
+//        SecurityPropertySet propertySet;
+//        DeviceType deviceType = createDeviceType("MyType");
+//
+//        deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
+//
+//        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+//                .authenticationLevel(1)
+//                .encryptionLevel(2)
+//                .build();
+//
+//        // Business method && asserts
+//        assertThat(propertySet.currentUserIsAllowedToEditDeviceProperties()).isTrue();
+//    }
 
-        // Business method && asserts
-        assertThat(propertySet.currentUserIsAllowedToEditDeviceProperties()).isFalse();
-    }
+//    @Test
+//    @Transactional
+//    public void testViewIsNotAllowedWithOnlyEditUserActions() {
+//        DeviceConfiguration deviceConfiguration;
+//        SecurityPropertySet propertySet;
+//        DeviceType deviceType = createDeviceType("MyType");
+//
+//        deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
+//
+//        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+//                .authenticationLevel(1)
+//                .encryptionLevel(2)
+//                .build();
+//
+//        assertThat(propertySet.currentUserIsAllowedToViewDeviceProperties()).isFalse();
+//    }
 
-    @Test
-    @Transactional
-    public void testEditIsNotAllowedWithOnlyViewUserActions() {
-        DeviceConfiguration deviceConfiguration;
-        SecurityPropertySet propertySet;
-        DeviceType deviceType = createDeviceType("MyType");
-
-        deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
-
-        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
-                .authenticationLevel(1)
-                .encryptionLevel(2)
-                .addUserAction(VIEWDEVICESECURITYPROPERTIES1)
-                .addUserAction(VIEWDEVICESECURITYPROPERTIES2)
-                .addUserAction(VIEWDEVICESECURITYPROPERTIES3)
-                .addUserAction(VIEWDEVICESECURITYPROPERTIES4)
-                .build();
-
-        // Business method && asserts
-        assertThat(propertySet.currentUserIsAllowedToEditDeviceProperties()).isFalse();
-    }
-
-    @Test
-    @Transactional
-    public void testEditIsAllowedWithAtLeastOneEditUserAction() {
-        DeviceConfiguration deviceConfiguration;
-        SecurityPropertySet propertySet;
-        DeviceType deviceType = createDeviceType("MyType");
-
-        deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
-
-        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
-                .authenticationLevel(1)
-                .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .build();
-
-        // Business method && asserts
-        assertThat(propertySet.currentUserIsAllowedToEditDeviceProperties()).isTrue();
-    }
-
-    @Test
-    @Transactional
-    public void testViewIsNotAllowedWithOnlyEditUserActions() {
-        DeviceConfiguration deviceConfiguration;
-        SecurityPropertySet propertySet;
-        DeviceType deviceType = createDeviceType("MyType");
-
-        deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
-
-        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
-                .authenticationLevel(1)
-                .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES3)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES4)
-                .build();
-
-        assertThat(propertySet.currentUserIsAllowedToViewDeviceProperties()).isFalse();
-    }
-
-    @Test
-    @Transactional
-    public void testViewIsAllowedWithAtLeastOneViewUserAction() {
-        DeviceConfiguration deviceConfiguration;
-        SecurityPropertySet propertySet;
-        DeviceType deviceType = createDeviceType("MyType");
-
-        deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
-
-        propertySet = createSecurityPropertySet(deviceConfiguration, "Name", 1, 2);
-
-        assertThat(propertySet.currentUserIsAllowedToViewDeviceProperties()).isTrue();
-    }
+//    @Test
+//    @Transactional
+//    public void testViewIsAllowedWithAtLeastOneViewUserAction() {
+//        DeviceConfiguration deviceConfiguration;
+//        SecurityPropertySet propertySet;
+//        DeviceType deviceType = createDeviceType("MyType");
+//
+//        deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
+//
+//        propertySet = createSecurityPropertySet(deviceConfiguration, "Name", 1, 2);
+//
+//        assertThat(propertySet.currentUserIsAllowedToViewDeviceProperties()).isTrue();
+//    }
 
     private DeviceType createDeviceType(String name) {
         return deviceConfigurationService.newDeviceType(name, deviceProtocolPluggableClass);
@@ -925,7 +874,6 @@ public class SecurityPropertySetImplCrudIT {
         return deviceConfiguration.createSecurityPropertySet(setName)
                 .authenticationLevel(authenticationLevel)
                 .encryptionLevel(encryptionLevel)
-                .addUserAction(VIEWDEVICESECURITYPROPERTIES1)
                 .build();
     }
 }

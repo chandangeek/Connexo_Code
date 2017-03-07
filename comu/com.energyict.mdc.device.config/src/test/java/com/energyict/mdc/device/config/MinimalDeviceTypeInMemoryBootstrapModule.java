@@ -21,6 +21,7 @@ import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
@@ -75,6 +76,7 @@ public class MinimalDeviceTypeInMemoryBootstrapModule {
                 new NlsModule(),
                 new UserModule(),
                 new UtilModule(),
+                new PkiModule(),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
                 new TransactionModule(false),

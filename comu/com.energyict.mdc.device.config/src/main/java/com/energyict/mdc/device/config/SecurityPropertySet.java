@@ -38,7 +38,7 @@ public interface SecurityPropertySet extends HasName, HasId, SecurityPropertySpe
 
     DeviceConfiguration getDeviceConfiguration();
 
-    Set<DeviceSecurityUserAction> getUserActions();
+//    Set<DeviceSecurityUserAction> getUserActions();
 
     /**
      * Gets the Set of {@link PropertySpec}s that are the result
@@ -49,27 +49,23 @@ public interface SecurityPropertySet extends HasName, HasId, SecurityPropertySpe
      */
     Set<PropertySpec> getPropertySpecs();
 
-    /**
-     * Tests if the User that is currently
-     * logged in to the application has sufficient privileges to edit
-     * device security properties of this SecurityPropertySet.
-     *
-     * @return A flag that indicates if the current User has sufficient privileges to edit this SecurityPropertySet
-     */
-    boolean currentUserIsAllowedToEditDeviceProperties();
+//    /**
+//     * Tests if the User that is currently
+//     * logged in to the application has sufficient privileges to edit
+//     * device security properties of this SecurityPropertySet.
+//     *
+//     * @return A flag that indicates if the current User has sufficient privileges to edit this SecurityPropertySet
+//     */
+//    boolean currentUserIsAllowedToEditDeviceProperties();
 
-    /**
-     * Tests if the User that is currently
-     * logged in to the application has sufficient privileges to view
-     * device security properties of this SecurityPropertySet.
-     *
-     * @return A flag that indicates if the current User has sufficient privileges to view this SecurityPropertySet
-     */
-    boolean currentUserIsAllowedToViewDeviceProperties();
-
-    void addUserAction(DeviceSecurityUserAction userAction);
-
-    void removeUserAction(DeviceSecurityUserAction userAction);
+//    /**
+//     * Tests if the User that is currently
+//     * logged in to the application has sufficient privileges to view
+//     * device security properties of this SecurityPropertySet.
+//     *
+//     * @return A flag that indicates if the current User has sufficient privileges to view this SecurityPropertySet
+//     */
+//    boolean currentUserIsAllowedToViewDeviceProperties();
 
     void setAuthenticationLevel(int authenticationLevelId);
 

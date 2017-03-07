@@ -32,10 +32,12 @@ import com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
 import com.energyict.mdc.device.config.DeviceMessageFile;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.config.DeviceUsageType;
 import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.KeyAccessorTypeUpdater;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
@@ -75,9 +77,11 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @ValidChangesWithExistingConfigurations(groups = {Save.Update.class})
@@ -305,11 +309,30 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         keyAccessorTypeOptional.ifPresent(this.keyAccessors::remove);
     }
 
+    @Override
+    public Optional<KeyAccessorTypeUpdater> getKeyAccessorTypeUpdater(KeyAccessorType keyAccessorType) {
+        if(keyAccessors.contains(keyAccessorType)) {
+            KeyAccessorTypeImpl accessorType = (KeyAccessorTypeImpl) keyAccessorType;
+            return Optional.of(accessorType.startUpdate());
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Set<DeviceSecurityUserAction> getKeyAccessorTypeUserActions(KeyAccessorType keyAccessorType) {
+        if(keyAccessors.contains(keyAccessorType)) {
+            KeyAccessorTypeImpl accessorType = (KeyAccessorTypeImpl) keyAccessorType;
+            return accessorType.getUserActions();
+        }
+        return new HashSet<>();
+    }
+
+
     private class KeyAccessorTypeBuilder implements KeyAccessorType.Builder {
         private final KeyAccessorTypeImpl underConstruction;
 
         private KeyAccessorTypeBuilder(String name, KeyType keyType, String keyEncryptionMethod, DeviceTypeImpl deviceType) {
-            underConstruction = new KeyAccessorTypeImpl();
+            underConstruction = getDataModel().getInstance(KeyAccessorTypeImpl.class);
             underConstruction.setName(name);
             underConstruction.setKeyType(keyType);
             underConstruction.setKeyEncryptionMethod(keyEncryptionMethod);
@@ -330,6 +353,10 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
         @Override
         public KeyAccessorType add() {
+            underConstruction.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
+            underConstruction.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
+            underConstruction.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1);
+            underConstruction.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2);
             Save.CREATE.validate(getDataModel(), underConstruction);
             DeviceTypeImpl.this.keyAccessors.add(underConstruction);
             return underConstruction;
