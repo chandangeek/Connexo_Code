@@ -7,6 +7,7 @@ package com.energyict.mdc.device.config.impl.gogo;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -39,6 +40,12 @@ public class KeyAccessorTypeCommands {
     private DeviceConfigurationService deviceConfigurationService;
     private PkiService pkiService;
     private TransactionService transactionService;
+    private ThreadPrincipalService threadPrincipalService;
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
 
     @Reference
     public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
@@ -77,6 +84,8 @@ public class KeyAccessorTypeCommands {
     }
 
     public void createKeyAccessorType(String name, long deviceTypeId, String keyTypeName, String keyEncryptionMethod, Integer ... duration) {
+        threadPrincipalService.set(() -> "Console");
+
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.findDeviceType(deviceTypeId)
                     .orElseThrow(() -> new RuntimeException("No such device type"));
