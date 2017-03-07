@@ -199,7 +199,7 @@ public class MasterDataSerializer {
         }
 
         //The dlmsMeterKEK is a general property on the Beacon DC device
-        final byte[] dlmsMeterKEK = this.parseKey(device, Beacon3100ConfigurationSupport.DLMS_METER_KEK);
+        final byte[] dlmsMeterKEK = this.parseKey(masterDevice, Beacon3100ConfigurationSupport.DLMS_METER_KEK);
 
         //Get the DLMS keys from the device. If they are empty, an empty OctetString will be sent to the beacon.
         final byte[] password = getSecurityKey(device, SecurityPropertySpecName.PASSWORD.toString());
