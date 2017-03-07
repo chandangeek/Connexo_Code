@@ -4,11 +4,13 @@
 
 package com.energyict.mdc.pluggable.rest.impl;
 
+import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.Test;
@@ -50,11 +52,14 @@ public class DeviceDiscoveryProtocolsResourceTest extends PluggableRestApplicati
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
         verify(protocolClass, never()).delete();
     }
-    @Test
 
+    @Test
     public void testUpdateProtocolOkVersion() {
         InboundDeviceProtocolPluggableClass protocolClass = mock(InboundDeviceProtocolPluggableClass.class);
         when(protocolPluggableService.findAndLockInboundDeviceProtocolPluggableClassByIdAndVersion(1L, 1L)).thenReturn(Optional.of(protocolClass));
+        InboundDeviceProtocol inboundProtocol = mock(InboundDeviceProtocol.class);
+        when(protocolClass.getInboundDeviceProtocol()).thenReturn(inboundProtocol);
+        when(inboundProtocol.getPropertySpecs()).thenReturn(Collections.emptyList());
 
         DeviceDiscoveryProtocolInfo info = new DeviceDiscoveryProtocolInfo();
         info.id = 1L;

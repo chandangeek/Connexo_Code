@@ -6,6 +6,7 @@ package com.energyict.mdc.pluggable.rest.impl.properties;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 
 /**
@@ -30,7 +31,7 @@ public class ObisCodePropertyValueConverter implements PropertyValueConverter {
 
     @Override
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
-        return domainValue;
+        return domainValue.toString();
     }
 
 }
