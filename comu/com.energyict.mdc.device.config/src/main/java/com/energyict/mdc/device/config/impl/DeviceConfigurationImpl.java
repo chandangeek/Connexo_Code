@@ -1571,12 +1571,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
 
         @Override
-        public SecurityPropertySetBuilder addUserAction(DeviceSecurityUserAction userAction) {
-            underConstruction.addUserAction(userAction);
-            return this;
-        }
-
-        @Override
         public SecurityPropertySet build() {
             DeviceConfigurationImpl.this.addSecurityPropertySet(underConstruction);
             if (DeviceConfigurationImpl.this.getId() > 0) {

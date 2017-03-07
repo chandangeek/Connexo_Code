@@ -13,7 +13,5 @@ public interface SecurityPropertySetBuilder {
 
     SecurityPropertySetBuilder encryptionLevel(int level);
 
-    SecurityPropertySetBuilder addUserAction(DeviceSecurityUserAction userAction);
-
     SecurityPropertySet build();
 }

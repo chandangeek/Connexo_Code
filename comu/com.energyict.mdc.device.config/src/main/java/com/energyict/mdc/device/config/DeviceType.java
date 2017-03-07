@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * DeviceType defines the basic common attributes of a
@@ -255,6 +256,19 @@ public interface DeviceType extends HasId, HasName {
      * @return The newly created KeyAccessorType
      */
     KeyAccessorType.Builder addKeyAccessorType(String name, KeyType keyType, String keyEncryptionMethod);
+
+
+    /**
+     * Gets a specific updater for a key accessor type of a device type
+     * @return An updater for a key accessor type of a device type
+     */
+    Optional<KeyAccessorTypeUpdater> getKeyAccessorTypeUpdater(KeyAccessorType keyAccessorType);
+
+    /**
+     * Gets the specific set of user actions of a key accessor type of a device type
+     * @return a set of DeviceSecurityUserAction
+     */
+    Set<DeviceSecurityUserAction> getKeyAccessorTypeUserActions(KeyAccessorType keyAccessorType);
 
     /**
      * removes the KeyAccessorType from the DeviceType
