@@ -5,21 +5,31 @@ package com.elster.jupiter.pki;
  *
  */
 public enum CryptographicType {
-    Certificate(false),
-    ClientCertificate(false),
-    TrustedCertificate(false),
-    SymmetricKey(true),
-    Passphrase(true),
-    AsymmetricKey(true),
+    Certificate(false, MetaType.CERTIFICATE),
+    ClientCertificate(false, MetaType.CERTIFICATE),
+    TrustedCertificate(false, MetaType.CERTIFICATE),
+    SymmetricKey(true, MetaType.KEY),
+    Passphrase(true, MetaType.KEY),
+    AsymmetricKey(false, MetaType.KEY),
     ;
 
-    CryptographicType(boolean durationMandatory) {
+    CryptographicType(boolean durationMandatory, MetaType metaType) {
         this.durationMandatory = durationMandatory;
+        this.metaType = metaType;
     }
 
     private boolean durationMandatory;
+    private MetaType metaType;
 
     public boolean requiresDuration() {
         return durationMandatory;
     };
+
+    public boolean isKey() {
+        return MetaType.KEY.equals(metaType);
+    }
+
+    enum MetaType {
+        KEY, CERTIFICATE
+    }
 }
