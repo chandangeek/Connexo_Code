@@ -60,7 +60,7 @@ public class DataQualityKpiCalculatorHandlerFactory implements MessageHandlerFac
 
     public User getUser() {
         if (user == null) {
-            user = userService.findUser(ValidationServiceImpl.VALIDATION_USER).get(); // TODO can we use VALIDATION user for that?
+            user = userService.findUser(ValidationServiceImpl.VALIDATION_USER).get(); // for the moment we can still use VALIDATION user here
         }
         return user;
     }
