@@ -5,7 +5,6 @@
 package com.elster.jupiter.kore.api.v2;
 
 import com.elster.jupiter.kore.api.impl.MessageSeeds;
-import com.elster.jupiter.kore.api.impl.TranslationKeys;
 import com.elster.jupiter.kore.api.security.Privileges;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -36,6 +35,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -126,6 +126,7 @@ public class MeterActivationResource {
      * @param mRID Unique identifier of the usage point
      * @param meterActivationInfo Description of the to be created meter activation
      * @param uriInfo uriInfo
+     * @param validateOnly Indicates that only the validations need to be done without the actual object being created
      * @return The created meter activation
      * @summary Create a new activation for a meter
      */
@@ -134,7 +135,7 @@ public class MeterActivationResource {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Transactional
-    public MeterActivationInfo createMeterActivation(@PathParam("mRID") String mRID, @Context UriInfo uriInfo, MeterActivationInfo meterActivationInfo) {
+    public MeterActivationInfo createMeterActivation(@PathParam("mRID") String mRID, @QueryParam("validateOnly") boolean validateOnly, @Context UriInfo uriInfo, MeterActivationInfo meterActivationInfo) {
         if (meterActivationInfo == null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.EMPTY_REQUEST);
         }
@@ -163,6 +164,11 @@ public class MeterActivationResource {
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(meterActivationInfo.meterRole)
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METER_ROLE, "meterRole", meterActivationInfo.meterRole));
 
+        if (validateOnly) {
+            validateMeterActivationRequirements(usagePoint, meter, meterRole);
+            return meterActivationInfo;
+        }
+
         UsagePointMeterActivator linker = usagePoint.linkMeters();
         if(!usagePoint.getMeterActivations().isEmpty()){
             linker.clear(start, meterRole);
@@ -179,38 +185,7 @@ public class MeterActivationResource {
         return meterActivationInfoFactory.from(activation, uriInfo, Collections.emptyList());
     }
 
-    /**
-     * The meter activation records which meter was associated with a usage point during which time frame.
-     *
-     * @param mRID Unique identifier of the usage point
-     * @param meterActivationInfo Description of the to be vaidated meter activation
-     * @param uriInfo uriInfo
-     * @return The successfully validated meter activation
-     * @summary Validate requirements of a new activation for a meter
-     */
-    @POST
-    @Path("/validate")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    @Transactional
-    public MeterActivationValidationStatusInfo validateMeterActivation(@PathParam("mRID") String mRID, @Context UriInfo uriInfo, MeterActivationInfo meterActivationInfo) {
-        if (meterActivationInfo == null) {
-            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.EMPTY_REQUEST);
-        }
-        UsagePoint usagePoint = meteringService.findUsagePointByMRID(mRID)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
-        if (meterActivationInfo.meter == null) {
-            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "meter");
-        }
-        Meter meter = meteringService.findMeterByMRID(meterActivationInfo.meter)
-                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METER, "meter"));
-        if (meterActivationInfo.meterRole == null) {
-            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "meterRole");
-        }
-        MeterRole meterRole = metrologyConfigurationService.findMeterRole(meterActivationInfo.meterRole)
-                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METER_ROLE, "meterRole", meterActivationInfo.meterRole));
-
+    public void validateMeterActivationRequirements(UsagePoint usagePoint, Meter meter, MeterRole meterRole) {
         EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationOnUsagePoint = usagePoint.getCurrentEffectiveMetrologyConfiguration()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION, usagePoint.getName()));
 
@@ -229,10 +204,9 @@ public class MeterActivationResource {
                 .filter(requirement -> !meterProvidedReadingTypes.stream().anyMatch(requirement::matches))
                 .collect(Collectors.toSet());
 
-        MeterActivationValidationStatusInfo validationResult = new MeterActivationValidationStatusInfo();
         if (!unsatisfiedRequirements.isEmpty()) {
-            validationResult.success = false;
-            validationResult.message = thesaurus.getFormat(TranslationKeys.UNSATISFIED_READING_TYPE_REQUIREMENTS).format(
+            throw new LocalizedFieldValidationException(MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS,
+                    "meter",
                     meter.getName(),
                     String.join(", ", metrologyConfigurationOnUsagePoint.getMetrologyConfiguration()
                             .getContracts()
@@ -240,12 +214,8 @@ public class MeterActivationResource {
                             .filter(metrologyContract -> metrologyContract.getRequirements().stream().anyMatch(unsatisfiedRequirements::contains))
                             .map(mc -> mc.getMetrologyPurpose().getName())
                             .collect(Collectors.toList())),
-                    usagePoint.getName()
-            );
-        } else {
-            validationResult.success = true;
+                    usagePoint.getName());
         }
-        return validationResult;
     }
 
     /**

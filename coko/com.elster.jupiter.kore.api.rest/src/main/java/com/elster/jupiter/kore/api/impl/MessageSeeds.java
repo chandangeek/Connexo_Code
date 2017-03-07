@@ -86,6 +86,8 @@ public enum MessageSeeds implements MessageSeed {
     CAS_IS_NOT_ATTACHED_TO_USAGE_POINT(74, "CasIsNotAttachedToUsagePoint", "The custom attribute set with id {0} is not attached to the usage point"),
     NO_SUCH_LOCATION(75, "NoSuchLocation", "No such location with id {0}"),
     NO_SUCH_METER_ROLE(76, "NoSuchMeterRole", "No such meter role with key {0}"),
+    UNSATISFIED_READING_TYPE_REQUIREMENTS(77, "UnsatisfiedReadingTypeRequirements", "Meter {0} could not be linked because it does not provide reading types for purposes {1} of the metrology configuration on usage point {2}"),
+
     ;
 
     private final int number;
