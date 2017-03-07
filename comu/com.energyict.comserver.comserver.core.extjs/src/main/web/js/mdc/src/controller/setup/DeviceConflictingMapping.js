@@ -91,7 +91,7 @@ Ext.define('Mdc.controller.setup.DeviceConflictingMapping', {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
                 me.getApplication().fireEvent('changecontentevent', widget);
                 if (unsolved) widget.down('uni-form-empty-message').setText(Uni.I18n.translate('deviceConflictingMappings.empty.unsolvedTitle', 'MDC', 'This device type has no unsolved conflicting device configuration mappings'));
-                widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
+                widget.down('deviceTypeSideMenu').setHeader(deviceType.get('name'));
                 widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));
                 viewport.setLoading(false);
             }

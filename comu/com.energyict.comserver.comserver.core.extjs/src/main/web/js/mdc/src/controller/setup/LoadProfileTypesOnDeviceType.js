@@ -261,7 +261,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
             success: function (deviceType) {
                 scope.getApplication().fireEvent('loadDeviceType', deviceType);
                 if (setSideMenu && widget.down('deviceTypeSideMenu')) {
-                    widget.down('deviceTypeSideMenu').setDeviceTypeLink(deviceType.get('name'));
+                    widget.down('deviceTypeSideMenu').setDeviceTypeTitle(deviceType.get('name'));
                     widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));
                 }
             }
