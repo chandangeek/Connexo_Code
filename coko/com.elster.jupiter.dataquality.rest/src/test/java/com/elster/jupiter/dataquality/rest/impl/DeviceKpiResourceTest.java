@@ -130,7 +130,7 @@ public class DeviceKpiResourceTest extends DataQualityApplicationJerseyTest {
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
-        verify(dataQualityKpi).delete();
+        verify(dataQualityKpi).makeObsolete();
     }
 
     @Test

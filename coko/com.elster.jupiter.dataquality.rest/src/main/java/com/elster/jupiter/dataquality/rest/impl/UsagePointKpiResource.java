@@ -98,7 +98,7 @@ public class UsagePointKpiResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_DATA_QUALITY_KPI_CONFIGURATION})
     public Response deleteDataQualityKpi(@PathParam("id") long id, UsagePointDataQualityKpiInfo info) {
         info.id = id;
-        resourceHelper.findAndLockDataQualityKpi(info).delete();
+        resourceHelper.findAndLockDataQualityKpi(info).makeObsolete();
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 }
