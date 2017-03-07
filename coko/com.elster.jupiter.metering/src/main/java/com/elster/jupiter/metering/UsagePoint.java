@@ -15,8 +15,6 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.HasId;
@@ -199,9 +197,7 @@ public interface UsagePoint extends HasId, IdentifiedObject {
      * Returns current connection state of the usage point.
      *
      * @return the ConnectionState
-     * @deprecated As connection states {@link ConnectionState#UNDER_CONSTRUCTION} and {@link ConnectionState#DEMOLISHED} were semantically
-     * replaced by {@link UsagePointStage.Key#PRE_OPERATIONAL} and {@link UsagePointStage.Key#POST_OPERATIONAL} stages of {@link UsagePointLifeCycle}
-     * this method should not be used anymore.
+     * @deprecated Since the connection state is versioned this method may return 'null' if no connection state is defined on a usage point
      * <p>
      * Use {@link UsagePoint#getCurrentConnectionState()} instead
      */
@@ -209,14 +205,19 @@ public interface UsagePoint extends HasId, IdentifiedObject {
     ConnectionState getConnectionState();
 
     /**
-     * Returns current connection state of the usage point or Optional.empty() if there is no effective connection state
-     * (that make sense if usage point is in {@link UsagePointStage.Key#PRE_OPERATIONAL} or {@link UsagePointStage.Key#POST_OPERATIONAL} stage)
+     * Returns translated name of current connection state of the usage point.
      *
-     * @return the ConnectionState
+     * @deprecated Use {@link UsagePointConnectionState#getConnectionStateDisplayName()} instead
      */
-    Optional<ConnectionState> getCurrentConnectionState();
-
+    @Deprecated
     String getConnectionStateDisplayName();
+
+    /**
+     * Returns current connection state of the usage point or Optional.empty() if there is connection state is not specified
+     *
+     * @return the UsagePointConnectionState
+     */
+    Optional<UsagePointConnectionState> getCurrentConnectionState();
 
     void setConnectionState(ConnectionState connectionState);
 
