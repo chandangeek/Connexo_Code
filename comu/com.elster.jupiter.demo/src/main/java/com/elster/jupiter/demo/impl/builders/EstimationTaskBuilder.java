@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
+import java.util.logging.Level;
 
 public class EstimationTaskBuilder extends NamedBuilder<EstimationTask, EstimationTaskBuilder> {
     private final EstimationService estimationService;
@@ -75,6 +76,7 @@ public class EstimationTaskBuilder extends NamedBuilder<EstimationTask, Estimati
         Log.write(this);
         com.elster.jupiter.estimation.EstimationTaskBuilder taskBuilder = estimationService.newBuilder();
         taskBuilder.setName(getName());
+        taskBuilder.setLogLevel(Level.WARNING.intValue());
         taskBuilder.setQualityCodeSystem(QualityCodeSystem.MDC);
         taskBuilder.setEndDeviceGroup(deviceGroup);
         taskBuilder.setScheduleExpression(scheduleExpression);
