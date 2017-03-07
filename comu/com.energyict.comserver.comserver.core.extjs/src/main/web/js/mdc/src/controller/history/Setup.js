@@ -1799,28 +1799,12 @@ Ext.define('Mdc.controller.history.Setup', {
                                 controller: 'Mdc.controller.setup.ComServerEdit',
                                 action: 'showOnlineAddView'
                             },
-                            edit: {
-                                title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                route: '{id}/edit',
-                                privileges: Mdc.privileges.Communication.admin,
-                                controller: 'Mdc.controller.setup.ComServerEdit',
-                                action: 'showEditView',
-                                callback: function (route) {
-                                    this.getApplication().on('loadComServer', function (record) {
-                                        route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name'), false));
-                                        return true;
-                                    }, {single: true});
-
-                                    return this;
-                                }
-                            },
                             detail: {
                                 title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
                                 route: '{id}',
                                 privileges: Mdc.privileges.Communication.view,
                                 controller: 'Mdc.controller.setup.ComServerOverview',
                                 action: 'showOverview',
-                                redirect: 'administration/comservers/detail/overview',
                                 callback: function (route) {
                                     this.getApplication().on('comServerOverviewLoad', function (record) {
                                         route.setTitle(Ext.String.htmlEncode(record.get('name')));
@@ -1829,16 +1813,9 @@ Ext.define('Mdc.controller.history.Setup', {
                                     return this;
                                 },
                                 items: {
-                                    overview: {
-                                        title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
-                                        route: 'overview',
-                                        privileges: Mdc.privileges.Communication.view,
-                                        controller: 'Mdc.controller.setup.ComServerOverview',
-                                        action: 'showOverview'
-                                    },
                                     edit: {
                                         title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                        route: 'edit_',
+                                        route: 'edit',
                                         privileges: Mdc.privileges.Communication.admin,
                                         controller: 'Mdc.controller.setup.ComServerEdit',
                                         action: 'showEditView'
@@ -1954,21 +1931,6 @@ Ext.define('Mdc.controller.history.Setup', {
                                 controller: 'Mdc.controller.setup.ComPortPoolEdit',
                                 action: 'showOutboundAddView'
                             },
-                            edit: {
-                                title: Uni.I18n.translate('general.editCommunicationPortPool', 'MDC', 'Edit communication port pool'),
-                                route: '{id}/edit',
-                                privileges: Mdc.privileges.Communication.admin,
-                                controller: 'Mdc.controller.setup.ComPortPoolEdit',
-                                action: 'showEditView',
-                                callback: function (route) {
-                                    this.getApplication().on('loadComPortPool', function (record) {
-                                        route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name'), false));
-                                        return true;
-                                    }, {single: true});
-
-                                    return this;
-                                }
-                            },
                             detail: {
                                 title: Uni.I18n.translate('general.detail', 'MDC', 'Detail'),
                                 route: '{id}',
@@ -1985,7 +1947,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                 items: {
                                     edit: {
                                         title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                        route: 'edit_',
+                                        route: 'edit',
                                         privileges: Mdc.privileges.Communication.admin,
                                         controller: 'Mdc.controller.setup.ComPortPoolEdit',
                                         action: 'showEditView'
@@ -2354,16 +2316,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                 route: 'edit',
                                 controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
                                 privileges: Mdc.privileges.UsagePoint.canAdmin(),
-                                action: 'showEditUsagePoint',
-                                callback: function (route) {
-                                    me.checkInsightRedirect(route);
-                                    this.getApplication().on('editUsagePointLoaded', function (record) {
-                                        route.setTitle(Uni.I18n.translate('general.editCurrentUsagePoint', 'MDC', "Edit '{0}'", record.get('name')));
-                                        return true;
-                                    }, {single: true});
-
-                                    return this;
-                                }
+                                action: 'showEditUsagePoint'
                             },
                             'processes': {
                                 title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),

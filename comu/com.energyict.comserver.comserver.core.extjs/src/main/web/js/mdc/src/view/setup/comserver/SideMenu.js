@@ -6,13 +6,15 @@ Ext.define('Mdc.view.setup.comserver.SideMenu', {
     extend: 'Uni.view.menu.SideMenu',
     alias: 'widget.comserversidemenu',
     title: Uni.I18n.translate('general.comServer', 'MDC', 'Communication server'),
+    objectType: Uni.I18n.translate('general.comServer', 'MDC', 'Communication server'),
     initComponent: function () {
         var me = this,
             serverId = me.serverId;
         me.menuItems = [
             {
+                text: Uni.I18n.translate('comserver.sidemenu.details', 'MDC', 'Details'),
                 itemId: 'comserverLink',
-                href: '#/administration/comservers/' + serverId + '/overview'
+                href: '#/administration/comservers/' + serverId
             },
             {
                 text: Uni.I18n.translate('comserver.sidemenu.comports', 'MDC', 'Communication ports'),

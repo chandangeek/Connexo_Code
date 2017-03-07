@@ -204,7 +204,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                     success: function (deviceConfig) {
                         if (mainView) mainView.setLoading(false);
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
-                        widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
+                        widget.down('#stepsMenu').setHeader(deviceConfig.get('name'));
                         me.getApplication().fireEvent('changecontentevent', widget);
                     }
                 });
