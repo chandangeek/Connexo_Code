@@ -65,7 +65,9 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
 
     private static final String WILDCARD = "*";
     private static final String ALL_EVENT_TYPES = "*.*.*.*";
-    private static final String SEPARATOR = ":";
+    private static final String COLON_SEPARATOR = ":";
+    private static final String COMMA_SEPARATOR = ",";
+    private static final String SEMI_COLON_SEPARATOR = ";";
 
     public DeviceAlarmEvent(DeviceAlarmService deviceAlarmService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, Thesaurus thesaurus, TimeService timeService, Clock clock, Injector injector) {
         this.deviceAlarmService = deviceAlarmService;
@@ -122,7 +124,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     }
 
     public boolean checkOccurrenceConditions(int ruleId, String relativePeriodWithCount, String triggeringEndDeviceEventTypes) {
-        List<String> relativePeriodWithCountValues = Arrays.asList(relativePeriodWithCount.split(SEPARATOR));
+        List<String> relativePeriodWithCountValues = parseRawInputToList(relativePeriodWithCount, COLON_SEPARATOR);
         if (relativePeriodWithCountValues.size() != 2) {
             throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS, "Relative period with occurrence count for device alarms");
         }
@@ -143,7 +145,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     }
 
     public boolean logOnSameAlarm(String raiseEventProps) {
-        List<String> values = Arrays.asList(raiseEventProps.split(SEPARATOR));
+        List<String> values = parseRawInputToList(raiseEventProps, COLON_SEPARATOR);
         if (values.size() != 3) {
             throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS, "Device Life Cycle in Device Type");
         }
@@ -163,21 +165,28 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     }
 
     public boolean hasAssociatedDeviceLifecycleStatesInDeviceTypes(String statesInDeviceTypes) {
-        String stateInDeviceType = getDevice().getDeviceType().getId() + SEPARATOR + getDevice().getState().getId();
-        return parseRawInputToEventTypeCodeList(statesInDeviceTypes).contains(stateInDeviceType);
+        return parseRawInputToList(statesInDeviceTypes, SEMI_COLON_SEPARATOR).stream().map(value -> parseRawInputToList(value, COLON_SEPARATOR))
+                .anyMatch(valueSet -> valueSet.size() == 3 &&
+                        this.getDevice().getDeviceType().getId() == Long.parseLong(valueSet.get(0)) &&
+                        this.getDevice().getDeviceType().getDeviceLifeCycle().getId() == Long.parseLong(valueSet.get(1)) &&
+                        parseRawInputToList(valueSet.get(2), COMMA_SEPARATOR).stream()
+                                .map(String::trim)
+                                .mapToLong(Long::parseLong).boxed().collect(Collectors.toList()).contains(this.getDevice().getState().getId()));
     }
 
-    private List<String> parseRawInputToEventTypeCodeList(String rawInput) {
-        return Arrays.stream(rawInput.split(",")).collect(Collectors.toList());
+    private List<String> parseRawInputToList(String rawInput, String delimiter) {
+        return Arrays.stream(rawInput.split(delimiter)).map(String::trim).collect(Collectors.toList());
     }
 
     private List<String> getEndDeviceEventTypes(String endDeviceEventTypes) {
-        return parseRawInputToEventTypeCodeList(endDeviceEventTypes).stream().map(type -> type.substring(0, type.indexOf(SEPARATOR))).collect(Collectors.toList());
+        return parseRawInputToList(endDeviceEventTypes, COMMA_SEPARATOR).stream()
+                .map(type -> parseRawInputToList(type, COLON_SEPARATOR).get(0))
+                .collect(Collectors.toList());
     }
 
     private List<String> getDeviceCodes(String endDeviceEventTypes) {
-        return parseRawInputToEventTypeCodeList(endDeviceEventTypes).stream()
-                .map(type -> type.substring(type.indexOf(SEPARATOR) + 1))
+        return parseRawInputToList(endDeviceEventTypes, COMMA_SEPARATOR).stream()
+                .map(type -> parseRawInputToList(type, COLON_SEPARATOR).get(1))
                 .filter(code -> !code.equals(WILDCARD))
                 .collect(Collectors.toList());
     }
