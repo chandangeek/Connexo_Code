@@ -8,6 +8,7 @@ import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.PlaintextPrivateKeyWrapper;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.gogo.MysqlPrint;
@@ -54,6 +55,12 @@ public class KeyAccessorCommands {
     private DeviceService deviceService;
     private PkiService pkiService;
     private TransactionService transactionService;
+    private ThreadPrincipalService threadPrincipalService;
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
 
     @Reference
     public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
@@ -106,6 +113,9 @@ public class KeyAccessorCommands {
 
     public void importCertificateWithKey(long deviceId, String certKatName, String keyKatName, String pkcs12Name, String pkcs12Password, String alias) throws
             KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException {
+
+        threadPrincipalService.set(() -> "Console");
+
         try (TransactionContext context = transactionService.getContext()) {
             Device device = deviceService.findDeviceById(deviceId)
                     .orElseThrow(() -> new RuntimeException("No such device"));
