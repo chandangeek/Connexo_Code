@@ -8,12 +8,15 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.conditions.Condition;
+
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface TaskService {
 
     String COMPONENTNAME = "TSK";

@@ -8,6 +8,7 @@ import com.elster.jupiter.tasks.TaskLogHandler;
 
 import java.time.Instant;
 import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 public class TaskLogHandlerImpl extends Handler implements TaskLogHandler {
@@ -16,6 +17,7 @@ public class TaskLogHandlerImpl extends Handler implements TaskLogHandler {
 
     public TaskLogHandlerImpl(TaskOccurrenceImpl taskOccurrence) {
         this.taskOccurrence = taskOccurrence;
+        this.setLevel( Level.parse(taskOccurrence.getRecurrentTask().getLogLevel()+"") );
     }
 
     @Override
@@ -25,7 +27,9 @@ public class TaskLogHandlerImpl extends Handler implements TaskLogHandler {
 
     @Override
     public void publish(LogRecord record) {
-        taskOccurrence.log(record.getLevel(), Instant.ofEpochMilli(record.getMillis()), record.getMessage());
+        if (isLoggable(record)) {
+            taskOccurrence.log(record.getLevel(), Instant.ofEpochMilli(record.getMillis()), record.getMessage());
+        }
     }
 
     @Override

@@ -4,6 +4,9 @@
 
 package com.elster.jupiter.tasks;
 
+import aQute.bnd.annotation.ConsumerType;
+
+@ConsumerType
 public interface TaskExecutor {
 
     void execute(TaskOccurrence occurrence);

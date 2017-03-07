@@ -17,6 +17,7 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 
 import java.time.Instant;
+import java.util.logging.Level;
 
 /**
  * RecurrentTaskBuilder implementation that builds instances of RecurrentTaskImpl
@@ -35,6 +36,7 @@ class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder, RecurrentTask
     private boolean scheduleImmediately;
     private Instant firstExecution;
     private final DataModel dataModel;
+    private int logLevel = Level.WARNING.intValue();
 
     @Override
     public RecurrentTaskBuilderNameSetter setApplication(String application) {
@@ -92,8 +94,14 @@ class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder, RecurrentTask
     }
 
     @Override
+    public RecurrentTaskBuilderFinisher setLogLevel(int level) {
+        logLevel = level;
+        return this;
+    }
+
+    @Override
     public RecurrentTask build() {
-        RecurrentTaskImpl recurrentTask = RecurrentTaskImpl.from(dataModel, application, name, scheduleExpression, destination, payload);
+        RecurrentTaskImpl recurrentTask = RecurrentTaskImpl.from(dataModel, application, name, scheduleExpression, destination, payload, logLevel);
         if (firstExecution != null) {
             recurrentTask.setNextExecution(firstExecution);
         } else if (scheduleImmediately) {

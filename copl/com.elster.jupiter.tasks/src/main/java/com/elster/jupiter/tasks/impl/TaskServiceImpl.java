@@ -17,6 +17,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
@@ -33,6 +34,7 @@ import com.elster.jupiter.time.TemporalExpressionParser;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.cron.CronExpressionParser;
@@ -42,6 +44,7 @@ import com.elster.jupiter.util.time.CompositeScheduleExpressionParser;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -126,7 +129,11 @@ public class TaskServiceImpl implements TaskService, TranslationKeyProvider, Mes
                 bind(UserService.class).toInstance(userService);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class,
+            ImmutableMap.of(
+                Version.version(10, 3), V10_3SimpleUpgrader.class
+            )
+        );
     }
 
     @Override

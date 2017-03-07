@@ -55,6 +55,7 @@ class RecurrentTaskImpl implements RecurrentTask {
     private String destination;
     private Instant lastRun;
     private transient DestinationSpec destinationSpec;
+    private int logLevel;
 
     private final Clock clock;
     private final ScheduleExpressionParser scheduleExpressionParser;
@@ -79,9 +80,10 @@ class RecurrentTaskImpl implements RecurrentTask {
         this.jsonService = jsonService;
         // for persistence
         this.clock = clock;
+        this.setLogLevel(Level.WARNING.intValue());
     }
 
-    RecurrentTaskImpl init(String application, String name, ScheduleExpression scheduleExpression, DestinationSpec destinationSpec, String payload) {
+    RecurrentTaskImpl init(String application, String name, ScheduleExpression scheduleExpression, DestinationSpec destinationSpec, String payload, int logLevel) {
         this.application = application;
         this.destinationSpec = destinationSpec;
         this.destination = destinationSpec.getName();
@@ -89,11 +91,12 @@ class RecurrentTaskImpl implements RecurrentTask {
         this.cronString = scheduleExpression.encoded();
         this.name = name;
         this.scheduleExpression = scheduleExpression;
+        this.setLogLevel(logLevel);
         return this;
     }
 
-    static RecurrentTaskImpl from(DataModel dataModel, String application, String name, ScheduleExpression scheduleExpression, DestinationSpec destinationSpec, String payload) {
-        return dataModel.getInstance(RecurrentTaskImpl.class).init(application, name, scheduleExpression, destinationSpec, payload);
+    static RecurrentTaskImpl from(DataModel dataModel, String application, String name, ScheduleExpression scheduleExpression, DestinationSpec destinationSpec, String payload, int logLevel) {
+        return dataModel.getInstance(RecurrentTaskImpl.class).init(application, name, scheduleExpression, destinationSpec, payload, logLevel);
     }
 
     @Override
@@ -328,4 +331,11 @@ class RecurrentTaskImpl implements RecurrentTask {
         this.save();
     }
 
+    public void setLogLevel(int newLevel) {
+        this.logLevel = newLevel;
+    }
+
+    public int getLogLevel() {
+        return logLevel;
+    }
 }
