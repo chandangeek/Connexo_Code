@@ -10,7 +10,6 @@ Ext.define('Uni.view.search.Overview', {
     xtype: 'uni-view-search-overview',
     itemId: 'centerContainer', // added for test
     overflowY: 'auto',
-    //layout: 'fit',
 
     requires: [
         'Uni.view.container.PreviewContainer',
@@ -33,7 +32,8 @@ Ext.define('Uni.view.search.Overview', {
         'Uni.view.search.field.Clock',
         'Uni.view.search.field.TimeOfDay',
         'Uni.view.search.field.Quantity',
-        'Uni.view.search.field.Location'
+        'Uni.view.search.field.Location',
+        'Uni.view.search.field.HasString'
     ],
 
     padding: '16 16 16 16',
