@@ -362,7 +362,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 
 	@Override
 	public void removeEntries(Range<Instant> range) {
-		if(range.upperEndpoint().isAfter(lastTime) || range.upperEndpoint().equals(lastTime)) {
+		if(!range.hasUpperBound() || range.upperEndpoint().isAfter(lastTime) || range.upperEndpoint().equals(lastTime)) {
 			List<TimeSeriesEntry> entriesBefore = getEntriesBefore(lastTime, 1);
 			if(!entriesBefore.isEmpty()) {
 				lastTime = entriesBefore.get(0).getTimeStamp();
