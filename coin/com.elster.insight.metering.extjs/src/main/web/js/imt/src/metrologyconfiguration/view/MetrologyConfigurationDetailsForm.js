@@ -37,6 +37,25 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationDetailsForm', 
                     }
                 },
                 {
+                    xtype: 'displayfield',
+                    name: 'isGapAllowed',
+                    itemId: 'fld-mc-isGapAllowed',
+                    fieldLabel: Uni.I18n.translate('general.label.isGapAllowed', 'IMT', 'Allow gaps'),
+                    renderer: function (value) {
+                        var isAllowGaps = 'None';
+
+                        if (value !== null) {
+                            isAllowGaps = value ? 'Yes' : 'No';
+                        }
+
+                        return Ext.String.format(
+                            '<span style="display: inline-block; float: left; margin: 0px 10px 0px 0px">' + isAllowGaps + '</span>' +
+                            '<span style="display: inline-block; float: left; width: 16px; height: 16px;" class="uni-icon-info-small" data-qtip="{0}"></span>',
+                            Uni.I18n.translate('metrologyconfiguration.tooltip.isGapAllowed', 'IMT', 'Indicates whether gaps between meters on a meter role and between metrology configuration start/stop date and meter activations are allowed on usage points.')
+                        );
+                    }
+                },
+                {
                     xtype: 'search-criteria-display',
                     name: 'usagePointRequirements',
                     itemId: 'area-mc-requirements',
@@ -119,7 +138,6 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationDetailsForm', 
             me.defaults = defaults;
             me.items = mainInfo;
         }
-
         me.callParent();
     }
 });

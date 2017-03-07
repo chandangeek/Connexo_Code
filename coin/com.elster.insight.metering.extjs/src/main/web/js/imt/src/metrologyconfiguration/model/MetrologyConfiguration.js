@@ -13,6 +13,7 @@ Ext.define('Imt.metrologyconfiguration.model.MetrologyConfiguration', {
         {name: 'name', type: 'string'},
         {name: 'description', type: 'string'},
         {name: 'status', type: 'auto', defaultValue: null},
+        {name: 'isGapAllowed', type: 'boolean', defaultValue: null},
         {name: 'serviceCategory', type: 'auto', defaultValue: null},
         {name: 'meterRoles', type: 'auto', defaultValue: null},
         {name: 'purposes', type: 'auto', defaultValue: null},
