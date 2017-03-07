@@ -12,7 +12,7 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ServerCalendarUsage;
-import com.elster.jupiter.slp.SyntheticLoadProfile;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 
 import com.google.common.collect.Range;
 

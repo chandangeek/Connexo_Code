@@ -13,8 +13,8 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.ServerCalendarUsage;
 import com.elster.jupiter.metering.impl.ServerUsagePoint;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.slp.SyntheticLoadProfile;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.streams.Predicates;
 

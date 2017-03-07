@@ -72,6 +72,8 @@ import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateImpl;
 import com.elster.jupiter.metering.impl.config.ServiceCategoryMeterRoleUsage;
 import com.elster.jupiter.metering.impl.config.UsagePointRequirementImpl;
 import com.elster.jupiter.metering.impl.config.UsagePointRequirementValue;
+import com.elster.jupiter.metering.impl.slp.SyntheticLoadProfileImpl;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -90,6 +92,7 @@ import java.util.Map;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2ENUM;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2UNIT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUMPLUSONE;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
@@ -1961,6 +1964,37 @@ public enum TableSpecs {
                     .on(calendar)
                     .map(CalendarUsageImpl.Fields.CALENDAR.fieldName())
                     .references(Calendar.class)
+                    .add();
+        }
+    },
+    MTR_SYNTHETICLOADPROFILE{
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<SyntheticLoadProfile> table = dataModel.addTable(name(), SyntheticLoadProfile.class);
+            table.since(Version.version(10, 3));
+            table.map(SyntheticLoadProfileImpl.class);
+            table.cache();
+            table.setJournalTableName("MTR_SYNTHETICLOADPROFILEJRNL");
+            Column idColumn = table.addAutoIdColumn();
+            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).map("name").add();
+            table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
+            table.column("DURATION").varChar(NAME_LENGTH).notNull().map("duration").add();
+            Column readingTypeMRIDColumn = table.column("READINGTYPE").varChar(NAME_LENGTH).add();
+            table.column("START_TIME").number().notNull().conversion(ColumnConversion.NUMBER2INSTANT).map("startTime").add();
+            Column timeseriesColumn = table.column("TIMESERIES").number().add();
+            table.addAuditColumns();
+            table.primaryKey("PK_MTR_SLP").on(idColumn).add();
+            table.unique("UK_SLP_NAME").on(nameColumn).add();
+            table.foreignKey("FK_MTR_SLP_TIMESERIES")
+                    .on(timeseriesColumn)
+                    .references(TimeSeries.class)
+                    .map("timeSeries")
+                    .add();
+            table.foreignKey("FK_MTR_SLP_READINGTYPE")
+                    .references(ReadingType.class)
+                    .onDelete(DeleteRule.RESTRICT)
+                    .map("readingType")
+                    .on(readingTypeMRIDColumn)
                     .add();
         }
     };
