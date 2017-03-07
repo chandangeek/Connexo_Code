@@ -90,7 +90,6 @@ Ext.define('Mdc.view.setup.devicechannels.HistoryPreview', {
                 });
             } else {
                 me.setDataQuality(detailRecord.get('readingQualities'));
-                me.down('#readingDataValidated').setValue(detailRecord.get('dataValidated'));
                 var dataLoggerSlaveField = me.down('#mdc-channel-data-preview-data-logger-slave');
                 if (dataLoggerSlaveField) {
                     dataLoggerSlaveField.setValue(record.get('slaveChannel'));
@@ -324,14 +323,6 @@ Ext.define('Mdc.view.setup.devicechannels.HistoryPreview', {
 
         generalItems.push(
             {
-                fieldLabel: Uni.I18n.translate('general.readingTime', 'MDC', 'Reading time'),
-                name: 'interval',
-                renderer: function (value) {
-                    var date = new Date(value);
-                    return value ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateLong(date), Uni.DateTime.formatTimeLong(date)]) : '-';
-                }
-            },
-            {
                 fieldLabel: Uni.I18n.translate('general.changedOn', 'MDC', 'Changed on'),
                 name: 'reportedDateTime',
                 renderer: function (value) {
@@ -343,15 +334,6 @@ Ext.define('Mdc.view.setup.devicechannels.HistoryPreview', {
                 fieldLabel: Uni.I18n.translate('general.changedBy', 'MDC', 'Changed by'),
                 name: 'userName',
                 htmlEncode: false
-            },
-            {
-                fieldLabel: Uni.I18n.translate('devicechannelsreadings.dataValidated.title', 'MDC', 'Data validated'),
-                itemId: 'readingDataValidated',
-                name: 'dataValidated',
-                htmlEncode: false,
-                renderer: function (value) {
-                    return value ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No');
-                }
             },
             {
                 fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
