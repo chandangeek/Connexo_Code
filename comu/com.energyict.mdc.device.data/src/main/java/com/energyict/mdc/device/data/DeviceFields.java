@@ -23,7 +23,7 @@ public enum DeviceFields implements ImplField {
     READINGTYPEOBISCODEUSAGES("readingTypeObisCodeUsages"),
     MANUFACTURER("manufacturer"),
     MODEL_NBR("modelNbr"),
-    MODEL_VERSION("modelVersion")
+    MODEL_VERSION("modelVersion"),
     KEY_ACCESSORS("keyAccessors")
     ;
 
