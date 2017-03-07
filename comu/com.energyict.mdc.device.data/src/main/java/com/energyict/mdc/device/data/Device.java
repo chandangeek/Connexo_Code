@@ -483,6 +483,15 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     void setConnectionTaskForComTaskExecutions(ConnectionTask connectionTask);
 
+    String getManufacturer();
+    void setManufacturer(String manufacturer);
+
+    String getModelNumber();
+    void setModelNumber(String modelNumber);
+
+    String getModelVersion();
+    void setModelVersion(String modelVersion);
+
     /**
      * Returns all KeyAccessors defined for this device. The returned list will contain accessors of all kinds: certfificates, keys and passphrases
      * @return all KeyAccessors defined for this device.

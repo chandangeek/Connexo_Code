@@ -129,18 +129,6 @@ public class CommunicationTaskReportServiceImplOracleSpecificIT {
         deviceMessageIds.forEach(deviceConfiguration::createDeviceMessageEnablement);
         deviceConfiguration.activate();
         SecurityPropertySetBuilder securityPropertySetBuilder = deviceConfiguration.createSecurityPropertySet("No Security");
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES4);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES4);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES3);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES4);
         securityPropertySetBuilder.authenticationLevel(anySecurityLevel);
         securityPropertySetBuilder.encryptionLevel(anySecurityLevel);
         securityPropertySetBuilder.build();
@@ -323,12 +311,7 @@ public class CommunicationTaskReportServiceImplOracleSpecificIT {
         DeviceSearchDomain deviceSearchDomain = oracleIntegrationPersistence.getDeviceSearchDomain();
         Optional<SearchableProperty> searchableProperty = deviceSearchDomain.getProperties().stream().filter(p -> property.equals(p.getName())).findFirst();
         if (searchableProperty.isPresent()) {
-            SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
-            valueBean.operator = operator;
-            valueBean.values = values;
-            SearchablePropertyValue searchablePropertyValue = new SearchablePropertyValue(searchableProperty.get());
-            searchablePropertyValue.setValueBean(valueBean);
-            return searchablePropertyValue;
+            return new SearchablePropertyValue(searchableProperty.get(), new SearchablePropertyValue.ValueBean(null, operator, values));
         }
         throw new IllegalArgumentException("Searchable property with name '" + property + "' is not found");
     }

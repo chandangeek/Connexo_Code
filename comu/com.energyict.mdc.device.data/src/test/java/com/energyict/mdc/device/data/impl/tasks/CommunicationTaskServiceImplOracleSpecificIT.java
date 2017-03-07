@@ -137,18 +137,6 @@ public class CommunicationTaskServiceImplOracleSpecificIT {
         deviceMessageIds.stream().forEach(deviceConfiguration::createDeviceMessageEnablement);
         deviceConfiguration.activate();
         SecurityPropertySetBuilder securityPropertySetBuilder = deviceConfiguration.createSecurityPropertySet("No Security");
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES4);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES4);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES3);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES4);
         securityPropertySetBuilder.authenticationLevel(anySecurityLevel);
         securityPropertySetBuilder.encryptionLevel(anySecurityLevel);
         securityPropertySetBuilder.build();
@@ -335,11 +323,6 @@ public class CommunicationTaskServiceImplOracleSpecificIT {
     }
 
     private SearchablePropertyValue buildSearchablePropertyCondition(String property, SearchablePropertyOperator operator, List<String> values) {
-        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
-        valueBean.propertyName = property;
-        valueBean.operator = operator;
-        valueBean.values = values;
-        SearchablePropertyValue searchablePropertyValue = new SearchablePropertyValue(null, valueBean);
-        return searchablePropertyValue;
+        return new SearchablePropertyValue(null, new SearchablePropertyValue.ValueBean(property, operator, values));
     }
 }

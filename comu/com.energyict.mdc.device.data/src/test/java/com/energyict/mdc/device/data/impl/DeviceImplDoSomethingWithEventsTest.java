@@ -305,6 +305,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new IdsModule(),
                     new FiniteStateMachineModule(),
                     new UsagePointLifeCycleConfigurationModule(),
+                    new CalendarModule(),
                     new MeteringModule(),
                     new InMemoryMessagingModule(),
                     new OrmModule(),

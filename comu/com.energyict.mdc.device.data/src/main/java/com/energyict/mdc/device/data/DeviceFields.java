@@ -21,6 +21,9 @@ public enum DeviceFields implements ImplField {
     METER("meter"),
     LOCATION("location"),
     READINGTYPEOBISCODEUSAGES("readingTypeObisCodeUsages"),
+    MANUFACTURER("manufacturer"),
+    MODEL_NBR("modelNbr"),
+    MODEL_VERSION("modelVersion")
     KEY_ACCESSORS("keyAccessors")
     ;
 

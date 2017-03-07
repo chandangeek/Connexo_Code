@@ -64,6 +64,7 @@ public class BatchSearchablePropertyTest {
     private BeanService beanService = new DefaultBeanService();
     private com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     private PropertySpecService propertySpecService;
+    private SearchablePropertyGroup deviceAttributesGroup;
 
     @Before
     public void initializeThesaurus() {
@@ -78,6 +79,7 @@ public class BatchSearchablePropertyTest {
         this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
         this.propertySpecService = new PropertySpecServiceImpl(this.jupiterPropertySpecService, this.dataVaultService, this.ormService);
         when(batch.getName()).thenReturn("displayValue");
+        this.deviceAttributesGroup = new DeviceAttributesPropertyGroup(this.thesaurus);
     }
 
     @Test
@@ -92,14 +94,14 @@ public class BatchSearchablePropertyTest {
     }
 
     @Test
-    public void testNoGroup() {
+    public void testGroupPresent() {
         BatchSearchableProperty property = this.getTestInstance();
 
         // Business method
         Optional<SearchablePropertyGroup> group = property.getGroup();
 
         // Asserts
-        assertThat(group).isEmpty();
+        assertThat(group).isPresent();
     }
 
     @Test
@@ -220,6 +222,6 @@ public class BatchSearchablePropertyTest {
     }
 
     private BatchSearchableProperty getTestInstance() {
-        return new BatchSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain);
+        return new BatchSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, deviceAttributesGroup);
     }
 }
