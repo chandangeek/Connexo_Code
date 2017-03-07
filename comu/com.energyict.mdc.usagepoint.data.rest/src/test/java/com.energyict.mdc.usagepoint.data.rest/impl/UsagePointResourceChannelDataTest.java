@@ -125,6 +125,7 @@ public class UsagePointResourceChannelDataTest extends UsagePointApplicationJers
         when(expressionNode.getReadingTypeRequirement()).thenReturn(fullySpecifiedReadingTypeRequirement);
 
         when(aggregatedChannel.getId()).thenReturn(CHANNEL_ID);
+        when(aggregatedChannel.isRegular()).thenReturn(true);
         when(aggregatedChannel.getIntervalLength()).thenReturn(Optional.of(MIN15));
         when(aggregatedChannel.getMainReadingType()).thenReturn(readingType);
 

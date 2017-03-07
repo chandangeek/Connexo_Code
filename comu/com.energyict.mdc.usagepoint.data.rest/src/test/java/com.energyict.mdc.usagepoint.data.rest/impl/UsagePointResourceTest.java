@@ -156,6 +156,33 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
     }
 
     @Test
+    public void testGetRegisters() {
+        EffectiveMetrologyConfigurationOnUsagePoint mc = mockEffectiveMetrologyConfiguration();
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(mc));
+
+        //Business method
+        String json = target("/usagepoints/testUP/registers").request().get(String.class);
+
+        //Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<List>get("$.registers")).hasSize(1);
+        assertThat(jsonModel.<Long>get("$.registers[0].measurementTime")).isEqualTo(1467710958704L);
+        assertThat(jsonModel.<String>get("$.registers[0].readingType.mRID")).isEqualTo("11.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0");
+        assertThat(jsonModel.<List>get("$.registers[0].deviceRegisters")).hasSize(2);
+        assertThat(jsonModel.<Long>get("$.registers[0].deviceRegisters[0].from")).isEqualTo(1410774620100L);
+        assertThat(jsonModel.<Long>get("$.registers[0].deviceRegisters[0].until")).isNull();
+        assertThat(jsonModel.<String>get("$.registers[0].deviceRegisters[0].device")).isEqualTo("testD");
+        assertThat(jsonModel.<String>get("$.registers[0].deviceRegisters[0].channel.name")).isEqualTo("testR");
+        assertThat(jsonModel.<Integer>get("$.registers[0].deviceRegisters[0].channel.id")).isEqualTo(1);
+        assertThat(jsonModel.<Long>get("$.registers[0].deviceRegisters[1].from")).isEqualTo(1410515420000L);
+        assertThat(jsonModel.<Long>get("$.registers[0].deviceRegisters[1].until")).isEqualTo(1410774620100L);
+        assertThat(jsonModel.<String>get("$.registers[0].deviceRegisters[1].device")).isEqualTo("testOldDevice");
+        assertThat(jsonModel.<String>get("$.registers[0].deviceRegisters[1].channel.name")).isEqualTo("testR");
+        assertThat(jsonModel.<Integer>get("$.registers[0].deviceRegisters[1].channel.id")).isNull();
+    }
+
+    @Test
     public void testGetChannel() {
         EffectiveMetrologyConfigurationOnUsagePoint mc = mockEffectiveMetrologyConfiguration();
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(mc));
@@ -182,12 +209,38 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
         assertThat(jsonModel.<Integer>get("$.deviceChannels[1].channel.id")).isNull();
     }
 
+    @Test
+    public void testGetRegister() {
+        EffectiveMetrologyConfigurationOnUsagePoint mc = mockEffectiveMetrologyConfiguration();
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(mc));
+
+        //Business method
+        String json = target("/usagepoints/testUP/registers/2").request().get(String.class);
+
+        //Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Long>get("$.measurementTime")).isEqualTo(1467710958704L);
+        assertThat(jsonModel.<String>get("$.readingType.mRID")).isEqualTo("11.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0");
+        assertThat(jsonModel.<List>get("$.deviceRegisters")).hasSize(2);
+        assertThat(jsonModel.<Long>get("$.deviceRegisters[0].from")).isEqualTo(1410774620100L);
+        assertThat(jsonModel.<Long>get("$.deviceRegisters[0].until")).isNull();
+        assertThat(jsonModel.<String>get("$.deviceRegisters[0].device")).isEqualTo("testD");
+        assertThat(jsonModel.<String>get("$.deviceRegisters[0].channel.name")).isEqualTo("testR");
+        assertThat(jsonModel.<Integer>get("$.deviceRegisters[0].channel.id")).isEqualTo(1);
+        assertThat(jsonModel.<Long>get("$.deviceRegisters[1].from")).isEqualTo(1410515420000L);
+        assertThat(jsonModel.<Long>get("$.deviceRegisters[1].until")).isEqualTo(1410774620100L);
+        assertThat(jsonModel.<String>get("$.deviceRegisters[1].device")).isEqualTo("testOldDevice");
+        assertThat(jsonModel.<String>get("$.deviceRegisters[1].channel.name")).isEqualTo("testR");
+        assertThat(jsonModel.<Integer>get("$.deviceRegisters[1].channel.id")).isNull();
+    }
+
     private EffectiveMetrologyConfigurationOnUsagePoint mockEffectiveMetrologyConfiguration() {
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
         UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
         MetrologyContract metrologyContract = mock(MetrologyContract.class);
         ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
         Channel channel = mock(Channel.class);
+        Channel register = mock(Channel.class);
         ReadingTypeRequirementNode readingTypeRequirementNode = mock(ReadingTypeRequirementNode.class);
         ReadingTypeRequirement readingTypeRequirement = mock(FullySpecifiedReadingTypeRequirement.class);
         ReadingTypeDeliverable deliverable = mock(ReadingTypeDeliverable.class);
@@ -211,7 +264,7 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
         when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
         when(effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)).thenReturn(Optional.of(channelsContainer));
-        when(channelsContainer.getChannels()).thenReturn(Collections.singletonList(channel));
+        when(channelsContainer.getChannels()).thenReturn(Arrays.asList(channel,register));
         when(channelsContainer.getRange()).thenReturn(Range.all());
         when(channelsContainer.getMeter(any())).thenReturn(Optional.of(meter));
         when(channel.getMainReadingType()).thenReturn(readingType);
@@ -220,6 +273,15 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
         when(channel.getIntervalLength()).thenReturn(Optional.of(intervalLength));
         when(channel.getId()).thenReturn(1L);
         when(channel.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channel.isRegular()).thenReturn(true);
+
+        when(register.getMainReadingType()).thenReturn(readingType);
+        when(register.getLastDateTime()).thenReturn(Instant.ofEpochMilli(1467710958704L));
+        when(register.getIntervalLength()).thenReturn(Optional.of(intervalLength));
+        when(register.getId()).thenReturn(2L);
+        when(register.getChannelsContainer()).thenReturn(channelsContainer);
+        when(register.isRegular()).thenReturn(false);
+
         when(metrologyContract.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
         when(metrologyConfiguration.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
         when(deliverable.getReadingType()).thenReturn(readingType);
@@ -228,7 +290,8 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
         when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
         when(formula.getExpressionNode()).thenReturn(expressionNode);
         doReturn(Collections.singletonList(readingType)).when(channel).getReadingTypes();
-        when(readingTypeRequirement.getMatchingChannelsFor(channelsContainer)).thenReturn(Collections.singletonList(channel));
+        doReturn(Collections.singletonList(readingType)).when(register).getReadingTypes();
+        when(readingTypeRequirement.getMatchingChannelsFor(channelsContainer)).thenReturn(Arrays.asList(channel,register));
         when(readingTypeRequirementNode.getReadingTypeRequirement()).thenReturn(readingTypeRequirement);
         when(expressionNode.accept(any(ExpressionNode.Visitor.class))).then(visitor -> ((ExpressionNode.Visitor) visitor.getArguments()[0]).visitRequirement(readingTypeRequirementNode));
         when(device.getChannels()).thenReturn(Collections.singletonList(deviceChannel));
@@ -247,6 +310,7 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
         doReturn(Collections.singletonList(quality)).when(intervalReadingRecord).getReadingQualities();
         List<IntervalReadingRecord> intervalReadings = Collections.singletonList(intervalReadingRecord);
         when(channel.getIntervalReadings(any(Range.class))).thenReturn(intervalReadings);
+        when(register.getIntervalReadings(any(Range.class))).thenReturn(intervalReadings);
 
         ValidationEvaluator evaluator = mock(ValidationEvaluator.class);
         when(validationService.getEvaluator()).thenReturn(evaluator);

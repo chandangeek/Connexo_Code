@@ -35,17 +35,17 @@ public class UsagePointChannelInfoFactory extends AbstractUsagePointChannelInfoF
     }
 
     @Override
-    protected ReadingTypeInfoFactory getReadingTypeInfoFactory() {
-        return readingTypeInfoFactory;
-    }
-
-    @Override
     protected DeviceService getDeviceService() {
         return deviceService;
     }
 
     @Override
-    Predicate<Channel> getRegisterFilter() { return Channel::isRegular; }
+    public Predicate<Channel> getFilterPredicate() { return Channel::isRegular; }
+
+    @Override
+    public MessageSeeds getNoSuchElementMessageSeed() {
+        return MessageSeeds.NO_SUCH_CHANNEL_FOR_USAGE_POINT;
+    }
 
     @Override
     UsagePointDevicePartInfoBuilder<UsagePointDeviceChannelInfo> getUsagePointDevicePartInfoBuilder() {
@@ -53,12 +53,7 @@ public class UsagePointChannelInfoFactory extends AbstractUsagePointChannelInfoF
     }
 
     @Override
-    void setFrom(UsagePointDeviceChannelInfo element, long value) {
-        element.from = value;
-    }
-
-    @Override
-    UsagePointChannelInfo from(Channel channel, UsagePoint usagePoint, UsagePointMetrologyConfiguration metrologyConfiguration) {
+    public UsagePointChannelInfo from(Channel channel, UsagePoint usagePoint, UsagePointMetrologyConfiguration metrologyConfiguration) {
         ReadingType readingType = channel.getMainReadingType();
         UsagePointChannelInfo info = new UsagePointChannelInfo();
 
@@ -98,6 +93,11 @@ public class UsagePointChannelInfoFactory extends AbstractUsagePointChannelInfoF
             info.device = device;
             info.until = until;
             return info;
+        }
+
+        @Override
+        void updateFrom(UsagePointDeviceChannelInfo element, long value) {
+            element.from = value;
         }
     }
 }

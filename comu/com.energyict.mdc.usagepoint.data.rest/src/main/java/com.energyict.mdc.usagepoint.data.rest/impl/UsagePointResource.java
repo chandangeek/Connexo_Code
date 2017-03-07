@@ -111,7 +111,7 @@ public class UsagePointResource {
         return PagedInfoList.fromPagedList("registers", registerInfos, queryParameters);
     }
 
-    private <T,I> List<T> getInfos(String usagePointName, AbstractUsagePointChannelInfoFactory<T, I> factory) {
+    private <T> List<T> getInfos(String usagePointName, UsagePointChannelInfoSeparator<T> infoSeparator) {
         List<T> infos = new ArrayList<>();
         UsagePoint usagePoint = resourceHelper.findUsagePointOrThrowException(usagePointName);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
@@ -122,8 +122,8 @@ public class UsagePointResource {
                     .map(effectiveMetrologyConfiguration::getChannelsContainer)
                     .flatMap(Functions.asStream())
                     .flatMap(channelsContainer -> channelsContainer.getChannels().stream())
-                    .filter(factory.getRegisterFilter())
-                    .map(channel -> factory.from(channel, usagePoint, metrologyConfiguration))
+                    .filter(infoSeparator.getFilterPredicate())
+                    .map(channel -> infoSeparator.from(channel, usagePoint, metrologyConfiguration))
                     .collect(Collectors.toList());
         }
         return infos;
@@ -135,12 +135,25 @@ public class UsagePointResource {
     @Transactional
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_OWN_USAGEPOINT})
     public UsagePointChannelInfo getChannel(@PathParam("name") String name, @PathParam("channelId") long channelId) {
-        UsagePoint usagePoint = resourceHelper.findUsagePointOrThrowException(name);
+        return getInfo(name, usagePointChannelInfoFactory, channelId);
+    }
+
+    @GET
+    @Path("/{name}/registers/{registerId}")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Transactional
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_OWN_USAGEPOINT})
+    public UsagePointRegisterInfo getRegister(@PathParam("name") String name, @PathParam("registerId") long registerId) {
+        return getInfo(name, usagePointRegisterInfoFactory, registerId);
+    }
+
+    private <T> T getInfo(String usagePointName, UsagePointChannelInfoSeparator<T> infoSeparator, long id){
+        UsagePoint usagePoint = resourceHelper.findUsagePointOrThrowException(usagePointName);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGY_CONFIG_FOR_USAGE_POINT, usagePoint
                         .getName()));
-        Channel channel = resourceHelper.findChannelOnUsagePointOrThrowException(effectiveMetrologyConfiguration, channelId);
-        return usagePointChannelInfoFactory.from(channel, usagePoint, effectiveMetrologyConfiguration.getMetrologyConfiguration());
+        Channel channel = resourceHelper.findChannelOnUsagePointOrThrowException(effectiveMetrologyConfiguration, id, infoSeparator);
+        return infoSeparator.from(channel, usagePoint, effectiveMetrologyConfiguration.getMetrologyConfiguration());
     }
 
     @GET
@@ -156,7 +169,7 @@ public class UsagePointResource {
             EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
                     .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGY_CONFIG_FOR_USAGE_POINT, usagePoint
                             .getName()));
-            Channel channel = resourceHelper.findChannelOnUsagePointOrThrowException(effectiveMetrologyConfiguration, channelId);
+            Channel channel = resourceHelper.findChannelOnUsagePointOrThrowException(effectiveMetrologyConfiguration, channelId, usagePointChannelInfoFactory);
             Range<Instant> usagePointActivationInterval = getUsagePointActivationInterval(usagePoint);
             if (usagePointActivationInterval.isConnected(requestedInterval)) {
                 Range<Instant> effectiveInterval = usagePointActivationInterval.intersection(requestedInterval);

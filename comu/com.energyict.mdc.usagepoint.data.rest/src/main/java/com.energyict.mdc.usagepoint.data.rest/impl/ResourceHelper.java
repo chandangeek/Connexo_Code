@@ -26,12 +26,12 @@ public class ResourceHelper {
         this.exceptionFactory = exceptionFactory;
     }
 
-    public UsagePoint findUsagePointOrThrowException(String name) {
+    UsagePoint findUsagePointOrThrowException(String name) {
         return meteringService.findUsagePointByName(name)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_USAGE_POINT_WITH_NAME, name));
     }
 
-    public MetrologyContract findMetrologyContractOfChannelOrThrowException(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint, long channelId) {
+    MetrologyContract findMetrologyContractOfChannelOrThrowException(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint, long channelId) {
         for (MetrologyContract metrologyContract : effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration().getContracts()) {
             Optional<ChannelsContainer> container = effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract);
             if (container.isPresent()) {
@@ -45,14 +45,15 @@ public class ResourceHelper {
                 effectiveMetrologyConfigurationOnUsagePoint.getUsagePoint().getName(), channelId);
     }
 
-    public Channel findChannelOnUsagePointOrThrowException(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, long channelId) {
+    Channel findChannelOnUsagePointOrThrowException(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, long channelId, UsagePointChannelSearchCriteria usagePointChannelSearchCriteria) {
         return effectiveMetrologyConfiguration.getMetrologyConfiguration().getContracts().stream()
                 .map(effectiveMetrologyConfiguration::getChannelsContainer)
                 .flatMap(Functions.asStream())
                 .flatMap(channelsContainer -> channelsContainer.getChannels().stream())
+                .filter(usagePointChannelSearchCriteria.getFilterPredicate())
                 .filter(channel -> channel.getId() == channelId)
                 .findAny()
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CHANNEL_FOR_USAGE_POINT,
+                .orElseThrow(() -> exceptionFactory.newException(usagePointChannelSearchCriteria.getNoSuchElementMessageSeed(),
                         effectiveMetrologyConfiguration.getUsagePoint().getName(), channelId));
     }
 }

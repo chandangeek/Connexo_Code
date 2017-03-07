@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
@@ -12,12 +11,10 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.device.data.DeviceService;
 
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * Abstract class for providing info objects.<br>
@@ -26,40 +23,19 @@ import java.util.function.Predicate;
  * @param <T> represents info class provided by factory
  * @param <I> represents info class for info class provided by factory ;-)
  */
-public abstract class AbstractUsagePointChannelInfoFactory<T, I> {
+public abstract class AbstractUsagePointChannelInfoFactory<T, I> implements UsagePointChannelInfoSeparator<T> {
 
     private String purpose;
 
-    public AbstractUsagePointChannelInfoFactory(String purpose) {
+    AbstractUsagePointChannelInfoFactory(String purpose) {
         this.purpose = purpose;
     }
 
-    /**
-     * Provides {@link Predicate} supposed to be used to filter {@link java.util.stream.Stream} streams of
-     * {@link Channel} objects.<br>
-     * Filtered stream will contain sutable channels related to particular factory instance.
-     *
-     * @return {@link Predicate} instance
-     */
-    abstract Predicate<Channel> getRegisterFilter();
-
-    /**
-     * Method to build info object related to particular factory instance
-     *
-     * @param channel {@link Channel} instance to be represented as info object
-     * @param usagePoint {@link UsagePoint} owns channel
-     * @param metrologyConfiguration {@link UsagePointMetrologyConfiguration} related to channel
-     * @return
-     */
-    abstract T from(Channel channel, UsagePoint usagePoint, UsagePointMetrologyConfiguration metrologyConfiguration);
-
     abstract UsagePointDevicePartInfoBuilder<I> getUsagePointDevicePartInfoBuilder();
-
-    protected abstract ReadingTypeInfoFactory getReadingTypeInfoFactory();
 
     protected abstract DeviceService getDeviceService();
 
-    protected void fillDevicePartList(List<I> list, ReadingType readingType, UsagePointMetrologyConfiguration metrologyConfiguration, UsagePoint usagePoint) {
+    void fillDevicePartList(List<I> list, ReadingType readingType, UsagePointMetrologyConfiguration metrologyConfiguration, UsagePoint usagePoint) {
         ReadingTypeDeliverable readingTypeDeliverable = metrologyConfiguration.getDeliverables().stream()
                 .filter(deliverable -> deliverable.getReadingType().equals(readingType))
                 .findFirst()
@@ -74,7 +50,8 @@ public abstract class AbstractUsagePointChannelInfoFactory<T, I> {
                     && meterActivation.getMeter().equals(meterActivationOld.getMeter())
                     && !list.isEmpty()
                     && meterActivationOld.getStart().equals(meterActivation.getEnd())) {
-                setFrom(list.get(list.size() - 1), meterActivation.getStart().toEpochMilli());
+                getUsagePointDevicePartInfoBuilder().updateFrom(list.get(list.size() - 1), meterActivation.getStart()
+                        .toEpochMilli());
             } else {
                 UsagePointDevicePartInfoBuilder<I> deviceChannelInfo = getUsagePointDevicePartInfoBuilder();
                 meterActivation.getMeter()
@@ -109,15 +86,21 @@ public abstract class AbstractUsagePointChannelInfoFactory<T, I> {
         }
     }
 
-    abstract void setFrom(I element, long value);
+    /**
+     * Builder for internal info object used in info object provided by particular factory
+     *
+     * @param <U> defines type of info object to build
+     */
+    abstract class UsagePointDevicePartInfoBuilder<U> {
 
-    public abstract class UsagePointDevicePartInfoBuilder<T> {
+        abstract U build();
 
-        abstract T build();
+        // kind of trick to not create a separate updater
+        abstract void updateFrom(U element, long value);
 
-        protected Long from;
-        protected Long until;
-        protected String device;
-        protected IdWithNameInfo channel;
+        Long from;
+        Long until;
+        String device;
+        IdWithNameInfo channel;
     }
 }
