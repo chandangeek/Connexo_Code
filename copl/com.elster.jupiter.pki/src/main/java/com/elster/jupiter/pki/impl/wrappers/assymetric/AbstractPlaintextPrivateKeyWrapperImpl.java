@@ -141,7 +141,7 @@ abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements Plaintex
     }
 
     @Override
-    public void renewValue() {
+    public void generateValue() {
         try {
             doRenewValue();
         } catch (InvalidKeyException e) {

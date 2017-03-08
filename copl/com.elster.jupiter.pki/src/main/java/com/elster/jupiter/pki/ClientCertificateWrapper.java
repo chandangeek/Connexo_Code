@@ -18,4 +18,9 @@ public interface ClientCertificateWrapper extends RequestableCertificateWrapper,
      */
     PrivateKeyWrapper getPrivateKeyWrapper();
 
+    /**
+     * Generates a CSR with provided distinguished name. If no private key exists yet, one will be generated
+     */
+    void generateCSR();
+
 }

@@ -286,7 +286,7 @@ public class PKIServiceImplIT {
         when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
         PlaintextSymmetricKey symmetricKeyWrapper = (PlaintextSymmetricKey) inMemoryPersistence.getPkiService()
                 .newSymmetricKeyWrapper(keyAccessorType);
-        symmetricKeyWrapper.renewValue();
+        symmetricKeyWrapper.generateValue();
 
         Assertions.assertThat(symmetricKeyWrapper.getKey().getEncoded()).isNotEmpty();
         Assertions.assertThat(symmetricKeyWrapper.getKey().getAlgorithm()).isEqualTo("AES");

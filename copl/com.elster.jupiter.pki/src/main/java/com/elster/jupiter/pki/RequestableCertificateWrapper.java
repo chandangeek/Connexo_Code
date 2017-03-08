@@ -23,4 +23,11 @@ public interface RequestableCertificateWrapper extends CertificateWrapper {
      */
     Optional<PKCS10CertificationRequest> getCSR();
 
+    /**
+     * Sets the CSR for this certificate wrapper. Most commonly this method will be called after having obtained a CSR from a device.
+     * Nothing is done with the CSR, it is merely stored so that it can be exported when needed.
+     * @param csr The CSR to associate with this certificate wrapper.
+     */
+    void setCSR(PKCS10CertificationRequest csr);
+
 }

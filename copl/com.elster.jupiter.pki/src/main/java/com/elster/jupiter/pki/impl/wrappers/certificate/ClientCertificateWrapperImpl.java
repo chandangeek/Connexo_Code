@@ -54,7 +54,7 @@ public class ClientCertificateWrapperImpl extends RequestableCertificateWrapperI
     }
 
     @Override
-    public void renewValue() {
-        
+    public void generateValue() {
+        // TODO implement
     }
 }
