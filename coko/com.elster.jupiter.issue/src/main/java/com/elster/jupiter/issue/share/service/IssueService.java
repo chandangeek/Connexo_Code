@@ -26,7 +26,6 @@ import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.WorkGroup;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -123,8 +122,8 @@ public interface IssueService {
 
     Optional<IssueAssignee> findIssueAssignee(AssigneeType assigneeType, long id);
 
-    public Map<IssueTypes, Long> getUserOpenIssueCount(User user);
+    Map<IssueTypes, Long> getUserOpenIssueCount(User user);
 
-    public Map<IssueTypes, Long> getWorkGroupWithoutUserOpenIssueCount(User user);
+    Map<IssueTypes, Long> getWorkGroupWithoutUserOpenIssueCount(User user);
 
 }
