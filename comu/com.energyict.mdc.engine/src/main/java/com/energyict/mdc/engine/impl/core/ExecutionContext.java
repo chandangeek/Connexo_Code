@@ -392,6 +392,7 @@ public final class ExecutionContext implements JournalEntryFactory {
      * @param comTaskExecutionComCommand the command that is going to be executed
      */
     public void start(ComTaskExecutionComCommand comTaskExecutionComCommand) {
+        this.comTaskExecution = comTaskExecutionComCommand.getComTaskExecution();
         getComServerDAO().executionStarted(comTaskExecutionComCommand.getComTaskExecution(), getComPort(), true);
         this.publish(
                 new ComTaskExecutionStartedEvent(
@@ -400,7 +401,6 @@ public final class ExecutionContext implements JournalEntryFactory {
                         this.getComPort(),
                         this.getConnectionTask()
                 ));
-        this.comTaskExecution = comTaskExecutionComCommand.getComTaskExecution();
         connectionLogger.startingTask(Thread.currentThread().getName(), comTaskExecution.getComTask().getName());
         if (this.isConnected()) {
             executionStopWatchStart();
