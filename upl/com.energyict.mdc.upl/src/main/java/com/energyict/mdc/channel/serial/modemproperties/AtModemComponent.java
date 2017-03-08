@@ -12,7 +12,7 @@ import com.energyict.mdc.upl.io.ModemException;
 import javax.xml.bind.annotation.XmlElement;
 import java.io.IOException;
 import java.io.Serializable;
-import java.time.temporal.ChronoUnit;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -70,7 +70,7 @@ public class AtModemComponent implements ModemComponent, Serializable {
         this.initializeModem(name, comChannel);
 
         if (!dialModem(comChannel)) {
-            throw ModemException.connectTimeOutException(this.comPortName, atModemProperties.getConnectTimeout().get(ChronoUnit.MILLIS));
+            throw ModemException.connectTimeOutException(this.comPortName, ((Duration) atModemProperties.getConnectTimeout()).toMillis());
         }
 
         initializeAfterConnect(comChannel);
@@ -101,7 +101,7 @@ public class AtModemComponent implements ModemComponent, Serializable {
      */
     public boolean dialModem(ComChannel comChannel) {
         write(comChannel, AtModemComponent.DIAL_SEQUENCE + getDialCommandPrefix() + atModemProperties.getPhoneNumber());
-        return readAndVerify(comChannel, AtModemComponent.CONNECT, atModemProperties.getConnectTimeout().get(ChronoUnit.MILLIS));
+        return readAndVerify(comChannel, AtModemComponent.CONNECT, ((Duration) atModemProperties.getConnectTimeout()).toMillis());
     }
 
     private String getDialCommandPrefix() {
@@ -120,7 +120,7 @@ public class AtModemComponent implements ModemComponent, Serializable {
      */
     @Override
     public void initializeAfterConnect(ComChannel comChannel) {
-        delay(atModemProperties.getDelayAfterConnect().get(ChronoUnit.MILLIS));
+        delay(((Duration) atModemProperties.getDelayAfterConnect()).toMillis());
         flushInputStream(comChannel);
         if (atModemProperties.getAddressSelector() != null && !atModemProperties.getAddressSelector().isEmpty()) {
             sendAddressSelector(comChannel);
@@ -175,7 +175,7 @@ public class AtModemComponent implements ModemComponent, Serializable {
      */
     public void disconnect(SerialPortComChannel comChannel) {
         hangUpComChannel(comChannel);
-        toggleDTR(comChannel, atModemProperties.getLineToggleDelay().get(ChronoUnit.MILLIS));
+        toggleDTR(comChannel, ((Duration) atModemProperties.getLineToggleDelay()).toMillis());
     }
 
     /**
@@ -200,7 +200,7 @@ public class AtModemComponent implements ModemComponent, Serializable {
         comChannel.startWriting();
         this.lastCommandSend = AtModemComponent.DISCONNECT_SEQUENCE;
         comChannel.write((AtModemComponent.DISCONNECT_SEQUENCE).getBytes());
-        delay(atModemProperties.getCommandTimeOut().get(ChronoUnit.MILLIS));
+        delay(((Duration) atModemProperties.getCommandTimeOut()).toMillis());
         try {
             comChannel.flush();
             flushInputStream(comChannel);
@@ -220,7 +220,7 @@ public class AtModemComponent implements ModemComponent, Serializable {
         comChannel.startWriting();
         this.lastCommandSend = atModemProperties.getAddressSelector();
         comChannel.write((atModemProperties.getAddressSelector()).getBytes());
-        delay(atModemProperties.getCommandTimeOut().get(ChronoUnit.MILLIS));
+        delay(((Duration) atModemProperties.getCommandTimeOut()).toMillis());
     }
 
     /**
@@ -282,7 +282,7 @@ public class AtModemComponent implements ModemComponent, Serializable {
         int currentTry = 0;
         while (currentTry++ < atModemProperties.getCommandTry().intValue()) {
             try {
-                if (readAndVerify(comChannel, expectedAnswer, atModemProperties.getCommandTimeOut().get(ChronoUnit.MILLIS))) {
+                if (readAndVerify(comChannel, expectedAnswer, ((Duration) atModemProperties.getCommandTimeOut()).toMillis())) {
                     return true;
                 }
             } catch (ModemException e) {
@@ -359,7 +359,7 @@ public class AtModemComponent implements ModemComponent, Serializable {
      * so we can wait a little while until the catch up.
      */
     private void delayBeforeSend() {
-        delay(atModemProperties.getDelayBeforeSend().get(ChronoUnit.MILLIS));
+        delay(((Duration) atModemProperties.getDelayBeforeSend()).toMillis());
     }
 
     /**
@@ -372,7 +372,7 @@ public class AtModemComponent implements ModemComponent, Serializable {
         comChannel.startReading();
         try {
             long flushTimeOut = System.currentTimeMillis() + milliSecondsOfSilence;
-            long globalTimeOut = System.currentTimeMillis() + atModemProperties.getCommandTimeOut().get(ChronoUnit.MILLIS) + flushTimeOut;
+            long globalTimeOut = System.currentTimeMillis() + ((Duration) atModemProperties.getCommandTimeOut()).toMillis() + flushTimeOut;
 
             while ((System.currentTimeMillis() < flushTimeOut) && (System.currentTimeMillis() < globalTimeOut)) {
                 Thread.sleep(10);

@@ -4,7 +4,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 
 /**
@@ -33,8 +32,8 @@ public class SerialPortConfiguration {
     private FlowControl flowControl;
     private Parities parity;
 
-    private BigDecimal serialPortOpenTimeOut = new BigDecimal(DEFAULT_SERIAL_PORT_OPEN_TIMEOUT.get(ChronoUnit.MILLIS));
-    private BigDecimal serialPortReadTimeOut = new BigDecimal(DEFAULT_SERIAL_PORT_READ_TIMEOUT.get(ChronoUnit.MILLIS));
+    private BigDecimal serialPortOpenTimeOut = new BigDecimal(((Duration) DEFAULT_SERIAL_PORT_OPEN_TIMEOUT).toMillis());
+    private BigDecimal serialPortReadTimeOut = new BigDecimal(((Duration) DEFAULT_SERIAL_PORT_READ_TIMEOUT).toMillis());
 
     public SerialPortConfiguration() {
     }
