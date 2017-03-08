@@ -62,8 +62,22 @@ public interface KeyAccessorType extends HasId, HasName {
     Updater startUpdate();
 
     interface Builder {
+        /**
+         * Provide a user understandable description of this key's function
+         */
         Builder description(String description);
 
+        /**
+         * KeyEncryptionMethod describes how the Key will be encrypted/stored.
+         * Only applies to keys (both symmetric and asymmetric)
+         * Valid KeyEncryptionMethods are provided by wrapper factories whom register on the PkiService whiteboard
+         * @param keyEncryptionMethod @see PkiService::getKeyEncryptionMethods()
+         */
+        Builder keyEncryptionMethod(String keyEncryptionMethod);
+
+        /**
+         * Symmetric keys require a durarion to be provided.
+         */
         Builder duration(TimeDuration duration);
 
         KeyAccessorType add();
