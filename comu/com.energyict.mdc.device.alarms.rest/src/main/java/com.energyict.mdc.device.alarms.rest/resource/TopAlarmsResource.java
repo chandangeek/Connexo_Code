@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.alarms.rest.resource;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.rest.util.Transactional;
@@ -44,8 +45,9 @@ public class TopAlarmsResource extends BaseAlarmResource{
         Comparator<Issue> dueDateComparator = Comparator.comparing(Issue::getDueDate, Comparator.nullsLast(Instant::compareTo));
         Comparator<Issue> priorityComparator = (alarm1, alarm2) -> Integer.compare(alarm2.getPriority().getImpact() + alarm2.getPriority().getUrgency(), alarm1.getPriority().getImpact() + alarm1.getPriority().getUrgency());
         Comparator<Issue> nameComparator = (alarm1, alarm2) -> alarm1.getTitle().toLowerCase().compareTo(alarm2.getTitle());
-        Finder<? extends Issue> finder = getIssueService().findAlarms();
-        List<? extends Issue> alarms = finder.find();
+        IssueFilter filter = getIssueService().newIssueFilter();
+        Finder<? extends Issue> finder = getIssueService().findAlarms(filter);
+        List<? extends Issue> alarms = finder.find().stream().filter(alm -> !alm.getStatus().isHistorical()).collect(Collectors.toList());
         List<Issue> items = getItems(alarms, currentUser);
         return new TopAlarmsInfo(items.stream()
                 .sorted(priorityComparator.thenComparing(dueDateComparator).thenComparing(nameComparator))
