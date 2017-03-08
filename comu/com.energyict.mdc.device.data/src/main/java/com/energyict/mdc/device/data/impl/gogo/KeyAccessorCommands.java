@@ -13,6 +13,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.gogo.MysqlPrint;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.CertificateAccessor;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.KeyAccessor;
@@ -22,6 +23,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -31,11 +33,10 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
-import static java.util.stream.Collectors.toList;
 
 /**
  * Created by bvn on 1/31/17.
@@ -87,27 +88,33 @@ public class KeyAccessorCommands {
         System.out.println("       List all known key accessors for a certain device");
         System.out.println("e.g. : keyAccessors 123");
     }
-    public void keyAccessors(long deviceId) {
+    public void keyAccessors(long deviceId) throws InvalidKeyException {
         Device device = deviceService.findDeviceById(deviceId)
                 .orElseThrow(() -> new RuntimeException("No such device"));
-        List<List<?>> collect = device.getDeviceType()
-                .getKeyAccessorTypes()
-                .stream()
-                .map(kat -> {
-                    Optional<KeyAccessor> keyAccessor = device.getKeyAccessor(kat);
-                    return Arrays.asList(kat.getName(),
-                            kat.getKeyType().getName(),
-                            keyAccessor.isPresent() && keyAccessor.get().getActualValue()!=null ? "Present":"",
-                            keyAccessor.isPresent() && keyAccessor.get().getTempValue().isPresent() ? "Present":""
-                    );
-                })
-                .collect(toList());
+        List<List<?>> collection = new ArrayList<>();
+        for (KeyAccessorType keyAccessorType: device.getDeviceType().getKeyAccessorTypes()) {
+            Optional<KeyAccessor> keyAccessor = device.getKeyAccessor(keyAccessorType);
+            String extraValue = "";
+            if (keyAccessor.isPresent() && keyAccessor.get() instanceof CertificateAccessor) {
+                CertificateAccessor certificateAccessor = (CertificateAccessor) keyAccessor.get();
+                if (certificateAccessor.getActualValue() instanceof ClientCertificateWrapper) {
+                    ClientCertificateWrapper actualValue = (ClientCertificateWrapper) certificateAccessor.getActualValue();
+                    actualValue.getPrivateKeyWrapper().getPrivateKey();
+                    extraValue=" (+PK)";
+                }
+            }
+            collection.add(Arrays.asList(keyAccessorType.getName(),
+                    keyAccessorType.getKeyType().getName(),
+                    keyAccessor.isPresent() && keyAccessor.get().getActualValue()!=null ? "Present"+extraValue:"",
+                    keyAccessor.isPresent() && keyAccessor.get().getTempValue().isPresent() ? "Present":""
+            ));
+        }
 
-        MYSQL_PRINT.printTableWithHeader(Arrays.asList("Key accessor type", "Key type","Current value", "Temp value"), collect);
+        MYSQL_PRINT.printTableWithHeader(Arrays.asList("Key accessor type", "Key type","Current value", "Temp value"), collection);
     }
 
     public void importCertificateWithKey() {
-        System.out.println("Usage: importCertificateWithKey <device id> <cert accessor type name> <private key accessor type name> <pkcs#12 file>  <password> alias");
+        System.out.println("Usage: importCertificateWithKey <device id> <cert accessor type name> <private key accessor type name> <pkcs#12 file>  <password> <alias>");
         System.out.println("e.g. : importCertificateWithKey 1 \"TLS\" \"RSA\" tls.pkcs12 foo123 mycert");
     }
 
