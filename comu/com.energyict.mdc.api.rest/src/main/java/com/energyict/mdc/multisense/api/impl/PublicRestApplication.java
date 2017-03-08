@@ -8,6 +8,12 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.kore.api.v2.issue.DeviceShortInfoFactory;
+import com.elster.jupiter.kore.api.v2.issue.IssueAssigneeInfoFactory;
+import com.elster.jupiter.kore.api.v2.issue.IssuePriorityInfoFactory;
+import com.elster.jupiter.kore.api.v2.issue.IssueReasonInfoFactory;
+import com.elster.jupiter.kore.api.v2.issue.LocationShortInfoFactory;
+import com.elster.jupiter.kore.api.v2.issue.UsagePointShortInfoFactory;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -21,9 +27,11 @@ import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.ConstraintViolationInfo;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.RestExceptionMapper;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.rest.ExceptionLogger;
+import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceMessageService;
@@ -94,6 +102,8 @@ public class PublicRestApplication extends Application implements TranslationKey
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile MeteringService meteringService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile DeviceAlarmService deviceAlarmService;
+    private volatile ThreadPrincipalService threadPrincipalService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -124,6 +134,7 @@ public class PublicRestApplication extends Application implements TranslationKey
                 PartialConnectionTaskResource.class,
                 ProtocolDialectConfigurationPropertiesResource.class,
                 ProtocolTaskResource.class,
+                DeviceAlarmResource.class,
 
                 RestExceptionMapper.class,
                 DeviceLifeCycleActionViolationExceptionMapper.class
@@ -161,6 +172,16 @@ public class PublicRestApplication extends Application implements TranslationKey
     @Reference
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
+    }
+
+    @Reference
+    public void setDeviceAlarmService(DeviceAlarmService deviceAlarmService) {
+        this.deviceAlarmService = deviceAlarmService;
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Reference
@@ -295,7 +316,6 @@ public class PublicRestApplication extends Application implements TranslationKey
     }
 
 
-
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -324,6 +344,8 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
+            bind(deviceAlarmService).to(DeviceAlarmService.class);
+            bind(threadPrincipalService).to(ThreadPrincipalService.class);
             bindFactory(getValidatorFactory()).to(Validator.class);
 
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
@@ -355,6 +377,15 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(DeviceMessageEnablementInfoFactory.class).to(DeviceMessageEnablementInfoFactory.class);
             bind(DeviceSecurityPropertySetInfoFactory.class).to(DeviceSecurityPropertySetInfoFactory.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
+            bind(DeviceAlarmStatusInfoFactory.class).to(DeviceAlarmStatusInfoFactory.class);
+            bind(DeviceAlarmInfoFactory.class).to(DeviceAlarmInfoFactory.class);
+            bind(IssueAssigneeInfoFactory.class).to(IssueAssigneeInfoFactory.class);
+            bind(IssueReasonInfoFactory.class).to(IssueReasonInfoFactory.class);
+            bind(IssuePriorityInfoFactory.class).to(IssuePriorityInfoFactory.class);
+            bind(DeviceShortInfoFactory.class).to(DeviceShortInfoFactory.class);
+            bind(UsagePointShortInfoFactory.class).to(UsagePointShortInfoFactory.class);
+            bind(LocationShortInfoFactory.class).to(LocationShortInfoFactory.class);
+            bind(DeviceAlarmShortInfoFactory.class).to(DeviceAlarmShortInfoFactory.class);
         }
     }
 

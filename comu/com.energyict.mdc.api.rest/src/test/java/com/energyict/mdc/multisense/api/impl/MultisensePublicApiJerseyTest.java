@@ -24,10 +24,23 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.issue.share.Priority;
+import com.elster.jupiter.issue.share.entity.HistoricalIssue;
+import com.elster.jupiter.issue.share.entity.IssueAssignee;
+import com.elster.jupiter.issue.share.entity.IssueComment;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.HeatDetail;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -44,10 +57,17 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.WorkGroup;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.interval.PartialTime;
+import com.energyict.mdc.device.alarms.DeviceAlarmService;
+import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
+import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -173,6 +193,11 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     MetrologyConfigurationService metrologyConfigurationService;
     @Mock
     PropertyValueInfoService propertyValueInfoService;
+    @Mock
+    DeviceAlarmService deviceAlarmService;
+    @Mock
+    ThreadPrincipalService threadPrincipalService;
+
 
     @Override
     protected Application getApplication() {
@@ -184,6 +209,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         application.setTopologyService(topologyService);
         application.setBatchService(batchService);
         application.setIssueService(issueService);
+        application.setDeviceAlarmService(deviceAlarmService);
         application.setDeviceLifeCycleService(deviceLifeCycleService);
         application.setFiniteStateMachineService(finiteStateMachineService);
         application.setConnectionTaskService(connectionTaskService);
@@ -199,6 +225,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         application.setMeteringService(meteringService);
         application.setMetrologyConfigurationService(metrologyConfigurationService);
         application.setPropertyValueInfoService(propertyValueInfoService);
+        application.setThreadPrincipalService(threadPrincipalService);
         return application;
     }
 
@@ -752,4 +779,159 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     protected static String mockMRID(long id) {
         return MRID_PATTERN.matcher(String.format("%032x", id)).replaceAll(MRID_REPLACEMENT);
     }
+
+    protected IssueStatus mockStatus(String key, String name, boolean isFinal) {
+        IssueStatus status = mock(IssueStatus.class);
+        when(status.isHistorical()).thenReturn(isFinal);
+        when(status.getName()).thenReturn(name);
+        when(status.getKey()).thenReturn(key);
+        return status;
+    }
+
+    protected IssueReason mockReason(String key, String name, IssueType issueType) {
+        IssueReason reason = mock(IssueReason.class);
+        when(reason.getKey()).thenReturn(key);
+        when(reason.getName()).thenReturn(name);
+        when(reason.getIssueType()).thenReturn(issueType);
+        return reason;
+    }
+
+
+    protected IssueStatus getDefaultOpenStatus() {
+        return mockStatus("status.open", "Open", false);
+    }
+
+    protected IssueStatus getDefaultClosedStatus() {
+        return mockStatus("status.resolved", "Resolved", true);
+    }
+
+    protected IssueType mockIssueType(String key, String name) {
+        IssueType issueType = mock(IssueType.class);
+        when(issueType.getKey()).thenReturn(key);
+        when(issueType.getName()).thenReturn(name);
+        when(issueType.getPrefix()).thenReturn(name + key);
+        return issueType;
+    }
+
+    protected IssueType getDefaultIssueType() {
+        return mockIssueType("datacollection", "Data Collection");
+    }
+
+
+    protected IssueReason getDefaultReason() {
+        return mockReason("1", "Reason", getDefaultIssueType());
+    }
+
+    protected IssueAssignee mockAssignee(long userId, String userName, long workGroupId, String workGroupName) {
+        IssueAssignee assignee = mock(IssueAssignee.class);
+        User user = mock(User.class);
+        WorkGroup workGroup = mock(WorkGroup.class);
+        when(workGroup.getId()).thenReturn(workGroupId);
+        when(workGroup.getName()).thenReturn(workGroupName);
+        when(user.getId()).thenReturn(userId);
+        when(user.getName()).thenReturn(userName);
+        when(assignee.getUser()).thenReturn(user);
+        when(assignee.getWorkGroup()).thenReturn(workGroup);
+        return assignee;
+    }
+
+    protected OpenDeviceAlarm getDefaultOpenDeviceAlarm() {
+        return mockOpenDeviceAlarm(1L, getDefaultReason(), getDefaultOpenStatus(), getDefaultAssignee(), getDefaultDevice());
+    }
+
+    protected HistoricalDeviceAlarm getDefaultClosedDeviceAlarm() {
+        return mockClosedDeviceAlarm(1L, getDefaultReason(), getDefaultClosedStatus(), getDefaultAssignee(), getDefaultDevice());
+    }
+
+    protected User getDefaultUser() {
+        return mockUser(1, "Admin");
+    }
+
+    protected Meter getDefaultDevice() {
+        return mockMeter(1, "DefaultDevice");
+    }
+
+    protected Meter mockMeter(long id, String name) {
+        Meter meter = mock(Meter.class);
+        when(meter.getId()).thenReturn(id);
+        when(meter.getName()).thenReturn(name);
+        when(meter.getSerialNumber()).thenReturn("0.0.0.0.0.0.0.0");
+        when(meter.getAmrId()).thenReturn(String.valueOf(id));
+        doReturn(Optional.empty()).when(meter).getCurrentMeterActivation();
+        AmrSystem amrSystem = mock(AmrSystem.class);
+        when(meter.getAmrSystem()).thenReturn(amrSystem);
+        when(amrSystem.is(KnownAmrSystem.MDC)).thenReturn(true);
+        Location location = mockLocation("Ohio,Massachusetts,Tennessee,California,Maryland,Florida,Florida,California,California,California,Texas,Texas,Pennsylvania,Washington,Texas,South Dakota,California,Indiana,Louisiana,North Carolina,Washington,California,Hawaii,Oklahoma,Tennessee,Georgia,Florida,West Virginia,Nevada,California,New York,Colorado,Pennsylvania,Ohio,Texas,Texas,Iowa,Florida,Georgia,Texas,Missouri,Pennsylvania,Michigan,Utah,Minnesota,California,Hawaii,Georgia,Tennessee,Nevada,Florida,Georgia,California,Nevada,Indiana,Wisconsin,California,Alabama,Georgia,Colorado,Pennsylvania,Utah,New York,Florida,Texas,Florida,New York,Missouri,Georgia,Indiana,Minnesota,Florida,Ohio,Colorado,District of Columbia,Kentucky,Virginia,Virginia,New York,District of Columbia,Texas,Minnesota,Louisiana,Nevada,Arizona,Nevada,New York,Louisiana,North Carolina,California,Colorado,California,South Carolina,Alabama,Florida,Virginia,Alabama,California,Hawaii");
+        when(meter.getLocation()).thenReturn(Optional.of(location));
+        MeterActivation meterActivation = mock(MeterActivation.class);
+        doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
+        UsagePoint usagePoint = mockUsagePoint(1, "UP0", 1, ServiceKind.ELECTRICITY);
+        when(meterActivation.getUsagePoint()).thenReturn(Optional.of(usagePoint));
+        return meter;
+    }
+
+    protected OpenDeviceAlarm mockOpenDeviceAlarm(long id, IssueReason reason, IssueStatus status, IssueAssignee assingee, Meter meter) {
+        OpenDeviceAlarm alarm = mock(OpenDeviceAlarm.class);
+        when(alarm.getId()).thenReturn(id);
+        when(alarm.getReason()).thenReturn(reason);
+        when(alarm.getStatus()).thenReturn(status);
+        when(alarm.getDueDate()).thenReturn(null);
+        when(alarm.getAssignee()).thenReturn(assingee);
+        when(alarm.getDevice()).thenReturn(meter);
+        when(alarm.getCreateTime()).thenReturn(Instant.EPOCH);
+        when(alarm.getCreateDateTime()).thenReturn(Instant.EPOCH);
+        when(alarm.getModTime()).thenReturn(Instant.EPOCH);
+        when(alarm.getVersion()).thenReturn(1L);
+        Priority priority = Priority.DEFAULT;
+        when(alarm.getPriority()).thenReturn(priority);
+        return alarm;
+    }
+
+    protected HistoricalDeviceAlarm mockClosedDeviceAlarm(long id, IssueReason reason, IssueStatus status, IssueAssignee assingee, Meter meter) {
+        HistoricalDeviceAlarm alarm = mock(HistoricalDeviceAlarm.class);
+        when(alarm.getId()).thenReturn(id);
+        when(alarm.getReason()).thenReturn(reason);
+        when(alarm.getStatus()).thenReturn(status);
+        when(alarm.getDueDate()).thenReturn(null);
+        when(alarm.getAssignee()).thenReturn(assingee);
+        when(alarm.getDevice()).thenReturn(meter);
+        when(alarm.getCreateTime()).thenReturn(Instant.EPOCH);
+        when(alarm.getCreateDateTime()).thenReturn(Instant.EPOCH);
+        when(alarm.getModTime()).thenReturn(Instant.EPOCH);
+        when(alarm.getVersion()).thenReturn(1L);
+        com.elster.jupiter.issue.share.Priority priority = com.elster.jupiter.issue.share.Priority.DEFAULT;
+        when(alarm.getPriority()).thenReturn(priority);
+        return alarm;
+    }
+
+    protected IssueComment mockComment(long id, String text, User user) {
+        IssueComment comment = mock(IssueComment.class);
+        when(comment.getId()).thenReturn(id);
+        when(comment.getComment()).thenReturn(text);
+        when(comment.getCreateTime()).thenReturn(Instant.EPOCH);
+        when(comment.getVersion()).thenReturn(1L);
+        when(comment.getUser()).thenReturn(user);
+        return comment;
+    }
+
+
+    protected User mockUser(long id, String name) {
+        User user = mock(User.class);
+        when(user.getId()).thenReturn(id);
+        when(user.getName()).thenReturn(name);
+        when(threadPrincipalService.getPrincipal()).thenReturn(user);
+        return user;
+    }
+
+
+    protected IssueAssignee getDefaultAssignee() {
+        return mockAssignee(1L, "Admin", 1L, "WorkGroup");
+    }
+
+    private static Location mockLocation(String location) {
+        Location mock = mock(Location.class);
+        when(mock.toString()).thenReturn(location);
+        return mock;
+    }
+
 }
