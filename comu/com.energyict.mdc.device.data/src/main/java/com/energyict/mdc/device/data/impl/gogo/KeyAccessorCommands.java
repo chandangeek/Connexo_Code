@@ -99,13 +99,20 @@ public class KeyAccessorCommands {
                 CertificateAccessor certificateAccessor = (CertificateAccessor) keyAccessor.get();
                 if (certificateAccessor.getActualValue() instanceof ClientCertificateWrapper) {
                     ClientCertificateWrapper actualValue = (ClientCertificateWrapper) certificateAccessor.getActualValue();
-                    actualValue.getPrivateKeyWrapper().getPrivateKey();
-                    extraValue=" (+PK)";
+                    if (actualValue.getCertificate().isPresent()) {
+                        extraValue+="X.509";
+                    } else if (actualValue.getCSR().isPresent()) {
+                        extraValue+="CSR";
+                    }
+                    PrivateKey privateKey = actualValue.getPrivateKeyWrapper().getPrivateKey();
+                    if (privateKey != null) {
+                        extraValue+=" + PK";
+                    }
                 }
             }
             collection.add(Arrays.asList(keyAccessorType.getName(),
                     keyAccessorType.getKeyType().getName(),
-                    keyAccessor.isPresent() && keyAccessor.get().getActualValue()!=null ? "Present"+extraValue:"",
+                    keyAccessor.isPresent() && keyAccessor.get().getActualValue()!=null ? (extraValue.isEmpty()?"Present":extraValue):"",
                     keyAccessor.isPresent() && keyAccessor.get().getTempValue().isPresent() ? "Present":""
             ));
         }
