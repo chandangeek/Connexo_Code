@@ -121,6 +121,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         try {
             this.certificate = certificate.getEncoded();
             this.expirationTime = certificate.getNotAfter().toInstant();
+            this.save();
         } catch (CertificateEncodingException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_ENCODING_EXCEPTION, e);
         }
