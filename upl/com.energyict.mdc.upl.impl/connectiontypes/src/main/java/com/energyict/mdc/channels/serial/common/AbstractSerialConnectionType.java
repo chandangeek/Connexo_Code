@@ -9,10 +9,10 @@ import com.energyict.mdc.channel.serial.NrOfDataBits;
 import com.energyict.mdc.channel.serial.NrOfStopBits;
 import com.energyict.mdc.channel.serial.Parities;
 import com.energyict.mdc.channel.serial.SerialPortConfiguration;
+import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.upl.nls.TranslationKey;
-import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -20,7 +20,7 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
-import java.time.temporal.ChronoUnit;
+import java.time.Duration;
 import java.time.temporal.TemporalAmount;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -107,7 +107,7 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
         if (value == null) {
             return new BigDecimal(0);
         } else {
-            return new BigDecimal(value.get(ChronoUnit.MILLIS));
+            return new BigDecimal(((Duration) value).toMillis());
         }
     }
 

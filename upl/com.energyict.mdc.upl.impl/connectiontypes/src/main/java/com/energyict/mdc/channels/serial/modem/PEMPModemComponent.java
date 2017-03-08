@@ -6,7 +6,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.upl.io.ModemException;
 
-import java.time.temporal.ChronoUnit;
+import java.time.Duration;
 
 /**
  * Modem component for PEMP communication, which is based on the {@link PaknetModemComponent}.
@@ -27,7 +27,7 @@ public class PEMPModemComponent extends PaknetModemComponent {
         this.initializeModem(name, comChannel);
 
         if (!dialModem(comChannel)) {
-            throw ModemException.connectTimeOutException(getComPortName(), modemProperties.getConnectTimeout().get(ChronoUnit.MILLIS));
+            throw ModemException.connectTimeOutException(getComPortName(), ((Duration) modemProperties.getConnectTimeout()).toMillis());
         }
 
         initializeAfterConnect(comChannel);
@@ -81,7 +81,7 @@ public class PEMPModemComponent extends PaknetModemComponent {
             delay(200);
             toggleDTR((SerialPortComChannel) comChannel);
             delay(1000);
-            if (!readAndVerify(comChannel, promptResponse, modemProperties.getConnectTimeout().get(ChronoUnit.MILLIS))) {
+            if (!readAndVerify(comChannel, promptResponse, ((Duration) modemProperties.getConnectTimeout()).toMillis())) {
                 return false;
             }
         }
@@ -97,7 +97,7 @@ public class PEMPModemComponent extends PaknetModemComponent {
     public boolean dialModem(ComChannel comChannel) {
         write(comChannel, modemProperties.getCommandPrefix() + modemProperties.getPhoneNumber());
         String expectedConnectionResponse = modemProperties.getPEMPModemConfiguration().getConnectionResponse();
-        long timeOutInMillis = modemProperties.getConnectTimeout().get(ChronoUnit.MILLIS);
+        long timeOutInMillis = ((Duration) modemProperties.getConnectTimeout()).toMillis();
         return readAndVerifyWithRetries(comChannel, expectedConnectionResponse, timeOutInMillis);
     }
 }

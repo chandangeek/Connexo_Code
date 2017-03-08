@@ -9,7 +9,7 @@ import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.upl.io.ModemException;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import java.time.temporal.ChronoUnit;
+import java.time.Duration;
 import java.util.List;
 
 /**
@@ -42,7 +42,7 @@ public class PaknetModemComponent implements ModemComponent {
         this.initializeModem(name, comChannel);
 
         if (!dialModem(comChannel)) {
-            throw ModemException.connectTimeOutException(this.comPortName, modemProperties.getConnectTimeout().get(ChronoUnit.MILLIS));
+            throw ModemException.connectTimeOutException(this.comPortName, ((Duration) modemProperties.getConnectTimeout()).toMillis());
         }
 
         initializeAfterConnect(comChannel);
@@ -82,7 +82,7 @@ public class PaknetModemComponent implements ModemComponent {
      */
     public void disconnect(SerialPortComChannel comChannel) {
         comChannel.startWriting();
-        toggleDTR(comChannel, modemProperties.getLineToggleDelay().get(ChronoUnit.MILLIS));
+        toggleDTR(comChannel, ((Duration) modemProperties.getLineToggleDelay()).toMillis());
     }
 
     /**
@@ -95,7 +95,7 @@ public class PaknetModemComponent implements ModemComponent {
     public boolean initializeCommandState(ComChannel comChannel) {
         setLastCommandSend(PaknetModemComponent.COMMAND_PROMPT_REQUEST);
         write(comChannel, "");
-        return readAndVerifyWithRetries(comChannel, PaknetModemComponent.COMMAND_PROMPT_OK, modemProperties.getCommandTimeOut().get(ChronoUnit.MILLIS));
+        return readAndVerifyWithRetries(comChannel, PaknetModemComponent.COMMAND_PROMPT_OK, ((Duration) modemProperties.getCommandTimeOut()).toMillis());
     }
 
     /**
@@ -111,7 +111,7 @@ public class PaknetModemComponent implements ModemComponent {
             String modemParameters = PARAMETER_SET_REQUEST + modemInitString;
 
             write(comChannel, modemParameters);
-            return readAndVerifyWithRetries(comChannel, PaknetModemComponent.COMMAND_PROMPT_OK, modemProperties.getCommandTimeOut().get(ChronoUnit.MILLIS));
+            return readAndVerifyWithRetries(comChannel, PaknetModemComponent.COMMAND_PROMPT_OK, ((Duration) modemProperties.getCommandTimeOut()).toMillis());
         }
         return true;
     }
@@ -124,12 +124,12 @@ public class PaknetModemComponent implements ModemComponent {
      */
     public boolean dialModem(ComChannel comChannel) {
         write(comChannel, modemProperties.getCommandPrefix() + modemProperties.getPhoneNumber());
-        return readAndVerify(comChannel, PaknetModemComponent.CONNECTION_PROMPT_OK, modemProperties.getConnectTimeout().get(ChronoUnit.MILLIS));
+        return readAndVerify(comChannel, PaknetModemComponent.CONNECTION_PROMPT_OK, ((Duration) modemProperties.getConnectTimeout()).toMillis());
     }
 
     @Override
     public void initializeAfterConnect(ComChannel comChannel) {
-        this.delay(modemProperties.getDelayAfterConnect().get(ChronoUnit.MILLIS));
+        this.delay(((Duration) modemProperties.getDelayAfterConnect()).toMillis());
         flushInputStream(comChannel);
     }
 
@@ -286,7 +286,7 @@ public class PaknetModemComponent implements ModemComponent {
      * so we can wait a little while until the catch up.
      */
     protected void delayBeforeSend() {
-        this.delay(modemProperties.getDelayBeforeSend().get(ChronoUnit.MILLIS));
+        this.delay(((Duration) modemProperties.getDelayBeforeSend()).toMillis());
     }
 
     public void delay(long milliSecondsToSleep) {

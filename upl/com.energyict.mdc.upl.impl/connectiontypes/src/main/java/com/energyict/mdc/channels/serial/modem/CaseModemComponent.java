@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.upl.io.ModemException;
 
-import java.time.temporal.ChronoUnit;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -51,7 +51,7 @@ public class CaseModemComponent implements ModemComponent {
         this.initializeModem(name, comChannel);
 
         if (!dialModem(comChannel)) {
-            throw ModemException.connectTimeOutException(this.comPortName, modemProperties.getConnectTimeout().get(ChronoUnit.MILLIS));
+            throw ModemException.connectTimeOutException(this.comPortName, ((Duration) modemProperties.getConnectTimeout()).toMillis());
         }
 
         initializeAfterConnect(comChannel);
@@ -76,12 +76,12 @@ public class CaseModemComponent implements ModemComponent {
      */
     public boolean dialModem(ComChannel comChannel) {
         write(comChannel, CaseModemComponent.DIAL_SEQUENCE + modemProperties.getCommandPrefix() + modemProperties.getPhoneNumber());
-        return readAndVerify(comChannel, CaseModemComponent.LINK_ESTABLISHED, modemProperties.getConnectTimeout().get(ChronoUnit.MILLIS));
+        return readAndVerify(comChannel, CaseModemComponent.LINK_ESTABLISHED, ((Duration) modemProperties.getConnectTimeout()).toMillis());
     }
 
     @Override
     public void initializeAfterConnect(ComChannel comChannel) {
-        this.delay(modemProperties.getDelayAfterConnect().get(ChronoUnit.MILLIS));
+        this.delay(((Duration) modemProperties.getDelayAfterConnect()).toMillis());
         flushInputStream(comChannel);
         if (!modemProperties.getAddressSelector().isEmpty()) {
             sendAddressSelector(comChannel);
@@ -138,7 +138,7 @@ public class CaseModemComponent implements ModemComponent {
      */
     public void disconnect(SerialPortComChannel comChannel) {
         comChannel.startWriting();
-        toggleDTR(comChannel, modemProperties.getLineToggleDelay().get(ChronoUnit.MILLIS));
+        toggleDTR(comChannel, ((Duration) modemProperties.getLineToggleDelay()).toMillis());
     }
 
     /**
@@ -152,7 +152,7 @@ public class CaseModemComponent implements ModemComponent {
         comChannel.startWriting();
         this.lastCommandSend = modemProperties.getAddressSelector();
         comChannel.write((modemProperties.getAddressSelector()).getBytes());
-        this.delay(modemProperties.getCommandTimeOut().get(ChronoUnit.MILLIS));
+        this.delay(((Duration) modemProperties.getCommandTimeOut()).toMillis());
     }
 
     /**
@@ -202,7 +202,7 @@ public class CaseModemComponent implements ModemComponent {
         int currentTry = 0;
         while (currentTry++ < modemProperties.getCommandTry().intValue()) {
             try {
-                if (readAndVerify(comChannel, expectedAnswer, modemProperties.getCommandTimeOut().get(ChronoUnit.MILLIS))) {
+                if (readAndVerify(comChannel, expectedAnswer, ((Duration) modemProperties.getCommandTimeOut()).toMillis())) {
                     return true;
                 }
             } catch (ModemException e) {
@@ -271,7 +271,7 @@ public class CaseModemComponent implements ModemComponent {
      * so we can wait a little while until the catch up.
      */
     private void delayBeforeSend() {
-        this.delay(modemProperties.getDelayBeforeSend().get(ChronoUnit.MILLIS));
+        this.delay(((Duration) modemProperties.getDelayBeforeSend()).toMillis());
     }
 
     /**
@@ -283,7 +283,7 @@ public class CaseModemComponent implements ModemComponent {
     public void flush(ComChannel comChannel, long milliSecondsOfSilence) {
         try {
             long flushTimeOut = System.currentTimeMillis() + milliSecondsOfSilence;
-            long globalTimeOut = System.currentTimeMillis() + modemProperties.getCommandTimeOut().get(ChronoUnit.MILLIS) + flushTimeOut;
+            long globalTimeOut = System.currentTimeMillis() + ((Duration) modemProperties.getCommandTimeOut()).toMillis() + flushTimeOut;
 
             while ((System.currentTimeMillis() < flushTimeOut) && (System.currentTimeMillis() < globalTimeOut)) {
                 Thread.sleep(10);

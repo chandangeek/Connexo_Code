@@ -8,7 +8,7 @@ import com.energyict.mdc.upl.properties.HexString;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
-import java.time.temporal.ChronoUnit;
+import java.time.Duration;
 import java.time.temporal.TemporalAmount;
 
 /**
@@ -39,7 +39,7 @@ public class MulticastProperty {
             this.value = value.toString();
         } else if (value instanceof TemporalAmount) {
             type = PropertyType.TimeDuration;
-            this.value = String.valueOf(((TemporalAmount) value).get(ChronoUnit.MILLIS));
+            this.value = String.valueOf(((Duration) value).toMillis());
         } else if (value instanceof String) {
             type = PropertyType.String;
             this.value = (String) value;
