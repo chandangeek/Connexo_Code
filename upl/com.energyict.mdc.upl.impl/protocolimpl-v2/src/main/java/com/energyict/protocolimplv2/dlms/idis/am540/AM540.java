@@ -315,22 +315,26 @@ public class AM540 extends AM130 implements SerialNumberSupport {
                     return true;
                 }
             } catch (CommunicationException ex) {
-                long frameCounter = testDlmsSession.getAso().getSecurityContext().getFrameCounter();
-                getLogger().warning("Current frame counter [" + frameCounter + "] is not valid, received exception " + ex.getMessage() + ", increasing frame counter by " + step);
-                frameCounter += step;
-                setTXFrameCounter(frameCounter);
-                testDlmsSession.getAso().getSecurityContext().setFrameCounter(frameCounter);
-
-                if (releaseOnce) {
-                    releaseOnce = false;
-                    //Try to release that association once, it may be that it was still open from a previous session, causing troubles to create the new association.
-                    try {
-                        testDlmsSession.getAso().releaseAssociation();
-                    } catch (ProtocolRuntimeException e) {
-                        testDlmsSession.getAso().setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
-                        // Absorb exception: in 99% of the cases we expect an exception here ...
-                    }
-                }
+            	if (ex.getExceptionReference() != ProtocolExceptionReference.COMMUNICATION_INTERRUPTED) {
+	                long frameCounter = testDlmsSession.getAso().getSecurityContext().getFrameCounter();
+	                getLogger().warning("Current frame counter [" + frameCounter + "] is not valid, received exception " + ex.getMessage() + ", increasing frame counter by " + step);
+	                frameCounter += step;
+	                setTXFrameCounter(frameCounter);
+	                testDlmsSession.getAso().getSecurityContext().setFrameCounter(frameCounter);
+	
+	                if (releaseOnce) {
+	                    releaseOnce = false;
+	                    //Try to release that association once, it may be that it was still open from a previous session, causing troubles to create the new association.
+	                    try {
+	                        testDlmsSession.getAso().releaseAssociation();
+	                    } catch (ProtocolRuntimeException e) {
+	                        testDlmsSession.getAso().setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
+	                        // Absorb exception: in 99% of the cases we expect an exception here ...
+	                    }
+	                }
+            	} else {
+            		return false;
+            	}
             }
             retries--;
         } while (retries > 0);
