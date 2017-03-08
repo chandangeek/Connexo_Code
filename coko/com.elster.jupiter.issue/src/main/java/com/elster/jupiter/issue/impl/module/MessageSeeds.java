@@ -26,9 +26,6 @@ public enum MessageSeeds implements MessageSeed {
     ACTION_INCORRECT_PARAMETERS(4501, "action.incorrect.parameters", "Incorrect parameters for action" , Level.INFO),
     ACTION_WRONG_COMMENT(4504, "action.issue.comment", "Please provide a correct comment" , Level.INFO),
     ACTION_WRONG_ASSIGNEE(4505, "action.issue.wrong.assignee", "Wrong assignee" , Level.INFO),
-    ACTION_ISSUE_WAS_ASSIGNED(4506, "action.issue.was.assigned", "Issue was assigned to {0}" , Level.INFO),
-    ACTION_ISSUE_WAS_COMMENTED(4508, "action.issue.was.commented", "Issue was commented" , Level.INFO),
-    ACTION_ISSUE_WAS_UNASSIGNED(4509, "action.issue.was.unassigned", "Issue was unassigned" , Level.INFO),
 
 // 9001 - ... All messages
     ISSUE_DROOLS_VALIDATION(9001, "issue.drools.validation", "{0}", Level.SEVERE),
@@ -45,11 +42,7 @@ public enum MessageSeeds implements MessageSeed {
     CREATION_RULE_UNIQUE_NAME(9012, Keys.CREATION_RULE_UNIQUE_NAME, "Name must be unique", Level.SEVERE),
     PROPERTY_NOT_IN_PROPERTYSPECS(9013, Keys.PROPERTY_NOT_IN_PROPERTYSPECS, "Property is not in property specs", Level.SEVERE),
     PROPERTY_MISSING(9014, Keys.PROPERTY_MISSING, "This field is required", Level.SEVERE),
-    PROPERTY_NOT_POSSIBLE_VALUE(9015, Keys.PROPERTY_NOT_POSSIBLE_VALUE, "The value is not listed as a possible value for this property", Level.SEVERE),
-    ACTION_ISSUE_WAS_ASSIGNED_USER_AND_WORKGROUP(9016, "action.issue.was.assigned.user.workgorup", "Issue was assigned to user {0} and workgroup {1}", Level.INFO),
-    ACTION_ISSUE_WAS_ASSIGNED_USER(9017, "action.issue.was.assigned.user", "Issue was assigned to user {0}", Level.INFO),
-    ACTION_ISSUE_WAS_ASSIGNED_WORKGROUP(9018, "action.issue.was.assigned.workgorup", "Issue was assigned to workgroup {0}", Level.INFO)
-    ;
+    PROPERTY_NOT_POSSIBLE_VALUE(9015, Keys.PROPERTY_NOT_POSSIBLE_VALUE, "The value is not listed as a possible value for this property", Level.SEVERE),;
 
     private final int number;
     private final String key;

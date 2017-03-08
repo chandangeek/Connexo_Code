@@ -5,7 +5,6 @@
 
 package com.elster.jupiter.issue.impl.actions;
 
-import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.module.TranslationKeys;
 import com.elster.jupiter.issue.impl.records.IssueAssigneeImpl;
 import com.elster.jupiter.issue.security.Privileges;
@@ -68,13 +67,9 @@ public class AssignIssueAction extends AbstractIssueAction {
         issue.update();
         getCommentFromParameters(properties).ifPresent(comment -> issue.addComment(comment, (User) threadPrincipalService.getPrincipal()));
         if (assignee.getUser() == null && assignee.getWorkGroup() == null) {
-            result.success(getThesaurus().getFormat(MessageSeeds.ACTION_ISSUE_WAS_UNASSIGNED).format());
-        } else if (assignee.getUser() == null) {
-            result.success(getThesaurus().getFormat(MessageSeeds.ACTION_ISSUE_WAS_ASSIGNED_WORKGROUP).format(assignee.getWorkGroup().getName()));
-        } else if (assignee.getWorkGroup() == null) {
-            result.success(getThesaurus().getFormat(MessageSeeds.ACTION_ISSUE_WAS_ASSIGNED_USER).format(assignee.getUser().getName()));
+            result.success(getThesaurus().getFormat(TranslationKeys.ACTION_ISSUE_UNASSIGNED).format());
         } else {
-            result.success(getThesaurus().getFormat(MessageSeeds.ACTION_ISSUE_WAS_ASSIGNED_USER_AND_WORKGROUP).format(assignee.getUser().getName(), assignee.getWorkGroup().getName()));
+            result.success(getThesaurus().getFormat(TranslationKeys.ACTION_ISSUE_ASSIGNED).format());
         }
         return result;
     }

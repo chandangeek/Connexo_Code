@@ -28,7 +28,11 @@ public enum TranslationKeys implements TranslationKey {
     ACTION_RETRY("ActionRetry", "Retry"),
     COMMENTACTION_PROPERTY_COMMENT(CommentIssueAction.ISSUE_COMMENT, "Comment"),
     UNASSIGNED(DatabaseConst.UNASSIGNED, "Unassigned"),
-    SUBSCRIBER_NAME(IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_SUBSCRIBER, IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_DISPLAYNAME);
+    SUBSCRIBER_NAME(IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_SUBSCRIBER, IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_DISPLAYNAME),
+    ACTION_ISSUE_ASSIGNED("action.issue.assigned", "Issue assigned"),
+    ACTION_ISSUE_COMMENTED("action.issue.commented", "Issue commented"),
+    ACTION_ISSUE_UNASSIGNED("action.issue.unassigned", "Issue unassigned");
+
 
     private final String key;
     private final String defaultFormat;
