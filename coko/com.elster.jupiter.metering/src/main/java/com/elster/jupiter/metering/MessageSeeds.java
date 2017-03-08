@@ -13,27 +13,27 @@ import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed {
     UNDERLYING_IO_EXCEPTION(1000, "io.failed", "Underlying IO Exception"),
-    ILLEGAL_MRID_FORMAT(1001, "mrid.illegalformat", "Supplied MRID ''{0}'' is not the correct format.", Level.SEVERE),
-    ILLEGAL_CURRENCY_CODE(1002, "currency.illegalcode", "Invalid currency code : ''{0}''", Level.SEVERE),
+    ILLEGAL_MRID_FORMAT(1001, "mrid.illegalformat", "Supplied MRID ''{0}'' is not the correct format."),
+    ILLEGAL_CURRENCY_CODE(1002, "currency.illegalcode", "Invalid currency code : ''{0}''"),
 
     METER_EVENT_IGNORED(2001, "meter.event.ignored", "Ignored event {0} on meter {1}, since it is not defined in the system", Level.INFO),
     READINGTYPE_IGNORED(2002, "readingtype.ignored", "Ignored data for reading type {0} on meter {1}, since reading type is not defined int the system", Level.INFO),
     NOMETERACTIVATION(2003, "meter.nometeractivation", "No meter activation found for meter {0} on {1}", Level.INFO),
     READINGTYPE_ADDED(2004, "readingtype.added", "Added reading type {0} for meter {1}", Level.INFO),
-    CANNOT_DELETE_METER_METER_ACTIVATIONS_EXIST(2005, "meter.cannot.delete.with.activations", "Cannot delete meter {0} because meter activations are linked to the meter", Level.SEVERE),
-    READING_TIMESTAMP_NOT_IN_MEASUREMENT_PERIOD(2006, "reading.timesatmp.not.in.measurement.period", "Measurement time should be in measurement period", Level.SEVERE),
-    METER_ALREADY_ACTIVE(2007, "meter.alreadyactive", "Meter {0} is already active at {1}", Level.SEVERE),
-    METER_ALREADY_LINKED_TO_USAGEPOINT(2008, "meter.alreadyhasusagepoint", "Meter ''{0}'' is already linked to usage point ''{1}'' as ''{2}'' meter", Level.SEVERE),
-    TOO_MANY_READINGTYPES(2009, "readingtype.tooManyReadingTypes", "You are going to add {0} reading types. The limit is 1000.", Level.SEVERE),
-    READINGTYPE_ALREADY_EXISTS(2010, "readingtype.alreadyExists", "Reading type {0} already exists.", Level.SEVERE),
-    READINGTYPE_CREATING_FAIL(2011, "readingtype.creatingFail", "Failed creating reading types.", Level.SEVERE),
-    FIELD_NOT_FOUND(2012, "readingtype.fieldNotFound", "Cannot find field {0}", Level.SEVERE),
-    FIELD_TOO_LONG(2013, Constants.FIELD_TOO_LONG, "Field length must not exceed {max} characters", Level.SEVERE),
-    INVALID_VALUE(2014, Constants.INVALID_VALUE, "Value must be between {min} and {max}", Level.SEVERE),
-    INVALID_MULTIPLIER(2015, Constants.INVALID_MULTIPLIER, "Multiplier must be between {min} and {max}", Level.SEVERE),
-    INVALID_UNIT(2016, Constants.INVALID_UNIT, "Invalid unit", Level.SEVERE),
+    CANNOT_DELETE_METER_METER_ACTIVATIONS_EXIST(2005, "meter.cannot.delete.with.activations", "Cannot delete meter {0} because meter activations are linked to the meter"),
+    READING_TIMESTAMP_NOT_IN_MEASUREMENT_PERIOD(2006, "reading.timesatmp.not.in.measurement.period", "Measurement time should be in measurement period"),
+    METER_ALREADY_ACTIVE(2007, "meter.alreadyactive", "Meter {0} is already active at {1}"),
+    METER_ALREADY_LINKED_TO_USAGEPOINT(2008, "meter.alreadyhasusagepoint", "Meter ''{0}'' is already linked to usage point ''{1}'' as ''{2}'' meter"),
+    TOO_MANY_READINGTYPES(2009, "readingtype.tooManyReadingTypes", "You are going to add {0} reading types. The limit is 1000."),
+    READINGTYPE_ALREADY_EXISTS(2010, "readingtype.alreadyExists", "Reading type {0} already exists."),
+    READINGTYPE_CREATING_FAIL(2011, "readingtype.creatingFail", "Failed creating reading types."),
+    FIELD_NOT_FOUND(2012, "readingtype.fieldNotFound", "Cannot find field {0}"),
+    FIELD_TOO_LONG(2013, Constants.FIELD_TOO_LONG, "Field length must not exceed {max} characters"),
+    INVALID_VALUE(2014, Constants.INVALID_VALUE, "Value must be between {min} and {max}"),
+    INVALID_MULTIPLIER(2015, Constants.INVALID_MULTIPLIER, "Multiplier must be between {min} and {max}"),
+    INVALID_UNIT(2016, Constants.INVALID_UNIT, "Invalid unit"),
 
-    DUPLICATE_USAGE_POINT_MRID(3001, Constants.DUPLICATE_USAGE_POINT_MRID, "MRID must be unique", Level.SEVERE),
+    DUPLICATE_USAGE_POINT_MRID(3001, Constants.DUPLICATE_USAGE_POINT_MRID, "MRID must be unique"),
     NO_USAGE_POINT_WITH_NAME(3002, Constants.NO_USAGE_POINT_WITH_NAME, "No usage point with name {0}"),
     NO_CHANNEL_WITH_ID(3003, Constants.NO_CHANNEL_WITH_ID, "No channel with id {0}"),
     NO_EFFECTIVE_METROLOGY_CONFIGURATION_ON_USAGE_POINT(3004, Constants.NO_EFFECTIVE_METROLOGY_CONFIGURATION_ON_USAGE_POINT, "No effective metrology configuration on usage point {0}"),
@@ -93,9 +93,11 @@ public enum MessageSeeds implements MessageSeed {
     CUSTOM_PROPERTY_SET_NO_LONGER_ACTIVE(5025, Constants.CUSTOM_PROPERTY_SET_NO_LONGER_ACTIVE, "The custom property set ''{0}'' is no longer active."),
     CUSTOM_PROPERTY_SET_NOT_VERSIONED(5026, Constants.CUSTOM_PROPERTY_SET_NOT_VERSIONED, "The custom property set ''{0}'' is not versioned, only versioned sets are supported."),
     CUSTOM_PROPERTY_MUST_BE_NUMERICAL(5027, Constants.CUSTOM_PROPERTY_MUST_BE_NUMERICAL, "The property ''{0}'' of custom property set ''{1}'' must be numerical."),
+    CUSTOM_PROPERTY_MUST_BE_SLP(5028, Constants.CUSTOM_PROPERTY_MUST_BE_SLP, "The property ''{0}'' of custom property set ''{1}'' must be numerical."),
 
     CONTRACT_NOT_ACTIVE(6000, Constants.CONTRACT_NOT_ACTIVE, "The metrology contract with purpose {0} is not active on usage point ''{1}'' during the requested data aggregation period ({2})"),
     VIRTUAL_USAGE_POINT_ONLY_SUPPORT_CONSTANT_LIKE_EXPRESSIONS(6001, Constants.VIRTUAL_USAGE_POINT_ONLY_SUPPORT_CONSTANT_LIKE_EXPRESSIONS, "Unmeasured usage points only support constants and custom attributes or operations and functions that operate on those"),
+    TIME_OF_USE_BUCKET_INCONSISTENCY(6002, Constants.TIME_OF_USE_BUCKET_INCONSISTENCY, "Inconsistency between requested (={0}) and provided (={1}) time of use bucket for the calculation of deliverable (name={2}) for usagepoint (mRID={3}) in period {4}"),
 
     @Deprecated
     USAGE_POINT_INCORRECT_STATE(7001, Constants.USAGE_POINT_INCORRECT_STATE, "Usage point ''{0}'' should be in ''Under construction'' state to activate meters"),
@@ -117,6 +119,8 @@ public enum MessageSeeds implements MessageSeed {
     USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE(7017, Constants.USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE, "Usage point already has linked meter {0} for role {1}"),
     USAGE_POINT_INCORRECT_STAGE(7018, Constants.USAGE_POINT_INCORRECT_STAGE, "Incorrect usage point stage, should be preoperational"),
     UNSATISFIED_READING_TYPE_REQUIREMENT_FOR_METER(7019, Constants.UNSATISFIED_READING_TYPE_REQUIREMENT_FOR_METER, "Meter {0} does not provide reading types required by purpose {1}"),
+    CANNOT_START_PRIOR_TO_LATEST_CALENDAR_OF_SAME_CATEGORY(7020, "usagepoint.calendar.cannot.start.prior.of.same.category", "Cannot start calendar on usage point, prior to latest calendar of same category."),
+    CANNOT_START_BEFORE_NOW(7022, "usagepoint.calendar.cannot.start.before.now", "Activation date can''t be in the past."),
 
     DENOMINATOR_CANNOT_BE_ZERO(8001, Constants.DENOMINATOR_CANNOT_BE_ZERO, "Denominator cannot be 0"),
     REQUIRED_CAS_MISSING(8002, Constants.REQUIRED_CAS_MISSING, "Required custom property sets are missing"),
@@ -126,7 +130,9 @@ public enum MessageSeeds implements MessageSeed {
 
     CONNECTION_STATE_CHANGE_BEFORE_INSTALLATION_TIME(10001, "connection.state.change.before.installation.time", "Connection state change should be after usage point installation time"),
     CONNECTION_STATE_CHANGE_BEFORE_LATEST_CHANGE(10002, "connection.state.change.before.latest.change", "Connection state change should be after the latest connection state change on usage point"),
-    INVALID_COORDINATES(10003, "invalidCoordinates", "All coordinates fields must contain valid values");
+
+    DUPLICATE_SLP_NAME(11001, Constants.DUPLICATE_SLP_NAME, "Synthetic load profile name must be unique", Level.SEVERE),
+    ;
 
     private final int number;
     private final String key;
@@ -216,6 +222,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALID_DIMENSION = "expression.node.invalid.dimension";
         public static final String CONTRACT_NOT_ACTIVE = "metrology.contract.not.active.on.usagepoint";
         public static final String VIRTUAL_USAGE_POINT_ONLY_SUPPORT_CONSTANT_LIKE_EXPRESSIONS = "virtual.usagepoint.only.support.constant.expressions";
+        public static final String TIME_OF_USE_BUCKET_INCONSISTENCY = "time.of.use.bucket.inconsistency";
 
         public static final String READING_TYPE_ATTRIBUTE_CODE_IS_NOT_WITHIN_LIMITS = "reading.type.attribute.code.is.not.within.limits";
         public static final String READING_TYPE_TEMPLATE_UNITS_SHOULD_HAVE_THE_SAME_DIMENSION = "reading.type.template.all.units.have.the.same.dimension";
@@ -245,6 +252,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CUSTOM_PROPERTY_SET_NO_LONGER_ACTIVE = "cps.no.longer.active";
         public static final String CUSTOM_PROPERTY_SET_NOT_VERSIONED = "cps.not.versioned";
         public static final String CUSTOM_PROPERTY_MUST_BE_NUMERICAL = "cps.property.not.numerical";
+        public static final String CUSTOM_PROPERTY_MUST_BE_SLP = "cps.property.not.slp";
         public static final String USAGE_POINT_INCORRECT_STATE = "usage.point.incorrect.state";
         public static final String USAGE_POINT_INCORRECT_STAGE = "usage.point.incorrect.stage";
         public static final String UNSATISFIED_READING_TYPE_REQUIREMENT_FOR_METER = "unsatisfied.reading.type.requirement.for.meter";
@@ -269,6 +277,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE = "can.not.delete.active.life.cycle";
         public static final String CAN_NOT_DELETE_ACTIVE_STATE = "can.not.delete.active.state";
         public static final String REQUIRED_CAS_MISSING = "required.cas.missing";
+        public static final String DUPLICATE_SLP_NAME = "slp.name.already.exists";
     }
 
 }
