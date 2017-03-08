@@ -100,8 +100,9 @@ public class KeyFunctionTypeResource {
         KeyType keyType = keyFunctionTypeInfo.keyType != null && keyFunctionTypeInfo.keyType.name != null ? pkiService.getKeyType(keyFunctionTypeInfo.keyType.name).orElse(null) : null;
         //TODO: Encryption method not hardcoded, but for the moment not programmed yet
         //Should Encryption method should come from a drop down in th FE
-        Builder keyFunctionTypeBuilder = deviceType.addKeyAccessorType(keyFunctionTypeInfo.name, keyType).keyEncryptionMethod("DataVault");
-        keyFunctionTypeBuilder.description(keyFunctionTypeInfo.description);
+        Builder keyFunctionTypeBuilder = deviceType.addKeyAccessorType(keyFunctionTypeInfo.name, keyType)
+                .keyEncryptionMethod("DataVault")
+                .description(keyFunctionTypeInfo.description);
         if(keyFunctionTypeInfo.validityPeriod != null && keyType.getCryptographicType().requiresDuration()) {
             checkValidDurationOrThrowException(keyFunctionTypeInfo.validityPeriod);
             keyFunctionTypeBuilder.duration(keyFunctionTypeInfo.validityPeriod.asTimeDuration());

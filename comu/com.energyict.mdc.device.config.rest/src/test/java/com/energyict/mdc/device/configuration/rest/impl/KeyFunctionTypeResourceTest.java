@@ -29,6 +29,7 @@ import org.junit.Test;
 
 import static java.lang.Math.toIntExact;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -102,7 +103,9 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
 
         KeyAccessorType.Builder builder = mock(KeyAccessorType.Builder.class);
         //for now SSM is hardcoded in rest. Change this test when key encryption method is added to BE
-        when(deviceType.addKeyAccessorType(NAME, keyType).keyEncryptionMethod("SSM")).thenReturn(builder);
+        when(deviceType.addKeyAccessorType(NAME, keyType)).thenReturn(builder);
+        when(builder.keyEncryptionMethod(anyString())).thenReturn(builder);
+        when(builder.description(anyString())).thenReturn(builder);
         KeyAccessorType addedKeyFunctionTypeDoesntMatter = mockKeyFunctionType(1, NAME, DESCRIPTION);
         when(builder.add()).thenReturn(addedKeyFunctionTypeDoesntMatter);
 
