@@ -30,8 +30,11 @@ public class UsagePointInfo {
     public long createTime;
     public long modTime;
     public String location;
+    public String geoCoordinates;
     public List<MeterActivationInfo> meterActivations;
     public EffectiveMetrologyConfigurationOnUsagePointInfo metrologyConfigurationVersion;
+    public EditLocationInfo extendedLocation;
+    public CoordinatesInfo extendedGeoCoordinates;
 
     public UsagePointInfo() {
     }
@@ -45,6 +48,7 @@ public class UsagePointInfo {
         version = usagePoint.getVersion();
         createTime = usagePoint.getCreateDate().toEpochMilli();
         modTime = usagePoint.getModificationDate().toEpochMilli();
+
         location = usagePoint.getLocation().map(Location::toString).orElse(usagePoint.getSpatialCoordinates()
                 .map(SpatialCoordinates::toString).orElse(""));
         meterActivations = usagePoint.getCurrentMeterActivations().stream()
