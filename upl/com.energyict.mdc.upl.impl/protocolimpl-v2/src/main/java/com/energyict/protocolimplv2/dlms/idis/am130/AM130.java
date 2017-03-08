@@ -55,9 +55,9 @@ import java.util.List;
  */
 public class AM130 extends AM500 {
 
-    protected static final int IDIS2_CLIENT_MANAGEMENT        = 1;
-    protected static final int IDIS2_CLIENT_PUBLIC            = 16;
-    protected static final int IDIS2_CLIENT_PRE_ESTABLISHED   = 102;
+    protected static final int IDIS2_CLIENT_MANAGEMENT = 1;
+    protected static final int IDIS2_CLIENT_PUBLIC = 16;
+    protected static final int IDIS2_CLIENT_PRE_ESTABLISHED = 102;
 
     protected static final ObisCode FRAMECOUNTER_OBISCODE_MANAGEMENT = ObisCode.fromString("0.0.43.1.0.255");
 
@@ -124,7 +124,7 @@ public class AM130 extends AM500 {
     }
 
     private void initDlmsSession(ComChannel comChannel) {
-        readFrameCounter(comChannel, (int)getDlmsSessionProperties().getTimeout());
+        readFrameCounter(comChannel, (int) getDlmsSessionProperties().getTimeout());
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
     }
 
@@ -140,13 +140,13 @@ public class AM130 extends AM500 {
 
         long frameCounter;
         DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
-        getLogger().info("Connecting to public client:"+IDIS2_CLIENT_PUBLIC);
+        getLogger().info("Connecting to public client:" + IDIS2_CLIENT_PUBLIC);
         connectToPublicClient(publicDlmsSession);
         try {
-            ObisCode frameCounterObisCode = getFrameCounterForClient(IDIS2_CLIENT_PUBLIC);
-            getLogger().info("Public client connected, reading framecounter "+frameCounterObisCode.toString());
+            ObisCode frameCounterObisCode = getFrameCounterForClient(getDlmsSessionProperties().getClientMacAddress());
+            getLogger().info("Public client connected, reading framecounter " + frameCounterObisCode.toString() + ", corresponding to client " + getDlmsSessionProperties().getClientMacAddress());
             frameCounter = publicDlmsSession.getCosemObjectFactory().getData(frameCounterObisCode).getValueAttr().longValue();
-            getLogger().info("Frame counter received: "+frameCounter);
+            getLogger().info("Frame counter received: " + frameCounter);
         } catch (DataAccessResultException | ProtocolException e) {
             final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the framecounter, cannot continue! " + e.getMessage());
             throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
@@ -160,7 +160,7 @@ public class AM130 extends AM500 {
     }
 
     protected ObisCode getFrameCounterForClient(int clientId) {
-        switch (clientId){
+        switch (clientId) {
             case IDIS2_CLIENT_MANAGEMENT:
             case IDIS2_CLIENT_PRE_ESTABLISHED:
             case IDIS2_CLIENT_PUBLIC:
