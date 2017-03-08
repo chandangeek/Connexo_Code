@@ -661,7 +661,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         workGroupWithoutUserWhereClause.append(" WHERE " + TableSpecs.ISU_ISSUE_OPEN.name() + "." + DatabaseConst.ISSUE_COLUMN_USER_ID + " = NULL");
         workGroupWithoutUserWhereClause.append(" AND ");
         workGroupWithoutUserWhereClause.append(TableSpecs.ISU_ISSUE_OPEN.name() + "." + DatabaseConst.ISSUE_COLUMN_WORKGROUP_ID + " IN ( ");
-        workGroupWithoutUserWhereClause.append(user.getWorkGroups().stream().map(WorkGroup::getId).map(String::valueOf).collect(Collectors.joining(", ")));
+        workGroupWithoutUserWhereClause.append(user.getWorkGroups().isEmpty() ? "NULL" : user.getWorkGroups().stream().map(WorkGroup::getId).map(String::valueOf).collect(Collectors.joining(", ")));
         workGroupWithoutUserWhereClause.append(" ) ");
         return workGroupWithoutUserWhereClause;
     }
