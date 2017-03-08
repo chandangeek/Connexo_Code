@@ -56,9 +56,9 @@ abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements Plaintex
 
     public static final Map<String, Class<? extends PrivateKeyWrapper>> IMPLEMENTERS =
             ImmutableMap.of(
-                    "RSA", PlaintextRsaPrivateKey.class,
-                    "DSA", PlaintextDsaPrivateKey.class,
-                    "EC", PlaintextEcdsaPrivateKey.class);
+                    "R", PlaintextRsaPrivateKey.class,
+                    "D", PlaintextDsaPrivateKey.class,
+                    "E", PlaintextEcdsaPrivateKey.class);
 
     AbstractPlaintextPrivateKeyWrapperImpl(DataVaultService dataVaultService, PropertySpecService propertySpecService, DataModel dataModel, Thesaurus thesaurus) {
         this.dataVaultService = dataVaultService;

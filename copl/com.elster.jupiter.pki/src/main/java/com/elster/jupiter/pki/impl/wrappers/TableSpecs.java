@@ -22,6 +22,7 @@ public enum TableSpecs {
             Table<PrivateKeyWrapper> table = dataModel.addTable(this.name(), PrivateKeyWrapper.class).since(Version.version(10,3));
             table.map(AbstractPlaintextPrivateKeyWrapperImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
+            table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             table.column("KEY")
                     .varChar()
                     .map(AbstractPlaintextPrivateKeyWrapperImpl.Fields.ENCRYPTED_KEY.fieldName())
