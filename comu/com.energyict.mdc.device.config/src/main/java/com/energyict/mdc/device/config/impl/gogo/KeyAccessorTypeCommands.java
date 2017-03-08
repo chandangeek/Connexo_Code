@@ -91,7 +91,8 @@ public class KeyAccessorTypeCommands {
                     .orElseThrow(() -> new RuntimeException("No such device type"));
             KeyType keyType = pkiService.getKeyType(keyTypeName)
                     .orElseThrow(() -> new RuntimeException("No such key type"));
-            KeyAccessorType.Builder builder = deviceType.addKeyAccessorType(name, keyType, keyEncryptionMethod)
+            KeyAccessorType.Builder builder = deviceType.addKeyAccessorType(name, keyType)
+                    .keyEncryptionMethod(keyEncryptionMethod)
                     .description("Created by gogo command");
             if (duration != null && duration.length >= 1) {
                 builder.duration(TimeDuration.days(duration[0]));

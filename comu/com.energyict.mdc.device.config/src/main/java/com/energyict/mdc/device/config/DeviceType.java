@@ -251,11 +251,10 @@ public interface DeviceType extends HasId, HasName {
      * @param name The KeyAccessorType name. This name identifies the function of the key (or whatever value) on the
      * device. It will be the link between shipment import and the key accessors
      * @param keyType description of the key (or whatever value) stored
-     * @param keyEncryptionMethod The KeyEncryptionMethod describes how the crypto entity will be stores. Key encryption
      * methods are registered on the KeyService.
      * @return The newly created KeyAccessorType
      */
-    KeyAccessorType.Builder addKeyAccessorType(String name, KeyType keyType, String keyEncryptionMethod);
+    KeyAccessorType.Builder addKeyAccessorType(String name, KeyType keyType);
 
 
     /**
