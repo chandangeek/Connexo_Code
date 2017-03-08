@@ -130,9 +130,9 @@ public enum MessageSeeds implements MessageSeed {
 
     CONNECTION_STATE_CHANGE_BEFORE_INSTALLATION_TIME(10001, "connection.state.change.before.installation.time", "Connection state change should be after usage point installation time"),
     CONNECTION_STATE_CHANGE_BEFORE_LATEST_CHANGE(10002, "connection.state.change.before.latest.change", "Connection state change should be after the latest connection state change on usage point"),
+    INVALID_COORDINATES(10003, "invalidCoordinates", "All coordinates fields must contain valid values"),
 
-    DUPLICATE_SLP_NAME(11001, Constants.DUPLICATE_SLP_NAME, "Synthetic load profile name must be unique", Level.SEVERE),
-    ;
+    DUPLICATE_SLP_NAME(11001, Constants.DUPLICATE_SLP_NAME, "Synthetic load profile name must be unique", Level.SEVERE);
 
     private final int number;
     private final String key;
