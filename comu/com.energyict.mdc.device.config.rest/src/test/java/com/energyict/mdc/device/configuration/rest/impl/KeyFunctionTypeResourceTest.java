@@ -102,7 +102,7 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
 
         KeyAccessorType.Builder builder = mock(KeyAccessorType.Builder.class);
         //for now SSM is hardcoded in rest. Change this test when key encryption method is added to BE
-        when(deviceType.addKeyAccessorType(NAME, keyType, "SSM")).thenReturn(builder);
+        when(deviceType.addKeyAccessorType(NAME, keyType).keyEncryptionMethod("SSM")).thenReturn(builder);
         KeyAccessorType addedKeyFunctionTypeDoesntMatter = mockKeyFunctionType(1, NAME, DESCRIPTION);
         when(builder.add()).thenReturn(addedKeyFunctionTypeDoesntMatter);
 
@@ -112,7 +112,7 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
         info.keyType.requiresDuration = true;
 
         target("/devicetypes/66/securityaccessors").request().post(Entity.entity(info, MediaType.APPLICATION_JSON));
-        verify(deviceType).addKeyAccessorType(NAME, keyType, "SSM");
+        verify(deviceType).addKeyAccessorType(NAME, keyType);
         verify(builder).description(DESCRIPTION);
         verify(builder).duration(info.validityPeriod.asTimeDuration());
         verify(builder).add();
@@ -156,7 +156,6 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
 
         target("/devicetypes/66/securityaccessors/1").request().method("DELETE", Entity.json(info));
         verify(deviceType).removeKeyAccessorType(keyFunctionType);
-
     }
 
     private KeyAccessorType mockKeyFunctionType(long id, String name, String description) {
