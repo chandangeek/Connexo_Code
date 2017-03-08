@@ -33,7 +33,9 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class StartProcessAlarmAction extends AbstractIssueAction {
@@ -106,11 +108,12 @@ public class StartProcessAlarmAction extends AbstractIssueAction {
                     .stream()
                     .filter(proc -> proc.getId() == processId)
                     .findFirst();
-            if(connexoProcess.isPresent()){
-                bpmProcessDefinitions.processes.stream()
-                        .filter(proc -> proc.name.equals(connexoProcess.get().getProcessName()) && proc.version.equals(connexoProcess.get().getVersion()))
-                        .forEach(p -> bpmService.startProcess(p.deploymentId, p.processId, null));
-            }
+            Map<String, Object> expectedParams = new HashMap<>();
+            expectedParams.put("alarmId", issue.getIssueId());
+            connexoProcess.ifPresent(bpmProcessDefinition -> bpmProcessDefinitions.processes.stream()
+                    .filter(proc -> proc.name.equals(bpmProcessDefinition.getProcessName()) && proc.version.equals(bpmProcessDefinition
+                            .getVersion()))
+                    .forEach(p -> bpmService.startProcess(p.deploymentId, p.processId, expectedParams)));
         }
         return result;
     }
