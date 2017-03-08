@@ -28,8 +28,17 @@ Ext.define('Uni.property.view.property.RaisedEventProps', {
                         ],
                         listeners: {
                             change: function (control, newValue, oldValue, eOpts ) {
-                                me.down('#raiseEventsAgain').setDisabled(newValue.raiseEventsCreate == '0');
-                                me.down('#raiseEventsCleared').setDisabled(newValue.raiseEventsCreate == '0');
+                                var eventsAgain = me.down('#raiseEventsAgain');
+                                var eventsCleared = me.down('#raiseEventsCleared');
+                                if(newValue.raiseEventsCreate == '0') {
+                                    eventsAgain.setDisabled(true);
+                                    eventsAgain.setValue({raiseEventsAgain : 0});
+                                    eventsCleared.setDisabled(true);
+                                    eventsCleared.setValue({raiseEventsCleared : 0});
+                                }else {
+                                    eventsAgain.setDisabled(false);
+                                    eventsCleared.setDisabled(false);
+                                }
                             }
                         }
                     },
