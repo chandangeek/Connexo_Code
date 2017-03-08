@@ -386,7 +386,7 @@ public class UsagePointProcessorTest {
 
     @Test
     public void testSetMeterActivation() {
-        String csv ="id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime;meter1;meterrole1;activationDate1\n" +
+        String csv = "id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime;meter1;meterrole1;activationDate1\n" +
                 "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00;meter;meter.role.default;28/07/2016 00:00";
         FileImporter importer = createUsagePointImporter();
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
@@ -409,7 +409,7 @@ public class UsagePointProcessorTest {
 
     @Test
     public void testPerformTransition() {
-        String csv ="id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime;meter1;meterrole1;activationDate1;transition;transitionDate;transitionConnectionState\n" +
+        String csv = "id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime;meter1;meterrole1;activationDate1;transition;transitionDate;transitionConnectionState\n" +
                 "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00;meter;meter.role.default;28/07/2016 00:00;Install active;28/07/2016 00:00;Connected";
         FileImporter importer = createUsagePointImporter();
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);

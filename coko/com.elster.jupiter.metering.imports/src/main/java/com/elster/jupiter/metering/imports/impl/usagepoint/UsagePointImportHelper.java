@@ -34,49 +34,7 @@ public class UsagePointImportHelper {
     }
 
     public UsagePoint createUsagePointForInsight(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data) {
-        usagePointBuilder.withIsSdp(data.isSdp());
-        boolean isVirtual = data.isVirtual();
-        List<String> locationData = data.getLocation();
-        List<String> geoCoordinatesData = data.getGeoCoordinates();
-
-        if (locationData.stream().anyMatch(s -> s != null)) {
-            context.getMeteringService()
-                    .getLocationTemplate()
-                    .getTemplateMembers()
-                    .stream()
-                    .filter(LocationTemplate.TemplateField::isMandatory)
-                    .forEach(field -> {
-                        if (locationData.get(field.getRanking()) == null) {
-                            throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field
-                                    .getName());
-                        } else if (locationData.get(field.getRanking()).isEmpty()) {
-                            throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field
-                                    .getName());
-                        }
-                    });
-            LocationBuilder builder = usagePointBuilder.newLocationBuilder();
-            Map<String, Integer> ranking = context.getMeteringService()
-                    .getLocationTemplate()
-                    .getTemplateMembers()
-                    .stream()
-                    .collect(Collectors.toMap(LocationTemplate.TemplateField::getName, LocationTemplate.TemplateField::getRanking));
-
-            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMemberBuilder(locationData.get(ranking
-                    .get("locale")));
-            if (memberBuilder.isPresent()) {
-                setLocationAttributes(memberBuilder.get(), data, ranking);
-            } else {
-                setLocationAttributes(builder.member(), data, ranking).add();
-            }
-            usagePointBuilder.withLocation(builder.create());
-            isVirtual = false;
-        }
-        if (geoCoordinatesData != null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)) {
-            usagePointBuilder.withGeoCoordinates(new SpatialCoordinatesFactory().fromStringValue((geoCoordinatesData.stream()
-                    .collect(Collectors.joining(":")))));
-            isVirtual = false;
-        }
-        usagePointBuilder.withIsVirtual(isVirtual);
+        setLocation(usagePointBuilder, data);
         usagePointBuilder.withOutageRegion(data.getOutageRegion());
         usagePointBuilder.withReadRoute(data.getReadRoute());
         usagePointBuilder.withServicePriority(data.getServicePriority());
@@ -88,6 +46,7 @@ public class UsagePointImportHelper {
     public UsagePoint createUsagePointForMultiSense(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data) {
         usagePointBuilder.withIsSdp(false);
         usagePointBuilder.withIsVirtual(true);
+        setLocation(usagePointBuilder, data);
         UsagePoint usagePoint = usagePointBuilder.create();
         usagePoint.addDetail(usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, clock.instant()));
         usagePoint.update();
@@ -99,43 +58,14 @@ public class UsagePointImportHelper {
         return usagePoint;
     }
 
-    public UsagePoint updateUsagePoint(UsagePoint usagePoint, UsagePointImportRecord data) {
-        List<String> locationData = data.getLocation();
-        List<String> geoCoordinatesData = data.getGeoCoordinates();
+    public UsagePoint updateUsagePointForMultiSense(UsagePoint usagePoint, UsagePointImportRecord data) {
+        updateLocation(usagePoint, data);
+        usagePoint.update();
+        return usagePoint;
+    }
 
-        if (locationData.stream().anyMatch(s -> s != null)) {
-            context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
-                    .filter(LocationTemplate.TemplateField::isMandatory)
-                    .forEach(field -> {
-                        if (locationData.get(field.getRanking()) == null) {
-                            throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field
-                                    .getName());
-                        } else if (locationData.get(field.getRanking()).isEmpty()) {
-                            throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field
-                                    .getName());
-                        }
-                    });
-            LocationBuilder builder = usagePoint.updateLocation();
-            Map<String, Integer> ranking = context.getMeteringService()
-                    .getLocationTemplate()
-                    .getTemplateMembers()
-                    .stream()
-                    .collect(Collectors.toMap(LocationTemplate.TemplateField::getName, LocationTemplate.TemplateField::getRanking));
-
-            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMemberBuilder(locationData.get(ranking
-                    .get("locale")));
-            if (memberBuilder.isPresent()) {
-                setLocationAttributes(memberBuilder.get(), data, ranking);
-            } else {
-                setLocationAttributes(builder.member(), data, ranking).add();
-            }
-            usagePoint.setLocation(builder.create().getId());
-        }
-        if (geoCoordinatesData != null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)) {
-            usagePoint.setSpatialCoordinates(new SpatialCoordinatesFactory().fromStringValue(geoCoordinatesData.stream()
-                    .reduce((s, t) -> s + ":" + t)
-                    .get()));
-        }
+    public UsagePoint updateUsagePointForInsight(UsagePoint usagePoint, UsagePointImportRecord data) {
+        updateLocation(usagePoint, data);
         usagePoint.setOutageRegion(data.getOutageRegion());
         usagePoint.setReadRoute(data.getReadRoute());
         usagePoint.setServicePriority(data.getServicePriority());
@@ -168,7 +98,7 @@ public class UsagePointImportHelper {
 
 
     public void setMetrologyConfigurationForUsagePoint(UsagePointImportRecord data, UsagePoint usagePoint) {
-        if(data.getMetrologyConfiguration().isPresent()) {
+        if (data.getMetrologyConfiguration().isPresent()) {
             context.getMetrologyConfigurationService()
                     .findMetrologyConfiguration(data.getMetrologyConfiguration().get())
                     .ifPresent(configuration ->
@@ -245,4 +175,88 @@ public class UsagePointImportHelper {
         }
     }
 
+    void setLocation(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data) {
+        usagePointBuilder.withIsSdp(data.isSdp());
+        boolean isVirtual = data.isVirtual();
+        List<String> locationData = data.getLocation();
+        List<String> geoCoordinatesData = data.getGeoCoordinates();
+
+        if (locationData.stream().anyMatch(s -> s != null)) {
+            context.getMeteringService()
+                    .getLocationTemplate()
+                    .getTemplateMembers()
+                    .stream()
+                    .filter(LocationTemplate.TemplateField::isMandatory)
+                    .forEach(field -> {
+                        if (locationData.get(field.getRanking()) == null) {
+                            throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field
+                                    .getName());
+                        } else if (locationData.get(field.getRanking()).isEmpty()) {
+                            throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field
+                                    .getName());
+                        }
+                    });
+            LocationBuilder builder = usagePointBuilder.newLocationBuilder();
+            Map<String, Integer> ranking = context.getMeteringService()
+                    .getLocationTemplate()
+                    .getTemplateMembers()
+                    .stream()
+                    .collect(Collectors.toMap(LocationTemplate.TemplateField::getName, LocationTemplate.TemplateField::getRanking));
+
+            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMemberBuilder(locationData.get(ranking
+                    .get("locale")));
+            if (memberBuilder.isPresent()) {
+                setLocationAttributes(memberBuilder.get(), data, ranking);
+            } else {
+                setLocationAttributes(builder.member(), data, ranking).add();
+            }
+            usagePointBuilder.withLocation(builder.create());
+            isVirtual = false;
+        }
+        if (geoCoordinatesData != null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)) {
+            usagePointBuilder.withGeoCoordinates(new SpatialCoordinatesFactory().fromStringValue((geoCoordinatesData.stream()
+                    .collect(Collectors.joining(":")))));
+            isVirtual = false;
+        }
+        usagePointBuilder.withIsVirtual(isVirtual);
+    }
+
+    void updateLocation(UsagePoint usagePoint, UsagePointImportRecord data) {
+        List<String> locationData = data.getLocation();
+        List<String> geoCoordinatesData = data.getGeoCoordinates();
+
+        if (locationData.stream().anyMatch(s -> s != null)) {
+            context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
+                    .filter(LocationTemplate.TemplateField::isMandatory)
+                    .forEach(field -> {
+                        if (locationData.get(field.getRanking()) == null) {
+                            throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field
+                                    .getName());
+                        } else if (locationData.get(field.getRanking()).isEmpty()) {
+                            throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field
+                                    .getName());
+                        }
+                    });
+            LocationBuilder builder = usagePoint.updateLocation();
+            Map<String, Integer> ranking = context.getMeteringService()
+                    .getLocationTemplate()
+                    .getTemplateMembers()
+                    .stream()
+                    .collect(Collectors.toMap(LocationTemplate.TemplateField::getName, LocationTemplate.TemplateField::getRanking));
+
+            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMemberBuilder(locationData.get(ranking
+                    .get("locale")));
+            if (memberBuilder.isPresent()) {
+                setLocationAttributes(memberBuilder.get(), data, ranking);
+            } else {
+                setLocationAttributes(builder.member(), data, ranking).add();
+            }
+            usagePoint.setLocation(builder.create().getId());
+        }
+        if (geoCoordinatesData != null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)) {
+            usagePoint.setSpatialCoordinates(new SpatialCoordinatesFactory().fromStringValue(geoCoordinatesData.stream()
+                    .reduce((s, t) -> s + ":" + t)
+                    .get()));
+        }
+    }
 }

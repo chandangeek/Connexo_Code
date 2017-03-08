@@ -193,29 +193,27 @@ class UsagePointImportDescription implements FileImportDescription<UsagePointImp
     }
 
     private void addLocationFields(Map<String, FileImportField<?>> fields, UsagePointImportRecord record) {
-        if (context.insightInstalled()) {
-            fields.put("latitude", CommonField.withParser(stringParser)
-                    .withSetter(record::setLatitude)
-                    .withName("latitude")
-                    .build());
-            fields.put("longitude", CommonField.withParser(stringParser)
-                    .withSetter(record::setLongitude)
-                    .withName("longitude")
-                    .build());
-            fields.put("elevation", CommonField.withParser(stringParser)
-                    .withSetter(record::setElevation)
-                    .withName("elevation")
-                    .build());
-            context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
-                    .sorted((t1, t2) -> Integer.compare(t1.getRanking(), t2.getRanking()))
-                    .map(LocationTemplate.TemplateField::getName)
-                    .forEach(s -> {
-                        fields.put(s, CommonField.withParser(stringParser)
-                                .withSetter(record::addLocation)
-                                .withName(s)
-                                .build());
-                    });
-        }
+        fields.put("latitude", CommonField.withParser(stringParser)
+                .withSetter(record::setLatitude)
+                .withName("latitude")
+                .build());
+        fields.put("longitude", CommonField.withParser(stringParser)
+                .withSetter(record::setLongitude)
+                .withName("longitude")
+                .build());
+        fields.put("elevation", CommonField.withParser(stringParser)
+                .withSetter(record::setElevation)
+                .withName("elevation")
+                .build());
+        context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
+                .sorted((t1, t2) -> Integer.compare(t1.getRanking(), t2.getRanking()))
+                .map(LocationTemplate.TemplateField::getName)
+                .forEach(s -> {
+                    fields.put(s, CommonField.withParser(stringParser)
+                            .withSetter(record::addLocation)
+                            .withName(s)
+                            .build());
+                });
     }
 
     private void addCustomPropertySetFields(Map<String, FileImportField<?>> fields, UsagePointImportRecord record) {

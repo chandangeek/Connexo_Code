@@ -60,7 +60,7 @@ public class UsagePointsImportProcessorForMultisense extends AbstractImportProce
             if (usagePoint.get().getServiceCategory().getId() != serviceCategory.get().getId()) {
                 throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICECATEGORY_CHANGE, data.getLineNumber(), serviceKindString);
             }
-            return usagePoint.get();
+            return usagePointImportHelper.updateUsagePointForMultiSense(usagePoint.get(), data);
         } else {
             return usagePointImportHelper.createUsagePointForMultiSense(serviceCategory.get()
                     .newUsagePoint(identifier, data.getInstallationTime().orElse(getClock().instant())), data);
