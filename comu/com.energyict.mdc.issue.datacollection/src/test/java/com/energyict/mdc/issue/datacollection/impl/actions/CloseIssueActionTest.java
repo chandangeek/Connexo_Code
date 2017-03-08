@@ -114,7 +114,7 @@ public class CloseIssueActionTest extends BaseTest {
         Map<String, Object> properties = new HashMap<>();
         IssueStatus resolvedStatus = getIssueService().findStatus(IssueStatus.RESOLVED).get();
         properties.put(CloseIssueAction.CLOSE_STATUS, new CloseIssueAction.Status(resolvedStatus));
-        properties.put(CloseIssueAction.COMMENT, "Comment");
+        properties.put(CloseIssueAction.COMMENT, new CloseIssueAction.Comment("Comment"));
         OpenIssue issue = createIssueMinInfo();
 
         LdapUserDirectory local = getUserService().createApacheDirectory("local");
