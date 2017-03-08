@@ -187,17 +187,17 @@ public class KeyAccessorCommands {
                     .stream()
                     .filter(kat -> kat.getName().equals(certKatName))
                     .findAny()
-                    .orElseThrow(() -> new RuntimeException("No such key accessor type on the device type: "+certKatName));
+                    .orElseThrow(() -> new RuntimeException("No such key accessor type on the device type: " + certKatName));
             KeyAccessorType keyKeyAccessorType = device.getDeviceType()
                     .getKeyAccessorTypes()
                     .stream()
                     .filter(kat -> kat.getName().equals(keyKatName))
                     .findAny()
-                    .orElseThrow(() -> new RuntimeException("No such key accessor type on the device type: "+keyKatName));
+                    .orElseThrow(() -> new RuntimeException("No such key accessor type on the device type: " + keyKatName));
 
             ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(alias, certKeyAccessorType, keyKeyAccessorType);
-            clientCertificateWrapper.generateValue();
-
+            clientCertificateWrapper.renewValue();
 
         }
+    }
 }
