@@ -7,6 +7,7 @@ package com.elster.jupiter.metering.impl.upgraders;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.metering.EventType;
+import com.elster.jupiter.metering.impl.InstallerV10_3Impl;
 import com.elster.jupiter.metering.impl.PrivilegesProviderV10_3;
 import com.elster.jupiter.metering.impl.RecordSpecs;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
@@ -25,6 +26,7 @@ import org.osgi.framework.BundleContext;
 import javax.inject.Inject;
 import java.sql.Statement;
 import java.util.EnumSet;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.orm.Version.version;
 
@@ -40,7 +42,8 @@ public class UpgraderV10_3 implements Upgrader {
     private final TimeService timeService;
     private final UserService userService;
     private final IdsService idsService;
-    private final PrivilegesProviderV10_3 installerV10_3;
+    private final InstallerV10_3Impl installerV10_3;
+    private final PrivilegesProviderV10_3 privilegesProviderV10_3;
 
     @Inject
     public UpgraderV10_3(BundleContext bundleContext,
@@ -50,7 +53,9 @@ public class UpgraderV10_3 implements Upgrader {
                          TimeService timeService,
                          EventService eventService,
                          UserService userService,
-                         IdsService idsService, PrivilegesProviderV10_3 installerV10_3) {
+                         InstallerV10_3Impl installerV10_3,
+                         IdsService idsService,
+                         PrivilegesProviderV10_3 privilegesProviderV10_3) {
         this.bundleContext = bundleContext;
         this.dataModel = dataModel;
         this.metrologyConfigurationService = metrologyConfigurationService;
@@ -60,6 +65,7 @@ public class UpgraderV10_3 implements Upgrader {
         this.userService = userService;
         this.idsService = idsService;
         this.installerV10_3 = installerV10_3;
+        this.privilegesProviderV10_3 = privilegesProviderV10_3;
     }
 
     @Override
@@ -78,7 +84,8 @@ public class UpgraderV10_3 implements Upgrader {
         installNewEventTypes();
         installNewRecordSpec();
         GasDayRelativePeriodCreator.createAll(this.meteringService, this.timeService);
-        userService.addModulePrivileges(installerV10_3);
+        installerV10_3.install(dataModelUpgrader, Logger.getLogger(UpgraderV10_3.class.getName()));
+        userService.addModulePrivileges(privilegesProviderV10_3);
     }
 
     private void installTemplates() {

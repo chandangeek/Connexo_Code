@@ -17,6 +17,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -52,6 +53,7 @@ import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.QuantityValueFactory;
 import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.time.Interval;
 
 import javax.validation.ConstraintViolationException;
@@ -2499,6 +2501,56 @@ public class FormulaCrudTest {
         }
     }
 
+    @Test(expected = InvalidNodeException.class)
+    @Transactional
+    public void nonSLPReferenceCustomProperty() {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn("dummy");
+        when(propertySpec.isReference()).thenReturn(true);
+        ValueFactory valueFactory = mock(ValueFactory.class);
+        when(valueFactory.isReference()).thenReturn(true);
+        when(valueFactory.getValueType()).thenReturn(Meter.class);
+        when(propertySpec.getValueFactory()).thenReturn(valueFactory);
+        PersistenceSupport persistenceSupport = mock(PersistenceSupport.class);
+        when(persistenceSupport.componentName()).thenReturn("TST");
+        when(persistenceSupport.addCustomPropertyPrimaryKeyColumnsTo(any(Table.class))).thenReturn(Collections.emptyList());
+        when(persistenceSupport.tableName()).thenReturn("MTR_TST_CPS_FORMULA_CRUD");
+        when(persistenceSupport.journalTableName()).thenReturn("MTR_TST_CPS_FORMULA_CRUDJRNL");
+        when(persistenceSupport.domainColumnName()).thenReturn("usagepoint");
+        when(persistenceSupport.domainFieldName()).thenReturn("usagePoint");
+        when(persistenceSupport.domainForeignKeyName()).thenReturn("MTR_TST_FK_USAGEPOINT");
+        when(persistenceSupport.module()).thenReturn(Optional.empty());
+        when(persistenceSupport.persistenceClass()).thenReturn(UsagePointCPSWithStringProperty.class);
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getId()).thenReturn("customPropertySetNoLongerActive");
+        when(customPropertySet.isVersioned()).thenReturn(true);
+        when(customPropertySet.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
+        when(customPropertySet.getDomainClass()).thenReturn(UsagePoint.class);
+        when(customPropertySet.getPersistenceSupport()).thenReturn(persistenceSupport);
+        CustomPropertySetService customPropertySetService = inMemoryBootstrapModule.getCustomPropertySetService();
+        customPropertySetService.addCustomPropertySet(customPropertySet);
+        RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(customPropertySet.getId()).get();
+
+        Optional<ServiceCategory> serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        ServerMetrologyConfigurationService service = this.getMetrologyConfigurationService();
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config12", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        config.addCustomPropertySet(registeredCustomPropertySet);
+        assertThat(config).isNotNull();
+        ReadingType AplusRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "AplusRT");
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
+
+        try {
+            // Business method
+            FormulaBuilder property = builder.property(customPropertySet, propertySpec);
+            ReadingTypeDeliverable deliverable = builder.build(property);
+        } catch (InvalidNodeException e) {
+            // Asserts
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CUSTOM_PROPERTY_MUST_BE_SLP);
+            throw e;
+        }
+    }
+
     private static class UsagePointCPS implements PersistentDomainExtension<UsagePoint> {
         @NotNull
         @SuppressWarnings("unused")
@@ -2528,6 +2580,25 @@ public class FormulaCrudTest {
         private Reference<UsagePoint> usagePoint = ValueReference.absent();
         @Size(max = 125)
         private String dummy;
+
+        @Override
+        public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
+        }
+
+        @Override
+        public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
+        }
+
+        @Override
+        public void validateDelete() {
+        }
+    }
+
+    private static class UsagePointCPSWithMeterProperty extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<UsagePoint> {
+        @NotNull
+        @SuppressWarnings("unused")
+        private Reference<UsagePoint> usagePoint = ValueReference.absent();
+        private Reference<Meter> meter;
 
         @Override
         public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {

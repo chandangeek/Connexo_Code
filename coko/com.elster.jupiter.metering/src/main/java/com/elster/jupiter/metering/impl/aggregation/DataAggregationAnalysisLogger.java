@@ -26,6 +26,10 @@ import java.util.stream.Collectors;
  */
 class DataAggregationAnalysisLogger {
 
+    String introspectionStarted(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
+        return "Start: introspection of calculation of aggregated data for usagePoint(name=" + usagePoint.getName() + "), contract(id=" + contract.getId() + ") and period " + period;
+    }
+
     String calculationStarted(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
         return "Start: calculate aggregated data for usagePoint(name=" + usagePoint.getName() + "), contract(id=" + contract.getId() + ") and period " + period;
     }

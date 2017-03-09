@@ -474,11 +474,46 @@ public class EndDeviceImplIT {
         // Asserts: see expected exception rule
     }
 
+    @Test
+    @Transactional
+    public void newDeviceIsAssignedManufacturer() {
+        MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
+        AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+        EndDevice endDevice = amrSystem.createEndDevice("amrID", "newDeviceIsAssignedManufacturer");
+        assertThat(endDevice.getManufacturer()).isEmpty();
+        endDevice.setManufacturer("MANUFACTURER");
+        endDevice.update();
+        assertThat(endDevice.getManufacturer()).isEqualTo("MANUFACTURER");
+    }
+
+    @Test
+    @Transactional
+    public void newDeviceIsAssignedModelNumber() {
+        MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
+        AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+        EndDevice endDevice = amrSystem.createEndDevice("amrID", "newDeviceIsAssignedManufacturer");
+        assertThat(endDevice.getModelNumber()).isEmpty();
+        endDevice.setModelNumber("MODELNUMBER");
+        endDevice.update();
+        assertThat(endDevice.getModelNumber()).isEqualTo("MODELNUMBER");
+    }
+
+    @Test
+    @Transactional
+    public void newDeviceIsAssignedModelVersion() {
+        MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
+        AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+        EndDevice endDevice = amrSystem.createEndDevice("amrID", "newDeviceIsAssignedManufacturer");
+        assertThat(endDevice.getModelVersion()).isEmpty();
+        endDevice.setModelVersion("MODELVERSION");
+        endDevice.update();
+        assertThat(endDevice.getModelVersion()).isEqualTo("MODELVERSION");
+    }
+
     private FiniteStateMachine createTinyFiniteStateMachine() {
         FiniteStateMachineServiceImpl finiteStateMachineService = (FiniteStateMachineServiceImpl) inMemoryPersistentModule.getFiniteStateMachineService();
         FiniteStateMachineBuilder builder = finiteStateMachineService.newFiniteStateMachine("Tiny");
-        FiniteStateMachine stateMachine = builder.complete(builder.newCustomState("TheOneAndOnly").complete());
-        return stateMachine;
+        return builder.complete(builder.newCustomState("TheOneAndOnly").complete());
     }
 
     private FiniteStateMachine createBiggerFiniteStateMachine() {
@@ -487,7 +522,6 @@ public class EndDeviceImplIT {
         FiniteStateMachineBuilder builder = finiteStateMachineService.newFiniteStateMachine("Bigger");
         State second = builder.newCustomState("Second").complete();
         State first = builder.newCustomState("First").on(eventType).transitionTo(second).complete();
-        FiniteStateMachine stateMachine = builder.complete(first);
-        return stateMachine;
+        return builder.complete(first);
     }
 }
