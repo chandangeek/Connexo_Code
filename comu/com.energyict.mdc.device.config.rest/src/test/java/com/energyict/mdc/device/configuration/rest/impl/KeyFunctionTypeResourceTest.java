@@ -102,7 +102,6 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
         when(pkiService.getKeyType("AES 128")).thenReturn(Optional.of(keyType));
 
         KeyAccessorType.Builder builder = mock(KeyAccessorType.Builder.class);
-        //for now SSM is hardcoded in rest. Change this test when key encryption method is added to BE
         when(deviceType.addKeyAccessorType(NAME, keyType)).thenReturn(builder);
         when(builder.keyEncryptionMethod(anyString())).thenReturn(builder);
         when(builder.description(anyString())).thenReturn(builder);
