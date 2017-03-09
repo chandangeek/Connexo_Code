@@ -11,10 +11,13 @@ import com.energyict.mdc.upl.messages.DeviceMessage;
  * <tr><td>DeviceIdentifierAndProtocolInfoParts</td><td>device -&gt; the {@link DeviceIdentifier device's identifier}<br>protocolInfo -&gt; protocol specific information in the form of String[]</td></tr>
  * <tr><td>Actual</td><td>databaseValue -&gt; the message's database identifier<br>actual -&gt; the device message</td></tr>
  * </table>
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 22/03/13
  * Time: 8:59
  */
 public interface MessageIdentifier extends Identifier {
+
+    DeviceIdentifier getDeviceIdentifier();
+
 }
