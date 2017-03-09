@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-
 import com.energyict.obis.ObisCode;
 
 import java.util.Collections;
@@ -21,6 +21,11 @@ public class RegisterIdentifierByAlreadyKnownRegister implements RegisterIdentif
 
     public RegisterIdentifierByAlreadyKnownRegister(com.energyict.mdc.upl.meterdata.Register register) {
         this.register = (Register) register;    //Downcast to the Connexo Register
+    }
+
+    @Override
+    public DeviceIdentifier getDeviceIdentifier() {
+        return new DeviceIdentifierForAlreadyKnownDeviceByMrID(register.getDevice());
     }
 
     @Override
