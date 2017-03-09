@@ -139,6 +139,7 @@ public class MeterActivationImplTest extends EqualsContractTest {
         when(meter.getUsagePoint(any())).thenReturn(Optional.empty());
         when(usagePoint.getId()).thenReturn(USAGEPOINT_ID);
         when(meter.getId()).thenReturn(METER_ID);
+        when(meter.getState(any())).thenReturn(Optional.empty());
         when(meter.getHeadEndInterface()).thenReturn(Optional.empty());
         when(idsService.getVault(anyString(), anyInt())).thenReturn(Optional.of(vault));
         when(idsService.getRecordSpec(anyString(), anyInt())).thenReturn(Optional.of(recordSpec));

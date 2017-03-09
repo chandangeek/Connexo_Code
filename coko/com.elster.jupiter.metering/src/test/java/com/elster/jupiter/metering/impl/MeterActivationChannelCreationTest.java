@@ -135,6 +135,7 @@ public class MeterActivationChannelCreationTest {
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(usagePoint.getId()).thenReturn(USAGEPOINT_ID);
         when(meter.getId()).thenReturn(METER_ID);
+        when(meter.getState(any())).thenReturn(Optional.empty());
         when(meter.getUsagePoint(any())).thenReturn(Optional.empty());
         when(meter.getHeadEndInterface()).thenReturn(Optional.of(headEndInterface));
         when(meter.getConfiguration(any())).thenReturn(Optional.empty());
