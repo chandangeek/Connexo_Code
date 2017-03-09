@@ -36,6 +36,7 @@ Ext.define('Isu.view.creationrules.List', {
             },
             {   itemId: 'action',
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Isu.privileges.Issue.createRule,
                 menu: { xtype: 'creation-rule-action-menu' }
             }
