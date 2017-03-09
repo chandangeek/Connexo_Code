@@ -22,9 +22,14 @@ public class UpgraderV10_3 implements Upgrader {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), MdcAppService.APPLICATION_KEY, getNewMeterExpertPrivileges());
+        userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_OPERATOR.value(), MdcAppService.APPLICATION_KEY, getNewMeterOperatorPrivileges());
     }
 
     private String[] getNewMeterExpertPrivileges() {
+        return new String[] {com.elster.jupiter.fileimport.security.Privileges.Constants.IMPORT_FILE };
+    }
+
+    private String[] getNewMeterOperatorPrivileges() {
         return new String[] {com.elster.jupiter.fileimport.security.Privileges.Constants.IMPORT_FILE };
     }
 
