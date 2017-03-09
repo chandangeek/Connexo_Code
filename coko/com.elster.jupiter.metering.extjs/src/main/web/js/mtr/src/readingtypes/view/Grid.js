@@ -34,6 +34,7 @@ Ext.define('Mtr.readingtypes.view.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges : Mtr.privileges.ReadingTypes.admin,
                 menu: {
                     xtype: 'reading-types-action-menu'
