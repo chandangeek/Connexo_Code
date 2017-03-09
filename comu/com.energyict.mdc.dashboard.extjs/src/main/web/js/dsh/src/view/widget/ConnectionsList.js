@@ -142,6 +142,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
             {
                 itemId: 'connectionsActionMenu',
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'connection-action-menu',
                     itemId: 'connectionsDetailsActionMenu'

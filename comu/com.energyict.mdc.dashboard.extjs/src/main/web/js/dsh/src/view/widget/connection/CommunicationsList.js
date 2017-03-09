@@ -88,6 +88,7 @@ Ext.define('Dsh.view.widget.connection.CommunicationsList', {
             {
                 itemId: 'communicationsGridActionMenu',
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'communication-action-menu'
                 }
