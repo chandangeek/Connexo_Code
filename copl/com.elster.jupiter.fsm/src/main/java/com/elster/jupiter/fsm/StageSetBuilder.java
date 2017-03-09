@@ -4,6 +4,9 @@
 
 package com.elster.jupiter.fsm;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface StageSetBuilder {
     StageSetBuilder stage(String name);
 

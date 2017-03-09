@@ -15,6 +15,7 @@ import com.elster.jupiter.orm.associations.Reference;
 
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.util.Objects;
 
 public class StageImpl implements Stage {
 
@@ -82,5 +83,10 @@ public class StageImpl implements Stage {
 
         return id == stage.id;
 
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

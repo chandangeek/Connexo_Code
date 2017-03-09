@@ -89,14 +89,11 @@ public class FiniteStateMachineBuilderImpl implements FiniteStateMachineBuilder 
 
 
     private void checkIfStageExistsInFSMUnderContruction(Stage stage) {
-        Optional<Stage> optionalStage = underConstruction.getStageSet().get().getStages()
+        underConstruction.getStageSet().get().getStages()
                 .stream()
                 .filter(stage::equals)
-                .findFirst();
-
-        if(!optionalStage.isPresent()) {
-            throw new IllegalArgumentException("The StageSet of the FiniteStateMachine does not contain the given stage");
-        }
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("The StageSet of the FiniteStateMachine does not contain the given stage"));
     }
 
     @Override
