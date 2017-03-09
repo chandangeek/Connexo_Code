@@ -109,7 +109,7 @@ public class StartProcessAlarmAction extends AbstractIssueAction {
                     .filter(proc -> proc.getId() == processId)
                     .findFirst();
             Map<String, Object> expectedParams = new HashMap<>();
-            expectedParams.put("alarmId", issue.getIssueId());
+            expectedParams.put("alarmId", issue.getId());
             connexoProcess.ifPresent(bpmProcessDefinition -> bpmProcessDefinitions.processes.stream()
                     .filter(proc -> proc.name.equals(bpmProcessDefinition.getProcessName()) && proc.version.equals(bpmProcessDefinition
                             .getVersion()))
