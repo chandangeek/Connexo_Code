@@ -39,6 +39,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Imt.privileges.UsagePointLifeCycle.configure,
                 menu: {
                     xtype: 'usagepoint-life-cycle-states-action-menu',

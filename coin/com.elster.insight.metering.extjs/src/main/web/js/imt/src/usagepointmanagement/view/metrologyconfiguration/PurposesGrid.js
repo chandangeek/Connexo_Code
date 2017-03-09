@@ -55,6 +55,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.PurposesGrid', 
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Imt.privileges.UsagePoint.admin,
                 itemId: 'usage-point-purpose-action-column',
                 menu: {

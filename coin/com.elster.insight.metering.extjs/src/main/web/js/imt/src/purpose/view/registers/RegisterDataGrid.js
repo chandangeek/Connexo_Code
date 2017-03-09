@@ -55,6 +55,7 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 itemId: 'register-data-grid-action-column',
                 privileges: Imt.privileges.UsagePoint.admin,
                 menu: {
