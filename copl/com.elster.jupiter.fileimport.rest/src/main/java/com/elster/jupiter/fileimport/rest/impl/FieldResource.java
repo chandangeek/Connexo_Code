@@ -51,6 +51,7 @@ public class FieldResource {
                                 .filter(importSchedule -> applicationName.equals("SYS") || importSchedule.getApplicationName()
                                         .equals(applicationName))
                                 .filter(ImportSchedule::activeInUI)
+                                .filter(ImportSchedule::isActive)
                                 .collect(Collectors.toList()).stream())
                 .map(fileImportScheduleInfoFactory::asInfo)
                 .collect(Collectors.toList());
