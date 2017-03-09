@@ -67,19 +67,17 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
 
     private void upgradeGapAllowedFlagForMetrologyConfigurations() {
         List<MetrologyConfiguration> allMetrologyConfigurations = metrologyConfigurationService.findAllMetrologyConfigurations();
+        // check all existing metrology configurations
         allMetrologyConfigurations.forEach((metrologyConfiguration -> {
-            String name = metrologyConfiguration.getName();
-            // lets find metrology configuration
-            Optional<MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration> ootbMetrologyConfiguration = Arrays.stream(MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration
-                    .values()).filter(config -> config.getName().equals(name)).findFirst();
-            if (ootbMetrologyConfiguration.isPresent()) {
-                // set appropriate value for gap allowed flag
-                MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration configuration = ootbMetrologyConfiguration.get();
-                if (metrologyConfiguration.isGapAllowed() != configuration.isGapAllowed()) {
-                    // correct flag value for ootb configuration
-                    metrologyConfiguration.startUpdate().setGapAllowed(configuration.isGapAllowed()).complete();
-                }
-            }
+            // look on all OOTB configurations
+            Arrays.stream(MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration.values())
+                    // find OOTB configuration matching existing configuration
+                    .filter(ootbConfig -> ootbConfig.getName().equals(metrologyConfiguration.getName()))
+                    .findFirst()
+                    // change gapAllowed flag for existing metrology configuration if it does not match OOTB value
+                    .filter(ootbConfig -> metrologyConfiguration.isGapAllowed() != ootbConfig.isGapAllowed())
+                    .ifPresent((configuration) -> metrologyConfiguration
+                            .startUpdate().setGapAllowed(configuration.isGapAllowed()).complete());
         }));
     }
 
