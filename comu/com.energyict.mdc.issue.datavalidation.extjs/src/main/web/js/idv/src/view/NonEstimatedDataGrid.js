@@ -70,7 +70,7 @@ Ext.define('Idv.view.NonEstimatedDataGrid', {
             {
                 itemId: 'action',
                 xtype: 'uni-actioncolumn',
-                //privileges: !Isu.privileges.Issue.adminDevice,
+                width: 120,
                 menu: {
                     xtype: 'menu',
                     defaultAlign: 'tr-br?',
