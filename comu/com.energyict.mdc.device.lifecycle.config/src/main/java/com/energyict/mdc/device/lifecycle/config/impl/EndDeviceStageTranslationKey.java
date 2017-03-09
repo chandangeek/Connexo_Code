@@ -15,9 +15,9 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
  */
 public enum EndDeviceStageTranslationKey implements TranslationKey {
 
-    OPERATIONAL(EndDeviceStageTranslationKey.prefix + EndDeviceStage.OPERATIONAL.name(), "Operational"),
-    PRE_OPERATIONAL(EndDeviceStageTranslationKey.prefix + EndDeviceStage.PRE_OPERATIONAL.name(), "Pre-operational"),
-    POST_OPERATIONAL(EndDeviceStageTranslationKey.prefix + EndDeviceStage.POST_OPERATIONAL.name(), "Post-operational");
+    OPERATIONAL(EndDeviceStageTranslationKey.prefix + EndDeviceStage.OPERATIONAL.getKey(), "Operational"),
+    PRE_OPERATIONAL(EndDeviceStageTranslationKey.prefix + EndDeviceStage.PRE_OPERATIONAL.getKey(), "Pre-operational"),
+    POST_OPERATIONAL(EndDeviceStageTranslationKey.prefix + EndDeviceStage.POST_OPERATIONAL.getKey(), "Post-operational");
 
     public final static String prefix = "dlc.stage.";
     private final String key;

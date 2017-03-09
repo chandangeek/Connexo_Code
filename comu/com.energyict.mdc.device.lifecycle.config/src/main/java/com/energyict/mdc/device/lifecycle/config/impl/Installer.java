@@ -154,9 +154,9 @@ class Installer implements FullInstaller, PrivilegesProvider {
         StateTransitionEventType decommissionedEventType = eventTypes.get(DefaultCustomStateTransitionEventType.DECOMMISSIONED
                 .getSymbol());
         StateTransitionEventType deletedEventType = eventTypes.get(DefaultCustomStateTransitionEventType.REMOVED.getSymbol());
-        Stage preOperational = stageSet.getStageByName(EndDeviceStage.PRE_OPERATIONAL.name()).orElseThrow(getStageSetExceptionProvider());
-        Stage operational = stageSet.getStageByName(EndDeviceStage.OPERATIONAL.name()).orElseThrow(getStageSetExceptionProvider());
-        Stage postOperational = stageSet.getStageByName(EndDeviceStage.POST_OPERATIONAL.name()).orElseThrow(getStageSetExceptionProvider());
+        Stage preOperational = stageSet.getStageByName(EndDeviceStage.PRE_OPERATIONAL.getKey()).orElseThrow(getStageSetExceptionProvider());
+        Stage operational = stageSet.getStageByName(EndDeviceStage.OPERATIONAL.getKey()).orElseThrow(getStageSetExceptionProvider());
+        Stage postOperational = stageSet.getStageByName(EndDeviceStage.POST_OPERATIONAL.getKey()).orElseThrow(getStageSetExceptionProvider());
         FiniteStateMachineBuilder builder = this.stateMachineService.newFiniteStateMachine(name, stageSet);
         // Create default States
         State removed = builder.newStandardState(DefaultState.REMOVED.getKey(), postOperational).complete();

@@ -33,9 +33,9 @@ public class UpgraderV10_3 implements Upgrader {
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         List<String> sql = new ArrayList<>();
         StageSet stageSet = finiteStateMachineService.findStageSetByName(MeteringService.END_DEVICE_STAGE_SET_NAME).orElseThrow(getDeviceStageSetException());
-        long preOperationalId = stageSet.getStageByName(EndDeviceStage.PRE_OPERATIONAL.name()).orElseThrow(getDeviceStageSetException()).getId();
-        long operationalId = stageSet.getStageByName(EndDeviceStage.OPERATIONAL.name()).orElseThrow(getDeviceStageSetException()).getId();
-        long postOperationalId = stageSet.getStageByName(EndDeviceStage.POST_OPERATIONAL.name()).orElseThrow(getDeviceStageSetException()).getId();
+        long preOperationalId = stageSet.getStageByName(EndDeviceStage.PRE_OPERATIONAL.getKey()).orElseThrow(getDeviceStageSetException()).getId();
+        long operationalId = stageSet.getStageByName(EndDeviceStage.OPERATIONAL.getKey()).orElseThrow(getDeviceStageSetException()).getId();
+        long postOperationalId = stageSet.getStageByName(EndDeviceStage.POST_OPERATIONAL.getKey()).orElseThrow(getDeviceStageSetException()).getId();
 
         sql.add("UPDATE FSM_FINITE_STATE_MACHINE SET STAGE_SET = " + stageSet.getId() +" WHERE ID IN (SELECT FSM FROM DLD_DEVICE_LIFE_CYCLE)");
         sql.add("UPDATE FSM_STATE SET STAGE = " + operationalId + " WHERE FSM IN (SELECT ID FROM FSM_FINITE_STATE_MACHINE WHERE ID IN (SELECT FSM FROM DLD_DEVICE_LIFE_CYCLE))");

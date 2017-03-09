@@ -427,7 +427,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
             String stateName = endDevice.get().getState().orElseThrow(() -> new IllegalStateException("Device does not have a state"))
                     .getStage().orElseThrow(() -> new IllegalStateException("Device does not have a stage"))
                     .getName();
-            return !restrictedStages.contains(EndDeviceStage.valueOf(stateName));
+            return !restrictedStages.contains(EndDeviceStage.fromKey(stateName));
         }
         return true;
     }
@@ -439,6 +439,6 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
     @Override
     public String getStageDisplayName(EndDeviceStage stage) {
-        return this.thesaurus.getString(EndDeviceStageTranslationKey.prefix + stage.name(), stage.name());
+        return this.thesaurus.getString(EndDeviceStageTranslationKey.prefix + stage.getKey(), stage.getKey());
     }
 }
