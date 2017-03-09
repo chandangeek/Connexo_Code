@@ -87,8 +87,18 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
         return this.getReadings(interval.toOpenClosedRange());
     }
 
+    public List<R> getHistoryReadings(Interval interval, Range<Instant> changed) {
+        return this.getHistoryReadings(interval.toOpenClosedRange(), changed);
+    }
+
     private List<R> getReadings(Range<Instant> interval) {
         List<ReadingRecord> koreReadings = this.device.getReadingsFor(this, interval);
+        List<Optional<DataValidationStatus>> validationStatuses = this.getValidationStatuses(koreReadings);
+        return this.toReadings(koreReadings, validationStatuses);
+    }
+
+    private List<R> getHistoryReadings(Range<Instant> interval, Range<Instant> changed) {
+        List<ReadingRecord> koreReadings = this.device.getHistoryReadingsFor(this, interval, changed);
         List<Optional<DataValidationStatus>> validationStatuses = this.getValidationStatuses(koreReadings);
         return this.toReadings(koreReadings, validationStatuses);
     }

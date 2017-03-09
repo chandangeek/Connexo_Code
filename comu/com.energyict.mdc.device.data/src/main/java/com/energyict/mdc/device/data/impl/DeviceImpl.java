@@ -1340,8 +1340,20 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return this.getListMeterAspect(meter -> this.getReadingsFor(register, interval, meter));
     }
 
+    List<ReadingRecord> getHistoryReadingsFor(Register<?, ?> register, Range<Instant> interval, Range<Instant> changed) {
+        return this.getListMeterAspect(meter -> this.getHistoryReadingsFor(register, changed, interval, meter));
+    }
+
     private List<ReadingRecord> getReadingsFor(Register<?, ?> register, Range<Instant> interval, Meter meter) {
         List<? extends BaseReadingRecord> readings = meter.getReadings(interval, register.getRegisterSpec().getRegisterType().getReadingType());
+        return readings
+                .stream()
+                .map(ReadingRecord.class::cast)
+                .collect(Collectors.toList());
+    }
+
+    private List<ReadingRecord> getHistoryReadingsFor(Register<?, ?> register, Range<Instant> interval, Range<Instant> changed, Meter meter) {
+        List<? extends BaseReadingRecord> readings = meter.getJournalReadings(interval, changed, register.getRegisterSpec().getRegisterType().getReadingType());
         return readings
                 .stream()
                 .map(ReadingRecord.class::cast)
