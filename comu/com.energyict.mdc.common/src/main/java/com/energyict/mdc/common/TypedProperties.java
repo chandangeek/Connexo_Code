@@ -1,8 +1,12 @@
 package com.energyict.mdc.common;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -20,6 +24,7 @@ import java.util.Set;
  * @author Joost Bruneel (jbr), Rudi Vankeirsbilck (rudi)
  * @since 2012-05-10 (14:11)
  */
+@XmlRootElement
 public class TypedProperties implements com.energyict.mdc.upl.properties.TypedProperties {
 
     private Map<String, Object> props = new HashMap<>();
@@ -428,6 +433,7 @@ public class TypedProperties implements com.energyict.mdc.upl.properties.TypedPr
         }
     }
 
+    @XmlAttribute
     public TypedProperties getInheritedProperties() {
         return inheritedProperties;
     }
@@ -464,6 +470,35 @@ public class TypedProperties implements com.energyict.mdc.upl.properties.TypedPr
         } else {
             return null;
         }
+    }
+
+    /**
+     * Getter to be used in XML (de)marshalling only!
+     * <br></br>
+     * Getter will return a HashTable containing <i>property name - property value class name</i> pairs.
+     */
+    @XmlAttribute
+    public Hashtable<String, String> getPropertyKeyPropertyClassMap() {
+        Hashtable<String, String> map = new Hashtable<>();
+        for (Object o : props.entrySet()) {
+            Map.Entry pairs = (Map.Entry) o;
+            String key = (String) pairs.getKey();
+            Object value = pairs.getValue();
+            map.put(key, value.getClass().getName());
+        }
+        return map;
+    }
+
+    private void setPropertyKeyPropertyClassMap(Hashtable<String, String> hashTable) {
+        // For xml unmarshalling purposes only
+    }
+
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
     }
 
 }
