@@ -42,7 +42,7 @@ Ext.define('Sct.view.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-               // privileges: Apr.privileges.AppServer.admin,
+                width: 120,
                 menu: {
                     xtype: 'sct-action-menu',
                     itemId: 'sct-action-menu'
