@@ -29,26 +29,57 @@ Ext.define('Uni.property.view.property.LifeCycleStatusInDeviceType', {
                         multiSelect: true,
                         store: me.getDeviceTypeStore(),
                         msgTarget: 'under',
+                        editable: false,
                         required: me.property.get('required'),
                         listeners: {
                             change: function (combo, newValue, oldValue) {
                                 var deviceStateCombo = me.down('#device-state');
-                                deviceStateCombo.getStore().clearFilter();
-                                deviceStateCombo.getStore().filter([{
-                                    filterFn: function(item) {
-                                        return newValue.indexOf(item.get('deviceId')) !=-1;
+                                var store = me.getDeviceStateStore();
+                                var elements = [];
+                                store.each(function(record) {
+                                    if (newValue.indexOf(record.get('deviceId')) == -1){
+                                        return;
                                     }
-                                }]);
-                                deviceStateCombo.setValue(deviceStateCombo.getValue().filter(function(value){
-                                    return newValue.indexOf(value.split(":")[0]) != -1;
-                                }));
 
-                                deviceStateCombo.setDisabled(!deviceStateCombo.getStore().count() > 0);
+                                    var result = elements.filter(function( element) {
+                                        return element.lifeCycleStateName == record.get('lifeCycleStateName');
+                                    });
+
+                                    if (result.length == 0){
+                                        var object = {};
+                                        object.deviceId = record.get('deviceId');
+                                        object.lifeCycleIs = record.get('lifeCycleIs');
+                                        object.deviceTypeName = record.get('deviceTypeName');
+                                        object.id = record.get('id');
+                                        object.lifeCycleStateName = record.get('lifeCycleStateName');
+                                        elements.push(object);
+                                    }
+                                });
+
+                                var filteredStore = Ext.create('Ext.data.JsonStore', {
+                                    fields: ['id', 'deviceId', 'lifeCycleStateName', 'deviceTypeName'],
+                                    data: elements
+                                });
+                                deviceStateCombo.queryFilter = null;
+                                if (elements.length == 0){
+                                    deviceStateCombo.clearValue();
+                                    deviceStateCombo.bindStore(null);
+                                    deviceStateCombo.setDisabled(true);
+
+                                } else {
+                                    deviceStateCombo.bindStore(filteredStore);
+                                    if (deviceStateCombo.getValue().length>0)
+                                        deviceStateCombo.setValue(deviceStateCombo.getValue().filter(function(value){
+                                            return newValue.indexOf(value.split(":")[0]) != -1;
+                                        }));
+                                    deviceStateCombo.setDisabled(false);
+                                }
                             }
                         }
                     },
                     {
                         xtype: 'uni-grid-filtertop-combobox',
+                        //ype: 'combo',
                         itemId: 'device-state',
                         enabled: false,
                         disabled: true,
@@ -86,7 +117,13 @@ Ext.define('Uni.property.view.property.LifeCycleStatusInDeviceType', {
             Ext.Array.forEach(value, function (item) {
                 if (item !== '') {
                     deviceTypeValues.push(item.split(':')[0]);
-                    deviceStateValues.push(item);
+                    if(item.split(':')[2].split(',').length > 0){
+                        for(i = 0; i < item.split(':')[2].split(',').length; i++){
+                            deviceStateValues.push(item.split(':')[0] + ':' + item.split(':')[1] + ':' + item.split(':')[2].split(',')[i]);
+                        }
+                    } else{
+                        deviceStateValues.push(item);
+                    }
                 }
             });
             var uniqueDeviceTypeValues = deviceTypeValues.filter(function (item, pos, self) {
@@ -99,9 +136,52 @@ Ext.define('Uni.property.view.property.LifeCycleStatusInDeviceType', {
 
     getValue: function () {
         var me = this,
+            deviceTypeCombo = me.down('#device-type'),
             deviceStateCombo = me.down('#device-state');
 
-        return deviceStateCombo.getValue().length > 0 ? deviceStateCombo.getValue() : null;
+        var values = deviceStateCombo.getValue();
+        if(values.length > 0) {
+            var stateStore = me.getDeviceStateStore();
+            var deviceTypeValues = deviceTypeCombo.getValue();
+            var states = [];
+            var uniqueStates = [];
+            stateStore.each(function (record) {
+                Ext.Array.forEach(deviceTypeValues, function (deviceTypeValue) {
+                    if (record.get('deviceId') == deviceTypeValue) {
+                        Ext.Array.forEach(values, function (value) {
+                            if (record.get('lifeCycleId') == value.split(':')[1]) {
+                                var stateId = record.get('deviceId') + ':' + record.get('lifeCycleId') + ':' + value.split(':')[2];
+                                states.push(stateId);
+                            }
+                        });
+                    }
+                });
+
+            });
+            uniqueStates = states.filter(function (item, pos, self) {
+                return self.indexOf(item) == pos;
+            });
+            var formattedResonse = [];
+            for (i = 0; i < uniqueStates.length; i++) {
+                if (uniqueStates[i] != '') {
+                    var value = uniqueStates[i].split(':')[0] + ':' + uniqueStates[i].split(':')[1];
+                    var partialState = uniqueStates[i].split(':')[2];
+                    for (j = i + 1; j < uniqueStates.length; j++) {
+                        if (uniqueStates[j] != '') {
+                            if (uniqueStates[j].split(':')[0] + ':' + uniqueStates[j].split(':')[1] == value) {
+                                partialState += ',' + uniqueStates[j].split(':')[2];
+                                uniqueStates[j] = '';
+                            }
+                        }
+                    }
+                    formattedResonse.push(value + ':' + partialState);
+                    uniqueStates[i] = '';
+                }
+            }
+            return formattedResonse;
+        } else {
+            return null;
+        }
     },
 
     getDeviceTypeStore: function () {
@@ -113,6 +193,7 @@ Ext.define('Uni.property.view.property.LifeCycleStatusInDeviceType', {
             for (var i= 0 ; i< possibleValues.length; i++){
                 var object = {};
                 object.id = possibleValues[i].id.split(":")[0];
+                object.lifeCycleId = possibleValues[i].id.split(":")[1];
                 object.deviceTypeName = JSON.parse(possibleValues[i].name).deviceTypeName;
                 elements.push(object);
             }
@@ -124,6 +205,9 @@ Ext.define('Uni.property.view.property.LifeCycleStatusInDeviceType', {
                 },
                 {
                     name: 'deviceTypeName'
+                },
+                {
+                    name: 'lifeCycleId'
                 }
             ],
             data: elements
@@ -138,12 +222,18 @@ Ext.define('Uni.property.view.property.LifeCycleStatusInDeviceType', {
         var elements = [];
         if(possibleValues){
             for (var i= 0 ; i< possibleValues.length; i++){
-                var object = {};
-                object.id = possibleValues[i].id;
-                object.deviceId = possibleValues[i].id.split(":")[0];
-                object.lifeCycleStateName = JSON.parse(possibleValues[i].name).lifeCycleStateName;
-                object.deviceTypeName = JSON.parse(possibleValues[i].name).deviceTypeName;
-                elements.push(object);
+                var lifeCycleStateIDs = possibleValues[i].id.split(":")[2].split(",");
+                var lifeCycleStateNames = JSON.parse(possibleValues[i].name).lifeCycleStateName;
+
+                for (var j = 0; j< lifeCycleStateNames.length; j++){
+                    var object = {};
+                    object.deviceId = possibleValues[i].id.split(":")[0];
+                    object.lifeCycleId = possibleValues[i].id.split(":")[1];
+                    object.deviceTypeName = JSON.parse(possibleValues[i].name).deviceTypeName;
+                    object.id = object.deviceId + ':' + object.lifeCycleId + ':' + lifeCycleStateIDs[j];
+                    object.lifeCycleStateName = lifeCycleStateNames[j];
+                    elements.push(object);
+                }
             }
         }
         return Ext.create('Ext.data.JsonStore', {
@@ -159,14 +249,12 @@ Ext.define('Uni.property.view.property.LifeCycleStatusInDeviceType', {
                 },
                 {
                     name: 'deviceTypeName'
+                },
+                {
+                    name: 'lifeCycleId'
                 }
             ],
-            data: elements,
-            filters: [
-                function (item) {
-                    return item.id < -1;
-                }
-            ]
+            data: elements
         });
 
     }
