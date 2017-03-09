@@ -12,7 +12,7 @@ Ext.define('Uni.property.view.property.Textarea', {
             name: this.getName(),
             itemId: me.key + 'textareafield',
             width: me.width,
-            grow: true,
+            height: 150,
             msgTarget: 'under',
             readOnly: me.isReadOnly,
             inputType: me.inputType,
