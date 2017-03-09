@@ -9,7 +9,7 @@ import java.util.Comparator;
 
 public class GoingOnInfo {
     public String type;
-    public long id;
+    public String id;
     public String reference;
     public String description;
     public Instant dueDate;

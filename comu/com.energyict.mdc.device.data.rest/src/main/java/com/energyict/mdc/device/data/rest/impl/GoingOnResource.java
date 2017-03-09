@@ -20,6 +20,7 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
@@ -42,8 +43,10 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -85,6 +88,8 @@ public class GoingOnResource {
     public Response getGoingOn(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
 
+        User currentUser = (User) securityContext.getUserPrincipal();
+        Map<String, List<Privilege>> appPrivileges = currentUser.getApplicationPrivileges();
         GoingOnInfoFactory goingOnInfoFactory = new GoingOnInfoFactory(null, userService);
         if (securityContext.getUserPrincipal() instanceof User) {
             goingOnInfoFactory = new GoingOnInfoFactory((User) securityContext.getUserPrincipal(), userService);
@@ -104,26 +109,35 @@ public class GoingOnResource {
             issueFilter.addStatus(s);
             alarmFilter.setStatus(s);
         });
-        List<GoingOnInfo> issues = issueService.findIssues(issueFilter)
-                .stream()
-                .map(goingOnInfoFactory::toGoingOnInfo)
-                .collect(Collectors.toList());
+        List<GoingOnInfo> issues = new ArrayList<>();
+        if(hasCurrentUserIssuePrivileges(appPrivileges)) {
+            issues = issueService.findIssues(issueFilter)
+                    .stream()
+                    .map(goingOnInfoFactory::toGoingOnInfo)
+                    .collect(Collectors.toList());
+        }
 
         List<GoingOnInfo> serviceCalls = serviceCallService.findServiceCalls(device, serviceCallService.nonFinalStates())
                 .stream()
                 .map(goingOnInfoFactory::toGoingOnInfo)
                 .collect(Collectors.toList());
 
-        List<GoingOnInfo> alarms = deviceAlarmService.findAlarms(alarmFilter)
-                .stream()
-                .map(goingOnInfoFactory::toGoingOnInfo)
-                .collect(Collectors.toList());
+        List<GoingOnInfo> alarms = new ArrayList<>();
+        if(hasCurrentUserAlarmPrivileges(appPrivileges)) {
+            alarms = deviceAlarmService.findAlarms(alarmFilter)
+                    .stream()
+                    .map(goingOnInfoFactory::toGoingOnInfo)
+                    .collect(Collectors.toList());
+        }
 
-        List<GoingOnInfo> processInstances = bpmService.getRunningProcesses(auth, filterFor(device), appKey)
-                .processes
-                .stream()
-                .map(goingOnInfoFactory::toGoingOnInfo)
-                .collect(Collectors.toList());
+        List<GoingOnInfo> processInstances = new ArrayList<>();
+        if(hasCurrentUserTasksPrivileges(appPrivileges)) {
+            processInstances = bpmService.getRunningProcesses(auth, filterFor(device), appKey)
+                    .processes
+                    .stream()
+                    .map(goingOnInfoFactory::toGoingOnInfo)
+                    .collect(Collectors.toList());
+        }
 
         List<GoingOnInfo> goingOnInfos = Stream.of(issues, serviceCalls, processInstances, alarms)
                 .flatMap(List::stream)
@@ -131,6 +145,29 @@ public class GoingOnResource {
                 .collect(Collectors.toList());
 
         return Response.ok(PagedInfoList.fromPagedList("goingsOn", goingOnInfos, queryParameters)).build();
+    }
+
+    private boolean hasCurrentUserIssuePrivileges(Map<String, List<Privilege>> appPrivileges) {
+        return appPrivileges.get("MDC") != null && appPrivileges.get("MDC")
+                .stream()
+                .anyMatch(privilege -> privilege.getName().equals("privilege.view.issue") || privilege.getName()
+                        .equals("privilege.comment.issue") || privilege.getName()
+                        .equals("privilege.close.issue") || privilege.getName()
+                        .equals("privilege.action.issue") || privilege.getName().equals("privilege.assign.issue"));
+    }
+
+    private boolean hasCurrentUserAlarmPrivileges(Map<String, List<Privilege>> appPrivileges){
+        return appPrivileges.get("MDC") != null && appPrivileges.get("MDC").stream().anyMatch(privilege -> privilege.getName().equals("privilege.view.alarm") ||
+                privilege.getName().equals("privilege.comment.alarm") ||
+                privilege.getName().equals("privilege.close.alarm") ||
+                privilege.getName().equals("privilege.assign.alarm") ||
+                privilege.getName().equals("privilege.action.alarm"));
+    }
+
+    private boolean hasCurrentUserTasksPrivileges(Map<String, List<Privilege>> appPrivileges){
+        return appPrivileges.get("MDC") != null && appPrivileges.get("MDC").stream().anyMatch(privilege -> privilege.getName().equals("privilege.view.task") ||
+                privilege.getName().equals("privilege.execute.task") ||
+                privilege.getName().equals("privilege.assign.task"));
     }
 
     private String filterFor(Device device) {
@@ -151,7 +188,7 @@ public class GoingOnResource {
             GoingOnInfo goingOnInfo = new GoingOnInfo();
             goingOnInfo.type = "issue";
             goingOnInfo.issueType = issue.getReason().getIssueType().getKey();
-            goingOnInfo.id = issue.getId();
+            goingOnInfo.id = issue.getIssueId();
             goingOnInfo.reference = null;
             goingOnInfo.description = issue.getReason().getName();
             goingOnInfo.dueDate = issue.getDueDate();
@@ -171,7 +208,7 @@ public class GoingOnResource {
             GoingOnInfo goingOnInfo = new GoingOnInfo();
             goingOnInfo.type = "servicecall";
             goingOnInfo.issueType = null;
-            goingOnInfo.id = serviceCall.getId();
+            goingOnInfo.id = String.valueOf(serviceCall.getId());
             goingOnInfo.reference = serviceCall.getNumber();
             goingOnInfo.description = serviceCall.getType().getName();
             goingOnInfo.dueDate = null;
@@ -187,7 +224,7 @@ public class GoingOnResource {
             GoingOnInfo goingOnInfo = new GoingOnInfo();
             goingOnInfo.type = "alarm";
             goingOnInfo.issueType = null;
-            goingOnInfo.id = deviceAlarm.getId();
+            goingOnInfo.id = deviceAlarm.getIssueId();
             goingOnInfo.reference = null;
             goingOnInfo.description = deviceAlarm.getReason().getName();
             goingOnInfo.dueDate = deviceAlarm.getDueDate();
@@ -210,7 +247,7 @@ public class GoingOnResource {
             GoingOnInfo goingOnInfo = new GoingOnInfo();
             goingOnInfo.type = "process";
             goingOnInfo.issueType = null;
-            goingOnInfo.id = Long.parseLong(processInstanceInfo.processId);
+            goingOnInfo.id = processInstanceInfo.processId;
             goingOnInfo.reference = null;
             goingOnInfo.description = processInstanceInfo.name;
             goingOnInfo.dueDate = userTaskInfo.flatMap(info -> Optional.ofNullable(info.dueDate)).filter(not(String::isEmpty)).map(Long::parseLong).map(Instant::ofEpochMilli).orElse(null);

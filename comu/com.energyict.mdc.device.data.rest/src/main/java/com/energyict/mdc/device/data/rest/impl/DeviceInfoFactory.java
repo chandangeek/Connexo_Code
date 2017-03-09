@@ -160,6 +160,9 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         infos.add(createDescription("decommissionDate", Instant.class));
         infos.add(createDescription("validationActive", String.class));
         infos.add(createDescription("hasOpenDataValidationIssues", Boolean.class));
+        infos.add(createDescription("manufacturer", String.class));
+        infos.add(createDescription("modelNbr", String.class));
+        infos.add(createDescription("modelVersion", String.class));
         Collections.sort(infos, Comparator.comparing(pdi -> pdi.propertyName));
 
         // Default columns in proper order

@@ -133,7 +133,6 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
         assertThat(jsonModel.<String>get("$.devicegroups[0].mRID")).isEqualTo("LAPOPKLQKS");
         assertThat(jsonModel.<Integer>get("$.devicegroups[0].id")).isEqualTo(13);
         assertThat(jsonModel.<Boolean>get("$.devicegroups[0].dynamic")).isEqualTo(true);
-        assertThat(jsonModel.<String>get("$.devicegroups[0].filter")).isEqualTo("[]");
     }
 
     @Test
@@ -240,9 +239,9 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
         verify(meteringGroupService).createQueryEndDeviceGroup(captor.capture());
         SearchablePropertyValue searchablePropertyValue = captor.getValue();
         assertThat(searchablePropertyValue.getProperty()).isEqualTo(nameSearchableProperty);
-        assertThat(searchablePropertyValue.getValueBean().propertyName).isEqualTo("name");
-        assertThat(searchablePropertyValue.getValueBean().operator).isEqualTo(SearchablePropertyOperator.EQUAL);
-        assertThat(searchablePropertyValue.getValueBean().values).containsExactly("*");
+        assertThat(searchablePropertyValue.getValueBean().getPropertyName()).isEqualTo("name");
+        assertThat(searchablePropertyValue.getValueBean().getOperator()).isEqualTo(SearchablePropertyOperator.EQUAL);
+        assertThat(searchablePropertyValue.getValueBean().getValues()).containsExactly("*");
         verify(builder).setName(info.name);
         verify(builder).setMRID("MDC:" + info.name);
         verify(builder).setSearchDomain(searchDomain);

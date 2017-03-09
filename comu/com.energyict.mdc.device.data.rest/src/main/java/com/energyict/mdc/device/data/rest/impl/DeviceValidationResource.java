@@ -285,7 +285,8 @@ public class DeviceValidationResource {
                         deviceValidation.isValidationActive(),
                         deviceValidation.isValidationOnStorage(),
                         lastChecked,
-                        device.hasData());
+                        device.hasData(),
+                        device.getDeviceConfiguration().getValidateOnStore());
 
         ZonedDateTime end = ZonedDateTime.ofInstant(clock.instant(), clock.getZone()).truncatedTo(ChronoUnit.DAYS).plusDays(1);
 
@@ -303,7 +304,8 @@ public class DeviceValidationResource {
                         deviceValidation.isValidationActive(),
                         deviceValidation.isValidationOnStorage(),
                         deviceValidation.getLastChecked(),
-                        device.hasData());
+                        device.hasData(),
+                        device.getDeviceConfiguration().getValidateOnStore());
 
         ZonedDateTime end = ZonedDateTime.ofInstant(clock.instant(), clock.getZone()).truncatedTo(ChronoUnit.DAYS).plusDays(1);
 
