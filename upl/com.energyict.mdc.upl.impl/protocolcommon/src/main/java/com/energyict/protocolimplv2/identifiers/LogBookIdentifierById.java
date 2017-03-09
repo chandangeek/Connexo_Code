@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.identifiers;
 
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
-
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -13,7 +13,7 @@ import java.util.Set;
 /**
  * Provides an implementation for the {@link LogBookIdentifier} interface
  * that uses an LogBook's database ID to uniquely identify it.
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 13/05/13
  * Time: 13:16
@@ -23,6 +23,7 @@ public class LogBookIdentifierById implements LogBookIdentifier {
 
     private final int logBookId;
     private final ObisCode logBookObisCode;
+    private final DeviceIdentifier deviceIdentifier;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
@@ -30,12 +31,14 @@ public class LogBookIdentifierById implements LogBookIdentifier {
     private LogBookIdentifierById() {
         this.logBookId = -1;
         this.logBookObisCode = null;
+        this.deviceIdentifier = null;
     }
 
-    public LogBookIdentifierById(int logBookId, ObisCode logBookDeviceObisCode) {
+    public LogBookIdentifierById(int logBookId, ObisCode logBookDeviceObisCode, DeviceIdentifier deviceIdentifier) {
         super();
         this.logBookId = logBookId;
         this.logBookObisCode = logBookDeviceObisCode;
+        this.deviceIdentifier = deviceIdentifier;
     }
 
     @XmlAttribute
@@ -46,6 +49,11 @@ public class LogBookIdentifierById implements LogBookIdentifier {
     @XmlAttribute
     public ObisCode getLogBookObisCode() {
         return logBookObisCode;
+    }
+
+    @Override
+    public DeviceIdentifier getDeviceIdentifier() {
+        return deviceIdentifier;
     }
 
     @Override
@@ -66,7 +74,7 @@ public class LogBookIdentifierById implements LogBookIdentifier {
     }
 
     @Override
-    public int hashCode () {
+    public int hashCode() {
         return logBookId;
     }
 
