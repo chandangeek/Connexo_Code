@@ -191,7 +191,7 @@ public class PKIServiceImplIT {
         when(keyAccessorType.getKeyType()).thenReturn(keyType);
         when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPrivateKeyFactory.KEY_ENCRYPTION_METHOD);
         PrivateKeyWrapper privateKeyWrapper = inMemoryPersistence.getPkiService().newPrivateKeyWrapper(keyAccessorType);
-        privateKeyWrapper.renewValue();
+        privateKeyWrapper.generateValue();
 
         assertThat(privateKeyWrapper.getPrivateKey().getEncoded()).isNotEmpty();
         assertThat(privateKeyWrapper.getPrivateKey().getAlgorithm()).isEqualTo("ECDSA");
@@ -225,7 +225,7 @@ public class PKIServiceImplIT {
         when(keyAccessorType.getKeyType()).thenReturn(keyType);
         when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPrivateKeyFactory.KEY_ENCRYPTION_METHOD);
         PrivateKeyWrapper privateKeyWrapper = inMemoryPersistence.getPkiService().newPrivateKeyWrapper(keyAccessorType);
-        privateKeyWrapper.renewValue();
+        privateKeyWrapper.generateValue();
 
         assertThat(privateKeyWrapper.getPrivateKey().getEncoded()).isNotEmpty();
         assertThat(privateKeyWrapper.getPrivateKey().getAlgorithm()).isEqualTo("RSA");
@@ -259,7 +259,7 @@ public class PKIServiceImplIT {
         when(keyAccessorType.getKeyType()).thenReturn(keyType);
         when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPrivateKeyFactory.KEY_ENCRYPTION_METHOD);
         PrivateKeyWrapper privateKeyWrapper = inMemoryPersistence.getPkiService().newPrivateKeyWrapper(keyAccessorType);
-        privateKeyWrapper.renewValue();
+        privateKeyWrapper.generateValue();
 
         assertThat(privateKeyWrapper.getPrivateKey().getEncoded()).isNotEmpty();
         assertThat(privateKeyWrapper.getPrivateKey().getAlgorithm()).isEqualTo("DSA");

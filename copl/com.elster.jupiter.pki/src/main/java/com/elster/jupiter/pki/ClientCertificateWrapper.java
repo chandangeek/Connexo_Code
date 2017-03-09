@@ -9,7 +9,7 @@ package com.elster.jupiter.pki;
  * key is associated with this certificate.
  * Because of this, the complete certificate lifecycle can be managed by Connexo (generated csr, certificate, revocation, renewal)
  */
-public interface ClientCertificateWrapper extends RequestableCertificateWrapper, Renewable {
+public interface ClientCertificateWrapper extends RequestableCertificateWrapper {
 
     /**
      * As a client certificate, this certificate is bundled with a private key.
@@ -17,10 +17,5 @@ public interface ClientCertificateWrapper extends RequestableCertificateWrapper,
      * @return The private key wrapper, containing the actual private key.
      */
     PrivateKeyWrapper getPrivateKeyWrapper();
-
-    /**
-     * Generates a CSR with provided distinguished name. If no private key exists yet, one will be generated
-     */
-    void generateCSR();
 
 }

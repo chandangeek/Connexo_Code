@@ -53,8 +53,4 @@ public class ClientCertificateWrapperImpl extends RequestableCertificateWrapperI
         this.save();
     }
 
-    @Override
-    public void generateValue() {
-        // TODO implement
-    }
 }

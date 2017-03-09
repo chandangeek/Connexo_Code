@@ -21,6 +21,14 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
 import com.google.common.collect.ImmutableMap;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.bouncycastle.pkcs.PKCS10CertificationRequestBuilder;
 
 import javax.validation.constraints.Size;
 import java.security.InvalidAlgorithmParameterException;
@@ -28,6 +36,8 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Signature;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
 import java.util.Base64;
@@ -53,6 +63,23 @@ abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements Plaintex
     private String encryptedPrivateKey;
     private Reference<KeyType> keyTypeReference = Reference.empty();
     private Instant expirationTime;
+
+    public enum Fields {
+        ENCRYPTED_KEY("encryptedPrivateKey"),
+        KEY_TYPE("keyTypeReference"),
+        EXPIRATION("expirationTime"),
+        ;
+
+        private final String fieldName;
+
+        Fields(String fieldName) {
+            this.fieldName = fieldName;
+        }
+
+        public String fieldName() {
+            return fieldName;
+        }
+    }
 
     public static final Map<String, Class<? extends PrivateKeyWrapper>> IMPLEMENTERS =
             ImmutableMap.of(
@@ -143,7 +170,7 @@ abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements Plaintex
     @Override
     public void generateValue() {
         try {
-            doRenewValue();
+            doGenerateValue();
         } catch (InvalidKeyException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.INVALID_KEY, e);
         } catch (NoSuchAlgorithmException e) {
@@ -157,27 +184,42 @@ abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements Plaintex
         }
     }
 
-    protected abstract void doRenewValue() throws
+    protected abstract void doGenerateValue() throws
             InvalidKeyException,
             NoSuchAlgorithmException,
             InvalidKeySpecException,
             NoSuchProviderException, InvalidAlgorithmParameterException;
 
-    public enum Fields {
-        ENCRYPTED_KEY("encryptedPrivateKey"),
-        KEY_TYPE("keyTypeReference"),
-        EXPIRATION("expirationTime"),
-        ;
-
-        private final String fieldName;
-
-        Fields(String fieldName) {
-            this.fieldName = fieldName;
+    @Override
+    public PublicKey getPublicKey() {
+        try {
+            return doGetPublicKey();
+        } catch (NoSuchAlgorithmException e) {
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.ALGORITHM_NOT_SUPPORTED, e);
+        } catch (InvalidKeySpecException e) {
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.INVALID_KEY_SPECIFICATION, e);
         }
+    }
 
-        public String fieldName() {
-            return fieldName;
+
+    protected abstract PublicKey doGetPublicKey() throws
+            NoSuchAlgorithmException,
+            InvalidKeySpecException;
+
+    public PKCS10CertificationRequest generateCSR(X500Name subjectDN, Signature signature) {
+        try {
+            return doGenerateCSR(subjectDN, signature);
+        } catch (OperatorCreationException e) {
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.INVALID_KEY_SPECIFICATION, e);
         }
+    }
+
+    private PKCS10CertificationRequest doGenerateCSR(X500Name subjectDN, Signature signature) throws
+            OperatorCreationException {
+        SubjectPublicKeyInfo subjectPublicKeyInfo = new SubjectPublicKeyInfo(AlgorithmIdentifier.getInstance(signature.getAlgorithm()), getPublicKey().getEncoded());
+        PKCS10CertificationRequestBuilder csrBuilder = new PKCS10CertificationRequestBuilder(subjectDN, subjectPublicKeyInfo);
+        ContentSigner contentSigner = new JcaContentSignerBuilder(signature.getAlgorithm()).build(getPrivateKey());
+        return csrBuilder.build(contentSigner);
     }
 
     public enum Properties {

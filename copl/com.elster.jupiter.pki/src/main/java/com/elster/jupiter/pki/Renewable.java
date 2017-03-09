@@ -11,5 +11,8 @@ package com.elster.jupiter.pki;
  * Note that not all key encryption methods will permit automatic renewal.
  */
 public interface Renewable {
+    /**
+     * Generate a new random value for this entity.
+     */
     public void generateValue(); // TODO add KeyAccessorType as parameter?
 }

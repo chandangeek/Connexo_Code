@@ -9,10 +9,17 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpecService;
 
+import org.bouncycastle.asn1.sec.SECNamedCurves;
+import org.bouncycastle.asn1.x9.X9ECParameters;
+import org.bouncycastle.crypto.params.ECDomainParameters;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
+import org.bouncycastle.jce.spec.ECParameterSpec;
+import org.bouncycastle.jce.spec.ECPublicKeySpec;
+import org.bouncycastle.math.ec.ECPoint;
 
 import javax.inject.Inject;
+import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -20,6 +27,7 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -42,7 +50,7 @@ public class PlaintextEcdsaPrivateKey extends AbstractPlaintextPrivateKeyWrapper
     }
 
     @Override
-    protected void doRenewValue() throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
+    protected void doGenerateValue() throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("ECDSA", "BC");
         ECNamedCurveParameterSpec parameterSpec = ECNamedCurveTable.getParameterSpec(getKeyType().getCurve());
         keyGen.initialize(parameterSpec, new SecureRandom());
@@ -51,5 +59,14 @@ public class PlaintextEcdsaPrivateKey extends AbstractPlaintextPrivateKeyWrapper
         this.save();
     }
 
-
+    @Override
+    protected PublicKey doGetPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
+        BigInteger d = new BigInteger(getPrivateKey().getEncoded());
+        X9ECParameters curve = SECNamedCurves.getByName(getKeyType().getCurve());
+        ECDomainParameters ecDomainParameters = new ECDomainParameters(curve.getCurve(), curve.getG(), curve.getN(), curve.getH());
+        ECParameterSpec ecParameterSpec = new ECParameterSpec(curve.getCurve(), curve.getG(), curve.getN(), curve.getH());
+        ECPoint q = ecDomainParameters.getG().multiply(d);
+        KeyFactory keyFactory = KeyFactory.getInstance("EC");
+        return keyFactory.generatePublic(new ECPublicKeySpec(q, ecParameterSpec));
+    }
 }
