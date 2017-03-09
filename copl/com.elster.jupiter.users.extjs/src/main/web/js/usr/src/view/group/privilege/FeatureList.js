@@ -6,7 +6,7 @@ Ext.define('Usr.view.group.privilege.FeatureList', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.featureList',
     itemId: 'featureList',
-
+    showTooltips: true,
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Usr.store.Resources',
@@ -14,6 +14,9 @@ Ext.define('Usr.view.group.privilege.FeatureList', {
         'Uni.grid.column.Action'
     ],
 
+    viewConfig:{
+        showTooltips: true
+    },
     store: 'Usr.store.Resources',
 
     initComponent: function () {
