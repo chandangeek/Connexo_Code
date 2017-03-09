@@ -61,7 +61,7 @@ public enum TableSpecs {
             table.map(AbstractCertificateWrapperImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
-            table.addRefAnyColumns("PRIVATEKEY", true, AbstractCertificateWrapperImpl.Fields.PRIVATE_KEY.fieldName());
+            table.addRefAnyColumns("PRIVATEKEY", false, AbstractCertificateWrapperImpl.Fields.PRIVATE_KEY.fieldName());
             table.column("ALIAS")
                     .varChar()
                     .notNull()
