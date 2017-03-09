@@ -50,11 +50,11 @@ public interface IdentificationService {
 
     LoadProfileIdentifier createLoadProfileIdentifierForFirstLoadProfileOnDevice(DeviceIdentifier deviceIdentifier, ObisCode obisCode);
 
-    LogBookIdentifier createLogbookIdentifierByDatabaseId(long id, ObisCode logbookObisCode);
+    LogBookIdentifier createLogbookIdentifierByDatabaseId(long id, ObisCode logbookObisCode, DeviceIdentifier deviceIdentifier);
 
     LogBookIdentifier createLogbookIdentifierByObisCodeAndDeviceIdentifier(ObisCode logbookObisCode, DeviceIdentifier deviceIdentifier);
 
-    LogBookIdentifier createLogbookIdentifierForAlreadyKnownLogbook(LogBook logBook);
+    LogBookIdentifier createLogbookIdentifierForAlreadyKnownLogbook(LogBook logBook, DeviceIdentifier deviceIdentifier);
 
     MessageIdentifier createMessageIdentifierByDatabaseId(long id);
 
