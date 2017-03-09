@@ -31,6 +31,7 @@ Ext.define('Tme.view.relativeperiod.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'relative-periods-action-menu',
                     itemId: 'relative-periods-action-menu'
