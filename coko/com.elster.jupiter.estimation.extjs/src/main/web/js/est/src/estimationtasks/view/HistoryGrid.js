@@ -42,7 +42,7 @@ Ext.define('Est.estimationtasks.view.HistoryGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                width: 100,
+                width: 120,
                 menu: {
                     xtype: 'estimationtasks-history-action-menu'
                 }
