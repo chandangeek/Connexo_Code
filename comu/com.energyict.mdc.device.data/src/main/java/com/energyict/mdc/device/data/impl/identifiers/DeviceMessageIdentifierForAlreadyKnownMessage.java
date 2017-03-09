@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
 import java.util.Arrays;
@@ -21,6 +22,11 @@ public class DeviceMessageIdentifierForAlreadyKnownMessage implements MessageIde
 
     public DeviceMessageIdentifierForAlreadyKnownMessage(DeviceMessage deviceMessage) {
         this.deviceMessage = deviceMessage;
+    }
+
+    @Override
+    public DeviceIdentifier getDeviceIdentifier() {
+        return new DeviceIdentifierForAlreadyKnownDeviceByMrID(deviceMessage.getDevice());
     }
 
     @Override
