@@ -49,7 +49,7 @@ public class MetrologyConfigurationInCorrectStateIfAny extends TranslatableServe
     public boolean isValidToStage(State state, Device device, Instant effective) {
         if(state.getStage().isPresent()) {
             Stage stage = state.getStage().get();
-            if(!EndDeviceStage.valueOf(stage.getName()).equals(EndDeviceStage.OPERATIONAL)) {
+            if(!EndDeviceStage.valueOf(stage.getName()).equals(EndDeviceStage.OPERATIONAL.getKey())) {
                 return validateNoEffectiveMetrologyConfiguration(effective, device);
             }
         }
