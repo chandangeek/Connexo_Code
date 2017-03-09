@@ -67,14 +67,14 @@ Ext.define('Scs.view.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Scs.privileges.ServiceCall.admin,
                 menu: {
                     xtype: 'scs-action-menu',
                     itemId: me.menuItemId
                 },
                 isDisabled: me.fnIsDisabled,
-                hidden: me.actionMenuHidden,
-                flex: 0.7
+                hidden: me.actionMenuHidden
             }
         ];
 
