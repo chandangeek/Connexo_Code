@@ -30,6 +30,7 @@ Ext.define('Fwc.view.firmware.Grid', {
         },
         {
             xtype: 'uni-actioncolumn',
+            width: 120,
             isDisabled: function(view, rowIndex, colIndex, item, record) {
                 return !Mdc.privileges.DeviceType.canAdministrate()
                     || (record.getAssociatedData().firmwareStatus

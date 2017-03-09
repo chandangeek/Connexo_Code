@@ -110,6 +110,7 @@ Ext.define('Fwc.firmwarecampaigns.view.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Fwc.privileges.FirmwareCampaign.administrate,
                 isDisabled: function(view, rowIndex, colIndex, item, record) {
                     return record.get('status').id !== 'ONGOING';
