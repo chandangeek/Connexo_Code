@@ -29,4 +29,6 @@ public interface RegisterIdentifier extends Identifier {
     @XmlAttribute
     ObisCode getRegisterObisCode();
 
+    DeviceIdentifier getDeviceIdentifier();
+
 }
