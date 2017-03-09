@@ -175,7 +175,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
         model.load(currentDeviceGroupId, {
             success: function (record) {
                 Ext.suspendLayouts();
-                widget.down('#devicegroups-view-menu #devicegroups-view-link').setText(record.get('name'));
+                widget.down('#devicegroups-view-menu').setHeader(record.get('name'));
                 widget.down('form').loadRecord(record);
                 Ext.resumeLayouts(true);
                 widget.down('device-group-action-menu').record = record;

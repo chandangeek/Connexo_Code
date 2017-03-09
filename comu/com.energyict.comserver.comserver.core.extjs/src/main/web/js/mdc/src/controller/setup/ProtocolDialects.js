@@ -78,7 +78,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
                     success: function (deviceConfig) {
                         if (mainView) mainView.setLoading(false);
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
-                        widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
+                        widget.down('#stepsMenu').setText(deviceConfig.get('name'));
                         //widget.down('#registerConfigTitle').html = '<h1>' + deviceConfigName + ' > ' + Uni.I18n.translate('registerConfig.registerConfigurations', 'MDC', 'Register configurations') + '</h1>';
                         me.getApplication().fireEvent('changecontentevent', widget);
                     }

@@ -5,14 +5,15 @@
 Ext.define('Mdc.view.setup.commandrules.CommandRuleSideMenu', {
     extend: 'Uni.view.menu.SideMenu',
     alias: 'widget.commandRuleSideMenu',
-    title: Uni.I18n.translate('general.commandLimitationRule', 'MDC', 'Command limitation rule'),
+    objectType: Uni.I18n.translate('general.commandLimitationRule', 'MDC', 'Command limitation rule'),
     router: null,
     commandRuleName: undefined,
     initComponent: function () {
         var me = this;
+        me.title = Ext.isEmpty(me.commandRuleName) ? Uni.I18n.translate('general.commandLimitationRule', 'MDC', 'Command limitation rule') : me.commandRuleName;
         me.menuItems = [
             {
-                text: Ext.isEmpty(me.commandRuleName) ? Uni.I18n.translate('general.overview', 'MDC', 'Overview') : me.commandRuleName,
+                text: Uni.I18n.translate('general.details', 'MDC', 'Details'),
                 itemId: 'mdc-command-rule-sidemenu-overviewLink',
                 href: me.router.getRoute('administration/commandrules/view').buildUrl()
             },

@@ -24,7 +24,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
             flex: 1,
             dataIndex: 'name',
             renderer: function (value, b, record) {
-                return '<a href="#/administration/comservers/' + record.get('id') + '/overview">' + Ext.String.htmlEncode(value) + '</a>';
+                return '<a href="#/administration/comservers/' + record.get('id') + '">' + Ext.String.htmlEncode(value) + '</a>';
             }
         },
         {

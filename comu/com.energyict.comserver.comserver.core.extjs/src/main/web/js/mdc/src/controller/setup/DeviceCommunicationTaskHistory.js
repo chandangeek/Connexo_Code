@@ -92,7 +92,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
 
         Ext.suspendLayouts();
         me.getDeviceCommunicationTaskHistoryPreviewForm().loadRecord(communicationTaskHistory);
-        me.getComPortField().setValue(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), communicationTaskHistory.get('comSession').comPort, '<a href="#/administration/comservers/' + communicationTaskHistory.get('comSession').comServer.id + '/overview">' + communicationTaskHistory.get('comSession').comServer.name + '</a>'));
+        me.getComPortField().setValue(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), communicationTaskHistory.get('comSession').comPort, '<a href="#/administration/comservers/' + communicationTaskHistory.get('comSession').comServer.id + '">' + communicationTaskHistory.get('comSession').comServer.name + '</a>'));
         me.getDeviceConnectionHistoryPreviewForm().loadRecord(communicationTaskHistory.getComSession());
         connectionPreview.setTitle(Uni.I18n.translate('devicecommunicationtaskhistory.connectionPreviewTitle', 'MDC', '{0} on {1}', [communicationTaskHistory.getComSession().get('connectionMethod').name, communicationTaskHistory.getComSession().get('device').name]));
         Ext.resumeLayouts(true);

@@ -78,7 +78,7 @@ Ext.define('Mdc.controller.setup.EstimationDeviceConfigurations', {
                 view = Ext.widget('estimation-deviceconfigurations-setup', {
                     router: router
                 });
-                view.down('#estimation-rule-set-link').setText(ruleSetRecord.get('name'));
+                view.down('#estimation-rule-set-side-menu').setHeader(ruleSetRecord.get('name'));
                 me.getApplication().fireEvent('changecontentevent', view);
             },
             callback: function () {

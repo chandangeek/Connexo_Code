@@ -189,7 +189,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 items: [
                     {
                         xtype: 'displayfield',
-                        value: me.device.get('name'),
+                        value: Uni.I18n.translate('overview.widget.overview', 'MDC', 'Overview'),
                         fieldCls: 'x-panel-header-text-container-large',
                         style: 'margin-right: 10px'
                     },
