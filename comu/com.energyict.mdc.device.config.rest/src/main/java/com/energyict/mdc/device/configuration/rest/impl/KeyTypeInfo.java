@@ -10,6 +10,7 @@ public class KeyTypeInfo {
     public long id;
     public String name;
     public boolean requiresDuration;
+    public boolean isKey;
 
     public KeyTypeInfo() {
     }
@@ -18,5 +19,6 @@ public class KeyTypeInfo {
         this.id = keyType.getId();
         this.name = keyType.getName();
         this.requiresDuration = keyType.getCryptographicType().requiresDuration();
+        this.isKey = keyType.getCryptographicType().isKey();
     }
 }

@@ -9,11 +9,11 @@ import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyAccessorType.Builder;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.time.TimeDuration.TimeUnit;
-import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
@@ -35,8 +35,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -44,12 +42,14 @@ public class KeyFunctionTypeResource {
     private final ResourceHelper resourceHelper;
     private final PkiService pkiService;
     private final KeyFunctionTypeInfoFactory keyFunctionTypeInfoFactory;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public KeyFunctionTypeResource(ResourceHelper resourceHelper, PkiService pkiService, KeyFunctionTypeInfoFactory keyFunctionTypeInfoFactory) {
+    public KeyFunctionTypeResource(ResourceHelper resourceHelper, PkiService pkiService, KeyFunctionTypeInfoFactory keyFunctionTypeInfoFactory, ExceptionFactory exceptionFactory) {
         this.resourceHelper = resourceHelper;
         this.pkiService = pkiService;
         this.keyFunctionTypeInfoFactory = keyFunctionTypeInfoFactory;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
@@ -83,15 +83,18 @@ public class KeyFunctionTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/keytypes/{id}/keyencryptionmethods")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
-    public List<String> getKeyEncryptionMethods(@PathParam("id") long id) {
-        return new ArrayList<>();
-//        return pkiService.findAllKeyTypes()
-//                .stream()
-//                .filter(keyType -> keyType.getId()==id)
-//                .findAny()
-//                .map(pkiService::getCryptographicType)
-//                .orElseThrow(NoSuchElementException::new)
-//                .collect(Collectors.toList());
+    public List<KeyEncryptionMethodInfo> getKeyEncryptionMethods(@PathParam("id") long id) {
+        List<String> names = pkiService.findAllKeyTypes()
+            .stream()
+            .filter(keyType -> keyType.getId() == id)
+            .findAny()
+            .map(keyType -> pkiService.getKeyEncryptionMethods(keyType.getCryptographicType()))
+            .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_KEY_TYPE_FOUND, id));
+        List<KeyEncryptionMethodInfo> result = new ArrayList<>();
+        for (String name : names) {
+            result.add(new KeyEncryptionMethodInfo(name));
+        }
+        return result;
     }
 
     @POST
@@ -101,9 +104,7 @@ public class KeyFunctionTypeResource {
     public KeyFunctionTypeInfo addKeyFunctionTypeOnDeviceType(@PathParam("deviceTypeId") long id, KeyFunctionTypeInfo keyFunctionTypeInfo) {
         DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(id, keyFunctionTypeInfo.parent.version, keyFunctionTypeInfo.parent.id);
         KeyType keyType = keyFunctionTypeInfo.keyType != null && keyFunctionTypeInfo.keyType.name != null ? pkiService.getKeyType(keyFunctionTypeInfo.keyType.name).orElse(null) : null;
-        //TODO: Encryption method not hardcoded, but for the moment not programmed yet
-        //Should Encryption method should come from a drop down in th FE
-        Builder keyFunctionTypeBuilder = deviceType.addKeyAccessorType(keyFunctionTypeInfo.name, keyType, "DataVault");
+        Builder keyFunctionTypeBuilder = deviceType.addKeyAccessorType(keyFunctionTypeInfo.name, keyType, keyFunctionTypeInfo.storageMethod);
         keyFunctionTypeBuilder.description(keyFunctionTypeInfo.description);
         if(keyFunctionTypeInfo.validityPeriod != null && keyType.getCryptographicType().requiresDuration()) {
             checkValidDurationOrThrowException(keyFunctionTypeInfo.validityPeriod);

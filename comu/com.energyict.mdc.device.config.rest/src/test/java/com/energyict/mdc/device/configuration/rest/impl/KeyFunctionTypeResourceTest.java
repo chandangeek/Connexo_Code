@@ -101,8 +101,8 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
         when(pkiService.getKeyType("AES 128")).thenReturn(Optional.of(keyType));
 
         KeyAccessorType.Builder builder = mock(KeyAccessorType.Builder.class);
-        //for now SSM is hardcoded in rest. Change this test when key encryption method is added to BE
-        when(deviceType.addKeyAccessorType(NAME, keyType, "SSM")).thenReturn(builder);
+        //for now DataVault is hardcoded in rest. Change this test when key encryption method is added to BE
+        when(deviceType.addKeyAccessorType(NAME, keyType, "DataVault")).thenReturn(builder);
         KeyAccessorType addedKeyFunctionTypeDoesntMatter = mockKeyFunctionType(1, NAME, DESCRIPTION);
         when(builder.add()).thenReturn(addedKeyFunctionTypeDoesntMatter);
 
@@ -112,7 +112,7 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
         info.keyType.requiresDuration = true;
 
         target("/devicetypes/66/securityaccessors").request().post(Entity.entity(info, MediaType.APPLICATION_JSON));
-        verify(deviceType).addKeyAccessorType(NAME, keyType, "SSM");
+        verify(deviceType).addKeyAccessorType(NAME, keyType, "DataVault");
         verify(builder).description(DESCRIPTION);
         verify(builder).duration(info.validityPeriod.asTimeDuration());
         verify(builder).add();
@@ -168,7 +168,7 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
         when(keyType.getId()).thenReturn(1L);
         when(keyType.getName()).thenReturn("Name of the keytype");
         when(keyFunctionType.getKeyType()).thenReturn(keyType);
-        when(keyType.getCryptographicType()).thenReturn(CryptographicType.AsymmetricKey);
+        when(keyType.getCryptographicType()).thenReturn(CryptographicType.SymmetricKey);
         TimeDuration validityPeriod = new TimeDuration(2, TimeDuration.TimeUnit.MONTHS);
         when(keyFunctionType.getDuration()).thenReturn(Optional.of(validityPeriod));
         return keyFunctionType;
