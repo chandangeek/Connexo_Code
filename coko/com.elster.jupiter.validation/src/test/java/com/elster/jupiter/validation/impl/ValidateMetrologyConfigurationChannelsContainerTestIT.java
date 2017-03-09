@@ -36,6 +36,7 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationResult;
@@ -206,7 +207,7 @@ public class ValidateMetrologyConfigurationChannelsContainerTestIT {
         ReadingTypeDeliverable readingTypeDeliverable = builder.build(builder.divide(builder.requirement(readingTypeRequirement), builder.constant(1000L)));
         MetrologyContract metrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(metrologyPurpose);
         metrologyContract.addDeliverable(readingTypeDeliverable);
-        UsagePoint usagePoint = serviceCategory.newUsagePoint("UP", inMemoryBootstrapModule.get(Clock.class).instant()).create();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("UP", firstReadingTimestamp.minus(1, ChronoUnit.DAYS)).create();
         usagePoint.apply(metrologyConfiguration, firstReadingTimestamp.minus(1, ChronoUnit.DAYS));
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().get();
         BaseReadingRecord baseReading = mock(BaseReadingRecord.class);
