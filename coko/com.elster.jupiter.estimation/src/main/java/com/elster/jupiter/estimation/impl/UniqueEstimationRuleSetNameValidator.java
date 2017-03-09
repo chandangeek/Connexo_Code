@@ -6,12 +6,15 @@ package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.util.conditions.Condition;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import java.util.Optional;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 public class  UniqueEstimationRuleSetNameValidator implements ConstraintValidator<UniqueName, EstimationRuleSet> {
 
@@ -34,7 +37,8 @@ public class  UniqueEstimationRuleSetNameValidator implements ConstraintValidato
     }
 
     private boolean checkValidity(EstimationRuleSet ruleSet, ConstraintValidatorContext context) {
-        Optional<? extends EstimationRuleSet> alreadyExisting = estimationService.getEstimationRuleSet(ruleSet.getName());
+        Condition condition = where("name").isEqualTo(ruleSet.getName()).and(where("qualityCodeSystem").isEqualTo(ruleSet.getQualityCodeSystem())).and(where(EstimationRuleSetImpl.OBSOLETE_TIME_FIELD).isNull());
+        Optional<? extends EstimationRuleSet> alreadyExisting = estimationService.getEstimationRuleSetQuery().select(condition).stream().findFirst();
         return !alreadyExisting.isPresent() || !checkExisting(ruleSet, alreadyExisting.get(), context);
     }
 
