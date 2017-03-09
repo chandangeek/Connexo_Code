@@ -58,6 +58,7 @@ Ext.define('Cps.customattributesets.view.AttributeSetsGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Cps.privileges.CustomAttributeSets.admin,
                 menu: {
                     xtype: 'custom-attribute-sets-action-menu',
