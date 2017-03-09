@@ -216,31 +216,40 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             deviceId = me.deviceId || router.arguments.deviceId,
-            loadProfileId = me.loadProfileId ? me.loadProfileId : router.arguments.loadProfileId;
+            viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            loadProfileId = me.loadProfileId ? me.loadProfileId : router.arguments.loadProfileId,
+            lastChecked = confWindow.down('#validateLoadProfileFromDate').getValue().getTime();
 
         if (confWindow.down('#validateLoadProfileFromDate').getValue() > me.dataValidationLastChecked) {
             confWindow.down('#validateLoadProfileDateErrors').update(Uni.I18n.translate('deviceloadprofiles.activation.error', 'MDC', 'The date should be before or equal to the default date.'));
             confWindow.down('#validateLoadProfileDateErrors').setVisible(true);
         } else {
-            confWindow.down('button').setDisabled(true);
+            confWindow.removeAll(true);
+            confWindow.destroy();
+            viewport.setLoading();
             Ext.Ajax.request({
                 url: '../../api/ddr/devices/' + encodeURIComponent(deviceId) + '/loadprofiles/' + loadProfileId + '/validate',
                 method: 'PUT',
+                timeout: 1800000,
                 isNotEdit: true,
                 jsonData: Ext.merge(_.pick(record.getRecordData(), 'id', 'name', 'version', 'parent'), {
-                    lastChecked: confWindow.down('#validateLoadProfileFromDate').getValue().getTime()
+                    lastChecked: lastChecked
                 }),
                 success: function () {
-                    confWindow.removeAll(true);
-                    confWindow.destroy();
+                    clearTimeout(timeout);
                     me.getApplication().fireEvent('acknowledge',
                         Uni.I18n.translate('deviceloadprofiles.activation.completed', 'MDC', 'Data validation completed'));
                     router.getRoute().forward();
                 },
-                failure: function () {
-                    confWindow.destroy();
+                callback: function () {
+                    viewport.setLoading(false);
                 }
             });
+            timeout = setTimeout(function () {
+                viewport.setLoading(false);
+                me.getApplication().fireEvent('acknowledge',
+                    Uni.I18n.translate('deviceloadprofiles.channels.activation.putToBackground', 'MDC', 'The data validation takes longer as expected and will continue in the background.'));
+            }, 180000);
         }
     },
 
