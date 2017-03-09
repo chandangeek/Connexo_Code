@@ -7,10 +7,10 @@ Ext.define('Imt.dashboard.view.widget.FlaggedUsagePointGroups', {
     ],
     store: 'Imt.dashboard.store.FlaggedUsagePointGroups',
     saveModel: 'Imt.usagepointgroups.model.UsagePointGroupFavorite',
-    emptyText: Uni.I18n.translate('overview.widget.flaggedUsagePointGroups.noUsagePointGroupsFound', 'IMT', 'No favorite usage point groups found'),
-    clickToRemoveText: Uni.I18n.translate('overview.widget.flaggedUsagePointGroups.unflag', 'IMT', 'Click to remove from the list of favorite usage point groups'),
+    emptyText: Uni.I18n.translate('overview.widget.flaggedUsagePointGroups.noUsagePointGroupsFound', 'IMT', 'No favourite usage point groups found'),
+    clickToRemoveText: Uni.I18n.translate('overview.widget.flaggedUsagePointGroups.unflag', 'IMT', 'Click to remove from the list of favourite usage point groups'),
     clickToAddText: Uni.I18n.translate('overview.widget.flaggedUsagePointGroups.flag', 'IMT', 'Click to flag the usage point group'),
-    titleTxt: Uni.I18n.translate('overview.widget.flaggedUsagePointGroups.header', 'IMT', 'My favorite usage point groups ({0})'),
+    titleTxt: Uni.I18n.translate('overview.widget.flaggedUsagePointGroups.header', 'IMT', 'My favourite usage point groups ({0})'),
     propertyName: 'id',
     showSelectButton: true,
     tooltipTpl: new Ext.XTemplate(
