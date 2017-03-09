@@ -734,14 +734,6 @@ public enum TableSpecs {
                     .varChar()
                     .map(MetrologyConfigurationImpl.Fields.DESCRIPTION.fieldName())
                     .add();
-            table.column(MetrologyConfigurationImpl.Fields.ALLOW_GAP.name())
-                    .type("char(1)")
-                    .notNull()
-                    .conversion(CHAR2BOOLEAN)
-                    .map(MetrologyConfigurationImpl.Fields.ALLOW_GAP.fieldName())
-                    .since(version(10,3))
-                    .installValue("'N'")
-                    .add();
             table.column(MetrologyConfigurationImpl.Fields.STATUS.name())
                     .number()
                     .conversion(NUMBER2ENUM)

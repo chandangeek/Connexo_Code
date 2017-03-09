@@ -29,12 +29,6 @@ public class MetrologyConfigurationUpdaterImpl implements MetrologyConfiguration
     }
 
     @Override
-    public MetrologyConfigurationUpdater setGapAllowed(boolean isGapAllowed) {
-        this.underConstruction.setGapAllowed(isGapAllowed);
-        return this;
-    }
-
-    @Override
     public MetrologyConfigurationUpdater setServiceCategory(ServiceCategory serviceCategory) {
         this.underConstruction.setServiceCategory(serviceCategory);
         return this;

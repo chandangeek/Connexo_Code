@@ -33,14 +33,6 @@ public interface MetrologyConfiguration extends HasId, HasName {
 
     String getDescription();
 
-    /**
-     * "Indicates whether gaps between meters on a meter role and between metrology configuration
-     * start/stop date and meter activations are allowed on usage points
-     *
-     * @return boolean
-     */
-    boolean isGapAllowed();
-
     MetrologyConfigurationStatus getStatus();
 
     boolean isActive();
