@@ -82,8 +82,8 @@ public class IdentificationServiceImpl implements IdentificationService {
     }
 
     @Override
-    public LoadProfileIdentifier createLoadProfileIdentifierByDatabaseId(long id, ObisCode obisCode) {
-        return new LoadProfileIdentifierById(id, obisCode);
+    public LoadProfileIdentifier createLoadProfileIdentifierByDatabaseId(long id, ObisCode obisCode, DeviceIdentifier deviceIdentifier) {
+        return new LoadProfileIdentifierById(id, obisCode, deviceIdentifier);
     }
 
     @Override

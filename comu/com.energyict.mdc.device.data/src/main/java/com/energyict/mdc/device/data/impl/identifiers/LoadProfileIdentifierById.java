@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
-
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -12,7 +12,7 @@ import java.util.Set;
 
 /**
  * Implementation of a LoadProfileIdentifier that uniquely identifies a LoadProfile with its database ID.
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 13/05/13
  * Time: 13:30
@@ -20,8 +20,9 @@ import java.util.Set;
 @XmlRootElement
 public final class LoadProfileIdentifierById implements LoadProfileIdentifier {
 
-    private Long id;
     private final ObisCode profileObisCode;
+    private final DeviceIdentifier deviceIdentifier;
+    private Long id;
 
     /**
      * Constructor only to be used by JSON (de)marshalling.
@@ -30,16 +31,23 @@ public final class LoadProfileIdentifierById implements LoadProfileIdentifier {
     public LoadProfileIdentifierById() {
         super();
         this.profileObisCode = null;
+        this.deviceIdentifier = null;
     }
 
-    public LoadProfileIdentifierById(Long id, ObisCode obisCode) {
+    public LoadProfileIdentifierById(Long id, ObisCode obisCode, DeviceIdentifier deviceIdentifier) {
         this.id = id;
         this.profileObisCode = obisCode;
+        this.deviceIdentifier = deviceIdentifier;
     }
 
     @Override
     public ObisCode getProfileObisCode() {
         return profileObisCode;
+    }
+
+    @Override
+    public DeviceIdentifier getDeviceIdentifier() {
+        return deviceIdentifier;
     }
 
     @XmlAttribute
