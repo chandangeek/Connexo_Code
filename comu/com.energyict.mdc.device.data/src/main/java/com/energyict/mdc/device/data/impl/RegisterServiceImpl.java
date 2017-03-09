@@ -6,7 +6,6 @@ import com.energyict.mdc.device.data.RegisterService;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-
 import com.energyict.obis.ObisCode;
 
 import java.util.Optional;
@@ -24,31 +23,37 @@ public class RegisterServiceImpl implements RegisterService {
 
     public RegisterServiceImpl(DeviceDataModelService deviceDataModelService) {
         this.deviceDataModelService = deviceDataModelService;
+
     }
 
     @Override
     public Optional<Register> find(RegisterIdentifier identifier) {
         try {
-            return this.find(identifier.forIntrospection());
+            Optional<Device> device = deviceDataModelService.deviceService().findDeviceByIdentifier(identifier.getDeviceIdentifier());
+            if (device.isPresent()) {
+                return this.find(identifier.forIntrospection(), device.get());
+            } else {
+                return Optional.empty();
+            }
         } catch (UnsupportedRegisterIdentifierTypeName | IllegalArgumentException e) {
             return Optional.empty();
         }
     }
 
-    private Optional<Register> find(Introspector introspector) throws UnsupportedRegisterIdentifierTypeName {
+    private Optional<Register> find(Introspector introspector, Device device) throws UnsupportedRegisterIdentifierTypeName {
         switch (introspector.getTypeName()) {
             case "Actual": {
                 return Optional.of((Register) introspector.getValue("actual"));
             }
             case "DatabaseId": {
-                return this.find((long) introspector.getValue("databaseValue"));
+                return this.find(device, Long.valueOf(introspector.getValue("databaseValue").toString()));
             }
             case "PrimeRegisterForChannel": {
                 DeviceIdentifier deviceIdentifier = (DeviceIdentifier) introspector.getValue("device");
                 int channelIndex = (int) introspector.getValue("channelIndex");
                 return this.deviceDataModelService.deviceService()
-                            .findDeviceByIdentifier(deviceIdentifier)
-                            .flatMap(use(this::findByDeviceAndChannelIndex).with(channelIndex));
+                        .findDeviceByIdentifier(deviceIdentifier)
+                        .flatMap(use(this::findByDeviceAndChannelIndex).with(channelIndex));
             }
             case "DeviceIdentifierAndObisCode": {
                 DeviceIdentifier deviceIdentifier = (DeviceIdentifier) introspector.getValue("device");
@@ -63,15 +68,14 @@ public class RegisterServiceImpl implements RegisterService {
         }
     }
 
-    private Optional<Register> find(long id) {
-        return this.deviceDataModelService.dataModel().mapper(Register.class).getOptional(id);
+    private Optional<Register> find(Device device, long id) {
+        return device.getRegisters().stream().filter(register -> register.getRegisterSpecId() == id).findAny();
     }
 
     private Optional<Register> findByDeviceAndChannelIndex(Device device, int channelIndex) {
         if (channelIndex <= device.getChannels().size()) {
             return Optional.of(device.getRegisters().get(channelIndex));
-        }
-        else {
+        } else {
             // Not enough channels
             return Optional.empty();
         }
