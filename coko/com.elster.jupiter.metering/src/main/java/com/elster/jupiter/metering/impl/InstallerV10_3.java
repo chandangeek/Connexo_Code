@@ -22,12 +22,10 @@ import java.util.stream.Stream;
 public class InstallerV10_3 implements PrivilegesProvider {
 
     private final UserService userService;
-    private final FiniteStateMachineService stateMachineService;
 
     @Inject
-    public InstallerV10_3(UserService userService, FiniteStateMachineService stateMachineService) {
+    public InstallerV10_3(UserService userService) {
         this.userService = userService;
-        this.stateMachineService = stateMachineService;
     }
 
     @Override
@@ -47,10 +45,5 @@ public class InstallerV10_3 implements PrivilegesProvider {
         return resources;
     }
 
-    public void installEndDeviceStageSet() {
-        StageSetBuilder stageSetBuilder = stateMachineService.newStageSet(MeteringService.END_DEVICE_STAGE_SET_NAME);
-        Stream.of(EndDeviceStage.values())
-                .forEach(endDeviceStage -> stageSetBuilder.stage(endDeviceStage.name()));
-        stageSetBuilder.add();
-    }
+
 }
