@@ -312,7 +312,7 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
 
                 me.deviceLifeCycle = deviceLifeCycleRecord;
                 form.loadRecord(deviceLifeCycleRecord);
-                view.down('#device-life-cycle-link').setText(deviceLifeCycleRecord.get('name'));
+                view.down('#device-life-cycle-overview-side-menu').setHeader(deviceLifeCycleRecord.get('name'));
                 Ext.Array.each(deviceLifeCycleRecord.get('deviceTypes'), function (deviceType) {
                     var url = router.getRoute('administration/devicetypes/view').buildUrl({deviceTypeId: deviceType.id});
                     deviceTypesList += '- <a href="' + url + '">' + Ext.String.htmlEncode(deviceType.name) + '</a><br/>';
