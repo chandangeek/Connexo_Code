@@ -100,6 +100,7 @@ public enum TableSpecs {
             Table<KeyAccessorType> table = dataModel.addTable(name(), KeyAccessorType.class);
             table.map(KeyAccessorTypeImpl.class);
             Column id = table.addAutoIdColumn();
+            table.setJournalTableName("DTC_KEYACCESSORTYPEJRNL");
             table.addAuditColumns();
             table.column("NAME")
                     .varChar()
@@ -165,7 +166,6 @@ public enum TableSpecs {
             table.foreignKey("FK_DTC_KEYACCTYPE_USRACTN")
                     .on(keyAccessorType)
                     .references(DTC_KEYACCESSORTYPE.name())
-                    .onDelete(CASCADE)
                     .reverseMap("userActionRecords")
                     .composition()
                     .map("keyAccessorType")
