@@ -244,7 +244,12 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
 
     @Override
     public void visitMembership(Membership membership) {
+        this.visitMembership(membership, this.columnName);
+    }
+
+    public void visitMembership(Membership membership, String columnName) {
         this.underConstruction.append(this.columnName);
+        this.underConstruction.space();
         this.underConstruction.append(membership.getOperator().getSymbol());
         this.underConstruction.spaceOpenBracket();
         this.underConstruction.add(membership.getSubquery().toFragment());
