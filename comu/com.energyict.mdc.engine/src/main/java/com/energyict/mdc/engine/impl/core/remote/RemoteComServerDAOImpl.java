@@ -52,7 +52,6 @@ import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateAlias;
-
 import com.google.common.collect.Range;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketClient;
@@ -322,6 +321,11 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public Boolean getInboundComTaskOnHold(DeviceIdentifier deviceIdentifier, InboundComPort comPort) {
+        return null;
+    }
+
+    @Override
     public void cleanupOutdatedComTaskExecutionTriggers() {
 
     }
@@ -470,6 +474,11 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public com.energyict.mdc.upl.properties.TypedProperties getDeviceDialectProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+        return null;
+    }
+
+    @Override
     public TypedProperties getDeviceConnectionTypeProperties (DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
         /* Todo: do not forget to take into account that DeviceIdentifier implementation classes
          * throw a NotFoundException when the device does not exist. */
@@ -485,6 +494,21 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     public TypedProperties getDeviceProtocolProperties (DeviceIdentifier deviceIdentifier) {
         /* Todo: do not forget to take into account that DeviceIdentifier implementation classes
          * throw a NotFoundException when the device does not exist. */
+        return null;
+    }
+
+    @Override
+    public com.energyict.mdc.upl.properties.TypedProperties getDeviceLocalProtocolProperties(DeviceIdentifier deviceIdentifier) {
+        return null;
+    }
+
+    @Override
+    public com.energyict.mdc.upl.offline.OfflineDevice getOfflineDevice(DeviceIdentifier deviceIdentifier, OfflineDeviceContext context) {
+        return null;
+    }
+
+    @Override
+    public String getDeviceProtocolClassName(DeviceIdentifier identifier) {
         return null;
     }
 

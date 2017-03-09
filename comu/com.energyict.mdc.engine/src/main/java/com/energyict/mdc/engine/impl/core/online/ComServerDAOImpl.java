@@ -17,6 +17,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -26,6 +27,7 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.RegisterService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
@@ -75,6 +77,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
@@ -95,7 +98,6 @@ import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateAlias;
-
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -115,6 +117,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Currying.use;
+import static com.energyict.mdc.upl.DeviceProtocolDialect.Property.DEVICE_PROTOCOL_DIALECT;
 
 
 /**
@@ -317,9 +320,9 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier identifier, OfflineDeviceContext offlineDeviceContext) {
-        Device device = this.findDevice(identifier);
-        if (device != null) {
-            return Optional.of(new OfflineDeviceImpl(device, offlineDeviceContext, new OfflineDeviceServiceProvider()));
+        Optional<Device> device = getDeviceFor(identifier);
+        if (device.isPresent()) {
+            return Optional.of(new OfflineDeviceImpl(device.get(), offlineDeviceContext, new OfflineDeviceServiceProvider()));
         } else {
             return Optional.empty();
         }
@@ -407,25 +410,17 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
-        this.executeTransaction(() -> {
-            Device device = this.findDevice(deviceIdentifier);
-            device.setProtocolProperty(propertyName, propertyValue);
-            device.save();
-            return null;
-        });
+        handleCertificatePropertyValue(propertyValue);
+
+        Device device = this.findDevice(deviceIdentifier);
+        device.setProtocolProperty(propertyName, propertyValue);
+        device.save();
     }
 
     @Override
     public void updateDeviceDialectProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
-        this.executeTransaction(() -> {
-            handleCertificatePropertyValue(propertyValue);
-
-            //Now update the general property
-            Device device = findDevice(deviceIdentifier);
-            device.setProtocolProperty(propertyName, propertyValue);
-            device.save();
-            return null;
-        });
+        Device device = findDevice(deviceIdentifier);
+        //TODO implement
     }
 
     /**
@@ -472,27 +467,24 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateDeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
-        this.executeTransaction(() -> {
-            handleCertificatePropertyValue(propertyValue);
+        handleCertificatePropertyValue(propertyValue);
 
-            //Now update the given security property.
-            Device device = this.findDevice(deviceIdentifier);
-            device.setSecurityProperty(propertyName, propertyValue);
-            return null;
-        });
+        //Now update the given security property.
+        Device device = this.findDevice(deviceIdentifier);
+        device.setSecurityProperty(propertyName, propertyValue);
     }
 
     @Override
     public void updateGateway(DeviceIdentifier deviceIdentifier, DeviceIdentifier gatewayDeviceIdentifier) {
         Device device = this.findDevice(deviceIdentifier);
-        Device gatewayDevice;
+        Optional<Device> gatewayDevice;
         if (gatewayDeviceIdentifier != null) {
-            gatewayDevice = this.findDevice(gatewayDeviceIdentifier);
+            gatewayDevice = this.getDeviceFor(gatewayDeviceIdentifier);
         } else {
-            gatewayDevice = null;
+            gatewayDevice = Optional.empty();
         }
-        if (gatewayDevice != null) {
-            this.serviceProvider.topologyService().setPhysicalGateway(device, gatewayDevice);
+        if (gatewayDevice.isPresent()) {
+            this.serviceProvider.topologyService().setPhysicalGateway(device, gatewayDevice.get());
         } else {
             this.serviceProvider.topologyService().clearPhysicalGateway(device);
         }
@@ -828,6 +820,46 @@ public class ComServerDAOImpl implements ComServerDAO {
         }
     }
 
+    @Override
+    public com.energyict.mdc.upl.properties.TypedProperties getDeviceDialectProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+        Device device = this.findDevice(deviceIdentifier);
+        InboundConnectionTask connectionTask = this.getInboundConnectionTask(inboundComPort, device);
+        if (connectionTask != null) {
+            //TODO get dialect from connectiontask, it is currently modelled on the comtask instead
+            Optional<ComTaskExecution> comTaskExecution = device.getComTaskExecutions()
+                    .stream()
+                    .filter(cte -> cte.getConnectionTaskId() == connectionTask.getId())
+                    .findAny();
+            if (comTaskExecution.isPresent() && comTaskExecution.get().getProtocolDialectConfigurationProperties() != null) {
+                ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = comTaskExecution.get().getProtocolDialectConfigurationProperties();
+                String dialectName = protocolDialectConfigurationProperties.getDeviceProtocolDialectName();
+                Device masterDevice = connectionTask.getDevice();   //Use the master device, this one holds the actual dialect properties
+                Optional<ProtocolDialectProperties> protocolDialectProperties = masterDevice.getProtocolDialectProperties(dialectName);
+                if (protocolDialectProperties.isPresent()) {
+                    final TypedProperties result = protocolDialectProperties.get().getTypedProperties();
+                    result.setProperty(DEVICE_PROTOCOL_DIALECT.getName(), protocolDialectProperties.get().getDeviceProtocolDialectName());
+
+                    DeviceProtocolDialect deviceProtocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialect();
+                    addDefaultValuesIfNecessary(deviceProtocolDialect, result);
+
+                    return TypedPropertiesValueAdapter.adaptToUPLValues(result);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * For all properties who are not yet specified - but for which a default value exist - the default value will be added.
+     */
+    private void addDefaultValuesIfNecessary(DeviceProtocolDialect theActualDialect, com.energyict.mdc.upl.properties.TypedProperties dialectProperties) {
+        for (com.energyict.mdc.upl.properties.PropertySpec propertySpec : theActualDialect.getUPLPropertySpecs()) {
+            if (!dialectProperties.hasValueFor(propertySpec.getName()) && propertySpec.getPossibleValues() != null) {
+                dialectProperties.setProperty(propertySpec.getName(), propertySpec.getPossibleValues().getDefault());
+            }
+        }
+    }
+
     /**
      * Gets the {@link SecurityProperty} that needs to be used when
      * the Device is communicating to the ComServer
@@ -889,18 +921,19 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public TypedProperties getDeviceConnectionTypeProperties(DeviceIdentifier identifier, InboundComPort inboundComPort) {
+    public com.energyict.mdc.upl.properties.TypedProperties getDeviceConnectionTypeProperties(DeviceIdentifier identifier, InboundComPort inboundComPort) {
         Device device = this.findDevice(identifier);
         ConnectionTask<?, ?> connectionTask = this.getInboundConnectionTask(inboundComPort, device);
         if (connectionTask == null) {
             return null;
         } else {
-            return connectionTask.getTypedProperties();
+            TypedProperties typedProperties = connectionTask.getTypedProperties();
+            return TypedPropertiesValueAdapter.adaptToUPLValues(typedProperties);
         }
     }
 
     @Override
-    public TypedProperties getOutboundConnectionTypeProperties(DeviceIdentifier deviceIdentifier) {
+    public com.energyict.mdc.upl.properties.TypedProperties getOutboundConnectionTypeProperties(DeviceIdentifier deviceIdentifier) {
         Device device = findDevice(deviceIdentifier);
 
         List<OutboundConnectionTask> outboundConnectionTasks = device.getConnectionTasks().stream()
@@ -909,25 +942,54 @@ public class ComServerDAOImpl implements ComServerDAO {
                 .collect(Collectors.toList());
         Optional<OutboundConnectionTask> defaultConnectionTask = outboundConnectionTasks.stream().filter(OutboundConnectionTask::isDefault).findAny();
 
+        TypedProperties result = TypedProperties.empty();
         if (defaultConnectionTask.isPresent()) {
-            return defaultConnectionTask.get().getTypedProperties();
+            result = defaultConnectionTask.get().getTypedProperties();
         } else if (outboundConnectionTasks.size() > 0) {
-            return outboundConnectionTasks.get(0).getTypedProperties();
-        } else {
-            return TypedProperties.empty();
+            result = outboundConnectionTasks.get(0).getTypedProperties();
+        }
+        return TypedPropertiesValueAdapter.adaptToUPLValues(result);
+    }
+
+    @Override
+    public com.energyict.mdc.upl.properties.TypedProperties getDeviceProtocolProperties(DeviceIdentifier identifier) {
+        try {
+            Optional<Device> device = this.getDeviceFor(identifier);
+            TypedProperties typedProperties = device.map(Device::getDeviceProtocolProperties).orElse(null);
+            return TypedPropertiesValueAdapter.adaptToUPLValues(typedProperties);
+        } catch (CanNotFindForIdentifier e) {
+            return null;
         }
     }
 
     @Override
-    public TypedProperties getDeviceProtocolProperties(DeviceIdentifier identifier) {
-        try {
-            Device device = this.findDevice(identifier);
-            if (device != null) {
-                return device.getDeviceProtocolProperties();
-            } else {
-                return null;
-            }
-        } catch (CanNotFindForIdentifier e) {
+    public com.energyict.mdc.upl.properties.TypedProperties getDeviceLocalProtocolProperties(DeviceIdentifier deviceIdentifier) {
+        Optional<Device> device = getDeviceFor(deviceIdentifier);
+        if (device.isPresent()) {
+            com.energyict.mdc.upl.properties.TypedProperties localProperties = TypedProperties.empty();
+
+            TypedProperties deviceProtocolProperties = device.get().getDeviceProtocolProperties();
+            deviceProtocolProperties
+                    .localPropertyNames()
+                    .stream()
+                    .forEach(localName -> localProperties.setProperty(localName, deviceProtocolProperties.getProperty(localName)));
+
+            return TypedPropertiesValueAdapter.adaptToUPLValues(localProperties);
+        }
+        return null;
+    }
+
+    @Override
+    public com.energyict.mdc.upl.offline.OfflineDevice getOfflineDevice(DeviceIdentifier deviceIdentifier, OfflineDeviceContext context) {
+        return new OfflineDeviceImpl(findDevice(deviceIdentifier), context, new OfflineDeviceServiceProvider());
+    }
+
+    @Override
+    public String getDeviceProtocolClassName(DeviceIdentifier identifier) {
+        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = findDevice(identifier).getDeviceProtocolPluggableClass();
+        if (deviceProtocolPluggableClass.isPresent()) {
+            return deviceProtocolPluggableClass.get().getJavaClassName();
+        } else {
             return null;
         }
     }
@@ -1081,6 +1143,21 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public Boolean getInboundComTaskOnHold(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+        Optional<Device> device = getDeviceFor(deviceIdentifier);
+        if (device.isPresent()) {
+            InboundConnectionTask connectionTask = this.getInboundConnectionTask(inboundComPort, device.get());
+            if (connectionTask != null) {
+                ComTaskExecution first = this.getFirstComTaskExecution(connectionTask);
+                if (first != null) {
+                    return first.isOnHold();
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
     public void updateCalendars(CollectedCalendar collectedCalendar) {
         Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(collectedCalendar.getDeviceIdentifier());
         optionalDevice.ifPresent(device -> this.updateCalendars(collectedCalendar, device));
@@ -1100,8 +1177,9 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public List<Pair<OfflineLoadProfile, Range<Instant>>> getStorageLoadProfileIdentifiers(OfflineLoadProfile offlineLoadProfile, String readingTypeMRID, Range<Instant> dataPeriod) {
-        final Device dataLogger = this.findDevice(offlineLoadProfile.getDeviceIdentifier());
-        if (dataLogger != null) {
+        Optional<Device> dataLoggerOptional = this.getDeviceFor(offlineLoadProfile.getDeviceIdentifier());
+        if (dataLoggerOptional.isPresent()) {
+            Device dataLogger = dataLoggerOptional.get();
             if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()) {
                 Optional<Channel> dataLoggerChannel = dataLogger.getChannels().stream().filter((c) -> c.getReadingType().getMRID().equals(readingTypeMRID)).findFirst();
                 if (dataLoggerChannel.isPresent()) {

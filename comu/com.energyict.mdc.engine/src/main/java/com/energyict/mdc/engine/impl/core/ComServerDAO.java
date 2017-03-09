@@ -5,6 +5,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -18,8 +19,8 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.PropertyValueType;
-import com.energyict.mdc.engine.impl.core.inbound.InboundDAO;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
@@ -39,7 +40,6 @@ import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateAlias;
-
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -63,7 +63,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-03-16 (16:14)
  */
-public interface ComServerDAO extends InboundDAO, ServerProcess {
+public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerProcess {
 
     /**
      * Gets the ComServer that relates to the machine where this code is running on.
@@ -72,6 +72,43 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * the machine is <strong>NOT</strong> the name of a registered ComServer.
      */
     ComServer getThisComServer();
+
+    /**
+     * Gets the {@link SecurityProperty security properties} that have been
+     * created against the Device that is currently connected to the ComServer
+     * via the specified {@link InboundComPort}.
+     *
+     * @param deviceIdentifier The object that uniquely identifies the Device
+     * @param inboundComPort   The InboundComPort
+     * @return The List of SecurityProperty or null if the Device is not ready for inbound communication
+     */
+    List<SecurityProperty> getDeviceProtocolSecurityProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort);
+
+    /**
+     * Returns the dialect properties of the first comtask of a given device or <code>null</code>.
+     */
+    com.energyict.mdc.upl.properties.TypedProperties getDeviceDialectProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort);
+
+    /**
+     * Gets the {@link TypedProperties} that have been
+     * created against the {@link com.energyict.mdc.device.data.tasks.ConnectionTask}
+     * that is currently used to connect the Device to the ComServer
+     * via the specified {@link InboundComPort}.
+     *
+     * @param deviceIdentifier The object that uniquely identifies the Device
+     * @param inboundComPort   The InboundComPort
+     * @return The TypedProperties or <code>null</code> if the Device is not ready for inbound communication
+     */
+    com.energyict.mdc.upl.properties.TypedProperties getDeviceConnectionTypeProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort);
+
+    /**
+     * Finds the {@link com.energyict.mdc.upl.meterdata.Device} that is uniquely identified
+     * by the specified {@link DeviceIdentifier}.
+     *
+     * @param identifier The DeviceIdentifier
+     * @return The offline version of the Device that is identified by the DeviceIdentifier
+     */
+    Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier identifier);
 
     /**
      * Gets the ComServer that relates to the machine with the specified host name.
@@ -509,6 +546,17 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus);
 
     void updateCalendars(CollectedCalendar collectedCalendar);
+
+    /**
+     * Gets the onHold property for the inbound com task
+     * created against the Device that is currently connected to the ComServerc
+     * via the specified {@link InboundComPort}.
+     *
+     * @param deviceIdentifier The object that uniquely identifies the Device
+     * @param inboundComPort   The InboundComPort
+     * @return the onHold property vale
+     */
+    Boolean getInboundComTaskOnHold(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort);
 
     /**
      * Request cleanup of all outdated {@link com.energyict.mdc.device.data.tasks.ComTaskExecutionTrigger}s<br/>
