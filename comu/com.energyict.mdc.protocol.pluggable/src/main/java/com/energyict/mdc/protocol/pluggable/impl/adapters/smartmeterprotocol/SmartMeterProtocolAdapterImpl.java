@@ -196,7 +196,7 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     protected void initializeAdapters() {
         this.propertiesAdapter = new PropertiesAdapter();
         this.smartMeterProtocolClockAdapter = new SmartMeterProtocolClockAdapter(getSmartMeterProtocol());
-        this.smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(getSmartMeterProtocol(), issueService, collectedDataFactory, identificationService);
+        this.smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(getSmartMeterProtocol(), issueService, collectedDataFactory, identificationService, offlineDevice);
         this.deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter(issueService, collectedDataFactory);
         this.smartMeterProtocolLogBookAdapter = new SmartMeterProtocolLogBookAdapter(getSmartMeterProtocol(), issueService, collectedDataFactory, meteringService);
         this.smartMeterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(getSmartMeterProtocol(), issueService, collectedDataFactory);

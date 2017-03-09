@@ -14,8 +14,8 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
-
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.ProfileData;
 
@@ -46,17 +46,19 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
     private final IdentificationService identificationService;
+    private final OfflineDevice offlineDevice;
 
     /**
      * The used {@link SmartMeterProtocolClockAdapter}
      */
     private final SmartMeterProtocolClockAdapter smartMeterProtocolClockAdapter;
 
-    public SmartMeterProtocolLoadProfileAdapter(final SmartMeterProtocol smartMeterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory, IdentificationService identificationService) {
+    public SmartMeterProtocolLoadProfileAdapter(final SmartMeterProtocol smartMeterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory, IdentificationService identificationService, OfflineDevice offlineDevice) {
         this.smartMeterProtocol = smartMeterProtocol;
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
         this.identificationService = identificationService;
+        this.offlineDevice = offlineDevice;
         this.smartMeterProtocolClockAdapter = new SmartMeterProtocolClockAdapter(smartMeterProtocol);
     }
 
@@ -157,7 +159,9 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
                             collectedDataFactory.createCollectedLoadProfile(
                                     this.identificationService.createLoadProfileIdentifierByDatabaseId(
                                             loadProfileReader.getLoadProfileId(),
-                                            loadProfileReader.getProfileObisCode()));
+                                            loadProfileReader.getProfileObisCode(),
+                                            offlineDevice.getDeviceIdentifier()
+                                    ));
                     if (!profileDataWithLoadProfileId.equals(INVALID_PROFILE_DATA)) {
                         deviceLoadProfile.setCollectedIntervalData(profileDataWithLoadProfileId.getIntervalDatas(), profileDataWithLoadProfileId.getChannelInfos());
                         deviceLoadProfile.setDoStoreOlderValues(profileDataWithLoadProfileId.shouldStoreOlderValues());

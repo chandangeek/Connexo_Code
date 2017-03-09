@@ -204,7 +204,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     protected void initializeAdapters() {
         this.propertiesAdapter = new PropertiesAdapter();
         this.meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(registerProtocol, issueService, collectedDataFactory);
-        this.meterProtocolLoadProfileAdapter = new MeterProtocolLoadProfileAdapter(meterProtocol, issueService, collectedDataFactory, identificationService);
+        this.meterProtocolLoadProfileAdapter = new MeterProtocolLoadProfileAdapter(meterProtocol, issueService, collectedDataFactory, identificationService, offlineDevice);
         this.meterProtocolClockAdapter = new MeterProtocolClockAdapter(meterProtocol);
         this.deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter(issueService, collectedDataFactory);
 
