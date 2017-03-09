@@ -10,6 +10,8 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.util.Collections;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -78,7 +80,9 @@ final class SqlConstants {
         TIMESTAMP("timestamp", "UTCSTAMP") {
             @Override
             void appendAsDeliverableSelectValue(Formula.Mode mode, ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
-                String value = expressionNode.accept(new TimeStampFromExpressionNode());
+                TimeStampFromExpressionNode visitor = new TimeStampFromExpressionNode();
+                expressionNode.accept(visitor);
+                String value = visitor.getSqlName();
                 if (value == null) {
                     sqlBuilder.append("0");
                 } else if (expertIntervalLength.isPresent()) {
@@ -124,7 +128,7 @@ final class SqlConstants {
         },
 
         /**
-         * The version of a TimeSeries interval.
+         * The record time of a TimeSeries interval.
          * @see com.elster.jupiter.ids.TimeSeriesEntry#getRecordDateTime()
          */
         RECORDTIME("recordtime", "RECORDTIME") {
@@ -144,10 +148,6 @@ final class SqlConstants {
             }
         },
 
-        /**
-         * The version of a TimeSeries interval.
-         * @see com.elster.jupiter.ids.TimeSeriesEntry#getLong(int)
-         */
         READINGQUALITY("readingQuality", null) {
             @Override
             void appendAsDeliverableSelectValue(Formula.Mode mode, ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
@@ -162,7 +162,27 @@ final class SqlConstants {
             @Override
             AggregationFunction aggregationFunctionFor(VirtualReadingType readingType) {
                 return AggregationFunction.MAX;
-                //return AggregationFunction.AGGREGATE_FLAGS;
+            }
+        },
+
+        SOURCECHANNELS("sourceChannels", null) {
+            @Override
+            void appendAsDeliverableSelectValue(Formula.Mode mode, ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
+                SourceChannelSqlNamesCollector collector = new SourceChannelSqlNamesCollector();
+                expressionNode.accept(collector);
+                String channels = collector.getSourceChannelSqlNames()
+                        .stream()
+                        .collect(Collectors.joining(" || '" + SourceChannelSetFactory.SOURCE_CHANNEL_IDS_SEPARATOR + "' || "));
+                if (channels.isEmpty()) {
+                    sqlBuilder.append("''");
+                } else {
+                    sqlBuilder.append(channels);
+                }
+            }
+
+            @Override
+            AggregationFunction aggregationFunctionFor(VirtualReadingType readingType) {
+                return AggregationFunction.MAX;
             }
         },
 
@@ -285,13 +305,7 @@ final class SqlConstants {
         }
 
         static String[] names() {
-            String[] names = new String[values().length];
-            int i = 0;
-            for (TimeSeriesColumnNames columnNames : values()) {
-                names[i] = columnNames.sqlName();
-                i++;
-            }
-            return names;
+            return Stream.of(values()).map(TimeSeriesColumnNames::sqlName).toArray(String[]::new);
         }
 
     }

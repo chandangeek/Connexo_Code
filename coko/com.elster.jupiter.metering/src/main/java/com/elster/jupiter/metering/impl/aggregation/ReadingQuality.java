@@ -4,9 +4,6 @@
 
 package com.elster.jupiter.metering.impl.aggregation;
 
-/**
- * Created by igh on 20/06/2016.
- */
 public enum ReadingQuality {
 
     DERIVED_DETERMINISTIC("3.11.0"),
@@ -39,6 +36,4 @@ public enum ReadingQuality {
             return DERIVED_DETERMINISTIC;
         }
     }
-
-
 }

@@ -87,8 +87,10 @@ class VirtualRequirementNode implements ServerExpressionNode {
     private VirtualReadingType preferredReadingTypeFor(VirtualReadingType targetReadingType) {
         /* Preferred interval is the smallest matching reading type
          * that is compatible with the target interval. */
-        Optional<VirtualReadingType> preferredReadingType = new MatchingChannelSelector(this.requirement, this.meterActivationSet, this.mode)
-                .getPreferredReadingType(targetReadingType);
+        Optional<VirtualReadingType> preferredReadingType =
+                new MatchingChannelSelector(this.requirement, this.meterActivationSet, this.mode)
+                    .getPreferredReadingType(targetReadingType)
+                    .map(virtualReadingType -> virtualReadingType.withTimeOfUseBucketIfNotNull(targetReadingType.getTimeOfUseBucket()));
         if (preferredReadingType.isPresent()) {
             Loggers.ANALYSIS.debug(() ->
                     MessageFormat.format(
