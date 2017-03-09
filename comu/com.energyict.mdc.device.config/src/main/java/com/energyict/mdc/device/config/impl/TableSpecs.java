@@ -165,6 +165,7 @@ public enum TableSpecs {
             table.foreignKey("FK_DTC_KEYACCTYPE_USRACTN")
                     .on(keyAccessorType)
                     .references(DTC_KEYACCESSORTYPE.name())
+                    .onDelete(CASCADE)
                     .reverseMap("userActionRecords")
                     .composition()
                     .map("keyAccessorType")
