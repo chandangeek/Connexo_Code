@@ -114,7 +114,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
         ];
 
         if (me.mentionDataLoggerSlave) {
-            me.on('afterrender', function() {
+            me.on('afterrender', function () {
                 me.down('#mdc-register-general-form').insert(1,
                     {
                         xtype: 'displayfield',
@@ -122,7 +122,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
                         fieldLabel: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
                         itemId: 'mdc-register-data-preview-data-logger-slave',
                         name: 'slaveRegister',
-                        renderer: function() {
+                        renderer: function () {
                             var record = this.up('form').getRecord(),
                                 slaveRegister = record ? record.get('slaveRegister') : undefined;
                             if (Ext.isEmpty(slaveRegister)) {
@@ -170,37 +170,63 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
         me.down('#mdc-register-qualities-form').setTitle(title);
         me.down('#mdc-register-general-form').loadRecord(registerRecord);
         me.down('#mdc-register-validation-form').loadRecord(registerRecord);
+        if (!registerBeingViewed) {
+            if (calculatedValueField) {
+                calculatedValueField.show()
+            }
 
-        if (calculatedValueField) {
-            calculatedValueField.setVisible(hasCalculatedValue);
- //           calculatedValueField.setValue(registerRecord.get('calculatedValue'));
-        }
-        if (deltaValueField) {
-            deltaValueField.setVisible(hasDeltaValue);
-        }
-        if (multiplierField) {
-            if (hasCalculatedValue) {
-                multiplierField.setValue(registerRecord.get('multiplier'));
+            if (calculatedValueField) {
+                deltaValueField.show()
             }
-            multiplierField.setVisible(hasCalculatedValue);
-        }
-        if(!!intervalField) {
-            if (!Ext.isDefined(registerBeingViewed) || registerBeingViewed.get('isCumulative')) {
-                measurementTime.hide();
-                intervalField.show();
-            } else {
-                measurementTime.show();
-                intervalField.hide();
+
+            if (deltaValueField) {
+                multiplierField.show()
             }
-            if(registerBeingViewed.get('hasEvent')){
-                eventTime.show();
-            } else {
-                eventTime.hide();
+
+            if (measurementTime) {
+                measurementTime.show()
             }
-            if(!registerBeingViewed.get('isCumulative') && !registerBeingViewed.get('isBilling') && registerBeingViewed.get('hasEvent')){
-                measurementTime.hide();
-                intervalField.hide();
-                eventTime.show();
+
+            if (intervalField) {
+                intervalField.show()
+            }
+
+            if (eventTime) {
+                eventTime.show()
+            }
+
+        } else {
+            if (calculatedValueField) {
+                calculatedValueField.setVisible(hasCalculatedValue);
+                //           calculatedValueField.setValue(registerRecord.get('calculatedValue'));
+            }
+            if (deltaValueField) {
+                deltaValueField.setVisible(hasDeltaValue);
+            }
+            if (multiplierField) {
+                if (hasCalculatedValue) {
+                    multiplierField.setValue(registerRecord.get('multiplier'));
+                }
+                multiplierField.setVisible(hasCalculatedValue);
+            }
+            if (!!intervalField) {
+                if (!Ext.isDefined(registerBeingViewed) || registerBeingViewed.get('isCumulative')) {
+                    measurementTime.hide();
+                    intervalField.show();
+                } else {
+                    measurementTime.show();
+                    intervalField.hide();
+                }
+                if (registerBeingViewed.get('hasEvent')) {
+                    eventTime.show();
+                } else {
+                    eventTime.hide();
+                }
+                if (!registerBeingViewed.get('isCumulative') && !registerBeingViewed.get('isBilling') && registerBeingViewed.get('hasEvent')) {
+                    measurementTime.hide();
+                    intervalField.hide();
+                    eventTime.show();
+                }
             }
         }
 

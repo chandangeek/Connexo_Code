@@ -66,6 +66,9 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
     editRegisterDataRecord: function (values, cfg) {
         var me = this,
             record = me.getDeviceregisterreportedit().down('#registerDataEditForm').getRecord();
+        if(values.eventDate && !values.timeStamp){
+            values.timeStamp = values.eventDate;
+        }
         me.updateRecord(record, values, Ext.apply({
             successMessage: Uni.I18n.translate('device.registerData.updated', 'MDC', 'Register data saved')
         }, cfg));
@@ -76,6 +79,9 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
          //   registerType = me.getDeviceregisterreportedit().registerType,
             registerSubType = me.getDeviceregisterreportedit().subType,
             record = me.getReadingModelInstanceByType(registerSubType);
+        if(values.eventDate && !values.timeStamp){
+            values.timeStamp = values.eventDate;
+        }
         me.updateRecord(record, values, Ext.apply({
             successMessage: Uni.I18n.translate('device.registerData.created', 'MDC', 'Register data saved')
         }, cfg));
@@ -157,7 +163,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             record.save({
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', cfg.successMessage);
-                    window.history.back();
+                    window.location = me.getRegisterDataEditForm().up('contentcontainer').returnLink
                 },
                 failure: function (record, resp) {
                     var response = resp.response;
