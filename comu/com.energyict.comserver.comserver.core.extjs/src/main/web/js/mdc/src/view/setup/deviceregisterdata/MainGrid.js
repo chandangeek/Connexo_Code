@@ -11,7 +11,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainGrid', {
         'Uni.grid.column.Obis',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.view.setup.deviceregisterdata.ActionMenu'
+        'Mdc.view.setup.deviceregisterdata.ActionMenu',
+        'Mdc.view.setup.deviceregisterdata.DataBulkActionMenu'
     ],
 
     deviceId: null,
@@ -35,6 +36,16 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainGrid', {
                         privileges: Mdc.privileges.Device.administrateDeviceData,
                         href: '#/devices/' + encodeURIComponent(me.deviceId) + '/registers/' + me.registerId + '/data/add',
                         dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
+                    },
+                    {
+                        xtype: 'button',
+                        itemId: 'device-register-data-bulk-action-button',
+                        text: Uni.I18n.translate('general.bulkAction', 'MDC', 'Bulk action'),
+                        privileges: Mdc.privileges.Device.administrateDeviceData,
+                        menu: {
+                            xtype: 'register-data-bulk-action-menu',
+                            itemId: 'register-data-bulk-action-menu'
+                        }
                     }
                 ]
             },

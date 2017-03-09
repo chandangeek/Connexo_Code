@@ -394,6 +394,13 @@ Ext.define('Mdc.controller.history.Setup', {
                                             privileges: Mdc.privileges.Device.administrateDevice,
                                             action: 'editRegister'
                                         },
+                                        history: {
+                                            title: Uni.I18n.translate('general.history', 'MDC', 'History'),
+                                            route: 'history',
+                                            controller: 'Mdc.controller.setup.DeviceRegisterHistoryData',
+                                            privileges: Mdc.privileges.Device.administrateDevice,
+                                            action: 'viewHistory'
+                                        },
                                         editcustomattributes: {
                                             route: 'customattributes/{customAttributeSetId}/edit',
                                             controller: 'Mdc.controller.setup.DeviceRegisterConfiguration',

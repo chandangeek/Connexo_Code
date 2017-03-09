@@ -2,71 +2,78 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.controller.setup.DeviceRegisterData', {
+Ext.define('Mdc.controller.setup.DeviceRegisterHistoryData', {
     extend: 'Ext.app.Controller',
 
     views: [
-        'setup.deviceregisterdata.MainSetup',
-        'setup.deviceregisterdata.MainGrid',
-        'setup.deviceregisterdata.text.Setup',
-        'setup.deviceregisterdata.text.Grid',
-        'setup.deviceregisterdata.text.Preview',
-        'setup.deviceregisterdata.numerical.Setup',
-        'setup.deviceregisterdata.numerical.Grid',
-        'setup.deviceregisterdata.numerical.Preview',
-        'setup.deviceregisterdata.billing.Setup',
-        'setup.deviceregisterdata.billing.Grid',
-        'setup.deviceregisterdata.billing.Preview',
-        'setup.deviceregisterdata.flags.Setup',
-        'setup.deviceregisterdata.flags.Grid',
-        'setup.deviceregisterdata.flags.Preview',
-        'setup.deviceregisterdata.ValidationPreview',
-        'setup.deviceregisterdata.RegisterTopFilter'
-    ],
+        'Mdc.view.setup.deviceregisterdata.HistorySetup'
+        /*     'setup.deviceregisterdata.MainSetup',
+         'setup.deviceregisterdata.MainGrid',
+         'setup.deviceregisterdata.text.Setup',
+         'setup.deviceregisterdata.text.Grid',
+         'setup.deviceregisterdata.text.Preview',
+         'setup.deviceregisterdata.numerical.Setup',
+         'setup.deviceregisterdata.numerical.Grid',
+         'setup.deviceregisterdata.numerical.Preview',
+         'setup.deviceregisterdata.billing.Setup',
+         'setup.deviceregisterdata.billing.Grid',
+         'setup.deviceregisterdata.billing.Preview',
+         'setup.deviceregisterdata.flags.Setup',
+         'setup.deviceregisterdata.flags.Grid',
+         'setup.deviceregisterdata.flags.Preview',
+         'setup.deviceregisterdata.ValidationPreview',
+         'setup.deviceregisterdata.RegisterTopFilter'
+         */],
 
     models: [
+        'Mdc.model.Register'
     ],
 
     stores: [
-        'RegisterData',
-        'NumericalRegisterData',
-        'BillingRegisterData',
-        'TextRegisterData',
-        'FlagsRegisterData',
-        'Mdc.store.RegisterConfigsOfDevice',
-        'Mdc.store.RegisterDataDurations'
-    ],
+        'Mdc.store.RegisterHistoryData',
+        'Mdc.store.NumericalRegisterHistoryData',
+
+
+        /*     'RegisterData',
+         'NumericalRegisterData',
+         'BillingRegisterData',
+         'TextRegisterData',
+         'FlagsRegisterData',
+         'Mdc.store.RegisterConfigsOfDevice',
+         'Mdc.store.RegisterDataDurations'
+         */],
 
     refs: [
-        { ref: 'page', selector: 'deviceRegisterDataPage' },
-        { ref: 'deviceregisterreportpreview', selector: '#deviceregisterreportpreview' },
-        {
-            ref: 'filterPanel',
-            selector: 'deviceRegisterDataPage mdc-registers-topfilter'
-        },
-        {
-            ref: 'stepsMenu',
-            selector: '#stepsMenu'
-        }
-    ],
+        /*    { ref: 'page', selector: 'deviceRegisterDataPage' },
+         { ref: 'deviceregisterreportpreview', selector: '#deviceregisterreportpreview' },
+         {
+         ref: 'filterPanel',
+         selector: 'deviceRegisterDataPage mdc-registers-topfilter'
+         },
+         {
+         ref: 'stepsMenu',
+         selector: '#stepsMenu'
+         }
+         */],
 
-    registerBeingViewed: null,
-    unitOfMeasureCalculated: '',
+    //   registerBeingViewed: null,
+//    unitOfMeasureCalculated: '',
 
     init: function () {
         var me = this;
 
         me.control({
-            '#deviceregisterreportsetup #deviceregisterreportgrid': {
-                select: me.loadGridItemDetail
-            },
-            'deviceregisterdataactionmenu': {
-                beforeshow: this.checkSuspect,
-                click: this.chooseAction
-            },
-            'register-data-bulk-action-menu': {
-                click: this.chooseBulkAction
-            },
+            /*        '#deviceregisterreportsetup #deviceregisterreportgrid': {
+             select: me.loadGridItemDetail
+             },
+             'deviceregisterdataactionmenu': {
+             beforeshow: this.checkSuspect,
+             click: this.chooseAction
+             },
+             'register-data-bulk-action-menu': {
+             click: this.chooseBulkAction
+             },
+             */
         });
     },
 
@@ -147,14 +154,14 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
         });
     },
 
-    onApplyFilter: function() {
+    onApplyFilter: function () {
         var me = this,
             type = registerBeingViewed.get('type'),
             dataStore = me.getStore(type.charAt(0).toUpperCase() + type.substring(1) + 'RegisterData');
         dataStore.on('load', me.onDataStoreLoad, me, {single: true});
     },
 
-    onDataStoreLoad: function(store, records) {
+    onDataStoreLoad: function (store, records) {
         var me = this,
             type = registerBeingViewed.get('type'),
             collectedReadingType = registerBeingViewed.get('readingType'),
@@ -168,7 +175,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
             deltaValueColumn = contentPanel.down('grid').down('[dataIndex=deltaValue]'),
             valueColumn = contentPanel.down('grid').down('[dataIndex=value]');
 
-        Ext.Array.each(records, function(record) {
+        Ext.Array.each(records, function (record) {
             hasCalculatedValue = hasCalculatedValue || !Ext.isEmpty(record.get('calculatedValue'));
             if (hasCalculatedValue) {
                 calculatedUnit = record.get('calculatedUnit');
@@ -247,7 +254,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
             case 'viewHistory':
                 route = 'devices/device/registers/register/history';
                 var param = {};
-                me.getFilterPanel().down('#deviceregister-topfilter-interval').applyParamValue(param);
+                me.getFilterPanel().down('#devicechannels-topfilter-duration').applyParamValue(param);
                 filterParams = {endInterval: param.intervalStart.toString() + '-' + param.intervalEnd.toString()};
                 break;
         }
@@ -256,7 +263,49 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
         route && route.forward(routeParams, filterParams);
     },
 
+    viewHistory: function (deviceId, registerId) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            viewport = Ext.ComponentQuery.query('viewport')[0];
 
+        viewport.setLoading(true);
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
+            success: function (device) {
+
+                var model = Ext.ModelManager.getModel('Mdc.model.Register');
+                model.getProxy().setExtraParam('deviceId', deviceId);
+                model.load(registerId, {
+                    success: function (register) {
+
+                        var type = register.get('type');
+                        var widget = Ext.widget('device-register-history', {
+                            device: device,
+                            router: router,
+                            register: register,
+                            type: type
+                        });
+                        var store = widget.down('#device-registers-history').store;
+                        widget.down('#device-register-history-filter').store = store;
+                        store.getProxy().setUrl(deviceId, registerId);
+                        store.load({
+                            callback: function () {
+                                me.getApplication().fireEvent('loadDevice', device);
+                                me.getApplication().fireEvent('loadRegisterConfiguration', register);
+                                me.getApplication().fireEvent('changecontentevent', widget);
+                                viewport.setLoading(false);
+                            }
+                        });
+                    },
+                    failure: function () {
+                        viewport.setLoading(false);
+                    }
+                });
+            },
+            failure: function () {
+                viewport.setLoading(false);
+            }
+        });
+    }
 })
 ;
 

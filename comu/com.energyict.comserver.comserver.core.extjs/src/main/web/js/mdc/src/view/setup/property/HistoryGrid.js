@@ -55,7 +55,6 @@ Ext.define('Mdc.view.setup.property.HistoryGrid', {
                 dataIndex: 'reportedDateTime',
                 flex: 1,
                 renderer: function (value, metaData, record) {
-                    //var val = record.get('version') == 1 ? record.get('interval_end') : value;
                     return value ? Uni.DateTime.formatDateTimeShort(value) : '';
                 }
             },
