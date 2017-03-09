@@ -55,7 +55,8 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.EventTypeWindow',
         'Uni.property.view.property.LifeCycleStatusInDeviceType',
         'Uni.property.view.property.RaisedEventProps',
-        'Uni.property.view.property.EventTime'
+        'Uni.property.view.property.EventTime',
+        'Uni.property.view.property.StartAlarmProcess'
     ],
 
     /**
@@ -66,7 +67,7 @@ Ext.define('Uni.property.controller.Registry', {
         ADVANCEREADINGSSETTINGSWITHOUTNONE: 'Uni.property.view.property.AdvanceReadingsSettingsWithoutNone',
         ASSIGN: 'Uni.property.view.property.Assign',
         BOOLEAN: 'Uni.property.view.property.Boolean',
-        BPM_PROCESS: 'Uni.property.view.property.Reference',
+        BPM_PROCESS: 'Uni.property.view.property.StartAlarmProcess',
         CLOCK: 'Uni.property.view.property.DateTime',
         CODETABLE: 'Uni.property.view.property.CodeTable',
         COMBOBOX: 'Uni.property.view.property.Combobox',
