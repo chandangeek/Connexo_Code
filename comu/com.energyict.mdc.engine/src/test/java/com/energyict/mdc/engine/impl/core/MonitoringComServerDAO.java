@@ -42,7 +42,6 @@ import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateAlias;
-
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -141,9 +140,15 @@ public class MonitoringComServerDAO implements ComServerDAO {
         return actual.findOfflineDevice(identifier, offlineDeviceContext);
     }
 
+
     @Override
     public Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier, Instant when) {
         return Optional.empty();
+    }
+
+    @Override
+    public Boolean getInboundComTaskOnHold(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+        return null;
     }
 
     @Override
@@ -407,6 +412,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public com.energyict.mdc.upl.properties.TypedProperties getDeviceDialectProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+        return null;
+    }
+
+    @Override
     public TypedProperties getDeviceConnectionTypeProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
         // No support for inbound communication in monitoring mode
         return TypedProperties.empty();
@@ -421,6 +431,21 @@ public class MonitoringComServerDAO implements ComServerDAO {
     public TypedProperties getDeviceProtocolProperties(DeviceIdentifier deviceIdentifier) {
         // No support for inbound communication in monitoring mode
         return TypedProperties.empty();
+    }
+
+    @Override
+    public com.energyict.mdc.upl.properties.TypedProperties getDeviceLocalProtocolProperties(DeviceIdentifier deviceIdentifier) {
+        return null;
+    }
+
+    @Override
+    public com.energyict.mdc.upl.offline.OfflineDevice getOfflineDevice(DeviceIdentifier deviceIdentifier, OfflineDeviceContext context) {
+        return null;
+    }
+
+    @Override
+    public String getDeviceProtocolClassName(DeviceIdentifier identifier) {
+        return null;
     }
 
     @Override
@@ -561,6 +586,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
         @Override
         public void updateCalendars(CollectedCalendar collectedCalendar) {
 
+        }
+
+        @Override
+        public Boolean getInboundComTaskOnHold(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+            return null;
         }
 
         @Override
@@ -760,6 +790,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
+        public com.energyict.mdc.upl.properties.TypedProperties getDeviceDialectProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+            return null;
+        }
+
+        @Override
         public List<SecurityProperty> getDeviceProtocolSecurityProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
             // No implementation required
             return null;
@@ -775,6 +810,21 @@ public class MonitoringComServerDAO implements ComServerDAO {
         public TypedProperties getOutboundConnectionTypeProperties(DeviceIdentifier deviceIdentifier) {
             return TypedProperties.empty();
 
+        }
+
+        @Override
+        public com.energyict.mdc.upl.properties.TypedProperties getDeviceLocalProtocolProperties(DeviceIdentifier deviceIdentifier) {
+            return null;
+        }
+
+        @Override
+        public com.energyict.mdc.upl.offline.OfflineDevice getOfflineDevice(DeviceIdentifier deviceIdentifier, OfflineDeviceContext context) {
+            return null;
+        }
+
+        @Override
+        public String getDeviceProtocolClassName(DeviceIdentifier identifier) {
+            return null;
         }
 
         @Override

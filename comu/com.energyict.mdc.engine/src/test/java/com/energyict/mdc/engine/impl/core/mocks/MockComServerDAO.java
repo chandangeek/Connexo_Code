@@ -43,7 +43,6 @@ import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateAlias;
-
 import com.google.common.collect.Range;
 
 import java.sql.SQLException;
@@ -439,6 +438,11 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public com.energyict.mdc.upl.properties.TypedProperties getDeviceDialectProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+        return null;
+    }
+
+    @Override
     public TypedProperties getDeviceConnectionTypeProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
         return TypedProperties.empty();
     }
@@ -451,6 +455,21 @@ public class MockComServerDAO implements ComServerDAO {
     @Override
     public TypedProperties getDeviceProtocolProperties(DeviceIdentifier deviceIdentifier) {
         return TypedProperties.empty();
+    }
+
+    @Override
+    public com.energyict.mdc.upl.properties.TypedProperties getDeviceLocalProtocolProperties(DeviceIdentifier deviceIdentifier) {
+        return null;
+    }
+
+    @Override
+    public com.energyict.mdc.upl.offline.OfflineDevice getOfflineDevice(DeviceIdentifier deviceIdentifier, OfflineDeviceContext context) {
+        return null;
+    }
+
+    @Override
+    public String getDeviceProtocolClassName(DeviceIdentifier identifier) {
+        return null;
     }
 
     @Override
@@ -575,6 +594,11 @@ public class MockComServerDAO implements ComServerDAO {
 
     @Override
     public void updateCalendars(CollectedCalendar collectedCalendar) {
+    }
+
+    @Override
+    public Boolean getInboundComTaskOnHold(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+        return null;
     }
 
     @Override
