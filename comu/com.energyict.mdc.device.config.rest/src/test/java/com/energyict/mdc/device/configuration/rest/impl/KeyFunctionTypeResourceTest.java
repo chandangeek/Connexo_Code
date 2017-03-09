@@ -29,6 +29,7 @@ import org.junit.Test;
 
 import static java.lang.Math.toIntExact;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -101,8 +102,10 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
         when(pkiService.getKeyType("AES 128")).thenReturn(Optional.of(keyType));
 
         KeyAccessorType.Builder builder = mock(KeyAccessorType.Builder.class);
-        //for now DataVault is hardcoded in rest. Change this test when key encryption method is added to BE
-        when(deviceType.addKeyAccessorType(NAME, keyType, "DataVault")).thenReturn(builder);
+        //for now SSM is hardcoded in rest. Change this test when key encryption method is added to BE
+        when(deviceType.addKeyAccessorType(NAME, keyType)).thenReturn(builder);
+        when(builder.keyEncryptionMethod(anyString())).thenReturn(builder);
+        when(builder.description(anyString())).thenReturn(builder);
         KeyAccessorType addedKeyFunctionTypeDoesntMatter = mockKeyFunctionType(1, NAME, DESCRIPTION);
         when(builder.add()).thenReturn(addedKeyFunctionTypeDoesntMatter);
 
@@ -112,7 +115,7 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
         info.keyType.requiresDuration = true;
 
         target("/devicetypes/66/securityaccessors").request().post(Entity.entity(info, MediaType.APPLICATION_JSON));
-        verify(deviceType).addKeyAccessorType(NAME, keyType, "DataVault");
+        verify(deviceType).addKeyAccessorType(NAME, keyType);
         verify(builder).description(DESCRIPTION);
         verify(builder).duration(info.validityPeriod.asTimeDuration());
         verify(builder).add();
@@ -156,7 +159,6 @@ public class KeyFunctionTypeResourceTest extends DeviceConfigurationApplicationJ
 
         target("/devicetypes/66/securityaccessors/1").request().method("DELETE", Entity.json(info));
         verify(deviceType).removeKeyAccessorType(keyFunctionType);
-
     }
 
     private KeyAccessorType mockKeyFunctionType(long id, String name, String description) {

@@ -104,8 +104,11 @@ public class KeyFunctionTypeResource {
     public KeyFunctionTypeInfo addKeyFunctionTypeOnDeviceType(@PathParam("deviceTypeId") long id, KeyFunctionTypeInfo keyFunctionTypeInfo) {
         DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(id, keyFunctionTypeInfo.parent.version, keyFunctionTypeInfo.parent.id);
         KeyType keyType = keyFunctionTypeInfo.keyType != null && keyFunctionTypeInfo.keyType.name != null ? pkiService.getKeyType(keyFunctionTypeInfo.keyType.name).orElse(null) : null;
-        Builder keyFunctionTypeBuilder = deviceType.addKeyAccessorType(keyFunctionTypeInfo.name, keyType, keyFunctionTypeInfo.storageMethod);
-        keyFunctionTypeBuilder.description(keyFunctionTypeInfo.description);
+        //TODO: Encryption method not hardcoded, but for the moment not programmed yet
+        //Should Encryption method should come from a drop down in th FE
+        Builder keyFunctionTypeBuilder = deviceType.addKeyAccessorType(keyFunctionTypeInfo.name, keyType)
+                .keyEncryptionMethod(keyFunctionTypeInfo.storageMethod)
+                .description(keyFunctionTypeInfo.description);
         if(keyFunctionTypeInfo.validityPeriod != null && keyType.getCryptographicType().requiresDuration()) {
             checkValidDurationOrThrowException(keyFunctionTypeInfo.validityPeriod);
             keyFunctionTypeBuilder.duration(keyFunctionTypeInfo.validityPeriod.asTimeDuration());
