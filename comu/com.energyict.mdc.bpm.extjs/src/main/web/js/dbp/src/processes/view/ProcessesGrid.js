@@ -56,7 +56,7 @@ Ext.define('Dbp.processes.view.ProcessesGrid', {
             {
                 xtype: 'uni-actioncolumn',
                 privileges: Dbp.privileges.DeviceProcesses.administrateProcesses,
-                width: 100,
+                width: 120,
                 menu: {
                     xtype: 'dbp-process-action-menu'
                 }
