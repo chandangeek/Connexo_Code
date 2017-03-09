@@ -221,6 +221,7 @@ public class DataCollectionKpiImplTest {
                 new IdsModule(),
                 new FiniteStateMachineModule(),
                 new UsagePointLifeCycleConfigurationModule(),
+                new CalendarModule(),
                 new MeteringModule(),
                 new EventsModule(),
                 new KpiModule(),
