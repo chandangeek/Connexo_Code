@@ -46,6 +46,7 @@ Ext.define('Sam.view.datapurge.HistoryGrid', {
             {
                 itemId: 'data-purge-history-grid-action-column',
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     itemId: 'data-purge-history-action-menu',
                     xtype: 'data-purge-history-action-menu',
