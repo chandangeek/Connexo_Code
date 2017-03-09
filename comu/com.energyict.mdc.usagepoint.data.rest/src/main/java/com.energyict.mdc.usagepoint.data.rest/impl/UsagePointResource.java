@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
@@ -60,6 +61,7 @@ public class UsagePointResource {
     private final MeterInfoFactory meterInfoFactory;
     private final ResourceHelper resourceHelper;
     private final ChannelDataInfoFactory channelDataInfoFactory;
+    private final RegisterDataInfoFactory registerDataInfoFactory;
     private final UsagePointChannelInfoFactory usagePointChannelInfoFactory;
     private final UsagePointRegisterInfoFactory usagePointRegisterInfoFactory;
     private final ExceptionFactory exceptionFactory;
@@ -71,6 +73,7 @@ public class UsagePointResource {
                               UsagePointRegisterInfoFactory usagePointRegisterInfoFactory,
                               ResourceHelper resourceHelper,
                               ChannelDataInfoFactory channelDataInfoFactory,
+                              RegisterDataInfoFactory registerDataInfoFactory,
                               ValidationService validationService,
                               ExceptionFactory exceptionFactory,
                               Clock clock) {
@@ -79,6 +82,7 @@ public class UsagePointResource {
         this.usagePointRegisterInfoFactory = usagePointRegisterInfoFactory;
         this.resourceHelper = resourceHelper;
         this.channelDataInfoFactory = channelDataInfoFactory;
+        this.registerDataInfoFactory = registerDataInfoFactory;
         this.validationService = validationService;
         this.exceptionFactory = exceptionFactory;
         this.clock = clock;
@@ -147,7 +151,7 @@ public class UsagePointResource {
         return getInfo(name, usagePointRegisterInfoFactory, registerId);
     }
 
-    private <T> T getInfo(String usagePointName, UsagePointChannelInfoSeparator<T> infoSeparator, long id){
+    private <T> T getInfo(String usagePointName, UsagePointChannelInfoSeparator<T> infoSeparator, long id) {
         UsagePoint usagePoint = resourceHelper.findUsagePointOrThrowException(usagePointName);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGY_CONFIG_FOR_USAGE_POINT, usagePoint
@@ -197,6 +201,57 @@ public class UsagePointResource {
             }
         }
         return PagedInfoList.fromCompleteList("data", outputChannelDataInfoList, queryParameters);
+    }
+
+    @GET
+    @Path("/{name}/registers/{registerId}/data")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_OWN_USAGEPOINT})
+    public PagedInfoList getRegisterData(@PathParam("name") String name, @PathParam("registerId") long registerId, @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
+        List<RegisterDataInfo> outputRegisterDataInfoList = Collections.emptyList();
+
+        UsagePoint usagePoint = resourceHelper.findUsagePointOrThrowException(name);
+        if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
+
+            Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
+            EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                    .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGY_CONFIG_FOR_USAGE_POINT, usagePoint
+                            .getName()));
+            Channel register = resourceHelper.findChannelOnUsagePointOrThrowException(effectiveMetrologyConfiguration,
+                    registerId, usagePointRegisterInfoFactory);
+            Range<Instant> usagePointActivationInterval = getUsagePointActivationInterval(usagePoint);
+
+            if (usagePointActivationInterval.isConnected(requestedInterval)) {
+
+                Range<Instant> effectiveInterval = usagePointActivationInterval.intersection(requestedInterval);
+                Map<Instant, RegisterReadingWithValidationStatus> preFilledRegisterDataMap =
+                        register.toList(effectiveInterval)
+                                .stream()
+                                .collect(Collectors.toMap(Function.identity(), timeStamp -> new
+                                        RegisterReadingWithValidationStatus(ZonedDateTime.ofInstant(timeStamp, clock
+                                        .getZone()))));
+
+                List<ReadingRecord> registerReadings = register.getRegisterReadings(effectiveInterval);
+                for (ReadingRecord readingRecord : registerReadings) {
+                    RegisterReadingWithValidationStatus registerReadingWithValidationStatus = preFilledRegisterDataMap
+                            .get(readingRecord.getTimeStamp());
+                    if (registerReadingWithValidationStatus != null) {
+                        registerReadingWithValidationStatus.setReadingRecord(readingRecord);
+                    }
+                }
+
+                RangeMap<Instant, Instant> lastCheckedOfSourceChannels = getLastCheckedOfSourceChannels
+                        (effectiveMetrologyConfiguration, register);
+
+                outputRegisterDataInfoList = preFilledRegisterDataMap.entrySet().stream()
+                        .sorted(Collections.reverseOrder(Comparator.comparing(Map.Entry::getKey)))
+                        .map(Map.Entry::getValue)
+                        .map((reading) -> registerDataInfoFactory.asInfo(reading, lastCheckedOfSourceChannels))
+                        .collect((Collectors.toList()));
+            }
+        }
+        return PagedInfoList.fromCompleteList("data", outputRegisterDataInfoList, queryParameters);
     }
 
     private Range<Instant> getUsagePointActivationInterval(UsagePoint usagePoint) {

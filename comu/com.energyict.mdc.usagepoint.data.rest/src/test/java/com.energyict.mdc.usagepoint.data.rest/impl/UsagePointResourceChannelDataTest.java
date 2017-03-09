@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -65,6 +66,7 @@ public class UsagePointResourceChannelDataTest extends UsagePointApplicationJers
 
     private static final String UP_NAME = "UP0001";
     private static final long CHANNEL_ID = 13L;
+    private static final long REGISTER_ID = 14L;
 
     @Mock
     private UsagePoint usagePoint;
@@ -87,7 +89,7 @@ public class UsagePointResourceChannelDataTest extends UsagePointApplicationJers
     @Mock
     private FullySpecifiedReadingTypeRequirement fullySpecifiedReadingTypeRequirement;
     @Mock
-    private Channel aggregatedChannel;
+    private Channel aggregatedChannel, register;
     @Mock
     private MeterActivation meterActivation, meterActivation_2;
     @Mock
@@ -129,7 +131,11 @@ public class UsagePointResourceChannelDataTest extends UsagePointApplicationJers
         when(aggregatedChannel.getIntervalLength()).thenReturn(Optional.of(MIN15));
         when(aggregatedChannel.getMainReadingType()).thenReturn(readingType);
 
-        when(upChannelsContainer.getChannels()).thenReturn(Collections.singletonList(aggregatedChannel));
+        when(register.getId()).thenReturn(REGISTER_ID);
+        when(register.isRegular()).thenReturn(false);
+        when(register.getMainReadingType()).thenReturn(readingType);
+
+        when(upChannelsContainer.getChannels()).thenReturn(Arrays.asList(aggregatedChannel, register));
         when(meterChannelsContainer.getRange()).thenReturn(Ranges.closedOpen(interval_1.lowerEndpoint(), interval_3.upperEndpoint()));
         when(meterChannelsContainer.getMeter()).thenReturn(Optional.of(meter));
         when(meterChannelsContainer_2.getRange()).thenReturn(Ranges.closedOpen(interval_5.lowerEndpoint(), null));
@@ -170,6 +176,18 @@ public class UsagePointResourceChannelDataTest extends UsagePointApplicationJers
     }
 
     @Test
+    public void getRegisterDataNoSuchUsagePoint() throws Exception {
+        // Business method
+        Response response = target("/usagepoints/xxx/registers/14/data").queryParam("filter", buildFilter()).request()
+                .get();
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<String>get("$.message")).isEqualTo("No usage point with name xxx.");
+    }
+
+    @Test
     public void getChannelDataMissingIntervalStart() throws Exception {
         String filter = ExtjsFilter.filter().property("intervalEnd", timeStamp.toEpochMilli()).create();
 
@@ -183,11 +201,40 @@ public class UsagePointResourceChannelDataTest extends UsagePointApplicationJers
     }
 
     @Test
+    public void getRegisterDataMissingIntervalStart() throws Exception {
+        String filter = ExtjsFilter.filter().property("intervalEnd", timeStamp.toEpochMilli()).create();
+
+        // Business method
+        String json = target("usagepoints/UP0001/registers/14/data").queryParam("filter", filter).request().get(String
+                .class);
+
+        // Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(0);
+        assertThat(jsonModel.<List<?>>get("$.data")).isEmpty();
+    }
+
+    @Test
     public void getChannelDataMissingIntervalEnd() throws Exception {
         String filter = ExtjsFilter.filter().property("intervalStart", timeStamp.toEpochMilli()).create();
 
         // Business method
         String json = target("usagepoints/UP0001/channels/13/data").queryParam("filter", filter).request().get(String.class);
+
+        // Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(0);
+        assertThat(jsonModel.<List<?>>get("$.data")).isEmpty();
+    }
+
+
+    @Test
+    public void getRegisterDataMissingIntervalEnd() throws Exception {
+        String filter = ExtjsFilter.filter().property("intervalStart", timeStamp.toEpochMilli()).create();
+
+        // Business method
+        String json = target("usagepoints/UP0001/registers/14/data").queryParam("filter", filter).request().get(String
+                .class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
@@ -209,6 +256,20 @@ public class UsagePointResourceChannelDataTest extends UsagePointApplicationJers
     }
 
     @Test
+    public void getRegisterDataNoEffectiveMetrologyConfiguration() throws Exception {
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
+
+        // Business method
+        Response response = target("/usagepoints/UP0001/registers/14/data").queryParam("filter", buildFilter())
+                .request().get();
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<String>get("$.message")).isEqualTo("Usage point UP0001 doesn't have a link to metrology configuration.");
+    }
+
+    @Test
     public void getChannelDataNoSuchChannel() throws Exception {
         // Business method
         Response response = target("/usagepoints/UP0001/channels/100/data").queryParam("filter", buildFilter()).request().get();
@@ -220,11 +281,38 @@ public class UsagePointResourceChannelDataTest extends UsagePointApplicationJers
     }
 
     @Test
+    public void getRegisterDataNoSuchChannel() throws Exception {
+        // Business method
+        Response response = target("/usagepoints/UP0001/registers/100/data").queryParam("filter", buildFilter())
+                .request().get();
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<String>get("$.message")).isEqualTo("Usage point UP0001 doesn't have register with id 100.");
+    }
+
+    @Test
     public void getChannelDataNoUsagePointMeterActivations() throws Exception {
         when(usagePoint.getMeterActivations()).thenReturn(Collections.emptyList());
 
         //Business method
         String json = target("/usagepoints/UP0001/channels/13/data").queryParam("filter", buildFilter()).request().get(String.class);
+
+        //Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(0);
+        assertThat(jsonModel.<List>get("$.data")).hasSize(0);
+    }
+
+
+    @Test
+    public void getRegisterDataNoUsagePointMeterActivations() throws Exception {
+        when(usagePoint.getMeterActivations()).thenReturn(Collections.emptyList());
+
+        //Business method
+        String json = target("/usagepoints/UP0001/registers/14/data").queryParam("filter", buildFilter()).request().get
+                (String.class);
 
         //Asserts
         JsonModel jsonModel = JsonModel.create(json);
@@ -241,6 +329,23 @@ public class UsagePointResourceChannelDataTest extends UsagePointApplicationJers
 
         //Business method
         String json = target("/usagepoints/UP0001/channels/13/data").queryParam("filter", buildFilter()).request().get(String.class);
+
+        //Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(0);
+        assertThat(jsonModel.<List>get("$.data")).hasSize(0);
+    }
+
+    @Test
+    public void getRegisterDataRequestedIntervalDoesNotOverlapWithUsagePointMeterActivations() throws Exception {
+        List<MeterActivation> meterActivations = Arrays.asList(
+                mockMeterActivationWithRange(timeStamp.minus(4, ChronoUnit.DAYS), timeStamp.minus(3, ChronoUnit.DAYS)),
+                mockMeterActivationWithRange(timeStamp.minus(2, ChronoUnit.DAYS), timeStamp.minus(1, ChronoUnit.DAYS)));
+        when(usagePoint.getMeterActivations()).thenReturn(meterActivations);
+
+        //Business method
+        String json = target("/usagepoints/UP0001/registers/14/data").queryParam("filter", buildFilter()).request().get
+                (String.class);
 
         //Asserts
         JsonModel jsonModel = JsonModel.create(json);
@@ -294,6 +399,42 @@ public class UsagePointResourceChannelDataTest extends UsagePointApplicationJers
     }
 
     @Test
+    public void getRegisterDataNotValidated() throws Exception {
+        Range<Instant> interval = Ranges.openClosed(interval_1.lowerEndpoint(), interval_3.upperEndpoint());
+        when(register.toList(interval)).thenReturn(Arrays.asList(
+                interval_1.upperEndpoint(),
+                interval_2.upperEndpoint(),
+                interval_3.upperEndpoint()
+        ));
+        List<ReadingRecord> readings = Arrays.asList(
+                mockReadingRecord(interval_1.upperEndpoint(), BigDecimal.ONE),
+                mockReadingRecord(interval_3.upperEndpoint(), BigDecimal.TEN)
+        );
+        when(register.getRegisterReadings(interval)).thenReturn(readings);
+
+        //Business method
+        String json = target("/usagepoints/UP0001/registers/14/data").queryParam("filter", buildFilter()).request().get
+                (String.class);
+
+        //Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(3);
+        assertThat(jsonModel.<Number>get("$.data[0].measurementTime")).isEqualTo(interval_3.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.data[0].readingTime")).isEqualTo(interval_3.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.data[0].value")).isEqualTo(BigDecimal.TEN.toString());
+        assertThat(jsonModel.<Boolean>get("$.data[0].dataValidated")).isFalse();
+
+        assertThat(jsonModel.<Number>get("$.data[1].measurementTime")).isEqualTo(interval_2.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.data[1].readingTime")).isEqualTo(interval_2.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Boolean>get("$.data[1].dataValidated")).isFalse();
+
+        assertThat(jsonModel.<Number>get("$.data[2].measurementTime")).isEqualTo(interval_1.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.data[2].readingTime")).isEqualTo(interval_1.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.data[2].value")).isEqualTo(BigDecimal.ONE.toString());
+        assertThat(jsonModel.<Boolean>get("$.data[2].dataValidated")).isFalse();
+    }
+
+    @Test
     public void getChannelDataValidated() throws Exception {
         Range<Instant> interval = Ranges.openClosed(interval_1.lowerEndpoint(), interval_3.upperEndpoint());
         when(aggregatedChannel.toList(interval)).thenReturn(Arrays.asList(
@@ -329,6 +470,47 @@ public class UsagePointResourceChannelDataTest extends UsagePointApplicationJers
 
         assertThat(jsonModel.<Number>get("$.data[2].interval.start")).isEqualTo(interval_1.lowerEndpoint().toEpochMilli());
         assertThat(jsonModel.<Number>get("$.data[2].interval.end")).isEqualTo(interval_1.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.data[2].readingTime")).isEqualTo(interval_1.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.data[2].value")).isEqualTo(BigDecimal.ONE.toString());
+        assertThat(jsonModel.<Boolean>get("$.data[2].dataValidated")).isTrue();
+        assertThat(jsonModel.<String>get("$.data[2].validationResult")).isEqualTo(ValidationStatus.OK.getNameKey());
+    }
+
+
+    @Test
+    public void getRegisterDataValidated() throws Exception {
+        Range<Instant> interval = Ranges.openClosed(interval_1.lowerEndpoint(), interval_3.upperEndpoint());
+        when(register.toList(interval)).thenReturn(Arrays.asList(
+                interval_1.upperEndpoint(),
+                interval_2.upperEndpoint(),
+                interval_3.upperEndpoint()
+        ));
+        List<ReadingRecord> readings = Arrays.asList(
+                mockReadingRecord(interval_1.upperEndpoint(), BigDecimal.ONE),
+                mockReadingRecord(interval_3.upperEndpoint(), BigDecimal.TEN)
+        );
+        when(register.getRegisterReadings(interval)).thenReturn(readings);
+        when(validationEvaluator.getLastChecked(meter, readingType)).thenReturn(Optional.of(interval_3.upperEndpoint()));
+
+        //Business method
+        String json = target("/usagepoints/UP0001/registers/14/data").queryParam("filter", buildFilter()).request().get
+                (String.class);
+
+        //Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(3);
+        assertThat(jsonModel.<Number>get("$.data[0].measurementTime")).isEqualTo(interval_3.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.data[0].readingTime")).isEqualTo(interval_3.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.data[0].value")).isEqualTo(BigDecimal.TEN.toString());
+        assertThat(jsonModel.<Boolean>get("$.data[0].dataValidated")).isTrue();
+        assertThat(jsonModel.<String>get("$.data[0].validationResult")).isEqualTo(ValidationStatus.OK.getNameKey());
+
+        assertThat(jsonModel.<Number>get("$.data[1].measurementTime")).isEqualTo(interval_2.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.data[1].readingTime")).isEqualTo(interval_2.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Boolean>get("$.data[1].dataValidated")).isTrue();
+        assertThat(jsonModel.<String>get("$.data[1].validationResult")).isEqualTo(ValidationStatus.OK.getNameKey());
+
+        assertThat(jsonModel.<Number>get("$.data[2].measurementTime")).isEqualTo(interval_1.upperEndpoint().toEpochMilli());
         assertThat(jsonModel.<Number>get("$.data[2].readingTime")).isEqualTo(interval_1.upperEndpoint().toEpochMilli());
         assertThat(jsonModel.<Number>get("$.data[2].value")).isEqualTo(BigDecimal.ONE.toString());
         assertThat(jsonModel.<Boolean>get("$.data[2].dataValidated")).isTrue();
@@ -375,6 +557,50 @@ public class UsagePointResourceChannelDataTest extends UsagePointApplicationJers
 
         assertThat(jsonModel.<Number>get("$.data[2].interval.start")).isEqualTo(interval_1.lowerEndpoint().toEpochMilli());
         assertThat(jsonModel.<Number>get("$.data[2].interval.end")).isEqualTo(interval_1.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.data[2].readingTime")).isEqualTo(interval_1.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.data[2].value")).isEqualTo(BigDecimal.ONE.toString());
+        assertThat(jsonModel.<Boolean>get("$.data[2].dataValidated")).isTrue();
+        assertThat(jsonModel.<String>get("$.data[2].validationResult")).isEqualTo(ValidationStatus.SUSPECT.getNameKey());
+    }
+
+    @Test
+    public void getRegisterDataSuspectAndNotValidated() throws Exception {
+        Range<Instant> interval = Ranges.openClosed(interval_1.lowerEndpoint(), interval_3.upperEndpoint());
+        when(register.toList(interval)).thenReturn(Arrays.asList(
+                interval_1.upperEndpoint(),
+                interval_2.upperEndpoint(),
+                interval_3.upperEndpoint()
+        ));
+        ReadingRecord suspectReading = mockReadingRecord(interval_1.upperEndpoint(), BigDecimal.ONE);
+        ReadingQualityRecord suspectAggregatedQuality = mock(ReadingQualityRecord.class);
+        when(suspectAggregatedQuality.isSuspect()).thenReturn(true);
+        doReturn(Collections.singletonList(suspectAggregatedQuality)).when(suspectReading).getReadingQualities();
+        List<ReadingRecord> readings = Arrays.asList(
+                suspectReading,
+                mockReadingRecord(interval_3.upperEndpoint(), BigDecimal.TEN)
+        );
+        when(register.getRegisterReadings(interval)).thenReturn(readings);
+        when(validationEvaluator.getLastChecked(meter, readingType)).thenReturn(Optional.of(interval_2.upperEndpoint()));
+
+        //Business method
+        String json = target("/usagepoints/UP0001/registers/14/data").queryParam("filter", buildFilter()).request().get
+                (String.class);
+
+        //Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(3);
+        assertThat(jsonModel.<Number>get("$.data[0].measurementTime")).isEqualTo(interval_3.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.data[0].readingTime")).isEqualTo(interval_3.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.data[0].value")).isEqualTo(BigDecimal.TEN.toString());
+        assertThat(jsonModel.<Boolean>get("$.data[0].dataValidated")).isFalse();
+        assertThat(jsonModel.<String>get("$.data[0].validationResult")).isEqualTo(ValidationStatus.NOT_VALIDATED.getNameKey());
+
+        assertThat(jsonModel.<Number>get("$.data[1].measurementTime")).isEqualTo(interval_2.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.data[1].readingTime")).isEqualTo(interval_2.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Boolean>get("$.data[1].dataValidated")).isTrue();
+        assertThat(jsonModel.<String>get("$.data[1].validationResult")).isEqualTo(ValidationStatus.OK.getNameKey());
+
+        assertThat(jsonModel.<Number>get("$.data[2].measurementTime")).isEqualTo(interval_1.upperEndpoint().toEpochMilli());
         assertThat(jsonModel.<Number>get("$.data[2].readingTime")).isEqualTo(interval_1.upperEndpoint().toEpochMilli());
         assertThat(jsonModel.<Number>get("$.data[2].value")).isEqualTo(BigDecimal.ONE.toString());
         assertThat(jsonModel.<Boolean>get("$.data[2].dataValidated")).isTrue();
@@ -444,11 +670,78 @@ public class UsagePointResourceChannelDataTest extends UsagePointApplicationJers
         assertThat(jsonModel.<String>get("$.data[4].validationResult")).isEqualTo(ValidationStatus.OK.getNameKey());
     }
 
+    @Test
+    public void getRegisterDataAggregatedFromTwoChannelsOfTwoDevices() throws Exception {
+        Range<Instant> interval = Ranges.openClosed(interval_1.lowerEndpoint(), interval_5.upperEndpoint());
+        when(register.toList(interval)).thenReturn(Arrays.asList(
+                interval_1.upperEndpoint(),
+                interval_2.upperEndpoint(),
+                interval_3.upperEndpoint(),
+                interval_4.upperEndpoint(),
+                interval_5.upperEndpoint()
+        ));
+        List<ReadingRecord> readings = Arrays.asList(
+                mockReadingRecord(interval_1.upperEndpoint(), BigDecimal.ONE),
+                mockReadingRecord(interval_3.upperEndpoint(), BigDecimal.TEN),
+                mockReadingRecord(interval_5.upperEndpoint(), BigDecimal.ZERO)
+        );
+        when(register.getRegisterReadings(interval)).thenReturn(readings);
+        when(validationEvaluator.getLastChecked(meter, readingType)).thenReturn(Optional.of(interval_2.upperEndpoint()));
+
+        String filter = ExtjsFilter.filter()
+                .property("intervalStart", timeStamp.toEpochMilli())
+                .property("intervalEnd", timeStamp.plus(75, ChronoUnit.MINUTES).toEpochMilli())
+                .create();
+
+        //Business method
+        String json = target("/usagepoints/UP0001/registers/14/data").queryParam("filter", filter).request().get(String
+                .class);
+
+        //Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(5);
+        assertThat(jsonModel.<Number>get("$.data[0].measurementTime")).isEqualTo(interval_5.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.data[0].readingTime")).isEqualTo(interval_5.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.data[0].value")).isEqualTo(BigDecimal.ZERO.toString());
+        assertThat(jsonModel.<Boolean>get("$.data[0].dataValidated")).isFalse();
+        assertThat(jsonModel.<String>get("$.data[0].validationResult")).isEqualTo(ValidationStatus.NOT_VALIDATED.getNameKey());
+
+        assertThat(jsonModel.<Number>get("$.data[1].measurementTime")).isEqualTo(interval_4.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.data[1].readingTime")).isNull();// No linked devices
+        assertThat(jsonModel.<Boolean>get("$.data[1].dataValidated")).isFalse();
+        assertThat(jsonModel.<String>get("$.data[1].validationResult")).isEqualTo(ValidationStatus.NOT_VALIDATED.getNameKey());
+
+        assertThat(jsonModel.<Number>get("$.data[2].measurementTime")).isEqualTo(interval_3.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.data[2].readingTime")).isEqualTo(interval_3.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.data[2].value")).isEqualTo(BigDecimal.TEN.toString());
+        assertThat(jsonModel.<Boolean>get("$.data[2].dataValidated")).isFalse();
+        assertThat(jsonModel.<String>get("$.data[2].validationResult")).isEqualTo(ValidationStatus.NOT_VALIDATED.getNameKey());
+
+        assertThat(jsonModel.<Number>get("$.data[3].measurementTime")).isEqualTo(interval_2.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.data[3].readingTime")).isEqualTo(interval_2.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Boolean>get("$.data[3].dataValidated")).isTrue();
+        assertThat(jsonModel.<String>get("$.data[3].validationResult")).isEqualTo(ValidationStatus.OK.getNameKey());
+
+        assertThat(jsonModel.<Number>get("$.data[4].measurementTime")).isEqualTo(interval_1.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.data[4].readingTime")).isEqualTo(interval_1.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.data[4].value")).isEqualTo(BigDecimal.ONE.toString());
+        assertThat(jsonModel.<Boolean>get("$.data[4].dataValidated")).isTrue();
+        assertThat(jsonModel.<String>get("$.data[4].validationResult")).isEqualTo(ValidationStatus.OK.getNameKey());
+    }
+
+
     private IntervalReadingRecord mockIntervalReadingRecord(Range<Instant> interval, BigDecimal value) {
         IntervalReadingRecord intervalReadingRecord = mock(IntervalReadingRecord.class);
         when(intervalReadingRecord.getTimePeriod()).thenReturn(Optional.of(interval));
         when(intervalReadingRecord.getTimeStamp()).thenReturn(interval.upperEndpoint());
         when(intervalReadingRecord.getValue()).thenReturn(value);
         return intervalReadingRecord;
+    }
+
+    private ReadingRecord mockReadingRecord(Instant time, BigDecimal value){
+        ReadingRecord readingRecord = mock(ReadingRecord.class);
+        when(readingRecord.getTimeStamp()).thenReturn(time);
+        when(readingRecord.getValue()).thenReturn(value);
+        return readingRecord;
     }
 }

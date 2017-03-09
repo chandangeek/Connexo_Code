@@ -122,6 +122,7 @@ public class UsagePointApplication extends Application implements MessageSeedPro
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(ChannelDataInfoFactory.class).to(ChannelDataInfoFactory.class);
+            bind(RegisterDataInfoFactory.class).to(RegisterDataInfoFactory.class);
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
         }
     }
