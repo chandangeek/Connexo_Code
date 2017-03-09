@@ -22,6 +22,9 @@ Ext.define('Uni.form.field.ExecutionLevelDisplay', {
             });
             result = result.slice(0, result.length - 3);
         }
+        if (Ext.isEmpty(result)) {
+            result = '-';
+        }
         var icon = '<span class="icon-info" style="margin-left: 10px; cursor:pointer; display:inline-block; font-size:16px; line-height: 13px; vertical-align: middle;' +
                     '" data-qtip="' + Uni.I18n.translate('readingType.tooltip', 'UNI', 'Click for more information') + '"></span>';
 
