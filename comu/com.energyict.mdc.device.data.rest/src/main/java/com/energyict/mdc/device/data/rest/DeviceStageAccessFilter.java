@@ -69,11 +69,11 @@ public class DeviceStageAccessFilter implements ContainerRequestFilter {
         Set<String> restrictedStates = Collections.emptySet();
         DeviceStagesRestricted methodAnnotation = resourceInfo.getResourceMethod().getAnnotation(DeviceStagesRestricted.class);
         if (methodAnnotation != null) {
-            restrictedStates = Arrays.stream(methodAnnotation.value()).map(EndDeviceStage::name).collect(Collectors.toSet());
+            restrictedStates = Arrays.stream(methodAnnotation.value()).map(EndDeviceStage::getKey).collect(Collectors.toSet());
         } else {
             DeviceStagesRestricted classAnnotation = resourceInfo.getResourceClass().getAnnotation(DeviceStagesRestricted.class);
             if (classAnnotation != null) {
-                restrictedStates = Arrays.stream(classAnnotation.value()).map(EndDeviceStage::name).collect(Collectors.toSet());
+                restrictedStates = Arrays.stream(classAnnotation.value()).map(EndDeviceStage::getKey).collect(Collectors.toSet());
             }
         }
         if (restrictedStates.isEmpty()) {

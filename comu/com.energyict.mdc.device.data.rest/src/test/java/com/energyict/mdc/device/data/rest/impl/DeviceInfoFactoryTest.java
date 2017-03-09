@@ -339,7 +339,7 @@ public class DeviceInfoFactoryTest {
 
         when(deviceEstimation.isEstimationActive()).thenReturn(true);
         when(state.getName()).thenReturn(STATE_NAME);
-        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.name());
+        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.getKey());
 
         when(dataLoggerChn1.getDevice()).thenReturn(dataLogger);
         when(dataLoggerChn2.getDevice()).thenReturn(dataLogger);

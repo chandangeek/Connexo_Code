@@ -178,7 +178,7 @@ public final class DevicePrivileges {
         }
 
         static PrivilegesBasedOnDeviceStage get(Stage stage) {
-            EndDeviceStage endDeviceStage = EndDeviceStage.valueOf(stage.getName());
+            EndDeviceStage endDeviceStage = EndDeviceStage.fromKey(stage.getName());
             return EnumSet.complementOf(EnumSet.of(DEFAULT))
                     .stream()
                     .filter(privilegeState -> privilegeState.matchedStages.contains(endDeviceStage))

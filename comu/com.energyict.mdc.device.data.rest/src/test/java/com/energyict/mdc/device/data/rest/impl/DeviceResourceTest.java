@@ -2493,7 +2493,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testPrivilegesForPreOperationalStage() {
         Stage stage = mock(Stage.class);
-        when(stage.getName()).thenReturn(EndDeviceStage.PRE_OPERATIONAL.name());
+        when(stage.getName()).thenReturn(EndDeviceStage.PRE_OPERATIONAL.getKey());
         Device device = mock(Device.class);
         when(device.getStage()).thenReturn(stage);
         when(deviceService.findDeviceByName(anyString())).thenReturn(Optional.of(device));
@@ -2532,7 +2532,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testPrivilegesForInPostOperationalStage() {
         Stage stage = mock(Stage.class);
-        when(stage.getName()).thenReturn(EndDeviceStage.POST_OPERATIONAL.name());
+        when(stage.getName()).thenReturn(EndDeviceStage.POST_OPERATIONAL.getKey());
         Device device = mock(Device.class);
         when(device.getStage()).thenReturn(stage);
         when(deviceService.findDeviceByName(anyString())).thenReturn(Optional.of(device));
@@ -2553,7 +2553,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testPrivilegesForOperationalStage() {
         Stage stage = mock(Stage.class);
-        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.name());
+        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.getKey());
         Device device = mock(Device.class);
         when(device.getStage()).thenReturn(stage);
         when(deviceService.findDeviceByName(anyString())).thenReturn(Optional.of(device));
@@ -2565,10 +2565,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         String response = target("/devices/1/privileges").request().get(String.class);
         JsonModel model = JsonModel.create(response);
-        assertThat(model.<Number>get("$.total")).isEqualTo(21);
+        assertThat(model.<Number>get("$.total")).isEqualTo(20);
         List<String> privileges = model.<List<String>>get("$.privileges[*].name");
         assertThat(privileges).contains(
-                DevicePrivileges.DEVICES_WIDGET_ISSUES,
                 DevicePrivileges.DEVICES_WIDGET_VALIDATION,
                 DevicePrivileges.DEVICES_WIDGET_COMMUNICATION_TOPOLOGY,
                 DevicePrivileges.DEVICES_WIDGET_CONNECTION,
@@ -2855,7 +2854,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         State state = mock(State.class);
         when(device.getState()).thenReturn(state);
         Stage stage = mock(Stage.class);
-        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.name());
+        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.getKey());
         when(state.getStage()).thenReturn(Optional.of(stage));
         when(deviceService.newDevice(deviceConfiguration, deviceName, shipmentDate)).thenReturn(device);
         DeviceInfo deviceInfo = new DeviceInfo();
@@ -2886,7 +2885,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         State state = mock(State.class);
         when(device.getState()).thenReturn(state);
         Stage stage = mock(Stage.class);
-        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.name());
+        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.getKey());
         when(state.getStage()).thenReturn(Optional.of(stage));
         when(deviceService.findDeviceByName("theDevice")).thenReturn(Optional.of(device));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -2945,7 +2944,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         State state = mock(State.class);
         when(device.getState()).thenReturn(state);
         Stage stage = mock(Stage.class);
-        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.name());
+        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.getKey());
         when(state.getStage()).thenReturn(Optional.of(stage));
         when(deviceService.newDevice(deviceConfiguration, name, "batch", shipmentDate)).thenReturn(device);
         DeviceInfo deviceInfo = new DeviceInfo();

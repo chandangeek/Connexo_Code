@@ -50,7 +50,7 @@ public class DeviceStateAccessTest extends DeviceDataRestApplicationJerseyTest{
 
     @Test
     public void testActivateValidationForInStockState(){
-        Device device = mockDeviceWithState(DefaultState.IN_STOCK.getKey(), EndDeviceStage.PRE_OPERATIONAL.name());
+        Device device = mockDeviceWithState(DefaultState.IN_STOCK.getKey(), EndDeviceStage.PRE_OPERATIONAL.getKey());
 
         Response response = target("devices/1/validationrulesets/validationstatus").request().put(Entity.json("some entity"));
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
@@ -60,7 +60,7 @@ public class DeviceStateAccessTest extends DeviceDataRestApplicationJerseyTest{
 
     @Test
     public void testActivateValidationForDecommissionedState(){
-        Device device = mockDeviceWithState(DefaultState.DECOMMISSIONED.getKey(), EndDeviceStage.POST_OPERATIONAL.name());
+        Device device = mockDeviceWithState(DefaultState.DECOMMISSIONED.getKey(), EndDeviceStage.POST_OPERATIONAL.getKey());
 
         Response response = target("devices/1/validationrulesets/validationstatus").request().put(Entity.json("some entity"));
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
@@ -71,7 +71,7 @@ public class DeviceStateAccessTest extends DeviceDataRestApplicationJerseyTest{
 
     @Test
     public void testActivateValidationForCustomState(){
-        Device device = mockDeviceWithState("Custom state", EndDeviceStage.OPERATIONAL.name());
+        Device device = mockDeviceWithState("Custom state", EndDeviceStage.OPERATIONAL.getKey());
 
         Response response = target("devices/1/validationrulesets/validationstatus").request().put(Entity.json("some entity"));
         assertThat(response.getStatus()).isNotEqualTo(Response.Status.NOT_FOUND.getStatusCode());
@@ -81,7 +81,7 @@ public class DeviceStateAccessTest extends DeviceDataRestApplicationJerseyTest{
 
     @Test
     public void testActivateEstimationForInStockState(){
-        Device device = mockDeviceWithState(DefaultState.IN_STOCK.getKey(), EndDeviceStage.PRE_OPERATIONAL.name());
+        Device device = mockDeviceWithState(DefaultState.IN_STOCK.getKey(), EndDeviceStage.PRE_OPERATIONAL.getKey());
 
         Response response = target("devices/1/estimationrulesets/esimationstatus").request().put(Entity.json("some entity"));
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
@@ -91,7 +91,7 @@ public class DeviceStateAccessTest extends DeviceDataRestApplicationJerseyTest{
 
     @Test
     public void testActivateEstimationForDecommissionedState(){
-        Device device = mockDeviceWithState(DefaultState.DECOMMISSIONED.getKey(), EndDeviceStage.POST_OPERATIONAL.name());
+        Device device = mockDeviceWithState(DefaultState.DECOMMISSIONED.getKey(), EndDeviceStage.POST_OPERATIONAL.getKey());
 
         Response response = target("devices/1/estimationrulesets/esimationstatus").request().put(Entity.json("some entity"));
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
@@ -101,7 +101,7 @@ public class DeviceStateAccessTest extends DeviceDataRestApplicationJerseyTest{
 
     @Test
     public void testActivateEstimationForCustomState(){
-        Device device = mockDeviceWithState("Custom state", EndDeviceStage.OPERATIONAL.name());
+        Device device = mockDeviceWithState("Custom state", EndDeviceStage.OPERATIONAL.getKey());
 
         Response response = target("devices/1/estimationrulesets/esimationstatus").request().put(Entity.json("some entity"));
         assertThat(response.getStatus()).isNotEqualTo(Response.Status.NOT_FOUND.getStatusCode());
@@ -111,7 +111,7 @@ public class DeviceStateAccessTest extends DeviceDataRestApplicationJerseyTest{
 
     @Test
     public void testCommunicationPlaningForInStockState(){
-        Device device = mockDeviceWithState(DefaultState.IN_STOCK.getKey(), EndDeviceStage.PRE_OPERATIONAL.name());
+        Device device = mockDeviceWithState(DefaultState.IN_STOCK.getKey(), EndDeviceStage.PRE_OPERATIONAL.getKey());
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(device.getComTaskExecutions()).thenReturn(Collections.<ComTaskExecution>emptyList());
@@ -124,7 +124,7 @@ public class DeviceStateAccessTest extends DeviceDataRestApplicationJerseyTest{
 
     @Test
     public void testCommunicationPlaningForDecommissionedState(){
-        Device device = mockDeviceWithState(DefaultState.DECOMMISSIONED.getKey(), EndDeviceStage.POST_OPERATIONAL.name());
+        Device device = mockDeviceWithState(DefaultState.DECOMMISSIONED.getKey(), EndDeviceStage.POST_OPERATIONAL.getKey());
 
         Response response = target("devices/1/schedules").request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
