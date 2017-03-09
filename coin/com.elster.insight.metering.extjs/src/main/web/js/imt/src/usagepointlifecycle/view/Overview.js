@@ -20,7 +20,7 @@ Ext.define('Imt.usagepointlifecycle.view.Overview', {
                 layout: 'hbox',
                 items: [
                     {
-                        title: Uni.I18n.translate('general.overview', 'IMT', 'Overview'),
+                        title: Uni.I18n.translate('general.details', 'IMT', 'Details'),
                         ui: 'large',
                         flex: 1,
                         items: [
