@@ -48,7 +48,7 @@ Ext.define('Uni.property.view.property.LifeCycleStatusInDeviceType', {
                                     if (result.length == 0){
                                         var object = {};
                                         object.deviceId = record.get('deviceId');
-                                        object.lifeCycleIs = record.get('lifeCycleIs');
+                                        object.lifeCycleId = record.get('lifeCycleId');
                                         object.deviceTypeName = record.get('deviceTypeName');
                                         object.id = record.get('id');
                                         object.lifeCycleStateName = record.get('lifeCycleStateName');
@@ -57,7 +57,12 @@ Ext.define('Uni.property.view.property.LifeCycleStatusInDeviceType', {
                                 });
 
                                 var filteredStore = Ext.create('Ext.data.JsonStore', {
-                                    fields: ['id', 'deviceId', 'lifeCycleStateName', 'deviceTypeName'],
+                                    fields: ['id', 'deviceId', 'lifeCycleStateName', 'deviceTypeName', 'lifeCycleId'],
+                                    sorters: [{
+                                        property: 'lifeCycleStateName',
+                                        direction: 'ASC'
+                                    }],
+                                    groupField: 'lifeCycleId',
                                     data: elements
                                 });
                                 deviceStateCombo.queryFilter = null;
@@ -79,7 +84,6 @@ Ext.define('Uni.property.view.property.LifeCycleStatusInDeviceType', {
                     },
                     {
                         xtype: 'uni-grid-filtertop-combobox',
-                        //ype: 'combo',
                         itemId: 'device-state',
                         enabled: false,
                         disabled: true,
