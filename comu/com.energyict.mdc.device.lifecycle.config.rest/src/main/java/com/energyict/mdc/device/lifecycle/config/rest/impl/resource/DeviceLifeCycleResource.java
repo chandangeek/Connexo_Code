@@ -129,7 +129,7 @@ public class DeviceLifeCycleResource {
     @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
     public List<IdWithDisplayValueInfo> getStages() {
         return Arrays.stream(EndDeviceStage.values())
-                .map(stage -> new IdWithDisplayValueInfo<>(stage.name(), deviceLifeCycleConfigurationService.getStageDisplayName(stage)))
+                .map(stage -> new IdWithDisplayValueInfo<>(stage.getKey(), deviceLifeCycleConfigurationService.getStageDisplayName(stage)))
                 .collect(Collectors.toList());
     }
 

@@ -39,7 +39,7 @@ public class DeviceLifeCycleStateInfo {
         this.isInitial = state.isInitial();
         this.version = state.getVersion();
         this.stageName = state.getStage().isPresent() ? state.getStage().get().getName() : null;
-        this.stage = state.getStage().isPresent() ? deviceLifeCycleConfigurationService.getStageDisplayName(EndDeviceStage.valueOf(state.getStage().get().getName())) : "";
+        this.stage = state.getStage().isPresent() ? deviceLifeCycleConfigurationService.getStageDisplayName(EndDeviceStage.fromKey(state.getStage().get().getName())) : "";
         this.name = DefaultState.from(state).map(deviceLifeCycleConfigurationService::getDisplayName).orElseGet(state::getName);
         if (deviceLifeCycle != null) {
             this.parent = new VersionInfo<>(deviceLifeCycle.getId(), deviceLifeCycle.getVersion());
