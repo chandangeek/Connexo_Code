@@ -2,7 +2,6 @@ package com.energyict.mdc.engine.impl.meterdata.identifiers;
 
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-
 import com.energyict.obis.ObisCode;
 
 import java.util.Arrays;
@@ -28,6 +27,11 @@ public class RegisterDataIdentifier implements RegisterIdentifier {
         this.registerObisCode = registerObisCode;
         this.deviceRegisterObisCode = deviceRegisterObisCode;
         this.deviceIdentifier = deviceIdentifier;
+    }
+
+    @Override
+    public DeviceIdentifier getDeviceIdentifier() {
+        return deviceIdentifier;
     }
 
     @Override
