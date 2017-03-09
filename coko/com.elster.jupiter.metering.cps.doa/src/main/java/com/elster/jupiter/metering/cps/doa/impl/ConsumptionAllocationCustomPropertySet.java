@@ -8,6 +8,8 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 import com.elster.jupiter.orm.Column;
@@ -39,11 +41,18 @@ public class ConsumptionAllocationCustomPropertySet implements CustomPropertySet
     private static final String COMPONENT_NAME = "DOA";
 
     private PropertySpecService propertySpecService;
+    private MeteringService meteringService;
 
     @Reference
     @SuppressWarnings("unused") // Called by OSGi framework
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused") // Called by OSGi framework
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     @Override
