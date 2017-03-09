@@ -206,7 +206,7 @@ public class ClauseAwareSqlBuilderTest {
         // Asserts
         String sqlText = sqlBuilder.getText().toLowerCase();
         assertThat(sqlText).startsWith("with");
-        assertThat(sqlText).contains("fs.stage <> (select top 1 fstg.id from fsm_stage fstg where fstg.name = '" + EndDeviceStage.OPERATIONAL.name().toLowerCase() + "')");
+        assertThat(sqlText).contains("fs.stage <> (select top 1 fstg.id from fsm_stage fstg where fstg.name = '" + EndDeviceStage.OPERATIONAL.getKey().toLowerCase() + "')");
     }
 
     @Test
@@ -216,8 +216,8 @@ public class ClauseAwareSqlBuilderTest {
         // Asserts
         String sqlText = sqlBuilder.getText().toLowerCase();
         assertThat(sqlText).startsWith("with");
-        assertThat(sqlText).contains("'" + EndDeviceStage.POST_OPERATIONAL.name().toLowerCase() + "'");
-        assertThat(sqlText).contains("'" + EndDeviceStage.PRE_OPERATIONAL.name().toLowerCase() + "'");
+        assertThat(sqlText).contains("'" + EndDeviceStage.POST_OPERATIONAL.getKey().toLowerCase() + "'");
+        assertThat(sqlText).contains("'" + EndDeviceStage.PRE_OPERATIONAL.getKey().toLowerCase() + "'");
         assertThat(sqlText).matches(".*fs\\.stage\\s*not\\s*in\\s*\\(.*\\).*");
     }
 

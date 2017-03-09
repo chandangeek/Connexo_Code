@@ -46,7 +46,7 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
         this.deviceTypes = new HashSet<>(filter.deviceTypes);
         this.comTasks = new HashSet<>(filter.comTasks);
         this.comSchedules = new HashSet<>(filter.comSchedules);
-        this.restrictedDeviceStages = EndDeviceStage.fromNames(filter.restrictedDeviceStages);
+        this.restrictedDeviceStages = EndDeviceStage.fromKeys(filter.restrictedDeviceStages);
         this.deviceGroups = new ArrayList<>(filter.deviceGroups);
         this.queryExecutor = queryExecutor;
     }

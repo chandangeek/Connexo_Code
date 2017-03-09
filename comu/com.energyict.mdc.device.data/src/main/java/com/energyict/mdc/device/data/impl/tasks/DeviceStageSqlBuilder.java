@@ -134,7 +134,7 @@ public class DeviceStageSqlBuilder {
         protected void appendStages(SqlBuilder sqlBuilder, Set<EndDeviceStage> stages) {
             if (stages.size() == 1) {
                 sqlBuilder.append("(SELECT TOP 1 FSTG.ID FROM FSM_STAGE FSTG WHERE FSTG.NAME = '");
-                sqlBuilder.append(stages.iterator().next().name());
+                sqlBuilder.append(stages.iterator().next().getKey());
                 sqlBuilder.append("')");
             }
             else {
@@ -142,7 +142,7 @@ public class DeviceStageSqlBuilder {
                 sqlBuilder.append(
                         stages
                             .stream()
-                            .map(stage -> "'" + stage.name() + "'")
+                            .map(stage -> "'" + stage.getKey() + "'")
                             .collect(Collectors.joining(", ")));
                 sqlBuilder.append(")");
             }
@@ -151,7 +151,7 @@ public class DeviceStageSqlBuilder {
         protected void appendStages(StringBuilder sqlBuilder, Set<EndDeviceStage> stages) {
             if (stages.size() == 1) {
                 sqlBuilder.append("(SELECT TOP 1 FSTG.ID FROM FSM_STAGE FSTG WHERE FSTG.NAME = '");
-                sqlBuilder.append(stages.iterator().next().name());
+                sqlBuilder.append(stages.iterator().next().getKey());
                 sqlBuilder.append("')");
             }
             else {
@@ -159,7 +159,7 @@ public class DeviceStageSqlBuilder {
                 sqlBuilder.append(
                         stages
                                 .stream()
-                                .map(stage -> "'" + stage.name() + "'")
+                                .map(stage -> "'" + stage.getKey() + "'")
                                 .collect(Collectors.joining(", ")));
                 sqlBuilder.append(")");
             }

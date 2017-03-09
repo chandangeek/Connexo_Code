@@ -102,5 +102,5 @@ public class ConnectionTaskFilterSpecification {
      * Comtasks of devices in such stages will be excluded from the result
      * Default value: exclude comtasks of "Pre-operational" and "Post-operational" devices
      */
-    public Set<String> restrictedDeviceStages = new HashSet<>(Arrays.asList(EndDeviceStage.PRE_OPERATIONAL.name(), EndDeviceStage.POST_OPERATIONAL.name()));
+    public Set<String> restrictedDeviceStages = new HashSet<>(Arrays.asList(EndDeviceStage.PRE_OPERATIONAL.getKey(), EndDeviceStage.POST_OPERATIONAL.getKey()));
 }

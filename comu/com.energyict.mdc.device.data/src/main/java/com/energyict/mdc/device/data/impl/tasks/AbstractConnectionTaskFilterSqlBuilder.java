@@ -48,7 +48,7 @@ abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTaskFilter
         this.connectionTypes = new HashSet<>(filterSpecification.connectionTypes);
         this.comPortPools = new HashSet<>(filterSpecification.comPortPools);
         this.deviceTypes = new HashSet<>(filterSpecification.deviceTypes);
-        this.restricedDeviceStages = EndDeviceStage.fromNames(filterSpecification.restrictedDeviceStages);
+        this.restricedDeviceStages = EndDeviceStage.fromKeys(filterSpecification.restrictedDeviceStages);
         this.appendLastComSessionJoinClause = filterSpecification.useLastComSession;
         this.deviceGroups = new ArrayList<>(filterSpecification.deviceGroups);
         this.queryExecutor = deviceQueryExecutor;

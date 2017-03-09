@@ -101,7 +101,7 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
                 sqlBuilder = ClauseAwareSqlBuilder
                                 .withExcludedStages(
                                         DEVICE_STAGE_ALIAS_NAME,
-                                        EndDeviceStage.fromNames(filter.restrictedDeviceStages),
+                                        EndDeviceStage.fromKeys(filter.restrictedDeviceStages),
                                         this.deviceDataModelService.clock().instant());
                 WithClauses.COMTASK_EXECUTION_WITH_DEVICE_STATE.appendTo(sqlBuilder, "ctes");
                 this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, filter, taskStatus);
@@ -206,7 +206,7 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
                 sqlBuilder = ClauseAwareSqlBuilder
                         .withExcludedStages(
                                 DEVICE_STAGE_ALIAS_NAME,
-                                EndDeviceStage.fromNames(filterSpecification.restrictedDeviceStages),
+                                EndDeviceStage.fromKeys(filterSpecification.restrictedDeviceStages),
                                 this.deviceDataModelService.clock().instant());
                 WithClauses.BUSY_CONNECTION_TASK.appendTo(sqlBuilder, BUSY_ALIAS_NAME);
                 this.countByDeviceTypeAndTaskStatusSqlBuilder(sqlBuilder, filterSpecification, taskStatus);
