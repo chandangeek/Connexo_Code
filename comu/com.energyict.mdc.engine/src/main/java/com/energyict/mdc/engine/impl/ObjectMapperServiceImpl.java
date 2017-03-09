@@ -15,8 +15,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.UntypedObjectDeserializer;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import org.json.JSONException;
+import sun.util.calendar.ZoneInfo;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -30,23 +32,6 @@ import java.util.Map;
  */
 public class ObjectMapperServiceImpl implements ObjectMapperService {
     private final JSONTypeMapper jsonTypeMapper;
-
-    public interface JSONTypeMapper {
-
-        String TYPE_ATTRIBUTE = "type";
-
-        Class classForName(String className) throws ClassNotFoundException;
-
-        /**
-         * Convert all class names, used in the given JSONObject/JSONArray, to their remote variant.
-         * This operation is done in place; this method has void return type, but the given object will be modified
-         *
-         * @param objectJSON the JSON to correct class names for, which should be of type {@link org.json.JSONObject} or {@link org.json.JSONArray}
-         * @throws JSONException
-         * @throws ClassNotFoundException
-         */
-        void convertAllClassNamesFor(Object objectJSON) throws JSONException, ClassNotFoundException;
-    }
 
     public ObjectMapperServiceImpl(JSONTypeMapper jsonTypeMapper) {
         this.jsonTypeMapper = jsonTypeMapper;
@@ -72,10 +57,40 @@ public class ObjectMapperServiceImpl implements ObjectMapperService {
 
         // Registered modules
         SimpleModule typedPropertiesDeserializerModule = new SimpleModule("TypedPropertiesDeserializerModule", new Version(1, 0, 0, null));
-        mapper.registerModule(
-                typedPropertiesDeserializerModule
-                        .addDeserializer(TypedProperties.class, new TypedPropertiesJsonDeserializer(mapper, this.jsonTypeMapper)));
+        typedPropertiesDeserializerModule.addDeserializer(TypedProperties.class, new TypedPropertiesJsonDeserializer(mapper, this.jsonTypeMapper));
+        typedPropertiesDeserializerModule.addDeserializer(ZoneInfo.class, new ZoneInfoJsonDeserializer());
+
+        mapper.registerModule(typedPropertiesDeserializerModule);
+        mapper.registerModule(new JSR310Module());
         return mapper;
+    }
+
+    public interface JSONTypeMapper {
+
+        String TYPE_ATTRIBUTE = "type";
+
+        Class classForName(String className) throws ClassNotFoundException;
+
+        /**
+         * Convert all class names, used in the given JSONObject/JSONArray, to their remote variant.
+         * This operation is done in place; this method has void return type, but the given object will be modified
+         *
+         * @param objectJSON the JSON to correct class names for, which should be of type {@link org.json.JSONObject} or {@link org.json.JSONArray}
+         * @throws JSONException
+         * @throws ClassNotFoundException
+         */
+        void convertAllClassNamesFor(Object objectJSON) throws JSONException, ClassNotFoundException;
+    }
+
+    /**
+     * Apparently, a serialized TimeZone object needs custom support for de-serialization, it is not supported natively by JSON.
+     */
+    private static class ZoneInfoJsonDeserializer extends JsonDeserializer<ZoneInfo> {
+        @Override
+        public ZoneInfo deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+            String zoneInfo = (String) new UntypedObjectDeserializer().deserialize(jsonParser, deserializationContext);
+            return (ZoneInfo) ZoneInfo.getTimeZone(zoneInfo);
+        }
     }
 
     private static class TypedPropertiesJsonDeserializer extends JsonDeserializer<TypedProperties> {
@@ -111,8 +126,8 @@ public class ObjectMapperServiceImpl implements ObjectMapperService {
                     typedProperties = com.energyict.mdc.common.TypedProperties.empty();
                 }
 
-                if (typedPropertiesHashMap.containsKey("hashTable")) {
-                    Map propertyMap = (LinkedHashMap) typedPropertiesHashMap.get("hashTable");
+                if (typedPropertiesHashMap.containsKey("hashTable") || typedPropertiesHashMap.containsKey("hashMap")) {
+                    Map propertyMap = (LinkedHashMap) (typedPropertiesHashMap.get("hashTable") == null ? typedPropertiesHashMap.get("hashMap") : typedPropertiesHashMap.get("hashTable"));
                     Map propertyClassMap = (LinkedHashMap) typedPropertiesHashMap.get("propertyKeyPropertyClassMap");
                     for (Object o : propertyMap.entrySet()) {
                         Map.Entry pairs = (Map.Entry) o;
@@ -124,7 +139,7 @@ public class ObjectMapperServiceImpl implements ObjectMapperService {
                             Class clazz = this.jsonTypeMapper.classForName(xmlType);
                             value = this.mapper.convertValue(value, clazz);
                         } catch (ClassNotFoundException | NullPointerException e) {
-                            throw new JsonMappingException("Failed to unmarshall one or more of the property values of the TypedProperties");
+                            throw new JsonMappingException("Failed to unmarshall one or more of the property values of the TypedProperties", e);
                         }
                         typedProperties.setProperty(key, value);
                     }

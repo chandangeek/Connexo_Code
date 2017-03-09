@@ -389,7 +389,7 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
                 return false;
             }
             LogBookTypeAdapter that = (LogBookTypeAdapter) o;
-            return Objects.equals(actual, that.actual);
+            return actual.getObisCode().equals(that.actual.getObisCode()) && actual.getName().equals(that.actual.getName());
         }
 
         @Override
