@@ -49,10 +49,10 @@ public class MeterInCorrectStageValidator implements ConstraintValidator<MeterIn
             return false;
         }
         Stage stage = state.get().getStage().get();
-        if(metrologyConfiguration.isPresent() && !stage.getName().equals(EndDeviceStage.OPERATIONAL.name())) {
+        if(metrologyConfiguration.isPresent() && !stage.getName().equals(EndDeviceStage.OPERATIONAL.getKey())) {
             addContextValidationError("Metrology configuration is active but stage is not operational");
             return false;
-        } else if(!metrologyConfiguration.isPresent() && stage.getName().equals(EndDeviceStage.POST_OPERATIONAL.name())) {
+        } else if(!metrologyConfiguration.isPresent() && stage.getName().equals(EndDeviceStage.POST_OPERATIONAL.getKey())) {
             addContextValidationError("Metrology configuration is not active but stage is post-operational");
             return false;
         }

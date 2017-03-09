@@ -10,16 +10,33 @@ import java.util.stream.Collectors;
 
 /**
  * Models the {@link com.elster.jupiter.fsm.Stage}s
- * that are part of the default {@link com.elster.jupiter.fsm.StageSet}.
+ * that are part of the default enddevice {@link com.elster.jupiter.fsm.StageSet}.
  */
 public enum EndDeviceStage {
-    PRE_OPERATIONAL,
-    OPERATIONAL,
-    POST_OPERATIONAL;
+    PRE_OPERATIONAL("mtr.enddevicestage.preoperational"),
+    OPERATIONAL("mtr.enddevicestage.operational"),
+    POST_OPERATIONAL("mtr.enddevicestage.postoperational");
 
-    public static Set<EndDeviceStage> fromNames(Set<String> names) {
+    private String key;
+
+    EndDeviceStage(String key) {
+        this.key = key;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public static EndDeviceStage fromKey(String key) throws IllegalArgumentException {
         return Arrays.stream(values())
-                .filter(stage -> names.contains(stage.name()))
+                .filter(stage -> stage.getKey().equals(key))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Invalid key for end device stage"));
+    }
+
+    public static Set<EndDeviceStage> fromKeys(Set<String> keys) {
+        return Arrays.stream(values())
+                .filter(stage -> keys.contains(stage.getKey()))
                 .collect(Collectors.toSet());
     }
 }

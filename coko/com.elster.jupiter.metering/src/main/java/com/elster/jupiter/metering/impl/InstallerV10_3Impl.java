@@ -75,7 +75,7 @@ public class InstallerV10_3Impl implements FullInstaller {
     public void installEndDeviceStageSet() {
         StageSetBuilder stageSetBuilder = stateMachineService.newStageSet(MeteringService.END_DEVICE_STAGE_SET_NAME);
         Stream.of(EndDeviceStage.values())
-                .forEach(endDeviceStage -> stageSetBuilder.stage(endDeviceStage.name()));
+                .forEach(endDeviceStage -> stageSetBuilder.stage(endDeviceStage.getKey()));
         stageSetBuilder.add();
     }
 }
