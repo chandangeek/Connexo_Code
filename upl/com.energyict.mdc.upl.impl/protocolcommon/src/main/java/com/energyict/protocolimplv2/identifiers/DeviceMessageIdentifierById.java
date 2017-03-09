@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.identifiers;
 
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -18,20 +19,23 @@ import java.util.Set;
 public class DeviceMessageIdentifierById implements MessageIdentifier {
 
     private final int messageId;
+    private final DeviceIdentifier deviceIdentifier;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
      */
     private DeviceMessageIdentifierById() {
         messageId = -1;
+        deviceIdentifier = null;
     }
 
-    public DeviceMessageIdentifierById(int messageId) {
+    public DeviceMessageIdentifierById(int messageId, DeviceIdentifier deviceIdentifier) {
         this.messageId = messageId;
+        this.deviceIdentifier = deviceIdentifier;
     }
 
-    public DeviceMessageIdentifierById(long messageId) {
-        this((int) messageId);
+    public DeviceMessageIdentifierById(long messageId, DeviceIdentifier deviceIdentifier) {
+        this((int) messageId, deviceIdentifier);
     }
 
     @Override
@@ -64,6 +68,11 @@ public class DeviceMessageIdentifierById implements MessageIdentifier {
     @Override
     public int hashCode () {
         return messageId;
+    }
+
+    @Override
+    public DeviceIdentifier getDeviceIdentifier() {
+        return deviceIdentifier;
     }
 
     private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {

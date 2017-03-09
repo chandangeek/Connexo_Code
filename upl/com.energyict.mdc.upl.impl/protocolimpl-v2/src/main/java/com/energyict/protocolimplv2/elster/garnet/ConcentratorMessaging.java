@@ -13,7 +13,6 @@ import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
 import com.energyict.protocolimplv2.elster.garnet.common.InstallationConfig;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
 import com.energyict.protocolimplv2.elster.garnet.exception.NotExecutedException;
@@ -195,7 +194,7 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
     }
 
     private CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
+        return this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId(), message.getDeviceIdentifier()));
     }
 
     protected Issue createUnsupportedWarning(OfflineDeviceMessage pendingMessage) {

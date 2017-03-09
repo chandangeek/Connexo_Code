@@ -259,7 +259,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     AM130(227, "com.energyict.protocolimplv2.dlms.idis.am130.AM130", FamilyRule.ELSTER_IDIS_P2),
     AM130_MBUS_DEVICE(228, "com.energyict.protocolimplv2.dlms.idis.am130.MBusDevice", FamilyRule.ELSTER_IDIS_P2),
     AM540_MBUS_DEVICE(229, "com.energyict.protocolimplv2.nta.dsmr50.elster.am540.MBusDevice", FamilyRule.ELSTER_IDIS, FamilyRule.ELSTER_IDIS_P2),
-
+/*
     //Crypto protocols
     CryptoAM540(230, "com.enexis.smartmeterprotocolimpl.nta.dsmr50.elster.am540.CryptoAM540"),
     CryptoCX20009(231, "com.enexis.smartmeterprotocolimpl.nta.dsmr50.sagemcom.CryptoCX20009"),
@@ -285,7 +285,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     Landis_Gyr_CryptoMbusDeviceWithBreaker(250, "com.enexis.smartmeterprotocolimpl.nta.dsmr40.landisgyr.CryptoMbusDeviceWithBreaker", FamilyRule.DSMR_NTA),
     Dummy_CryptoMbusDeviceWithBreaker(251, "com.enexis.smartmeterprotocolimpl.nta.dsmr40.common.CryptoMbusDeviceWithBreaker", FamilyRule.DSMR_NTA),
     Elster_CryptoMbusDeviceWithBreaker(252, "com.enexis.smartmeterprotocolimpl.nta.dsmr40.elster.CryptoMbusDeviceWithBreaker", FamilyRule.DSMR_NTA),
-    Itron_CryptoMbusDeviceWithBreaker(253, "com.enexis.smartmeterprotocolimpl.nta.dsmr40.itron.CryptoMbusDeviceWithBreaker", FamilyRule.DSMR_NTA),
+    Itron_CryptoMbusDeviceWithBreaker(253, "com.enexis.smartmeterprotocolimpl.nta.dsmr40.itron.CryptoMbusDeviceWithBreaker", FamilyRule.DSMR_NTA),*/
 
     PM5560(254, "com.energyict.protocolimpl.modbus.schneider.powerlogic.PM5560"),
     PM5561(280, "com.energyict.protocolimpl.modbus.schneider.powerlogic.PM5561"),
@@ -304,6 +304,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     FP93B(266, "com.energyict.protocolimpl.modbus.emco.FP93B"),
     VLM20(267, "com.energyict.protocolimpl.modbus.spiraxsarco.VLM20"),
     RIM20(268, "com.energyict.protocolimpl.modbus.spiraxsarco.RIM20"),
+/*
 
     CryptoE350_42(269, "com.enexis.smartmeterprotocolimpl.nta.dsmr42.landisgyr.CryptoE350", FamilyRule.DSMR_NTA),
     CryptoKaifa_42(270, "com.enexis.smartmeterprotocolimpl.nta.dsmr42.ibm.Cryptokaifa", FamilyRule.DSMR_NTA),
@@ -314,14 +315,14 @@ public enum LicensedProtocolRule implements LicensedProtocol {
 
     CryptoWebRTUKP_42(275, "com.enexis.protocolimplv2.nta.dsmr23.eict.CryptoWebRTUKP", FamilyRule.EICT_NTA),
     CryptoRtuPlusServer_42(276, "com.enexis.protocolimplv2.rtuplusserver.g3.CryptoRtuPlusServer", FamilyRule.G3_LINKY_DLMS, FamilyRule.G3_PLC),
+*/
 
     Mx382_IDIS(278, "com.energyict.protocolimplv2.dlms.idis.iskra.mx382.Mx382"),
-
     MIGRATION_DUMMY_PROTOCOL(279, "com.energyict.protocolimpl.migration.DummyProtocol"),
-
     T210D(281, "com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.T210D"),
-
     QUAD4(282, "com.elster.us.protocolimpl.landisgyr.quad4.Quad4"),
+
+    SDK_DEVICE_PROTOCOL_WITH_ALL_PROPERTIES(287, "test.com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithAllProperties", FamilyRule.TEST),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),

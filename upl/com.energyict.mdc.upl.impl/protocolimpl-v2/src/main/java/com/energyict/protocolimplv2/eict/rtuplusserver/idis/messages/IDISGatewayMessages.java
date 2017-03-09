@@ -391,7 +391,7 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
     }
 
     private CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
+        return this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId(), message.getDeviceIdentifier()));
     }
 
     private Issue messageFailed(OfflineDeviceMessage pendingMessage, Exception e) {

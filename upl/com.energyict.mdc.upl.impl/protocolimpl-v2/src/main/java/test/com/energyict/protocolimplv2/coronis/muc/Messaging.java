@@ -127,7 +127,7 @@ public class Messaging implements DeviceMessageSupport {
     }
 
     private CollectedMessage createCollectedMessage(OfflineDeviceMessage pendingMessage) {
-        return this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(pendingMessage.getDeviceMessageId()));
+        return this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(pendingMessage.getDeviceMessageId(), pendingMessage.getDeviceIdentifier()));
     }
 
     private boolean isWriteExchangeStatus(OfflineDeviceMessage pendingMessage) {

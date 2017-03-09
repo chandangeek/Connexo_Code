@@ -1,5 +1,26 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages;
 
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.AssociationLN;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.DataAccessResultCode;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.cosem.FirewallSetup;
+import com.energyict.dlms.cosem.GenericInvoke;
+import com.energyict.dlms.cosem.GenericWrite;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.SecuritySetup;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.ProtocolException;
@@ -26,28 +47,6 @@ import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.AssociationLN;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.DataAccessResultCode;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.cosem.FirewallSetup;
-import com.energyict.dlms.cosem.GenericInvoke;
-import com.energyict.dlms.cosem.GenericWrite;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.SecuritySetup;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.idis.xml.XMLParser;
@@ -627,11 +626,11 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     protected CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
+        return this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId(), message.getDeviceIdentifier()));
     }
 
     protected CollectedMessage createCollectedMessageWithRegisterData(OfflineDeviceMessage message, List<CollectedRegister> registers) {
-        return this.collectedDataFactory.createCollectedMessageWithRegisterData(new DeviceIdentifierById(message.getDeviceId()), new DeviceMessageIdentifierById(message.getDeviceMessageId()), registers);
+        return this.collectedDataFactory.createCollectedMessageWithRegisterData(new DeviceIdentifierById(message.getDeviceId()), new DeviceMessageIdentifierById(message.getDeviceMessageId(), message.getDeviceIdentifier()), registers);
     }
 
     protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, Exception e) {

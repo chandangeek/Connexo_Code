@@ -179,7 +179,7 @@ public class ACE4000MessageExecutor {
     }
 
     private CollectedMessage createCollectedMessageWithLoadProfileData(OfflineDeviceMessage message, CollectedLoadProfile collectedLoadProfile) {
-        CollectedMessage collectedMessageWithLoadProfileData = this.collectedDataFactory.createCollectedMessageWithLoadProfileData(new DeviceMessageIdentifierById(message.getDeviceMessageId()), collectedLoadProfile);
+        CollectedMessage collectedMessageWithLoadProfileData = this.collectedDataFactory.createCollectedMessageWithLoadProfileData(new DeviceMessageIdentifierById(message.getDeviceMessageId(), message.getDeviceIdentifier()), collectedLoadProfile);
         collectedMessageWithLoadProfileData.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         return collectedMessageWithLoadProfileData;
     }
@@ -202,13 +202,13 @@ public class ACE4000MessageExecutor {
     }
 
     private CollectedMessage createCollectedMessageWithLogbookData(OfflineDeviceMessage message, CollectedLogBook collectedLogBook) {
-        CollectedMessage collectedMessageWithLogbookData = this.collectedDataFactory.createCollectedMessageWithLogbookData(new DeviceMessageIdentifierById(message.getDeviceMessageId()), collectedLogBook);
+        CollectedMessage collectedMessageWithLogbookData = this.collectedDataFactory.createCollectedMessageWithLogbookData(new DeviceMessageIdentifierById(message.getDeviceMessageId(), message.getDeviceIdentifier()), collectedLogBook);
         collectedMessageWithLogbookData.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         return collectedMessageWithLogbookData;
     }
 
     public CollectedMessage createCollectedMessage(OfflineDeviceMessage pendingMessage) {
-        CollectedMessage collectedMessage = this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(pendingMessage.getDeviceMessageId()));
+        CollectedMessage collectedMessage = this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(pendingMessage.getDeviceMessageId(), pendingMessage.getDeviceIdentifier()));
         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         return collectedMessage;
     }

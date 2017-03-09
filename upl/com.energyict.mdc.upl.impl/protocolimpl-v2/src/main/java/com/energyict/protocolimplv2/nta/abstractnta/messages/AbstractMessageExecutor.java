@@ -163,15 +163,15 @@ public abstract class AbstractMessageExecutor {
     }
 
     protected CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
+        return this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId(), message.getDeviceIdentifier()));
     }
 
     protected CollectedMessage createCollectedMessageWithLoadProfileData(OfflineDeviceMessage message, CollectedLoadProfile collectedLoadProfile) {
-        return this.collectedDataFactory.createCollectedMessageWithLoadProfileData(new DeviceMessageIdentifierById(message.getDeviceMessageId()), collectedLoadProfile);
+        return this.collectedDataFactory.createCollectedMessageWithLoadProfileData(new DeviceMessageIdentifierById(message.getDeviceMessageId(), message.getDeviceIdentifier()), collectedLoadProfile);
     }
 
     protected CollectedMessage createCollectedMessageWithRegisterData(OfflineDeviceMessage message, List<CollectedRegister> collectedRegisters) {
-        return this.collectedDataFactory.createCollectedMessageWithRegisterData(new DeviceIdentifierById(message.getDeviceId()), new DeviceMessageIdentifierById(message.getDeviceMessageId()), collectedRegisters);
+        return this.collectedDataFactory.createCollectedMessageWithRegisterData(new DeviceIdentifierById(message.getDeviceId()), new DeviceMessageIdentifierById(message.getDeviceMessageId(), message.getDeviceIdentifier()), collectedRegisters);
     }
 
     protected CollectedRegister createCollectedRegister(RegisterValue registerValue, OfflineDeviceMessage pendingMessage) {

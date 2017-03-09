@@ -35,14 +35,13 @@ import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-import com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -75,20 +74,20 @@ import java.util.logging.Logger;
 public class SDKDeviceProtocol implements DeviceProtocol {
 
     private static final String DEFAULT_OPTIONAL_PROPERTY_NAME = "defaultOptionalProperty";
-    private final CollectedDataFactory collectedDataFactory;
-    private final PropertySpecService propertySpecService;
-    private final NlsService nlsService;
-    private final Converter converter;
+    protected final CollectedDataFactory collectedDataFactory;
+    protected final PropertySpecService propertySpecService;
+    protected final NlsService nlsService;
+    protected final Converter converter;
     /**
      * Will group this protocols' security features.
      * As an example the {@link DlmsSecuritySupport} component is used
      */
     private final DeviceProtocolSecurityCapabilities deviceProtocolSecurityCapabilities;
-    private Logger logger = Logger.getLogger(SDKDeviceProtocol.class.getSimpleName());
+    protected Logger logger = Logger.getLogger(SDKDeviceProtocol.class.getSimpleName());
     /**
      * The {@link OfflineDevice} that holds all <i>necessary</i> information to perform the relevant ComTasks for this <i>session</i>
      */
-    private OfflineDevice offlineDevice;
+    protected OfflineDevice offlineDevice;
     /**
      * The ComChannel that will be used to read/write.
      * Actual reading/writing needs to be performed on this object as logging/communicationStatistics are calculated based on

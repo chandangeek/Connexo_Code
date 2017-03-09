@@ -21,7 +21,6 @@ import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.CodeTableBase64Builder;
 import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
@@ -135,7 +134,7 @@ public class Messaging implements DeviceMessageSupport {
     }
 
     private CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
+        return this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId(), message.getDeviceIdentifier()));
     }
 
     @Override
