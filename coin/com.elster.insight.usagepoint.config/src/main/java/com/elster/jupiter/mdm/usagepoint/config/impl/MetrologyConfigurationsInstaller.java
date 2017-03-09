@@ -86,19 +86,24 @@ class MetrologyConfigurationsInstaller {
      * {@link OOTBMetrologyConfiguration} describes OOTB metrology configurations
      */
     public enum OOTBMetrologyConfiguration {
-        RESIDENTIAL_PROSUMER_WITH_1_METER("Residential prosumer with 1 meter", false),
-        RESIDENTIAL_PROSUMER_WITH_2_METERS("Residential prosumer with 2 meters", false),
-        RESIDENTIAL_NET_METERING_PRODUCTION("Residential net metering (production)", true),
-        RESIDENTIAL_NET_METERING_CONSUMPTION("Residential net metering (consumption)", true),
-        RESIDENTIAL_NON_SMART_INSTALLATION("Residential non-smart installation", true),
-        RESIDENTIAL_GAS_NON_SMART_INSTALLATION("Residential gas non-smart installation", true),
-        CI_3_PHASED_CONSUMER_WITH_SMART_METER_WITH_2_TOU("C&I 3-phased consumer with smart meter with 2 ToU", true),
-        RESIDENTIAL_CONSUMER_WITH_4_TOU("Residential consumer with 4 ToU", true),
-        RESIDENTIAL_GAS("Residential gas", true),
-        CI_WATER_CONFIGURATION("C&I water configuration", true);
+        RESIDENTIAL_PROSUMER_WITH_1_METER("Residential prosumer with 1 meter", "Typical installation for residential " +
+                "prosumers with smart meter", false),
+        RESIDENTIAL_PROSUMER_WITH_2_METERS("Residential prosumer with 2 meters", "Typical installation for " +
+                "residential prosumers with dumb meters", false),
+        RESIDENTIAL_NET_METERING_PRODUCTION("Residential net metering (production)", "Residential producer", true),
+        RESIDENTIAL_NET_METERING_CONSUMPTION("Residential net metering (consumption)", "Residential consumer", true),
+        RESIDENTIAL_NON_SMART_INSTALLATION("Residential non-smart installation", "Registers of different types " +
+                "(textual, numeric)", true),
+        RESIDENTIAL_GAS_NON_SMART_INSTALLATION("Residential gas non-smart installation", "Billing register", true),
+        CI_3_PHASED_CONSUMER_WITH_SMART_METER_WITH_2_TOU("C&I 3-phased consumer with smart meter with 2 ToU", "C&I " +
+                "3-phased consumer with smart meter 2 ToU", true),
+        RESIDENTIAL_CONSUMER_WITH_4_TOU("Residential consumer with 4 ToU", "Residential consumer with 4 ToU", true),
+        RESIDENTIAL_GAS("Residential gas", "Residential gas installation", true),
+        CI_WATER_CONFIGURATION("C&I water configuration", "C&I water configuration with 2 meters", true);
 
-        OOTBMetrologyConfiguration(String name, boolean isGapAllowed) {
+        OOTBMetrologyConfiguration(String name, String description, boolean isGapAllowed) {
             this.name = name;
+            this.description = description;
             this.isGapAllowed = isGapAllowed;
         }
 
@@ -106,11 +111,16 @@ class MetrologyConfigurationsInstaller {
             return name;
         }
 
+        public String getDescription() {
+            return description;
+        }
+
         public boolean isGapAllowed() {
             return isGapAllowed;
         }
 
         private String name;
+        private String description;
         private boolean isGapAllowed;
 
     }
@@ -124,7 +134,7 @@ class MetrologyConfigurationsInstaller {
                 .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration(RESIDENTIAL_PROSUMER_WITH_1_METER
                 .getName(), serviceCategory)
-                .withDescription("Typical installation for residential prosumers with smart meter")
+                .withDescription(RESIDENTIAL_PROSUMER_WITH_1_METER.getDescription())
                 .withGapAllowed(RESIDENTIAL_PROSUMER_WITH_1_METER.isGapAllowed())
                 .create();
 
@@ -238,7 +248,7 @@ class MetrologyConfigurationsInstaller {
                 .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration(RESIDENTIAL_PROSUMER_WITH_2_METERS
                 .getName(), serviceCategory)
-                .withDescription("Typical installation for residential prosumers with dumb meters")
+                .withDescription(RESIDENTIAL_PROSUMER_WITH_2_METERS.getDescription())
                 .withGapAllowed(RESIDENTIAL_PROSUMER_WITH_2_METERS.isGapAllowed())
                 .create();
 
@@ -296,7 +306,7 @@ class MetrologyConfigurationsInstaller {
                 .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration(RESIDENTIAL_NET_METERING_PRODUCTION
                 .getName(), serviceCategory)
-                .withDescription("Residential producer")
+                .withDescription(RESIDENTIAL_NET_METERING_PRODUCTION.getDescription())
                 .withGapAllowed(RESIDENTIAL_NET_METERING_PRODUCTION.isGapAllowed())
                 .create();
 
@@ -346,7 +356,7 @@ class MetrologyConfigurationsInstaller {
                 .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration(RESIDENTIAL_NET_METERING_CONSUMPTION
                 .getName(), serviceCategory)
-                .withDescription("Residential consumer")
+                .withDescription(RESIDENTIAL_NET_METERING_CONSUMPTION.getDescription())
                 .withGapAllowed(RESIDENTIAL_NET_METERING_CONSUMPTION.isGapAllowed())
                 .create();
 
@@ -415,7 +425,7 @@ class MetrologyConfigurationsInstaller {
                 .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration(RESIDENTIAL_NON_SMART_INSTALLATION
                 .getName(), serviceCategory)
-                .withDescription("Registers of different types (textual, numeric)")
+                .withDescription(RESIDENTIAL_NON_SMART_INSTALLATION.getDescription())
                 .withGapAllowed(RESIDENTIAL_NON_SMART_INSTALLATION.isGapAllowed())
                 .create();
 
@@ -465,7 +475,7 @@ class MetrologyConfigurationsInstaller {
                 .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration(RESIDENTIAL_GAS_NON_SMART_INSTALLATION
                 .getName(), serviceCategory)
-                .withDescription("Billing register")
+                .withDescription(RESIDENTIAL_GAS_NON_SMART_INSTALLATION.getDescription())
                 .withGapAllowed(RESIDENTIAL_GAS_NON_SMART_INSTALLATION.isGapAllowed())
                 .create();
 
@@ -505,7 +515,7 @@ class MetrologyConfigurationsInstaller {
                 .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration(CI_3_PHASED_CONSUMER_WITH_SMART_METER_WITH_2_TOU
                 .getName(), serviceCategory)
-                .withDescription("C&I 3-phased consumer with smart meter 2 ToU")
+                .withDescription(CI_3_PHASED_CONSUMER_WITH_SMART_METER_WITH_2_TOU.getDescription())
                 .withGapAllowed(CI_3_PHASED_CONSUMER_WITH_SMART_METER_WITH_2_TOU.isGapAllowed())
                 .create();
 
@@ -623,7 +633,7 @@ class MetrologyConfigurationsInstaller {
                 .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration(RESIDENTIAL_CONSUMER_WITH_4_TOU
                 .getName(), serviceCategory)
-                .withDescription(RESIDENTIAL_CONSUMER_WITH_4_TOU.getName())
+                .withDescription(RESIDENTIAL_CONSUMER_WITH_4_TOU.getDescription())
                 .withGapAllowed(RESIDENTIAL_CONSUMER_WITH_4_TOU.isGapAllowed())
                 .create();
 
@@ -695,7 +705,7 @@ class MetrologyConfigurationsInstaller {
                 .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.GAS));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration(RESIDENTIAL_GAS
                 .getName(), serviceCategory)
-                .withDescription("Residential gas installation")
+                .withDescription(RESIDENTIAL_GAS.getDescription())
                 .withGapAllowed(RESIDENTIAL_GAS.isGapAllowed())
                 .create();
 
@@ -747,7 +757,7 @@ class MetrologyConfigurationsInstaller {
                 .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.WATER));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration(CI_WATER_CONFIGURATION
                 .getName(), serviceCategory)
-                .withDescription("C&I water configuration with 2 meters")
+                .withDescription(CI_WATER_CONFIGURATION.getDescription())
                 .withGapAllowed(CI_WATER_CONFIGURATION.isGapAllowed())
                 .create();
 
