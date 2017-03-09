@@ -75,7 +75,7 @@ Ext.define('Wss.view.Grid', {
                 menu: {
                     xtype: 'webservices-action-menu'
                 },
-                flex: 0.5
+                width: 120
             }
         ];
 
