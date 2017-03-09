@@ -126,7 +126,7 @@ public class OfflineLogBookImpl implements OfflineLogBook {
 
     @Override
     public LogBookIdentifier getLogBookIdentifier() {
-        return this.identificationService.createLogbookIdentifierForAlreadyKnownLogbook(logBook);
+        return this.identificationService.createLogbookIdentifierForAlreadyKnownLogbook(logBook, getDeviceIdentifier());
     }
 
     @XmlElement(name = "type")

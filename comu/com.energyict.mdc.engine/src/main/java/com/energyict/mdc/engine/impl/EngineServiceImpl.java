@@ -59,7 +59,6 @@ import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-
 import com.energyict.obis.ObisCode;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -646,10 +645,10 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         }
 
         @Override
-        public LogBookIdentifier createLogbookIdentifierByDatabaseId(long id, ObisCode obisCode) {
+        public LogBookIdentifier createLogbookIdentifierByDatabaseId(long id, ObisCode obisCode, DeviceIdentifier deviceIdentifier) {
             return this.identificationService
                     .get()
-                    .map(s -> s.createLogbookIdentifierByDatabaseId(id, obisCode))
+                    .map(s -> s.createLogbookIdentifierByDatabaseId(id, obisCode, deviceIdentifier))
                     .orElseThrow(IdentificationServiceMissingException::new);
         }
 
@@ -662,10 +661,10 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         }
 
         @Override
-        public LogBookIdentifier createLogbookIdentifierForAlreadyKnownLogbook(LogBook logBook) {
+        public LogBookIdentifier createLogbookIdentifierForAlreadyKnownLogbook(LogBook logBook, DeviceIdentifier deviceIdentifier) {
             return this.identificationService
                     .get()
-                    .map(s -> s.createLogbookIdentifierForAlreadyKnownLogbook(logBook))
+                    .map(s -> s.createLogbookIdentifierForAlreadyKnownLogbook(logBook, deviceIdentifier))
                     .orElseThrow(IdentificationServiceMissingException::new);
         }
 
