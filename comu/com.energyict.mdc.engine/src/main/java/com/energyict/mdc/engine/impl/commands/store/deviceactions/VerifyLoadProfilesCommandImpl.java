@@ -161,7 +161,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
         LoadProfileIdentifier loadProfileIdentifier = this.getCommandRoot()
                 .getServiceProvider()
                 .identificationService()
-                .createLoadProfileIdentifierByDatabaseId(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode());
+                .createLoadProfileIdentifierByDatabaseId(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode(), getOfflineDevice().getDeviceIdentifier());
         DeviceLoadProfile collectedLoadProfile = new DeviceLoadProfile(loadProfileIdentifier);
         collectedLoadProfile.setFailureInformation(resultType, issues);
         return collectedLoadProfile;

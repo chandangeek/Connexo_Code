@@ -613,10 +613,10 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         }
 
         @Override
-        public LoadProfileIdentifier createLoadProfileIdentifierByDatabaseId(long id, ObisCode obisCode) {
+        public LoadProfileIdentifier createLoadProfileIdentifierByDatabaseId(long id, ObisCode obisCode, DeviceIdentifier deviceIdentifier) {
             return this.identificationService
                     .get()
-                    .map(s -> s.createLoadProfileIdentifierByDatabaseId(id, obisCode))
+                    .map(s -> s.createLoadProfileIdentifierByDatabaseId(id, obisCode, deviceIdentifier))
                     .orElseThrow(IdentificationServiceMissingException::new);
         }
 
