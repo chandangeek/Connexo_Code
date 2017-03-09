@@ -8,6 +8,7 @@ import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.util.Pair;
 
@@ -37,35 +38,33 @@ public enum ReadingModificationFlag {
                 .findFirst();
     }
 
-    public static Pair<ReadingModificationFlag, ReadingQualityRecord> getModificationFlagWithQualityRecord(BaseReadingRecord reading, Collection<? extends ReadingQualityRecord> readingQualities, Optional<? extends BaseReadingRecord> calculatedReading) {
-        Map<ReadingModificationFlag, ReadingQualityRecord> flags = readingQualities.stream()
+    public static Pair<ReadingModificationFlag, ReadingQuality> getModificationFlagWithQualityRecord(Collection<? extends ReadingQuality> readingQualities, Optional<? extends BaseReadingRecord> calculatedReading) {
+        Map<ReadingModificationFlag, ReadingQuality> flags = readingQualities.stream()
                 .filter(quality -> quality.getType().qualityIndex().flatMap(ReadingModificationFlag::forQualityCodeIndex).isPresent())
                 .collect(Collectors.toMap(
                         quality -> ReadingModificationFlag.forQualityCodeIndex(quality.getType().qualityIndex().get()).get(),
                         quality -> quality,
                         (s1, s2) -> s1,
                         () -> new EnumMap<>(ReadingModificationFlag.class)));
-        if (reading != null) {
-            if (reading.edited()) {
-                if (flags.containsKey(ADDED)) {
-                    if(calculatedReading.isPresent()){
-                        return Pair.of(EDITED, flags.get(ADDED));
-                    } else {
-                        return Pair.of(ADDED, flags.get(ADDED));
-                    }
-                }
-                if (flags.containsKey(EDITED)) {
-                    if(calculatedReading.isPresent()){
-                        return Pair.of(EDITED, flags.get(EDITED));
-                    } else {
-                        return Pair.of(ADDED, flags.get(EDITED));
-                    }
-                }
-            } else if (flags.containsKey(REMOVED)){
-                return Pair.of(RESET, flags.get(REMOVED));
-            }
-        } else if (flags.containsKey(REMOVED)) {
+
+        if (flags.containsKey(ADDED)) {
             if(calculatedReading.isPresent()){
+                return Pair.of(EDITED, flags.get(ADDED));
+            } else {
+                return Pair.of(ADDED, flags.get(ADDED));
+            }
+        }
+        else  if (flags.containsKey(EDITED)) {
+            if(calculatedReading.isPresent()){
+                return Pair.of(EDITED, flags.get(EDITED));
+            } else {
+                return Pair.of(ADDED, flags.get(EDITED));
+            }
+        }
+        else if (flags.containsKey(REMOVED)) {
+            if(calculatedReading.isPresent()){
+                return Pair.of(RESET, flags.get(REMOVED));
+            } else {
                 return Pair.of(REMOVED, flags.get(REMOVED));
             }
         }
