@@ -100,7 +100,7 @@ Ext.define('Fim.view.uploadfile.UploadFile', {
                         fieldLabel: Uni.I18n.translate('general.file', 'FIM', 'File'),
                         required: true,
                         hidden: true,
-                        buttonText: Uni.I18n.translate('general.file', 'FIM', 'Select file...'),
+                        buttonText: Uni.I18n.translate('general.file.buttonText', 'FIM', 'Select file...'),
                         afterBodyEl: [
                             '<div class="x-form-display-field"><i>', Uni.I18n.translate('uploadFile.filesize', 'FIM', 'Maximum file size is 100MB'), '</i></div>'
                         ]
