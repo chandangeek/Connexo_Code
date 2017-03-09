@@ -24,4 +24,6 @@ public interface LoadProfileIdentifier extends Identifier {
 
     ObisCode getProfileObisCode();
 
+    DeviceIdentifier getDeviceIdentifier();
+
 }
