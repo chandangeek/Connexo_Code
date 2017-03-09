@@ -112,7 +112,7 @@ import static com.elster.jupiter.util.streams.Currying.test;
 @UniqueMRID(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_USAGE_POINT_MRID + "}")
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_USAGE_POINT_NAME + "}")
 @AllRequiredCustomPropertySetsHaveValues(groups = {Save.Update.class})
-public class UsagePointImpl implements UsagePoint {
+public class UsagePointImpl implements ServerUsagePoint {
     // persistent fields
     @SuppressWarnings("unused")
     private long id;
@@ -142,8 +142,9 @@ public class UsagePointImpl implements UsagePoint {
     private Instant installationTime;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String serviceDeliveryRemark;
-    private TemporalReference<UsagePointConnectionState> connectionState = Temporals.absent();
+    private TemporalReference<UsagePointConnectionStateImpl> connectionState = Temporals.absent();
     private TemporalReference<UsagePointStateTemporalImpl> state = Temporals.absent();
+    private List<ServerCalendarUsage> calendarUsages = new ArrayList<>();
 
     @SuppressWarnings("unused")
     private long version;
@@ -393,7 +394,6 @@ public class UsagePointImpl implements UsagePoint {
     /**
      * This method will not work if there are meter activations, channel containers and channels linked
      * We keep this method for physical deletion in the future.
-     *
      **/
     @Override
     public void delete() {
@@ -401,6 +401,7 @@ public class UsagePointImpl implements UsagePoint {
         this.removeMetrologyConfigurations();
         this.removeServiceCategoryCustomPropertySetValues();
         this.removeDetail();
+        this.calendarUsages.clear();
         dataModel.remove(this);
     }
 
@@ -416,7 +417,6 @@ public class UsagePointImpl implements UsagePoint {
     private void removeDetail() {
         this.getDetail(Range.all()).forEach(detail::remove);
     }
-
 
     private void removeMetrologyConfigurationCustomPropertySetValues() {
         this.removeCustomPropertySetValues(
@@ -563,7 +563,7 @@ public class UsagePointImpl implements UsagePoint {
         UsagePointMeterActivator linker = this.linkMeters().withFormValidation(UsagePointMeterActivator.FormValidation.DEFINE_METROLOGY_CONFIGURATION);
 
         meterActivations.stream()
-                .filter(meterActivation -> meterActivation.getMeterRole().isPresent() && meterActivation.getEnd()==null)
+                .filter(meterActivation -> meterActivation.getMeterRole().isPresent() && meterActivation.getEnd() == null)
                 .forEach(meterActivation -> linker.activate(meterActivation.getMeter().get(), meterActivation.getMeterRole().get()));
 
         linker.complete();
@@ -644,9 +644,7 @@ public class UsagePointImpl implements UsagePoint {
                 throw new OverlapsOnMetrologyConfigurationVersionStart(thesaurus);
             }
         } else if (each.getStart().isAfter(start)) {
-            if (end == null) {
-                throw new OverlapsOnMetrologyConfigurationVersionEnd(thesaurus);
-            } else if (each.isEffectiveAt(end)) {
+            if (end == null || each.isEffectiveAt(end)) {
                 throw new OverlapsOnMetrologyConfigurationVersionEnd(thesaurus);
             }
         }
@@ -708,25 +706,21 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     @Deprecated
     public ConnectionState getConnectionState() {
-        UsagePointStage.Key stage = getState().getStage().getKey();
-        switch (stage) {
-            case PRE_OPERATIONAL:
-                return ConnectionState.UNDER_CONSTRUCTION;
-            case POST_OPERATIONAL:
-                return ConnectionState.DEMOLISHED;
-            default:
-                return getCurrentConnectionState().orElse(null);
-        }
+        return getCurrentConnectionState().map(UsagePointConnectionState::getConnectionState).orElse(null);
     }
 
     @Override
-    public Optional<ConnectionState> getCurrentConnectionState() {
-        return this.connectionState.effective(this.clock.instant()).map(UsagePointConnectionState::getConnectionState);
+    public Optional<UsagePointConnectionState> getCurrentConnectionState() {
+        return getConnectionStateAt(this.clock.instant());
+    }
+
+    private Optional<UsagePointConnectionState> getConnectionStateAt(Instant time) {
+        return this.connectionState.effective(time).map(Function.identity());
     }
 
     @Override
     public String getConnectionStateDisplayName() {
-        return this.thesaurus.getFormat(getConnectionState()).format();
+        return getCurrentConnectionState().map(UsagePointConnectionState::getConnectionStateDisplayName).orElse(null);
     }
 
     @Override
@@ -735,27 +729,39 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public void setConnectionState(ConnectionState connectionState, Instant effective) {
-        if (!this.connectionState.effective(effective).filter(cs -> cs.getConnectionState().equals(connectionState)).isPresent()) {
-            if (!this.connectionState.all().isEmpty()) {
-                this.closeCurrentConnectionState(effective);
-            }
-            this.createNewState(effective, connectionState);
-            this.touch();
+    public void setConnectionState(ConnectionState newConnectionState, Instant effectiveDate) {
+        if (effectiveDate.isBefore(getInstallationTime())) {
+            throw ConnectionStateChangeException.stateChangeTimeShouldBeAfterInstallationTime(thesaurus);
         }
+        Optional<UsagePointConnectionStateImpl> latestConnectionState = this.connectionState.all().stream()
+                .max(Comparator.comparing(state -> state.getRange().lowerEndpoint()));
+        if (latestConnectionState.isPresent()) {
+            if (!isConnectionStateChangeFeasible(effectiveDate, latestConnectionState.get(), newConnectionState)) {
+                throw ConnectionStateChangeException.stateChangeTimeShouldBeAfterLatestConnectionStateChange(thesaurus);
+            }
+            if (!isConnectionStateChangeNeeded(newConnectionState, latestConnectionState.get())) {
+                return;
+            }
+            latestConnectionState.get().endAt(effectiveDate);
+        }
+        createNewConnectionState(newConnectionState, effectiveDate);
+        touch();
     }
 
-    private void closeCurrentConnectionState(Instant now) {
-        UsagePointConnectionState currentState = this.connectionState.effective(now).get();
-        currentState.close(now);
-        this.dataModel.update(currentState);
+    private boolean isConnectionStateChangeFeasible(Instant effectiveDate, UsagePointConnectionState latestState, ConnectionState newState) {
+        Range<Instant> latestStateInterval = latestState.getRange();
+        return !(latestStateInterval.hasUpperBound() && effectiveDate.isBefore(latestStateInterval.upperEndpoint())) &&
+                !(latestStateInterval.hasLowerBound() && effectiveDate.isBefore(latestStateInterval.lowerEndpoint())) &&
+                !(effectiveDate.equals(latestStateInterval.lowerEndpoint()) && latestState.getConnectionState() != newState);
     }
 
-    private void createNewState(Instant effective, ConnectionState connectionState) {
-        Interval stateEffectivityInterval = Interval.of(Range.atLeast(effective));
-        UsagePointConnectionState usagePointConnectionState = this.dataModel
-                .getInstance(UsagePointConnectionStateImpl.class)
-                .initialize(stateEffectivityInterval, this, connectionState);
+    private boolean isConnectionStateChangeNeeded(ConnectionState newConnectionState, UsagePointConnectionState latestConnectionState) {
+        return latestConnectionState.getConnectionState() != newConnectionState;
+    }
+
+    private void createNewConnectionState(ConnectionState connectionState, Instant effectiveDate) {
+        UsagePointConnectionStateImpl usagePointConnectionState =
+                this.dataModel.getInstance(UsagePointConnectionStateImpl.class).init(this, connectionState, Range.atLeast(effectiveDate));
         this.connectionState.add(usagePointConnectionState);
     }
 
@@ -1289,11 +1295,36 @@ public class UsagePointImpl implements UsagePoint {
         this.dataModel.update(this, "obsoleteTime");
         this.getEffectiveMetrologyConfiguration(this.obsoleteTime)
                 .ifPresent(efmc -> efmc.close(this.obsoleteTime));
+        this.calendarUsages.clear();
         eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
     }
 
     @Override
     public Optional<Instant> getObsoleteTime() {
         return Optional.ofNullable(this.obsoleteTime);
+    }
+
+    @Override
+    public UsedCalendars getUsedCalendars() {
+        return new UsedCalendarsImpl(this.dataModel, this);
+    }
+
+    @Override
+    public void add(ServerCalendarUsage calendarUsage) {
+        this.calendarUsages.add(calendarUsage);
+    }
+
+    @Override
+    public List<ServerCalendarUsage> getCalendarUsages() {
+        return this.calendarUsages;
+    }
+
+    @Override
+    public List<ServerCalendarUsage> getTimeOfUseCalendarUsages() {
+        return this.getUsedCalendars()
+                .getCalendars(this.dataAggregationService.getTimeOfUseCategory())
+                .stream()
+                .map(ServerCalendarUsage.class::cast)
+                .collect(Collectors.toList());
     }
 }
