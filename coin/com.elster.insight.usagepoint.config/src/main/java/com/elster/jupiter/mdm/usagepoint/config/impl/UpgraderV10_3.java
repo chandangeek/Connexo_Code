@@ -57,30 +57,11 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        dataModelUpgrader.upgrade(dataModel, version(10, 3));
+        dataModelUpgrader.upgrade(dataModel, version(10,3));
         metrologyConfigurationsInstaller.createMetrologyConfigurations();
         upgradeResidentionalNetMeteringConsumption();
         upgradeResidentialProsumerWith1Meter();
-        upgradeGapAllowedFlagForMetrologyConfigurations();
         userService.addModulePrivileges(this);
-    }
-
-    private void upgradeGapAllowedFlagForMetrologyConfigurations() {
-        List<MetrologyConfiguration> allMetrologyConfigurations = metrologyConfigurationService.findAllMetrologyConfigurations();
-        allMetrologyConfigurations.forEach((metrologyConfiguration -> {
-            String name = metrologyConfiguration.getName();
-            // lets find metrology configuration
-            Optional<MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration> ootbMetrologyConfiguration = Arrays.stream(MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration
-                    .values()).filter(config -> config.getName().equals(name)).findFirst();
-            if (ootbMetrologyConfiguration.isPresent()) {
-                // set appropriate value for gap allowed flag
-                MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration configuration = ootbMetrologyConfiguration.get();
-                if (metrologyConfiguration.isGapAllowed() != configuration.isGapAllowed()) {
-                    // correct flag value for ootb configuration
-                    metrologyConfiguration.startUpdate().setGapAllowed(configuration.isGapAllowed()).complete();
-                }
-            }
-        }));
     }
 
     private void upgradeResidentionalNetMeteringConsumption() {
