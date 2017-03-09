@@ -7,7 +7,9 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
     requires: [
         'Uni.util.FormErrorMessage',
         'Uni.form.field.ComboReturnedRecordData',
-        'Mdc.store.TimeUnitsYearsSeconds'
+        'Mdc.store.TimeUnitsYearsSeconds',
+        'Mdc.securityaccessors.store.KeyTypes',
+        'Mdc.securityaccessors.store.KeyEncryptionMethods'
     ],
     isEdit: false,
     title: null,
@@ -50,19 +52,25 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     columns: 1,
                     required: true,
                     vertical: true,
+                    disabled: me.isEdit,
                     items: [
                         {
                             boxLabel: Uni.I18n.translate('general.key', 'MDC', 'Key'),
                             itemId: 'mdc-security-accessor-key',
                             name: 'key',
                             inputValue: true,
-                            checked: true
+                            listeners: {
+                                change: me.onAccessorTypeChange
+                            }
                         },
                         {
                             boxLabel: Uni.I18n.translate('general.certificate', 'MDC', 'Certificate'),
                             itemId: 'mdc-security-accessor-certificate',
                             name: 'key',
-                            inputValue: false
+                            inputValue: false,
+                            listeners: {
+                                change: me.onAccessorTypeChange
+                            }
                         }
                     ]
                 },
@@ -80,6 +88,19 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     valueIsRecordData: true,
                     disabled: me.isEdit,
                     emptyText: Uni.I18n.translate('securityaccessors.selectKeyType','MDC', 'Select a key type...')
+                },
+                {
+                    xtype: 'combo',
+                    fieldLabel: Uni.I18n.translate('general.storageMethod', 'MDC', 'Storage method'),
+                    itemId: 'mdc-security-accessor-storage-method-combobox',
+                    name: 'storageMethod',
+                    hidden: true,
+                    required: true,
+                    displayField: 'name',
+                    valueField: 'name',
+                    forceSelection: true,
+                    disabled: me.isEdit,
+                    emptyText: Uni.I18n.translate('securityaccessors.selectStorageMethod','MDC', 'Select a storage method...')
                 },
                 {
                     xtype: 'fieldcontainer',
@@ -151,14 +172,40 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
 
         };
         me.callParent(arguments);
+        if (!me.isEdit) {
+            me.on('boxready', function () {
+                me.down('#mdc-security-accessor-key').setValue(true);
+            }, me, {single: true});
+        }
     },
 
-    loadRecord: function (record) {
-        var me = this;
+    onAccessorTypeChange: function(radioBtn, newValue) {
+        var me = this,
+            key = radioBtn.itemId === 'mdc-security-accessor-key',
+            combo = me.up('form').down('#mdc-security-accessor-key-type-combobox'),
+            storageMethodCombo = me.up('form').down('#mdc-security-accessor-storage-method-combobox');
 
-        Ext.suspendLayouts();
-        me.down('#mdc-security-accessor-key-type-combobox').setDisabled(true);
-        me.callParent(arguments);
-        Ext.resumeLayouts(true);
+        if (newValue) {
+            storageMethodCombo.setVisible(key);
+            combo.setFieldLabel(key
+                ? Uni.I18n.translate('general.keyType', 'MDC', 'Key type')
+                : Uni.I18n.translate('general.certificateType', 'MDC', 'Certificate type')
+            );
+            combo.emptyText = key
+                ? Uni.I18n.translate('securityaccessors.selectKeyType','MDC', 'Select a key type...')
+                : Uni.I18n.translate('securityaccessors.selectCertificateType','MDC', 'Select a certificate type...');
+            combo.setValue(null);
+            combo.getStore().clearFilter(true);
+            combo.getStore().filter([
+                {
+                    filterFn: function(item) {
+                        return key ? item.get("isKey") : !item.get("isKey");
+                    }
+                }
+            ]);
+            if (combo.getStore().getCount()===1) {
+                combo.setValue(combo.getStore().getAt(0).get('id'));
+            }
+        }
     }
 });

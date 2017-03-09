@@ -24,19 +24,17 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsGrid', {
             {
                 header: Uni.I18n.translate('general.keyType', 'MDC', 'Key type'),
                 dataIndex: 'keyType',
-                flex: 3,
+                flex: 1,
                 renderer: function (value) {
-                    value = value && value.name ?  value.name : '-';
-                    return value;
+                    return Ext.isEmpty(value) || Ext.isEmpty(value.name) ? '-' : value.name;
                 }
             },
             {
                 header: Uni.I18n.translate('general.validityPeriod', 'MDC', 'Validity period'),
                 dataIndex: 'validityPeriod',
-                flex: 3,
+                flex: 1,
                 renderer: function (val) {
-                    val ? val = val.count + ' ' + val.timeUnit : '-';
-                    return val;
+                    return Ext.isEmpty(val) ? '-' : val.count + ' ' + val.timeUnit;
                 }
             },
             {

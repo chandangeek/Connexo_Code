@@ -11,6 +11,7 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
         {name: 'name', type: 'string'},
         {name: 'description', type: 'string'},
         {name: 'keyType', type: 'auto'},
+        {name: 'storageMethod', type: 'auto'},
         {name: 'validityPeriod', type: 'auto', useNull: true},
         {name: 'viewLevels', type: 'auto', useNull: true},
         {name: 'editLevels', type: 'auto', useNull: true},
@@ -35,6 +36,13 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
                     defaultLevels: data.defaultEditLevels
                 };
             }
+        },
+        {
+            name: 'isKey',
+            persist: false,
+            mapping: function (data) {
+                return Ext.isEmpty(data) || Ext.isEmpty(data.keyType) ? false : data.keyType.isKey;
+            }
         }
     ],
 
@@ -42,8 +50,7 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
         type: 'rest',
         urlTpl: '/api/dtc/devicetypes/{deviceTypeId}/securityaccessors',
         reader: {
-            type: 'json',
-            root: 'securityaccessors'
+            type: 'json'
         },
 
         setUrl: function (deviceTypeId) {

@@ -55,9 +55,9 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsPrivilegesEditWindow', {
                 ]
             });
         });
-        Ext.Array.forEach(me.keyFunctionTypeRecord.get('defaultEditLevels'), function(defaultEditLevel){
+        Ext.Array.forEach(me.securityAccessorRecord.get('defaultEditLevels'), function(defaultEditLevel){
             value = false;
-            Ext.Array.each(me.keyFunctionTypeRecord.get('editLevels'), function(editLevel){
+            Ext.Array.each(me.securityAccessorRecord.get('editLevels'), function(editLevel){
                 if (editLevel.name === defaultEditLevel.name) {
                     value = true;
                     return false;

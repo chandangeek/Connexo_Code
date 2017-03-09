@@ -34,6 +34,17 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                         name: 'description'
                     },
                     {
+                        fieldLabel: Uni.I18n.translate('general.accessorType', 'MDC', 'Accessor type'),
+                        name: 'isKey',
+                        renderer: function (value) {
+                            return Ext.isEmpty(value)
+                                ? '-'
+                                : value
+                                    ? Uni.I18n.translate('general.key', 'MDC', 'Key')
+                                    : Uni.I18n.translate('general.certificate', 'MDC', 'Certificate');
+                        }
+                    },
+                    {
                         fieldLabel: Uni.I18n.translate('general.keyType', 'MDC', 'Key type'),
                         name: 'keyType',
                         renderer: function (value) {
@@ -47,6 +58,13 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                     xtype: 'displayfield'
                 },
                 items: [
+                    {
+                        fieldLabel: Uni.I18n.translate('general.storageMethod', 'MDC', 'Storage method'),
+                        name: 'storageMethod',
+                        renderer: function (val) {
+                            return Ext.isEmpty(val) ? '-' : val;
+                        }
+                    },
                     {
                         fieldLabel: Uni.I18n.translate('general.validityPeriod', 'MDC', 'Validity period'),
                         name: 'validityPeriod',

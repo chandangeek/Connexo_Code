@@ -15,6 +15,10 @@ Ext.define('Mdc.securityaccessors.model.KeyType', {
         {
             name: 'requiresDuration',
             type: 'boolean'
+        },
+        {
+            name: 'isKey',
+            type: 'boolean'
         }
     ]
 });
