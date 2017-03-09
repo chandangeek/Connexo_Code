@@ -102,8 +102,8 @@ public class IdentificationServiceImpl implements IdentificationService {
     }
 
     @Override
-    public LogBookIdentifier createLogbookIdentifierByDatabaseId(long id, ObisCode obisCode) {
-        return new LogBookIdentifierById(id, obisCode);
+    public LogBookIdentifier createLogbookIdentifierByDatabaseId(long id, ObisCode obisCode, DeviceIdentifier deviceIdentifier) {
+        return new LogBookIdentifierById(id, obisCode, deviceIdentifier);
     }
 
     @Override
@@ -112,8 +112,8 @@ public class IdentificationServiceImpl implements IdentificationService {
     }
 
     @Override
-    public LogBookIdentifier createLogbookIdentifierForAlreadyKnownLogbook(LogBook logBook) {
-        return new LogBookIdentifierForAlreadyKnowLogBook((com.energyict.mdc.device.data.LogBook) logBook);     //Downcast to the Connexo LogBook
+    public LogBookIdentifier createLogbookIdentifierForAlreadyKnownLogbook(LogBook logBook, DeviceIdentifier deviceIdentifier) {
+        return new LogBookIdentifierForAlreadyKnowLogBook((com.energyict.mdc.device.data.LogBook) logBook, deviceIdentifier);     //Downcast to the Connexo LogBook
     }
 
     @Override

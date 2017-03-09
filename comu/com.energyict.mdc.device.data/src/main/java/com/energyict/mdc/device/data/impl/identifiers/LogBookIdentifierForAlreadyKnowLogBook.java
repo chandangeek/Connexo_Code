@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
-
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -18,14 +18,21 @@ import java.util.Set;
 public class LogBookIdentifierForAlreadyKnowLogBook implements LogBookIdentifier {
 
     private final LogBook logBook;
+    private final DeviceIdentifier deviceIdentifier;
 
-    public LogBookIdentifierForAlreadyKnowLogBook(LogBook logBook) {
+    public LogBookIdentifierForAlreadyKnowLogBook(LogBook logBook, DeviceIdentifier deviceIdentifier) {
         this.logBook = logBook;
+        this.deviceIdentifier = deviceIdentifier;
     }
 
     @Override
     public ObisCode getLogBookObisCode() {
         return logBook.getDeviceObisCode();
+    }
+
+    @Override
+    public DeviceIdentifier getDeviceIdentifier() {
+        return deviceIdentifier;
     }
 
     @Override
