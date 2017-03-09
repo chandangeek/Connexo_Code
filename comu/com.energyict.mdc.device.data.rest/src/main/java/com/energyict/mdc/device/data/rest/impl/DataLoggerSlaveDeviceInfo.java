@@ -24,6 +24,9 @@ public class DataLoggerSlaveDeviceInfo {
     public long deviceTypeId;
     public String deviceConfigurationName;
     public String serialNumber;
+    public String manufacturer;
+    public String modelNbr;
+    public String modelVersion;
     public int yearOfCertification;
     public long version;
     public long shipmentDate;
@@ -78,6 +81,9 @@ public class DataLoggerSlaveDeviceInfo {
         info.deviceConfigurationId = device.getDeviceConfiguration().getId();
         info.deviceConfigurationName = device.getDeviceConfiguration().getName();
         info.serialNumber = device.getSerialNumber();
+        info.manufacturer = device.getManufacturer();
+        info.modelNbr = device.getModelNumber();
+        info.modelVersion = device.getManufacturer();
         info.yearOfCertification = device.getYearOfCertification();
         info.version = device.getVersion();
         info.fromExistingLink = true;
