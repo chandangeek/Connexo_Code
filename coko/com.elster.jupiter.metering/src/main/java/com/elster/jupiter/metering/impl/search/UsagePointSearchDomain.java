@@ -323,6 +323,7 @@ public class UsagePointSearchDomain implements SearchDomain {
                 new ServiceCategorySearchableProperty(this, this.propertySpecService, meteringTranslationService, this.meteringService.getThesaurus()),
                 new MetrologyConfigurationSearchableProperty(this, this.propertySpecService, this.metrologyConfigurationService, this.clock),
                 new InstallationTimeSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new LocationSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus(), this.clock),
                 new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()));
     }
 

@@ -311,7 +311,7 @@ public class UsagePointMetrologyConfigurationTestIT {
                 .create();
         SearchablePropertyValue.ValueBean valueBean = getSearchablePropertyValueBean();
         metrologyConfiguration.addUsagePointRequirement(valueBean);
-        metrologyConfiguration.addUsagePointRequirement(new SearchablePropertyValue.ValueBean(DEFAULT_SEARCH_PROPERTY, SearchablePropertyOperator.NOT_EQUAL, "ELECTRICITY" ));
+        metrologyConfiguration.addUsagePointRequirement(new SearchablePropertyValue.ValueBean(DEFAULT_SEARCH_PROPERTY, SearchablePropertyOperator.NOT_EQUAL, "ELECTRICITY"));
 
         metrologyConfiguration = (UsagePointMetrologyConfiguration) getMetrologyConfigurationService().findMetrologyConfiguration(metrologyConfiguration.getId()).get();
         assertThat(metrologyConfiguration.getUsagePointRequirements()).hasSize(1);
