@@ -1,14 +1,13 @@
 package test.com.energyict.protocolimplv2.coronis.waveflow.waveflowV2;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 import test.com.energyict.protocolimplv2.coronis.waveflow.WaveFlow;
@@ -44,7 +43,7 @@ public class ObisCodeMapper implements DeviceRegisterSupport {
 
     private CollectedRegister readRegister(OfflineRegister register) {
         ObisCode obisCode = register.getObisCode();
-        CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(new RegisterIdentifierById(register.getRegisterId(), register.getObisCode()));
+        CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(new RegisterIdentifierById(register.getRegisterId(), register.getObisCode(), register.getDeviceIdentifier()));
 
         if (isCurrentIndexReading(obisCode)) {
             int channel = obisCode.getB() - 1;

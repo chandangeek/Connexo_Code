@@ -1,11 +1,5 @@
 package test.com.energyict.protocolimplv2.coronis.muc;
 
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.offline.OfflineRegister;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -13,6 +7,11 @@ import com.energyict.concentrator.communication.driver.rf.eictwavenis.WaveCard;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisParameterException;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStackException;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
@@ -74,6 +73,6 @@ public class RegisterReader {
     }
 
     private CollectedRegister createCollectedRegister(OfflineRegister register) {
-        return this.collectedDataFactory.createDefaultCollectedRegister(new RegisterIdentifierById(register.getRegisterId(), register.getObisCode()));
+        return this.collectedDataFactory.createDefaultCollectedRegister(new RegisterIdentifierById(register.getRegisterId(), register.getObisCode(), register.getDeviceIdentifier()));
     }
 }

@@ -746,7 +746,7 @@ public class MiniMax implements DeviceProtocol {
                         break;
                 }
 
-                RegisterIdentifier registerIdentifier = new RegisterIdentifierById((int) list.get(i).getRegisterId(), list.get(i).getObisCode());
+                RegisterIdentifier registerIdentifier = new RegisterIdentifierById((int) list.get(i).getRegisterId(), list.get(i).getObisCode(), offlineDevice.getDeviceIdentifier());
                 CollectedRegister register = this.collectedDataFactory.createDefaultCollectedRegister(registerIdentifier);
                 retVal.add(register);
 

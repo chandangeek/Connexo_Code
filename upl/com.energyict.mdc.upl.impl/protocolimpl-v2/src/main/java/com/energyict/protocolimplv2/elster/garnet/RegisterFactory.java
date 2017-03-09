@@ -1,15 +1,14 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.elster.garnet.common.InstallationConfig;
 import com.energyict.protocolimplv2.elster.garnet.common.ReadingResponse;
@@ -321,7 +320,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
     }
 
     private CollectedRegister createDeviceRegister(OfflineRegister register, Date eventTime) {
-        CollectedRegister deviceRegister = this.collectedDataFactory.createDefaultCollectedRegister(new RegisterIdentifierById(register.getRegisterId(), register.getObisCode()));
+        CollectedRegister deviceRegister = this.collectedDataFactory.createDefaultCollectedRegister(new RegisterIdentifierById(register.getRegisterId(), register.getObisCode(), register.getDeviceIdentifier()));
         deviceRegister.setCollectedTimeStamps(new Date(), null, eventTime != null ? eventTime : new Date(), eventTime); // If eventTime != null, then it contains the billing timestamp
         return deviceRegister;
     }

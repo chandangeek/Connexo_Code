@@ -1,14 +1,13 @@
 package test.com.energyict.protocolimplv2.coronis.waveflow.core;
 
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.offline.OfflineRegister;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 import test.com.energyict.protocolimplv2.coronis.waveflow.WaveFlow;
@@ -112,7 +111,7 @@ public class CommonObisCodeMapper {
 
     public CollectedRegister getRegisterValue(OfflineRegister register) {
         ObisCode obisCode = register.getObisCode();
-        CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(new RegisterIdentifierById(register.getRegisterId(), register.getObisCode()));
+        CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(new RegisterIdentifierById(register.getRegisterId(), register.getObisCode(), register.getDeviceIdentifier()));
 
         OperatingMode operatingMode = waveFlow.getParameterFactory().readOperatingMode();
         if (obisCode.equals(OBISCODE_REMAINING_BATTERY)) {

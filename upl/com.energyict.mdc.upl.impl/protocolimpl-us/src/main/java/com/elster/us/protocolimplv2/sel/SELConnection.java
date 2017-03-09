@@ -357,7 +357,7 @@ public class SELConnection {
                 }
             }
 
-            RegisterIdentifier registerIdentifier = new RegisterIdentifierById((int) list.get(i).getRegisterId(), list.get(i).getObisCode());
+            RegisterIdentifier registerIdentifier = new RegisterIdentifierById((int) list.get(i).getRegisterId(), list.get(i).getObisCode(), list.get(i).getDeviceIdentifier());
             CollectedRegister register = this.collectedDataFactory.createDefaultCollectedRegister(registerIdentifier);
             retVal.add(register);
 

@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.identifiers;
 
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -21,6 +21,7 @@ public class RegisterIdentifierById implements RegisterIdentifier {
 
     private final int id;
     private final ObisCode registerObisCode;
+    private final DeviceIdentifier deviceIdentifier;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
@@ -28,15 +29,22 @@ public class RegisterIdentifierById implements RegisterIdentifier {
     private RegisterIdentifierById() {
         this.id = 0;
         this.registerObisCode = null;
+        this.deviceIdentifier = null;
     }
 
-    public RegisterIdentifierById(int id, ObisCode registerObisCode) {
+    public RegisterIdentifierById(int id, ObisCode registerObisCode, DeviceIdentifier deviceIdentifier) {
         this.id = id;
         this.registerObisCode = registerObisCode;
+        this.deviceIdentifier = deviceIdentifier;
     }
 
-    public RegisterIdentifierById(long id, ObisCode registerObisCode) {
-        this((int) id, registerObisCode);
+    public RegisterIdentifierById(long id, ObisCode registerObisCode, DeviceIdentifier deviceIdentifier) {
+        this((int) id, registerObisCode, deviceIdentifier);
+    }
+
+    @Override
+    public DeviceIdentifier getDeviceIdentifier() {
+        return deviceIdentifier;
     }
 
     @XmlAttribute
