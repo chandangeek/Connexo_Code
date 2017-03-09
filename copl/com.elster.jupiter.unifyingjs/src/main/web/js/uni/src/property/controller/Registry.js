@@ -116,7 +116,8 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.store.DeviceTypes',
         'Uni.property.store.DeviceDomains',
         'Uni.property.store.DeviceSubDomains',
-        'Uni.property.store.DeviceEventOrActions'
+        'Uni.property.store.DeviceEventOrActions',
+        'Uni.property.store.RelativePeriodsWithCount'
     ],
 
     /**

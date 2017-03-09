@@ -41,7 +41,7 @@ Ext.define('Uni.property.view.property.EventTime', {
                         fieldLabel: Uni.I18n.translate('general.events.per','UNI','event(s) per '),
                         displayField: 'name',
                         valueField: 'id',
-                        store: 'Uni.property.store.RelativePeriods'
+                        store: 'Uni.property.store.RelativePeriodsWithCount'
                     }
                 ]
             }
@@ -52,7 +52,7 @@ Ext.define('Uni.property.view.property.EventTime', {
     },
 
     initComponent: function(){
-        var periods = Ext.getStore('Uni.property.store.RelativePeriods');
+        var periods = Ext.getStore('Uni.property.store.RelativePeriodsWithCount');
         periods.load();
         this.callParent(arguments);
     },

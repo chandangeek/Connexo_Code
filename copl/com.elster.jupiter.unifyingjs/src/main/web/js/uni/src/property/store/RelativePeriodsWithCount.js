@@ -9,7 +9,7 @@ Ext.define('Uni.property.store.RelativePeriodsWithCount', {
         url: '../../api/dal/creationrules/relativeperiods',
         reader: {
             type: 'json',
-            root: 'data'
+            root: 'relativePeriods'
         }
     }
 });
