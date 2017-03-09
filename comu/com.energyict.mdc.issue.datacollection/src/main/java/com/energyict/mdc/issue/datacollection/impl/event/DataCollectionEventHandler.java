@@ -60,7 +60,7 @@ public class DataCollectionEventHandler implements MessageHandler {
                 .filter(e -> e.getEndDevice().isPresent())
                 .filter(e -> e.getEndDevice().get().getState().isPresent())
                 .filter(e -> e.getEndDevice().get().getState().get().getStage().isPresent())
-                .filter(e -> e.getEndDevice().get().getState().get().getStage().get().getName().equals(EndDeviceStage.OPERATIONAL.name()))
+                .filter(e -> e.getEndDevice().get().getState().get().getStage().get().getName().equals(EndDeviceStage.OPERATIONAL.getKey()))
                 .collect(Collectors.toList());
 
         if(!events.isEmpty()) {
