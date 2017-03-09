@@ -80,7 +80,7 @@ Ext.define('Bpm.view.task.TasksGrid', {
             {
                 xtype: 'uni-actioncolumn',
                 privileges: Bpm.privileges.BpmManagement.assignOrExecute,
-                width: 100,
+                width: 120,
                 menu: {
                     xtype: 'bpm-task-action-menu'
                 }

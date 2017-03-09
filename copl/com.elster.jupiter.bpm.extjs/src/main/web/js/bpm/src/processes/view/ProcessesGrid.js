@@ -74,7 +74,7 @@ Ext.define('Bpm.processes.view.ProcessesGrid', {
             {
                 xtype: 'uni-actioncolumn',
                 privileges: Bpm.privileges.BpmManagement.administrateProcesses,
-                width: 100,
+                width: 120,
                 isDisabled: function (view, rowIndex, colIndex, item, record) {
                     return me.disableAction;
                 },
