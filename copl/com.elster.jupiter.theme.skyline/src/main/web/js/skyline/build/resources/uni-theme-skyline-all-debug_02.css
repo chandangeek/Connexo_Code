@@ -7158,16 +7158,6 @@ h6 {
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-/* line 5, ../../sass/src/breadcrumb/BreadcrumbLinkSeparator.scss */
-.x-component-linkseparator {
-  background: url("images/breadcrumb/separator.png") no-repeat center 1px;
-  width: 32px;
-  height: 17px;
-}
-
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../sass/src/grid/ActionColumn.scss */
 .uni-actioncolumn-gear {
   width: 0;
@@ -7267,26 +7257,26 @@ h6 {
   padding: 0 0 0 16px;
 }
 
-/* line 14, ../../sass/src/Component.scss */
+/* line 13, ../../sass/src/Component.scss */
 .uni-icon-delete {
   background-image: url("images/button/ico_delete.png") !important;
   width: 16px !important;
   height: 16px !important;
 }
 
-/* line 20, ../../sass/src/Component.scss */
+/* line 19, ../../sass/src/Component.scss */
 .uni-icon-delete:hover {
   background-image: url("images/button/ico_deleteA.png") !important;
   width: 16px !important;
   height: 16px !important;
 }
 
-/* line 26, ../../sass/src/Component.scss */
+/* line 25, ../../sass/src/Component.scss */
 .force-no-border *[class*='x-grid-'] {
   border: none !important;
 }
 
-/* line 30, ../../sass/src/Component.scss */
+/* line 29, ../../sass/src/Component.scss */
 .instructional-note {
   color: #686868;
   font-style: italic;
@@ -16941,4 +16931,9 @@ a:hover, a.x-btn:hover {
 .x-btn-action-toolbar-large-icon-text-left .x-btn-inner {
   line-height: 32px;
   padding-left: 37px;
+}
+/* line 413, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-action-toolbar-large-icon-text-left .x-btn-icon-el {
+  width: 32px;
+  right: auto;
 }
