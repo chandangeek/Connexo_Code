@@ -44,11 +44,10 @@ Ext.define('Cal.view.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'tou-action-menu'
-                    //itemId: me.menuItemId
-                },
-                flex: 1
+                }
             }
         ];
 
