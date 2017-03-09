@@ -235,7 +235,7 @@ public class UsagePointOutputResource {
                         .collect(Collectors.toMap(Function.identity(), readingWithValidationStatusFactory::createChannelReading));
 
                 // add readings to pre filled channel data map
-                Map<Instant, IntervalReadingRecord> calculatedReadings = toMap(channel.getCalculatedIntervalReadings(requestedInterval));
+                List<IntervalReadingRecord> calculatedReadings = channel.getCalculatedIntervalReadings(requestedInterval);
                 Map<Instant, IntervalReadingRecord> persistedReadings = toMap(channel.getPersistedIntervalReadings(requestedInterval));
                 for (Map.Entry<Instant, ChannelReadingWithValidationStatus> entry : preFilledChannelDataMap.entrySet()) {
                     Instant readingTimestamp = entry.getKey();
@@ -244,19 +244,19 @@ public class UsagePointOutputResource {
                     if (persistedReading != null && persistedReading.getValue() != null) {
                         readingWithValidationStatus.setPersistedReadingRecord(persistedReading);
                     }
-                    IntervalReadingRecord calculatedReading = calculatedReadings.get(readingTimestamp);
-                    if (calculatedReading != null) {
-                        readingWithValidationStatus.setCalculatedReadingRecord(calculatedReading);
-                    }
+                    this.findRecordWithContainingRange(calculatedReadings, readingTimestamp)
+                            .ifPresent(readingWithValidationStatus::setCalculatedReadingRecord);
                 }
 
                 // add validation statuses to pre filled channel data map
-                List<DataValidationStatus> dataValidationStatuses = evaluator.getValidationStatus(
-                        EnumSet.of(QualityCodeSystem.MDM),
-                        channel,
-                        Stream.concat(persistedReadings.values().stream(), calculatedReadings.values().stream()).collect(Collectors.toList()),
-                        requestedInterval
-                );
+                List<DataValidationStatus> dataValidationStatuses =
+                        evaluator.getValidationStatus(
+                            EnumSet.of(QualityCodeSystem.MDM),
+                            channel,
+                            Stream
+                                .concat(persistedReadings.values().stream(), calculatedReadings.stream())
+                                .collect(Collectors.toList()),
+                            requestedInterval);
                 for (DataValidationStatus dataValidationStatus : dataValidationStatuses) {
                     ChannelReadingWithValidationStatus readingWithValidationStatus = preFilledChannelDataMap.get(dataValidationStatus.getReadingTimestamp());
                     if (readingWithValidationStatus != null) {
@@ -273,6 +273,14 @@ public class UsagePointOutputResource {
             }
         }
         return PagedInfoList.fromCompleteList("channelData", outputChannelDataInfoList, queryParameters);
+    }
+
+    private Optional<IntervalReadingRecord> findRecordWithContainingRange(List<IntervalReadingRecord> records, Instant timestamp) {
+        return records
+                .stream()
+                .filter(record -> record.getTimePeriod().isPresent())
+                .filter(record -> record.getTimePeriod().get().contains(timestamp))
+                .findFirst();
     }
 
     private boolean hasSuspects(ChannelReadingWithValidationStatus channelReadingWithValidationStatus) {

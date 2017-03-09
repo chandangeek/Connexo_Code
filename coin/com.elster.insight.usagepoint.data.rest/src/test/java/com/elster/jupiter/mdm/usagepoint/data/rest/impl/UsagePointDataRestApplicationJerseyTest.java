@@ -135,8 +135,6 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     @Mock
     PropertyValueInfoService propertyValueInfoService;
     @Mock
-    UsagePointCalendarService usagePointCalendarService;
-    @Mock
     CalendarOnUsagePointInfoFactory calendarOnUsagePointInfoFactory;
     @Mock
     CalendarService calendarService;
@@ -198,7 +196,6 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setThreadPrincipalService(threadPrincipalService);
         application.setLicenseService(licenseService);
         application.setPropertyValueInfoService(propertyValueInfoService);
-        application.setUsagePointCalendarService(usagePointCalendarService);
         application.setCalendarOnUsagePointInfoFactory(calendarOnUsagePointInfoFactory);
         application.setCalendarService(calendarService);
         application.setCalendarInfoFactory(calendarInfoFactory);
