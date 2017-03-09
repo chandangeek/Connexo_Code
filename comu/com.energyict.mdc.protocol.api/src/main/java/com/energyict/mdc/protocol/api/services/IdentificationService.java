@@ -42,7 +42,7 @@ public interface IdentificationService {
 
     DeviceIdentifier createDeviceIdentifierByConnectionTaskProperty(Class<? extends ConnectionType> connectionTypeClass, String propertyName, String propertyValue);
 
-    LoadProfileIdentifier createLoadProfileIdentifierByDatabaseId(long id, ObisCode obisCode);
+    LoadProfileIdentifier createLoadProfileIdentifierByDatabaseId(long id, ObisCode obisCode, DeviceIdentifier deviceIdentifier);
 
     LoadProfileIdentifier createLoadProfileIdentifierForAlreadyKnownLoadProfile(LoadProfile loadProfile, ObisCode obisCode);
 
