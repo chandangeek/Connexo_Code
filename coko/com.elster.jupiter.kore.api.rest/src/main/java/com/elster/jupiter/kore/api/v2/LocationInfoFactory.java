@@ -15,6 +15,9 @@ import com.elster.jupiter.util.geo.Longitude;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import javax.inject.Inject;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class LocationInfoFactory {
 
