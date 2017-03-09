@@ -50,6 +50,14 @@ Ext.define('Fim.view.importservices.PreviewForm', {
                 name: 'importDirectory'
             },
             {
+                xtype: 'displayfield',
+                fieldLabel: Uni.I18n.translate('general.allowUploads', 'FIM', 'Allow uploads in application'),
+                name: 'activeInUI',
+                renderer: function (value) {
+                    return !!value ? Uni.I18n.translate('general.yes', 'FIM', 'Yes') : Uni.I18n.translate('general.no', 'FIM', 'No')
+                }
+            },
+            {
                 xtype: 'container',
                 layout: {
                     type: 'hbox',

@@ -78,6 +78,13 @@ Ext.define('Fim.controller.history.DataImport', {
                     controller: 'Fim.controller.History',
                     action: 'showImportServicesHistory',
                     privileges: Fim.privileges.DataImport.view
+                },
+                uploadfile: {
+                    title: Uni.I18n.translate('uploadFile.title', 'FIM', 'Upload file for import'),
+                    route: 'uploadfile',
+                    controller: 'Fim.controller.UploadFile',
+                    action: 'showUploadFileForImportInAdmin',
+                    privileges: Fim.privileges.DataImport.upload
                 }
             }
         },
@@ -110,6 +117,13 @@ Ext.define('Fim.controller.history.DataImport', {
                             }
                         }
                     }
+                },
+                uploadfile: {
+                    title: Uni.I18n.translate('uploadFile.title', 'FIM', 'Upload file for import'),
+                    route: 'uploadfile',
+                    controller: 'Fim.controller.UploadFile',
+                    action: 'showUploadFileForImportInMultisenseOrInsight',
+                    privileges: Fim.privileges.DataImport.upload
                 }
             }
         }

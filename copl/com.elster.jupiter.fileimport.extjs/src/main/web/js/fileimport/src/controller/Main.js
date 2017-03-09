@@ -15,7 +15,8 @@ Ext.define('Fim.controller.Main', {
         'Fim.controller.history.DataImport',
         'Fim.controller.ImportServices',
         'Fim.controller.History',
-        'Fim.controller.Log'
+        'Fim.controller.Log',
+        'Fim.controller.UploadFile'
     ],
 
     stores: [],
@@ -53,6 +54,12 @@ Ext.define('Fim.controller.Main', {
                         text: Uni.I18n.translate('general.importHistory', 'FIM', 'Import history'),
                         href: '#/workspace/importhistory',
                         route: 'importhistory'
+                    },
+                    {
+                        text: Uni.I18n.translate('uploadFile.title', 'FIM', 'Upload file for import'),
+                        href: '#/workspace/uploadfile',
+                        route: 'uploadfile',
+                        privileges: Fim.privileges.DataImport.upload
                     }
                 ]
             });
@@ -82,6 +89,12 @@ Ext.define('Fim.controller.Main', {
                         text: Uni.I18n.translate('general.importHistory', 'FIM', 'Import history'),
                         href: '#/administration/importhistory',
                         route: 'importhistory'
+                    },
+                    {
+                        text: Uni.I18n.translate('uploadFile.title', 'FIM', 'Upload file for import'),
+                        href: '#/administration/uploadfile',
+                        route: 'uploadfile',
+                        privileges: Fim.privileges.DataImport.upload
                     }
                 ]
             });
