@@ -5,6 +5,7 @@
 package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.FlowDirection;
@@ -39,7 +40,6 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
@@ -211,6 +211,7 @@ public class ReadingEstimateTest {
                     new IdsModule(),
                     new FiniteStateMachineModule(),
                     new UsagePointLifeCycleConfigurationModule(),
+                    new CalendarModule(),
                     new MeteringModule(),
                     new PartyModule(),
                     new EventsModule(),

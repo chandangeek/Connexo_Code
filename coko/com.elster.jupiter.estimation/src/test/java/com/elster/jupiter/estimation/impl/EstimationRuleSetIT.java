@@ -5,6 +5,7 @@
 package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
@@ -127,6 +128,7 @@ public class EstimationRuleSetIT {
                     new IdsModule(),
                     new FiniteStateMachineModule(),
                     new UsagePointLifeCycleConfigurationModule(),
+                    new CalendarModule(),
                     new MeteringModule("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"),
                     new BasicPropertiesModule(),
                     new TimeModule(),
