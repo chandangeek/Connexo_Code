@@ -2,6 +2,9 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
+/**
+ * @class Uni.form.field.CheckboxWithExplanation
+ */
 Ext.define('Uni.form.field.CheckboxWithExplanation', {
     extend: 'Ext.form.FieldContainer',
     alias: 'widget.checkbox-with-explanation',
