@@ -305,7 +305,7 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
 
     private ProfileDataFactory getProfileDataFactory() {
         if (profileDataFactory == null) {
-            profileDataFactory = new ProfileDataFactory(getDlmsSession(), getDeviceCache(), this.getCollectedDataFactory(), this.getIssueFactory());
+            profileDataFactory = new ProfileDataFactory(getDlmsSession(), getDeviceCache(), this.getCollectedDataFactory(), this.getIssueFactory(), offlineDevice);
         }
         return profileDataFactory;
     }

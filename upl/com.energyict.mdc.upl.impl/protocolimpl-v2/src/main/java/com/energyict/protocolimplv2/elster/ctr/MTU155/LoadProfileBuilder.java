@@ -174,7 +174,7 @@ public class LoadProfileBuilder {
             CollectedLoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
             if (this.channelInfoMap.containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
                 List<ChannelInfo> channelInfos = this.channelInfoMap.get(lpr);
-                CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode()));
+                CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode(), meterProtocol.getDeviceIdentifier()));
                 List<IntervalData> collectedIntervalData = new ArrayList<>();
 
                 for (ChannelInfo channel : channelInfos) {
@@ -196,7 +196,7 @@ public class LoadProfileBuilder {
                 collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, channelInfos);
                 collectedLoadProfileList.add(collectedLoadProfile);
             } else {
-                CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode()));
+                CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode(), meterProtocol.getDeviceIdentifier()));
                 Issue problem = this.issueFactory.createWarning(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
                 collectedLoadProfileList.add(collectedLoadProfile);

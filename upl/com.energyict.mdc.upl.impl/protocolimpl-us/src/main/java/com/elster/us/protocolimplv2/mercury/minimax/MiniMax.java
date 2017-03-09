@@ -385,7 +385,7 @@ public class MiniMax implements DeviceProtocol {
 
         for (LoadProfileReader lpr : loadProfiles) {
 
-            LoadProfileIdentifier lpi = new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode());
+            LoadProfileIdentifier lpi = new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode(), offlineDevice.getDeviceIdentifier());
             CollectedLoadProfile profileData1 = this.collectedDataFactory.createCollectedLoadProfile(lpi);
             profileDataList.add(profileData1);
 

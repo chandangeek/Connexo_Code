@@ -1,14 +1,13 @@
 package com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles;
 
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
-
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -64,7 +63,7 @@ public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
         for (LoadProfileReader lpr : loadProfiles) {
             ObisCode lpObisCode = this.getMeterProtocol().getPhysicalAddressCorrectedObisCode(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
             CollectedLoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
-            CollectedLoadProfile collectedLoadProfile = this.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode()));
+            CollectedLoadProfile collectedLoadProfile = this.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode(), getMeterProtocol().getOfflineDevice().getDeviceIdentifier()));
 
             if (this.getChannelInfoMap().containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
                 this.getMeterProtocol().getLogger().log(Level.INFO, "Getting LoadProfile data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + lpr.getEndReadingTime());

@@ -326,7 +326,7 @@ public class A1055 extends AbstractAbntProtocol implements SerialNumberSupport {
 
     public LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
-            this.loadProfileBuilder = new LoadProfileBuilder(this, collectedDataFactory, issueFactory);
+            this.loadProfileBuilder = new LoadProfileBuilder(this, collectedDataFactory, issueFactory, offlineDevice);
         }
         return this.loadProfileBuilder;
     }

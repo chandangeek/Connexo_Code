@@ -1,11 +1,10 @@
 package test.com.energyict.protocolimplv2.coronis.waveflow.waveflowV2;
 
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
-
-import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -38,10 +37,10 @@ public class ProfileDataReader implements DeviceLoadProfileSupport {
     private static final int WEEKLY = DAILY * 7;
     private static final int MONTHLY = (WEEKLY * 4) - 1;
     private static final int STEPS = 29;                   //Max number of profile data entries in 1 frame!
+    private final CollectedDataFactory collectedDataFactory;
     private WaveFlow waveFlowV2;
     private int inputsUsed = 0;
     private int interval = 0;
-    private final CollectedDataFactory collectedDataFactory;
 
     public ProfileDataReader(WaveFlow waveFlowV2, CollectedDataFactory collectedDataFactory) {
         this.waveFlowV2 = waveFlowV2;
@@ -73,7 +72,7 @@ public class ProfileDataReader implements DeviceLoadProfileSupport {
         Date to = loadProfileReader.getEndReadingTime();
         ProfileData profileData = getProfileData(from, to);
 
-        CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode()));
+        CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode(), waveFlowV2.getDeviceIdentifier()));
         collectedLoadProfile.setCollectedIntervalData(profileData.getIntervalDatas(), profileData.getChannelInfos());
 
         return Collections.singletonList(collectedLoadProfile);

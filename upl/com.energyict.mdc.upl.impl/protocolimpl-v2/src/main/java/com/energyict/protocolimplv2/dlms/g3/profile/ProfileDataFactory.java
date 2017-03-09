@@ -1,14 +1,14 @@
 package com.energyict.protocolimplv2.dlms.g3.profile;
 
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
-
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.ProfileData;
@@ -39,12 +39,14 @@ public class ProfileDataFactory {
     private final G3Cache g3Cache;
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
+    private final OfflineDevice offlineDevice;
 
-    public ProfileDataFactory(DlmsSession dlmsSession, G3Cache g3Cache, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public ProfileDataFactory(DlmsSession dlmsSession, G3Cache g3Cache, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, OfflineDevice offlineDevice) {
         this.dlmsSession = dlmsSession;
         this.g3Cache = g3Cache;
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
+        this.offlineDevice = offlineDevice;
         supportLoadProfiles = new ArrayList<>();
         supportLoadProfiles.add(IMPORT_ACTIVE_POWER_PROFILE);
         supportLoadProfiles.add(EXPORT_ACTIVE_POWER_PROFILE);
@@ -79,7 +81,7 @@ public class ProfileDataFactory {
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
         List<CollectedLoadProfile> result = new ArrayList<>();
         for (LoadProfileReader loadProfileReader : loadProfiles) {
-            CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode()));
+            CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode(), offlineDevice.getDeviceIdentifier()));
             if (isSupported(loadProfileReader)) {
                 try {
                     ProfileData profileData = getG3Profile(loadProfileReader).getProfileData(loadProfileReader.getStartReadingTime(), loadProfileReader.getEndReadingTime());

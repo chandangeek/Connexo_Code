@@ -93,7 +93,7 @@ public class IDISProfileDataReader {
         List<CollectedLoadProfile> result = new ArrayList<>();
 
         for (LoadProfileReader loadProfileReader : loadProfileReaders) {
-            CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode()));
+            CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode(), protocol.getOfflineDevice().getDeviceIdentifier()));
 
             List<ChannelInfo> channelInfos = getChannelInfosMap().get(loadProfileReader);
             ObisCode correctedLoadProfileObisCode = getCorrectedLoadProfileObisCode(loadProfileReader);

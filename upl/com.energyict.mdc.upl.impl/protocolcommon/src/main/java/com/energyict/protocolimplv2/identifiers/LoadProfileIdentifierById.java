@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.identifiers;
 
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
-
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -22,6 +22,7 @@ public class LoadProfileIdentifierById implements LoadProfileIdentifier {
 
     private final int loadProfileId;
     private final ObisCode profileObisCode;
+    private final DeviceIdentifier deviceIdentifier;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
@@ -29,12 +30,19 @@ public class LoadProfileIdentifierById implements LoadProfileIdentifier {
     private LoadProfileIdentifierById() {
         this.loadProfileId = 0;
         this.profileObisCode = null;
+        this.deviceIdentifier = null;
     }
 
-    public LoadProfileIdentifierById(int loadProfileId, ObisCode profileObisCode) {
+    public LoadProfileIdentifierById(int loadProfileId, ObisCode profileObisCode, DeviceIdentifier deviceIdentifier) {
         super();
         this.loadProfileId = loadProfileId;
         this.profileObisCode = profileObisCode;
+        this.deviceIdentifier = deviceIdentifier;
+    }
+
+    @Override
+    public DeviceIdentifier getDeviceIdentifier() {
+        return deviceIdentifier;
     }
 
     @Override

@@ -5,8 +5,8 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
-
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -62,11 +62,13 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     private final AbstractAbntProtocol meterProtocol;
     private final CollectedDataFactory collectedDataFactory;
     private final com.energyict.mdc.upl.issue.IssueFactory issueFactory;
+    private final OfflineDevice offlineDevice;
 
-    public LoadProfileBuilder(AbstractAbntProtocol meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public LoadProfileBuilder(AbstractAbntProtocol meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, OfflineDevice offlineDevice) {
         this.meterProtocol = meterProtocol;
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
+        this.offlineDevice = offlineDevice;
     }
 
     @Override
@@ -123,7 +125,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
         List<CollectedLoadProfile> collectedLoadProfiles = new ArrayList<>(loadProfiles.size());
         for (LoadProfileReader reader : loadProfiles) {
-            CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierById(reader.getLoadProfileId(), reader.getProfileObisCode()));
+            CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierById(reader.getLoadProfileId(), reader.getProfileObisCode(), offlineDevice.getDeviceIdentifier()));
             if (getChannelInfoMap().containsKey(reader)) {
                 readLoadProfileData(reader, collectedLoadProfile);
             } else {

@@ -1,12 +1,12 @@
 package com.elster.us.protocolimplv2.sel.profiles;
 
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
-
 import com.elster.us.protocolimplv2.sel.SEL;
 import com.elster.us.protocolimplv2.sel.utility.ObisCodeMapper;
 import com.elster.us.protocolimplv2.sel.utility.UnitMapper;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -18,15 +18,17 @@ import java.util.List;
 
 public class LoadProfileBuilder /*implements DeviceLoadProfileSupport */ {
 
+    private final OfflineDevice offlineDevice;
+    List<ObisCode> channelObisCodes;
     private SEL meterProtocol;
     /**
      * The list of <CODE>DeviceLoadProfileConfiguration</CODE> objects which are build from the information from the actual device, based on the expectedLoadProfileReaders
      */
     private List<CollectedLoadProfileConfiguration> loadProfileConfigurationList;
-    List<ObisCode> channelObisCodes;
 
-    public LoadProfileBuilder(SEL meterProtocol) {
+    public LoadProfileBuilder(SEL meterProtocol, OfflineDevice offlineDevice) {
         this.meterProtocol = meterProtocol;
+        this.offlineDevice = offlineDevice;
     }
 
     /**
@@ -111,7 +113,7 @@ public class LoadProfileBuilder /*implements DeviceLoadProfileSupport */ {
 
         for (LoadProfileReader lpr : loadProfiles) {
 
-            LoadProfileIdentifier lpi = new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode());
+            LoadProfileIdentifier lpi = new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode(), offlineDevice.getDeviceIdentifier());
             CollectedLoadProfile profileData1 = this.meterProtocol.getCollectedDataFactory().createCollectedLoadProfile(lpi);
             profileDataList.add(profileData1);
 
