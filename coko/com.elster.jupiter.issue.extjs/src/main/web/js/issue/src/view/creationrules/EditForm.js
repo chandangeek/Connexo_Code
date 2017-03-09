@@ -19,6 +19,9 @@ Ext.define('Isu.view.creationrules.EditForm', {
         validateOnChange: false,
         validateOnBlur: false
     },
+
+    newReasonId: '12222e48-9afb-4c76-a41e-d3c40f16ac76',
+
     initComponent: function () {
         var me = this;
 
@@ -122,11 +125,10 @@ Ext.define('Isu.view.creationrules.EditForm', {
                 name: 'reason',
                 fieldLabel: Uni.I18n.translate('general.title.issueReason', 'ISU', 'Issue reason'),
                 required: true,
-                store: 'Isu.store.IssueReasons',
+                store: 'Isu.store.CreationRuleReasons',
                 queryMode: 'local',
                 displayField: 'name',
-                valueField: 'id',
-                forceSelection: true
+                valueField: 'id'
             },
             {
                 xtype: 'fieldcontainer',
@@ -152,11 +154,11 @@ Ext.define('Isu.view.creationrules.EditForm', {
                         itemId: 'priority-urgency',
                         width: 92,
                         name: 'priority.urgency',
-                        value: 1,
+                        value: 25,
                         minValue: 1,
                         maxValue: 50,
                         listeners: {
-                            change: function (record) {
+                            change: function () {
                                 me.changePriority();
                             },
                             blur: me.numberFieldValidation
@@ -170,12 +172,12 @@ Ext.define('Isu.view.creationrules.EditForm', {
                         width: 157,
                         name: 'priority.impact',
                         fieldLabel: Uni.I18n.translate('general.impact', 'ISU', 'Impact'),
-                        value: 1,
+                        value: 5,
                         minValue: 1,
                         maxValue: 50,
                         margin: '0 0 0 20',
                         listeners: {
-                            change: function (record) {
+                            change: function () {
                                 me.changePriority();
                             },
                             blur: me.numberFieldValidation
@@ -341,6 +343,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
             typeCombo = me.down('[name=issueType]'),
             actionsGrid = me.down('issues-creation-rules-actions-list'),
             labelPriority = me.down('#priority-label'),
+            comboReason = me.down('#issueReason'),
             dueIn = record.get('dueIn'),
             priority = record.get('priority'),
             actions = record.actions(),
@@ -348,6 +351,14 @@ Ext.define('Isu.view.creationrules.EditForm', {
 
         typeCombo.suspendEvent('change');
         templateCombo.suspendEvent('change');
+        if(record.get('reason_id') === me.newReasonId && record.get('reason_name') != '' &&
+            comboReason.getStore().findRecord('id', me.newReasonId) == null){
+            var rec = {
+                id: me.newReasonId,
+                name: record.get('reason_name')
+            };
+            comboReason.store.add(rec);
+        }
         me.callParent(arguments);
         me.down('property-form').loadRecord(record);
 
@@ -375,9 +386,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
             me.down('[name=priority.urgency]').setValue(priority.urgency);
             me.down('[name=priority.impact]').setValue(priority.impact);
         }
-        else {
-            labelPriority.setText(2 + ' - ' + Uni.I18n.translate('issue.priority.veryLow', 'ISU', 'Very low'));
-        }
+        me.changePriority();
 
         if (dueIn.number) {
             me.down('#dueDateTrigger').setValue({dueDate: true});
@@ -408,11 +417,25 @@ Ext.define('Isu.view.creationrules.EditForm', {
     updateRecord: function () {
         var me = this,
             propertyForm = me.down('property-form'),
+            comboReason = me.down('#issueReason'),
+            reasonEditedValue = comboReason.getRawValue(),
+            reason = comboReason.store.find('name', reasonEditedValue),
             record;
 
         me.callParent(arguments);
+
+        if(reason === -1 && reasonEditedValue.trim() != ''){
+            var rec = {
+                id: me.newReasonId,
+                name: reasonEditedValue.trim()
+            };
+            comboReason.store.add(rec);
+            comboReason.setValue(comboReason.store.getAt(comboReason.store.count()-1).get('id'));
+        }
+
         record = me.getRecord();
         record.beginEdit();
+        record.set('reason_name', reasonEditedValue.trim());
         record.associations.each(function (association) {
             var combo,
                 value = null;
@@ -516,7 +539,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
         var me = this,
             labelPriority = me.down('#priority-label'),
             numUrgency = me.down('[name=priority.urgency]'),
-            numUrgencyValue = numUrgency.value,//me.down('#priority.urgency').value,
+            numUrgencyValue = numUrgency.value,
             numImpact = me.down('[name=priority.impact]'),
             numImpactValue = numImpact.value,
             priorityValue,
@@ -545,7 +568,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
                         Uni.I18n.translate('issue.priority.veryHigh', 'ISU', 'Very high');
 
 
-        labelPriority.setText(priorityValue + ' - ' + priorityLabel);
+        labelPriority.setText(priorityLabel + ' (' + priorityValue +')');
 
     },
     numberFieldValidation: function (field) {

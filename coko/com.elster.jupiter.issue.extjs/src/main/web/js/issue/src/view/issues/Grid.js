@@ -44,6 +44,12 @@ Ext.define('Isu.view.issues.Grid', {
                 flex: 1.2
             },
             {
+                itemId: 'issues-grid-priority',
+                header: Uni.I18n.translate('general.priority', 'ISU', 'Priority'),
+                dataIndex: 'priority',
+                flex: 1
+            },
+            {
                 itemId: 'issues-grid-due-date',
                 header: Uni.I18n.translate('general.title.dueDate', 'ISU', 'Due date'),
                 dataIndex: 'dueDate',
@@ -61,52 +67,19 @@ Ext.define('Isu.view.issues.Grid', {
             {
                 itemId: 'issues-grid-workgroup',
                 header: Uni.I18n.translate('general.workgroup', 'ISU', 'Workgroup'),
-                //xtype: 'isu-workgroup-column',
                 dataIndex: 'workGroupAssignee',
                 flex: 1,
                 renderer: function (value, metaData, record, rowIndex, colIndex) {
-                    var result;
-
-                    if (!Ext.isEmpty(value) && value.hasOwnProperty('id')) {
-                        result = '';
-
-                        result += '<span class="isu-icon-GROUP isu-assignee-type-icon" data-qtip="';
-                        result += Uni.I18n.translate('assignee.tooltip.workgroup', 'ISU', 'Workgroup');
-                        result += '"></span>';
-
-                        if (value.name) {
-                            result += Ext.String.htmlEncode(value.name);
-                        }
-                    } else {
-                        result = '-'
-                    }
-                    return result || this.columns[colIndex].emptyText;
+                    return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'ISU', 'Unassigned');
                 }
             },
             {
                 itemId: 'issues-grid-assignee',
                 header: Uni.I18n.translate('general.user', 'ISU', 'User'),
-                //xtype: 'isu-assignee-column',
                 dataIndex: 'userAssignee',
                 flex: 1,
                 renderer: function (value, metaData, record, rowIndex, colIndex) {
-                    var result
-
-                    if (value && value.hasOwnProperty('id')) {
-                        var result = '';
-
-                        result += '<span class="isu-icon-USER isu-assignee-type-icon" data-qtip="';
-                        result += Uni.I18n.translate('assignee.tooltip.USER', 'ISU', 'User');
-                        result += '"></span>';
-
-                        if (value.name) {
-                            result += Ext.String.htmlEncode(value.name);
-                        }
-                    } else {
-                        result = '-';
-                    }
-
-                    return result || this.columns[colIndex].emptyText;
+                    return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'ISU', 'Unassigned');
                 }
             },
             {
@@ -135,7 +108,7 @@ Ext.define('Isu.view.issues.Grid', {
                         xtype: 'button',
                         itemId: 'issues-bulk-action',
                         text: Uni.I18n.translate('general.title.bulkActions', 'ISU', 'Bulk action'),
-                        privileges: Isu.privileges.Issue.commentOrAssing,
+                        privileges: Isu.privileges.Issue.closeOrAssing,
                         action: 'issuesBulkAction',
                         handler: function () {
                             me.router.getRoute(me.router.currentRoute + '/bulkaction').forward(me.router.arguments, Uni.util.QueryString.getQueryStringValues(false));

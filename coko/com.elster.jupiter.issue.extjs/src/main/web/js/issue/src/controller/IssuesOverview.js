@@ -108,7 +108,7 @@ Ext.define('Isu.controller.IssuesOverview', {
                     queryString.myopenissues = undefined;
                     queryString.userAssignee = records[0].getId();
                     queryString.groupingType = 'none';
-                    queryString.sort = ['dueDate'];
+                    queryString.sort = ['-priorityTotal'];
                     window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
                 }
             });
@@ -125,7 +125,7 @@ Ext.define('Isu.controller.IssuesOverview', {
                             return wg.id;
                         });
                         queryString.groupingType = 'none';
-                        queryString.sort = ['dueDate'];
+                        queryString.sort = ['-priorityTotal'];
                         window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
                     }
                 }
@@ -133,7 +133,7 @@ Ext.define('Isu.controller.IssuesOverview', {
         } else if (!queryString.groupingType) {
             queryString.status = ['status.open', 'status.in.progress'];
             queryString.groupingType = 'none';
-            queryString.sort = ['dueDate'];
+            queryString.sort = ['-priorityTotal'];
             window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
         } else {
             me.getStore('Isu.store.Clipboard').set('latest-issues-filter', queryString);
@@ -160,7 +160,7 @@ Ext.define('Isu.controller.IssuesOverview', {
         if (previewActionMenu) {
             previewActionMenu.record = record;
         }
-        preview.setTitle(record.get('title'));
+        preview.setTitle(Ext.String.htmlEncode(record.get('title')));
         Ext.resumeLayouts(true);
     },
 
