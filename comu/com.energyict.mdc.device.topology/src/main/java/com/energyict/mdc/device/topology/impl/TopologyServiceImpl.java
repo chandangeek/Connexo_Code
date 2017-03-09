@@ -6,6 +6,7 @@ package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.Layer;
@@ -22,7 +23,9 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
@@ -93,6 +96,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     private volatile ConnectionTaskService connectionTaskService;
     private volatile CommunicationTaskService communicationTaskService;
     private volatile UpgradeService upgradeService;
+    private volatile QueryService queryService;
 
     // For OSGi framework only
     public TopologyServiceImpl() {
@@ -101,7 +105,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     // For unit testing purposes only
     @Inject
-    public TopologyServiceImpl(OrmService ormService, NlsService nlsService, Clock clock, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, UpgradeService upgradeService) {
+    public TopologyServiceImpl(OrmService ormService, NlsService nlsService, Clock clock, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, UpgradeService upgradeService, QueryService queryService) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -109,6 +113,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         setConnectionTaskService(connectionTaskService);
         setCommunicationTaskService(communicationTaskService);
         setUpgradeService(upgradeService);
+        setQueryService(queryService);
         activate();
     }
 
@@ -300,6 +305,14 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     @Override
     public Optional<Device> getPhysicalGateway(Device slave, Instant when) {
         return this.getPhysicalGatewayReference(slave, when).map(PhysicalGatewayReference::getGateway);
+    }
+
+    @Override
+    public Subquery IsLinkedToMaster(Device device){
+        return queryService.wrap(this.dataModel.query(PhysicalGatewayReference.class))
+               .asSubquery(where(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName()).isEqualTo(device)
+                           .and
+                           (where("interval").isEffective(Instant.now())) ,PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName());
     }
 
     private Optional<PhysicalGatewayReference> getPhysicalGatewayReference(Device slave, Instant when) {
@@ -796,17 +809,19 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     public G3CommunicationPath getCommunicationPath(Device source, Device target) {
         G3CommunicationPathImpl communicationPath = new G3CommunicationPathImpl(source, target);
         DataMapper<G3CommunicationPathSegment> mapper = this.dataModel.mapper(G3CommunicationPathSegment.class);
-        SqlBuilder sqlBuilder = mapper.builder("cps");
+        SqlBuilder sqlBuilder = mapper.builder(" cps ");
         sqlBuilder.append("where cps.discriminator = ");
         sqlBuilder.addObject(CommunicationPathSegmentImpl.G3_DISCRIMINATOR);
-        sqlBuilder.append("start with (cps.srcdevice = ");
+        sqlBuilder.append(" start with (cps.srcdevice = ");
         sqlBuilder.addLong(source.getId());
-        sqlBuilder.append("and cps.targetdevice = ");
+        sqlBuilder.append(" and cps.targetdevice = ");
         sqlBuilder.addLong(target.getId());
         sqlBuilder.append(") connect by (cps.srcdevice = prior cps.nexthopdevice and cps.targetdevice = ");
         sqlBuilder.addLong(target.getId());
         sqlBuilder.append(")");
-        mapper.fetcher(sqlBuilder).forEach(communicationPath::addSegment);
+        try(Fetcher<G3CommunicationPathSegment> fetcher = mapper.fetcher(sqlBuilder)) {
+        	fetcher.forEach(communicationPath::addSegment);
+        }
         return communicationPath;
     }
 
@@ -1074,6 +1089,12 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
     }
+
+    @Reference
+    public void setQueryService(QueryService queryService) {
+        this.queryService = queryService;
+    }
+
 
     private interface FirstLevelTopologyTimeslicer {
         List<ServerTopologyTimeslice> firstLevelTopologyTimeslices(Device device, Range<Instant> period);
