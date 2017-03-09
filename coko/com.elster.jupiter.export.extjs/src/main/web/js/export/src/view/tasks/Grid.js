@@ -50,6 +50,7 @@ Ext.define('Dxp.view.tasks.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'dxp-tasks-action-menu',
                     itemId: 'dxp-tasks-action-menu'

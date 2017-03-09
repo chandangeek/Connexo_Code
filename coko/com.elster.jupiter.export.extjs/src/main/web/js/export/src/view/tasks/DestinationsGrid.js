@@ -35,6 +35,7 @@ Ext.define('Dxp.view.tasks.DestinationsGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'dxp-tasks-destination-action-menu',
                     itemId: 'dxp-tasks-destination-action-menu'
