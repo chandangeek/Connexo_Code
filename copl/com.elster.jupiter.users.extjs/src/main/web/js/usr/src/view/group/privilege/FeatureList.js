@@ -57,6 +57,7 @@ Ext.define('Usr.view.group.privilege.FeatureList', {
                 },
                 {
                     xtype: 'uni-actioncolumn',
+                    width: 120,
                     menu: {
                         xtype: 'feature-action-menu'
                     }

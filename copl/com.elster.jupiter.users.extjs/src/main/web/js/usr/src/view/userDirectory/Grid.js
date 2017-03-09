@@ -34,6 +34,7 @@ Ext.define('Usr.view.userDirectory.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 isDisabled: function(view, rowIndex, colIndex, item, record) {
                     return !Usr.privileges.Users.canAdministrate() || (record.get('id') === 0 && record.get('isDefault'));
                 },

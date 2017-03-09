@@ -39,6 +39,7 @@ Ext.define('Usr.view.group.List', {
                 },
                 {
                     xtype: 'uni-actioncolumn',
+                    width: 120,
                     privileges: Usr.privileges.Users.admin,
                     menu: {
                         xtype: 'group-action-menu',

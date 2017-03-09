@@ -48,8 +48,8 @@ Ext.define('Usr.view.user.List', {
                 },
                 {
                     xtype: 'uni-actioncolumn',
+                    width: 120,
                     privileges: Usr.privileges.Users.adminUsers,
-
                     menu: {
                         xtype: 'user-action-menu',
                         itemId: 'user-action-menu'

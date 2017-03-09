@@ -51,6 +51,7 @@ Ext.define('Usr.view.group.privilege.ApplicationList', {
                 },
                 {
                     xtype: 'uni-actioncolumn',
+                    width: 120,
                     items: 'Usr.view.group.privilege.ApplicationActionMenu'
                 }
             ]
