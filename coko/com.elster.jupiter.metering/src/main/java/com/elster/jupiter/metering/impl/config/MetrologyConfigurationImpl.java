@@ -104,7 +104,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     private String name;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String description;
-    private boolean gapAllowed = true;
+    private boolean gapAllowed;
     @NotNull
     private MetrologyConfigurationStatus status = MetrologyConfigurationStatus.INACTIVE;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
