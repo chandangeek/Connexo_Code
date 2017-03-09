@@ -70,6 +70,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.Device.administrateDeviceData,
                 dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions,
                 menu: {

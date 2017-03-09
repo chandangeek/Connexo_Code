@@ -106,6 +106,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.Device.administrateDeviceData,
                 dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions,
                 menu: {

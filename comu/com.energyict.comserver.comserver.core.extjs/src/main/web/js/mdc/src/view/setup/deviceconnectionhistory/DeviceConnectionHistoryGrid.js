@@ -75,6 +75,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
             {
                 itemId: 'action',
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'mdc-device-connection-history-grid-action-menu'
                 }

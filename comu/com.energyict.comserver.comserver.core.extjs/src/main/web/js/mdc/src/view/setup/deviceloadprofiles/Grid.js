@@ -43,6 +43,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'deviceLoadProfilesActionMenu',
                     itemId: 'loadProfileActionMenu'

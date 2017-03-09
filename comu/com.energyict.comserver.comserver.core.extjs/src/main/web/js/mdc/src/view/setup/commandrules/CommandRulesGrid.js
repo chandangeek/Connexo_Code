@@ -46,6 +46,7 @@ Ext.define('Mdc.view.setup.commandrules.CommandRulesGrid', {
                 sortable: false,
                 menuDisabled: true,
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.CommandLimitationRules.view,
                 menu: {
                     xtype: 'commandRuleActionMenu'

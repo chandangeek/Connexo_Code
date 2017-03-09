@@ -30,6 +30,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectsGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.Device.administrateDeviceCommunication,
                 menu: {xtype: 'protocol-dialect-action-menu'},
                 dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.protocolDialectsActions

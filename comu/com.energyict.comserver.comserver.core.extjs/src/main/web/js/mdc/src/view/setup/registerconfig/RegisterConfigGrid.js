@@ -40,6 +40,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.DeviceType.admin,
                 menu: {xtype: 'register-config-action-menu'}
             }

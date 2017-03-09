@@ -37,6 +37,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
 
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.DeviceType.admin,
                 menu: {
                     xtype: 'register-mapping-action-menu',

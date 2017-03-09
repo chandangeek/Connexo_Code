@@ -47,6 +47,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.DeviceType.admin,
                 menu: {
                     xtype: 'device-type-action-menu'

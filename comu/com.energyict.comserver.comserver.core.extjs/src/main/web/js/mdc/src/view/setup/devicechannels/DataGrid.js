@@ -149,6 +149,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 itemId: 'channel-data-grid-action-column',
                 menu: {
                     xtype: 'deviceLoadProfileChannelDataActionMenu',
