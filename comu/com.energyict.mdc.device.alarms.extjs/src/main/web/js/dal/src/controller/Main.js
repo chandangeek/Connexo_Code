@@ -22,7 +22,9 @@ Ext.define('Dal.controller.Main', {
         'Dal.controller.Detail',
         'Dal.controller.ApplyAction',
         'Dal.controller.StartProcess',
-        'Dal.controller.SetPriority'
+        'Dal.controller.Overview',
+        'Dal.controller.SetPriority',
+        'Dal.controller.BulkChangeAlarms'
     ],
 
     stores: [
@@ -61,6 +63,11 @@ Ext.define('Dal.controller.Main', {
                         href: router.getRoute('workspace/alarms').buildUrl({}, {
                             status: ['status.open', 'status.in.progress']
                         })
+                    },
+                    {
+                        text: Uni.I18n.translate('device.alarms.alarmsOverview', 'DAL', 'Alarms overview'),
+                        itemId: 'alarms-overview-item',
+                        href: router.getRoute('workspace/alarmsoverview').buildUrl()
                     },
                     {
                         itemId: 'my-open-alarms-item',

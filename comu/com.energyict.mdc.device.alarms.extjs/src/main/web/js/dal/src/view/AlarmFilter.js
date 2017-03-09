@@ -145,7 +145,8 @@ Ext.define('Dal.view.AlarmFilter', {
                 dataIndexFrom: 'startIntervalFrom',
                 dataIndexTo: 'startIntervalTo',
                 text: Uni.I18n.translate('general.createdBetween', 'DAL', 'Created between'),
-                itemId: 'created-between-filter'
+                itemId: 'created-between-filter',
+                hidden: me.isOverviewFilter
             }
         ];
 

@@ -55,7 +55,7 @@ Ext.define('Dal.view.Preview', {
                     {
                         xtype: 'displayfield',
                         itemId: 'alarm-id',
-                        fieldLabel: Uni.I18n.translate('general.title.alarmId', 'DAL', 'Id'),
+                        fieldLabel: Uni.I18n.translate('general.title.alarmId', 'DAL', 'ID'),
                         name: 'alarmId'
                     },
                     {
@@ -164,6 +164,12 @@ Ext.define('Dal.view.Preview', {
                         renderer: function (value) {
                             return value ? Uni.DateTime.formatDateShort(value) : '-';
                         }
+                    },
+                    {
+                        xtype: 'displayfield',
+                        itemId: 'alarm-priority',
+                        fieldLabel: Uni.I18n.translate('general.title.priority', 'DAL', 'Priority'),
+                        name: 'priority'
                     },
                     {
                         xtype: me.fieldxtype,

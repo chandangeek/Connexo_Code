@@ -5,7 +5,8 @@
 Ext.define('Dal.controller.history.Workspace', {
     extend: 'Uni.controller.history.Converter',
     requires: [
-        'Dal.privileges.Alarm'
+        'Dal.privileges.Alarm',
+        'Dal.controller.Overview',
     ],
     rootToken: 'workspace',
     previousPath: '',
@@ -19,6 +20,12 @@ Ext.define('Dal.controller.history.Workspace', {
             action: 'showOverview',
             privileges: Dal.privileges.Alarm.viewAdminAlarm,
             items: {
+                bulkaction: {
+                    title: Uni.I18n.translate('general.bulkAction','DAL','Bulk action'),
+                    route: 'bulkaction',
+                    privileges: Dal.privileges.Alarm.viewAdminAlarm,
+                    controller: 'Dal.controller.BulkChangeAlarms'
+                },
                 view: {
                     title: Uni.I18n.translate('general.alarmDetails', 'DAL', 'Alarm details'),
                     route: '{alarmId}',
@@ -32,6 +39,7 @@ Ext.define('Dal.controller.history.Workspace', {
                         }, {single: true});
                         return this;
                     },
+
                     items: {
                         startProcess: {
                             title: Uni.I18n.translate('general.startProcess', 'DAL', 'Start process'),
@@ -76,6 +84,13 @@ Ext.define('Dal.controller.history.Workspace', {
                 }
             }
 
+        },
+        "workspace/alarmsoverview":{
+            title: Uni.I18n.translate('device.alarms.overview', 'DAL', 'Alarms overview'),
+            route: 'workspace/alarmsoverview',
+            controller: 'Dal.controller.Overview',
+            action: 'showAlarmOverview',
+            privileges: Dal.privileges.Alarm.viewAdminAlarm
         }
 
     },

@@ -31,6 +31,12 @@ Ext.define('Dal.view.Grid', {
                 }
             },
             {
+                itemId: 'alarms-grid-priority',
+                header: Uni.I18n.translate('general.priority', 'DAL', 'Priority'),
+                dataIndex: 'priority',
+                flex: 1
+            },
+            {
                 itemId: 'alarms-grid-due-date',
                 header: Uni.I18n.translate('general.title.dueDate', 'DAL', 'Due date'),
                 dataIndex: 'dueDate',
@@ -83,19 +89,20 @@ Ext.define('Dal.view.Grid', {
                 store: me.store,
                 displayMsg: Uni.I18n.translate('workspace.alarms.pagingtoolbartop.displayMsg', 'DAL', '{0} - {1} of {2} alarms'),
                 displayMoreMsg: Uni.I18n.translate('workspace.alarms.pagingtoolbartop.displayMoreMsg', 'DAL', '{0} - {1} of more than {2} alarms'),
-                emptyMsg: Uni.I18n.translate('workspace.alarms.pagingtoolbartop.emptyMsg', 'DAL', 'There are no alarms to display')/*,
+                emptyMsg: Uni.I18n.translate('workspace.alarms.pagingtoolbartop.emptyMsg', 'DAL', 'There are no alarms to display')
+                ,
              items: [
-             {
-             xtype: 'button',
-             itemId: 'issues-bulk-action',
-             text: Uni.I18n.translate('general.title.bulkActions', 'DAL', 'Bulk action'),
-             privileges: Isu.privileges.Issue.commentOrAssing,
-             action: 'issuesBulkAction',
-             handler: function () {
-             me.router.getRoute(me.router.currentRoute + '/bulkaction').forward(me.router.arguments, Uni.util.QueryString.getQueryStringValues(false));
-             }
-             }
-             ]*/
+                 {
+                     xtype: 'button',
+                     itemId: 'alarms-bulk-action',
+                     text: Uni.I18n.translate('general.title.bulkActions', 'DAL', 'Bulk action'),
+                     privileges: Dal.privileges.Alarm.closeOrAssing,
+                     action: 'alarmsBulkAction',
+                     handler: function () {
+                         me.router.getRoute(me.router.currentRoute + '/bulkaction').forward(me.router.arguments, Uni.util.QueryString.getQueryStringValues(false));
+                     }
+                 }
+             ]
             },
             {
                 itemId: 'pagingtoolbarbottom',
