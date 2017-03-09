@@ -963,7 +963,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
         Optional<KeyType> aes128 = inMemoryPersistence.getPkiService().getKeyType("AES128");
         assertThat(deviceType.getKeyAccessorTypes()).isEmpty();
-        this.deviceType.addKeyAccessorType("GUAK", aes128.get(), "SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+        this.deviceType.addKeyAccessorType("GUAK", aes128.get()).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService()
                 .findDeviceType(this.deviceType.getId()).get();
         assertThat(deviceType.getKeyAccessorTypes()).hasSize(1);
