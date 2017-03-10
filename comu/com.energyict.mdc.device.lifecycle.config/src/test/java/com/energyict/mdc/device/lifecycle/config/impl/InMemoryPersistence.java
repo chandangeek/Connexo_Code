@@ -5,6 +5,9 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -98,6 +101,7 @@ public class InMemoryPersistence {
                 new PartyModule(),
                 new TransactionModule(),
                 new OrmModule(),
+                new CalendarModule(),
                 new IdsModule(),
                 new EventsModule(),
                 new MeteringModule(),
@@ -129,6 +133,7 @@ public class InMemoryPersistence {
             this.injector.getInstance(EventService.class);
             this.injector.getInstance(CustomPropertySetService.class);
             this.injector.getInstance(PartyService.class);
+            this.injector.getInstance(CalendarService.class);
             this.injector.getInstance(MeteringDataModelService.class);
             this.lifeCycleService = this.injector.getInstance(DeviceLifeCycleConfigurationServiceImpl.class);
             this.dataModel = this.lifeCycleService.getDataModel();
