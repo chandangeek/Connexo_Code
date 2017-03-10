@@ -193,7 +193,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
 
     private List<EndDeviceEventRecord> getLoggedEvents(RelativePeriod relativePeriod) {
         return getDevice().getLogBooks().stream()
-                .map(logBook -> logBook.getEndDeviceEvents(relativePeriod.getClosedInterval(clock.instant().atZone(clock.getZone()).with(LocalTime.MIDNIGHT).plusDays(1))))
+                .map(logBook -> logBook.getEndDeviceEvents(relativePeriod.getClosedInterval(clock.instant().atZone(clock.getZone()).with(LocalTime.MIDNIGHT))))
                 .flatMap(Collection::stream).collect(Collectors.toList());
     }
 
