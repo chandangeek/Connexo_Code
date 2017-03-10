@@ -2366,7 +2366,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         mockGetOpenDataValidationIssue();
         State state = mockDeviceState("dlc.default.inStock");
         Stage stage = mock(Stage.class);
-        when(stage.getName()).thenReturn("OPERATIONAL");
+        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.getKey());
         when(state.getStage()).thenReturn(Optional.of(stage));
         when(device.getState()).thenReturn(state);
         Instant now = Instant.now();
