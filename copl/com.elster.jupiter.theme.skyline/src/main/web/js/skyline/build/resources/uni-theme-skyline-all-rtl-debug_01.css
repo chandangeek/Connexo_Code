@@ -1,25 +1,8 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /* including package ext-theme-base */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * Creates a background gradient.
  *
@@ -75,54 +58,15 @@
  * @member Global_CSS
  */
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
  * Method which inserts a full background-image property for a theme image.
  * It checks if the file exists and if it doesn't, it'll throw an error.
  * By default it will not include the background-image property if it is not found,
  * but this can be changed by changing the default value of $include-missing-images to
  * be true.
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* including package ext-theme-neutral */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* including package ext-theme-neptune */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* including package uni-theme-skyline */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../sass/etc/all.scss */
 .trlegend td {
   padding: 3px 5px 3px 0;
@@ -140,162 +84,24 @@
 }
 
 /* including package uni-theme-skyline */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.button.Button
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.panel.Header */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.panel.Panel */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @var {number}
  * The bottom margin to apply to form items when in auto, anchor, vbox, or table layout
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.panel.Table
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* including package ext-theme-neptune */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Global_CSS */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.LoadMask */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.ProgressBar */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.button.Button */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.toolbar.Toolbar */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.panel.Panel */
 /**
  * @var {boolean}
@@ -305,25 +111,10 @@
  * @var {boolean}
  * True to include the "light-framed" panel UI
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.tip.Tip */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.container.ButtonGroup */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.window.Window */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.form.Labelable */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.form.field.Base */
 /**
  * @var {color} $form-field-focus-border-color
@@ -333,113 +124,32 @@
  * images.  If this color is changed, you should also modify checkbox and radio button
  * background images to match
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.form.field.Display */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.form.field.Checkbox */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.form.CheckboxGroup */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.form.FieldSet */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.form.field.Spinner */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.toolbar.Paging */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.view.BoundList */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.picker.Date */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.picker.Color */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.panel.Table */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.grid.header.Container */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.grid.column.Column */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.grid.column.Action */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.grid.feature.Grouping */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.grid.plugin.RowEditing */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.layout.container.Accordion */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.resizer.Splitter */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.layout.container.Border */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.menu.Menu */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.panel.Tool */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.resizer.Resizer */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.tab.Tab */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.tab.Bar */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.selection.CheckboxModel */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.tree.Panel */
 /* including package ext-theme-neutral */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Global_CSS
  */
@@ -472,9 +182,6 @@
  * Background color to apply to the body element.  If set to transparent or 'none' no
  * background-color style will be set on the body element.
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.FocusManager
  */
@@ -489,9 +196,6 @@
 /**
  * @var {color}
  * The border-width of the focusFrame.  See {@link #method-enable}.
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 /**
  * @class Ext.LoadMask
@@ -586,9 +290,6 @@
  * @var {number}
  * The border-radius of the message element
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.ProgressBar
  */
@@ -649,9 +350,6 @@
 /**
  * @var {boolean}
  * True to include the "default" ProgressBar UI
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 /** @class Ext.button.Button */
 /**
@@ -1249,9 +947,6 @@
  * @var {boolean}
  * True to include the "default-toolbar" button UI for "large" scale buttons
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.toolbar.Toolbar
  */
@@ -1412,13 +1107,7 @@
  * @var {boolean}
  * True to include the "default" toolbar UI
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /** @class Ext.panel.Header */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.panel.Panel
  */
@@ -1670,9 +1359,6 @@
  * @var {boolean}
  * True to include the "default-framed" panel UI
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.tip.Tip
  */
@@ -1793,9 +1479,6 @@
  * @var {boolean}
  * True to include the "form-invalid" tip UI
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.container.ButtonGroup
  */
@@ -1886,9 +1569,6 @@
 /**
  * @var {boolean}
  * True to include the "default-framed" button group UI
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 /**
  * @class Ext.window.Window
@@ -2066,9 +1746,6 @@
  * @var {string}
  * The default font-family of the Window body
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.form.Labelable
  */
@@ -2155,9 +1832,6 @@
 /**
  * @var {number}
  * The bottom margin to apply to form items when in auto, anchor, vbox, or table layout
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 /**
  * @class Ext.form.field.Base
@@ -2261,18 +1935,12 @@
 /**
  * @var {number} $form-field-disabled-opacity
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.form.field.TextArea
  */
 /**
  * @var {number/string}
  * The line-height to use for the TextArea's text
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 /**
  * @class Ext.form.field.Display
@@ -2313,9 +1981,6 @@
  * @var {number}
  * The line-height of toolbar display fields
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.window.MessageBox
  */
@@ -2339,9 +2004,6 @@
  * @var {list}
  * The background-position of the MessageBox icon
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.form.field.Checkbox
  */
@@ -2352,9 +2014,6 @@
 /**
  * @var {number}
  * The space between the boxLabel and the checkbox.
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 /**
  * @class Ext.form.CheckboxGroup
@@ -2386,9 +2045,6 @@
 /**
  * @var {number}
  * The border-color of the CheckboxGroup label
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 /**
  * @class Ext.form.FieldSet
@@ -2463,18 +2119,12 @@
  * The background-image to use for the collapse tool. If null the default tool
  * sprite will be used.  Defaults to null.
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.form.field.Radio
  */
 /**
  * @var {number}
  * The size of the radio button
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 /**
  * @class Ext.form.field.Trigger
@@ -2511,9 +2161,6 @@
  * @var {color}
  * The color of the trigger's border when the field is focused and the trigger is hovered
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.form.field.Spinner
  */
@@ -2526,18 +2173,12 @@
  * The height of the Spinner trigger buttons when the Spinner is used on a
  * {@link Ext.toolbar.Toolbar Toolbar}
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.toolbar.Paging
  */
 /**
  * @var {boolean}
  * True to include different icons when the paging toolbar buttons are disabled.
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 /**
  * @class Ext.view.BoundList
@@ -2605,9 +2246,6 @@
 /**
  * @var {color}
  * The background-color of selected BoundList items
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 /**
  * @class Ext.picker.Date
@@ -2961,9 +2599,6 @@
  * @var {number}
  * The height of Month Picker items when the datepicker does not have footer buttons
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.picker.Color
  */
@@ -3051,9 +2686,6 @@
  * @var {string}
  * The inner border-style of Color Picker items
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.form.field.HtmlEditor
  */
@@ -3080,9 +2712,6 @@
 /**
  * @var {number}
  * The font-family of the HtmlEditor's font selection control
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 /**
  * @class Ext.panel.Table
@@ -3300,18 +2929,12 @@
  * The color of the resize markers that display when dragging a column border to resize
  * the column
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.grid.header.DropZone
  */
 /**
  * @var {number}
  * The size of the column move icon
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 /**
  * @class Ext.grid.header.Container
@@ -3391,9 +3014,6 @@
  * @var {number}
  * The space between the grid header sort icon and the grid header text
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.grid.column.Column
  */
@@ -3429,9 +3049,6 @@
  * @var {string}
  * The border-style of grid column headers
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.grid.column.Action
  */
@@ -3455,18 +3072,12 @@
  * @var {number}
  * The amount of padding to add to the left and right of the action column cell
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.grid.column.Check
  */
 /**
  * @var {number}
  * Opacity of disabled CheckColumns
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 /**
  * @class Ext.grid.column.RowNumberer
@@ -3478,9 +3089,6 @@
 /**
  * @var {number}
  * The horizontal space after the number in the RowNumberer cell
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 /**
  * @class Ext.grid.feature.Grouping
@@ -3535,9 +3143,6 @@
  * to reserve space for an icon by setting the amountof space to be reserved for the icon
  * as the left value and setting the remaining sides to 0.
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.grid.feature.RowWrap
  */
@@ -3548,9 +3153,6 @@
 /**
  * @var {string}
  * The border-style of wrapped rows
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 /**
  * @class Ext.grid.feature.RowBody
@@ -3575,9 +3177,6 @@
  * @var {number/list}
  * The padding of the RowBody
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.grid.locking.Lockable
  */
@@ -3588,9 +3187,6 @@
 /**
  * @var {string}
  * The border-style of the border between the locked views
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 /**
  * @class Ext.grid.plugin.Editing
@@ -3617,9 +3213,6 @@
 /**
  * @var {string}
  * The font-family of the grid editor text
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 /**
  * @class Ext.grid.plugin.RowEditing
@@ -3668,9 +3261,6 @@
  * @var {number}
  * Space to add before each list item on the error tooltip
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.grid.plugin.RowExpander
  */
@@ -3694,9 +3284,6 @@
  * @var {string}
  * The cursor for the RowExpander icon
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.grid.property.Grid
  */
@@ -3712,9 +3299,6 @@
  * @var {number/string}
  * The padding to add before the text of property grid cells to make room for the
  * background-image. Only applies if $grid-property-cell-background-image is not null
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 /**
  * @class Ext.layout.container.Accordion
@@ -3771,9 +3355,6 @@
  * @var {string}
  * The sprite image to use for {@link Ext.panel.Tool Tools} in Accordion headers
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.resizer.Splitter
  */
@@ -3802,18 +3383,12 @@
  * The size of the collapse tool. This becomes the width of the collapse tool for
  * horizontal splitters, and the height for vertical splitters.
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.layout.container.Border
  */
 /**
  * @var {color}
  * The background-color of the Border layout element
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 /**
  * @class Ext.menu.Menu
@@ -3982,9 +3557,6 @@
  * @var {number} $menu-glyph-opacity
  * The opacity to use for menu icons configured using {@link Ext.menu.Item#glyph glyph}
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.panel.Tool
  */
@@ -4017,9 +3589,6 @@
  * @var {string}
  * The sprite to use as the background-image for Tools
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.slider.Multi
  */
@@ -4046,9 +3615,6 @@
 /**
  * @var {number}
  * The height of the vertical slider end caps
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 /**
  * @class Ext.tab.Tab
@@ -4323,9 +3889,6 @@
  * @var {boolean}
  * True to include the "default" tab UI
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.tab.Bar
  */
@@ -4425,9 +3988,6 @@
  * @var {boolean}
  * True to include the "default" tabbar UI
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Ext.selection.CheckboxModel
  */
@@ -4438,9 +3998,6 @@
 /**
  * @var {number}
  * The horizontal space after the checkbox
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 /**
  * @class Ext.tree.Panel
@@ -4474,9 +4031,6 @@
  * The amount of padding to apply to the tree cell's inner div element
  */
 /* including package ext-theme-base */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * @class Global_CSS
  */
@@ -4567,9 +4121,6 @@
  */
 /* including package ext-theme-base */
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
  * Although this file only contains a variable, all vars are included by default
  * in application sass builds, so this needs to be in the rule file section
  * to allow javascript inclusion filtering to disable it.
@@ -4587,9 +4138,6 @@
  *     }
  * @member Global_CSS
  * @readonly
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/Component.scss */
 .x-body {
@@ -4796,9 +4344,6 @@ img {
   outline: none !important;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 7, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/layout/container/Container.scss */
 .x-box-item {
   position: absolute !important;
@@ -4819,17 +4364,11 @@ img {
   left: auto;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 8, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/Editor.scss */
 div.x-editor {
   overflow: visible;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/LoadMask.scss */
 .x-mask {
   z-index: 100;
@@ -4862,9 +4401,6 @@ div.x-editor {
   position: absolute;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/ProgressBar.scss */
 .x-progress {
   position: relative;
@@ -4886,9 +4422,6 @@ div.x-editor {
   position: absolute;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/layout/component/Dock.scss */
 .x-docked {
   position: absolute !important;
@@ -5029,9 +4562,6 @@ div.x-editor {
   border-width: 0 !important;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/button/Button.scss */
 .x-btn {
   display: inline-block;
@@ -5104,9 +4634,6 @@ div.x-editor {
   text-align: left;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/layout/container/Box.scss */
 .x-box-layout-ct {
   overflow: hidden;
@@ -5174,9 +4701,6 @@ div.x-editor {
   float: left;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/toolbar/Toolbar.scss */
 .x-toolbar-text {
   white-space: nowrap;
@@ -5209,9 +4733,6 @@ div.x-editor {
   border: 0;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/panel/Header.scss */
 .x-header-icon {
   background-repeat: no-repeat;
@@ -5233,9 +4754,6 @@ div.x-editor {
   text-overflow: clip;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 8, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/dd/DD.scss */
 .x-dd-drag-proxy,
 .x-dd-drag-current {
@@ -5243,9 +4761,6 @@ div.x-editor {
   pointer-events: none;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 6, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/dd/StatusProxy.scss */
 .x-dd-drag-repair .x-dd-drag-ghost {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=60);
@@ -5312,9 +4827,6 @@ div.x-editor {
   background-image: url(images/dd/drop-no.png);
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 6, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/panel/Panel.scss */
 .x-panel,
 .x-plain {
@@ -5364,9 +4876,6 @@ div.x-editor {
   padding: 0;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/tip/Tip.scss */
 .x-tip {
   position: absolute;
@@ -5387,9 +4896,6 @@ div.x-editor {
   border-style: solid;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/draw/Component.scss */
 .x-surface {
   display: -moz-inline-stack;
@@ -5467,17 +4973,11 @@ svg, vml {
   overflow: hidden;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/layout/container/Table.scss */
 .x-table-layout {
   font-size: 1em;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/container/ButtonGroup.scss */
 .x-btn-group {
   position: relative;
@@ -5495,9 +4995,6 @@ svg, vml {
   vertical-align: top;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/container/Viewport.scss */
 .x-viewport, .x-viewport body {
   margin: 0;
@@ -5508,9 +5005,6 @@ svg, vml {
   position: static;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/window/Window.scss */
 .x-window {
   outline: none;
@@ -5528,9 +5022,6 @@ svg, vml {
   overflow: hidden;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/form/Labelable.scss */
 .x-form-item-label {
   display: block;
@@ -5557,9 +5048,6 @@ svg, vml {
   display: none;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/form/field/TextArea.scss */
 .x-form-textarea {
   overflow: auto;
@@ -5571,25 +5059,16 @@ svg, vml {
   margin-bottom: -2px;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/form/field/Display.scss */
 .x-form-display-field-body {
   vertical-align: top;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 6, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/window/MessageBox.scss */
 .x-message-box .x-form-display-field {
   height: auto;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/form/field/Checkbox.scss */
 .x-form-cb-wrap {
   vertical-align: top;
@@ -5645,9 +5124,6 @@ the height of a multi-line element */
   zoom: 1;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/form/FieldSet.scss */
 .x-fieldset {
   display: block;
@@ -5695,9 +5171,6 @@ the height of a multi-line element */
   float: right;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 6, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/form/Panel.scss */
 .x-form-item {
   vertical-align: top;
@@ -5719,9 +5192,6 @@ the height of a multi-line element */
   border-top: 1px solid transparent;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/form/field/Trigger.scss */
 .x-form-trigger {
   cursor: pointer;
@@ -5745,26 +5215,17 @@ the height of a multi-line element */
   border-collapse: separate;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 6, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/form/field/Spinner.scss */
 .x-form-spinner-up,
 .x-form-spinner-down {
   font-size: 0;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 12, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/view/BoundList.scss */
 .x-strict .x-ie9 .x-boundlist-list-ct {
   min-height: 0\%;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/picker/Date.scss */
 .x-datepicker {
   position: relative;
@@ -5872,9 +5333,6 @@ the height of a multi-line element */
   bottom: 0;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/form/field/File.scss */
 .x-form-file-btn {
   overflow: hidden;
@@ -5907,17 +5365,11 @@ the height of a multi-line element */
   left: -2px;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/form/field/Hidden.scss */
 .x-form-item-hidden {
   margin: 0;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/picker/Color.scss */
 .x-color-picker-item {
   float: left;
@@ -5930,9 +5382,6 @@ the height of a multi-line element */
   font-size: 1px;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/form/field/HtmlEditor.scss */
 .x-html-editor-tb .x-toolbar {
   position: static !important;
@@ -5944,17 +5393,11 @@ the height of a multi-line element */
   overflow: auto;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/layout/container/Fit.scss */
 .x-fit-item {
   position: relative;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 6, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/panel/Table.scss */
 .x-grid-row,
 .x-grid-data-row {
@@ -5994,9 +5437,6 @@ the height of a multi-line element */
   top: 0;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 6, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/grid/header/DropZone.scss */
 .col-move-top,
 .col-move-bottom {
@@ -6009,17 +5449,11 @@ the height of a multi-line element */
   background: no-repeat center top transparent;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/grid/header/Container.scss */
 .x-grid-header-ct {
   cursor: default;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/grid/column/Column.scss */
 .x-column-header {
   position: absolute;
@@ -6094,27 +5528,18 @@ the height of a multi-line element */
   text-align: center;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/grid/column/Action.scss */
 .x-grid-cell-inner-action-col {
   line-height: 0;
   font-size: 0;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/grid/column/Check.scss */
 .x-grid-cell-inner-checkcolumn {
   line-height: 0;
   font-size: 0;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 7, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/grid/feature/Grouping.scss */
 .x-grid-group,
 .x-grid-group-body,
@@ -6138,9 +5563,6 @@ the height of a multi-line element */
   display: none;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 7, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/grid/feature/RowWrap.scss */
 td.x-grid-rowwrap .x-grid-table {
   border: 0;
@@ -6152,9 +5574,6 @@ td.x-grid-rowwrap .x-grid-cell {
   background-color: transparent;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/grid/feature/RowBody.scss */
 .x-grid-rowbody {
   zoom: 1;
@@ -6165,9 +5584,6 @@ td.x-grid-rowwrap .x-grid-cell {
   display: none;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 6, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/grid/plugin/Editing.scss */
 .x-grid-editor .x-form-cb-wrap {
   text-align: center;
@@ -6190,9 +5606,6 @@ td.x-grid-rowwrap .x-grid-cell {
   line-height: 0;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/grid/plugin/RowEditing.scss */
 .x-grid-row-editor {
   position: absolute;
@@ -6206,18 +5619,12 @@ td.x-grid-rowwrap .x-grid-cell {
   white-space: nowrap;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/grid/plugin/RowExpander.scss */
 .x-grid-row-expander {
   font-size: 0;
   line-height: 0;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/layout/container/Absolute.scss */
 .x-abs-layout-ct {
   position: relative;
@@ -6228,9 +5635,6 @@ td.x-grid-rowwrap .x-grid-cell {
   position: absolute !important;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/resizer/Splitter.scss */
 .x-splitter {
   font-size: 1px;
@@ -6266,9 +5670,6 @@ td.x-grid-rowwrap .x-grid-cell {
   background-repeat: no-repeat;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/layout/container/Border.scss */
 .x-border-layout-ct {
   overflow: hidden;
@@ -6290,9 +5691,6 @@ td.x-grid-rowwrap .x-grid-cell {
   z-index: 4;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/layout/container/Column.scss */
 .x-column {
   float: left;
@@ -6319,9 +5717,6 @@ td.x-grid-rowwrap .x-grid-cell {
   position: relative;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 6, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/layout/container/Form.scss */
 .x-form-layout-table {
   border-collapse: separate;
@@ -6334,9 +5729,6 @@ td.x-grid-rowwrap .x-grid-cell {
   border-spacing: 0;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/menu/Menu.scss */
 .x-menu {
   outline: none;
@@ -6394,9 +5786,6 @@ td.x-grid-rowwrap .x-grid-cell {
   text-align: center;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/resizer/SplitterTracker.scss */
 .x-resizable-overlay {
   position: absolute;
@@ -6411,9 +5800,6 @@ td.x-grid-rowwrap .x-grid-cell {
   opacity: 0;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 6, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/resizer/Resizer.scss */
 .x-resizable-wrapped {
   box-sizing: border-box;
@@ -6422,9 +5808,6 @@ td.x-grid-rowwrap .x-grid-cell {
   -webkit-box-sizing: border-box;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/slider/Multi.scss */
 .x-slider {
   outline: none;
@@ -6467,9 +5850,6 @@ td.x-grid-rowwrap .x-grid-cell {
   bottom: 0;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/tab/Tab.scss */
 a.x-tab {
   text-decoration: none;
@@ -6485,17 +5865,11 @@ a.x-tab .x-tab-inner-right {
   text-align: right;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/tab/Bar.scss */
 .x-tab-bar {
   position: relative;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/selection/CheckboxModel.scss */
 .x-column-header-checkbox .x-column-header-text {
   display: block;
@@ -6510,9 +5884,6 @@ a.x-tab .x-tab-inner-right {
   font-size: 0;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/tab/Panel.scss */
 .x-tab {
   outline: none;
@@ -6658,9 +6029,6 @@ a.x-tab .x-tab-inner-right {
   overflow: visible;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 7, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/src/tree/Panel.scss */
 .x-autowidth-table .x-grid-table {
   table-layout: auto;
@@ -6700,9 +6068,6 @@ a.x-tab .x-tab-inner-right {
 }
 
 /* including package ext-theme-neutral */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/Component.scss */
 .x-body {
   color: black;
@@ -6717,17 +6082,11 @@ a.x-tab .x-tab-inner-right {
   overflow: hidden!important;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 6, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/Editor.scss */
 .x-editor .x-form-item-body {
   padding-bottom: 0;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/FocusManager.scss */
 .x-focus-element {
   position: absolute;
@@ -6771,9 +6130,6 @@ a.x-tab .x-tab-inner-right {
   width: 2px;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/LoadMask.scss */
 .x-mask {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=70);
@@ -6814,9 +6170,6 @@ a.x-tab .x-tab-inner-right {
   padding: 21px 0 0 0;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * Creates a visual theme for an Ext.ProgressBar
  *
@@ -6908,9 +6261,6 @@ a.x-tab .x-tab-inner-right {
 
 /*</if slicer>*/
 /* */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * Creates a visual theme for a Button.  This mixin is not {@link #scale} aware, and therefore
  * does not provide defaults for most parameters, so it is advisable to use one of the
@@ -7098,9 +6448,6 @@ a.x-tab .x-tab-inner-right {
  * The opacity of the button's text and icon elements when when the button is disabled
  * 
  * @member Ext.button.Button
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 /**
  * Creates a visual theme for a {@link #scale small} Button.
@@ -7460,9 +6807,6 @@ a.x-tab .x-tab-inner-right {
  * 
  * @member Ext.button.Button
  */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * Creates a visual theme for a {@link #scale medium} Button.
  *
@@ -7820,9 +7164,6 @@ a.x-tab .x-tab-inner-right {
  * The opacity of the button's text and icon elements when when the button is disabled
  * 
  * @member Ext.button.Button
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 /**
  * Creates a visual theme for a {@link #scale large} Button.
@@ -11489,9 +10830,6 @@ a.x-tab .x-tab-inner-right {
   text-align: inherit;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * Creates a visual theme for a Toolbar.
  * @param {String} $ui
@@ -11691,9 +11029,6 @@ a.x-tab .x-tab-inner-right {
   padding: 8px 0px 0 0px;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 6, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Header.scss */
 .x-header-draggable .x-header-body,
 .x-header-ghost {
@@ -11705,9 +11040,6 @@ a.x-tab .x-tab-inner-right {
   white-space: nowrap;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * Creates a visual theme for a Panel
  *
@@ -14017,9 +13349,6 @@ a.x-tab .x-tab-inner-right {
   border-width: 1px !important;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * Creates a visual theme for a Ext.tip.Tip
  *
@@ -14556,9 +13885,6 @@ a.x-tab .x-tab-inner-right {
   margin-bottom: 0;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * Creates a visual theme for a ButtonGroup.
  *
@@ -14974,9 +14300,6 @@ a.x-tab .x-tab-inner-right {
   border-spacing: 5px;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * Creates a visual theme for a Window
  *
@@ -16745,9 +16068,6 @@ a.x-tab .x-tab-inner-right {
   background-color: transparent;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/Labelable.scss */
 .x-form-invalid-under {
   padding: 2px 2px 2px 20px;
@@ -16797,9 +16117,6 @@ div.x-lbl-top-err-icon {
   height: 8px;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/Base.scss */
 .x-form-field {
   color: #686868;
@@ -16837,9 +16154,6 @@ div.x-lbl-top-err-icon {
   opacity: 0.3;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/Text.scss */
 .x-form-text {
   color: #686868;
@@ -16875,9 +16189,6 @@ textarea.x-form-empty-field {
   margin-bottom: -1px;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/TextArea.scss */
 .x-form-textarea {
   line-height: normal;
@@ -16889,9 +16200,6 @@ textarea.x-form-empty-field {
   height: auto;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/Display.scss */
 .x-form-display-field {
   height: 28px;
@@ -16904,9 +16212,6 @@ textarea.x-form-empty-field {
   margin-top: 6px;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/MessageBox.scss */
 .x-message-box .x-window-body {
   background-color: transparent;
@@ -16947,9 +16252,6 @@ textarea.x-form-empty-field {
   background-image: url(images/shared/icon-error.png);
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/Checkbox.scss */
 .x-form-cb-wrap {
   height: 28px;
@@ -17024,9 +16326,6 @@ textarea.x-form-empty-field {
   zoom: 1;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/CheckboxGroup.scss */
 .x-form-checkboxgroup-body {
   padding: 0 4px;
@@ -17059,9 +16358,6 @@ textarea.x-form-empty-field {
   margin: 0 0 5px 30px;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/FieldSet.scss */
 .x-fieldset {
   border: 1px solid #b5b8c8;
@@ -17224,9 +16520,6 @@ x-fieldset-body {
   overflow: hidden;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/Radio.scss */
 .x-form-radio {
   width: 15px;
@@ -17249,9 +16542,6 @@ x-fieldset-body {
   background-position: -15px -15px;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/Trigger.scss */
 .x-form-trigger {
   background: url(images/form/trigger.png);
@@ -17320,9 +16610,6 @@ x-fieldset-body {
   height: 28px;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 7, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/Spinner.scss */
 div.x-form-spinner-up,
 div.x-form-spinner-down {
@@ -17363,9 +16650,6 @@ div.x-form-spinner-down {
   background-position: -44px -13px;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/toolbar/Paging.scss */
 .x-tbar-page-number {
   width: 30px;
@@ -17416,9 +16700,6 @@ div.x-form-spinner-down {
   background-image: url(images/grid/page-first.png);
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/view/BoundList.scss */
 .x-boundlist {
   border-width: 1px;
@@ -17470,9 +16751,6 @@ div.x-form-spinner-down {
   border-bottom-width: 1px;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 13, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/picker/Date.scss */
 .x-datepicker {
   border-width: 1px;
@@ -17784,9 +17062,6 @@ a.x-monthpicker-yearnav-button:hover {
 
 /*</if slicer>*/
 /* */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/Date.scss */
 .x-form-date-trigger {
   background-image: url(images/form/date-trigger.png);
@@ -17797,17 +17072,11 @@ a.x-monthpicker-yearnav-button:hover {
   background-image: url(images/form/date-trigger-rtl.png);
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/File.scss */
 .x-form-file-wrap .x-form-text {
   color: gray;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/picker/Color.scss */
 .x-color-picker {
   width: 192px;
@@ -17856,9 +17125,6 @@ a.x-color-picker-item:hover {
   border-style: solid;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/HtmlEditor.scss */
 .x-html-editor-tb .x-btn-text {
   background: transparent no-repeat;
@@ -17982,9 +17248,6 @@ a.x-color-picker-item:hover {
   resize: none;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Table.scss */
 .x-grid-body {
   background: white;
@@ -18199,9 +17462,6 @@ a.x-color-picker-item:hover {
   background-color: #0f0f0f;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/view/DropZone.scss */
 .x-grid-drop-indicator {
   position: absolute;
@@ -18242,9 +17502,6 @@ a.x-color-picker-item:hover {
   background-image: url(images/grid/dd-insert-arrow-left.png);
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 6, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/grid/header/DropZone.scss */
 .col-move-top,
 .col-move-bottom {
@@ -18262,9 +17519,6 @@ a.x-color-picker-item:hover {
   background-image: url(images/grid/col-move-bottom.png);
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/grid/header/Container.scss */
 .x-grid-header-ct {
   border: 0px none #d2d2d2;
@@ -18302,9 +17556,6 @@ a.x-color-picker-item:hover {
   background-image: url(images/grid/columns.png);
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/grid/column/Column.scss */
 .x-column-header {
   border-right: 0px none #333333;
@@ -18408,9 +17659,6 @@ a.x-color-picker-item:hover {
   background-image: url(images/grid/sort_desc.png);
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/grid/column/Action.scss */
 .x-grid-cell-inner-action-col {
   padding: 6px 16px 6px 16px;
@@ -18429,9 +17677,6 @@ a.x-color-picker-item:hover {
   cursor: pointer;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/grid/column/Check.scss */
 .x-grid-cell-inner-checkcolumn {
   padding: 7px 16px 7px 16px;
@@ -18455,17 +17700,11 @@ a.x-color-picker-item:hover {
   background-position: 0 -15px;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/grid/column/RowNumberer.scss */
 .x-grid-cell-inner-row-numberer {
   padding: 8px 5px 8px 3px;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/grid/feature/Grouping.scss */
 .x-grid-group-hd {
   border-width: 0 0 1px 0;
@@ -18521,27 +17760,18 @@ a.x-color-picker-item:hover {
   background-image: url(images/grid/group-by.png);
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/grid/feature/RowWrap.scss */
 .x-grid-rowwrap {
   border-color: #d2d2d2;
   border-style: solid;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/grid/feature/RowBody.scss */
 .x-grid-rowbody {
   font: normal 13px/13px "Lato", helvetica, arial, verdana, sans-serif;
   padding: 5px 16px 5px 16px;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/grid/feature/Summary.scss */
 .x-docked-summary {
   background: white !important;
@@ -18578,9 +17808,6 @@ a.x-color-picker-item:hover {
   border: 0;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/grid/locking/Lockable.scss */
 .x-grid-locked .x-grid-inner-locked {
   border-width: 0 1px 0 0;
@@ -18634,9 +17861,6 @@ a.x-color-picker-item:hover {
   background-image: url(images/grid/hmenu-unlock.png);
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 8, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/grid/plugin/Editing.scss */
 .x-grid-editor .x-form-text {
   font: normal 13px/19px "Lato", helvetica, arial, verdana, sans-serif;
@@ -18666,9 +17890,6 @@ a.x-color-picker-item:hover {
   padding: 6px 16px 6px 16px;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 7, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/grid/plugin/CellEditing.scss */
 .x-tree-cell-editor .x-form-text {
   padding-left: 3px;
@@ -18681,9 +17902,6 @@ a.x-color-picker-item:hover {
   padding-right: 2px;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 6, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/grid/plugin/RowEditing.scss */
 .x-grid-row-editor .x-field {
   margin: 0 3px 0 2px;
@@ -19069,9 +18287,6 @@ a.x-color-picker-item:hover {
   margin-right: 15px;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/grid/plugin/RowExpander.scss */
 .x-grid-cell-inner-row-expander {
   padding: 9px 6px 9px 6px;
@@ -19090,12 +18305,6 @@ a.x-color-picker-item:hover {
   background-image: url(images/grid/group-expand.png);
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/layout/container/Accordion.scss */
 .x-accordion-layout-ct {
   background-color: white;
@@ -19155,9 +18364,6 @@ a.x-color-picker-item:hover {
   background-color: #e9eff2;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/resizer/Splitter.scss */
 .x-collapse-el {
   cursor: pointer;
@@ -19254,17 +18460,11 @@ a.x-color-picker-item:hover {
   opacity: 0.3;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/layout/container/Border.scss */
 .x-border-layout-ct {
   background-color: #86b9cf;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 26, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/menu/Menu.scss */
 .x-menu-body {
   background: #71adc7;
@@ -19558,9 +18758,6 @@ a.x-color-picker-item:hover {
 
 /*</if slicer>*/
 /* */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Tool.scss */
 .x-tool {
   cursor: pointer;
@@ -19762,9 +18959,6 @@ a.x-color-picker-item:hover {
   background-position: 0 -192px;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/resizer/Resizer.scss */
 .x-resizable-handle {
   position: absolute;
@@ -19994,9 +19188,6 @@ a.x-color-picker-item:hover {
   background-image: url(images/sizer/sw-handle.png);
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* Horizontal styles */
 /* line 6, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/slider/Multi.scss */
 .x-slider-horz {
@@ -20110,9 +19301,6 @@ a.x-color-picker-item:hover {
   background-image: url(images/slider/slider-v-bg.png);
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /**
  * Creates a visual theme for a Tab
  *
@@ -20300,9 +19488,6 @@ a.x-color-picker-item:hover {
  * The bottom border color of inactive tabs.
  *
  * @member Ext.tab.Tab
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 /**
  * Creates a visual theme for a Tab Bar
@@ -22088,9 +21273,6 @@ a.x-color-picker-item:hover {
   height: 36px;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/selection/CheckboxModel.scss */
 .x-column-header-checkbox {
   border-color: #71adc7;
@@ -22122,9 +21304,6 @@ a.x-color-picker-item:hover {
   background-position: 0 -15px;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tree/Panel.scss */
 .x-tree-expander {
   cursor: pointer;
@@ -22369,9 +21548,6 @@ a.x-color-picker-item:hover {
   padding: 8px 16px 8px 6px;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 5, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tree/ViewDropZone.scss */
 .x-tree-drop-ok-append .x-dd-drop-icon {
   background-image: url(images/tree/drop-append.png);
@@ -22401,9 +21577,6 @@ a.x-color-picker-item:hover {
 }
 
 /* including package ext-theme-neptune */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 259, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-plain-toolbar-small {
   border-color: transparent;
@@ -23992,9 +23165,6 @@ a.x-color-picker-item:hover {
   background-color: transparent;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 7, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neptune/sass/src/toolbar/Toolbar.scss */
 .x-toolbar-default .x-toolbar-scroll-left {
   margin-right: 0px;
@@ -24046,12 +23216,6 @@ a.x-color-picker-item:hover {
   padding: 4px 0px 4px 0px;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 239, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-light {
   border-color: #e9eff2;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /* line 191, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-tab-small-top-mc {
   background-color: #92c0d3;
@@ -1565,9 +1569,6 @@
   color: #333333;
 }
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 /* line 9, ../../sass/src/tab/Bar.scss */
 .x-tab-bar-strip-default {
   border-style: solid;
