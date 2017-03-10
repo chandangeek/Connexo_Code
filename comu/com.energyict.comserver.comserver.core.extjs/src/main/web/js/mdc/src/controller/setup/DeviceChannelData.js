@@ -1006,7 +1006,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 || (validationResult.bulk == 'suspect') || record.get('estimatedNotSaved') === true;
         });
         menu.down('#estimate-value').setVisible(suspects.length);
-        menu.down('#estimate-value').setVisible(suspects.length && estimationRulesCount);
+        menu.down('#estimate-value-with-rule').setVisible(suspects.length && estimationRulesCount);
 
         var confirms = suspects.filter(function (record) {
             return !record.get('confirmed') && !record.isModified('value') && !record.isModified('collectedValue')
