@@ -6,6 +6,7 @@ package com.energyict.mdc.device.alarms.event;
 
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.UnableToCreateEventException;
+import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
@@ -62,6 +63,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     private Instant timestamp;
     private EventDescription eventDescription;
     private Injector injector;
+    private int ruleId;
 
     private static final String WILDCARD = "*";
     private static final String ALL_EVENT_TYPES = "*.*.*.*";
@@ -124,6 +126,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     }
 
     public boolean checkOccurrenceConditions(int ruleId, String relativePeriodWithCount, String triggeringEndDeviceEventTypes) {
+        this.ruleId = ruleId;
         List<String> relativePeriodWithCountValues = parseRawInputToList(relativePeriodWithCount, COLON_SEPARATOR);
         if (relativePeriodWithCountValues.size() != 2) {
             throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS, "Relative period with occurrence count for device alarms");
@@ -157,6 +160,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     }
 
     public boolean isClearing(int ruleId, String endDeviceEventTypes) {
+        this.ruleId = ruleId;
         return (isClearing(getEndDeviceEventTypes(endDeviceEventTypes)) || getEndDeviceEventTypes(endDeviceEventTypes).stream()
                 .anyMatch(event -> checkMatchingEvent(event, this.getEventTypeMrid()))) && issueService.findOpenIssuesForDevice(getDevice().getName())
                 .find()
@@ -299,15 +303,20 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     @Override
     public Optional<? extends OpenIssue> findExistingIssue() {
         DeviceAlarmFilter filter = new DeviceAlarmFilter();
-        getEndDevice().ifPresent(filter::setDevice);
-        filter.setStatus(issueService.findStatus(IssueStatus.OPEN).get());
-        filter.setStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
-        Optional<? extends DeviceAlarm> foundAlarm = deviceAlarmService.findAlarms(filter).find()
-                .stream().max(Comparator.comparing(Issue::getCreateTime));//It is going to be only zero or one open alarm per device
-        if (foundAlarm.isPresent()) {
-            return Optional.of((OpenIssue) foundAlarm.get());
+        Optional<CreationRule> rule = issueService.getIssueCreationService().findCreationRuleById(ruleId);
+        if(rule.isPresent()){
+            getEndDevice().ifPresent(filter::setDevice);
+            filter.setStatus(issueService.findStatus(IssueStatus.OPEN).get());
+            filter.setStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
+            filter.setAlarmReason(rule.get().getReason());
+            Optional<? extends DeviceAlarm> foundAlarm = deviceAlarmService.findAlarms(filter).find()
+                    .stream().max(Comparator.comparing(Issue::getCreateDateTime));//It is going to be only zero or one open alarm per device
+            if (foundAlarm.isPresent()) {
+                return Optional.of((OpenIssue) foundAlarm.get());
+            }
         }
         return Optional.empty();
+
     }
 
     private Optional<Long> getLong(Map<?, ?> map, String key) {
