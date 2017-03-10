@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell Inc. All rights reserved.
  */
 
-package com.elster.jupiter.pki.impl.wrappers.assymetric;
+package com.elster.jupiter.pki.impl.wrappers.asymmetric;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Save;
@@ -21,8 +21,8 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
 import com.google.common.collect.ImmutableMap;
+import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
@@ -31,13 +31,13 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.pkcs.PKCS10CertificationRequestBuilder;
 
 import javax.validation.constraints.Size;
+import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.Signature;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
 import java.util.Base64;
@@ -171,6 +171,7 @@ abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements Plaintex
     public void generateValue() {
         try {
             doGenerateValue();
+            save();
         } catch (InvalidKeyException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.INVALID_KEY, e);
         } catch (NoSuchAlgorithmException e) {
@@ -198,27 +199,31 @@ abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements Plaintex
             throw new PkiLocalizedException(thesaurus, MessageSeeds.ALGORITHM_NOT_SUPPORTED, e);
         } catch (InvalidKeySpecException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.INVALID_KEY_SPECIFICATION, e);
+        } catch (NoSuchProviderException e) {
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.UNKNOWN_PROVIDER, e);
         }
     }
 
 
     protected abstract PublicKey doGetPublicKey() throws
             NoSuchAlgorithmException,
-            InvalidKeySpecException;
+            InvalidKeySpecException, NoSuchProviderException;
 
-    public PKCS10CertificationRequest generateCSR(X500Name subjectDN, Signature signature) {
+    public PKCS10CertificationRequest generateCSR(X500Name subjectDN, String signatureAlgorithm) {
         try {
-            return doGenerateCSR(subjectDN, signature);
+            return doGenerateCSR(subjectDN, signatureAlgorithm);
         } catch (OperatorCreationException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.INVALID_KEY_SPECIFICATION, e);
+        } catch (IOException e) {
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.FAILED_TO_GENERATE_CSR, e);
         }
     }
 
-    private PKCS10CertificationRequest doGenerateCSR(X500Name subjectDN, Signature signature) throws
-            OperatorCreationException {
-        SubjectPublicKeyInfo subjectPublicKeyInfo = new SubjectPublicKeyInfo(AlgorithmIdentifier.getInstance(signature.getAlgorithm()), getPublicKey().getEncoded());
+    private PKCS10CertificationRequest doGenerateCSR(X500Name subjectDN, String signatureAlgorithm) throws
+            OperatorCreationException, IOException {
+        SubjectPublicKeyInfo subjectPublicKeyInfo = SubjectPublicKeyInfo.getInstance(ASN1Sequence.fromByteArray(getPublicKey().getEncoded()));
         PKCS10CertificationRequestBuilder csrBuilder = new PKCS10CertificationRequestBuilder(subjectDN, subjectPublicKeyInfo);
-        ContentSigner contentSigner = new JcaContentSignerBuilder(signature.getAlgorithm()).build(getPrivateKey());
+        ContentSigner contentSigner = new JcaContentSignerBuilder(signatureAlgorithm).build(getPrivateKey());
         return csrBuilder.build(contentSigner);
     }
 

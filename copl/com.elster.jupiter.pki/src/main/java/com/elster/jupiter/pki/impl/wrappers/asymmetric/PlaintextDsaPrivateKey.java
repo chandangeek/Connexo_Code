@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell Inc. All rights reserved.
  */
 
-package com.elster.jupiter.pki.impl.wrappers.assymetric;
+package com.elster.jupiter.pki.impl.wrappers.asymmetric;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -25,11 +25,10 @@ import java.security.spec.RSAPublicKeySpec;
 /**
  * Created by bvn on 2/14/17.
  */
-public class PlaintextRsaPrivateKey extends AbstractPlaintextPrivateKeyWrapperImpl {
-
+public class PlaintextDsaPrivateKey extends AbstractPlaintextPrivateKeyWrapperImpl {
 
     @Inject
-    PlaintextRsaPrivateKey(DataVaultService dataVaultService, PropertySpecService propertySpecService, DataModel dataModel, Thesaurus thesaurus) {
+    PlaintextDsaPrivateKey(DataVaultService dataVaultService, PropertySpecService propertySpecService, DataModel dataModel, Thesaurus thesaurus) {
         super(dataVaultService, propertySpecService, dataModel, thesaurus);
     }
 
@@ -37,13 +36,13 @@ public class PlaintextRsaPrivateKey extends AbstractPlaintextPrivateKeyWrapperIm
     protected PrivateKey doGetPrivateKey() throws InvalidKeyException, NoSuchAlgorithmException,
             InvalidKeySpecException {
         byte[] decrypt = dataVaultService.decrypt(getEncryptedPrivateKey());
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        KeyFactory keyFactory = KeyFactory.getInstance("DSA");
         return keyFactory.generatePrivate(new PKCS8EncodedKeySpec(decrypt));
     }
 
     @Override
-    protected void doGenerateValue() throws NoSuchAlgorithmException {
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+    protected void doGenerateValue() throws InvalidKeyException, NoSuchAlgorithmException {
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");
         keyGen.initialize(getKeyType().getKeySize(), new SecureRandom());
         PrivateKey privateKey = keyGen.generateKeyPair().getPrivate();
         setPrivateKey(privateKey);
@@ -54,7 +53,8 @@ public class PlaintextRsaPrivateKey extends AbstractPlaintextPrivateKeyWrapperIm
         RSAPrivateCrtKey rsaPrivateKey = (RSAPrivateCrtKey)getPrivateKey();
         RSAPublicKeySpec publicKeySpec = new RSAPublicKeySpec(rsaPrivateKey.getModulus(), rsaPrivateKey.getPublicExponent());
 
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        KeyFactory keyFactory = KeyFactory.getInstance("DSA");
         return keyFactory.generatePublic(publicKeySpec);
     }
+
 }

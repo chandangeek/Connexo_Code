@@ -12,7 +12,7 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
-import com.elster.jupiter.pki.impl.wrappers.assymetric.AbstractPlaintextPrivateKeyWrapperImpl;
+import com.elster.jupiter.pki.impl.wrappers.asymmetric.AbstractPlaintextPrivateKeyWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.PlaintextSymmetricKey;
 
 public enum TableSpecs {

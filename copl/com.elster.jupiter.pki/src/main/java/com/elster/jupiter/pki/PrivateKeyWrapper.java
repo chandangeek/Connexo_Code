@@ -10,7 +10,6 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 
 import java.security.InvalidKeyException;
 import java.security.PrivateKey;
-import java.security.Signature;
 import java.time.Instant;
 import java.util.Map;
 
@@ -55,6 +54,6 @@ public interface PrivateKeyWrapper extends HasDynamicPropertiesWithUpdatableValu
      * Generates a CSR with provided distinguished name.
      * @param subjectDN
      */
-    PKCS10CertificationRequest generateCSR(X500Name subjectDN, Signature signature);
+    PKCS10CertificationRequest generateCSR(X500Name subjectDN, String signatureAlgorithm);
 
 }

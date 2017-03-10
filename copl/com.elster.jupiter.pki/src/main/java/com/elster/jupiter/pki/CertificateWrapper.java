@@ -43,4 +43,9 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
      * Sets a value for the certificate. Any existing value will be overridden.
      */
     void setCertificate(X509Certificate certificate);
+
+    /**
+     * Persist changes to this object
+     */
+    void save();
 }

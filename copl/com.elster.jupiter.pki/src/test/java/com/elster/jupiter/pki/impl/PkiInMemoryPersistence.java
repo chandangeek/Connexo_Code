@@ -11,7 +11,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.PrivateKeyFactory;
 import com.elster.jupiter.pki.SymmetricKeyFactory;
-import com.elster.jupiter.pki.impl.wrappers.assymetric.DataVaultPrivateKeyFactory;
+import com.elster.jupiter.pki.impl.wrappers.asymmetric.DataVaultPrivateKeyFactory;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;

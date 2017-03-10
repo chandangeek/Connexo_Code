@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell Inc. All rights reserved.
  */
 
-package com.elster.jupiter.pki.impl.wrappers.assymetric;
+package com.elster.jupiter.pki.impl.wrappers.asymmetric;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -11,7 +11,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 
 import org.bouncycastle.asn1.sec.SECNamedCurves;
 import org.bouncycastle.asn1.x9.X9ECParameters;
-import org.bouncycastle.crypto.params.ECDomainParameters;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.jce.spec.ECParameterSpec;
@@ -23,6 +23,7 @@ import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
+import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -43,9 +44,13 @@ public class PlaintextEcdsaPrivateKey extends AbstractPlaintextPrivateKeyWrapper
     }
 
     @Override
-    protected PrivateKey doGetPrivateKey() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException {
+    protected PrivateKey doGetPrivateKey() throws
+            InvalidKeyException,
+            NoSuchAlgorithmException,
+            InvalidKeySpecException,
+            NoSuchProviderException {
         byte[] decrypt = dataVaultService.decrypt(getEncryptedPrivateKey());
-        KeyFactory keyFactory = KeyFactory.getInstance("ECDSA");
+        KeyFactory keyFactory = KeyFactory.getInstance("ECDSA", "BC");
         return keyFactory.generatePrivate(new PKCS8EncodedKeySpec(decrypt));
     }
 
@@ -54,19 +59,21 @@ public class PlaintextEcdsaPrivateKey extends AbstractPlaintextPrivateKeyWrapper
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("ECDSA", "BC");
         ECNamedCurveParameterSpec parameterSpec = ECNamedCurveTable.getParameterSpec(getKeyType().getCurve());
         keyGen.initialize(parameterSpec, new SecureRandom());
-        PrivateKey privateKey = keyGen.generateKeyPair().getPrivate();
+        KeyPair keyPair = keyGen.generateKeyPair();
+        PrivateKey privateKey = keyPair.getPrivate();
         setPrivateKey(privateKey);
         this.save();
     }
 
     @Override
-    protected PublicKey doGetPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
-        BigInteger d = new BigInteger(getPrivateKey().getEncoded());
+    protected PublicKey doGetPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException {
+        BCECPrivateKey privateKey = (BCECPrivateKey) getPrivateKey();
+        BigInteger d = privateKey.getD();
+//        BigInteger d = new BigInteger(getPrivateKey().getEncoded());
         X9ECParameters curve = SECNamedCurves.getByName(getKeyType().getCurve());
-        ECDomainParameters ecDomainParameters = new ECDomainParameters(curve.getCurve(), curve.getG(), curve.getN(), curve.getH());
-        ECParameterSpec ecParameterSpec = new ECParameterSpec(curve.getCurve(), curve.getG(), curve.getN(), curve.getH());
-        ECPoint q = ecDomainParameters.getG().multiply(d);
-        KeyFactory keyFactory = KeyFactory.getInstance("EC");
+        ECParameterSpec ecParameterSpec = new ECParameterSpec(curve.getCurve(), curve.getG(), curve.getN(), curve.getH(), curve.getSeed());
+        ECPoint q = ecParameterSpec.getG().multiply(d);
+        KeyFactory keyFactory = KeyFactory.getInstance("ECDSA", "BC");
         return keyFactory.generatePublic(new ECPublicKeySpec(q, ecParameterSpec));
     }
 }

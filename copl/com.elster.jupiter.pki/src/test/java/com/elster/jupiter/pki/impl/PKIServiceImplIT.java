@@ -12,19 +12,26 @@ import com.elster.jupiter.pki.KeyUsage;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
-import com.elster.jupiter.pki.impl.wrappers.assymetric.DataVaultPrivateKeyFactory;
+import com.elster.jupiter.pki.impl.wrappers.asymmetric.DataVaultPrivateKeyFactory;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.PlaintextSymmetricKey;
 
 import certpathvalidator.CertPathValidatorTest;
 import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.X500NameBuilder;
+import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.ContentVerifierProvider;
+import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder;
+import org.bouncycastle.operator.bc.BcECContentVerifierProviderBuilder;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.bouncycastle.pkcs.bc.BcPKCS10CertificationRequest;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -374,6 +381,45 @@ public class PKIServiceImplIT {
         ClientCertificateWrapper comserver = inMemoryPersistence.getPkiService()
                 .newClientCertificateWrapper("comserver", certificateAccessorType, privateKeyAccessorType);
 
+        Optional<ClientCertificateWrapper> comserver1 = inMemoryPersistence.getPkiService()
+                .findClientCertificateWrapper("comserver");
+        assertThat(comserver1).isPresent();
+    }
+
+    @Test
+    @Transactional
+    public void testCreateCsrForECKey() throws Exception {
+        KeyType privateKeyType = inMemoryPersistence.getPkiService()
+                .newAsymmetricKeyType("secp256r1")
+                .description("check")
+                .ECDSA()
+                .curve("secp256r1")
+                .add();
+        KeyType certificateType = inMemoryPersistence.getPkiService().newClientCertificateType("TLS", "SHA256withECDSA").add();
+        KeyAccessorType certificateAccessorType = mock(KeyAccessorType.class);
+        when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
+        KeyAccessorType privateKeyAccessorType = mock(KeyAccessorType.class);
+        when(privateKeyAccessorType.getKeyType()).thenReturn(privateKeyType);
+        when(privateKeyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
+
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper("comserver", certificateAccessorType, privateKeyAccessorType);
+        clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
+
+        X500NameBuilder x500NameBuilder = new X500NameBuilder();
+        x500NameBuilder.addRDN(BCStyle.CN, "ComserverTlsClient");
+        PKCS10CertificationRequest pkcs10CertificationRequest = clientCertificateWrapper.getPrivateKeyWrapper()
+                .generateCSR(x500NameBuilder.build(), certificateType.getAlgorithm());
+        clientCertificateWrapper.setCSR(pkcs10CertificationRequest);
+        clientCertificateWrapper.save();
+
+        // Assertions
+        assertThat(clientCertificateWrapper.getCSR()).isPresent();
+        BcPKCS10CertificationRequest bcPkcs10 = new BcPKCS10CertificationRequest(clientCertificateWrapper.getCSR().get().toASN1Structure());
+        assertThat(bcPkcs10.getSubject().toString()).contains("CN=ComserverTlsClient");
+        ContentVerifierProvider verifierProvider = new BcECContentVerifierProviderBuilder(new DefaultDigestAlgorithmIdentifierFinder())
+                .build(bcPkcs10.getPublicKey());
+        boolean signatureValid = bcPkcs10.isSignatureValid(verifierProvider);
+        assertThat(signatureValid).isTrue();
     }
 
     private X509Certificate createSelfSignedCertificate(String myself) throws Exception {
