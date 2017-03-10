@@ -7,6 +7,9 @@ Ext.define('Uni.property.store.RelativePeriodsWithCount', {
     proxy: {
         type: 'rest',
         url: '../../api/dal/creationrules/relativeperiods',
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined,
         reader: {
             type: 'json',
             root: 'relativePeriods'
