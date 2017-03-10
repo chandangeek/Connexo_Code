@@ -1,5 +1,12 @@
 package com.energyict.protocolimplv2.nta.dsmr23.eict;
 
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.HHUSignOnV2;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
@@ -39,14 +46,6 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.HHUSignOnV2;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -239,14 +238,26 @@ public class WebRTUKP extends AbstractDlmsProtocol {
     public CollectedFirmwareVersion getFirmwareVersions() {
         CollectedFirmwareVersion result = this.getCollectedDataFactory().createFirmwareVersionsCollectedData(new DeviceIdentifierById(this.offlineDevice.getId()));
 
-        ObisCode firmwareVersionObisCode = ObisCode.fromString("1.1.0.2.0.255");
+        ObisCode coreActiveFirmwareVersionObisCode = ObisCode.fromString("1.0.0.2.8.255");
         try {
-            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getRegister(firmwareVersionObisCode).getValueAttr();
+            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getData(coreActiveFirmwareVersionObisCode).getValueAttr();
             String fwVersion = valueAttr.isOctetString() ? valueAttr.getOctetString().stringValue() : valueAttr.toBigDecimal().toString();
             result.setActiveMeterFirmwareVersion(fwVersion);
         } catch (IOException e) {
             if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
-                Issue problem = this.getIssueFactory().createProblem(firmwareVersionObisCode, "issue.protocol.readingOfFirmwareFailed", e.toString());
+                Issue problem = this.getIssueFactory().createProblem(coreActiveFirmwareVersionObisCode, "issue.protocol.readingOfFirmwareFailed", e.toString());
+                result.setFailureInformation(ResultType.InCompatible, problem);
+            }   //Else a communication exception is thrown
+        }
+
+        ObisCode moduleActiveFirmwareVersionObisCode = ObisCode.fromString("1.1.0.2.8.255");
+        try {
+            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getRegister(moduleActiveFirmwareVersionObisCode).getValueAttr();
+            String fwVersion = valueAttr.isOctetString() ? valueAttr.getOctetString().stringValue() : valueAttr.toBigDecimal().toString();
+            result.setActiveCommunicationFirmwareVersion(fwVersion);
+        } catch (IOException e) {
+            if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
+                Issue problem = this.getIssueFactory().createProblem(moduleActiveFirmwareVersionObisCode, "issue.protocol.readingOfFirmwareFailed", e.toString());
                 result.setFailureInformation(ResultType.InCompatible, problem);
             }   //Else a communication exception is thrown
         }

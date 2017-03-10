@@ -574,14 +574,26 @@ public class AM540 extends AM130 implements SerialNumberSupport {
     public CollectedFirmwareVersion getFirmwareVersions() {
         CollectedFirmwareVersion result = this.getCollectedDataFactory().createFirmwareVersionsCollectedData(new DeviceIdentifierById(this.offlineDevice.getId()));
 
-        ObisCode firmwareVersionObisCode = ObisCode.fromString("1.1.0.2.0.255");
+        ObisCode activeMetrologyFirmwareVersionObisCode = ObisCode.fromString("1.0.0.2.0.255");
         try {
-            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getRegister(firmwareVersionObisCode).getValueAttr();
+            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getData(activeMetrologyFirmwareVersionObisCode).getValueAttr();
             String fwVersion = valueAttr.isOctetString() ? valueAttr.getOctetString().stringValue() : valueAttr.toBigDecimal().toString();
             result.setActiveMeterFirmwareVersion(fwVersion);
         } catch (IOException e) {
             if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
-                Issue problem = this.getIssueFactory().createProblem(firmwareVersionObisCode, "issue.protocol.readingOfFirmwareFailed", e.toString());
+                Issue problem = this.getIssueFactory().createProblem(activeMetrologyFirmwareVersionObisCode, "issue.protocol.readingOfFirmwareFailed", e.toString());
+                result.setFailureInformation(ResultType.InCompatible, problem);
+            }   //Else a communication exception is thrown
+        }
+
+        ObisCode activeCommunicationFirmwareVersion = ObisCode.fromString("1.2.0.2.0.255");
+        try {
+            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getRegister(activeCommunicationFirmwareVersion).getValueAttr();
+            String fwVersion = valueAttr.isOctetString() ? valueAttr.getOctetString().stringValue() : valueAttr.toBigDecimal().toString();
+            result.setActiveCommunicationFirmwareVersion(fwVersion);
+        } catch (IOException e) {
+            if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
+                Issue problem = this.getIssueFactory().createProblem(activeCommunicationFirmwareVersion, "issue.protocol.readingOfFirmwareFailed", e.toString());
                 result.setFailureInformation(ResultType.InCompatible, problem);
             }   //Else a communication exception is thrown
         }
