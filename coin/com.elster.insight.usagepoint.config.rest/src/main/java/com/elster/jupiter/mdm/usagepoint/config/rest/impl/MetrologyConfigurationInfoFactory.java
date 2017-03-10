@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -37,17 +41,26 @@ public class MetrologyConfigurationInfoFactory {
         info.serviceCategory = asInfo(metrologyConfiguration.getServiceCategory());
         info.version = metrologyConfiguration.getVersion();
         info.meterRoles = metrologyConfiguration.getMeterRoles().stream().map(this::asInfo).collect(Collectors.toList());
-        info.purposes = metrologyConfiguration.getContracts().stream().map(this::asInfo).collect(Collectors.toList());
+        info.purposes = metrologyConfiguration.getContracts()
+                .stream()
+                .sorted((a, b) -> Boolean.compare(a.isMandatory(), b.isMandatory()))
+                .sorted((a, b) -> a.getMetrologyPurpose().getName().compareTo(b.getMetrologyPurpose().getName()))
+                .map(this::asInfo)
+                .collect(Collectors.toList());
         info.usagePointRequirements = metrologyConfiguration.getUsagePointRequirements()
                 .stream()
-                .map(requirement -> SearchCriteriaVisualizationInfo.from(requirement.getSearchableProperty(), requirement.toValueBean()))
+                .map(requirement -> new SearchCriteriaVisualizationInfo(requirement.getSearchableProperty(), requirement.toValueBean()))
                 .collect(Collectors.toList());
         return info;
     }
 
     public MetrologyConfigurationInfo asDetailedInfo(UsagePointMetrologyConfiguration metrologyConfiguration) {
         MetrologyConfigurationInfo info = asInfo(metrologyConfiguration);
-        info.metrologyContracts = metrologyConfiguration.getContracts().stream().map(this::asDetailedInfo).collect(Collectors.toList());
+        info.metrologyContracts = metrologyConfiguration.getContracts()
+                .stream()
+                .sorted((a, b) -> Boolean.compare(a.isMandatory(), b.isMandatory()))
+                .sorted((a, b) -> a.getMetrologyPurpose().getName().compareTo(b.getMetrologyPurpose().getName()))
+                .map(this::asDetailedInfo).collect(Collectors.toList());
         info.customPropertySets = metrologyConfiguration.getCustomPropertySets()
                 .stream()
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
