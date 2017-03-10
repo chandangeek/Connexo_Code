@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.controller.Search', {
     extend: 'Ext.app.Controller',
 
@@ -144,7 +148,7 @@ Ext.define('Imt.controller.Search', {
 
         grid.down('pagingtoolbartop').insert(3, {
             xtype: 'button',
-            text: 'Bulk actions',
+            text: Uni.I18n.translate('general.bulkAction', 'IMT', 'Bulk action'),
             itemId: 'search-bulk-actions-button',
             handler: me.showBulkAction,
             privileges: Imt.privileges.UsagePoint.hasBulkActionPrivileges(),

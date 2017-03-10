@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointmanagement.view.bulk.Navigation', {
     extend: 'Uni.view.menu.NavigationMenu',
     alias: 'widget.usagepoints-bulk-navigation',

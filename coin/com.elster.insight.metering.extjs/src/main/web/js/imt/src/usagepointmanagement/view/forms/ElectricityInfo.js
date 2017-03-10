@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointmanagement.view.forms.ElectricityInfo', {
     extend: 'Imt.usagepointmanagement.view.forms.BaseInfo',
     alias: 'widget.electricity-info-form',

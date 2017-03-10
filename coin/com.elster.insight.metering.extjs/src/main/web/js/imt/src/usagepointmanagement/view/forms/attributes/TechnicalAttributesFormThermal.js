@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointmanagement.view.forms.attributes.TechnicalAttributesFormThermal', {
     extend: 'Imt.usagepointmanagement.view.forms.attributes.ViewEditForm',
     alias: 'widget.technical-attributes-form-thermal',

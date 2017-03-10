@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointmanagement.view.bulk.Step3', {
     extend: 'Ext.panel.Panel',
     xtype: 'usagepoints-bulk-step3',

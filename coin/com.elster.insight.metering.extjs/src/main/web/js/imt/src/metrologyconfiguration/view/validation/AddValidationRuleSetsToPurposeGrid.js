@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.metrologyconfiguration.view.validation.AddValidationRuleSetsToPurposeGrid', {
     extend: 'Uni.view.grid.SelectionGrid',
     alias: 'widget.add-validation-rule-sets-to-purpose-grid',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.purpose.view.OutputSpecificationsForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.output-specifications-form',

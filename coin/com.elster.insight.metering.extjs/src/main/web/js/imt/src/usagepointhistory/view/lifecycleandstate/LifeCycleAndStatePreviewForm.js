@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointhistory.view.lifecycleandstate.LifeCycleAndStatePreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.life-cycle-and-state-preview-form',

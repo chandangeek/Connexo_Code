@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.purpose.view.registers.flag.AddEdit', {
     extend: 'Imt.purpose.view.registers.MainAddEdit',
     alias: 'widget.add-flag-register-reading',

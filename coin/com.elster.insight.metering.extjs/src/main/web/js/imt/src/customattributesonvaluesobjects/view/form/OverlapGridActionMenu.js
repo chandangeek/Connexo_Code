@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.customattributesonvaluesobjects.view.form.OverlapGridActionMenu', {
     extend: 'Ext.menu.Menu',
     alias: 'widget.versions-overlap-grid-action-menu',

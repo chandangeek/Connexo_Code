@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
     extend: 'Uni.view.menu.SideMenu',
     requires: [
@@ -5,9 +9,11 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
         'Imt.util.ServiceCategoryTranslations'
     ],
     alias: 'widget.usage-point-management-side-menu',
+    uniqueMenuId: 'usage-point-management-side-menu',
     router: null,
     usagePoint: null,
-    
+    objectType: Uni.I18n.translate('general.usage point', 'IMT', 'Usage point'),
+
     initComponent: function () {
         var me = this,
             usagePoint = me.usagePoint,

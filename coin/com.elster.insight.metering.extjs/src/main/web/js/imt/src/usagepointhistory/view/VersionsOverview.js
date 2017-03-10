@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointhistory.view.VersionsOverview', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.custom-attribute-set-versions-overview',

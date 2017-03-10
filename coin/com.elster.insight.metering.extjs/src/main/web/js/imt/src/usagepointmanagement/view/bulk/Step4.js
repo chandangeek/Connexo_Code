@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointmanagement.view.bulk.Step4', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.usagepoints-bulk-step4',

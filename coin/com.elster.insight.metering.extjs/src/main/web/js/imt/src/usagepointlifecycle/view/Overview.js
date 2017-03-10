@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointlifecycle.view.Overview', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.usagepoint-life-cycles-overview',
@@ -16,7 +20,7 @@ Ext.define('Imt.usagepointlifecycle.view.Overview', {
                 layout: 'hbox',
                 items: [
                     {
-                        title: Uni.I18n.translate('general.overview', 'IMT', 'Overview'),
+                        title: Uni.I18n.translate('general.details', 'IMT', 'Details'),
                         ui: 'large',
                         flex: 1,
                         items: [

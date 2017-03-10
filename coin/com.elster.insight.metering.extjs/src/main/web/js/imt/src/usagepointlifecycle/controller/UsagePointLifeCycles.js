@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointlifecycle.controller.UsagePointLifeCycles', {
     extend: 'Ext.app.Controller',
 
@@ -175,7 +179,6 @@ Ext.define('Imt.usagepointlifecycle.controller.UsagePointLifeCycles', {
 
                 me.usagePointLifeCycle = usagePointLifeCycleRecord;
                 me.getApplication().fireEvent('usagepointlifecycleload', usagePointLifeCycleRecord);
-                me.getApplication().fireEvent('usagePointLifeCycleEdit', usagePointLifeCycleRecord);
                 form.setTitle(Uni.I18n.translate('usagePointLifeCycles.edit.title', 'IMT', "Edit '{0}'", usagePointLifeCycleRecord.get('name'), false));
                 form.loadRecord(usagePointLifeCycleRecord);
                 me.getApplication().fireEvent('changecontentevent', view);
@@ -298,7 +301,7 @@ Ext.define('Imt.usagepointlifecycle.controller.UsagePointLifeCycles', {
 
                 me.usagePointLifeCycle = usagePointLifeCycleRecord;
                 form.loadRecord(usagePointLifeCycleRecord);
-                view.down('#usagepoint-life-cycle-link').setText(usagePointLifeCycleRecord.get('name'));
+                view.down('#usagepoint-life-cycle-overview-side-menu').setHeader(usagePointLifeCycleRecord.get('name'));
                 me.fillStates(usagePointLifeCycleRecord, form);
                 if (view.down('usagepoint-life-cycles-action-menu')) {
                     view.down('usagepoint-life-cycles-action-menu').record = usagePointLifeCycleRecord;

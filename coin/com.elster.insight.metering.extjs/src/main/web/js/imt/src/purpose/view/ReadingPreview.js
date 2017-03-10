@@ -1,8 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.purpose.view.ReadingPreview', {
     extend: 'Ext.tab.Panel',
     alias: 'widget.reading-preview',
     requires: [
-        'Cfg.view.field.ReadingQualities'        
+        'Cfg.view.field.ReadingQualities'
     ],
     outputType: null,
     output: null,
@@ -12,26 +16,34 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
     updateForm: function (record) {
         var me = this,
             intervalEnd = record.get('readingTime'),
+            dataQualities = record.get('readingQualities'),
             title;
 
-        switch(me.output.get('outputType')){
-            case 'channel': {
+        switch (me.output.get('outputType')) {
+            case 'channel':
+            {
                 title = Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}',
                     [Uni.DateTime.formatDateLong(intervalEnd), Uni.DateTime.formatTimeShort(intervalEnd)],
                     false);
-            } break;
-            case 'register':{
-                title =  Uni.DateTime.formatDateTimeShort(new Date(record.get('timeStamp')));
-            } break;
+            }
+                break;
+            case 'register':
+            {
+                title = Uni.DateTime.formatDateTimeShort(new Date(record.get('timeStamp')));
+            }
+                break;
         }
 
 
         Ext.suspendLayouts();
         me.down('#general-panel').setTitle(title);
         me.down('#values-panel').setTitle(me.output.get('name'));
+        me.down('#qualities-panel').setTitle(title);
         me.down('#general-panel').loadRecord(record);
         me.down('#values-panel').loadRecord(record);
         me.down('#formula-field').setValue(me.output.get('formula').description);
+        me.down('#noReadings-msg').setVisible(Ext.isEmpty(dataQualities));
+        me.setDataQualityFields(me.down('#device-quality'), me.down('#multiSense-quality'), me.down('#insight-quality'), me.down('#thirdParty-quality'), dataQualities);
         Ext.resumeLayouts(true);
     },
 
@@ -41,9 +53,13 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
             validationResult = record.get('validationResult'),
             readingType = me.output.get('readingType'),
             unitOfMeasure = readingType.names ? readingType.names.unitOfMeasure : readingType.unit,
-            validationResultText = '';            
+            estimatedByRule = record.get('estimatedByRule'),
+            validationResultText = '';
 
-        if (validationResult) {
+        if (!Ext.isEmpty(record) && record.get('isConfirmed')) {
+            validationResultText = '(' + Uni.I18n.translate('reading.validationResult.notsuspect', 'IMT', 'Not suspect') + ')' +
+                '<span class="icon-checkmark" style="margin-left:10px; display:inline-block; vertical-align:top;"></span>';
+        } else if (validationResult) {
             switch (validationResult.split('.')[1]) {
                 case 'notValidated':
                     validationResultText = '(' + Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') + ')' +
@@ -55,21 +71,38 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                     break;
                 case 'ok':
                     validationResultText = '(' + Uni.I18n.translate('reading.validationResult.notsuspect', 'IMT', 'Not suspect') + ')';
+                    if (record.get('action') == 'WARN_ONLY') {
+                        validationResultText += '<span class="icon-flag5" style="margin-left:10px; color:#dedc49;"></span>';
+                    } else if (!Ext.isEmpty(estimatedByRule)) {
+                        validationResultText += '<span class="icon-flag5" style="margin-left:10px; color:#33CC33;" data-qtip="'
+                            + Uni.I18n.translate('reading.estimated', 'IMT', 'Estimated in {0} on {1} at {2}',[
+                                estimatedByRule.application.name,
+                                Uni.DateTime.formatDateLong(new Date(estimatedByRule.when)),
+                                Uni.DateTime.formatTimeLong(new Date(estimatedByRule.when))
+                            ], false) + '"></span>';
+                    }
                     break;
             }
         }
 
-        if (!Ext.isEmpty(value)) {            
+        if (!Ext.isEmpty(value)) {
             return value + ' ' + unitOfMeasure + ' ' + validationResultText;
-        } else {            
-            return Uni.I18n.translate('general.missingx', 'IMT', 'Missing {0}', [validationResultText], false);            
+        } else {
+            return Uni.I18n.translate('general.missingx', 'IMT', 'Missing {0}', [validationResultText], false);
         }
     },
 
     getValidationResult: function (validationResult) {
-        var me =this,
+        var me = this,
             validationResultText = '',
-            record = me.down('form').getRecord();
+            record = me.down('form').getRecord(),
+            estimatedByRule;
+
+        if (!Ext.isEmpty(record) && record.get('isConfirmed')) {
+            validationResultText = Uni.I18n.translate('reading.validationResult.notsuspect', 'IMT', 'Not suspect');
+            validationResultText += '<span class="icon-checkmark" style="margin-left:10px; position:absolute;"></span>';
+            return validationResultText;
+        }
 
         switch (validationResult.split('.')[1]) {
             case 'notValidated':
@@ -81,25 +114,109 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                     '<span class="icon-flag5" style="margin-left:10px; display:inline-block; vertical-align:top; color:red;"></span>';
                 break;
             case 'ok':
+                estimatedByRule = record.get('estimatedByRule');
                 validationResultText = Uni.I18n.translate('reading.validationResult.notsuspect', 'IMT', 'Not suspect');
-                if(record.get('isConfirmed')){
+                if (record.get('isConfirmed')) {
                     validationResultText += '<span class="icon-checkmark" style="margin-left:10px; position:absolute;"></span>';
+                } else if (record.get('action') == 'WARN_ONLY') {
+                    validationResultText += '<span class="icon-flag5" style="margin-left:10px; color:#dedc49;"></span>';
+                } else if (!Ext.isEmpty(estimatedByRule)) {
+                    validationResultText += '<span class="icon-flag5" style="margin-left:10px; color:#33CC33;" data-qtip="'
+                        + Uni.I18n.translate('reading.estimated', 'IMT', 'Estimated in {0} on {1} at {2}',[
+                            estimatedByRule.application.name,
+                            Uni.DateTime.formatDateLong(new Date(estimatedByRule.when)),
+                            Uni.DateTime.formatTimeLong(new Date(estimatedByRule.when))
+                        ], false) + '"></span>';
                 }
-
                 break;
         }
 
         return validationResultText;
     },
 
+    setDataQualityFields: function(deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities) {
+        var me = this,
+            showDeviceQuality = false,
+            showMultiSenseQuality = false,
+            showInsightQuality = false,
+            show3rdPartyQuality = false,
+            field = undefined;
+
+        deviceQualityField.setValue('');
+        multiSenseQualityField.setValue('');
+        insightQualityField.setValue('');
+        thirdPartyQualityField.setValue('');
+
+        if (!Ext.isEmpty(dataQualities)) {
+            dataQualities.sort(function (a, b) {
+                if (a.indexName > b.indexName) {
+                    return 1;
+                }
+                if (a.indexName < b.indexName) {
+                    return -1;
+                }
+                return 0;
+            });
+            Ext.Array.forEach(dataQualities, function (readingQuality) {
+                switch (readingQuality.cimCode.slice(0,2)) {
+                    case '1.':
+                        showDeviceQuality |= true;
+                        field = deviceQualityField;
+                        break;
+                    case '2.':
+                        showMultiSenseQuality |= true;
+                        field = multiSenseQualityField;
+                        break;
+                    case '3.':
+                        showInsightQuality |= true;
+                        field = insightQualityField;
+                        break;
+                    case '4.':
+                    case '5.':
+                        show3rdPartyQuality |= true;
+                        field = thirdPartyQualityField;
+                        break;
+                }
+                if (!Ext.isEmpty(field)) {
+                    field.setValue(field.getValue()
+                        + (Ext.isEmpty(field.getValue()) ? '' : '<br>')
+                        + '<span style="display:inline-block; float: left; margin-right:7px;" >' + readingQuality.indexName + ' (' + readingQuality.cimCode + ')' + '</span>'
+                        + '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="'
+                        + me.getTooltip(readingQuality.systemName, readingQuality.categoryName, readingQuality.indexName) + '"></span>'
+                    );
+                }
+            });
+        }
+
+        Ext.suspendLayouts();
+        deviceQualityField.setVisible(showDeviceQuality);
+        multiSenseQualityField.setVisible(showMultiSenseQuality);
+        insightQualityField.setVisible(showInsightQuality);
+        thirdPartyQualityField.setVisible(show3rdPartyQuality);
+        Ext.resumeLayouts(true);
+    },
+
+    getTooltip: function(systemName, categoryName, indexName) {
+        var tooltip = '<table><tr><td>';
+        tooltip += '<b>' + Uni.I18n.translate('general.system', 'IMT', 'System') + ':</b></td>';
+        tooltip += '<td>' + systemName + '</td></tr>';
+        tooltip += '<tr><td><b>' + Uni.I18n.translate('general.category', 'IMT', 'Category') + ':</b></td>';
+        tooltip += '<td>' + categoryName + '</td></tr>';
+        tooltip += '<tr><td><b>' + Uni.I18n.translate('general.index', 'IMT', 'Index') + ':</b></td>';
+        tooltip += '<td>' + indexName + '</td></tr></table>';
+        return tooltip;
+    },
+
     initComponent: function () {
         var me = this,
             generalItems = [],
             valuesItems = [],
+            qualityItems = [],
             generalTimeField;
 
-        switch(me.output.get('outputType')){
-            case 'channel': {
+        switch (me.output.get('outputType')) {
+            case 'channel':
+            {
                 generalTimeField = {
                     fieldLabel: Uni.I18n.translate('general.measurementPeriod', 'IMT', 'Measurement period'),
                     name: 'interval',
@@ -146,7 +263,8 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                         }
                     }
                 }
-            } break;
+            }
+                break;
         }
         generalItems.push(generalTimeField);
 
@@ -191,7 +309,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                     return me.getValidationResult(value);
                 }
             }
-        );       
+        );
 
         valuesItems.push(
             {
@@ -220,7 +338,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                 usedInInsight: true,
                 name: 'validationRules',
                 withOutAppName: me.withOutAppName,
-                renderer : function(value, field) {
+                renderer: function (value, field) {
                     var rec = field.up('form').getRecord(),
                         validationRules = Ext.isArray(value) ? value : value.validationRules;
                     field.show();
@@ -232,12 +350,37 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                             field.hide();
                         }
                         return valueToRender;
-                    } else if (value.estimatedByRule) {
-                        return this.getEstimatedByRule(value.estimatedByRule);
+                    } else if (!Ext.isEmpty(rec.get('estimatedByRule'))) {
+                        return this.getEstimatedByRule(rec.get('estimatedByRule'));
                     } else {
                         field.hide();
                     }
                 }
+            }
+        );
+
+        qualityItems.push(
+            {
+                xtype: 'uni-form-info-message',
+                itemId: 'noReadings-msg',
+                text: Uni.I18n.translate('general.noDataQualitiesMsg', 'IMT', 'There are no reading qualities for this data.'),
+                padding: '10'
+            },
+            {
+                fieldLabel: Uni.I18n.translate('general.deviceQuality', 'IMT', 'Device quality'),
+                itemId: 'device-quality'
+            },
+            {
+                fieldLabel: Uni.I18n.translate('general.MDCQuality', 'IMT', 'MDC quality'),
+                itemId: 'multiSense-quality'
+            },
+            {
+                fieldLabel: Uni.I18n.translate('general.MDMQuality', 'IMT', 'MDM quality'),
+                itemId: 'insight-quality'
+            },
+            {
+                fieldLabel: Uni.I18n.translate('general.thirdPartyQuality', 'IMT', 'Third party quality'),
+                itemId: 'thirdParty-quality'
             }
         );
 
@@ -270,6 +413,22 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                         labelWidth: 200
                     },
                     items: valuesItems
+                }
+            },
+            {
+                title: Uni.I18n.translate('general.readingQuality', 'IMT', 'Reading quality'),
+                itemId: 'qualities-tab',
+                items: {
+                    xtype: 'form',
+                    itemId: 'qualities-panel',
+                    frame: true,
+                    items: qualityItems,
+                    defaults: {
+                        xtype: 'displayfield',
+                        labelWidth: 200,
+                        htmlEncode: false
+                    },
+                    layout: 'vbox'
                 }
             }
         ];
