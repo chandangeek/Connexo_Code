@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * @class Ext.ux.exporter.Exporter
  * @author Ed Spencer (http://edspencer.net), with modifications from iwiznia, with modifications from yogesh

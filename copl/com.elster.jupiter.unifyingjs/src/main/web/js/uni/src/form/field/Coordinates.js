@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * @class Uni.form.field.Coordinates
  */
@@ -221,7 +225,7 @@ Ext.define('Uni.form.field.Coordinates', {
                 elevField.setValue('');
             }
         }
-        defaultButton.setDisabled(me.displayValue.usagePointSpatialCoordinates == undefined);
+        defaultButton.setDisabled(me.usagePointSpatialCoordinates == undefined);
     },
 
     setValue: function (value) {

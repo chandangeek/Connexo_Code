@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.form.field.EventTypeDisplay', {
     extend: 'Ext.form.field.Display',
     xtype: 'event-type-displayfield',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * @class Uni.view.form.CheckboxGroup
  * This is the checkboxgroup extension, which allows to auto-load checkboxes from bounded store/

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.service.Search', {
 
     mixins: {
@@ -21,13 +25,16 @@ Ext.define('Uni.service.Search', {
 
     config: {
         router: null,
-        searchDomainsStore: 'Uni.store.search.Domains', //Ext.getStore('Uni.store.search.Domains'),
+        searchDomainsStore: 'Uni.store.search.Domains',
         searchResultsStore: 'Uni.store.search.Results',
         searchPropertiesStore: 'Uni.store.search.Properties',
         searchFieldsStore: 'Uni.store.search.Fields'
     },
 
     storeListeners: [],
+    changedFiltersNotYetApplied: false,
+    previouslyAppliedFiltersAsString: undefined,
+    previouslyAppliedState: undefined,
 
     constructor: function (config) {
         var me = this;
@@ -104,11 +111,6 @@ Ext.define('Uni.service.Search', {
         'DeviceConfiguration': 'uni-grid-column-search-deviceconfiguration',
         'Quantity': 'uni-grid-column-search-quantity'
     },
-
-    /*defaultColumns: {
-        'com.energyict.mdc.device.data.Device': ['id', 'mRID', 'serialNumber', 'deviceTypeName', 'deviceConfigurationName', 'state.name', 'location'],
-        'com.elster.jupiter.metering.UsagePoint': ['mRID', 'displayServiceCategory', 'displayMetrologyConfiguration']
-     },*/
 
     getDomain: function() {
         return this.searchDomain;
@@ -306,6 +308,9 @@ Ext.define('Uni.service.Search', {
             searchResults = me.getSearchResultsStore(),
             filters = me.getFilters();
 
+        me.previouslyAppliedState = me.getState();
+        me.previouslyAppliedFiltersAsString = JSON.stringify(filters);
+        me.changedFiltersNotYetApplied = false;
         searchResults.clearFilter(true);
         if (filters && filters.length) {
             if(searchResults.isLoading()){
@@ -324,19 +329,47 @@ Ext.define('Uni.service.Search', {
     },
 
     count: function(){
-        var me = this;
-        me.fireEvent('loadingcount');
-        Ext.Ajax.request({
-            url: this.getSearchResultsStore().getProxy().url + '/count',
-            timeout: 120000,
-            method: 'GET',
-            params: {
-                filter: JSON.stringify(this.getFilters())
-            },
-            success: function (response) {
-                me.fireEvent('count', JSON.parse(response.responseText));
-            }
-        });
+        var me = this,
+            performTheCount = function() {
+                me.fireEvent('loadingcount');
+                Ext.Ajax.request({
+                    url: me.getSearchResultsStore().getProxy().url + '/count',
+                    timeout: 120000,
+                    method: 'GET',
+                    params: {
+                        filter: me.previouslyAppliedFiltersAsString
+                    },
+                    success: function (response) {
+                        me.fireEvent('count', JSON.parse(response.responseText));
+                    }
+                });
+            };
+
+        if (me.changedFiltersNotYetApplied) {
+            var confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                confirmText: Uni.I18n.translate('general.apply', 'UNI', 'Apply'),
+                secondConfirmText: Uni.I18n.translate('general.dontApply', 'UNI', "Don't apply"),
+                green: true,
+                confirmation: function (button) {
+                    confirmationWindow.close();
+                    if (button.action === 'confirm') { // (Re)apply the criteria first
+                        me.getSearchResultsStore().on('load', function() {
+                            performTheCount();
+                        }, me, {single:true});
+                        me.applyFilters();
+                    } else if (button.action === 'confirm2') { // Don't (re)apply the cirteria
+                        me.rollbackCriteriaChanges(performTheCount());
+                    }
+                }
+            });
+            confirmationWindow.show({
+                title: Uni.I18n.translate('general.performCount', 'UNI', 'Perform count?'),
+                msg: Uni.I18n.translate('general.unconfirmedSearchCriteria', 'UNI',
+                    "Some search criteria haven't been applied. Do you want to apply them?")
+            });
+        } else {
+            performTheCount();
+        }
     },
 
     clearFilters: function () {
@@ -352,7 +385,13 @@ Ext.define('Uni.service.Search', {
         return _.filter(this.filters.getRange(), function(f){
             return !!f.value
                 && Ext.isArray(f.value)
-                && !Ext.isEmpty(_.filter(f.value, function(v) { return !Ext.isEmpty(v.criteria);}))
+                && !Ext.isEmpty(
+                    _.filter(f.value, function(v) {
+                        return (v.operator === '==' && !Ext.isEmpty(v.criteria))
+                            || v.operator === 'ISDEFINED'
+                            || v.operator === 'ISNOTDEFINED';
+                    })
+                )
         });
     },
 
@@ -493,6 +532,12 @@ Ext.define('Uni.service.Search', {
             });
         }
 
+        if (property.get('name') === 'device.topology.master') {
+            Ext.apply(config, {
+                xtype: 'uni-search-criteria-has-string'
+            });
+        }
+
         if (Ext.isEmpty(config.xtype)) {
             Ext.apply(config, {
                 xtype: 'uni-search-criteria-simple'
@@ -559,7 +604,7 @@ Ext.define('Uni.service.Search', {
         });
 
         me.saveState();
-
+        me.changedFiltersNotYetApplied = true;
     },
 
     setFilter: function (filter) {
@@ -569,6 +614,7 @@ Ext.define('Uni.service.Search', {
         me.filters.add(filter);
         me.onFilterChange(filter);
         me.saveState();
+        me.changedFiltersNotYetApplied = true;
         Ext.resumeLayouts(true);
     },
 
@@ -578,8 +624,7 @@ Ext.define('Uni.service.Search', {
             property = me.criteria.get(filter.id) || me.addProperty(propertiesStore.getById(filter.id)),
             deps = me.getDependentProperties(property);
 
-        if (property.get('affectsAvailableDomainProperties')
-            && !me.isStateLoad) {
+        if (property.get('affectsAvailableDomainProperties') && !me.isStateLoad) {
             me.storeReload(propertiesStore);
         }
 
@@ -645,5 +690,12 @@ Ext.define('Uni.service.Search', {
             callback: callback
         });
         store.lastRequest = Ext.Ajax.getLatest();
+    },
+
+    rollbackCriteriaChanges: function(callback) {
+        var me = this;
+        if (!Ext.isEmpty(me.previouslyAppliedState)) {
+            this.applyState(me.previouslyAppliedState, callback);
+        }
     }
 });

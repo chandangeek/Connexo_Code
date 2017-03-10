@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.view.search.field.internal.CriteriaButton', {
     extend: 'Ext.button.Button',
     xtype: 'uni-search-internal-button',
     requires: [
-        'Ext.util.Filter'
+        'Ext.util.Filter',
+        'Uni.model.search.Value'
     ],
     menuConfig: null,
     enableToggle: true,

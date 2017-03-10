@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.grid.plugin.DropZoneForGridWithGroups', {
     extend: 'Ext.grid.ViewDropZone',
     groupedByHiddenField: null,
