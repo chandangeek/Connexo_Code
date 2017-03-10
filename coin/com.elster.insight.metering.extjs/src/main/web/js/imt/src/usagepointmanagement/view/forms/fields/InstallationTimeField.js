@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointmanagement.view.forms.fields.InstallationTimeField', {
     extend: 'Ext.form.RadioGroup',
     alias: 'widget.techinfo-installationtimefield',

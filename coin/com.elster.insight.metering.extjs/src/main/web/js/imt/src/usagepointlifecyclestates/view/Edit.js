@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointlifecyclestates.view.Edit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.usagepoint-life-cycle-state-edit',
@@ -38,7 +42,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.Edit', {
                             field.focus(false);
                         }
                     }
-                },
+                },                
                 {
                     xtype: 'fieldcontainer',
                     itemId: 'usagepoint-life-cycle-stage-container',

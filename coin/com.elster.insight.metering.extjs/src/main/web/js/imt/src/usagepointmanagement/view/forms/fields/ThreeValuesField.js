@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointmanagement.view.forms.fields.ThreeValuesField', {
     extend: 'Ext.form.field.ComboBox',
     alias: 'widget.techinfo-threevaluesfield',

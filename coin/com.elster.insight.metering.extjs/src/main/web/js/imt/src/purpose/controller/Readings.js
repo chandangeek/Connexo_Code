@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.purpose.controller.Readings', {
     extend: 'Ext.app.Controller',
 
@@ -193,55 +197,57 @@ Ext.define('Imt.purpose.controller.Readings', {
         }
 
         if (menu.down('#reset-value')) {
-            menu.down('#reset-value').setVisible(menu.record.get('calculatedValue') || menu.record.get('modificationFlag') == "EDITED" || menu.record.get('modificationFlag') == "ADDED");
+            menu.down('#reset-value').setVisible(menu.record.get('estimatedByRule') || menu.record.get('modificationFlag') == "EDITED" || menu.record.get('modificationFlag') == "ADDED");
         }
         Ext.resumeLayouts();
     },
 
 
     resumeEditorFieldValidation: function (editor, event) {
-        var me = this,
-            chart = me.getReadingsGraph().chart,
-            point = chart.get(event.record.get('interval').start),
-            grid = me.getReadingsList(),
-            value = event.record.get('value'),
-            condition = (isNaN(point.y) && isNaN(value)) ? false : (point.y != value),
-            updatedObj;
+        var me = this;
 
-        if (event.column) {
-            event.column.getEditor().allowBlank = true;
-        }
-
-        if (event.record.isModified('value')) {
-            grid.down('#save-changes-button').isDisabled() && me.showButtons();
-
-            Ext.suspendLayouts(true);
-            if (!value) {
-                point.update({y: null});
-                event.record.set('value', '0');
-            } else {
-                if (event.record.get('plotBand')) {
-                    chart.xAxis[0].removePlotBand(event.record.get('interval').start);
-                    event.record.set('plotBand', false);
-                }
-                updatedObj = {
-                    y: parseFloat(value),
-                    color: 'rgba(112,187,81,0.3)',
-                    value: value
-                };
-                point.update(updatedObj);
-                point.select(false);
-                me.getOutputReadings().down('#output-readings-preview-container').fireEvent('rowselect', event.record);
-            }
-
+        if(me.getReadingsGraph() && me.getReadingsGraph().chart){
+            var chart = me.getReadingsGraph().chart,
+                point = chart.get(event.record.get('interval').start),
+                grid = me.getReadingsList(),
+                value = event.record.get('value'),
+                condition = (isNaN(point.y) && isNaN(value)) ? false : (point.y != value),
+                updatedObj;
             if (event.column) {
-                event.record.set('validationResult', 'validationStatus.ok');
-                grid.getView().refreshNode(grid.getStore().indexOf(event.record));
-                event.record.get('confirmed') && event.record.set('confirmed', false);
+                event.column.getEditor().allowBlank = true;
             }
-            Ext.resumeLayouts();
-        } else if (condition) {
-            me.resetChanges(event.record, point);
+
+            if (event.record.isModified('value')) {
+                grid.down('#save-changes-button').isDisabled() && me.showButtons();
+
+                Ext.suspendLayouts(true);
+                if (!value) {
+                    point.update({y: null});
+                    event.record.set('value', '0');
+                } else {
+                    if (event.record.get('plotBand')) {
+                        chart.xAxis[0].removePlotBand(event.record.get('interval').start);
+                        event.record.set('plotBand', false);
+                    }
+                    updatedObj = {
+                        y: parseFloat(value),
+                        color: 'rgba(112,187,81,0.3)',
+                        value: value
+                    };
+                    point.update(updatedObj);
+                    point.select(false);
+                    me.getOutputReadings().down('#output-readings-preview-container').fireEvent('rowselect', event.record);
+                }
+
+                if (event.column) {
+                    event.record.set('validationResult', 'validationStatus.ok');
+                    grid.getView().refreshNode(grid.getStore().indexOf(event.record));
+                    event.record.get('confirmed') && event.record.set('confirmed', false);
+                }
+                Ext.resumeLayouts();
+            } else if (condition) {
+                me.resetChanges(event.record, point);
+            }
         }
     },
 
@@ -252,7 +258,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             store = grid.getStore(),
             color = '#70BB51';
 
-        if (record.get('estimatedByRule')) {
+        if (!Ext.isEmpty(record.get('estimatedByRule'))) {
             color = '#568343';
         } else if (properties.notValidated) {
             color = '#71adc7';
@@ -352,7 +358,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                     canConfirm = true;
                 }
             }
-            if (!canReset && (record.get('calculatedValue') || record.get('modificationFlag') == "EDITED" || record.get('modificationFlag') == "ADDED")) {
+            if (!canReset && (record.get('estimatedByRule') || record.get('modificationFlag') == "EDITED" || record.get('modificationFlag') == "ADDED")) {
                 canReset = true;
             }
         });

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointlifecycletransitions.controller.UsagePointLifeCycleTransitions', {
     extend: 'Ext.app.Controller',
 
@@ -68,7 +72,7 @@ Ext.define('Imt.usagepointlifecycletransitions.controller.UsagePointLifeCycleTra
         usagePointLifeCycleModel.load(usagePointLifeCycleId, {
             success: function (usagePointLifeCycleRecord) {
                 me.getApplication().fireEvent('usagepointlifecycleload', usagePointLifeCycleRecord);
-                view.down('#usagepoint-life-cycle-link').setText(usagePointLifeCycleRecord.get('name'));
+                view.down('#usagepoint-life-cycle-overview-side-menu').setHeader(usagePointLifeCycleRecord.get('name'));
             }
         });
     },

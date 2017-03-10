@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.controller.History', {
     extend: 'Uni.controller.history.Converter',
 
@@ -482,14 +486,7 @@ Ext.define('Imt.controller.History', {
                                     route: 'edit',
                                     controller: 'Imt.usagepointlifecycle.controller.UsagePointLifeCycles',
                                     privileges: Imt.privileges.UsagePointLifeCycle.configure,
-                                    action: 'showEditUsagePointLifeCycle',
-                                    callback: function (route) {
-                                        this.getApplication().on('usagePointLifeCycleEdit', function (record) {
-                                            route.setTitle(Uni.I18n.translate('usagePointLifeCycles.edit.title', 'IMT', "Edit '{0}'", record.get('name'), false));
-                                            return true;
-                                        }, {single: true});
-                                        return this;
-                                    }
+                                    action: 'showEditUsagePointLifeCycle'
                                 },
                                 states: {
                                     title: Uni.I18n.translate('general.states', 'IMT', 'States'),
@@ -630,7 +627,16 @@ Ext.define('Imt.controller.History', {
             title: Uni.I18n.translate('general.label.dashboard', 'IMT', 'Dashboard'),
             route: 'dashboard',
             controller: 'Imt.dashboard.controller.OperatorDashboard',
-            action: 'showOverview'
+            action: 'showOverview',
+            items: {
+                selectfavoriteusagepointgroups: {
+                    title: Uni.I18n.translate('general.selectFavoriteUsagePointGroups', 'IMT', 'Select favourite usage point groups'),
+                    route: 'favoriteusagepointgroups',
+                    controller: 'Imt.dashboard.controller.FavoriteUsagePointGroups',
+                    privileges: Imt.privileges.UsagePointGroup.flag,
+                    action: 'showFavoriteUsagePointGroups'
+                }
+            }
         }
 
     }

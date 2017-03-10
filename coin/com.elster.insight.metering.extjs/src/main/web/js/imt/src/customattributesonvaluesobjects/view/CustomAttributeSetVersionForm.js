@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionForm', {
     extend: 'Ext.container.Container',
     alias: 'widget.custom-attribute-set-version-form',

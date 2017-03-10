@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.metrologyconfiguration.view.estimation.EstimationRuleSets', {
     extend: 'Uni.view.container.PreviewContainer',
     alias: 'widget.estimation-mc-rule-sets',

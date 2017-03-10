@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.data-completion-widget',
@@ -142,12 +146,20 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
 
     loadPeriodsStore: function (params) {
         var me = this,
-            periodsStore = Ext.getStore('Imt.usagepointmanagement.store.Periods');
+            periodsStore = Ext.getStore('Imt.usagepointmanagement.store.Periods'),
+            periodsCombo,
+            periodId;
 
         periodsStore.getProxy().extraParams = params;
         periodsStore.load(function () {
             if (me.rendered) {
-                me.down('#periods-combo').setValue(periodsStore.first().getId());
+                periodsCombo = me.down('#periods-combo');
+                periodId = periodsStore.first().getId();
+                if (periodsCombo.getValue() !== periodId) {
+                    periodsCombo.setValue(periodId);
+                } else {
+                    periodsCombo.fireEvent('change', periodsCombo, periodId);
+                }
             }
         });
     },

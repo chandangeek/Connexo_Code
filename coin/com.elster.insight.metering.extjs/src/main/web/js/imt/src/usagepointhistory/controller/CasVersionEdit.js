@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointhistory.controller.CasVersionEdit', {
     extend: 'Ext.app.Controller',
     requires: [

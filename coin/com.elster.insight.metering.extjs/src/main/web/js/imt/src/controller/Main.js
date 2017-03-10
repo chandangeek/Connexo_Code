@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * @class Imt.controller.Main
  */
@@ -28,6 +32,7 @@ Ext.define('Imt.controller.Main', {
     controllers: [
         'Imt.controller.Dashboard',
         'Imt.dashboard.controller.OperatorDashboard',
+        'Imt.dashboard.controller.FavoriteUsagePointGroups',
         'Imt.usagepointmanagement.controller.View',
         'Imt.usagepointmanagement.controller.Edit',
         'Imt.devicemanagement.controller.Device',

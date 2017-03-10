@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.inline-editable-set-property-form',
