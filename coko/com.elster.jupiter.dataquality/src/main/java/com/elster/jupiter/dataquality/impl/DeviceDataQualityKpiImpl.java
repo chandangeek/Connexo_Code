@@ -142,4 +142,10 @@ public final class DeviceDataQualityKpiImpl extends DataQualityKpiImpl implement
     private Set<Long> intersection(Set<Long> first, Set<Long> second) {
         return first.stream().filter(second::contains).collect(Collectors.toSet());
     }
+
+    @Override
+    public void makeObsolete() {
+        this.deviceGroup.setNull();
+        super.makeObsolete();
+    }
 }
