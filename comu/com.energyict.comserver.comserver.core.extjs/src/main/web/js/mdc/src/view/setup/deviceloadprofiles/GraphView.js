@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
     extend: 'Uni.view.highstock.GraphView',
     alias: 'widget.deviceLoadProfilesGraphView',
@@ -30,7 +34,11 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
         me.chart = new Highcharts.StockChart({
 
             title: {
-                text: title
+                text: title,
+                style: {
+                    color: '#686868',
+                    fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                }
             },
 
             chart: {
@@ -55,6 +63,14 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
                     week: '%a %e<br/>%b %Y',
                     month: '%b<br/>%Y',
                     year: '%Y'
+                },
+                labels: {
+                    style: {
+                        color: '#686868',
+                        fontWeight: 'normal',
+                        fontSize: '13px',
+                        fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                    }
                 }
             },
 
@@ -77,6 +93,14 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
                         week: '%a %e<br/>%b %Y',
                         month: '%b %Y',
                         year: '%Y'
+                    },
+                    labels: {
+                        style: {
+                            color: '#686868',
+                            fontWeight: 'normal',
+                            fontSize: '13px',
+                            fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                        }
                     }
                 }
             },
@@ -89,6 +113,12 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
 
             tooltip: {
                 useHTML: true,
+                style: {
+                    color: '#686868',
+                    fontWeight: 'normal',
+                    fontSize: '13px',
+                    fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                },
                 positioner: function (labelWidth, labelHeight, point) {
                     var xValue,
                         yValue;

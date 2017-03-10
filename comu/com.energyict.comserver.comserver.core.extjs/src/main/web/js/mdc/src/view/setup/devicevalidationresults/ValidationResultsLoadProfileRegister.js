@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsLoadProfileRegister', {
     extend: 'Ext.container.Container',
     alias: 'widget.mdc-device-validation-results-load-profile-register',

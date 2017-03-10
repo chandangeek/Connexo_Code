@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
     extend: 'Ext.app.Controller',
 
@@ -71,7 +75,7 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
                     widget = Ext.widget('ruleDeviceConfigurationBrowse', {ruleSetId: ruleSetId});
                 me.getApplication().fireEvent('changecontentevent', widget);
 
-                widget.down('#stepsMenu #ruleSetOverviewLink').setText(ruleSet.get('name'));
+                widget.down('#stepsMenu').setHeader(ruleSet.get('name'));
 
                 widget.down('#deviceConfigLink').show();
                 me.getApplication().fireEvent('loadRuleSet', ruleSet);

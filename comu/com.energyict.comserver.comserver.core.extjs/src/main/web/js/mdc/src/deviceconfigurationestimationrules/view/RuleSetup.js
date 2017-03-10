@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.deviceconfigurationestimationrules.view.RuleSetup', {
     extend: 'Uni.view.container.PreviewContainer',
     alias: 'widget.device-configuration-estimation-rules-setup',

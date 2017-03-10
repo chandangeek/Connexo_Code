@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.usagepointmanagement.view.Setup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.usage-point-management-setup',
@@ -12,6 +16,7 @@ Ext.define('Mdc.usagepointmanagement.view.Setup', {
     content: [
         {
             xtype: 'panel',
+            title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
             ui: 'large',
             itemId: 'usagePointSetupPanel',
             layout: {
@@ -24,7 +29,6 @@ Ext.define('Mdc.usagepointmanagement.view.Setup', {
     initComponent: function () {
         var me = this,
             panel = me.content[0];
-        panel.title = me.router.getRoute().getTitle();
 
         panel.tools = [
             {
@@ -84,7 +88,7 @@ Ext.define('Mdc.usagepointmanagement.view.Setup', {
                     {
                         xtype: 'metrology-configuration',
                         router: me.router,
-                        flex: 7
+                        flex: 5
                     },
                     {
                         xtype: 'usagePointAttributesFormMain',

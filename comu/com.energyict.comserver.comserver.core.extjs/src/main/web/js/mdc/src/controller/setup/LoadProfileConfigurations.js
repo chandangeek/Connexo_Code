@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
     extend: 'Ext.app.Controller',
 
@@ -99,7 +103,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                         deviceConfigurationId: deviceConfigurationId
                     });
                     me.getApplication().fireEvent('changecontentevent', widget);
-                    widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfiguration.get('name'));
+                    widget.down('#stepsMenu').setHeader(deviceConfiguration.get('name'));
                 }
             },
             widget,

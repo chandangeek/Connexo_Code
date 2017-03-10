@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicecommand.widget.ActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.device-command-action-menu',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.MonitorProcesses', {
     extend: 'Ext.app.Controller',
     requires: [
@@ -75,7 +79,6 @@ Ext.define('Mdc.controller.setup.MonitorProcesses', {
                     }
             });
             me.getApplication().fireEvent('changecontentevent', widget);
-                me.getOverviewLink().setText(usagepoint.get('name'));
 
             },
             failure: function (response) {

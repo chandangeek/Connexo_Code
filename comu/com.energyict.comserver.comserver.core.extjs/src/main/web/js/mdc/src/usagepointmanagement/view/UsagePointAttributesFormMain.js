@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.usagepointmanagement.view.UsagePointAttributesFormMain', {
     extend: 'Ext.form.Panel',
     alias: 'widget.usagePointAttributesFormMain',
@@ -19,7 +23,10 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointAttributesFormMain', {
                 xtype: 'fieldcontainer',
                 itemId: "usagePointGeneralAttributes",
                 labelAlign: 'top',
-                layout: 'vbox',
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
                 defaults: {
                     xtype: 'displayfield',
                     labelWidth: 115
@@ -48,14 +55,31 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointAttributesFormMain', {
                             return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
                         }
                     },
-                    //{
-                    //    name: 'location',
-                    //    itemId: 'fld-device-location',
-                    //    fieldLabel: Uni.I18n.translate('deviceGeneralInformation.location', 'MDC', 'Location'),
-                    //    renderer: function (value) {
-                    //        return value ? value : '-';
-                    //    }
-                    //}
+                    {
+                        name: 'extendedGeoCoordinates',
+                        itemId: 'fld-device-coordinates',
+                        fieldLabel: Uni.I18n.translate('deviceGeneralInformation.coordinates', 'MDC', 'Coordinates'),
+                        renderer: function (value) {
+                            if (!Ext.isEmpty(value) && !Ext.isEmpty(value.coordinatesDisplay)) {
+                                return Ext.String.htmlEncode(value.coordinatesDisplay);
+                            } else {
+                                return '-'
+                            }
+                        }
+                    },
+                    {
+                        name: 'extendedLocation',
+                        itemId: 'fld-device-location',
+                        fieldLabel: Uni.I18n.translate('deviceGeneralInformation.location', 'MDC', 'Location'),
+                        renderer: function (value) {
+                            if (!Ext.isEmpty(value) && !Ext.isEmpty(value.formattedLocationValue)) {
+                                return Ext.String.htmlEncode(value.formattedLocationValue).replace(/(?:\\r\\n|\\r|\\n)/g, '<br>');
+                            } else {
+                                return '-'
+                            }
+                        }
+                    }
+
                 ]
             }
         ];

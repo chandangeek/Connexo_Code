@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicetype.AddLogbookTypesGrid', {
     extend: 'Uni.view.grid.SelectionGrid',
     alias: 'widget.add-logbook-types-grid',

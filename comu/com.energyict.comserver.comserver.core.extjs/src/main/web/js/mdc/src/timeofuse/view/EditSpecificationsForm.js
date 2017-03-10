@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.timeofuse.view.EditSpecificationsForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.tou-devicetype-edit-specs-form',

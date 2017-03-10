@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.model.Device', {
     extend: 'Uni.model.ParentVersion',
     requires: [
@@ -12,6 +16,9 @@ Ext.define('Mdc.model.Device', {
         {name: 'mRID', type: 'string', useNull: true},
         {name: 'state', defaultValue: null},
         {name: 'serialNumber', type: 'string', useNull: true},
+        {name: 'manufacturer', type: 'string', useNull: true},
+        {name: 'modelNbr', type: 'string', useNull: true},
+        {name: 'modelVersion', type: 'string', useNull: true},
         {name: 'deviceTypeId', type: 'number', useNull: true},
         {name: 'deviceTypeName', type: 'string', useNull: true},
         {name: 'deviceConfigurationId', type: 'number', useNull: true},

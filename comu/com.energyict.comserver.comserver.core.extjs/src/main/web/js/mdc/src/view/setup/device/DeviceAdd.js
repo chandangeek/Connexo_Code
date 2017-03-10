@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.device.DeviceAdd', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceAdd',
@@ -165,6 +169,30 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                                     field.up('form').getRecord().set('deviceConfigurationId', value[0].data.id);
                                 }
                             }
+                        },
+                        {
+                            xtype: 'textfield',
+                            name: 'manufacturer',
+                            itemId: 'deviceAddManufacturer',
+                            fieldLabel: Uni.I18n.translate('deviceAdd.manufacturer', 'MDC', 'Manufacturer'),
+                            maxLength: 80,
+                            enforceMaxLength: true
+                        },
+                        {
+                            xtype: 'textfield',
+                            name: 'modelNbr',
+                            itemId: 'deviceAddModelNumber',
+                            fieldLabel: Uni.I18n.translate('deviceAdd.modelNumber', 'MDC', 'Model number'),
+                            maxLength: 80,
+                            enforceMaxLength: true
+                        },
+                        {
+                            xtype: 'textfield',
+                            name: 'modelVersion',
+                            itemId: 'deviceAddModelVersion',
+                            fieldLabel: Uni.I18n.translate('deviceAdd.modelVersion', 'MDC', 'Model version'),
+                            maxLength: 80,
+                            enforceMaxLength: true
                         },
                         {
                             xtype: 'datefield',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.CommunicationTasks', {
     extend: 'Ext.app.Controller',
     deviceTypeId: null,
@@ -154,7 +158,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                             success: function (deviceConfig) {
                                 if (mainView) mainView.setLoading(false);
                                 me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
-                                widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
+                                widget.down('#stepsMenu').setHeader(deviceConfig.get('name'));
                                 me.getApplication().fireEvent('changecontentevent', widget);
                             }
                         });

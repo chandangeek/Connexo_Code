@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.comServersGrid',
@@ -20,7 +24,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
             flex: 1,
             dataIndex: 'name',
             renderer: function (value, b, record) {
-                return '<a href="#/administration/comservers/' + record.get('id') + '/overview">' + Ext.String.htmlEncode(value) + '</a>';
+                return '<a href="#/administration/comservers/' + record.get('id') + '">' + Ext.String.htmlEncode(value) + '</a>';
             }
         },
         {

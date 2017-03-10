@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.usagepointmanagement.view.AddUsagePointForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.add-usage-point-form',
@@ -37,6 +41,21 @@ Ext.define('Mdc.usagepointmanagement.view.AddUsagePointForm', {
             itemId: 'up-createTime-installationtimefield',
             fieldLabel: Uni.I18n.translate('general.label.created', 'MDC', 'Created'),
             required: true
+        },
+        {
+            xtype: 'coordinates',
+            name: 'extendedGeoCoordinates',
+            itemId: 'extendedGeoCoordinates',
+            width: 600,
+            fieldLabel: Uni.I18n.translate('general.coordinates', 'MDC', 'Coordinates')
+        },
+        {
+            xtype: 'location',
+            name: 'extendedLocation',
+            itemId: 'extendedLocation',
+            width: 610,
+            findLocationsUrl: '/api/jsr/search/com.energyict.mdc.device.data.Device/locationsearchcriteria/location',
+            locationDetailsUrl: '/api/ddr/devices/locations'
         },
         {
             xtype: 'fieldcontainer',

@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicelogbooks.EditWindow', {
     extend: 'Ext.window.Window',
     alias: 'widget.devicelogbook-edit-window',
     modal: true,
+    closable: false,
     title: Uni.I18n.translate('general.changeNextReadingBlockStart', 'MDC', 'Change next reading block start'),
     logbookRecord: null,
 

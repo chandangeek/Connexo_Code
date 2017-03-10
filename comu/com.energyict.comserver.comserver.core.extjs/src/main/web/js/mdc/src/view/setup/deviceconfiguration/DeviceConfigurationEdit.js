@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceConfigurationEdit',
@@ -269,6 +273,56 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                     {
                                                         xtype: 'container',
                                                         html: '<span style="color: grey;">' + Uni.I18n.translate('deviceconfiguration.dataLogger.description', 'MDC', 'Can be used as a data logger and share its own channels and registers with its slave devices') + '</span>',
+                                                        setText: function(text) {
+                                                            this.update('<span style="color: grey;">' + text + '</span>');
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                xtype: 'fieldcontainer',
+                                                itemId: 'mdc-device-config-validate-on-store-container',
+                                                columnWidth: 0.5,
+                                                fieldLabel: Uni.I18n.translate('deviceconfiguration.validateOnStore', 'MDC', 'Validate data on storage'),
+                                                required: true,
+                                                layout: 'fit',
+                                                items: [
+                                                    {
+                                                        xtype: 'radiogroup',
+                                                        itemId: 'validateOnStoreRadioGroup',
+                                                        name: "validateOnStore",
+                                                        msgTarget: 'under',
+                                                        combineErrors: true,
+                                                        columns: 1,
+                                                        vertical: true,
+                                                        items: [
+                                                            {
+                                                                name: 'validateOnStore',
+                                                                itemId: 'rbtn-validate-on-store-yes',
+                                                                boxLabel: '<b>' + Uni.I18n.translate('general.yes', 'MDC', 'Yes') + '</b>',
+                                                                inputValue: true,
+                                                                checked: true
+                                                            },
+                                                            {
+                                                                name: 'validateOnStore',
+                                                                itemId: 'rbtn-validate-on-store-no',
+                                                                boxLabel: '<b>' + Uni.I18n.translate('general.no', 'MDC', 'No') + '</b>',
+                                                                inputValue: false,
+                                                                checked: false
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                xtype: 'fieldcontainer',
+                                                fieldLabel: ' ',
+                                                padding: '-5 0 15 5',
+                                                itemId: 'validateOnStoreMessage',
+                                                items: [
+                                                    {
+                                                        xtype: 'container',
+                                                        html: '<span style="color: grey;">' + Uni.I18n.translate('deviceconfiguration.validateOnStore.description', 'MDC', 'Data will be validated when it\'s available in the system') + '</span>',
                                                         setText: function(text) {
                                                             this.update('<span style="color: grey;">' + text + '</span>');
                                                         }

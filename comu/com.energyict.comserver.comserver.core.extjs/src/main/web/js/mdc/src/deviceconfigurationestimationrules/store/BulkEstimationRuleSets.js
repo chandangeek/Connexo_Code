@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.deviceconfigurationestimationrules.store.BulkEstimationRuleSets', {
     extend: 'Ext.data.Store',
     model: 'Mdc.deviceconfigurationestimationrules.model.EstimationRuleSet',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.filemanagement.view.PreviewContainer', {
     extend: 'Uni.view.container.PreviewContainer',
     alias: 'widget.files-devicetype-preview-container',
