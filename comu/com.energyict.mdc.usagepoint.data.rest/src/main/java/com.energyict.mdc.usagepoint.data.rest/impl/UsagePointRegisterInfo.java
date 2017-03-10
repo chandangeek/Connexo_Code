@@ -4,18 +4,16 @@
 
 package com.energyict.mdc.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import java.util.List;
 
 /**
  * Represents usage point's register
  */
-public class UsagePointRegisterInfo {
-    public long id;
+public class UsagePointRegisterInfo extends AbstractUsagePointChannelInfo {
+
     /**
      * Date of last data from latest meter activation.
      */
     public Long measurementTime;
-    public ReadingTypeInfo readingType;
-    public List<UsagePointDeviceRegisterInfo> deviceRegisters;
+    public List<UsagePointDeviceChannelInfo> deviceRegisters;
 }

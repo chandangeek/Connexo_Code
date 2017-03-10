@@ -15,26 +15,19 @@ import com.energyict.mdc.device.data.DeviceService;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.function.Predicate;
 
 /**
  * Factory for creating {@link UsagePointRegisterInfo}
  */
-public class UsagePointRegisterInfoFactory extends AbstractUsagePointChannelInfoFactory<UsagePointRegisterInfo, UsagePointDeviceRegisterInfo> {
+public class UsagePointRegisterInfoFactory extends AbstractUsagePointChannelInfoFactory implements RegisterInfoFactory {
 
     private final ReadingTypeInfoFactory readingTypeInfoFactory;
     private final DeviceService deviceService;
 
     @Inject
     public UsagePointRegisterInfoFactory(ReadingTypeInfoFactory readingTypeInfoFactory, DeviceService deviceService) {
-        super("registers");
         this.readingTypeInfoFactory = readingTypeInfoFactory;
         this.deviceService = deviceService;
-    }
-
-    @Override
-    UsagePointDevicePartInfoBuilder getUsagePointDevicePartInfoBuilder() {
-        return new UsagePointDeviceRegisterInfoBuilder();
     }
 
     @Override
@@ -43,42 +36,16 @@ public class UsagePointRegisterInfoFactory extends AbstractUsagePointChannelInfo
     }
 
     @Override
-    public Predicate<Channel> getFilterPredicate() {
-        return channel -> !channel.isRegular();
-    }
-
-    @Override
-    public MessageSeeds getNoSuchElementMessageSeed() {
-        return MessageSeeds.NO_SUCH_REGISTER_FOR_USAGE_POINT;
-    }
-
-    @Override
     public UsagePointRegisterInfo from(Channel channel, UsagePoint usagePoint, UsagePointMetrologyConfiguration metrologyConfiguration) {
         UsagePointRegisterInfo info = new UsagePointRegisterInfo();
         ReadingType readingType = channel.getMainReadingType();
         info.id = channel.getId();
         Instant lastDateTime = channel.getLastDateTime();
+        info.dataUntil = lastDateTime != null ? lastDateTime.toEpochMilli() : null;
         info.measurementTime = lastDateTime != null ? lastDateTime.toEpochMilli() : null;
         info.readingType = readingTypeInfoFactory.from(readingType);
         info.deviceRegisters = new ArrayList<>();
-        fillDevicePartList(info.deviceRegisters,readingType,metrologyConfiguration,usagePoint);
+        fillDevicePartList(info.deviceRegisters, readingType, metrologyConfiguration, usagePoint);
         return info;
-    }
-
-    private class UsagePointDeviceRegisterInfoBuilder extends UsagePointDevicePartInfoBuilder<UsagePointDeviceRegisterInfo> {
-        @Override
-        UsagePointDeviceRegisterInfo build() {
-            UsagePointDeviceRegisterInfo info = new UsagePointDeviceRegisterInfo();
-            info.from = from;
-            info.channel = channel;
-            info.device = device;
-            info.until = until;
-            return info;
-        }
-
-        @Override
-        void updateFrom(UsagePointDeviceRegisterInfo element, long value) {
-            element.from = value;
-        }
     }
 }

@@ -19,27 +19,18 @@ import java.util.List;
 /**
  * Abstract class for providing info objects.<br>
  * Currently, there are {@link UsagePointChannelInfoFactory} and {@link UsagePointRegisterInfoFactory}
- *
- * @param <T> represents info class provided by factory
- * @param <I> represents info class for info class provided by factory ;-)
  */
-public abstract class AbstractUsagePointChannelInfoFactory<T, I> implements UsagePointChannelInfoSeparator<T> {
-
-    private String purpose;
-
-    AbstractUsagePointChannelInfoFactory(String purpose) {
-        this.purpose = purpose;
-    }
-
-    abstract UsagePointDevicePartInfoBuilder<I> getUsagePointDevicePartInfoBuilder();
+public abstract class AbstractUsagePointChannelInfoFactory {
 
     protected abstract DeviceService getDeviceService();
 
-    void fillDevicePartList(List<I> list, ReadingType readingType, UsagePointMetrologyConfiguration metrologyConfiguration, UsagePoint usagePoint) {
+    void fillDevicePartList(List<UsagePointDeviceChannelInfo> list, ReadingType readingType,
+                            UsagePointMetrologyConfiguration metrologyConfiguration, UsagePoint usagePoint) {
         ReadingTypeDeliverable readingTypeDeliverable = metrologyConfiguration.getDeliverables().stream()
                 .filter(deliverable -> deliverable.getReadingType().equals(readingType))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(String.format("Mismatch between %s configuration and reading type deliverable", purpose)));
+                .orElseThrow(() -> new IllegalArgumentException("Deliverable has not been found by reading type " +
+                        readingType.getMRID()));
         ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
         readingTypeDeliverable.getFormula().getExpressionNode().accept(requirementsCollector);
         MeterActivation meterActivationOld = null;
@@ -50,10 +41,10 @@ public abstract class AbstractUsagePointChannelInfoFactory<T, I> implements Usag
                     && meterActivation.getMeter().equals(meterActivationOld.getMeter())
                     && !list.isEmpty()
                     && meterActivationOld.getStart().equals(meterActivation.getEnd())) {
-                getUsagePointDevicePartInfoBuilder().updateFrom(list.get(list.size() - 1), meterActivation.getStart()
-                        .toEpochMilli());
+                list.get(list.size() - 1).from = meterActivation.getStart()
+                        .toEpochMilli();
             } else {
-                UsagePointDevicePartInfoBuilder<I> deviceChannelInfo = getUsagePointDevicePartInfoBuilder();
+                UsagePointDeviceChannelInfo deviceChannelInfo = new UsagePointDeviceChannelInfo();
                 meterActivation.getMeter()
                         .map(Meter::getAmrId)
                         .map(Long::parseLong)
@@ -79,28 +70,10 @@ public abstract class AbstractUsagePointChannelInfoFactory<T, I> implements Usag
                                                 channelOnDevice != null ? channelOnDevice.getId() : null,
                                                 mainReadingType.getFullAliasName());
                                     });
-                            list.add(deviceChannelInfo.build());
+                            list.add(deviceChannelInfo);
                         });
             }
             meterActivationOld = meterActivation;
         }
-    }
-
-    /**
-     * Builder for internal info object used in info object provided by particular factory
-     *
-     * @param <U> defines type of info object to build
-     */
-    abstract class UsagePointDevicePartInfoBuilder<U> {
-
-        abstract U build();
-
-        // kind of trick to not create a separate updater
-        abstract void updateFrom(U element, long value);
-
-        Long from;
-        Long until;
-        String device;
-        IdWithNameInfo channel;
     }
 }

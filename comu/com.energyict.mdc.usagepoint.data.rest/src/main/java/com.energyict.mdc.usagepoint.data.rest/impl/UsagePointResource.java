@@ -115,7 +115,8 @@ public class UsagePointResource {
         return PagedInfoList.fromPagedList("registers", registerInfos, queryParameters);
     }
 
-    private <T> List<T> getInfos(String usagePointName, UsagePointChannelInfoSeparator<T> infoSeparator) {
+    private <T extends AbstractUsagePointChannelInfo, C extends UsagePointChannelRepresentationType> List<T> getInfos
+            (String usagePointName, ChannelDataFactory<T, C> channelDataFactory) {
         List<T> infos = new ArrayList<>();
         UsagePoint usagePoint = resourceHelper.findUsagePointOrThrowException(usagePointName);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
@@ -126,8 +127,8 @@ public class UsagePointResource {
                     .map(effectiveMetrologyConfiguration::getChannelsContainer)
                     .flatMap(Functions.asStream())
                     .flatMap(channelsContainer -> channelsContainer.getChannels().stream())
-                    .filter(infoSeparator.getFilterPredicate())
-                    .map(channel -> infoSeparator.from(channel, usagePoint, metrologyConfiguration))
+                    .filter(channelDataFactory.getChannelType().getFilterPredicate())
+                    .map(channel -> channelDataFactory.from(channel, usagePoint, metrologyConfiguration))
                     .collect(Collectors.toList());
         }
         return infos;
@@ -151,13 +152,15 @@ public class UsagePointResource {
         return getInfo(name, usagePointRegisterInfoFactory, registerId);
     }
 
-    private <T> T getInfo(String usagePointName, UsagePointChannelInfoSeparator<T> infoSeparator, long id) {
+    private <T extends AbstractUsagePointChannelInfo, C extends UsagePointChannelRepresentationType> T getInfo
+            (String usagePointName, ChannelDataFactory<T, C> channelDataFactory, long id) {
         UsagePoint usagePoint = resourceHelper.findUsagePointOrThrowException(usagePointName);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGY_CONFIG_FOR_USAGE_POINT, usagePoint
                         .getName()));
-        Channel channel = resourceHelper.findChannelOnUsagePointOrThrowException(effectiveMetrologyConfiguration, id, infoSeparator);
-        return infoSeparator.from(channel, usagePoint, effectiveMetrologyConfiguration.getMetrologyConfiguration());
+        Channel channel = resourceHelper.findChannelOnUsagePointOrThrowException(effectiveMetrologyConfiguration, id,
+                channelDataFactory.getChannelType());
+        return channelDataFactory.from(channel, usagePoint, effectiveMetrologyConfiguration.getMetrologyConfiguration());
     }
 
     @GET
@@ -173,7 +176,8 @@ public class UsagePointResource {
             EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
                     .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGY_CONFIG_FOR_USAGE_POINT, usagePoint
                             .getName()));
-            Channel channel = resourceHelper.findChannelOnUsagePointOrThrowException(effectiveMetrologyConfiguration, channelId, usagePointChannelInfoFactory);
+            Channel channel = resourceHelper.findChannelOnUsagePointOrThrowException(effectiveMetrologyConfiguration,
+                    channelId, usagePointChannelInfoFactory.getChannelType());
             Range<Instant> usagePointActivationInterval = getUsagePointActivationInterval(usagePoint);
             if (usagePointActivationInterval.isConnected(requestedInterval)) {
                 Range<Instant> effectiveInterval = usagePointActivationInterval.intersection(requestedInterval);
@@ -219,7 +223,7 @@ public class UsagePointResource {
                     .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGY_CONFIG_FOR_USAGE_POINT, usagePoint
                             .getName()));
             Channel register = resourceHelper.findChannelOnUsagePointOrThrowException(effectiveMetrologyConfiguration,
-                    registerId, usagePointRegisterInfoFactory);
+                    registerId, usagePointRegisterInfoFactory.getChannelType());
             Range<Instant> usagePointActivationInterval = getUsagePointActivationInterval(usagePoint);
 
             if (usagePointActivationInterval.isConnected(requestedInterval)) {

@@ -32,10 +32,15 @@ public class ResourceHelper {
     }
 
     MetrologyContract findMetrologyContractOfChannelOrThrowException(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint, long channelId) {
-        for (MetrologyContract metrologyContract : effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration().getContracts()) {
+        for (MetrologyContract metrologyContract : effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()
+                .getContracts()) {
             Optional<ChannelsContainer> container = effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract);
             if (container.isPresent()) {
-                Optional<Channel> foundChannel = container.get().getChannels().stream().filter(channel -> channel.getId() == channelId).findAny();
+                Optional<Channel> foundChannel = container.get()
+                        .getChannels()
+                        .stream()
+                        .filter(channel -> channel.getId() == channelId)
+                        .findAny();
                 if (foundChannel.isPresent()) {
                     return metrologyContract;
                 }
@@ -45,15 +50,17 @@ public class ResourceHelper {
                 effectiveMetrologyConfigurationOnUsagePoint.getUsagePoint().getName(), channelId);
     }
 
-    Channel findChannelOnUsagePointOrThrowException(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, long channelId, UsagePointChannelSearchCriteria usagePointChannelSearchCriteria) {
+    Channel findChannelOnUsagePointOrThrowException(EffectiveMetrologyConfigurationOnUsagePoint
+                                                            effectiveMetrologyConfiguration, long channelId,
+                                                    UsagePointChannelRepresentationType usagePointChannelType) {
         return effectiveMetrologyConfiguration.getMetrologyConfiguration().getContracts().stream()
                 .map(effectiveMetrologyConfiguration::getChannelsContainer)
                 .flatMap(Functions.asStream())
                 .flatMap(channelsContainer -> channelsContainer.getChannels().stream())
-                .filter(usagePointChannelSearchCriteria.getFilterPredicate())
+                .filter(usagePointChannelType.getFilterPredicate())
                 .filter(channel -> channel.getId() == channelId)
                 .findAny()
-                .orElseThrow(() -> exceptionFactory.newException(usagePointChannelSearchCriteria.getNoSuchElementMessageSeed(),
+                .orElseThrow(() -> exceptionFactory.newException(usagePointChannelType.getNoSuchElementMessageSeed(),
                         effectiveMetrologyConfiguration.getUsagePoint().getName(), channelId));
     }
 }

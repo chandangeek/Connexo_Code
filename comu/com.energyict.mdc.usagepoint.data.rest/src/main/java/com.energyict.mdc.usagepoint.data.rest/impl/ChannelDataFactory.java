@@ -9,12 +9,14 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 
 /**
- * Channel info separator is an abstraction to implement different representation for {@link Channel} objects.<br>
+ * Channel data factory represents an abstraction to implement different representation for {@link Channel} objects.<br>
  * Currently, channel may be represented as channel or register.
  *
- * @param <T> corresponding info object representing {@link Channel} instance
+ * @param <I> corresponding info object representing {@link Channel} instance
+ * @param <C> corresponding usage point channel type
  */
-public interface UsagePointChannelInfoSeparator<T> extends UsagePointChannelSearchCriteria {
+public interface ChannelDataFactory<I extends AbstractUsagePointChannelInfo, C extends UsagePointChannelRepresentationType> {
+
     /**
      * Method to build info object to represent {@link Channel}
      *
@@ -23,5 +25,14 @@ public interface UsagePointChannelInfoSeparator<T> extends UsagePointChannelSear
      * @param metrologyConfiguration {@link UsagePointMetrologyConfiguration} related to channel
      * @return corresponding info object
      */
-    T from(Channel channel, UsagePoint usagePoint, UsagePointMetrologyConfiguration metrologyConfiguration);
+    I from(Channel channel, UsagePoint usagePoint, UsagePointMetrologyConfiguration
+            metrologyConfiguration);
+
+    /**
+     * Provide channel type
+     *
+     * @return {@link UsagePointChannelRepresentationType} channel type
+     */
+    C getChannelType();
+
 }
