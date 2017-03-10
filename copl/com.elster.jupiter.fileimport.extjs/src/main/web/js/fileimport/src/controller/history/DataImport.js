@@ -99,7 +99,15 @@ Ext.define('Fim.controller.history.DataImport', {
                             controller: 'Fim.controller.Log',
                             action: 'showImportServicesHistoryLogWorkspace',
                             filter: 'Fim.model.LogFilter',
-                            privileges: Fim.privileges.DataImport.viewHistory
+                            privileges: Fim.privileges.DataImport.viewHistory,
+                            callback: function (route) {
+                                this.getApplication().on('importhistorylogload', function (record) {
+                                    route.setTitle(Uni.I18n.translate('general.logx', 'FIM', "Log '{0}'", [record.get('startedOnDisplay')], false));
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            }
                         }
                     }
                 }

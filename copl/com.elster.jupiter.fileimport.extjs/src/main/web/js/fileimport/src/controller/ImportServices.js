@@ -114,7 +114,7 @@ Ext.define('Fim.controller.ImportServices', {
                     actionsMenu.record = recordDetails;
                 }
 
-                view.down('#import-service-view-menu #import-services-view-link').setText(recordDetails.get('name'));
+                view.down('#import-service-view-menu').setHeader(recordDetails.get('name'));
                 new Ext.ToolTip({
                     target: view.down('#dsf-status-display').getEl(),
                     dismissDelay: 5000,

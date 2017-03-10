@@ -14,16 +14,6 @@ Ext.define('Fim.view.history.ImportServicesHistoryTopFilter', {
 
         me.filters = [
             {
-                type: 'combobox',
-                dataIndex: 'importService',
-                emptyText: Uni.I18n.translate('general.importService', 'FIM', 'Import service'),
-                multiSelect: true,
-                displayField: 'name',
-                valueField: 'id',
-                store: 'Fim.store.ImportServicesFilter',
-                hidden: !me.includeServiceCombo
-            },
-            {
                 type: 'interval',
                 dataIndex: 'started',
                 dataIndexFrom: 'startedOnFrom',
@@ -36,6 +26,16 @@ Ext.define('Fim.view.history.ImportServicesHistoryTopFilter', {
                 dataIndexFrom: 'finishedOnFrom',
                 dataIndexTo: 'finishedOnTo',
                 text: Uni.I18n.translate('importService.history.finished', 'FIM', 'Finished between')
+            },
+            {
+                type: 'combobox',
+                dataIndex: 'importService',
+                emptyText: Uni.I18n.translate('general.importService', 'FIM', 'Import service'),
+                multiSelect: true,
+                displayField: 'name',
+                valueField: 'id',
+                store: 'Fim.store.ImportServicesFilter',
+                hidden: !me.includeServiceCombo
             },
             {
                 type: 'combobox',

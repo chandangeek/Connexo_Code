@@ -88,7 +88,7 @@ Ext.define('Fim.controller.History', {
         if (!noSpecificImportService) {
             importServiceModel.load(importServiceId, {
                 success: function (record) {
-                    view.down('#history-view-menu #import-service-view-link').setText(record.get('name'));
+                    view.down('#history-view-menu').setHeader(record.get('name'));
                     me.getApplication().fireEvent('importserviceload', record.get('name'));
                 }
             });
@@ -101,12 +101,18 @@ Ext.define('Fim.controller.History', {
             page = me.getPage(),
             sortContainer = page.down('container[name=sortitemspanel]').getContainer(),
             store = me.getStore('Fim.store.ImportServicesHistory'),
+            menu = page.down('#menu-history-sort'),
             sorting,
             menuItem,
             cls;
 
         sortContainer.removeAll();
         sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']);
+
+        menu.down('[name=startDate]').show();
+        menu.down('[name=status]').show();
+        page.down('#add-sort-btn').enable();
+
 
         if (Ext.isArray(sorting)) {
             Ext.Array.each(sorting, function (sortItem) {
@@ -125,8 +131,12 @@ Ext.define('Fim.controller.History', {
                         sortDirection: sortItem.direction,
                         iconCls: cls
                     });
+                    menuItem.hide();
                 }
             });
+        }
+        if (menu.down('[name=startDate]').hidden  && menu.down('[name=status]').hidden){
+            page.down('#add-sort-btn').disable();
         }
     },
 
