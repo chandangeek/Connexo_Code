@@ -6,6 +6,7 @@
     @include border-radius(8px);
     background: #ebebeb;
     margin-bottom: 16px;
+    overflow: hidden;
 
     padding: 0 {
         top: 10px;
@@ -19,6 +20,24 @@
         padding-left: 4px;
         font-size: 24px;
         color: #1e7d9e;
+
+        .#{$prefix}menu-header-object-type {
+          font-size: 14px;
+          font-family: 'Lato', helvetica, arial, verdana, sans-serif;
+          padding-left: 0px;
+          font-weight: bold;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          width: 210px;
+        }
+
+        .#{$prefix}menu-header-object-name {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          width: 210px;
+        }
     }
 
     .#{$prefix}menu-item + .#{$prefix}menu-item .#{$prefix}menu-item-link {
@@ -35,7 +54,6 @@
 
     .#{$prefix}menu-body {
         background: none;
-        padding: 8px 0;
 
         .#{$prefix}menu-item {
             padding: 0 !important;
@@ -93,6 +111,10 @@
         margin-bottom: 8px;
         left: 0;
 
+        &-collapsed {
+            margin-bottom: 20px !important;
+        }
+
         .#{$prefix}panel-header {
             font-family: 'Lato', helvetica, arial, verdana, sans-serif;
             border-bottom: 1px solid #d4d4d4 !important;
@@ -101,6 +123,7 @@
             padding-left: 0;
             font-size: 14px;
             color: #686868;
+            cursor: pointer;
         }
 
         .#{$prefix}menu-item {

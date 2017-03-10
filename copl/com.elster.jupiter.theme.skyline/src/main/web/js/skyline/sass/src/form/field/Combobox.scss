@@ -6,3 +6,10 @@
   color: $color-grey-1;
   font-size: 11px;
 }
+
+.stretchy-combo {
+  width: 100%;
+  .#{$prefix}form-trigger-wrap {
+    width: 100% !important;
+  }
+}
