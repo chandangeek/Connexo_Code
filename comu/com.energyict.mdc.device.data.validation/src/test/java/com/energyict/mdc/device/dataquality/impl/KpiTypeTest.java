@@ -37,8 +37,8 @@ public class KpiTypeTest {
 
         // Asserts
         assertThat(sqlBuilder.toString()).isEqualTo(
-                ", " + WITH_CLAUSE_ALIAS + " (devicegroup, device, value, timestamp) as" +
-                        " (select devicegroup, device, value, timestamp from allData where kpitype ='" + KPI_TYPE + "' and latest = 'Y')");
+                ", " + WITH_CLAUSE_ALIAS + " (device, value, latest) as" +
+                        " (select device, value, latest from allData where kpitype ='" + KPI_TYPE + "')");
     }
 
     @Test
@@ -58,7 +58,7 @@ public class KpiTypeTest {
 
         // Asserts
         assertThat(sqlBuilder.toString()).isEqualTo(
-                ", max(totalSuspectsKpi.timestamp), nvl(max(totalSuspectsKpi.value), 0) as totalSuspectValues");
+                ", max(totalSuspectsKpi.latest), nvl(max(totalSuspectsKpi.value), 0) as totalSuspectValues");
     }
 
     @Test
@@ -69,7 +69,7 @@ public class KpiTypeTest {
         // Asserts
         assertThat(sqlBuilder.toString()).isEqualTo(
                 " join " + WITH_CLAUSE_ALIAS + " " + KPI_TABLE_NAME + " on "
-                        + KPI_TABLE_NAME + ".device = dev.meterid and " + KPI_TABLE_NAME + ".devicegroup = allKpi.devicegroup"
+                        + KPI_TABLE_NAME + ".device = dev.meterid"
         );
     }
 
@@ -81,7 +81,7 @@ public class KpiTypeTest {
         // Asserts
         assertThat(sqlBuilder.toString()).isEqualTo(
                 " join " + WITH_CLAUSE_ALIAS + " " + KPI_TABLE_NAME + " on "
-                        + KPI_TABLE_NAME + ".device = dev.meterid and " + KPI_TABLE_NAME + ".devicegroup = allKpi.devicegroup"
+                        + KPI_TABLE_NAME + ".device = dev.meterid"
         );
     }
 
@@ -93,7 +93,7 @@ public class KpiTypeTest {
         // Asserts
         assertThat(sqlBuilder.toString()).isEqualTo(
                 " left join " + WITH_CLAUSE_ALIAS + " " + KPI_TABLE_NAME + " on "
-                        + KPI_TABLE_NAME + ".device = dev.meterid and " + KPI_TABLE_NAME + ".devicegroup = allKpi.devicegroup"
+                        + KPI_TABLE_NAME + ".device = dev.meterid"
         );
     }
 
