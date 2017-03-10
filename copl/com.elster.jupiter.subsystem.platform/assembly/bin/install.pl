@@ -15,7 +15,7 @@ use Archive::Zip;
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
-my $INSTALL_VERSION="v20170210";
+my $INSTALL_VERSION="v20170223";
 my $OS="$^O";
 my $JAVA_HOME="";
 my $CURRENT_DIR=getcwd;
@@ -44,7 +44,7 @@ my $UPGRADE_OLD_SERVICE_VERSION="";
 
 my $HOST_NAME, my $CONNEXO_HTTP_PORT, my $TOMCAT_HTTP_PORT;
 my $jdbcUrl, my $dbUserName, my $dbPassword, my $CONNEXO_SERVICE, my $CONNEXO_URL;
-my $FACTS_DB_HOST, my $FACTS_DB_PORT, my $FACTS_DB_NAME, my $FACTS_DBUSER, my $FACTS_DBPASSWORD, my $FACTS_LICENSE;
+my $FACTS_DB_HOST, my $FACTS_DB_PORT, my $FACTS_DB_NAME, my $FACTS_DB_USE_SERVICE_NAME, my $FACTS_DBUSER, my $FACTS_DBPASSWORD, my $FACTS_LICENSE;
 my $FLOW_JDBC_URL, my $FLOW_DB_USER, my $FLOW_DB_PASSWORD;
 
 my $TOMCAT_DIR="tomcat";
@@ -174,6 +174,7 @@ sub read_config {
                 if ( "$val[0]" eq "FACTS_DB_HOST" )                 {$FACTS_DB_HOST=$val[1];}
                 if ( "$val[0]" eq "FACTS_DB_PORT" )                 {$FACTS_DB_PORT=$val[1];}
                 if ( "$val[0]" eq "FACTS_DB_NAME" )                 {$FACTS_DB_NAME=$val[1];}
+                if ( "$val[0]" eq "FACTS_DB_USE_SERVICE_NAME" )     {$FACTS_DB_FACTS_DB_USE_SERVICE_NAME=$val[1];}
                 if ( "$val[0]" eq "FACTS_DBUSER" )                  {$FACTS_DBUSER=$val[1];}
                 if ( "$val[0]" eq "FACTS_DBPASSWORD" )              {$FACTS_DBPASSWORD=$val[1];}
                 if ( "$val[0]" eq "FACTS_LICENSE" )                 {$FACTS_LICENSE=$val[1];}
@@ -228,6 +229,8 @@ sub read_config {
             chomp($FACTS_DB_PORT=<STDIN>);
             print "Please enter the oracle database name for Facts: ";
             chomp($FACTS_DB_NAME=<STDIN>);
+            print "Will the connection to the oracle database use service name instead of SID? (yes/no): ";
+            chomp($FACTS_DB_FACTS_DB_USE_SERVICE_NAME=<STDIN>);
             print "Please enter the database user for Facts: ";
             chomp($FACTS_DBUSER=<STDIN>);
             print "Please enter the database password for Facts database user: ";
@@ -538,6 +541,9 @@ sub install_facts {
 		print $FH "option.db.hostname=$FACTS_DB_HOST\n";
 		print $FH "option.db.port=$FACTS_DB_PORT\n";
 		print $FH "option.db.dbname=$FACTS_DB_NAME\n";
+		if($FACTS_DB_FACTS_DB_USE_SERVICE_NAME eq "yes"){
+		    print $FH "option.db.oracleconnectionmode=service\n";
+		}
 		print $FH "option.db.username=$FACTS_DBUSER\n";
 		print $FH "option.db.userpassword=$FACTS_DBPASSWORD\n";
 		print $FH "option.db.dbausername=$FACTS_DBUSER\n";
