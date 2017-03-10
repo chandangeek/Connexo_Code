@@ -61,7 +61,7 @@ public enum TableSpecs {
             Column obsoleteColumn = table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
             table.addAuditColumns();
             table.primaryKey("VAL_PK_VALIDATIONRULESET").on(idColumn).add();
-            table.unique("VAL_U_VALIDATIONRULESET").on(mRIDColumn).add();;
+            table.unique("VAL_U_VALIDATIONRULESET").on(mRIDColumn).add();
             table.unique("VAL_UQ_RULESET_NAME").on(nameColumn, obsoleteColumn).upTo(version(10, 3)).add();
             table.unique("VAL_UQ_RULESET_NAME").on(nameColumn, obsoleteColumn, qualitySystemColumn).since(version(10, 3)).add();
         }
