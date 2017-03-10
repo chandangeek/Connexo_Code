@@ -46,28 +46,17 @@ Ext.define('Imt.purpose.view.registers.MainAddEdit', {
     },
 
     showErrors: function (errors) {
-        var me = this,
-            formErrorsPlaceHolder = me.down('#registerDataEditFormErrors');
         Ext.suspendLayouts();
-        if(errors){
-            me.down('#registerDataEditForm').getForm().markInvalid(errors);
-        }
-        formErrorsPlaceHolder.hide();
-        formErrorsPlaceHolder.removeAll();
-        formErrorsPlaceHolder.add({
-            html: Uni.I18n.translate('general.formErrors', 'IMT', 'There are errors on this page that require your attention.')
-        });
-        Ext.resumeLayouts();
-        formErrorsPlaceHolder.show();
+        this.down('#registerDataEditFormErrors').show();
+        this.down('#timeStampEditField #date-time-field-date').markInvalid(errors[0].msg);
+        Ext.resumeLayouts(true);
     },
 
     hideErrors: function(){
-        var me = this,
-            formErrorsPlaceHolder = me.down('#registerDataEditFormErrors');
         Ext.suspendLayouts();
-        formErrorsPlaceHolder.hide();
-        formErrorsPlaceHolder.removeAll();
-        Ext.resumeLayouts();
+        this.down('form').getForm().clearInvalid();
+        this.down('#registerDataEditFormErrors').hide();
+        Ext.resumeLayouts(true);
     },
 
     initComponent: function () {
