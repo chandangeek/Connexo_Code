@@ -199,7 +199,6 @@ public class IssueCreationServiceImpl implements IssueCreationService {
                     }
                 }
         );
-        //  });
     }
 
     private void createNewIssue(CreationRule firedRule, IssueEvent event, CreationRuleTemplate template) {
