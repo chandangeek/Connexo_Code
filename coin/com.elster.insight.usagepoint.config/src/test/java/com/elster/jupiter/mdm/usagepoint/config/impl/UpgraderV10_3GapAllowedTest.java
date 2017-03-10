@@ -34,7 +34,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Created by dantonov on 09.03.2017.
+ * Test {@link UpgraderV10_3#upgradeGapAllowedFlagForMetrologyConfigurations()} method
  */
 @RunWith(MockitoJUnitRunner.class)
 public class UpgraderV10_3GapAllowedTest {
