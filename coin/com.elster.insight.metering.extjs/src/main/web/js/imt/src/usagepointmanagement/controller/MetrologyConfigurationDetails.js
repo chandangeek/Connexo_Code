@@ -85,8 +85,10 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
 
     triggerActivation: function (record) {
         var me = this,
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             usagePointPurpose = Ext.create('Imt.usagepointmanagement.model.Purpose', record.getData());
 
+        mainView.setLoading();
         usagePointPurpose.triggerActivation(me.usagePoint, {
             isNotEdit: true,
             success: function (response) {
@@ -98,6 +100,9 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('purpose.deactivated', 'IMT', 'Purpose deactivated'));
                 }
                 me.getController('Uni.controller.history.Router').getRoute().forward();
+            },
+            callback: function () {
+                mainView.setLoading(false);
             }
         });
     },
