@@ -149,9 +149,7 @@ public class DeviceResource {
         if (info.deviceConfiguration != null && info.deviceConfiguration.id != null) {
             deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfiguration.id);
         }
-        if(!deviceConfiguration.isPresent()){
-            deviceConfiguration = findApplicableDeviceConfiguration(info);
-        }
+        deviceConfiguration = deviceConfiguration.map(Optional::of).orElse(findApplicableDeviceConfiguration(info));
 
         Device newDevice;
         if (!is(info.batch).emptyOrOnlyWhiteSpace()) {

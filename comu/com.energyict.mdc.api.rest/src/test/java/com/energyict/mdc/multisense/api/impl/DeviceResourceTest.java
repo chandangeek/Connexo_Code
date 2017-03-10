@@ -5,6 +5,11 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
@@ -17,6 +22,7 @@ import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
@@ -39,6 +45,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +53,9 @@ import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -85,7 +94,7 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
     public void testDeviceFields() throws Exception {
         Response response = target("/devices").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("$")).hasSize(23);
+        assertThat(model.<List>get("$")).hasSize(26);
         assertThat(model.<List<String>>get("$")).containsOnly("actions", "batch", "connectionMethods", "deviceConfiguration",
                 "deviceProtocolPluggeableClassId", "gatewayType", "id", "isDirectlyAddressable", "isGateway", "lifecycleState",
                 "link", "mRID", "name", "physicalGateway", "serialNumber","manufacturer", "modelNumber", "modelVersion",
@@ -338,6 +347,47 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
 
         target("/devicetypes").queryParam("fields", "deviceConfigurations").request("application/json").get();
 
+    }
+
+    @Test
+    public void testCreatedeviceWithFindingApplicableDeviceConfiguration() {
+        DeviceInfo info = new DeviceInfo();
+        info.yearOfCertification = 2017;
+        info.deviceConfiguration = new DeviceConfigurationInfo();
+        LinkInfo deviceTypeInfo = new LinkInfo();
+        deviceTypeInfo.id = "testDeviceType";
+        info.deviceConfiguration.deviceType = deviceTypeInfo;
+        info.serialNumber = "12345";
+        info.usagePoint = "5ba4bd20-3173-43ac-a45b-032f00771b85";
+        info.meterRole = "meter.role.Default";
+
+        DeviceType deviceType = mockDeviceType(123, "testDeviceType", 12345L);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1234, "Default", deviceType, 3333L);
+        when(deviceConfiguration.isActive()).thenReturn(true);
+        when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
+        when(deviceConfigurationService.findDeviceTypeByName("testDeviceType")).thenReturn(Optional.of(deviceType));
+        UsagePoint usagePoint = mockUsagePoint(123L, "Usage Point", 345L, ServiceKind.ELECTRICITY);
+        when(meteringService.findUsagePointByMRID(info.usagePoint)).thenReturn(Optional.of(usagePoint));
+        MeterRole meterRole = mock(MeterRole.class);
+        when(meterRole.getKey()).thenReturn(info.meterRole);
+        when(metrologyConfigurationService.findMeterRole(info.meterRole)).thenReturn(Optional.of(meterRole));
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(134L, "testMC", 345L);
+        when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
+        when(metrologyConfiguration.getContracts()).thenReturn(Collections.emptyList());
+        Device newDevice = mockDevice("4dac4bd90-2673-488c-342b-032628771b85", info.serialNumber, deviceConfiguration, 123L);
+        when(deviceService.newDevice(eq(deviceConfiguration), any(String.class), any(Instant.class))).thenReturn(newDevice);
+        when(newDevice.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(newDevice.getUsagePoint()).thenReturn(Optional.empty());
+        when(newDevice.getDeviceType()).thenReturn(deviceType);
+        CIMLifecycleDates lifecycleDates = mock(CIMLifecycleDates.class);
+        when(lifecycleDates.getInstalledDate()).thenReturn(Optional.empty());
+        when(newDevice.getLifecycleDates()).thenReturn(lifecycleDates);
+
+        Response response = target("/devices").request("application/json").post(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(201);
+        verify(deviceService, times(1)).newDevice(eq(deviceConfiguration), any(String.class), any(Instant.class));
     }
 
     private ExecutableAction mockExecutableAction(Long id, String name, MicroAction microAction, PropertySpec... propertySpecs) {
