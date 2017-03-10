@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.fileimport.rest.impl;
 
+import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
@@ -15,6 +16,7 @@ import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import javax.inject.Inject;
+import java.util.List;
 
 public class FileImportScheduleInfoFactory {
 
@@ -67,7 +69,13 @@ public class FileImportScheduleInfoFactory {
             }
         }
 
-        info.scheduled = !appService.getImportScheduleAppServers(importSchedule.getId()).isEmpty();
+        List<AppServer> importScheduleAppServers = appService.getImportScheduleAppServers(importSchedule.getId());
+        info.scheduled = !importScheduleAppServers.isEmpty();
+        if (info.scheduled) {
+            info.fullImportPath = String.valueOf(importScheduleAppServers.get(0)
+                    .getImportDirectory().get().resolve(importSchedule.getImportDirectory()));
+        }
+
         info.properties = propertyValueInfoService.getPropertyInfos(importSchedule.getPropertySpecs(), importSchedule.getProperties());
         info.version = importSchedule.getVersion();
         return info;
