@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Est.estimationtasks.controller.EstimationTasksLog', {
     extend: 'Ext.app.Controller',
     views: [
@@ -17,6 +21,15 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksLog', {
             selector: 'estimationtasks-log-setup'
         }
     ],
+
+    requires: [
+        'Uni.util.LogLevel'
+    ],
+
+    init: function () {
+        Uni.util.LogLevel.loadLogLevels();
+        this.callParent(arguments);
+    },
 
     showLog: function (taskId, occurrenceId) {
         var me = this,
@@ -48,7 +61,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksLog', {
                     });
                     sideMenu = widget.down('#estimationtasks-log-menu');
                     me.getApplication().fireEvent('estimationTaskLoaded', record);
-                    widget.down("#estimationtasks-overview-link").setText(record.get('name'));
+                    widget.down('#estimationtasks-log-menu').setHeader(record.get('name'));
                     widget.down('#estimationtasks-log-preview-form').loadRecord(occurrenceTask);
                     widget.down('#run-started-on').setValue(runStartedOnFormatted);
                     me.getApplication().fireEvent('changecontentevent', widget);

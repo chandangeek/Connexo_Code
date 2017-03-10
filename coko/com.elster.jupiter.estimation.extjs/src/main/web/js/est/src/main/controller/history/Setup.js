@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Est.main.controller.history.Setup', {
     extend: 'Uni.controller.history.Converter',
     rootToken: 'administration',

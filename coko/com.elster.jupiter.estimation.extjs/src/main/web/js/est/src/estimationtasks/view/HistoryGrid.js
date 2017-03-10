@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Est.estimationtasks.view.HistoryGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.estimationtasks-history-grid',

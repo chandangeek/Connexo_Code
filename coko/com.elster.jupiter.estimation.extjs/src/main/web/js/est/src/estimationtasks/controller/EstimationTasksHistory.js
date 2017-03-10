@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Est.estimationtasks.controller.EstimationTasksHistory', {
     extend: 'Ext.app.Controller',
 
@@ -45,7 +49,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksHistory', {
                 widget = Ext.widget('estimationtasks-history', {router: router, taskId: currentTaskId});
                 me.getApplication().fireEvent('changecontentevent', widget);
                 Ext.suspendLayouts();
-                me.getOverviewLink().setText(record.get('name'));
+                widget.down('#estimationtasks-side-menu').setHeader(record.get('name'));
                 me.getApplication().fireEvent('estimationTaskLoaded', record);
                 Ext.resumeLayouts(true);
             },

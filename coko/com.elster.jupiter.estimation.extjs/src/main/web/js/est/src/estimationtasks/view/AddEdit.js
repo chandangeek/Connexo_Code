@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Est.estimationtasks.view.AddEdit', {
     extend: 'Uni.view.container.ContentContainer',
     requires: [
         'Uni.form.field.DateTime',
         'Uni.util.FormErrorMessage',
-        'Est.estimationtasks.view.DataSourcesContainer'
+        'Est.estimationtasks.view.DataSourcesContainer',
+        'Uni.store.LogLevels'
     ],
     alias: 'widget.estimationtasks-addedit',
 
@@ -47,6 +52,19 @@ Ext.define('Est.estimationtasks.view.AddEdit', {
                                 field.focus(false, 200);
                             }
                         }
+                    },
+                    {
+                        xtype: 'combobox',
+                        fieldLabel: Uni.I18n.translate('general.logLevel', 'EST', 'Log level'),
+                        required: true,
+                        name: 'logLevel',
+                        width: 500,
+                        itemId: 'est-tasks-add-loglevel',
+                        allowBlank: false,
+                        store: 'LogLevelsStore',
+                        queryMode: 'local',
+                        displayField: 'displayValue',
+                        valueField: 'id'
                     },
                     {
                         title: Uni.I18n.translate('estimationtasks.general.dataSources', 'EST', 'Data sources'),
@@ -195,6 +213,7 @@ Ext.define('Est.estimationtasks.view.AddEdit', {
                                     },
                                     {
                                         itemId: 'period',
+                                        margin: '5 0 0 0',
                                         boxLabel: Uni.I18n.translate('estimationtasks.general.period', 'EST', 'Period'),
                                         inputValue: true,
                                         listeners: {
@@ -209,7 +228,7 @@ Ext.define('Est.estimationtasks.view.AddEdit', {
                                 itemId: 'estimation-period-values',
                                 xtype: 'fieldcontainer',
                                 name: 'estimationPeriodValues',
-                                margin: '30 0 10 0',
+                                margin: '27 0 10 0',
                                 layout: 'hbox',
                                 items: [
                                     {

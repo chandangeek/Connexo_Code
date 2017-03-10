@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Est.estimationrulesets.view.RuleSetDetails', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.rule-set-details',
@@ -15,7 +19,7 @@ Ext.define('Est.estimationrulesets.view.RuleSetDetails', {
         me.content = [
             {
                 xtype: 'form',
-                title: Uni.I18n.translate('general.overview', 'EST', 'Overview'),
+                title: Uni.I18n.translate('general.details', 'EST', 'Details'),
                 ui: 'large',
                 itemId: 'rule-set-form',
                 defaults: {

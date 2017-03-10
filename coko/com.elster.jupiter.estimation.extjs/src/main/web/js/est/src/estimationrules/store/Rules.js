@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Est.estimationrules.store.Rules', {
     extend: 'Ext.data.Store',
     model: 'Est.estimationrules.model.Rule',

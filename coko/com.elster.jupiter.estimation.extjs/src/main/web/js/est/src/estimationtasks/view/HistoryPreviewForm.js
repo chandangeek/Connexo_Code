@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Est.estimationtasks.view.HistoryPreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.estimationtasks-history-preview-form',
 
     requires: [
-        'Uni.form.field.Duration'
+        'Uni.form.field.Duration',
+        'Uni.form.field.LogLevelDisplay'
     ],
 
 
@@ -14,6 +19,10 @@ Ext.define('Est.estimationtasks.view.HistoryPreviewForm', {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('general.name', 'EST', 'Name'),
                 name: 'name',
+                labelWidth: 250
+            },
+            {
+                xtype: 'log-level-displayfield',
                 labelWidth: 250
             },
             {
@@ -34,6 +43,11 @@ Ext.define('Est.estimationtasks.view.HistoryPreviewForm', {
                     {
                         fieldLabel: Uni.I18n.translate('estimationtasks.general.usagePointGroup', 'EST', 'Usage point group'),
                         name: 'usagePointGroup',
+                        hidden: typeof(MdmApp) == 'undefined'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('estimationtasks.general.purpose', 'EST', 'Purpose'),
+                        name: 'metrologyPurpose',
                         hidden: typeof(MdmApp) == 'undefined'
                     }
                 ]

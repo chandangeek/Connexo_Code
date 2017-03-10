@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * This file is generated as a starting point by Sencha Cmd - it will not be replaced or
  * updated by "sencha package upgrade".
  * 

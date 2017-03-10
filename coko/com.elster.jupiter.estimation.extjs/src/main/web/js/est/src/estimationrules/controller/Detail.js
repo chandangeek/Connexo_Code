@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Est.estimationrules.controller.Detail', {
     extend: 'Ext.app.Controller',
     requires: [
@@ -48,7 +52,7 @@ Ext.define('Est.estimationrules.controller.Detail', {
             callback: function (record, operation, success) {
                 widget.setLoading(false);
                 if (success && widget.rendered) {
-                    me.getSideMenu().down('#estimation-rule-link').setText(record.get('name'));
+                    me.getSideMenu().setHeader(record.get('name'));
                     me.getApplication().fireEvent('loadEstimationRule', record);
                     widget.down('estimation-rules-detail-form').updateForm(record);
                     widget.down('#estimation-rule-detail-action-menu').record = record;

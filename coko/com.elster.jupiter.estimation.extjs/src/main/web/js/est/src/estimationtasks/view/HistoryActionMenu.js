@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Est.estimationtasks.view.HistoryActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.estimationtasks-history-action-menu',
