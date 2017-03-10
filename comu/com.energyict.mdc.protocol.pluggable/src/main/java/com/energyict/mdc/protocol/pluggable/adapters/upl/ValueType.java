@@ -5,8 +5,8 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
+import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
-import com.energyict.mdc.upl.properties.FirmwareVersion;
 import com.energyict.mdc.upl.properties.HexString;
 import com.energyict.mdc.upl.properties.LinePoint;
 import com.energyict.mdc.upl.properties.Lis200Address;
@@ -71,7 +71,7 @@ public enum ValueType {
             return true;
         }
     },
-    FIRMWARE_VERSION("com.energyict.mdc.upl.properties.FirmwareVersion", FirmwareVersion.class, Types.NUMERIC) {
+    FIRMWARE_VERSION("com.energyict.mdc.upl.properties.FirmwareVersion", BaseFirmwareVersion.class, Types.NUMERIC) {
         @Override
         boolean isReference() {
             return true;
