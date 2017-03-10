@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -83,17 +84,15 @@ public class UpgraderV10_3GapAllowedTest {
                         ootbMetrologyConfiguration.isGapAllowed())).collect(Collectors.toList()));
 
         when(metrologyConfigurationService.findAllMetrologyConfigurations()).thenReturn
-                (new ArrayList<MetrologyConfiguration>() {{
-                    addAll(correctOotbMetrologyConfigurations);
-                    add(notOotbConfiguration);
-                }});
+                (Stream.concat(correctOotbMetrologyConfigurations.stream(), Stream.of(notOotbConfiguration))
+                        .collect(Collectors.toList()));
 
         upgrader.migrate(dataModelUpgrader);
 
         correctOotbMetrologyConfigurations.forEach((metrologyConfiguration ->
                 verify(metrologyConfiguration, times(0)).startUpdate()));
 
-        verifyCustomConfigurationNotUpdated(notOotbConfiguration);
+        verify(notOotbConfiguration, times(0)).startUpdate();
     }
 
     /**
@@ -112,28 +111,15 @@ public class UpgraderV10_3GapAllowedTest {
                 .collect(Collectors.toList()));
 
         when(metrologyConfigurationService.findAllMetrologyConfigurations()).thenReturn
-                (new ArrayList<MetrologyConfiguration>() {{
-                    addAll(incorrectOotbMetrologyConfigurations);
-                    add
-                            (notOotbConfiguration);
-                }});
+                (Stream.concat(incorrectOotbMetrologyConfigurations.stream(), Stream.of(notOotbConfiguration))
+                        .collect(Collectors.toList()));
 
         upgrader.migrate(dataModelUpgrader);
 
         incorrectOotbMetrologyConfigurations.forEach((metrologyConfiguration ->
                 verify(metrologyConfiguration, times(1)).startUpdate()));
 
-        verifyCustomConfigurationNotUpdated(notOotbConfiguration);
-    }
-
-    private void verifyCustomConfigurationNotUpdated(MetrologyConfiguration metrologyConfiguration) {
-        // not updated
-        verify(metrologyConfiguration, times(0)).startUpdate();
-        // name comparison with each ootb configuration since it does not match any
-        verify(metrologyConfiguration, times(MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration.values().length))
-                .getName();
-        // one call for predicate creation
-        verify(metrologyConfiguration, times(1)).isGapAllowed();
+        verify(notOotbConfiguration, times(0)).startUpdate();
     }
 
     private UsagePointMetrologyConfiguration mockMetrologyConfiguration(String name, boolean isGapAllowed) {
