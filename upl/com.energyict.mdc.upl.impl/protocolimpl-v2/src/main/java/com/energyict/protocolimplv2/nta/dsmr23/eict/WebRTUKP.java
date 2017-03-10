@@ -252,7 +252,7 @@ public class WebRTUKP extends AbstractDlmsProtocol {
 
         ObisCode moduleActiveFirmwareVersionObisCode = ObisCode.fromString("1.1.0.2.8.255");
         try {
-            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getRegister(moduleActiveFirmwareVersionObisCode).getValueAttr();
+            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getData(moduleActiveFirmwareVersionObisCode).getValueAttr();
             String fwVersion = valueAttr.isOctetString() ? valueAttr.getOctetString().stringValue() : valueAttr.toBigDecimal().toString();
             result.setActiveCommunicationFirmwareVersion(fwVersion);
         } catch (IOException e) {

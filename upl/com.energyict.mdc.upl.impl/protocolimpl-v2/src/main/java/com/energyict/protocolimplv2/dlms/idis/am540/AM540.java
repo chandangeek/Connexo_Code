@@ -588,7 +588,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
         ObisCode activeCommunicationFirmwareVersion = ObisCode.fromString("1.2.0.2.0.255");
         try {
-            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getRegister(activeCommunicationFirmwareVersion).getValueAttr();
+            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getData(activeCommunicationFirmwareVersion).getValueAttr();
             String fwVersion = valueAttr.isOctetString() ? valueAttr.getOctetString().stringValue() : valueAttr.toBigDecimal().toString();
             result.setActiveCommunicationFirmwareVersion(fwVersion);
         } catch (IOException e) {
