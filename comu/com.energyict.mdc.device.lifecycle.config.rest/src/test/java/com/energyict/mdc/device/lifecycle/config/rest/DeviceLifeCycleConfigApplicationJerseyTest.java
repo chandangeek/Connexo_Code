@@ -13,6 +13,7 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.TranslationKey;
@@ -140,7 +141,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
     private State mockSimpleState(long id, DefaultState defaultState) {
         State state = mock(State.class);
         Stage stage = mock(Stage.class);
-        when(stage.getName()).thenReturn("OPERATIONAL");
+        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.getKey());
         when(state.getStage()).thenReturn(Optional.of(stage));
         when(deviceLifeCycleConfigurationService.getStageDisplayName(any())).thenReturn("Operational");
         when(state.getId()).thenReturn(id);
@@ -156,7 +157,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
     protected State mockSimpleState(long id, String name) {
         State state = mock(State.class);
         Stage stage = mock(Stage.class);
-        when(stage.getName()).thenReturn("OPERATIONAL");
+        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.getKey());
         when(deviceLifeCycleConfigurationService.getStageDisplayName(any())).thenReturn("Operational");
         when(state.getStage()).thenReturn(Optional.of(stage));
         when(state.getId()).thenReturn(id);
@@ -172,7 +173,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
     private State mockSimpleStateWithEntryAndExitProcesses(long id, String name, StateChangeBusinessProcess[] onEntry, StateChangeBusinessProcess[] onExit) {
         State state = mock(State.class);
         Stage stage = mock(Stage.class);
-        when(stage.getName()).thenReturn("OPERATIONAL");
+        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.getKey());
         when(deviceLifeCycleConfigurationService.getStageDisplayName(any())).thenReturn("Operational");
         when(state.getStage()).thenReturn(Optional.of(stage));
         when(state.getId()).thenReturn(id);
