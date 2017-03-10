@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.config.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -73,6 +78,7 @@ public class MetrologyInMemoryBootstrapModule {
                 new UsagePointConfigModule(),
                 new IdsModule(),
                 new UsagePointLifeCycleConfigurationModule(),
+                new CalendarModule(),
                 new MeteringModule(),
                 new PartyModule(),
                 new FiniteStateMachineModule(),
