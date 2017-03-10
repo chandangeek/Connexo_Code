@@ -541,14 +541,14 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     }
                 };
                 changedData.push(confirmedObj);
-            } else if (record.get('ruleId')) {
+            } else if (record.get('mainValidationInfo').ruleId || record.get('bulkValidationInfo').ruleId) {
                 confirmedObj = {
                     interval: record.get('interval'),
                     mainValidationInfo: {
                         ruleId: record.get('mainValidationInfo').estimatedNotSaved ? record.get('mainValidationInfo').ruleId : null
                     },
                     bulkValidationInfo: {
-                        ruleId: record.get('bulkValidationInfo').estimatedNotSaved ? record.get('mainValidationInfo').ruleId : null
+                        ruleId: record.get('bulkValidationInfo').estimatedNotSaved ? record.get('bulkValidationInfo').ruleId : null
                     }
                 };
                 changedData.push(confirmedObj);
