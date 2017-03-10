@@ -327,6 +327,7 @@ public class DeviceDataQualityKpiIT extends BaseTestIT {
     public void makeObsolete() {
         EndDeviceGroup endDeviceGroup = createEndDeviceGroup();
         DeviceDataQualityKpiImpl kpi = (DeviceDataQualityKpiImpl) dataQualityKpiService.newDataQualityKpi(endDeviceGroup, ONE_HOUR);
+        String recurrentTaskName = kpi.getRecurrentTaskName();
 
         // Business method
         kpi.makeObsolete();
@@ -339,7 +340,7 @@ public class DeviceDataQualityKpiIT extends BaseTestIT {
         List<DeviceDataQualityKpi> found = dataQualityKpiService.deviceDataQualityKpiFinder().forGroup(endDeviceGroup).find();
         assertThat(found).isEmpty();
 
-        Optional<RecurrentTask> recurrentTask = get(TaskService.class).getRecurrentTask(kpi.getRecurrentTaskName());
+        Optional<RecurrentTask> recurrentTask = get(TaskService.class).getRecurrentTask(recurrentTaskName);
         assertThat(recurrentTask).isEmpty();
     }
 

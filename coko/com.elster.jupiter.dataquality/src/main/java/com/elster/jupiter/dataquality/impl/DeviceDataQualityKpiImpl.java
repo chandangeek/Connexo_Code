@@ -166,4 +166,10 @@ public final class DeviceDataQualityKpiImpl extends DataQualityKpiImpl implement
     public static String kpiMemberNameSuffix(Meter meter) {
         return "" + meter.getId();
     }
+
+    @Override
+    public void makeObsolete() {
+        this.deviceGroup.setNull();
+        super.makeObsolete();
+    }
 }
