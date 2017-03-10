@@ -58,11 +58,10 @@ import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.usagepoint.calendar.UsagePointCalendarService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 
 import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
@@ -105,7 +104,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     @Mock
     EstimationService estimationService;
     @Mock
-    ValidationService validationService;
+    ValidationServiceImpl validationService;
     @Mock
     DataAggregationService dataAggregationService;
     @Mock
