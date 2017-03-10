@@ -31,6 +31,7 @@ Ext.define('Fim.model.ImportService', {
         'scanFrequency',
         'importerInfo',
         'activeInUI',
+        {name: 'fullImportPath', persist: false},
         {
             name: 'statusDisplay',
             persist: false,

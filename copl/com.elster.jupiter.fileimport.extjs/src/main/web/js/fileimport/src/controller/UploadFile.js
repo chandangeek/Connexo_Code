@@ -27,6 +27,9 @@ Ext.define('Fim.controller.UploadFile', {
         this.control({
             'upload-file #upload-file-button': {
                 click: this.uploadFile
+            },
+            'upload-file #import-service-form': {
+                displayinfo: this.displayInfo
             }
         });
     },
@@ -127,5 +130,35 @@ Ext.define('Fim.controller.UploadFile', {
                 window.location.href = page.returnLink;
             }
         }
+    },
+
+    displayInfo: function () {
+        var infoDialog = Ext.create('widget.window', {
+            title: Uni.I18n.translate('importService.filePatternInfo', 'FIM', 'File pattern info'),
+            closable: true,
+            overflowY: 'auto',
+            modal: true,
+            width: 600,
+            minWidth: 350,
+            height: 365,
+            layout: {
+                type: 'border',
+                padding: 5
+            },
+            items: [
+                {
+                    xtype: 'container',
+                    html: Uni.I18n.translate('importService.filePatternInfo.title', 'FIM', 'Pattern to filter which files will be imported, based on file name and/or extension.') + '<br><br>' +
+                    Uni.I18n.translate('importService.filePatternInfo.example', 'FIM', 'Here are some examples of pattern syntax:') + '<br><ul>' +
+                    '<li>' + '&nbsp' + Uni.I18n.translate('importService.filePatternInfo.ex1', 'FIM', '*.csv - Matches all strings that end in .csv') + '</li>' + '<br>' +
+                    '<li>' + '&nbsp' + Uni.I18n.translate('importService.filePatternInfo.ex2', 'FIM', '??? - Matches all strings with exactly three letters or digits') + '</li>' + '<br>' +
+                    '<li>' + '&nbsp' + Uni.I18n.translate('importService.filePatternInfo.ex3', 'FIM', '*[0-9]* - Matches all strings containing a numeric value') + '</li>' + '<br>' +
+                    '<li>' + '&nbsp' + Uni.I18n.translate('importService.filePatternInfo.ex4', 'FIM', '*.{txt,csv,xlsx} - Matches any string ending with .txt, .csv or.xlsx') + '</li>' + '<br>' +
+                    '<li>' + '&nbsp' + Uni.I18n.translate('importService.filePatternInfo.ex5', 'FIM', 'a?*.csv - Matches any string beginning with a, followed by at least one letter or digit, and ending with .csv') + '</li>' + '<br>' +
+                    '<li>' + '&nbsp' + Uni.I18n.translate('importService.filePatternInfo.ex6', 'FIM', '{foo*,*[0-9]*} - Matches any string beginning with foo or any string containing a numeric value') + '</li>' + '<br></ul>'
+                }
+            ]
+        });
+        infoDialog.show();
     }
 });

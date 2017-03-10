@@ -67,7 +67,12 @@ Ext.define('Fim.view.uploadfile.UploadFile', {
                                 listeners: {
                                     change: function (combo, newValue) {
                                         Ext.suspendLayouts();
-                                        me.down('#import-service-property-form').loadRecord(combo.getStore().getById(newValue));
+                                        var record = combo.getStore().getById(newValue);
+                                        if (me.down('#import-service-form').isHidden()) {
+                                            me.down('#import-service-form').show();
+                                        }
+                                        me.down('#import-service-form').loadRecord(record);
+                                        me.down('#import-service-property-form').loadRecord(record);
                                         if (me.down('#upload-file-button').isDisabled()) {
                                             me.down('#upload-file-button').enable();
                                             me.down('#upload-file-field').show();
@@ -85,6 +90,67 @@ Ext.define('Fim.view.uploadfile.UploadFile', {
                                     'color': '#FF0000',
                                     'margin': '6px 10px 6px 0px'
                                 }
+                            }
+                        ]
+                    },
+                    {
+                        xtype: 'form',
+                        itemId: 'import-service-form',
+                        defaults: {
+                            labelWidth: 250,
+                            width: 600
+                        },
+                        hidden: true,
+                        items: [
+                            {
+                                xtype: 'displayfield',
+                                fieldLabel: Uni.I18n.translate('general.application', 'FIM', 'Application'),
+                                name: 'applicationDisplay',
+                                itemId: 'application-field'
+                            },
+                            {
+                                xtype: 'displayfield',
+                                fieldLabel: Uni.I18n.translate('general.importFolder', 'FIM', 'Import folder'),
+                                name: 'fullImportPath',
+                                itemId: 'import-folder-field'
+                            },
+                            {
+                                xtype: 'container',
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'left'
+                                },
+                                items: [
+                                    {
+                                        xtype: 'displayfield',
+                                        fieldLabel: Uni.I18n.translate('importService.filePattern', 'FIM', 'File pattern'),
+                                        name: 'pathMatcher',
+                                        itemId: 'file-pattern-field',
+                                        labelWidth: 250
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        itemId: 'file-pattern-btn',
+                                        tooltip: Uni.I18n.translate('importService.filePattern.tooltip', 'FIM', 'Click for more information'),
+                                        text: '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;"></span>',
+                                        ui: 'blank',
+                                        shadow: false,
+                                        margin: '6 0 0 10',
+                                        width: 16,
+                                        tabIndex: -1,
+                                        listeners: {
+                                            click: function (btn) {
+                                                me.down('#import-service-form').fireEvent('displayinfo', btn);
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                xtype: 'displayfield',
+                                itemId: 'folder-scan-field',
+                                fieldLabel: Uni.I18n.translate('importService.folderScanFrequency', 'FIM', 'Folder scan frequency'),
+                                name: 'scanFrequencyDisplay'
                             }
                         ]
                     },
