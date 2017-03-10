@@ -126,7 +126,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     }
 
     public boolean checkOccurrenceConditions(int ruleId, String relativePeriodWithCount, String triggeringEndDeviceEventTypes) {
-        this.ruleId = ruleId;
+        setCreationRule(ruleId);
         List<String> relativePeriodWithCountValues = parseRawInputToList(relativePeriodWithCount, COLON_SEPARATOR);
         if (relativePeriodWithCountValues.size() != 2) {
             throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS, "Relative period with occurrence count for device alarms");
@@ -160,7 +160,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     }
 
     public boolean isClearing(int ruleId, String endDeviceEventTypes) {
-        this.ruleId = ruleId;
+        setCreationRule(ruleId);
         return (isClearing(getEndDeviceEventTypes(endDeviceEventTypes)) || getEndDeviceEventTypes(endDeviceEventTypes).stream()
                 .anyMatch(event -> checkMatchingEvent(event, this.getEventTypeMrid()))) && issueService.findOpenIssuesForDevice(getDevice().getName())
                 .find()
@@ -176,6 +176,10 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
                         parseRawInputToList(valueSet.get(2), COMMA_SEPARATOR).stream()
                                 .map(String::trim)
                                 .mapToLong(Long::parseLong).boxed().collect(Collectors.toList()).contains(this.getDevice().getState().getId()));
+    }
+
+    private void setCreationRule(int ruleId){
+        this.ruleId = ruleId;
     }
 
     private List<String> parseRawInputToList(String rawInput, String delimiter) {
