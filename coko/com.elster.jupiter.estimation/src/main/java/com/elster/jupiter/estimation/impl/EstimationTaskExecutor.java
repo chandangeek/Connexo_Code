@@ -103,7 +103,6 @@ class EstimationTaskExecutor implements TaskExecutor {
         } else if (estimationTask.getUsagePointGroup().isPresent() && !estimationTask.getMetrologyPurpose().isPresent()) {
             getChannelsContainersQuery(relativePeriod, occurrence, system, estimationTask)
                     .select(ListOperator.IN.contains(estimationTask.getUsagePointGroup().get().toSubQuery("id"), "effectiveMetrologyContract.metrologyConfiguration.usagePoint"))
-                    .stream()
                     .forEach(channelsContainer -> doEstimateTransactional(occurrence, channelsContainer, system, relativePeriod, taskLogger));
         } else if(estimationTask.getUsagePointGroup().isPresent() && estimationTask.getMetrologyPurpose().isPresent()) {
             ChannelsContainer channelsContainer = getChannelsContainersQuery(relativePeriod, occurrence, system, estimationTask)
@@ -132,7 +131,6 @@ class EstimationTaskExecutor implements TaskExecutor {
             if (getEstimationTask(occurrence).getMetrologyPurpose()
                     .isPresent() && metrologyContracts.isPresent()) {
                 metrologyContracts.get()
-                        .stream()
                         .forEach(metrologyContract ->
                                 estimateWithPurpose(metrologyContract, occurrence, system, channelsContainer, relativePeriod, taskLogger));
             } else {

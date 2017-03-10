@@ -18,6 +18,8 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResolver;
@@ -59,8 +61,6 @@ import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -89,11 +89,11 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
@@ -101,26 +101,19 @@ import static com.elster.jupiter.cbo.MetricMultiplier.quantity;
 import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static com.elster.jupiter.util.streams.Predicates.not;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ReadingEstimateTest {
+public class ReadingEstimateIT {
+    @Rule
+    public TransactionalRule transactionalRule = new TransactionalRule(transactionService);
 
     private static final String IMPLEMENTATION = "Fibonacci";
-    private Injector injector;
+    private static Injector injector;
 
-    @Mock
-    private BundleContext bundleContext;
-    @Mock
-    private UserService userService;
-    @Mock
-    private EventAdmin eventAdmin;
-
-    private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-    private TransactionService transactionService;
-    private EstimationServiceImpl estimationService;
+    private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+    private static TransactionService transactionService;
+    private static EstimationServiceImpl estimationService;
 
     private static class MyEstimatorFactory implements EstimatorFactory {
         @Override
@@ -188,21 +181,19 @@ public class ReadingEstimateTest {
         }
     }
 
-    private class MockModule extends AbstractModule {
+    private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {
-            bind(UserService.class).toInstance(userService);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(UserService.class).toInstance(mock(UserService.class));
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
-    @Before
-    public void setUp() throws SQLException {
-        when(userService.findGroup(anyString())).thenReturn(Optional.empty());
-
+    @BeforeClass
+    public static void setUp() throws SQLException {
         try {
             injector = Guice.createInjector(
                     new MockModule(),
@@ -235,7 +226,7 @@ public class ReadingEstimateTest {
             throw new RuntimeException(e);
         }
         transactionService = injector.getInstance(TransactionService.class);
-        transactionService.execute((Transaction<Void>) () -> {
+        transactionService.execute(() -> {
             injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringService.class);
@@ -244,54 +235,44 @@ public class ReadingEstimateTest {
         });
     }
 
-    @After
-    public void tearDown() throws SQLException {
+    @AfterClass
+    public static void tearDown() throws SQLException {
         inMemoryBootstrapModule.deactivate();
     }
 
     @Test
+    @Transactional
     public void test() {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
-        Meter meter;
-        String readingTypeCode;
         Instant existDate = ZonedDateTime.of(2014, 2, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         Instant newDate = ZonedDateTime.of(2014, 2, 2, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         Instant otherDate = ZonedDateTime.of(2014, 2, 3, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-        try (TransactionContext ctx = transactionService.getContext()) {
-            AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            meter = amrSystem.newMeter("myAmrId", "myName").create();
-            meter.update();
-            ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
-                    .period(TimeAttribute.MINUTE15)
-                    .accumulate(Accumulation.BULKQUANTITY)
-                    .flow(FlowDirection.FORWARD)
-                    .measure(MeasurementKind.ENERGY)
-                    .in(KILO, WATTHOUR);
-            readingTypeCode = builder.code();
-            ctx.commit();
-        }
+        AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+        Meter meter = amrSystem.newMeter("myAmrId", "myName").create();
+        meter.update();
+        ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
+                .period(TimeAttribute.MINUTE15)
+                .accumulate(Accumulation.BULKQUANTITY)
+                .flow(FlowDirection.FORWARD)
+                .measure(MeasurementKind.ENERGY)
+                .in(KILO, WATTHOUR);
+        String readingTypeCode = builder.code();
 
-        try (TransactionContext ctx = transactionService.getContext()) {
-            ReadingImpl reading = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(1), existDate);
-            reading.addQuality("3.6.1");
-            reading.addQuality("3.5.258");
-            meter.store(QualityCodeSystem.MDC, MeterReadingImpl.of(reading));
-            ctx.commit();
-        }
+        ReadingImpl reading = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(1), existDate);
+        reading.addQuality("3.6.1");
+        reading.addQuality("3.5.258");
+        meter.store(QualityCodeSystem.MDC, MeterReadingImpl.of(reading));
 
         ReadingType readingType = meteringService.getReadingType(readingTypeCode).get();
         estimationService.addEstimatorFactory(new MyEstimatorFactory());
 
         EstimationRuleSet ruleSet;
         EstimationRule rule;
-        try (TransactionContext ctx = transactionService.getContext()) {
-            ruleSet = estimationService.createEstimationRuleSet("testRuleSet", QualityCodeSystem.MDM);
-            rule = ruleSet.addRule(IMPLEMENTATION, "testRule")
-                    .withReadingType(readingType)
-                    .active(true)
-                    .create();
-            ctx.commit();
-        }
+        ruleSet = estimationService.createEstimationRuleSet("testRuleSet", QualityCodeSystem.MDM);
+        rule = ruleSet.addRule(IMPLEMENTATION, "testRule")
+                .withReadingType(readingType)
+                .active(true)
+                .create();
         int ruleId = (int)rule.getId();
 
         Channel channel = meter.getCurrentMeterActivation().get().getChannelsContainer().getChannels().get(0);
@@ -299,29 +280,26 @@ public class ReadingEstimateTest {
                 ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ZEROUSAGE),
                 ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT)
         }, new ReadingQualityType[0]);
-        try (TransactionContext ctx = transactionService.getContext()) {
-            CimChannel cimChannel = channel.getCimChannel(readingType).get();
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ADDED), newDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED), existDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.EDITGENERIC), newDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.EDITGENERIC), existDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, ruleId + 1000), existDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, ruleId + 1), existDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ACCEPTED), newDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ACCEPTED), newDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ACCEPTED), existDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.VALIDATION, 1000), newDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 2000), newDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.KNOWNMISSINGREAD), newDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.KNOWNMISSINGREAD), newDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), newDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), newDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.KNOWNMISSINGREAD), otherDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, ruleId + 11), otherDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, ruleId), otherDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), otherDate);
-            ctx.commit();
-        }
+        CimChannel cimChannel = channel.getCimChannel(readingType).get();
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ADDED), newDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED), existDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.EDITGENERIC), newDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.EDITGENERIC), existDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, ruleId + 1000), existDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, ruleId + 1), existDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ACCEPTED), newDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ACCEPTED), newDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ACCEPTED), existDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.VALIDATION, 1000), newDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 2000), newDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.KNOWNMISSINGREAD), newDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.KNOWNMISSINGREAD), newDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), newDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), newDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.KNOWNMISSINGREAD), otherDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, ruleId + 11), otherDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, ruleId), otherDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), otherDate);
 
         final EstimationRuleSet resolved = ruleSet;
         estimationService.addEstimationResolver(new EstimationResolver() {
@@ -347,12 +325,10 @@ public class ReadingEstimateTest {
             }
         });
 
-        try (TransactionContext ctx = transactionService.getContext()) {
-            estimationService.estimate(QualityCodeSystem.MDM, meter.getCurrentMeterActivation()
-                    .get()
-                    .getChannelsContainer(), Range.all());
-            ctx.commit();
-        }
+        estimationService.estimate(QualityCodeSystem.MDM, meter.getCurrentMeterActivation()
+                .get()
+                .getChannelsContainer(), Range.all());
+
         // existDate qualities
         assertQualities(channel, existDate, new ReadingQualityType[] {
                 ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, ruleId)
