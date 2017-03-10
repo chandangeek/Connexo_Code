@@ -123,7 +123,7 @@ class DataQualityOverviewSqlBuilder {
         this.sqlBuilder.append("            max(kpivalues.utcstamp),");
         this.sqlBuilder.append("            case when max(kpivalues.recordtime) = max(kpivalues.recordtime) over (partition by max(kpivalues.utcstamp)) then 'Y' else 'N' end");
         this.sqlBuilder.append("     from DQK_DATAQUALITYKPI dqkpi");
-        this.sqlBuilder.append("     join DQK_DATAQUALITYKPIMEMBER dqkpim on dqkpim.dataqualitykpi = dqkpi.id");
+        this.sqlBuilder.append("     join DQK_DATAQUALITYKPIMEMBER dqkpim on dqkpim.dataqualitykpi = dqkpi.id and dqkpi.discriminator = 'EDDQ'");
         this.sqlBuilder.append("     join KPI_KPIMEMBER kpim on kpim.kpi = dqkpim.childkpi");
         this.sqlBuilder.append("     join IDS_VAULT_KPI_1 kpivalues on kpim.timeseries = kpivalues.timeseriesid");
         this.sqlBuilder.append("     where ");
