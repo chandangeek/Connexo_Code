@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import static com.elster.jupiter.orm.Version.version;
 
@@ -75,9 +76,10 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
                     .filter(ootbConfig -> ootbConfig.getName().equals(metrologyConfiguration.getName()))
                     .findFirst()
                     // change gapAllowed flag for existing metrology configuration if it does not match OOTB value
-                    .filter(ootbConfig -> metrologyConfiguration.isGapAllowed() != ootbConfig.isGapAllowed())
-                    .ifPresent((configuration) -> metrologyConfiguration
-                            .startUpdate().setGapAllowed(configuration.isGapAllowed()).complete());
+                    .map(MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration::isGapAllowed)
+                    .filter(Predicate.isEqual(metrologyConfiguration.isGapAllowed()).negate())
+                    .ifPresent((isGapAllowed) -> metrologyConfiguration
+                            .startUpdate().setGapAllowed(isGapAllowed).complete());
         }));
     }
 
