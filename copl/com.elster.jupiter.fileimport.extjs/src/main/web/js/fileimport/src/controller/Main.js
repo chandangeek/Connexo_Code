@@ -36,37 +36,36 @@ Ext.define('Fim.controller.Main', {
     },
 
     initMenu: function () {
-        if (Fim.privileges.DataImport.canViewHistory() && !Fim.privileges.DataImport.getAdminPrivilege()) { //false in Connexo Admin
+        if (Fim.privileges.DataImport.canView() || Fim.privileges.DataImport.canViewHistory() || Fim.privileges.DataImport.canUploadFile()) {
+            if (!Fim.privileges.DataImport.getAdminPrivilege()) { //false in Connexo Admin
+                var workspaceMenuItem = Ext.create('Uni.model.MenuItem', {
+                    text: Uni.I18n.translate('general.workspace', 'FIM', 'Workspace'),
+                    portal: 'workspace',
+                    glyph: 'workspace',
+                    index: 30
+                });
+                Uni.store.MenuItems.add(workspaceMenuItem);
 
-            var workspaceMenuItem = Ext.create('Uni.model.MenuItem', {
-                text: Uni.I18n.translate('general.workspace', 'FIM', 'Workspace'),
-                portal: 'workspace',
-                glyph: 'workspace',
-                index: 30
-            });
-            Uni.store.MenuItems.add(workspaceMenuItem);
-
-            var workspaceImportItem = Ext.create('Uni.model.PortalItem', {
-                title: Uni.I18n.translate('general.dataExchange', 'FIM', 'Data exchange'),
-                portal: 'workspace',
-                items: [
-                    {
-                        text: Uni.I18n.translate('general.importHistory', 'FIM', 'Import history'),
-                        href: '#/workspace/importhistory',
-                        route: 'importhistory'
-                    },
-                    {
-                        text: Uni.I18n.translate('uploadFile.title', 'FIM', 'Upload file for import'),
-                        href: '#/workspace/uploadfile',
-                        route: 'uploadfile',
-                        privileges: Fim.privileges.DataImport.upload
-                    }
-                ]
-            });
-            Uni.store.PortalItems.add(workspaceImportItem);
-        }
-
-        if (Fim.privileges.DataImport.canView()) {
+                var workspaceImportItem = Ext.create('Uni.model.PortalItem', {
+                    title: Uni.I18n.translate('general.dataExchange', 'FIM', 'Data exchange'),
+                    portal: 'workspace',
+                    items: [
+                        {
+                            text: Uni.I18n.translate('general.importHistory', 'FIM', 'Import history'),
+                            href: '#/workspace/importhistory',
+                            route: 'importhistory',
+                            privileges: Fim.privileges.DataImport.viewHistory
+                        },
+                        {
+                            text: Uni.I18n.translate('uploadFile.title', 'FIM', 'Upload file for import'),
+                            href: '#/workspace/uploadfile',
+                            route: 'uploadfile',
+                            privileges: Fim.privileges.DataImport.upload
+                        }
+                    ]
+                });
+                Uni.store.PortalItems.add(workspaceImportItem);
+            }
 
             var administrationMenuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.administration', 'FIM', 'Administration'),
@@ -83,12 +82,14 @@ Ext.define('Fim.controller.Main', {
                     {
                         text: Uni.I18n.translate('general.importServices', 'FIM', 'Import services'),
                         href: '#/administration/importservices',
-                        route: 'importservices'
+                        route: 'importservices',
+                        privileges: Fim.privileges.DataImport.view
                     },
                     {
                         text: Uni.I18n.translate('general.importHistory', 'FIM', 'Import history'),
                         href: '#/administration/importhistory',
-                        route: 'importhistory'
+                        route: 'importhistory',
+                        privileges: Fim.privileges.DataImport.viewHistory
                     },
                     {
                         text: Uni.I18n.translate('uploadFile.title', 'FIM', 'Upload file for import'),
