@@ -17,6 +17,7 @@ import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ProcessStatus;
+import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -31,14 +32,11 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Optional;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -52,7 +50,6 @@ public abstract class AbstractBaseReadingImplTest {
 
     private static final Instant DATE = ZonedDateTime.of(2013, 9, 20, 10, 11, 14, 0, ZoneId.systemDefault()).toInstant();
     private static final Instant RECORD_DATE = ZonedDateTime.of(2013, 9, 19, 10, 11, 14, 0, ZoneId.systemDefault()).toInstant();
-    private static final BigDecimal VALUE = new BigDecimal("14.15");
     private BaseReadingRecordImpl baseReading;
 
     @Mock
@@ -70,6 +67,8 @@ public abstract class AbstractBaseReadingImplTest {
     @Mock
     private ServerMeteringService meteringService;
     @Mock
+    private DataAggregationService aggregationService;
+    @Mock
     private EventService eventService;
     @Mock
     private Thesaurus thesaurus;
@@ -79,7 +78,6 @@ public abstract class AbstractBaseReadingImplTest {
     private Vault vault;
     @Mock
     private RecordSpec recordSpec;
-
 
     @Before
     public void setUp() {
@@ -92,15 +90,10 @@ public abstract class AbstractBaseReadingImplTest {
         when(idsService.getRecordSpec(anyString(), anyInt())).thenReturn(Optional.of(recordSpec));
         when(entry.getTimeStamp()).thenReturn(DATE);
         when(entry.getRecordDateTime()).thenReturn(RECORD_DATE);
-        when(entry.getBigDecimal(anyInt())).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return BigDecimal.valueOf((long) (int) invocationOnMock.getArguments()[0]);
-            }
-        });
+        when(entry.getBigDecimal(anyInt())).thenAnswer(invocationOnMock -> BigDecimal.valueOf((int) invocationOnMock.getArguments()[0]));
         final Provider<ChannelImpl> channelFactory = () -> new ChannelImpl(dataModel, idsService, meteringService, clock, eventService);
         final Provider<ChannelBuilder> channelBuilder = () -> new ChannelBuilderImpl(dataModel, channelFactory);
-        when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, channelBuilder));
+        when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, aggregationService, channelBuilder));
         when(meter.getHeadEndInterface()).thenReturn(Optional.empty());
         meterActivation = new MeterActivationImpl(dataModel, eventService, clock, thesaurus).init(meter, null, null, Instant.EPOCH);
         meterActivation.save();
@@ -120,12 +113,6 @@ public abstract class AbstractBaseReadingImplTest {
         when(entry.getLong(0)).thenReturn(1L << ProcessStatus.Flag.SUSPECT.ordinal());
         baseReading = createInstanceToTest(channel, entry);
         when(entry.size()).thenReturn(3 + baseReading.getReadingTypeOffset());
-
-    }
-
-    @After
-    public void tearDown() {
-
     }
 
     abstract BaseReadingRecordImpl createInstanceToTest(ChannelImpl channel, TimeSeriesEntry entry);

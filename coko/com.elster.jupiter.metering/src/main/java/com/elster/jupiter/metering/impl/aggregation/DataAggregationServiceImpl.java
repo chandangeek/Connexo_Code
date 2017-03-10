@@ -210,6 +210,7 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
     private Range<Instant> clipToContractActivePeriod(List<EffectiveMetrologyConfigurationOnUsagePoint> effectivities, MetrologyContract contract, Range<Instant> period) {
         Range<Instant> clippedPeriod = effectivities
                 .stream()
+                .filter(each -> !each.getRange().isEmpty())
                 .filter(each -> this.hasContract(each, contract))
                 .findFirst()
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getRange)

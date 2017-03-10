@@ -141,7 +141,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
 
     @Override
     public List<IntervalReadingRecord> getIntervalReadings(Range<Instant> interval) {
-        Map<Instant, IntervalReadingRecord> calculatedReadings = getCalculatedIntervalReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record, clock));
+        Map<Instant, IntervalReadingRecord> calculatedReadings = getCalculatedIntervalReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record,clock));
         Map<Instant, IntervalReadingRecord> persistedReadings = getPersistedIntervalReadings(interval).stream()
                 .collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, Function.identity()));
         calculatedReadings.putAll(persistedReadings);
@@ -379,6 +379,19 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
     @Override
     public List<ReadingRecord> getCalculatedRegisterReadings(Range<Instant> interval) {
         return new ArrayList<>(getCalculatedRegisterReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record, clock)).values());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o
+                || o != null
+                && getClass() == o.getClass()
+                && persistedChannel.equals(((AggregatedChannelImpl) o).persistedChannel);
+    }
+
+    @Override
+    public int hashCode() {
+        return persistedChannel.hashCode();
     }
 
     private static class CalculatedReadingRecordImpl implements IntervalReadingRecord, ReadingRecord {
