@@ -966,9 +966,9 @@ public class UsagePointResource {
         });
     }
 
-    private void checkMeterRolesActivationTime(List<MeterRoleInfo> meterRoles, Instant usagePointCreateDate, RestValidationBuilder restValidationBuilder) {
+    private void checkMeterRolesActivationTime(List<MeterRoleInfo> meterRoles, Instant installationTime, RestValidationBuilder restValidationBuilder) {
         meterRoles.stream()
-                .filter(role -> role.activationTime.isBefore(usagePointCreateDate))
+                .filter(role -> role.activationTime.isBefore(installationTime))
                 .findFirst()
                 .ifPresent(meterRoleInfo -> {
             restValidationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_ACTIVATION_TIME_OF_METER_ROLE, "meter.role." + meterRoleInfo.name));
@@ -995,7 +995,7 @@ public class UsagePointResource {
             if (info.metrologyConfiguration != null) {
                 UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
                 info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
-                checkMeterRolesActivationTime(info.metrologyConfiguration.meterRoles, usagePoint.getCreateDate(), validationBuilder);
+                checkMeterRolesActivationTime(info.metrologyConfiguration.meterRoles, usagePoint.getInstallationTime(), validationBuilder);
                 usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) resourceHelper.findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id);
                 usagePoint.apply(usagePointMetrologyConfiguration);
                 resourceHelper.activateMeters(info, usagePoint);

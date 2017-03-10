@@ -221,17 +221,18 @@ public class ResourceHelper {
     }
 
     public void activateMeters(UsagePointInfo info, UsagePoint usagePoint) {
-        if (info.meterActivations != null && !info.meterActivations.isEmpty()) {
+        if (info.metrologyConfiguration != null && info.metrologyConfiguration.meterRoles != null &&  !info.metrologyConfiguration.meterRoles.isEmpty()) {
             UsagePointMeterActivator linker = usagePoint.linkMeters();
-            info.meterActivations
+
+            info.metrologyConfiguration.meterRoles
                     .stream()
-                    .filter(meterActivation -> meterActivation.meterRole != null && !Checks.is(meterActivation.meterRole.id).emptyOrOnlyWhiteSpace())
-                    .forEach(meterActivation -> {
-                        MeterRole meterRole = findMeterRoleOrThrowException(meterActivation.meterRole.id);
+                    .filter(meterRoleInfo -> !Checks.is(meterRoleInfo.id).emptyOrOnlyWhiteSpace() && !Checks.is(meterRoleInfo.meter).emptyOrOnlyWhiteSpace())
+                    .forEach(meterRoleInfo -> {
+                        MeterRole meterRole = findMeterRoleOrThrowException(meterRoleInfo.id);
                         linker.clear(meterRole);
-                        if (meterActivation.meter != null && !Checks.is(meterActivation.meter.name).emptyOrOnlyWhiteSpace()) {
-                            Meter meter = findMeterByNameOrThrowException(meterActivation.meter.name);
-                            linker.activate(meter, meterRole);
+                        if(meterRoleInfo.meter != null && !Checks.is(meterRoleInfo.name).emptyOrOnlyWhiteSpace()) {
+                            Meter meter = findMeterByNameOrThrowException(meterRoleInfo.meter);
+                            linker.activate(meterRoleInfo.activationTime, meter, meterRole);
                         }
                     });
             linker.complete();
