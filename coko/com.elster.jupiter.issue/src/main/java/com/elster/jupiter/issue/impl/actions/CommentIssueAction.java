@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.issue.impl.actions;
 
-import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.module.TranslationKeys;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
@@ -42,7 +41,7 @@ public class CommentIssueAction extends AbstractIssueAction {
         IssueActionResult.DefaultActionResult result = new IssueActionResult.DefaultActionResult();
         User author = (User) threadPrincipalService.getPrincipal();
         getCommentFromParameters(properties).ifPresent(comment -> issue.addComment(comment, author));
-        result.success(getThesaurus().getFormat(MessageSeeds.ACTION_ISSUE_WAS_COMMENTED).format());
+        result.success(getThesaurus().getFormat(TranslationKeys.ACTION_ISSUE_COMMENTED).format());
         return result;
     }
 

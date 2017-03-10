@@ -70,13 +70,12 @@ public abstract class IssuesGroupOperation {
     public List<IssueGroup> execute() {
         List<IssueGroup> groups = new LinkedList<>();
         SqlBuilder sql = buildSQL();
-        try (Connection conn = dataModel.getConnection(false)) {
-            PreparedStatement groupingStatement = buildStatement(conn, sql);
-            try (ResultSet rs = groupingStatement.executeQuery()) {
-                while (rs.next()) {
-                    groups.add(new IssueGroupImpl(this.thesaurus)
-                            .init(rs.getObject(GROUP_KEY), rs.getString(GROUP_TITLE), rs.getLong(GROUP_COUNT)));
-                }
+        try (Connection conn = dataModel.getConnection(false);
+             PreparedStatement groupingStatement = buildStatement(conn, sql);
+             ResultSet rs = groupingStatement.executeQuery()) {
+            while (rs.next()) {
+                groups.add(new IssueGroupImpl(this.thesaurus)
+                        .init(rs.getObject(GROUP_KEY), rs.getString(GROUP_TITLE), rs.getLong(GROUP_COUNT)));
             }
         } catch (SQLException sqlEx) {
             LOG.log(Level.SEVERE, "Unable to retrieve grouped list from database", sqlEx);
@@ -106,33 +105,67 @@ public abstract class IssuesGroupOperation {
         return TableSpecs.ISU_ISSUE_ALL.name();
     }
 
+    protected String getIssueIdColumnName(String tableName) {
+        if (tableName.equals("ISU_ISSUE_HISTORY")) {
+            return "ISU_HIST_ISSUE_ID";
+        } else {
+            return "ID";
+        }
+    }
+
     String getIssueTypeCondition() {
-            StringBuilder builder = new StringBuilder();
-            for (String issueType : getFilter().getIssueTypes()) {
-                if (builder.length() != 0) {
-                    builder.append(" OR ");
-                }
-                builder.append("reason." + DatabaseConst.ISSUE_REASON_COLUMN_TYPE).append(" = '").append(issueType).append("'");
-            }
+        StringBuilder builder = new StringBuilder();
+        for (String issueType : getFilter().getIssueTypes()) {
             if (builder.length() != 0) {
-                builder.insert(0, " AND (").append(") ");
-                return builder.toString();
+                builder.append(" OR ");
             }
-        return  "";
+            builder.append("reason." + DatabaseConst.ISSUE_REASON_COLUMN_TYPE)
+                    .append(" = '")
+                    .append(issueType)
+                    .append("'");
+        }
+        if (builder.length() != 0) {
+            builder.insert(0, " AND (").append(") ");
+            return builder.toString();
+        }
+        return "";
     }
 
     String getStatusCondition() {
-            StringBuilder builder = new StringBuilder();
-            for (String status : getFilter().getStatuses()) {
-                if (builder.length() != 0) {
-                    builder.append(" OR ");
-                }
-                builder.append("isu." + DatabaseConst.ISSUE_COLUMN_STATUS_ID).append(" = '").append(status).append("'");
-            }
+        StringBuilder builder = new StringBuilder();
+        for (String status : getFilter().getStatuses()) {
             if (builder.length() != 0) {
-                builder.insert(0, " AND (").append(") ");
-                return builder.toString();
+                builder.append(" OR ");
             }
+            builder.append("isu." + DatabaseConst.ISSUE_COLUMN_STATUS_ID).append(" = '").append(status).append("'");
+        }
+        if (builder.length() != 0) {
+            builder.insert(0, " AND (").append(") ");
+            return builder.toString();
+        }
+        return "";
+    }
+
+    String getClearedStatuses() {
+        StringBuilder builder = new StringBuilder();
+        for (String cleared : getFilter().getClearedStatuses()) {
+            if (builder.length() != 0) {
+                builder.append(" OR ");
+            }
+            if (cleared.toLowerCase().equals("yes")) {
+                builder.append("dal.CLEARED_STATUS").append(" = '").append("Y").append("'")
+                        .append(" OR ").append("dalH.CLEARED_STATUS").append(" = '").append("Y").append("'");
+            }
+            if (cleared.toLowerCase().equals("no")) {
+                builder.append("dal.CLEARED_STATUS").append(" = '").append("N").append("'")
+                        .append(" OR ").append("dalH.CLEARED_STATUS").append(" = '").append("N").append("'");
+            }
+
+        }
+        if (builder.length() != 0) {
+            builder.insert(0, " AND (").append(") ");
+            return builder.toString();
+        }
         return "";
     }
 
@@ -143,15 +176,22 @@ public abstract class IssuesGroupOperation {
         return "";
     }
 
+    String getIdCondition() {
+        if (getFilter().getId() != null) {
+            return " AND (isu.ID = " + getFilter().getId() + ") ";
+        }
+        return "";
+    }
+
     String getUserAssigneeCondition() {
         StringBuilder builder = new StringBuilder();
         for (Long id : getFilter().getUserAssignees()) {
             if (builder.length() != 0) {
                 builder.append(" OR ");
             }
-            if(id < 0){
+            if (id < 0) {
                 builder.append("isu." + DatabaseConst.ISSUE_COLUMN_USER_ID).append(" is ").append("null");
-            }else {
+            } else {
                 builder.append("isu." + DatabaseConst.ISSUE_COLUMN_USER_ID).append(" = '").append(id).append("'");
             }
         }
@@ -168,9 +208,9 @@ public abstract class IssuesGroupOperation {
             if (builder.length() != 0) {
                 builder.append(" OR ");
             }
-            if(id < 0) {
+            if (id < 0) {
                 builder.append("isu." + DatabaseConst.ISSUE_COLUMN_USER_ID).append(" is ").append("null");
-            }else {
+            } else {
                 builder.append("isu." + DatabaseConst.ISSUE_COLUMN_WORKGROUP_ID).append(" = '").append(id).append("'");
             }
         }
@@ -182,22 +222,22 @@ public abstract class IssuesGroupOperation {
     }
 
     String getDueDateCondition() {
-            StringBuilder builder = new StringBuilder();
-            for (DueDateRange dueDateRange : getFilter().getDueDates()) {
-                if (builder.length() != 0) {
-                    builder.append(" OR ");
-                }
-                builder.append("isu.");
-                builder.append(DatabaseConst.ISSUE_COLUMN_DUE_DATE);
-                builder.append(" >= ").append(dueDateRange.getStartTime());
-                builder.append(" AND isu.");
-                builder.append(DatabaseConst.ISSUE_COLUMN_DUE_DATE);
-                builder.append(" < ").append(dueDateRange.getEndTime());
-            }
+        StringBuilder builder = new StringBuilder();
+        for (DueDateRange dueDateRange : getFilter().getDueDates()) {
             if (builder.length() != 0) {
-                builder.insert(0, " AND (").append(") ");
-                return builder.toString();
+                builder.append(" OR ");
             }
+            builder.append("isu.");
+            builder.append(DatabaseConst.ISSUE_COLUMN_DUE_DATE);
+            builder.append(" >= ").append(dueDateRange.getStartTime());
+            builder.append(" AND isu.");
+            builder.append(DatabaseConst.ISSUE_COLUMN_DUE_DATE);
+            builder.append(" < ").append(dueDateRange.getEndTime());
+        }
+        if (builder.length() != 0) {
+            builder.insert(0, " AND (").append(") ");
+            return builder.toString();
+        }
         return "";
     }
 

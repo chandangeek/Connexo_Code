@@ -15,9 +15,10 @@ public class IssueGroupImpl implements IssueGroup {
     private String groupName;
     private long count;
 
-    public IssueGroupImpl() {}
+    public IssueGroupImpl() {
+    }
 
-    public IssueGroupImpl(Thesaurus thesaurus){
+    public IssueGroupImpl(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
 
@@ -33,7 +34,11 @@ public class IssueGroupImpl implements IssueGroup {
     }
 
     public String getGroupName() {
-        return thesaurus.getFormat(new SimpleTranslationKey(groupName, groupName)).format();
+        if (this.groupKey.equals(this.groupName)) {
+            return this.groupName;
+        } else {
+            return thesaurus.getFormat(new SimpleTranslationKey(groupName, groupName)).format();
+        }
     }
 
     public Object getGroupKey() {

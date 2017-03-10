@@ -39,6 +39,10 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
 
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.ListIterator;
+
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ASSIGNEE_RULE_JOURNAL_TABLE_NAME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ASSIGNMENT_RULES_DESCRIPTION;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ASSIGNMENT_RULES_ENABLED;
@@ -68,6 +72,7 @@ import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_DUE_DATE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_IMPACT;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_OVERDUE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_PRIORITY;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_REASON_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_RULE_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_STATUS_ID;
@@ -79,6 +84,7 @@ import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_ISSUE_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_PK_NAME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_USER_ID;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_CREATEDATETIME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_DEVICE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_REASON;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_RULE;
@@ -236,8 +242,8 @@ public enum TableSpecs {
             table.column(CREATION_RULE_DUE_IN_TYPE).map("dueInType").number().conversion(NUMBER2ENUM).add();
             table.column(CREATION_RULE_TEMPLATE_NAME).map("template").varChar(1024).notNull().add();
             Column obsoleteColumn = table.column(CREATION_RULE_OBSOLETE_TIME).map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
-            table.column(ISSUE_COLUMN_URGENCY).map("priority.urgency").number().conversion(NUMBER2INT).notNull().since(version(10, 3)).add();
-            table.column(ISSUE_COLUMN_IMPACT).map("priority.impact").number().conversion(NUMBER2INT).notNull().since(version(10, 3)).add();
+            table.column(ISSUE_COLUMN_URGENCY).map("priority.urgency").number().conversion(NUMBER2INT).installValue("25").notNull().add().since(Version.version(10, 3));
+            table.column(ISSUE_COLUMN_IMPACT).map("priority.impact").number().conversion(NUMBER2INT).installValue("25").notNull().add().since(Version.version(10, 3));
             table.addAuditColumns();
 
             table.primaryKey(CREATION_RULE_PK_NAME).on(idColumn).add();
@@ -397,56 +403,64 @@ public enum TableSpecs {
 
     public abstract void addTo(DataModel dataModel);
 
-    protected void buildIssueTable(Table<?> table, Column idColumn, String pkKey, String reasonFKName, String statusFKName, String deviceFKName, String userFKName, String workGroupFKName, String ruleFKName) {
-        table.column(ISSUE_COLUMN_DUE_DATE).map("dueDate").number().conversion(NUMBER2INSTANT).add();
-        Column reasonRefIdColumn = table.column(ISSUE_COLUMN_REASON_ID).varChar(NAME_LENGTH).notNull().add();
-        Column statusRefIdColumn = table.column(ISSUE_COLUMN_STATUS_ID).varChar(NAME_LENGTH).notNull().add();
-        Column deviceRefIdColumn = table.column(ISSUE_COLUMN_DEVICE_ID).number().conversion(NUMBER2LONG).add();
-        table.column(ISSUE_COLUMN_ASSIGNEE_TYPE).map("assigneeType").number().conversion(NUMBER2ENUM).upTo(version(10, 3)).add();
-        Column userRefIdColumn = table.column(ISSUE_COLUMN_USER_ID).number().conversion(NUMBER2LONG).add();
-        Column workGroupRefIdColumn = table.column(ISSUE_COLUMN_WORKGROUP_ID).number().conversion(NUMBER2LONG).add().since(version(10, 3));
-        table.column(ISSUE_COLUMN_OVERDUE).map("overdue").number().conversion(NUMBER2BOOLEAN).notNull().add();
-        Column ruleRefIdColumn = table.column(ISSUE_COLUMN_RULE_ID).number().conversion(NUMBER2LONG).notNull().add();
-        table.column(ISSUE_COLUMN_URGENCY).map("priority.urgency").number().conversion(NUMBER2INT).notNull().installValue("25").since(version(10, 3)).add();
-        table.column(ISSUE_COLUMN_IMPACT).map("priority.impact").number().conversion(NUMBER2INT).notNull().installValue("5").since(version(10, 3)).add();
+    private static class TableBuilder {
+        private static final int EXPECTED_FK_KEYS_LENGTH = 6;
 
-        table.primaryKey(pkKey).on(idColumn).add();
-        table
-            .foreignKey(reasonFKName)
-            .on(reasonRefIdColumn)
-            .references(IssueReason.class)
-            .map("reason")
-            .add();
-        table
-            .foreignKey(statusFKName)
-            .on(statusRefIdColumn)
-            .references(IssueStatus.class)
-            .map("status")
-            .add();
-        table
-            .foreignKey(deviceFKName)
-            .on(deviceRefIdColumn)
-            .references(EndDevice.class)
-            .map("device")
-            .add();
-        table
-            .foreignKey(userFKName)
-            .on(userRefIdColumn)
-            .references(User.class)
-            .map("user")
-            .onDelete(DeleteRule.SETNULL).add();
-        table
-            .foreignKey(workGroupFKName)
-            .on(workGroupRefIdColumn)
-            .references(WorkGroup.class)
-            .map("workGroup")
-            .onDelete(DeleteRule.SETNULL).since(version(10, 3)).add();
-        table
-            .foreignKey(ruleFKName)
-            .on(ruleRefIdColumn)
-            .references(CreationRule.class)
-            .map("rule")
-            .add();
+        static void buildIssueTable(Table<?> table, Column idColumn, String pkKey, String... fkKeys) {
+            table.column(ISSUE_COLUMN_DUE_DATE).map("dueDate").number().conversion(NUMBER2INSTANT).add();
+            Column reasonRefIdColumn = table.column(ISSUE_COLUMN_REASON_ID).varChar(NAME_LENGTH).notNull().add();
+            Column statusRefIdColumn = table.column(ISSUE_COLUMN_STATUS_ID).varChar(NAME_LENGTH).notNull().add();
+            Column deviceRefIdColumn = table.column(ISSUE_COLUMN_DEVICE_ID).number().conversion(NUMBER2LONG).add();
+            table.column(ISSUE_COLUMN_ASSIGNEE_TYPE).map("assigneeType").number().conversion(NUMBER2ENUM).upTo(Version.version(10,3)).add();
+            Column userRefIdColumn = table.column(ISSUE_COLUMN_USER_ID).number().conversion(NUMBER2LONG).add();
+            Column workGroupRefIdColumn = table.column(ISSUE_COLUMN_WORKGROUP_ID).number().conversion(NUMBER2LONG).add().since(Version.version(10, 3));
+            table.column(ISSUE_COLUMN_OVERDUE).map("overdue").number().conversion(NUMBER2BOOLEAN).notNull().add();
+            Column ruleRefIdColumn = table.column(ISSUE_COLUMN_RULE_ID).number().conversion(NUMBER2LONG).notNull().add();
+            Column urgencyColumn = table.column(ISSUE_COLUMN_URGENCY)
+                    .map("priority.urgency")
+                    .number()
+                    .conversion(NUMBER2INT)
+                    .notNull()
+                    .installValue("25")
+                    .add()
+                    .since(Version.version(10, 3));
+            Column impactColumn = table.column(ISSUE_COLUMN_IMPACT)
+                    .map("priority.impact")
+                    .number()
+                    .conversion(NUMBER2INT)
+                    .notNull()
+                    .installValue("25")
+                    .add()
+                    .since(Version.version(10, 3));
+            table.column(ISSUE_COLUMN_PRIORITY)
+                    .number()
+                    .conversion(NUMBER2INT)
+                    .notNull()
+                    .as(urgencyColumn.getName() + " + " + impactColumn.getName())
+                    .alias("priorityTotal")
+                    .add()
+                    .since(Version.version(10, 3));
+            Column createdDateTimeColumn = table.column(ISSUE_CREATEDATETIME)
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2INSTANT)
+                    .map("createDateTime")
+                    .installValue(String.valueOf(Instant.EPOCH.toEpochMilli()))
+                    .add()
+                    .since(Version.version(10, 3));
+            table.partitionOn(createdDateTimeColumn);
+            table.primaryKey(pkKey).on(idColumn).add();
+            if (fkKeys == null || fkKeys.length != EXPECTED_FK_KEYS_LENGTH) {
+                throw new IllegalArgumentException("Passed arguments don't match foreigen keys");
+            }
+            ListIterator<String> fkKeysIter = Arrays.asList(fkKeys).listIterator();
+            table.foreignKey(fkKeysIter.next()).map("reason").on(reasonRefIdColumn).references(IssueReason.class).add();
+            table.foreignKey(fkKeysIter.next()).map("status").on(statusRefIdColumn).references(IssueStatus.class).add();
+            table.foreignKey(fkKeysIter.next()).map("device").on(deviceRefIdColumn).references(EndDevice.class).add();
+            table.foreignKey(fkKeysIter.next()).map("user").on(userRefIdColumn).references(User.class).onDelete(DeleteRule.SETNULL).add();
+            table.foreignKey(fkKeysIter.next()).map("workGroup").on(workGroupRefIdColumn).references(WorkGroup.class).onDelete(DeleteRule.SETNULL).add();
+            table.foreignKey(fkKeysIter.next()).map("rule").on(ruleRefIdColumn).references(CreationRule.class).add();
+        }
     }
 
 }

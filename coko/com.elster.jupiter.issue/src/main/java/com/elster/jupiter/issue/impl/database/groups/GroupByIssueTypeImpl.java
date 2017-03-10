@@ -42,15 +42,19 @@ public class GroupByIssueTypeImpl extends IssuesGroupOperation {
         builder.append("SELECT " + GROUP_KEY + ", " + GROUP_TITLE + ", " + GROUP_COUNT + " FROM " + "(SELECT ROWNUM as rnum, intr.*");
         builder.append(" FROM (SELECT DISTINCT reason.ISSUE_TYPE as " + GROUP_KEY + ", issuetype.TRANSLATION as " + GROUP_TITLE + ", count(reason.ISSUE_TYPE) as " + GROUP_COUNT);
         builder.append(" FROM " + getTableName() + " isu LEFT JOIN MTR_ENDDEVICE device ON isu.DEVICE_ID = device.ID ");
+        builder.append(" LEFT JOIN DAL_ALARM_OPEN dal ON isu." + getIssueIdColumnName(getTableName()) + " = dal.ID ");
+        builder.append(" LEFT JOIN DAL_ALARM_HISTORY dalH ON isu." + getIssueIdColumnName(getTableName()) + " = dalH.ID ");
         builder.append(" JOIN " + TableSpecs.ISU_REASON.name() + " reason ON isu.REASON_ID = reason.\"KEY\"");
         builder.append(" JOIN " + TableSpecs.ISU_STATUS.name() + " status ON isu.STATUS = status.\"KEY\"");
         builder.append(" JOIN " + TableSpecs.ISU_TYPE.name() + " issuetype ON reason.ISSUE_TYPE = issuetype.\"KEY\" WHERE 1=1 ");
         builder.append(getIssueTypeCondition());
         builder.append(getStatusCondition());
         builder.append(getMeterCondition());
+        builder.append(getClearedStatuses());
         builder.append(getUserAssigneeCondition());
         builder.append(getWorkGroupCondition());
         builder.append(getDueDateCondition());
+        builder.append(getIdCondition());
         if (getFilter().getGroupKey() != null) {
             builder.append(" AND reason.\"KEY\" = '" + getFilter().getGroupKey() + "'");
         }

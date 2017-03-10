@@ -22,8 +22,10 @@ import com.elster.jupiter.issue.share.entity.IssueGroup;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.users.User;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -45,6 +47,8 @@ public interface IssueService {
     Optional<IssueStatus> findStatus(String key);
 
     Optional<IssueReason> findReason(String key);
+
+    IssueReason findOrCreateReason(String key, IssueType issueType);
 
     Optional<IssueComment> findComment(long id);
 
@@ -106,7 +110,7 @@ public interface IssueService {
 
     Finder<? extends Issue> findIssues(IssueFilter filter, Class<?>... eagers);
 
-    Finder<? extends Issue> findAlarms(Class<?>... eagers);
+    Finder<? extends Issue> findAlarms(IssueFilter filter, Class<?>... eagers);
 
     Optional<? extends Issue> findAndLockIssueByIdAndVersion(long id, long version);
 
@@ -117,5 +121,9 @@ public interface IssueService {
     boolean checkIssueAssigneeType(String type);
 
     Optional<IssueAssignee> findIssueAssignee(AssigneeType assigneeType, long id);
+
+    Map<IssueTypes, Long> getUserOpenIssueCount(User user);
+
+    Map<IssueTypes, Long> getWorkGroupWithoutUserOpenIssueCount(User user);
 
 }
