@@ -44,10 +44,10 @@ Ext.define('Dxp.controller.Log', {
                     });
                 Ext.suspendLayouts();
                 if(!fromWorkspace){
-                    taskLink = view.down('#log-view-menu #tasks-view-link');
-                    taskLink.setText(task.get('name'));
+                    view.down('#log-view-menu').setHeader(task.get('name'));
                     me.getApplication().fireEvent('dataexporttaskload', task);
                 } else {
+                    me.getApplication().fireEvent('exporthistorylogload', occurrenceTask);
                     view.down('#main-panel').setTitle(
                         Uni.I18n.translate('exportTask.log.of.occurence', 'DES', "Log '{0}'", occurrenceTask.get('startedOn_formatted'), false)
                     );

@@ -7,13 +7,14 @@ Ext.define('Dxp.view.log.Menu', {
     alias: 'widget.dxp-log-menu',
     router: null,
     title: Uni.I18n.translate('general.exportTask', 'DES', 'Export task'),
+    objectType: Uni.I18n.translate('general.exportTask', 'DES', 'Export task'),
     initComponent: function () {
         var me = this;
 
         if (me.router.arguments.taskId) {
             me.menuItems = [
                 {
-                    text: Uni.I18n.translate('general.overview', 'DES', 'Overview'),
+                    text: Uni.I18n.translate('general.details', 'DES', 'Details'),
                     itemId: 'tasks-view-link',
                     href: '#/administration/dataexporttasks/' + me.router.arguments.taskId
                 }

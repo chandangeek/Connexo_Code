@@ -9,13 +9,14 @@ Ext.define('Dxp.view.tasks.Menu', {
     router: null,
 
     title: Uni.I18n.translate('general.exportTask', 'DES', 'Export task'),
+    objectType: Uni.I18n.translate('general.exportTask', 'DES', 'Export task'),
 
     initComponent: function () {
         var me = this;
 
         me.menuItems = [
             {
-                text: Uni.I18n.translate('general.overview', 'DES', 'Overview'),
+                text: Uni.I18n.translate('general.details', 'DES', 'Details'),
                 itemId: 'tasks-view-link',
                 href:  '#/administration/dataexporttasks/' + this.taskId
             }

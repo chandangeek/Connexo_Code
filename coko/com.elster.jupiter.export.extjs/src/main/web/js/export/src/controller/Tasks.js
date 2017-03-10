@@ -315,7 +315,7 @@ Ext.define('Dxp.controller.Tasks', {
 
                 actionsMenu.record = record;
                 Ext.suspendLayouts();
-                view.down('#tasks-view-menu #tasks-view-link').setText(record.get('name'));
+                view.down('#tasks-view-menu').setHeader(record.get('name'));
                 me.getApplication().fireEvent('dataexporttaskload', record);
                 detailsForm.loadRecord(record);
                 if (record.get('status') !== 'Busy') {
@@ -424,7 +424,7 @@ Ext.define('Dxp.controller.Tasks', {
             taskModel.load(currentTaskId, {
                 success: function (record) {
                     me.getApplication().fireEvent('dataexporttaskload', record);
-                    view.down('#tasks-view-menu  #tasks-view-link').setText(record.get('name'));
+                    view.down('#tasks-view-menu').setHeader(record.get('name'));
                     if (record.get('dataSelector').selectorType === 'CUSTOM') {
                         view.down('#export-period-column').hide();
                     } else {
@@ -2487,11 +2487,12 @@ Ext.define('Dxp.controller.Tasks', {
             router: router,
             taskId: currentTaskId
         });
-        me.getApplication().fireEvent('changecontentevent', view);
+
         taskModel.load(currentTaskId, {
             success: function (record) {
                 me.getApplication().fireEvent('dataexporttaskload', record);
-                view.down('#tasks-view-menu  #tasks-view-link').setText(record.get('name'));
+                me.getApplication().fireEvent('changecontentevent', view);
+                view.down('#tasks-view-menu').setHeader(record.get('name'));
             }
         });
     },
@@ -2745,12 +2746,17 @@ Ext.define('Dxp.controller.Tasks', {
             page = me.getHistory(),
             sortContainer = page.down('container[name=sortitemspanel]').getContainer(),
             store = me.getStore('Dxp.store.DataExportTasksHistory'),
+            menu = page.down('#menu-history-sort'),
             sorting,
             menuItem,
             cls;
 
         sortContainer.removeAll();
         sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']);
+
+        menu.down('[name=startDate]').show();
+        menu.down('[name=status]').show();
+        page.down('#add-sort-btn').enable();
 
         if (Ext.isArray(sorting)) {
             Ext.Array.each(sorting, function (sortItem) {
@@ -2769,8 +2775,13 @@ Ext.define('Dxp.controller.Tasks', {
                         sortDirection: sortItem.direction,
                         iconCls: cls
                     });
+                    menuItem.hide();
                 }
             });
+        }
+
+        if (menu.down('[name=startDate]').hidden  && menu.down('[name=status]').hidden){
+            page.down('#add-sort-btn').disable();
         }
     },
 
