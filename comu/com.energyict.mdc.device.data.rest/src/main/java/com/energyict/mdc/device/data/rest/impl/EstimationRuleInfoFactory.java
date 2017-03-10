@@ -55,6 +55,7 @@ public class EstimationRuleInfoFactory {
         info.name = estimationRule.getName();
         info.properties = propertyValueInfoService.getPropertyInfos(estimationRule.getPropertySpecs(), estimationRule.getProps());
         info.application = resourceHelper.getApplicationInfo(estimationRule.getRuleSet().getQualityCodeSystem());
+        info.estimatorImpl = estimationRule.getImplementation();
         return info;
     }
 }
