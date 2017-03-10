@@ -74,7 +74,7 @@ public class StartProcessAlarmAction extends AbstractIssueAction {
 
     @Override
     public String getDisplayName() {
-        return getThesaurus().getFormat(TranslationKeys.ACTION_START_ALARM_PROCESS).format();
+        return getThesaurus().getFormat(TranslationKeys.ACTION_START_ALARM_START_PROCESS).format();
     }
 
     @Override
