@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Cfg.view.log.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.cfg-log-grid',
@@ -5,10 +9,12 @@ Ext.define('Cfg.view.log.Grid', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Uni.DateTime'
+        'Uni.DateTime',
+        'Uni.grid.column.LogLevel'
     ],
     initComponent: function () {
         var me = this;
+
         me.columns = [
             {
                 header: Uni.I18n.translate('validationTasks.general.timestamp', 'CFG', 'Timestamp'),
@@ -19,9 +25,8 @@ Ext.define('Cfg.view.log.Grid', {
                 flex: 2
             },
             {
-                header: Uni.I18n.translate('validationTasks.general.logLevel', 'CFG', 'Log level'),
-                dataIndex: 'loglevel',
-                flex: 1
+                xtype: 'log-level-column',
+                dataIndex: 'loglevel'
             },
             {
                 header: Uni.I18n.translate('validationTasks.general.message', 'CFG', 'Message'),

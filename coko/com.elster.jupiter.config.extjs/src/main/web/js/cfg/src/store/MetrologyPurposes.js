@@ -1,8 +1,4 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
-Ext.define('Cfg.store.MetrologyConfigurations', {
+Ext.define('Cfg.store.MetrologyPurposes', {
     extend: 'Ext.data.Store',
     requires: [
         'Cfg.model.MetrologyContract'
@@ -11,13 +7,13 @@ Ext.define('Cfg.store.MetrologyConfigurations', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        url: '/api/val/field/metrologyconfigurations',
+        url: '/api/val/field/purposes',
         pageParam: undefined,
         startParam: undefined,
         limitParam: undefined,
         reader: {
             type: 'json',
-            root: 'metrologyConfigurations'
+            root: 'metrologyPurposes'
         }
     }
 });

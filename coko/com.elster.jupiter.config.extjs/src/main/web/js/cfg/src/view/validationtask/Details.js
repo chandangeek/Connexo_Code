@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Cfg.view.validationtask.Details', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.cfg-validation-tasks-details',
@@ -20,7 +24,8 @@ Ext.define('Cfg.view.validationtask.Details', {
                 items: [
                 {
                     ui: 'large',
-                    title: Uni.I18n.translate('general.overview', 'CFG', 'Overview'),
+                    itemId: 'frm-validation-task-details-panel',
+                    title: Uni.I18n.translate('general.details', 'CFG', 'Details'),
                     flex: 1,
                     items: {
                         xtype: 'cfg-tasks-preview-form',

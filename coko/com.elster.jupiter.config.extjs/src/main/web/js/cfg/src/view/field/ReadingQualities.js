@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Cfg.view.field.ReadingQualities', {
     extend:'Ext.form.field.Display',
     alias: 'widget.reading-qualities-field',

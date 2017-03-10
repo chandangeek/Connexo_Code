@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Cfg.view.validationtask.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.cfg-validation-tasks-grid',

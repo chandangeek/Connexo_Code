@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Cfg.controller.Log', {
     extend: 'Ext.app.Controller',
     views: [
@@ -18,6 +22,15 @@ Ext.define('Cfg.controller.Log', {
             selector: 'cfg-log-setup'
         }
     ],
+
+    requires: [
+        'Uni.util.LogLevel'
+    ],
+
+    init: function () {
+        Uni.util.LogLevel.loadLogLevels();
+        this.callParent(arguments);
+    },
 
     showLog: function (taskId, occurrenceId) {
         var me = this,
@@ -46,15 +59,13 @@ Ext.define('Cfg.controller.Log', {
                         task: record,
                         runStartedOn: runStartedOnFormatted
                     });
-                    taskLink = view.down('#log-view-menu #tasks-view-link');
-                    taskLink.setText(record.get('name'));
+                    view.down('#log-view-menu').setHeader(record.get('name'));
                     me.getApplication().fireEvent('validationtaskload', record);
                     view.down('#log-preview-form').loadRecord(occurrenceTask);
                     view.down('#run-started-on').setValue(runStartedOnFormatted);
                     me.getApplication().fireEvent('changecontentevent', view);
                 });
             }
-			
         });
     }
 });

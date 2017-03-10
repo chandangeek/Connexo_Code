@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Cfg.view.validationtask.DataSourcesPreviewContainer', {
     extend: 'Ext.form.FieldContainer',
     alias: 'widget.cfg-data-sources-preview-container',
@@ -33,6 +37,11 @@ Ext.define('Cfg.view.validationtask.DataSourcesPreviewContainer', {
                     {
                         fieldLabel: Uni.I18n.translate('validationTasks.general.usagePointGroup', 'CFG', 'Usage point group'),
                         name: 'usagePointGroup',
+                        renderer: fieldRenderer
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.purpose', 'CFG', 'Purpose'),
+                        name: 'metrologyPurpose',
                         renderer: fieldRenderer
                     }
                 ];

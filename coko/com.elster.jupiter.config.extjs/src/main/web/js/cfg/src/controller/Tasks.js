@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Cfg.controller.Tasks', {
     extend: 'Ext.app.Controller',
 
     requires: [,
         'Cfg.privileges.Validation',
-        'Uni.util.Application'
+        'Uni.util.Application',
+        'Uni.util.LogLevel'
     ],
 
     views: [
@@ -23,7 +28,8 @@ Ext.define('Cfg.controller.Tasks', {
         'Cfg.store.ValidationTasks',
         'Cfg.store.ValidationTasksHistory',
         'Cfg.store.MetrologyContracts',
-        'Cfg.store.MetrologyConfigurations'
+        'Cfg.store.MetrologyConfigurations',
+        'Cfg.store.MetrologyPurposes'
     ],
 
     models: [
@@ -74,12 +80,16 @@ Ext.define('Cfg.controller.Tasks', {
     INSIGHT_KEY: 'MdmApp',
 
     init: function () {
+        Uni.util.LogLevel.loadLogLevels();
         this.control({
             'cfg-validation-tasks-add #rgr-validation-tasks-recurrence-trigger': {
                 change: this.onRecurrenceTriggerChange
             },
             'cfg-validation-tasks-add #add-button': {
                 click: this.addTask
+            },
+            'cfg-validation-tasks-add #reset-purpose-btn': {
+                click: this.resetPurpose
             },
             'validation-tasks-setup cfg-validation-tasks-grid': {
                 select: this.showPreview
@@ -131,7 +141,7 @@ Ext.define('Cfg.controller.Tasks', {
 
                 actionsMenu.record = record;
                 actionsMenu.down('#view-history').hide();
-                view.down('#tasks-view-menu #tasks-view-link').setText(record.get('name'));
+                view.down('#tasks-view-menu').setHeader(record.get('name'));
                 me.getApplication().fireEvent('changecontentevent', view);
                 me.getApplication().fireEvent('validationtaskload', record);
                 detailsForm.loadRecord(record);
@@ -142,7 +152,7 @@ Ext.define('Cfg.controller.Tasks', {
                     if (Cfg.privileges.Validation.canRun()) {
                         view.down('#run-task').show();
                     }
-                }              
+                }
             }
         });
     },
@@ -164,7 +174,7 @@ Ext.define('Cfg.controller.Tasks', {
 
         taskModel.load(currentTaskId, {
             success: function (record) {
-                view.down('#tasks-view-menu  #tasks-view-link').setText(record.get('name'));
+                view.down('#tasks-view-menu').setHeader(record.get('name'));
                 me.getApplication().fireEvent('changecontentevent', view);
                 store.load();
             }
@@ -211,6 +221,7 @@ Ext.define('Cfg.controller.Tasks', {
                 break;
             case me.INSIGHT_KEY:
                 me.getStore('Cfg.store.UsagePointGroups').load(onGroupsLoad);
+                me.getStore('Cfg.store.MetrologyPurposes').load();
                 break;
         }
     },
@@ -231,6 +242,7 @@ Ext.define('Cfg.controller.Tasks', {
         me.taskId = null;
         me.fromEdit = false;
         recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
+        view.down('#cfg-validation-task-add-loglevel').setValue(900); // = WARNING, the default value at creation time
         me.recurrenceEnableDisable();
     },
 
@@ -281,11 +293,11 @@ Ext.define('Cfg.controller.Tasks', {
                     };
                 if (view.rendered) {
                     switch (appName) {
-                        case me.MULTISENSE_KEY:{
+                        case me.MULTISENSE_KEY: {
                             callback();
                         }
                             break;
-                        case me.INSIGHT_KEY:{
+                        case me.INSIGHT_KEY: {
                             callback();
                         }
                             break;
@@ -441,7 +453,7 @@ Ext.define('Cfg.controller.Tasks', {
                     confWindow.destroy();
                 }
             },
-            callback: function() {
+            callback: function () {
                 mainView.setLoading(false);
             }
         });
@@ -487,10 +499,18 @@ Ext.define('Cfg.controller.Tasks', {
                     return
                 }
             },
-            callback: function() {
+            callback: function () {
                 mainView.setLoading(false);
             }
         });
+    },
+
+    resetPurpose: function (btn) {
+        var me = this,
+            page = me.getAddPage(),
+            form = page.down('#frm-add-validation-task');
+        form.down('#cbo-validation-task-purpose').clearValue();
+        btn.disable();
     },
 
     addTask: function (button) {
@@ -515,6 +535,7 @@ Ext.define('Cfg.controller.Tasks', {
         }
 
         record.set('name', form.down('#txt-task-name').getValue());
+        record.set('logLevel', form.down('#cfg-validation-task-add-loglevel').getValue());
 
         if (dataSourcesContainer) {
             dataSourcesContainer.setDataSourcesToRecord(record);
@@ -642,7 +663,7 @@ Ext.define('Cfg.controller.Tasks', {
                     }
                 }
             },
-            callback: function() {
+            callback: function () {
                 page.setLoading(false);
             }
         })
@@ -663,10 +684,10 @@ Ext.define('Cfg.controller.Tasks', {
         me.recurrenceEnableDisable();
     },
 
-    recurrenceEnableDisable: function() {
+    recurrenceEnableDisable: function () {
         var me = this,
             page = me.getAddPage();
-        if(!page.down('#rgr-validation-tasks-recurrence-trigger').getValue().recurrence) {
+        if (!page.down('#rgr-validation-tasks-recurrence-trigger').getValue().recurrence) {
             page.down('#recurrence-values').disable();
         } else {
             page.down('#recurrence-values').enable();

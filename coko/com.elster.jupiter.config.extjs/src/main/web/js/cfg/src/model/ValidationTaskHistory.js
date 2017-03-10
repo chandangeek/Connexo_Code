@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Cfg.model.ValidationTaskHistory', {
     extend: 'Ext.data.Model',
     requires: [        
@@ -28,10 +32,24 @@ Ext.define('Cfg.model.ValidationTaskHistory', {
             }
         },
         {
+            name: 'metrologyPurpose',
+            persist:false,
+            mapping:  function (data) {
+                return data.task.metrologyPurpose;
+            }
+        },
+        {
             name: 'name',
             persist:false,
             mapping:  function (data) {
                 return data.task.name;
+            }
+        },
+        {
+            name: 'logLevel',
+            persist:false,
+            mapping:  function (data) {
+                return data.task.logLevel;
             }
         },
         {

@@ -1,10 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Cfg.view.validationtask.PreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.cfg-tasks-preview-form',
 
     requires: [        
         'Uni.form.field.Duration',
-        'Cfg.view.validationtask.DataSourcesPreviewContainer'
+        'Cfg.view.validationtask.DataSourcesPreviewContainer',
+        'Uni.form.field.LogLevelDisplay'
     ],
 
     myTooltip: Ext.create('Ext.tip.ToolTip', {
@@ -21,6 +26,10 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('general.name', 'CFG', 'Name'),
                 name: 'name',
+                labelWidth: 250
+            },
+            {
+                xtype: 'log-level-displayfield',
                 labelWidth: 250
             },
             {

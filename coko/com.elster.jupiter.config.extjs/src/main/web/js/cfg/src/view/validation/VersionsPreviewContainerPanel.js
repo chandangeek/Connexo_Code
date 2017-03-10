@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Cfg.view.validation.VersionsPreviewContainerPanel', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.versions-preview-container-panel',
