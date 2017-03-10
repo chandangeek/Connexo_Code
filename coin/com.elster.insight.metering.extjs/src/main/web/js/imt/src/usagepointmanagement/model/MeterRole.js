@@ -19,7 +19,7 @@ Ext.define('Imt.usagepointmanagement.model.MeterRole', {
         },
         {
             name: 'url',
-            mapping: 'meter.activationTime'
+            mapping: 'meter.url'
         }
     ]
 });
