@@ -466,8 +466,8 @@ public class ChannelResource {
             } else {
                 if (channelDataInfo.value != null) {
                     BaseReading baseReading = channelDataInfo.createNew();
-                    if (channelDataInfo.ruleId != 0) {
-                        ((BaseReadingImpl)baseReading).addQuality("2.8." + channelDataInfo.ruleId);
+                    if (channelDataInfo.mainValidationInfo.ruleId != 0) {
+                        ((BaseReadingImpl)baseReading).addQuality("2.8." + channelDataInfo.mainValidationInfo.ruleId);
                         estimatedReadings.add(baseReading);
                     } else {
                         editedReadings.add(baseReading);
@@ -475,8 +475,8 @@ public class ChannelResource {
                 }
                 if (channelDataInfo.collectedValue != null) {
                     BaseReading baseReading = channelDataInfo.createNewBulk();
-                    if (channelDataInfo.ruleId != 0) {
-                        ((BaseReadingImpl)baseReading).addQuality("2.8." + channelDataInfo.ruleId);
+                    if (channelDataInfo.bulkValidationInfo.ruleId != 0) {
+                        ((BaseReadingImpl)baseReading).addQuality("2.8." + channelDataInfo.bulkValidationInfo.ruleId);
                         estimatedBulkReadings.add(baseReading);
                     } else {
                         editedBulkReadings.add(baseReading);
