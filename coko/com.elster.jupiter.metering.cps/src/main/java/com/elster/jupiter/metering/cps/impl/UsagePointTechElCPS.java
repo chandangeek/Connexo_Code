@@ -105,7 +105,7 @@ class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsagePointTec
 //                .addValues("x mm\u00b2")
 //                .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
-        PropertySpec volatageLevelSpec = propertySpecService
+        PropertySpec voltageLevelSpec = propertySpecService
                 .stringSpec()
                 .named(UsagePointTechElDomExt.FieldNames.VOLTAGE_LEVEL.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_VOLTAGE_LEVEL)
                 .fromThesaurus(this.getThesaurus())
@@ -125,7 +125,7 @@ class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsagePointTec
 
         return Arrays.asList(
                 crossSectionalAreaSpec,
-                volatageLevelSpec,
+                voltageLevelSpec,
                 cableLocationSpec);
     }
 

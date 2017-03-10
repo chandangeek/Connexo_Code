@@ -6,6 +6,7 @@ package com.elster.jupiter.metering.cps.impl;
 
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointAntennaCPS;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointContCustomPropertySet;
+import com.elster.jupiter.metering.cps.impl.metrology.UsagePointCorrectionFactorsCPS;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointDecentProdCustomPropertySet;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointMetrologyGeneralCPS;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointSettlementCustomPropertySet;
@@ -56,7 +57,8 @@ public class InsightServiceCategoryCustomPropertySetsCheckList implements Upgrad
                 InstallIdentifier.identifier(application(), UsagePointTechnicalSeeds.COMPONENT_NAME.get()),
                 InstallIdentifier.identifier(application(), UsagePointGeneralCustomPropertySet.COMPONENT_NAME),
                 InstallIdentifier.identifier(application(), UsagePointTechElCPS.COMPONENT_NAME),
-                InstallIdentifier.identifier(application(), UsagePointContrElectrCPS.COMPONENT_NAME));
+                InstallIdentifier.identifier(application(), UsagePointContrElectrCPS.COMPONENT_NAME),
+                InstallIdentifier.identifier(application(), UsagePointCorrectionFactorsCPS.COMPONENT_NAME));
     }
 
 }
