@@ -7,13 +7,14 @@ Ext.define('Dlc.main.view.SideMenu', {
     alias: 'widget.device-life-cycles-side-menu',
     router: null,
     title: Uni.I18n.translate('general.deviceLifeCycle', 'DLC', 'Device life cycle'),
+    objectType: Uni.I18n.translate('general.deviceLifeCycle', 'DLC', 'Device life cycle'),
 
     initComponent: function () {
         var me = this;
 
         me.menuItems = [
             {
-                text: Uni.I18n.translate('general.deviceLifeCycle', 'DLC', 'Device life cycle'),
+                text: Uni.I18n.translate('general.details', 'DLC', 'Details'),
                 itemId: 'device-life-cycle-link',
                 href: me.router.getRoute('administration/devicelifecycles/devicelifecycle').buildUrl()
             },

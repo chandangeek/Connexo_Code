@@ -71,12 +71,13 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
         view = Ext.widget('device-life-cycle-transitions-setup', {
             router: router
         });
-        me.getApplication().fireEvent('changecontentevent', view);
+
 
         deviceLifeCycleModel.load(deviceLifeCycleId, {
             success: function (deviceLifeCycleRecord) {
                 me.getApplication().fireEvent('devicelifecycleload', deviceLifeCycleRecord);
-                view.down('#device-life-cycle-link').setText(deviceLifeCycleRecord.get('name'));
+                view.down('#device-life-cycles-transitions-side-menu').setHeader(deviceLifeCycleRecord.get('name'));
+                me.getApplication().fireEvent('changecontentevent', view);
             }
         });
     },

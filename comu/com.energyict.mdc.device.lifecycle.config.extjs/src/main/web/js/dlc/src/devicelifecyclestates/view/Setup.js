@@ -33,7 +33,7 @@ Ext.define('Dlc.devicelifecyclestates.view.Setup', {
 
         me.content = {
             ui: 'large',
-            title: me.lifecycleRecord.get('name'),
+            title: Uni.I18n.translate('deviceLifeCycleStates.states', 'DLC', 'States'),
             items: [
                 {
                     xtype: 'preview-container',

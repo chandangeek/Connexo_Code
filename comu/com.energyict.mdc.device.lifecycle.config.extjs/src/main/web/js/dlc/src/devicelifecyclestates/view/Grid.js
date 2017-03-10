@@ -24,7 +24,7 @@ Ext.define('Dlc.devicelifecyclestates.view.Grid', {
                 width: 70
             },
             {
-                header: Uni.I18n.translate('general.states', 'DLC', 'States'),
+                header: Uni.I18n.translate('general.state', 'DLC', 'State'),
                 dataIndex: 'sorted_name',
                 flex: 1
             },
