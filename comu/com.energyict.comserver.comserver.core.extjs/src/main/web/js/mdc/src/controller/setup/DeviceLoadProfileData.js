@@ -316,7 +316,15 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             var yAxisObject = {
                     opposite: false,
                     gridLineDashStyle: 'Dot',
-                    showEmpty: false
+                    showEmpty: false,
+                    labels: {
+                        style: {
+                            color: '#686868',
+                            fontWeight: 'normal',
+                            fontSize: '13px',
+                            fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                        }
+                    }
                 },
                 yAxisTitle = channel.name;
 
@@ -336,8 +344,14 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             yAxisObject['title'] = {
                 rotation: 0,
                 align: 'high',
-                margin: -5 * yAxisTitle.length,
-                text: yAxisTitle
+                margin: -6 * yAxisTitle.length,
+                text: yAxisTitle,
+                style: {
+                    color: '#686868',
+                    fontWeight: 'normal',
+                    fontSize: '13px',
+                    fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                }
             };
             yAxis.push(yAxisObject);
         });

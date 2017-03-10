@@ -5,7 +5,8 @@
 Ext.define('Mdc.view.setup.comportpool.ComPortPoolEdit', {
     extend: 'Uni.view.container.ContentContainer',
     requires: [
-        'Uni.util.FormErrorMessage'
+        'Uni.util.FormErrorMessage',
+        'Uni.property.form.Property',
     ],
     alias: 'widget.comPortPoolEdit',
     itemId: 'comPortPoolEdit',
@@ -87,6 +88,24 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolEdit', {
                     valueField: 'id',
                     required: true,
                     width: 600
+                },
+                {
+                    xtype: 'fieldcontainer',
+                    hidden: true,
+                    itemId: 'protocolDetectionDetails',
+                    fieldLabel: Uni.I18n.translate('comportPool.protocolDetectionDetails', 'MDC', 'Protocol detection details'),
+                    labelAlign: 'top',
+                    layout: 'vbox'
+                },
+                {
+                    xtype: 'property-form',
+                    itemId: 'property-form',
+                    defaults: {
+                        width: 335,
+                        labelWidth: 250,
+                        resetButtonHidden: true
+                    },
+                    width: 1000
                 },
                 {
                     xtype: 'fieldcontainer',

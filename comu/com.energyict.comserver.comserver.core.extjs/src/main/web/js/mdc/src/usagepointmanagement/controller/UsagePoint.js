@@ -88,7 +88,6 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
             success: function (record) {
                 me.usagePoint = record;
                 me.getApplication().fireEvent('usagePointLoaded', record);
-                me.getApplication().fireEvent('editUsagePointLoaded', record);
                 var widget = Ext.widget('add-usage-point-setup', {
                     router: router,
                     edit: true,
