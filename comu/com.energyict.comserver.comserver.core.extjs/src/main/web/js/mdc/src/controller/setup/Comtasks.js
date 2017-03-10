@@ -591,7 +591,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 Ext.Array.each(actionRecord.get('parameters'), function (parameter) {
                     if (parameter.name === 'verifyserialnumber') {
                         verifyserialnumber = parameter.value;
-                    }else if (parameter.name === 'readclockdifference') {
+                    } else if (parameter.name === 'readclockdifference') {
                         readclockdifference = parameter.value;
                     } else if (parameter.name === 'maximumclockdifference') {
                         maximumClockDifference = parameter.value
@@ -604,10 +604,10 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                     verifyserialnumber ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No')
                 );
                 previewForm.addAttribute(
-                    Uni.I18n.translate('comtask.read.clock.difference','MDC','Read clock difference'),
+                    Uni.I18n.translate('comtask.read.clock.difference', 'MDC', 'Read clock difference'),
                     readclockdifference ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No')
                 );
-                if(!Ext.isEmpty(maximumClockDifference)) {
+                if (!Ext.isEmpty(maximumClockDifference)) {
                     previewForm.addAttribute(
                         Uni.I18n.translate('comtask.maximum.clock.difference', 'MDC', 'Maximum clock difference'),
                         maximumClockDifference
@@ -952,8 +952,14 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             iconFail = Ext.ComponentQuery.query('#radioFail')[0].getEl().down('span[class=icon-info]'),
             textFail = Uni.I18n.translate('comtask.tooltip.textFail', 'MDC', 'A profile configuration defines how a load profile of that configuration looks like. When the profile configuration doesn\'t match the load profile, a failure occurs');
 
-        iconIntervals.tooltip = Ext.create('Ext.tip.ToolTip', {target: iconIntervals, html: Ext.String.htmlEncode(textIntervals)});
-        iconEvents.tooltip = Ext.create('Ext.tip.ToolTip', {target: iconEvents, html: Ext.String.htmlEncode(textEvents)});
+        iconIntervals.tooltip = Ext.create('Ext.tip.ToolTip', {
+            target: iconIntervals,
+            html: Ext.String.htmlEncode(textIntervals)
+        });
+        iconEvents.tooltip = Ext.create('Ext.tip.ToolTip', {
+            target: iconEvents,
+            html: Ext.String.htmlEncode(textEvents)
+        });
         iconFail.tooltip = Ext.create('Ext.tip.ToolTip', {target: iconFail, html: Ext.String.htmlEncode(textFail)});
     },
 
@@ -1017,7 +1023,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 parametersContainer.down('#radioReadclockdifference').setValue({
                     readclockdifference: command.parameters[1].value.toString()
                 });
-                if(!Ext.isEmpty(command.parameters[2].value)) {
+                if (!Ext.isEmpty(command.parameters[2].value)) {
                     parametersContainer.down('#disContTime').setValue(command.parameters[2].value.name);
                     parametersContainer.down('#disContNum').setValue(command.parameters[2].value.value);
                 }
@@ -1435,7 +1441,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         readClock.value = readClockBoolean;
         action.parameters.push(readClock);
 
-        if(readClockBoolean) {
+        if (readClockBoolean) {
             var maxDifference = {},
                 maxDifferenceValue = {};
             maxDifference.name = "maximumclockdifference";

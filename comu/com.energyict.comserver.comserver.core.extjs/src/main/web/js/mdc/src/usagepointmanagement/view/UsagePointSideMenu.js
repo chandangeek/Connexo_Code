@@ -11,7 +11,7 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointSideMenu', {
 
     initComponent: function () {
         var me = this;
-        me.title = me.usagePointId ||  Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point');
+        me.title = me.usagePointId || Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point');
         me.menuItems = [
             {
                 xtype: 'menu',
