@@ -5,7 +5,9 @@
 package com.elster.jupiter.dataquality.impl.calc;
 
 import com.elster.jupiter.dataquality.DeviceDataQualityKpi;
+import com.elster.jupiter.dataquality.UsagePointDataQualityKpi;
 import com.elster.jupiter.dataquality.impl.DeviceDataQualityKpiImpl;
+import com.elster.jupiter.dataquality.impl.UsagePointDataQualityKpiImpl;
 import com.elster.jupiter.tasks.TaskOccurrence;
 
 import java.util.Optional;
@@ -49,7 +51,12 @@ public enum KpiType {
 
         @Override
         DataQualityKpiCalculator newCalculator(long dataQualityKpiId, DataQualityServiceProvider serviceProvider, Logger logger) {
-            throw new UnsupportedOperationException("Not implemented yet");
+            Optional<UsagePointDataQualityKpi> usagePointDataQualityKpi = serviceProvider.dataQualityKpiService().findUsagePointDataQualityKpi(dataQualityKpiId);
+            if (usagePointDataQualityKpi.isPresent()) {
+                return new UsagePointDataQualityKpiCalculator(serviceProvider, (UsagePointDataQualityKpiImpl) usagePointDataQualityKpi.get(), logger);
+            } else {
+                return new DataQualityKpiDoesNotExist(logger, "" + dataQualityKpiId);
+            }
         }
     };
 

@@ -167,7 +167,7 @@ public class DeviceDataQualityKpiIT extends BaseTestIT {
         DeviceDataQualityKpiImpl kpi = (DeviceDataQualityKpiImpl) dataQualityKpiService.newDataQualityKpi(endDeviceGroup, ONE_HOUR);
 
         // Business method
-        kpi.updateMembers();
+        kpi.updateMembers(Range.all());
 
         // Asserts
         kpi = (DeviceDataQualityKpiImpl) dataQualityKpiService.findDeviceDataQualityKpi(kpi.getId()).get();
@@ -184,7 +184,7 @@ public class DeviceDataQualityKpiIT extends BaseTestIT {
         when(estimationService.getAvailableEstimators(QualityCodeSystem.MDC)).thenReturn(Collections.singletonList(estimator));
 
         // Business method
-        kpi.updateMembers();
+        kpi.updateMembers(Range.all());
 
         // Asserts
         kpi = (DeviceDataQualityKpiImpl) dataQualityKpiService.findDeviceDataQualityKpi(kpi.getId()).get();
@@ -217,7 +217,7 @@ public class DeviceDataQualityKpiIT extends BaseTestIT {
         DeviceDataQualityKpiImpl kpi = (DeviceDataQualityKpiImpl) dataQualityKpiService.newDataQualityKpi(endDeviceGroup, ONE_HOUR);
 
         // Business method
-        kpi.updateMembers();
+        kpi.updateMembers(Range.all());
 
         // Asserts
         kpi = (DeviceDataQualityKpiImpl) dataQualityKpiService.findDeviceDataQualityKpi(kpi.getId()).get();
@@ -235,7 +235,7 @@ public class DeviceDataQualityKpiIT extends BaseTestIT {
         endDeviceGroup.update();
 
         // Business method
-        kpi.updateMembers();
+        kpi.updateMembers(Range.all());
 
         // Asserts
         kpi = (DeviceDataQualityKpiImpl) dataQualityKpiService.findDeviceDataQualityKpi(kpi.getId()).get();
@@ -254,7 +254,7 @@ public class DeviceDataQualityKpiIT extends BaseTestIT {
         DeviceDataQualityKpiImpl kpi = (DeviceDataQualityKpiImpl) dataQualityKpiService.newDataQualityKpi(endDeviceGroup, ONE_HOUR);
 
         // Business method
-        kpi.updateMembers();
+        kpi.updateMembers(Range.all());
 
         // Asserts
         kpi = (DeviceDataQualityKpiImpl) dataQualityKpiService.findDeviceDataQualityKpi(kpi.getId()).get();
@@ -268,7 +268,7 @@ public class DeviceDataQualityKpiIT extends BaseTestIT {
         endDeviceGroup.update();
 
         // Business method
-        kpi.updateMembers();
+        kpi.updateMembers(Range.all());
 
         // Asserts
         kpi = (DeviceDataQualityKpiImpl) dataQualityKpiService.findDeviceDataQualityKpi(kpi.getId()).get();
@@ -285,7 +285,7 @@ public class DeviceDataQualityKpiIT extends BaseTestIT {
         DeviceDataQualityKpiImpl kpi = (DeviceDataQualityKpiImpl) dataQualityKpiService.newDataQualityKpi(endDeviceGroup, ONE_HOUR);
 
         // Business method
-        kpi.updateMembers();
+        kpi.updateMembers(Range.all());
 
         // Asserts
         kpi = (DeviceDataQualityKpiImpl) dataQualityKpiService.findDeviceDataQualityKpi(kpi.getId()).get();
@@ -304,7 +304,7 @@ public class DeviceDataQualityKpiIT extends BaseTestIT {
         when(estimationService.getAvailableEstimators(QualityCodeSystem.MDC)).thenReturn(Collections.singletonList(estimator));
 
         // Business method
-        kpi.updateMembers();
+        kpi.updateMembers(Range.all());
 
         // Asserts
         kpi = (DeviceDataQualityKpiImpl) dataQualityKpiService.findDeviceDataQualityKpi(kpi.getId()).get();

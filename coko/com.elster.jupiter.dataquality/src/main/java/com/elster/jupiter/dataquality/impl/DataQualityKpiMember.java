@@ -8,9 +8,11 @@ import com.elster.jupiter.kpi.Kpi;
 
 public interface DataQualityKpiMember {
 
-    Kpi getChildKpi();
+    String KPIMEMBERNAME_SEPARATOR = "_";
 
     String getTargetIdentifier();
+
+    Kpi getChildKpi();
 
     void remove();
 }

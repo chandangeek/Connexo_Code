@@ -4,10 +4,13 @@
 
 package com.elster.jupiter.dataquality.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.dataquality.DeviceDataQualityKpi;
+import com.elster.jupiter.dataquality.impl.calc.DataQualityKpiMemberType;
 import com.elster.jupiter.dataquality.impl.calc.KpiType;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.kpi.KpiBuilder;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
@@ -21,8 +24,12 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.validation.ValidationService;
 
+import com.google.common.collect.Range;
+
 import javax.inject.Inject;
 import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
 import java.util.Map;
 import java.util.Set;
@@ -80,7 +87,13 @@ public final class DeviceDataQualityKpiImpl extends DataQualityKpiImpl implement
         return getKpiType().recurrentTaskName(getDeviceGroup().getName());
     }
 
-    public Map<Long, DataQualityKpiMember> updateMembers() {
+    @Override
+    QualityCodeSystem getQualityCodeSystem() {
+        return QualityCodeSystem.MDC;
+    }
+
+    @Override
+    public Map<Long, DataQualityKpiMember> updateMembers(Range<Instant> interval) {
         if (getKpiMembers().isEmpty()) {
             return createDataQualityKpiMembers(getDeviceGroup());
         }
@@ -97,7 +110,7 @@ public final class DeviceDataQualityKpiImpl extends DataQualityKpiImpl implement
         dataQualityKpiMembersMap.entrySet().stream()
                 .filter(entry -> commonElements.contains(entry.getKey()))
                 .map(Map.Entry::getValue)
-                .forEach(this::updateKpiMemberIfNeeded);
+                .forEach(super::updateKpiMemberIfNeeded);
 
         // remove kpis for devices that disappeared from group
         Set<DataQualityKpiMember> obsoleteKpiMembers = dataQualityKpiMembersMap.entrySet().stream()
@@ -115,16 +128,27 @@ public final class DeviceDataQualityKpiImpl extends DataQualityKpiImpl implement
                 .map(Meter.class::cast)
                 .collect(Collectors.toMap(
                         Meter::getId,
-                        meter -> super.createDataQualityKpiMember(getIdentifier(meter), meter.getZoneId())));
+                        meter -> createDataQualityKpiMember(kpiMemberNameSuffix(meter), meter.getZoneId())));
     }
 
     private DataQualityKpiMemberImpl createDataQualityKpiMember(long endDeviceId) {
         Meter meter = getMeteringService().findMeterById(endDeviceId).get();
-        return super.createDataQualityKpiMember(getIdentifier(meter), meter.getZoneId());
+        return createDataQualityKpiMember(kpiMemberNameSuffix(meter), meter.getZoneId());
     }
 
-    private String getIdentifier(Meter meter) {
-        return "" + meter.getId();
+    private DataQualityKpiMemberImpl createDataQualityKpiMember(String kpiMemberNameSuffix, ZoneId zoneId) {
+        KpiBuilder kpiBuilder = getKpiService().newKpi();
+        kpiBuilder.interval(getFrequency());
+        kpiBuilder.timeZone(zoneId);
+
+        actualKpiMemberTypes()
+                .map(DataQualityKpiMemberType::getName)
+                .map(member -> member.toUpperCase() + DataQualityKpiMember.KPIMEMBERNAME_SEPARATOR + kpiMemberNameSuffix)
+                .forEach(member -> kpiBuilder.member().named(member).add());
+
+        DataQualityKpiMemberImpl dataQualityKpiMember = DataQualityKpiMemberImpl.from(getDataModel(), this, kpiBuilder.create());
+        getKpiMembers().add(dataQualityKpiMember);
+        return dataQualityKpiMember;
     }
 
     private Set<Long> deviceIdsInGroup() {
@@ -139,7 +163,7 @@ public final class DeviceDataQualityKpiImpl extends DataQualityKpiImpl implement
                         Function.identity()));
     }
 
-    private Set<Long> intersection(Set<Long> first, Set<Long> second) {
-        return first.stream().filter(second::contains).collect(Collectors.toSet());
+    public static String kpiMemberNameSuffix(Meter meter) {
+        return "" + meter.getId();
     }
 }

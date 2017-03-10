@@ -61,6 +61,6 @@ public class DataQualityKpiMemberImpl implements DataQualityKpiMember {
     }
 
     private String parseIdentifier(KpiMember member) {
-        return member.getName().substring(member.getName().indexOf("_") + 1);
+        return member.getName().substring(member.getName().indexOf(KPIMEMBERNAME_SEPARATOR) + 1);
     }
 }

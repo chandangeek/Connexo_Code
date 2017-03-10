@@ -4,13 +4,19 @@
 
 package com.elster.jupiter.dataquality.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.dataquality.UsagePointDataQualityKpi;
+import com.elster.jupiter.dataquality.impl.calc.DataQualityKpiMemberType;
 import com.elster.jupiter.dataquality.impl.calc.KpiType;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.kpi.KpiBuilder;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.DataModel;
@@ -18,14 +24,28 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.ValidationService;
+
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.time.Clock;
+import java.time.Instant;
 import java.time.temporal.TemporalAmount;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.streams.Predicates.not;
 
 @UniqueUsagePointGroupAndPurpose(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.USAGEPOINT_GROUP_AND_PURPOSE_MUST_BE_UNIQUE + "}")
 public final class UsagePointDataQualityKpiImpl extends DataQualityKpiImpl implements UsagePointDataQualityKpi {
+
+    private static final String KPI_MEMBER_NAME_SUFFIX_SEPARATOR = ":";
 
     public enum Fields {
 
@@ -81,5 +101,122 @@ public final class UsagePointDataQualityKpiImpl extends DataQualityKpiImpl imple
     @Override
     String getRecurrentTaskName() {
         return getKpiType().recurrentTaskName(getUsagePointGroup().getName() + "/" + getMetrologyPurpose().getName());
+    }
+
+    @Override
+    QualityCodeSystem getQualityCodeSystem() {
+        return QualityCodeSystem.MDM;
+    }
+
+    @Override
+    public void makeObsolete() {
+        this.metrologyPurpose.setNull();
+        this.usagePointGroup.setNull();
+        super.makeObsolete();
+    }
+
+    @Override
+    public Map<Long, DataQualityKpiMember> updateMembers(Range<Instant> interval) {
+        if (getKpiMembers().isEmpty()) {
+            return createDataQualityKpiMembers(interval);
+        }
+        Set<Long> usagePointIdsInGroup = usagePointIdsInGroup();
+        Map<Long, DataQualityKpiMember> dataQualityKpiMembersMap = usagePointIdsInKpiMembers();
+        Set<Long> commonElements = intersection(usagePointIdsInGroup, dataQualityKpiMembersMap.keySet());
+
+        // create kpis for new usage points in group
+        usagePointIdsInGroup.stream()
+                .filter(not(commonElements::contains))
+                .forEach(id -> createDataQualityKpiMember(id, interval));
+
+        // update existing kpis with the new kpi members (in case new validators/estimators deployed)
+        dataQualityKpiMembersMap.entrySet().stream()
+                .filter(entry -> commonElements.contains(entry.getKey()))
+                .map(Map.Entry::getValue)
+                .forEach(super::updateKpiMemberIfNeeded);
+
+        // remove kpis for usage points that disappeared from group
+        Set<DataQualityKpiMember> obsoleteKpiMembers = dataQualityKpiMembersMap.entrySet().stream()
+                .filter(not(entry -> commonElements.contains(entry.getKey())))
+                .map(Map.Entry::getValue)
+                .peek(DataQualityKpiMember::remove)
+                .collect(Collectors.toSet());
+        getKpiMembers().removeAll(obsoleteKpiMembers);
+
+        return usagePointIdsInKpiMembers();
+    }
+
+    private Map<Long, DataQualityKpiMember> createDataQualityKpiMembers(Range<Instant> interval) {
+        return getUsagePointGroup().getMembers(getClock().instant()).stream()
+                .collect(Collectors.toMap(
+                        UsagePoint::getId,
+                        usagePoint -> createDataQualityKpiMember(usagePoint, interval)));
+    }
+
+    private DataQualityKpiMemberImpl createDataQualityKpiMember(long usagePointId, Range<Instant> interval) {
+        UsagePoint usagePoint = getMeteringService().findUsagePointById(usagePointId).get();
+        return createDataQualityKpiMember(usagePoint, interval);
+    }
+
+    private DataQualityKpiMemberImpl createDataQualityKpiMember(UsagePoint usagePoint, Range<Instant> interval) {
+        KpiBuilder kpiBuilder = getKpiService().newKpi();
+        kpiBuilder.interval(getFrequency());
+        kpiBuilder.timeZone(usagePoint.getZoneId());
+
+        Set<ChannelsContainer> channelContainers = getChannelsContainers(usagePoint, interval);
+        actualKpiMemberTypes()
+                .map(DataQualityKpiMemberType::getName)
+                .flatMap(member ->
+                        channelContainers.stream()
+                                .map(channelContainer -> kpiMemberNameSuffix(usagePoint, channelContainer))
+                                .map(suffix -> member.toUpperCase() + DataQualityKpiMember.KPIMEMBERNAME_SEPARATOR + suffix)
+                )
+                .forEach(member -> kpiBuilder.member().named(member).add());
+
+        DataQualityKpiMemberImpl dataQualityKpiMember = DataQualityKpiMemberImpl.from(getDataModel(), this, kpiBuilder.create());
+        getKpiMembers().add(dataQualityKpiMember);
+        return dataQualityKpiMember;
+    }
+
+    private Map<Long, DataQualityKpiMember> usagePointIdsInKpiMembers() {
+        return getKpiMembers().stream()
+                .collect(Collectors.toMap(this::parseUsagePointIdentifier, Function.identity()));
+    }
+
+    private Long parseUsagePointIdentifier(DataQualityKpiMember kpiMember) {
+        String targetIdentifier = kpiMember.getTargetIdentifier();
+        String[] parts = targetIdentifier.split(KPI_MEMBER_NAME_SUFFIX_SEPARATOR);
+        if (parts.length != 2) {
+            throw new IllegalStateException("Usage point kpi member identifier invalid," +
+                    " expected <usage point id>" + KPI_MEMBER_NAME_SUFFIX_SEPARATOR + "<channels container id>");
+        }
+        return Long.parseLong(parts[0]);
+    }
+
+    private Set<Long> usagePointIdsInGroup() {
+        return getUsagePointGroup().getMembers(getClock().instant()).stream()
+                .map(HasId::getId).collect(Collectors.toSet());
+    }
+
+    private Set<ChannelsContainer> getChannelsContainers(UsagePoint usagePoint, Range<Instant> interval) {
+        return usagePoint.getEffectiveMetrologyConfigurations(interval)
+                .stream()
+                .map(effectiveMC -> getChannelsContainerForPurpose(effectiveMC, this.metrologyPurpose.get()))
+                .flatMap(Functions.asStream())
+                .collect(Collectors.toSet());
+    }
+
+    private Optional<ChannelsContainer> getChannelsContainerForPurpose(EffectiveMetrologyConfigurationOnUsagePoint effectiveMC, MetrologyPurpose purpose) {
+        return effectiveMC
+                .getMetrologyConfiguration()
+                .getContracts()
+                .stream()
+                .filter(metrologyContract -> metrologyContract.getMetrologyPurpose().equals(purpose))
+                .findAny()
+                .flatMap(effectiveMC::getChannelsContainer);
+    }
+
+    public static String kpiMemberNameSuffix(UsagePoint usagePoint, ChannelsContainer channelsContainer) {
+        return usagePoint.getId() + KPI_MEMBER_NAME_SUFFIX_SEPARATOR + channelsContainer.getId();
     }
 }

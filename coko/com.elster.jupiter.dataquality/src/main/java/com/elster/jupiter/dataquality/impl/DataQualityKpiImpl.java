@@ -12,7 +12,6 @@ import com.elster.jupiter.dataquality.impl.calc.KpiType;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.kpi.Kpi;
-import com.elster.jupiter.kpi.KpiBuilder;
 import com.elster.jupiter.kpi.KpiMember;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.kpi.KpiUpdater;
@@ -31,16 +30,18 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.validation.ValidationService;
 
+import com.google.common.collect.Range;
+
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
-import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -164,6 +165,8 @@ public abstract class DataQualityKpiImpl implements HasId, DataQualityKpi, Persi
 
     abstract String getRecurrentTaskName();
 
+    abstract QualityCodeSystem getQualityCodeSystem();
+
     @Override
     public Optional<Instant> getLatestCalculation() {
         return this.dataQualityKpiTask.map(RecurrentTask::getLastRun).orElse(Optional.empty());
@@ -195,6 +198,20 @@ public abstract class DataQualityKpiImpl implements HasId, DataQualityKpi, Persi
     @Override
     public int hashCode() {
         return (int) (id ^ (id >>> 32));
+    }
+
+    @Override
+    public void makeObsolete() {
+        RecurrentTask recurrentTask = this.dataQualityKpiTask.get();
+        this.dataQualityKpiTask.setNull();
+        this.obsoleteTime = clock.instant();
+        this.dataModel.update(this);
+        recurrentTask.delete();
+    }
+
+    @Override
+    public Optional<Instant> getObsoleteTime() {
+        return Optional.ofNullable(this.obsoleteTime);
     }
 
     DataModel getDataModel() {
@@ -248,21 +265,21 @@ public abstract class DataQualityKpiImpl implements HasId, DataQualityKpi, Persi
         return getKpiType().recurrentPayload(getId());
     }
 
-    DataQualityKpiMemberImpl createDataQualityKpiMember(String identifier, ZoneId zoneId) {
-        KpiBuilder kpiBuilder = this.kpiService.newKpi();
-        kpiBuilder.interval(getFrequency());
-        kpiBuilder.timeZone(zoneId);
+    public abstract Map<Long, DataQualityKpiMember> updateMembers(Range<Instant> interval);
 
-        actualKpiMemberTypes()
-                .map(DataQualityKpiMemberType::getName)
-                .map(member -> member.toUpperCase() + "_" + identifier)
-                .forEach(member -> kpiBuilder.member().named(member).add());
-
-        DataQualityKpiMemberImpl dataQualityKpiMember = DataQualityKpiMemberImpl.from(this.dataModel, this, kpiBuilder.create());
-        this.kpiMembers.add(dataQualityKpiMember);
-        return dataQualityKpiMember;
+    Stream<DataQualityKpiMemberType> actualKpiMemberTypes() {
+        Stream<DataQualityKpiMemberType> predefined = Stream.of(DataQualityKpiMemberType.PredefinedKpiMemberType.values());
+        Stream<DataQualityKpiMemberType> validators = getValidationService().getAvailableValidators(getQualityCodeSystem())
+                .stream().map(DataQualityKpiMemberType.ValidatorKpiMemberType::new);
+        Stream<DataQualityKpiMemberType> estimators = getEstimationService().getAvailableEstimators(getQualityCodeSystem())
+                .stream().map(DataQualityKpiMemberType.EstimatorKpiMemberType::new);
+        return Stream.of(predefined, estimators, validators).flatMap(Function.identity());
     }
 
+    /**
+     * Updates kpi members of existing kpi entity in case of actual kpi types contain new ones
+     * which is the case if new validators or estimators have been deployed
+     */
     void updateKpiMemberIfNeeded(DataQualityKpiMember dataQualityKpiMember) {
         Kpi kpi = dataQualityKpiMember.getChildKpi();
         Set<String> existingKpiMemberNames = kpi.getMembers().stream().map(KpiMember::getName).collect(Collectors.toSet());
@@ -279,28 +296,7 @@ public abstract class DataQualityKpiImpl implements HasId, DataQualityKpi, Persi
         }
     }
 
-    Stream<DataQualityKpiMemberType> actualKpiMemberTypes() {
-        Stream<DataQualityKpiMemberType> predefined = Stream.of(DataQualityKpiMemberType.PredefinedKpiMemberType.values());
-        Stream<DataQualityKpiMemberType> validators = getValidationService().getAvailableValidators(QualityCodeSystem.MDC)
-                .stream().map(DataQualityKpiMemberType.ValidatorKpiMemberType::new);
-        Stream<DataQualityKpiMemberType> estimators = getEstimationService().getAvailableEstimators(QualityCodeSystem.MDC)
-                .stream().map(DataQualityKpiMemberType.EstimatorKpiMemberType::new);
-        return Stream.of(predefined, estimators, validators).flatMap(Function.identity());
-    }
-
-    @Override
-    public void makeObsolete() {
-        RecurrentTask recurrentTask = this.dataQualityKpiTask.get();
-        this.dataQualityKpiTask.setNull();
-        this.obsoleteTime = clock.instant();
-        this.dataModel.update(this,
-                Fields.OBSOLETE_TIME.fieldName(),
-                Fields.DATA_QUALITY_KPI_TASK.fieldName());
-        recurrentTask.delete();
-    }
-
-    @Override
-    public Optional<Instant> getObsoleteTime() {
-        return Optional.ofNullable(this.obsoleteTime);
+    Set<Long> intersection(Set<Long> first, Set<Long> second) {
+        return first.stream().filter(second::contains).collect(Collectors.toSet());
     }
 }
