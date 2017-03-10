@@ -530,10 +530,10 @@ public class MasterDataSync {
         return collectedMessage;
     }
 
-    public CollectedMessage setBufferForAllEventLogs(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+    public CollectedMessage setBufferForAllEventLogs(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage, boolean readOldObisCodes) throws IOException {
         long bufferSize = Long.parseLong(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.bufferSize).getDeviceMessageAttributeValue());
 
-        List<Beacon3100DeviceType> deviceTypes =  new MasterDataSerializer().getDeviceTypes(pendingMessage.getDeviceId());
+        List<Beacon3100DeviceType> deviceTypes =  new MasterDataSerializer().getDeviceTypes(pendingMessage.getDeviceId(), readOldObisCodes);
 
         for(Beacon3100DeviceType beacon3100DeviceType : deviceTypes){
             if(beacon3100DeviceType.updateBufferSizeForAllEventLogs(new Unsigned32(bufferSize))) {
@@ -565,10 +565,10 @@ public class MasterDataSync {
         return collectedMessage;
     }
 
-    public CollectedMessage setBufferForAllLoadProfiles(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+    public CollectedMessage setBufferForAllLoadProfiles(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage,boolean readOldObisCodes) throws IOException {
         long bufferSize = Long.parseLong(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.bufferSize).getDeviceMessageAttributeValue());
 
-        List<Beacon3100DeviceType> beacon3100DeviceTypes =  new MasterDataSerializer().getDeviceTypes(pendingMessage.getDeviceId());
+        List<Beacon3100DeviceType> beacon3100DeviceTypes =  new MasterDataSerializer().getDeviceTypes(pendingMessage.getDeviceId(), readOldObisCodes);
 
         for(Beacon3100DeviceType beacon3100DeviceType : beacon3100DeviceTypes){
             if(beacon3100DeviceType.updateBufferSizeForAllLoadProfiles(new Unsigned32(bufferSize))) {

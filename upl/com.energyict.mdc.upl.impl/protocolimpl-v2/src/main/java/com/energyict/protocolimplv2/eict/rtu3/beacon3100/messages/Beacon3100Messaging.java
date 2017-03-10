@@ -706,11 +706,11 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     }else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_SEND_TEST_NOTIFICATION)) {
                         collectedMessage = configurePushSetupSendTestNotification(pendingMessage, collectedMessage);
                     } else if(pendingMessage.getSpecification().equals(DeviceActionMessage.SetBufferForAllLoadProfiles)){
-                        collectedMessage = getMasterDataSync().setBufferForAllLoadProfiles(pendingMessage, collectedMessage);
+                        collectedMessage = getMasterDataSync().setBufferForAllLoadProfiles(pendingMessage, collectedMessage, readOldObisCodes());
                     }else if(pendingMessage.getSpecification().equals(DeviceActionMessage.SetBufferForSpecificLoadProfile)){
                         collectedMessage = getMasterDataSync().setBufferForSpecificLoadProfile(pendingMessage, collectedMessage);
                     }else if(pendingMessage.getSpecification().equals(DeviceActionMessage.SetBufferForAllEventLogs)){
-                        collectedMessage = getMasterDataSync().setBufferForAllEventLogs(pendingMessage, collectedMessage);
+                        collectedMessage = getMasterDataSync().setBufferForAllEventLogs(pendingMessage, collectedMessage, readOldObisCodes());
                     }else if(pendingMessage.getSpecification().equals(DeviceActionMessage.SetBufferForSpecificEventLog)){
                         collectedMessage = getMasterDataSync().setBufferForSpecificEventLog(pendingMessage, collectedMessage);
                     }else if(pendingMessage.getSpecification().equals(DeviceActionMessage.SetBufferForAllRegisters)){

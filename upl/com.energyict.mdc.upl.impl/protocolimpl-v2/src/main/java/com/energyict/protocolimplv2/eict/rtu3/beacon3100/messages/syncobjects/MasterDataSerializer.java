@@ -209,7 +209,7 @@ public class MasterDataSerializer {
         return beacon3100MeterDetails;
     }
 
-    public List<Beacon3100DeviceType> getDeviceTypes(int deviceId){
+    public List<Beacon3100DeviceType> getDeviceTypes(int deviceId, boolean readOldObisCodes){
         final Device masterDevice = getMeteringWarehouse().getDeviceFactory().find(deviceId);
         if (masterDevice == null) {
             throw invalidFormatException("'DC device ID'", String.valueOf(deviceId), "ID should reference a unique device");
@@ -220,7 +220,7 @@ public class MasterDataSerializer {
             //Add all information about the device type config. (only once per device type config)
             final DeviceConfiguration deviceConfiguration = device.getConfiguration();
             if (!deviceTypeAlreadyExists(allMasterData.getDeviceTypes(), deviceConfiguration)) {
-                addDeviceConfiguration(masterDevice, allMasterData, device, deviceConfiguration, true);
+                addDeviceConfiguration(masterDevice, allMasterData, device, deviceConfiguration, readOldObisCodes);
             }
         }
         return allMasterData.getDeviceTypes();
