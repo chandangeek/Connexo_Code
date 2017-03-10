@@ -52,7 +52,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksLog', {
                     });
                     sideMenu = widget.down('#estimationtasks-log-menu');
                     me.getApplication().fireEvent('estimationTaskLoaded', record);
-                    widget.down("#estimationtasks-overview-link").setText(record.get('name'));
+                    widget.down('#estimationtasks-log-menu').setHeader(record.get('name'));
                     widget.down('#estimationtasks-log-preview-form').loadRecord(occurrenceTask);
                     widget.down('#run-started-on').setValue(runStartedOnFormatted);
                     me.getApplication().fireEvent('changecontentevent', widget);

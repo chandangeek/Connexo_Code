@@ -20,7 +20,8 @@ Ext.define('Est.estimationtasks.view.Details', {
         items: [
             {
                 ui: 'large',
-                title: Uni.I18n.translate('general.overview', 'EST', 'Overview'),
+                itemId: 'estimationtasks-details-panel',
+                title: Uni.I18n.translate('general.details', 'EST', 'Details'),
                 flex: 1,
                 items: {
                     xtype: 'estimationtasks-detail-form',
