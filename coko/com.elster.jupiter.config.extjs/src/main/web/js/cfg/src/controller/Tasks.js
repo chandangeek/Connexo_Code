@@ -139,7 +139,7 @@ Ext.define('Cfg.controller.Tasks', {
 
                 actionsMenu.record = record;
                 actionsMenu.down('#view-history').hide();
-                view.down('#tasks-view-menu #tasks-view-link').setText(record.get('name'));
+                view.down('#tasks-view-menu').setHeader(record.get('name'));
                 me.getApplication().fireEvent('changecontentevent', view);
                 me.getApplication().fireEvent('validationtaskload', record);
                 detailsForm.loadRecord(record);
@@ -172,7 +172,7 @@ Ext.define('Cfg.controller.Tasks', {
 
         taskModel.load(currentTaskId, {
             success: function (record) {
-                view.down('#tasks-view-menu  #tasks-view-link').setText(record.get('name'));
+                view.down('#tasks-view-menu').setHeader(record.get('name'));
                 me.getApplication().fireEvent('changecontentevent', view);
                 store.load();
             }
