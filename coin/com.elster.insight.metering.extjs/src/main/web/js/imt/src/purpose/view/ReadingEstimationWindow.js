@@ -44,7 +44,7 @@ Ext.define('Imt.purpose.view.ReadingEstimationWindow', {
                     name: 'estimatorImpl',
                     fieldLabel: Uni.I18n.translate('estimationDevice.estimator', 'IMT', 'Estimator'),
                     required: true,
-                    editable: 'false',
+                    editable: false,
                     store: 'Imt.purpose.store.Estimators',
                     valueField: 'implementation',
                     displayField: 'displayName',

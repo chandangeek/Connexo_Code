@@ -44,7 +44,7 @@ Ext.define('Imt.purpose.view.ReadingEstimationWithRuleWindow', {
                     name: 'estimationRule',
                     fieldLabel: Uni.I18n.translate('estimationDevice.estimation rule', 'IMT', 'Estimation rule'),
                     required: true,
-                    editable: 'false',
+                    editable: false,
                     store: 'Imt.purpose.store.EstimationRules',
                     valueField: 'id',
                     displayField: 'name',
