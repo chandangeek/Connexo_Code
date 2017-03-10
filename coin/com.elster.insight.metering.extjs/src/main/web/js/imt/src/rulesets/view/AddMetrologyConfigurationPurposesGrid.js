@@ -8,7 +8,7 @@ Ext.define('Imt.rulesets.view.AddMetrologyConfigurationPurposesGrid', {
     isCheckedFieldName: 'isChecked',
     checkAllButtonPresent: true,
     counterTextFn: function (count) {
-        return Uni.I18n.translatePlural('ruleSet.addMetrologyConfigurationPurposes.grid.multiselect.selected', count, 'UNI',
+        return Uni.I18n.translatePlural('ruleSet.addMetrologyConfigurationPurposes.grid.multiselect.selected', count, 'IMT',
             'No purposes of metrology configurations selected', '{0} purpose of metrology configurations selected', '{0} purposes of metrology configurations selected'
         );
     },
