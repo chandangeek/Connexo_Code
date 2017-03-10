@@ -23,7 +23,7 @@ class KpiType {
         void appendSelectTo(SqlBuilder sqlBuilder) {
             sqlBuilder.append(", max(");
             sqlBuilder.append(this.kpiTableName());
-            sqlBuilder.append(".timestamp)");
+            sqlBuilder.append(".latest)");
             super.appendSelectTo(sqlBuilder);
         }
     };
@@ -98,9 +98,9 @@ class KpiType {
     void appendWithClauseTo(SqlBuilder sqlBuilder) {
         sqlBuilder.append(", ");
         sqlBuilder.append(this.withClauseAliasName());
-        sqlBuilder.append(" (devicegroup, device, value, timestamp) as (select devicegroup, device, value, timestamp from allData where kpitype ='");
+        sqlBuilder.append(" (device, value, latest) as (select device, value, latest from allData where kpitype ='");
         sqlBuilder.append(this.getKpiType());
-        sqlBuilder.append("' and latest = 'Y')");
+        sqlBuilder.append("')");
     }
 
     void appendSelectTo(SqlBuilder sqlBuilder) {
@@ -127,9 +127,7 @@ class KpiType {
         sqlBuilder.append(this.kpiTableName());
         sqlBuilder.append(" on ");
         sqlBuilder.append(this.kpiTableName());
-        sqlBuilder.append(".device = dev.meterid and ");
-        sqlBuilder.append(this.kpiTableName());
-        sqlBuilder.append(".devicegroup = allKpi.devicegroup");
+        sqlBuilder.append(".device = dev.meterid");
     }
 
     void appendHavingTo(SqlBuilder sqlBuilder, MetricValueRange range) {
