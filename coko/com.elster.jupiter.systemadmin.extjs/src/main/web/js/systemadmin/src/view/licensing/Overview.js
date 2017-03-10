@@ -62,6 +62,7 @@ Ext.define('Sam.view.licensing.Overview', {
                 items: {
                     xtype: 'uni-view-menu-side',
                     title: Uni.I18n.translate('general.licensing', 'SAM', 'Licensing'),
+                    objectType: Uni.I18n.translate('general.licensing', 'SAM', 'Licensing'),
                     itemId: 'sideMenu',
                     menuItems: [
                         {
