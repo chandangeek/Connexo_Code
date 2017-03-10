@@ -17,10 +17,15 @@ Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
      * @private
      */
     init: function (grid) {
-        var gridView = grid.getView();
+        var me = this,
+            gridView = grid.getView();
 
-        gridView.on('refresh', this.setTooltip);
-        gridView.on('resize', this.setTooltip);
+        gridView.on('refresh', me.setTooltip, me);
+        gridView.on('resize', me.setTooltip, me);
+        grid.on('destroy', function () {
+            gridView.un('refresh', me.setTooltip, me);
+            gridView.un('resize', me.setTooltip, me);
+        }, me, {single: true});
     },
 
     /**
@@ -46,14 +51,15 @@ Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
                             header.set({'data-qtip': undefined});
                         }
 
-                        if (   column.$className === 'Ext.grid.column.Column'
+                        if ((column.$className === 'Ext.grid.column.Column'
                             || column.$className === 'Ext.grid.column.Date'
                             || column.$className === 'Ext.grid.column.Template'
                             || column.$className === 'Uni.grid.column.Duration'
                             || column.$className === 'Uni.grid.column.search.DeviceType'
                             || column.$className === 'Uni.grid.column.Date'
                             || column.$className === 'Uni.grid.column.search.DeviceConfiguration'
-                            || column.$className === 'Uni.grid.column.search.Boolean') {
+                            || column.$className === 'Uni.grid.column.search.Boolean')
+                            && !column.disableTooltip) {
 
                             var first = grid.getEl().down(grid.getCellInnerSelector(column));
                             var width = first && first.getWidth(true);

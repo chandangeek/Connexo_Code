@@ -79,191 +79,294 @@ Ext.define('Uni.view.menu.SideMenu', {
 
     /**
      * @cfg menuItems
+     * @deprecated Use items instead.
      */
     menuItems: [],
 
     /**
      * @cfg showCondition
+     * @deprecated Use privileges instead.
      */
     showCondition: 'showCondition',
+
+    /**
+     * @cfg uniqueMenuId
+     *
+     * Used for save state of submenus. Should be unique per app.
+     */
+    uniqueMenuId: null,
+
+    expandedSubMenus: [],
+
+    /**
+     * @cfg objectType
+     */
+    objectType: null,
+
+    subMenuDefaults: {
+        xtype: 'menu',
+        floating: false,
+        plain: true,
+        ui: 'menu-side-sub',
+        titleCollapse: true,
+        animCollapse: false,
+        defaults: {
+            xtype: 'menuitem',
+            hrefTarget: '_self'
+        }
+    },
 
     initComponent: function () {
         var me = this;
 
-        me.callParent(arguments);
+        me.expandedSubMenus = Ext.decode(Ext.util.Cookies.get(me.getMenuCookieKey())) || [];
 
         // Selects the correct item whenever the URL changes over time.
-        Ext.util.History.addListener('change', me.checkNavigation, me);
+        Ext.util.History.on('change', me.updateSelection, me);
 
-        me.on('destroy', function () {
-            Ext.util.History.removeListener('change', me.checkNavigation, me);
-        });
-
-        if (Ext.isDefined(me.menuItems) && Ext.isArray(me.menuItems)) {
-            me.buildMenuItems();
+        // backward compatibility
+        if (!Ext.isEmpty(me.menuItems)) {
+            me.items = me.menuItems;
         }
 
-        me.checkNavigation(Ext.util.History.getToken());
+        me.buildHeader();
 
-        // Takes dynamic changes to the menu into consideration.
-        me.on('add', function () {
-            me.checkNavigation(Ext.util.History.getToken());
-        });
+        me.callParent(arguments);
+
+        me.on('destroy', me.onDestroy, me, {single: true});
     },
 
-    buildMenuItems: function () {
+    onDestroy: function () {
         var me = this;
 
-        Ext.suspendLayouts();
-        me.addMenuItems(me.menuItems);
-        Ext.resumeLayouts();
+        Ext.util.History.un('change', me.updateSelection, me);
     },
 
-    addMenuItems: function (menuItems, parent) {
+    add: function (items) {
         var me = this;
-        parent = parent || me;
 
-        Ext.each(menuItems, function (item) {
-            var condition = item[me.showCondition];
+        me.adjustItems(items)
+        me.callParent(arguments);
+        setTimeout(function () {
+            me.updateSelection();
+        }, 1);
+    },
 
-            if (typeof condition === 'undefined'
-                || (Ext.isFunction(condition) && condition() || condition)) {
+    adjustItems: function (items) {
+        var me = this;
 
-                item.htmlEncode = !Ext.isDefined(item.htmlEncode);
-                item.text = item.htmlEncode ? Ext.String.htmlEncode(item.text) : item.text;
+        if (Ext.isArray(items)) {
+            _.each(items, prepareItem);
+        } else {
+            prepareItem(items);
+        }
 
-                if (me.router && item.route) {
-                    var route = me.router.getRoute(item.route);
-                    item.href = route.buildUrl();
-                    item.text = item.htmlEncode ? Ext.String.htmlEncode(item.text || route.getTitle()) : item.text || Ext.String.htmlEncode(route.getTitle());
-                }
-
-                item.tooltip = item.htmlEncode ? item.text : Ext.util.Format.stripTags(item.text);
-
-                if (Ext.isDefined(item.items) && Ext.isArray(item.items)) {
-                    var items = item.items;
-                    delete item.items;
-                    item = me.applyMenuDefaults(item);
-                    if (items) {
-                        me.addMenuItems(items, item);
-                    }
-                }
-
-                parent.add(item);
+        function prepareItem(item) {
+            if (!Ext.isEmpty(item.items)) {
+                // item is menu
+                me.adjustItems(item.items);
+                me.adjustSubmenu(item);
+            } else {
+                me.adjustItem(item);
             }
-        });
+        }
     },
 
-    applyMenuDefaults: function (config) {
-        return Ext.widget('menu',
-            Ext.applyIf(config, {
-                floating: false,
-                plain: true,
-                ui: 'menu-side-sub',
+    adjustItem: function (item) {
+        var me = this,
+            condition = item[me.showCondition];
 
-                // TODO Make the menus collapsible.
-                defaults: {
-                    xtype: 'menuitem',
-                    hrefTarget: '_self'
+        if (!Ext.isDefined(condition)
+            || (Ext.isFunction(condition) && condition())
+            || condition) {
+
+            item.htmlEncode = !Ext.isDefined(item.htmlEncode);
+            item.text = item.htmlEncode ? Ext.String.htmlEncode(item.text) : item.text;
+
+            if (me.router && item.route) {
+                var route = me.router.getRoute(item.route);
+                item.href = route.buildUrl();
+                item.text = item.htmlEncode ? Ext.String.htmlEncode(item.text || route.getTitle()) : item.text || Ext.String.htmlEncode(route.getTitle());
+            }
+
+            item.tooltip = item.htmlEncode ? item.text : Ext.util.Format.stripTags(item.text);
+        } else {
+            item.privileges = false;
+        }
+    },
+
+    adjustSubmenu: function (menuConfig) {
+        var me = this;
+
+        menuConfig = Ext.applyIf(menuConfig, me.subMenuDefaults);
+        if (!Ext.isEmpty(menuConfig.title)) {
+            menuConfig.header = {
+                autoEl: {
+                    'data-qtip': menuConfig.htmlEncode ? menuConfig.title : Ext.util.Format.stripTags(menuConfig.title)
+                }
+            };
+            menuConfig.collapsible = true;
+            menuConfig.collapsed = !_.contains(me.expandedSubMenus, menuConfig.title);
+            menuConfig.listeners = {
+                expand: {
+                    scope: me,
+                    fn: me.saveSubMenuState
                 },
-                layout: {
-                    type: 'vbox',
-                    align: 'stretch'
+                collapse: {
+                    scope: me,
+                    fn: me.removeSubMenuState
                 }
-            })
-        );
+            };
+        }
     },
 
-    clearSelection: function (items) {
+    saveSubMenuState: function (menu) {
+        var me = this;
+
+        me.expandedSubMenus.push(menu.title);
+        me.updateSubMenusState();
+    },
+
+    removeSubMenuState: function (menu) {
+        var me = this;
+
+        me.expandedSubMenus = _.without(me.expandedSubMenus, menu.title);
+        me.updateSubMenusState();
+    },
+
+    updateSubMenusState: function () {
+        var me = this;
+
+        Ext.util.Cookies.set(me.getMenuCookieKey(), Ext.encode(me.expandedSubMenus),
+            new Date(new Date().getTime() + 365.25 * 24 * 60 * 60 * 1000)); // Expires in a year.
+    },
+
+    getMenuCookieKey: function () {
         var me = this,
-            subItems;
-        for (var i = 0; i < items.length; i++) {
-            var item = items[i];
+            namespace = Uni.util.Application.getAppNamespace();
 
-            subItems = item.items && item.items.items ? item.items.items : undefined;
+        namespace = namespace.replace(/\s+/g, '-').toLowerCase();
 
-            item.removeCls(me.activeItemCls);
+        return namespace + '-' + (me.uniqueMenuId || me.$className);
+    },
 
-            if (Ext.isDefined(subItems) && Ext.isArray(subItems)) {
-                me.clearSelection(subItems);
+    updateSelection: function () {
+        var me = this;
+
+        Ext.suspendLayouts();
+        me.clearSelection();
+        me.selectAppropriateItem();
+        Ext.resumeLayouts();
+    },
+
+    clearSelection: function () {
+        var me = this,
+            selectedItem;
+
+        if (me.rendered) {
+            selectedItem = me.getEl().down('.' + me.activeItemCls);
+            if (selectedItem) {
+                selectedItem.removeCls(me.activeItemCls);
             }
         }
     },
 
-    checkNavigation: function (token) {
+    selectAppropriateItem: function () {
         var me = this,
-            items = me.items.items;
+            itemForSelect = me.getItemForSelect(),
+            menu;
 
-        Ext.suspendLayouts();
-        if (Ext.isDefined(items) && Ext.isArray(items)) {
-            me.clearSelection(items);
-            me.checkSelectedItems(items, token);
-        }
-
-        Ext.resumeLayouts();
-    },
-
-    checkSelectedItems: function (items, token) {
-        var me = this,
-            selection = me.getMostQualifiedItems(items, token);
-
-        if (typeof selection !== 'undefined') {
-            selection.item.addCls(me.activeItemCls);
+        if (itemForSelect) {
+            menu = itemForSelect.up('menu');
+            itemForSelect.addCls(me.activeItemCls);
+            if (menu) {
+                if (menu.rendered) {
+                    menu.suspendEvent('expand');
+                    setTimeout(function () {
+                        menu.expand();
+                        menu.resumeEvent('expand');
+                    }, 1)
+                } else {
+                    menu.collapsed = false;
+                }
+            }
         }
     },
 
     /**
      * Checks which item is best to be selected based on the currently selected URL.
-     * @param items
-     * @param token
-     * @param selection
      */
-    getMostQualifiedItems: function (items, token, selection) {
+    getItemForSelect: function () {
         var me = this,
-            fullToken = '#' + token,
-            href,
-            subItems,
-            item,
-            currentFitness;
+            fullToken = '#' + Ext.util.History.getToken(),
+            selection;
 
-        for (var i = 0; i < items.length; i++) {
-            item = items[i];
-            href = item.href;
-            subItems = item.items ? item.items.items : undefined;
+        _.each(me.query('menuitem'), setSelection);
 
-            if (Ext.isDefined(href) && href !== null && Ext.String.startsWith(fullToken, href)) {
-                // How many characters are different from the full token length.
-                currentFitness = fullToken.length - href.length;
+        return selection ? selection.item : selection;
 
-                selection = me.pickBestSelection(selection, {
+        function setSelection(item) {
+            if (!Ext.isEmpty(item.href) && Ext.String.startsWith(fullToken, item.href)) {
+                selection = pickBestSelection(selection, {
                     item: item,
-                    fitness: currentFitness
+                    fitness: fullToken.length - item.href.length
                 });
             }
+        }
 
-            // Recursively check the items.
-            if (Ext.isDefined(subItems) && Ext.isArray(subItems)) {
-                selection = me.pickBestSelection(
-                    selection,
-                    me.getMostQualifiedItems(subItems, token, selection)
-                );
+        function pickBestSelection(a, b) {
+            if (!Ext.isDefined(b)) {
+                return a;
+            } else if (!Ext.isDefined(a)) {
+                return b
+            }
+
+            if (a.fitness <= b.fitness) {
+                return a
+            } else if (a.fitness > b.fitness) {
+                return b
             }
         }
-
-        return selection;
     },
 
-    pickBestSelection: function (a, b) {
-        if (!Ext.isDefined(b)) {
-            return a;
-        } else if (!Ext.isDefined(a)) {
-            return b
-        }
+    // backward compatibility
+    addMenuItems: function () {
+        var me = this;
 
-        if (a.fitness <= b.fitness) {
-            return a
-        } else if (a.fitness > b.fitness) {
-            return b
+        me.add.apply(me, arguments);
+    },
+
+    buildHeader: function () {
+        var me = this;
+        me.header = {
+            xtype: 'panel',
+            height: 50,
+            maxWidth: 223,
+            items: [{
+                xtype: 'component',
+                itemId: 'side-menu-header-object-type',
+                cls: 'x-menu-header-object-type',
+                html: Ext.htmlEncode(me.objectType)
+            }, {
+                xtype: 'component',
+                itemId: 'side-menu-header-object-name',
+                cls: 'x-menu-header-object-name',
+                html: Ext.htmlEncode(me.title)
+            }],
+            title: false
+        };
+    },
+
+    setHeader: function (title) {
+        var me = this;
+        if (me.rendered) {
+            if (title) {
+                me.down('#side-menu-header-object-name').update(Ext.htmlEncode(title));
+            }
+            me.updateLayout();
+        } else {
+            me.title = title;
+            me.buildHeader();
         }
     }
 });
