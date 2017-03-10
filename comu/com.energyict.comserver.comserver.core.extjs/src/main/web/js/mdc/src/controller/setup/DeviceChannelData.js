@@ -544,10 +544,14 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             } else if (record.get('mainValidationInfo').ruleId || record.get('bulkValidationInfo').ruleId) {
                 confirmedObj = {
                     interval: record.get('interval'),
+                    value: record.get('value'),
+                    collectedValue: record.get('collectedValue'),
                     mainValidationInfo: {
+                        isConfirmed: false,
                         ruleId: record.get('mainValidationInfo').estimatedNotSaved ? record.get('mainValidationInfo').ruleId : null
                     },
                     bulkValidationInfo: {
+                        isConfirmed: false,
                         ruleId: record.get('bulkValidationInfo').estimatedNotSaved ? record.get('bulkValidationInfo').ruleId : null
                     }
                 };
