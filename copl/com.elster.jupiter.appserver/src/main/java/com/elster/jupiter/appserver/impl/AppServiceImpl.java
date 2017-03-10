@@ -68,6 +68,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -657,6 +658,7 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
                 .find("importScheduleId", importScheduleId)
                 .stream()
                 .filter(i -> i.getImportSchedule().isPresent())
+                .sorted(Comparator.comparing(appServer -> appServer.getAppServer().getName()))
                 .map(ImportScheduleOnAppServer::getAppServer)
                 .collect(Collectors.toList());
     }
