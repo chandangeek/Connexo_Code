@@ -128,7 +128,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                                 data.title += Uni.I18n.translate('overview.widget.communicationServers.stopped', 'DSH', 'stopped');
                                 break;
                         }
-                        data.href = me.router.getRoute('administration/comservers/detail/overview').buildUrl({id: data.comServerId});
+                        data.href = me.router.getRoute('administration/comservers/detail').buildUrl({id: data.comServerId});
                         data.tooltip = me.serverTpl.apply(data);
                         html += data.tooltip;
                         return data;
