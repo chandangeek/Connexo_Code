@@ -8,7 +8,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Edit', {
     itemId: 'deviceregisterreportedit',
 
     requires: [
-        'Uni.form.field.DateTime'
+        'Uni.form.field.DateTime',
+        'Uni.util.FormErrorMessage'
     ],
 
     setEdit: function (edit, returnLink) {
@@ -51,15 +52,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Edit', {
                 },
                 items: [
                     {
-                        name: 'errors',
-                        ui: 'form-error-framed',
                         itemId: 'registerDataEditFormErrors',
-                        layout: 'hbox',
-                        margin: '0 0 10 0',
-                        hidden: true,
-                        defaults: {
-                            xtype: 'container'
-                        }
+                        xtype: 'uni-form-error-message',
+                        hidden: true
                     },
                     {
                         xtype: 'displayfield',
