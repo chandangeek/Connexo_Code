@@ -18,6 +18,9 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.KeyAccessor;
 
+import org.bouncycastle.asn1.x500.X500NameBuilder;
+import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -176,7 +179,8 @@ public class KeyAccessorCommands {
         System.out.println("e.g. : generateCSR 1 \"TLS\" \"RSA\" comserver \"Comserver TLS\"");
     }
 
-    public void generateCSR(long deviceId, String certKatName, String keyKatName, String alias, String cn) {
+    public void generateCSR(long deviceId, String certKatName, String keyKatName, String alias, String cn) throws
+            NoSuchAlgorithmException {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
@@ -196,8 +200,15 @@ public class KeyAccessorCommands {
                     .orElseThrow(() -> new RuntimeException("No such key accessor type on the device type: " + keyKatName));
 
             ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(alias, certKeyAccessorType, keyKeyAccessorType);
-            clientCertificateWrapper.renewValue();
+            clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
 
+            X500NameBuilder x500NameBuilder = new X500NameBuilder();
+            x500NameBuilder.addRDN(BCStyle.CN, cn);
+            PKCS10CertificationRequest pkcs10CertificationRequest = clientCertificateWrapper.getPrivateKeyWrapper()
+                    .generateCSR(x500NameBuilder.build(), certKeyAccessorType.getKeyType().getAlgorithm());
+            clientCertificateWrapper.setCSR(pkcs10CertificationRequest);
+            clientCertificateWrapper.save();
+            context.commit();
         }
     }
 }
