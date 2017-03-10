@@ -169,7 +169,7 @@ public class ValidationStatusFactory {
         ValidationRuleInfoWithNumber info = new ValidationRuleInfoWithNumber();
         info.key = new ValidationRuleInfo();
         info.key.id = validationRuleWithNumberEntry.getKey().getId();
-        info.key.displayName = validationRuleWithNumberEntry.getKey().getDisplayName();
+        info.key.displayName = validationRuleWithNumberEntry.getKey().getName();
         info.key.ruleSetVersion = new ValidationRuleSetVersionInfo();
         info.key.ruleSetVersion.id = validationRuleWithNumberEntry.getKey().getRuleSetVersion().getId();
         info.key.ruleSetVersion.ruleSet = new ValidationRuleSetInfo();
@@ -182,7 +182,7 @@ public class ValidationStatusFactory {
         EstimationRuleInfoWithNumber info = new EstimationRuleInfoWithNumber();
         info.key = new EstimationRuleInfo();
         info.key.id = estimationRuleWithNumberEntry.getKey().getId();
-        info.key.estimatorName = estimationRuleWithNumberEntry.getKey().getDisplayName();
+        info.key.estimatorName = estimationRuleWithNumberEntry.getKey().getName();
         info.key.ruleSetId = estimationRuleWithNumberEntry.getKey().getRuleSet().getId();
         info.value = estimationRuleWithNumberEntry.getValue();
         return info;
