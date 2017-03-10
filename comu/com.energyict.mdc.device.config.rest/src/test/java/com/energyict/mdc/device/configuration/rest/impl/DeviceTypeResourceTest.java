@@ -16,7 +16,9 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.devtools.tests.Answers;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.IncompatibleFiniteStateMachineChangeException;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
@@ -67,6 +69,7 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 
 import com.jayway.jsonpath.JsonModel;
+import com.jayway.jsonpath.Option;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -1586,6 +1589,9 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         State state = mock(State.class, RETURNS_DEEP_STUBS);
         when(state.getId()).thenReturn(1L);
         when(state.getName()).thenReturn("Some state");
+        Stage stage = mock(Stage.class);
+        when(state.getStage()).thenReturn(Optional.of(stage));
+        when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.getKey());
 
         IncompatibleFiniteStateMachineChangeException fsmEx = new IncompatibleFiniteStateMachineChangeException(state);
         IncompatibleDeviceLifeCycleChangeException dldEx = IncompatibleDeviceLifeCycleChangeException.wrapping(fsmEx);
