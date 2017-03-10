@@ -26,16 +26,21 @@ public enum IntervalLengthUnit {
 		public TemporalAmount amount(int length) {
 			return Period.ofMonths(length);
 		}
+	},
+	YEAR (ChronoUnit.YEARS, Calendar.YEAR) {
+		public TemporalAmount amount(int length) {
+			return Period.ofYears(length);
+		}
 	};
-	
+
 	private final TemporalUnit unit;
 	private final int calendarCode;
-	
-	private IntervalLengthUnit(TemporalUnit unit, int calendarCode) {
+
+	IntervalLengthUnit(TemporalUnit unit, int calendarCode) {
 		this.unit = unit;
 		this.calendarCode = calendarCode;
 	}
-	
+
 	public TemporalUnit getUnit() {
 		return unit;
 	}
@@ -43,6 +48,7 @@ public enum IntervalLengthUnit {
     public int getCalendarCode() {
     	return calendarCode;
     }
-    
-    abstract public TemporalAmount amount(int length);
+
+    public abstract TemporalAmount amount(int length);
+
 }
