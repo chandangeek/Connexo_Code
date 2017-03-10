@@ -338,6 +338,7 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         when(metrologyConfiguration.getMeterRoleFor(requirement)).thenReturn(Optional.of(meterRole));
         when(metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(contract));
         when(contract.getRequirements()).thenReturn(Collections.singleton(requirement));
+        when(effectiveMetrologyConfigurationOnUsagePoint.getReadingTypeRequirements()).thenReturn(Collections.singletonList(requirement));
 
         // Business method
         Response response = target("/usagepoints/" + MRID + "/meteractivations").queryParam("validateOnly", true).request().post(Entity.json(meterActivationInfo));

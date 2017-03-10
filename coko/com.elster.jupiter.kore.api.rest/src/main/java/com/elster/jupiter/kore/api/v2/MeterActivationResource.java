@@ -189,8 +189,7 @@ public class MeterActivationResource {
         EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationOnUsagePoint = usagePoint.getCurrentEffectiveMetrologyConfiguration()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION, usagePoint.getName()));
 
-        Set<ReadingTypeRequirement> requirements = metrologyConfigurationOnUsagePoint.getMetrologyConfiguration().getContracts().stream()
-                .flatMap(metrologyContract -> metrologyContract.getRequirements().stream())
+        Set<ReadingTypeRequirement> requirements = metrologyConfigurationOnUsagePoint.getReadingTypeRequirements().stream()
                 .filter(readingTypeRequirement -> meterRole.equals(metrologyConfigurationOnUsagePoint.getMetrologyConfiguration()
                         .getMeterRoleFor(readingTypeRequirement)
                         .orElse(null)))
