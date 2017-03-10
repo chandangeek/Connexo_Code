@@ -32,7 +32,7 @@ Ext.define('Fwc.firmwarecampaigns.view.Detail', {
             {
                 xtype: 'firmware-campaigns-detail-form',
                 itemId: 'firmware-campaigns-detail-form',
-                title: Uni.I18n.translate('general.overview', 'FWC', 'Overview'),
+                title: Uni.I18n.translate('general.details', 'FWC', 'Details'),
                 ui: 'large',
                 router: me.router
             }
