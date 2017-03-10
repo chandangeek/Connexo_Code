@@ -56,15 +56,24 @@ public class DataCollectionEventHandler implements MessageHandler {
 
     @Override
     public void process(Message message) {
-        List<IssueEvent> events = createEvents(getJsonService().deserialize(message.getPayload(), Map.class)).stream()
-                .filter(e -> e.getEndDevice().isPresent())
-                .filter(e -> e.getEndDevice().get().getState().isPresent())
-                .filter(e -> e.getEndDevice().get().getState().get().getStage().isPresent())
-                .filter(e -> e.getEndDevice().get().getState().get().getStage().get().getName().equals(EndDeviceStage.OPERATIONAL.getKey()))
-                .collect(Collectors.toList());
+        List<IssueEvent> events = createEvents(getJsonService().deserialize(message.getPayload(), Map.class));
+        if(events!= null && !events.isEmpty()) {
 
-        if(!events.isEmpty()) {
-            getIssueCreationService().dispatchCreationEvent(events);
+            List<IssueEvent> eventsWithEndDevice = events.stream()
+                    .filter(e -> e.getEndDevice().isPresent())
+                    .collect(Collectors.toList());
+            if(eventsWithEndDevice.isEmpty()) {
+                getIssueCreationService().dispatchCreationEvent(events);
+            }
+            List<IssueEvent> filteredEvents = eventsWithEndDevice.stream()
+                    .filter(e -> e.getEndDevice().get().getState().isPresent())
+                    .filter(e -> e.getEndDevice().get().getState().get().getStage().isPresent())
+                    .filter(e -> e.getEndDevice().get().getState().get().getStage().get().getName().equals(EndDeviceStage.OPERATIONAL.getKey()))
+                    .collect(Collectors.toList());
+
+            if(!filteredEvents.isEmpty()) {
+                getIssueCreationService().dispatchCreationEvent(filteredEvents);
+            }
         }
     }
 
