@@ -204,15 +204,15 @@ public class OfflineDeviceImpl implements OfflineDevice {
             } catch (MacException e) {
                 this.macException = e;
             }
-            if (context.needsSentMessages()) {
-                setAllSentMessages(createOfflineMessageList(getAllSentMessagesIncludingSlaves(device)));
-            }
-            if (context.needsFirmwareVersions()) {
-                this.firmwareManagementAllowed = serviceProvider.firmwareService().findFirmwareManagementOptions(device.getDeviceType()).isPresent();
-            }
-            if (context.needsTouCalendar()) {
-                this.touCalendarAllowed = serviceProvider.deviceConfigurationService().findTimeOfUseOptions(device.getDeviceType()).isPresent();
-            }
+        }
+        if (context.needsSentMessages()) {
+            setAllSentMessages(createOfflineMessageList(getAllSentMessagesIncludingSlaves(device)));
+        }
+        if (context.needsFirmwareVersions()) {
+            this.firmwareManagementAllowed = serviceProvider.firmwareService().findFirmwareManagementOptions(device.getDeviceType()).isPresent();
+        }
+        if (context.needsTouCalendar()) {
+            this.touCalendarAllowed = serviceProvider.deviceConfigurationService().findTimeOfUseOptions(device.getDeviceType()).isPresent();
         }
         setDeviceCache(serviceProvider);
         this.setCalendars();
