@@ -43,6 +43,7 @@ public enum MicroCheckTranslationKey implements TranslationKey {
     MICRO_CHECK_DESCRIPTION_AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE(Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE, "Check if at least one connection is available on the device with the status: \"Active\"."),
     MICRO_CHECK_DESCRIPTION_ALL_DATA_VALIDATED(Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + MicroCheck.ALL_DATA_VALIDATED, "Check if all the collected data is validated."),
     MICRO_CHECK_DESCRIPTION_NO_ACTIVE_SERVICE_CALLS(Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + MicroCheck.NO_ACTIVE_SERVICE_CALLS, "Check that no service calls are active for the device."),
+    MICRO_CHECK_METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY(Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY, "Check if the device is connected to an operational usage point."),
     ;
 
     private final String key;
