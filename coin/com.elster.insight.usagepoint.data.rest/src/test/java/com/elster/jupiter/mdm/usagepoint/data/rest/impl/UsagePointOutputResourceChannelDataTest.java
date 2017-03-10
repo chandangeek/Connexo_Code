@@ -15,7 +15,6 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
@@ -131,7 +130,6 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(usagePoint.getMeterActivations()).thenReturn(Collections.singletonList(meterActivation));
         when(meterActivation.getRange()).thenReturn(Range.atLeast(INTERVAL_1.lowerEndpoint()));
 
-        when(validationService.getLastChecked(any(Channel.class))).thenReturn(Optional.of(timeStamp));
         when(validationService.getEvaluator()).thenReturn(evaluator);
 
         Estimator estimator = mock(Estimator.class);
@@ -472,7 +470,6 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         List<BaseReadingRecord> record = Collections.singletonList(channel.getReading(INTERVAL_1.upperEndpoint()).get());
         verify(channel).removeReadings(eq(QualityCodeSystem.MDM), eq(record));
-        verify(validationService).updateLastChecked(eq(channel), eq(INTERVAL_1.upperEndpoint().minusSeconds(1L)));
     }
 
     @Test
