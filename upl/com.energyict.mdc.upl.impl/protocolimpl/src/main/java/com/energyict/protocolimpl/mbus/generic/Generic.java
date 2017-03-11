@@ -27,11 +27,14 @@ import com.energyict.protocolimpl.mbus.core.discover.DiscoverProtocolInfo;
 import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -218,6 +221,10 @@ public class Generic extends MBus {
             return discoverResult;
         }
         catch(Exception e) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            getLogger().severe(sw.toString());
             discoverResult.setDiscovered(false);
             discoverResult.setResult(e.toString());
             return discoverResult;

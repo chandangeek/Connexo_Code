@@ -54,7 +54,10 @@ public class DeviceType {
         list.add(new DeviceType("Dual register (hot/cold) Water meter (see NOTE )",0x17,9));
         list.add(new DeviceType("Pressure",0x18,7));
         list.add(new DeviceType("A/D Converter",0x19,102));
-        list.add(new DeviceType("Reserved for valve",0x21,103));        
+        list.add(new DeviceType("Reserved for valve",0x21,103));
+
+        list.add(new DeviceType("Unknown MET (0x78)",0x78,255));
+        list.add(new DeviceType("Unknown ABB (0x35)",0x35,255));
     }
     
     private String description;
