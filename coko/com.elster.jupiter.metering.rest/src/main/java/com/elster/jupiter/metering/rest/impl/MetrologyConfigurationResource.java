@@ -181,16 +181,16 @@ public class MetrologyConfigurationResource {
                     .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.DEFAULT_METER_ROLE_NOT_FOUND));
 
             if (isUpdate) {
-                metrologyConfiguration.getDeliverables().stream().forEach(deliverable -> {
+                metrologyConfiguration.getDeliverables().forEach(deliverable -> {
                     metrologyConfiguration.getContracts().forEach(metrologyContract -> metrologyContract.removeDeliverable(deliverable));
                     metrologyConfiguration.removeReadingTypeDeliverable(deliverable);
                 });
-                metrologyConfiguration.getRequirements().stream().forEach(metrologyConfiguration::removeReadingTypeRequirement);
+                metrologyConfiguration.getRequirements().forEach(metrologyConfiguration::removeReadingTypeRequirement);
             } else {
                 metrologyConfiguration.addMeterRole(meterRoleDefault);
             }
 
-            readingTypes.stream().forEach(readingType -> {
+            readingTypes.forEach(readingType -> {
                 FullySpecifiedReadingTypeRequirement fullySpecifiedReadingTypeRequirement =
                         metrologyConfiguration
                                 .newReadingTypeRequirement(readingType.getFullAliasName(), meterRoleDefault)

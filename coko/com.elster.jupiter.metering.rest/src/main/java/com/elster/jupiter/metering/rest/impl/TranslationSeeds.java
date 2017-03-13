@@ -33,6 +33,9 @@ public enum TranslationSeeds implements TranslationKey {
     ISSUES("openIssues", "Open issues"),
 
     SERIALNUMBER("serialNumber", "Serial number"),
+    MANUFACTURER("manufacturer", "Manufacturer"),
+    MODEL_NBR("modelNbr", "Model number"),
+    MODEL_VERSION("modelVersion", "Model version"),
     UTCNUMBER("utcNumber", "UTC number"),
     EMAIL1("email1", "Email 1"),
     EMAIL2("email2", "Email 2"),
