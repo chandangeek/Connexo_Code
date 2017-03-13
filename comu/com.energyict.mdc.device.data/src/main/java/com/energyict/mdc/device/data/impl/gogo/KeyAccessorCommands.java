@@ -209,6 +209,8 @@ public class KeyAccessorCommands {
             clientCertificateWrapper.setCSR(pkcs10CertificationRequest);
             clientCertificateWrapper.save();
             context.commit();
+        } catch (Exception e) {
+            System.err.println("Failed to create CSR: "+e.getCause());
         }
     }
 }
