@@ -209,7 +209,7 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
-                <artifactId>slp</artifactId>
+                <artifactId>slp.importers</artifactId>
                 <version>1.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
@@ -335,7 +335,7 @@
                 <module>../com.elster.jupiter.metering.extjs</module>
                 <module>../com.elster.jupiter.parties</module>
                 <module>../com.elster.jupiter.parties.rest</module>
-                <module>../com.elster.jupiter.slp</module>
+                <module>../com.elster.jupiter.slp.importers</module>
                 <module>../com.elster.jupiter.system.app</module>
                 <module>../com.elster.jupiter.system.app.help</module>
                 <module>../com.elster.jupiter.systemadmin.extjs</module>
