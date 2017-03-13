@@ -416,7 +416,7 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
 
     @Override
     public void setManufacturer(String manufacturer) {
-         this.manufacturer = manufacturer;
+        this.manufacturer = manufacturer;
     }
 
     @Override
@@ -426,7 +426,7 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
 
     @Override
     public void setModelNumber(String modelNumber) {
-       this.modelNbr = modelNumber;
+        this.modelNbr = modelNumber;
     }
 
     @Override

@@ -210,6 +210,7 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
     private Range<Instant> clipToContractActivePeriod(List<EffectiveMetrologyConfigurationOnUsagePoint> effectivities, MetrologyContract contract, Range<Instant> period) {
         Range<Instant> clippedPeriod = effectivities
                 .stream()
+                .filter(each -> !each.getRange().isEmpty())
                 .filter(each -> this.hasContract(each, contract))
                 .findFirst()
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getRange)
@@ -238,9 +239,10 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
     private void prepare(UsagePoint usagePoint, MeterActivationSet meterActivationSet, MetrologyContract contract, Range<Instant> period, VirtualFactory virtualFactory, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) {
         virtualFactory.nextMeterActivationSet(meterActivationSet, period);
         deliverablesPerMeterActivation.put(meterActivationSet, new ArrayList<>());
-        contract
-            .getDeliverables()
-            .forEach(deliverable -> this.prepare(usagePoint, meterActivationSet, deliverable, period, virtualFactory, deliverablesPerMeterActivation));
+        DependencyAnalyzer
+                .forAnalysisOf(contract)
+                .getDeliverables()
+                .forEach(deliverable -> this.prepare(usagePoint, meterActivationSet, deliverable, period, virtualFactory, deliverablesPerMeterActivation));
     }
 
     /**

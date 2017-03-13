@@ -106,7 +106,7 @@ public class UsagePointRequirementImpl implements UsagePointRequirement {
 
     @Override
     public SearchablePropertyValue.ValueBean toValueBean() {
-        return new SearchablePropertyValue.ValueBean(this.searchableProperty, this.operator,this.conditionValues.stream().map(UsagePointRequirementValue::getValue).collect(Collectors.toList()));
+        return new SearchablePropertyValue.ValueBean(this.searchableProperty, this.operator, this.conditionValues.stream().map(UsagePointRequirementValue::getValue).collect(Collectors.toList()));
     }
 
     @Override

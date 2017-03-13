@@ -27,11 +27,11 @@ import com.elster.jupiter.metering.impl.aggregation.VirtualFactory;
 import com.elster.jupiter.metering.impl.aggregation.VirtualFactoryImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.users.UserService;
 
 import com.google.common.collect.Range;
@@ -103,6 +103,7 @@ public class MeteringModule extends AbstractModule {
         bind(ServerMeteringService.class).toProvider(MeteringServiceProvider.class);
         bind(ServerMetrologyConfigurationService.class).toProvider(MetrologyConfigurationServiceProvider.class);
         bind(MetrologyConfigurationService.class).toProvider(MetrologyConfigurationServiceProvider.class);
+        bind(SyntheticLoadProfileService.class).toProvider(SyntheticLoadProfileServiceProvider.class);
         bind(VirtualFactory.class).to(VirtualFactoryImpl.class).in(Scopes.SINGLETON);
         bind(SqlBuilderFactory.class).to(SqlBuilderFactoryImpl.class).in(Scopes.SINGLETON);
         bind(DataAggregationService.class).annotatedWith(Names.named("dataAggregationMock")).toProvider(() -> dataAggregationMock);
@@ -162,6 +163,20 @@ public class MeteringModule extends AbstractModule {
         @Override
         public ServerMetrologyConfigurationService get() {
             return this.meteringDataModelService.getMetrologyConfigurationService();
+        }
+    }
+
+    private static class SyntheticLoadProfileServiceProvider implements Provider<SyntheticLoadProfileService> {
+        private final MeteringDataModelService meteringDataModelService;
+
+        @Inject
+        private SyntheticLoadProfileServiceProvider(MeteringDataModelService meteringDataModelService) {
+            this.meteringDataModelService = meteringDataModelService;
+        }
+
+        @Override
+        public SyntheticLoadProfileService get() {
+            return this.meteringDataModelService.getSyntheticLoadProfileService();
         }
     }
 
