@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.importers.impl.devices.shipment;
 
+import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
@@ -13,7 +14,6 @@ import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImport
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
-import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -56,10 +56,19 @@ public class DeviceShipmentImportProcessor extends AbstractDeviceDataFileImportP
             throw new ProcessorException(MessageSeeds.PROCESS_SQL_EXCEPTION, data.getLineNumber()).andStopImport();
         }
 
-        device.setSerialNumber(data.getSerialNumber());
-        device.setYearOfCertification(data.getYearOfCertification());
-        device.save();
+        if (data.getSerialNumber() != null)
+            device.setSerialNumber(data.getSerialNumber());
+        if (data.getManufacturer() != null)
+            device.setManufacturer(data.getManufacturer());
+        if (data.getModelNbr() != null)
+            device.setModelNumber(data.getModelNbr());
+        if (data.getModelVersion() != null)
+            device.setModelVersion(data.getModelVersion());
+        if (data.getYearOfCertification() != null)
+            device.setYearOfCertification(data.getYearOfCertification());
+
         setShipmentDate(device, data);
+        device.save();
     }
 
     @Override

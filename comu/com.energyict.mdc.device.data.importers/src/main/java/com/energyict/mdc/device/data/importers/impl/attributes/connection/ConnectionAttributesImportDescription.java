@@ -4,10 +4,10 @@
 
 package com.energyict.mdc.device.data.importers.impl.attributes.connection;
 
+import com.elster.jupiter.fileimport.csvimport.fields.CommonField;
+import com.elster.jupiter.fileimport.csvimport.fields.FieldSetter;
+import com.elster.jupiter.fileimport.csvimport.fields.FileImportField;
 import com.energyict.mdc.device.data.importers.impl.FileImportDescription;
-import com.energyict.mdc.device.data.importers.impl.fields.CommonField;
-import com.energyict.mdc.device.data.importers.impl.fields.FieldSetter;
-import com.energyict.mdc.device.data.importers.impl.fields.FileImportField;
 import com.energyict.mdc.device.data.importers.impl.parsers.LiteralStringParser;
 
 import java.util.ArrayList;

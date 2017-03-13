@@ -4,11 +4,11 @@
 
 package com.energyict.mdc.device.data.importers.impl.devices.installation;
 
+import com.elster.jupiter.fileimport.csvimport.fields.CommonField;
+import com.elster.jupiter.fileimport.csvimport.fields.FileImportField;
 import com.elster.jupiter.metering.LocationTemplate.TemplateField;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportDescription;
-import com.energyict.mdc.device.data.importers.impl.fields.CommonField;
-import com.energyict.mdc.device.data.importers.impl.fields.FileImportField;
 import com.energyict.mdc.device.data.importers.impl.parsers.BigDecimalParser;
 import com.energyict.mdc.device.data.importers.impl.parsers.BooleanParser;
 import com.energyict.mdc.device.data.importers.impl.parsers.DateParser;

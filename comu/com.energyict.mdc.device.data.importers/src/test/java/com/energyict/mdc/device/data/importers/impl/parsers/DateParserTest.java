@@ -4,7 +4,8 @@
 
 package com.energyict.mdc.device.data.importers.impl.parsers;
 
-import com.energyict.mdc.device.data.importers.impl.exceptions.ValueParserException;
+
+import com.elster.jupiter.fileimport.csvimport.exceptions.ValueParserException;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
