@@ -4,13 +4,13 @@
 
 package com.energyict.mdc.device.data.importers.impl;
 
+import com.elster.jupiter.fileimport.csvimport.FieldParser;
+import com.elster.jupiter.fileimport.csvimport.exceptions.FileImportLineException;
+import com.elster.jupiter.fileimport.csvimport.exceptions.FileImportParserException;
+import com.elster.jupiter.fileimport.csvimport.exceptions.ValueParserException;
+import com.elster.jupiter.fileimport.csvimport.fields.FieldSetter;
+import com.elster.jupiter.fileimport.csvimport.fields.FileImportField;
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.device.data.importers.impl.exceptions.FileImportLineException;
-import com.energyict.mdc.device.data.importers.impl.exceptions.FileImportParserException;
-import com.energyict.mdc.device.data.importers.impl.exceptions.ValueParserException;
-import com.energyict.mdc.device.data.importers.impl.fields.FieldSetter;
-import com.energyict.mdc.device.data.importers.impl.fields.FileImportField;
-import com.energyict.mdc.device.data.importers.impl.parsers.FieldParser;
 
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;

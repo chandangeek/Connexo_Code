@@ -4,7 +4,8 @@
 
 package com.energyict.mdc.device.data.importers.impl.parsers;
 
-import com.energyict.mdc.device.data.importers.impl.exceptions.ValueParserException;
+import com.elster.jupiter.fileimport.csvimport.FieldParser;
+import com.elster.jupiter.fileimport.csvimport.exceptions.ValueParserException;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 
 import java.math.BigDecimal;
@@ -21,6 +22,11 @@ public class BigDecimalParser implements FieldParser<BigDecimal> {
 
     public BigDecimalParser(SupportedNumberFormat numberFormat) {
         this.numberFormat = numberFormat;
+    }
+
+    @Override
+    public Class<BigDecimal> getValueType() {
+        return BigDecimal.class;
     }
 
     public BigDecimal parse(String value) throws ValueParserException {

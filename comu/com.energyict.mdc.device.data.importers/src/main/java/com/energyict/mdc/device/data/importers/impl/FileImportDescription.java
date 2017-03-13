@@ -4,7 +4,8 @@
 
 package com.energyict.mdc.device.data.importers.impl;
 
-import com.energyict.mdc.device.data.importers.impl.fields.FileImportField;
+
+import com.elster.jupiter.fileimport.csvimport.fields.FileImportField;
 
 import java.util.List;
 

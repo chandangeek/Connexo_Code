@@ -4,7 +4,8 @@
 
 package com.energyict.mdc.device.data.importers.impl.parsers;
 
-import com.energyict.mdc.device.data.importers.impl.exceptions.ValueParserException;
+import com.elster.jupiter.fileimport.csvimport.FieldParser;
+import com.elster.jupiter.fileimport.csvimport.exceptions.ValueParserException;
 import com.energyict.mdc.device.data.importers.impl.properties.TimeZonePropertySpec;
 
 import java.time.LocalDateTime;
@@ -22,6 +23,11 @@ public class DateParser implements FieldParser<ZonedDateTime> {
     public DateParser(String format, String timeZone) {
         this.format = format;
         this.timeZone = timeZone;
+    }
+
+    @Override
+    public Class<ZonedDateTime> getValueType() {
+        return ZonedDateTime.class;
     }
 
     public ZonedDateTime parse(String value) throws ValueParserException {
