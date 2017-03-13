@@ -22,6 +22,7 @@ import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
 import com.energyict.dlms.cosem.methods.DLMSClassMethods;
+import com.energyict.dlms.cosem.methods.NetworkInterfaceType;
 import com.energyict.dlms.cosem.methods.WebPortalMethods;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.DataParseException;
@@ -179,6 +180,21 @@ public final class WebPortalSetupV1 extends AbstractCosemObject {
 			return null;
 		}
 		
+		/**
+		 * Returns the different names of the roles.
+		 * 
+		 * @return	The names of the roles.
+		 */
+		public static final String[] names() {
+			final List<String> names = new ArrayList<>();
+			
+			for (final Role role : Role.values()) {
+				names.add(role.getName());
+			}
+			
+			return names.toArray(new String[names.size()]);
+		}
+		
 		/** Role name. */
 		private final String name;
 		
@@ -238,45 +254,6 @@ public final class WebPortalSetupV1 extends AbstractCosemObject {
 		 * @param 	value	The value.
 		 */
 		private WebPortalAuthenticationMechanism(final int value) {
-			this.value = value;
-		}
-	}
-	
-	public enum EnabledInterface {
-		
-		ALL(0),
-		ETHERNET_WAN(1),
-		ETHERNET_LAN(2),
-		WIRELESS_WAN(3),
-		IP6_TUNNEL(4),
-		PLC_NETWORK(5);
-		
-		/**
-		 * Returns the {@link EnabledInterface} that corresponds to the given value.
-		 * 
-		 * @param 		value		The value.
-		 * 
-		 * @return		The corresponding {@link EnabledInterface}, <code>null</code> if none matches.
-		 */
-		public static final EnabledInterface forValue(final int value) {
-			for (final EnabledInterface iface : EnabledInterface.values()) {
-				if (iface.value == value) {
-					return iface;
-				}
-			}
-			
-			return null;
-		}
-		
-		/** The value. */
-		private final int value;
-		
-		/**
-		 * Create a new instance.
-		 * 
-		 * @param 	value	The value.
-		 */
-		private EnabledInterface(final int value) {
 			this.value = value;
 		}
 	}
@@ -652,12 +629,12 @@ public final class WebPortalSetupV1 extends AbstractCosemObject {
 	 * 
 	 * @throws 	IOException		If an IO error occurs.
 	 */
-	public final Set<EnabledInterface> getEnabledInterfaces() throws IOException {
+	public final Set<NetworkInterfaceType> getEnabledInterfaces() throws IOException {
 		final Array enabledIfaceArray = this.readDataType(WebPortalSetupV1Attribute.ENABLED_INTERFACES, Array.class);
-		final Set<EnabledInterface> enabledIfaces = EnumSet.noneOf(WebPortalSetupV1.EnabledInterface.class);
+		final Set<NetworkInterfaceType> enabledIfaces = EnumSet.noneOf(NetworkInterfaceType.class);
 		
 		for (final AbstractDataType entry : enabledIfaceArray) {
-			final EnabledInterface correspondingInterface = EnabledInterface.forValue(entry.getTypeEnum().getValue());
+			final NetworkInterfaceType correspondingInterface = NetworkInterfaceType.fromNetworkType(entry.getTypeEnum().getValue());
 			enabledIfaces.add(correspondingInterface);
 		}
 		
@@ -671,11 +648,11 @@ public final class WebPortalSetupV1 extends AbstractCosemObject {
 	 * 
 	 * @throws 		IOException		If an IO error occurs.
 	 */
-	public final void setEnabledInterfaces(final Set<WebPortalSetupV1.EnabledInterface> interfaces) throws IOException {
+	public final void setEnabledInterfaces(final Set<NetworkInterfaceType> interfaces) throws IOException {
 		final Array interfaceArray = new Array();
 		
-		for (final EnabledInterface iface : interfaces) {
-			interfaceArray.addDataType(new TypeEnum(iface.value));
+		for (final NetworkInterfaceType iface : interfaces) {
+			interfaceArray.addDataType(new TypeEnum(iface.getNetworkType()));
 		}
 		
 		this.write(WebPortalSetupV1Attribute.ENABLED_INTERFACES, interfaceArray);
