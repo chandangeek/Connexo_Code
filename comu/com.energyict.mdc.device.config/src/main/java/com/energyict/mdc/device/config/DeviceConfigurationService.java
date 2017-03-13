@@ -103,6 +103,18 @@ public interface DeviceConfigurationService {
     DeviceType.DeviceTypeBuilder newDataloggerSlaveDeviceTypeBuilder(String name, DeviceLifeCycle deviceLifeCycle);
 
     /**
+     * Creates a new multi-element submeter {@link com.energyict.mdc.device.config.DeviceType.DeviceTypeBuilder} with the specified name.
+     * The {@link com.elster.jupiter.fsm.State} of the devices
+     * of this type are managed by the provided {@link DeviceLifeCycle}.
+     * Devices of this deviceType will not be able to define communication related items, and make part of a Multi-Element enabled meter/device type.
+     *
+     * @param name The name of the new DeviceType
+     * @param deviceLifeCycle The DeviceLifeCycle
+     * @return The newly created multi-element submeter DeviceType
+     */
+    DeviceType.DeviceTypeBuilder newMultiElementSubmeterTypeBuilder(String name, DeviceLifeCycle deviceLifeCycle);
+
+    /**
      * Find the {@link DeviceType} which is uniquely identified by the provided ID.
      *
      * @param deviceTypeId the ID of the DeviceType

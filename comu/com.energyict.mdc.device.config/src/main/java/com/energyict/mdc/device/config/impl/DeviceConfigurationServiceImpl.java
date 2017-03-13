@@ -55,6 +55,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.config.IncompatibleDeviceLifeCycleChangeException;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LockService;
@@ -232,12 +233,17 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public DeviceType.DeviceTypeBuilder newDeviceTypeBuilder(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle) {
-        return new DeviceTypeImpl.DeviceTypeBuilderImpl(getDataModel().getInstance(DeviceTypeImpl.class), name, deviceProtocolPluggableClass, deviceLifeCycle, false);
+        return new DeviceTypeImpl.DeviceTypeBuilderImpl(getDataModel().getInstance(DeviceTypeImpl.class), name, deviceProtocolPluggableClass, deviceLifeCycle, DeviceTypePurpose.REGULAR);
     }
 
     @Override
     public DeviceType.DeviceTypeBuilder newDataloggerSlaveDeviceTypeBuilder(String name, DeviceLifeCycle deviceLifeCycle) {
-        return new DeviceTypeImpl.DeviceTypeBuilderImpl(getDataModel().getInstance(DeviceTypeImpl.class), name, null, deviceLifeCycle, true);
+        return new DeviceTypeImpl.DeviceTypeBuilderImpl(getDataModel().getInstance(DeviceTypeImpl.class), name, null, deviceLifeCycle, DeviceTypePurpose.DATALOGGER_SLAVE);
+    }
+
+    @Override
+    public DeviceType.DeviceTypeBuilder newMultiElementSubmeterTypeBuilder(String name, DeviceLifeCycle deviceLifeCycle) {
+        return new DeviceTypeImpl.DeviceTypeBuilderImpl(getDataModel().getInstance(DeviceTypeImpl.class), name, null, deviceLifeCycle, DeviceTypePurpose.SUBMETERING_ELEMENT);
     }
 
     @Override

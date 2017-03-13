@@ -90,7 +90,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         DEVICETYPEPURPOSE("deviceTypePurpose"),
         DEVICE_LIFE_CYCLE("deviceLifeCycle"),
         FILE_MANAGEMENT_ENABLED("fileManagementEnabled"),
-        DEVICE_MESSAGE_FILES("deviceMessageFiles"),;
+        DEVICE_MESSAGE_FILES("deviceMessageFiles");
 
         private final String javaFieldName;
 
@@ -169,6 +169,13 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         this.setName(name);
         this.setDeviceLifeCycle(deviceLifeCycle, this.clock.instant());
         this.deviceTypePurpose = DeviceTypePurpose.DATALOGGER_SLAVE;
+        return this;
+    }
+
+    private DeviceType initializeSubmeter(String name, DeviceLifeCycle deviceLifeCycle) {
+        this.setName(name);
+        this.setDeviceLifeCycle(deviceLifeCycle, this.clock.instant());
+        this.deviceTypePurpose = DeviceTypePurpose.SUBMETERING_ELEMENT;
         return this;
     }
 
@@ -433,6 +440,11 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @Override
     public boolean isDataloggerSlave() {
         return deviceTypePurpose.equals(DeviceTypePurpose.DATALOGGER_SLAVE);
+    }
+
+    @Override
+    public boolean isSubmeterElement() {
+        return deviceTypePurpose.equals(DeviceTypePurpose.SUBMETERING_ELEMENT);
     }
 
     @Override
@@ -1000,7 +1012,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     private ProtocolBehavior getProtocolBehavior() {
-        return isDataloggerSlave() ? new DataloggerSlaveProtocolBehavior() : new RegularProtocolBehavior();
+        return isDataloggerSlave() || isSubmeterElement() ? new LackingProtocolBehavior() : new RegularProtocolBehavior();
     }
 
     interface ProtocolBehavior {
@@ -1040,7 +1052,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
         @Override
         public Optional<DeviceProtocolPluggableClass> getDeviceProtocolPluggableClass() {
-            if (DeviceTypeImpl.this.deviceProtocolPluggableClass == null && !isDataloggerSlave()) {
+            if (DeviceTypeImpl.this.deviceProtocolPluggableClass == null && !isDataloggerSlave() && !isSubmeterElement()) {
                 Optional<DeviceProtocolPluggableClass> optionalDeviceProtocolPluggableClass = this.findDeviceProtocolPluggableClass(DeviceTypeImpl.this.deviceProtocolPluggableClassId);
                 optionalDeviceProtocolPluggableClass.ifPresent(consumer -> DeviceTypeImpl.this.deviceProtocolPluggableClass = consumer);
             }
@@ -1072,8 +1084,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
             return DeviceTypeImpl.this.protocolPluggableService.findDeviceProtocolPluggableClass(deviceProtocolPluggableClassId);
         }
     }
-
-    private class DataloggerSlaveProtocolBehavior implements ProtocolBehavior {
+    // Specific behaviour for device types lacking a protocol = no communication  (data logger slaves, multi-element submeter)
+    private class LackingProtocolBehavior implements ProtocolBehavior {
 
         @Override
         public void setDeviceProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
@@ -1102,7 +1114,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     private LogBookBehavior getLogBookTypeBehavior() {
-        return isDataloggerSlave() ? new DataloggerSlaveLogBookBehavior() : new RegularLogBookBehavior();
+        return isDataloggerSlave() || isSubmeterElement() ? new LackingLogBookBehavior() : new RegularLogBookBehavior();
     }
 
     /**
@@ -1158,7 +1170,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
         @Override
         public void purposeChangedTo(DeviceTypePurpose deviceTypePurpose) {
-            if (deviceTypePurpose.equals(DeviceTypePurpose.DATALOGGER_SLAVE)) {
+            if (!deviceTypePurpose.equals(DeviceTypePurpose.REGULAR)) {
                 getLogBookTypes().stream().forEach(logBookType -> {
                     List<LogBookSpec> logBookSpecs = this.getLogBookSpecsForLogBookType(logBookType);
                     if (!logBookSpecs.isEmpty()) {
@@ -1215,8 +1227,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
             DeviceTypeImpl.this.logBookTypeUsages.add(new DeviceTypeLogBookTypeUsage(DeviceTypeImpl.this, logBookType));
         }
     }
-
-    private class DataloggerSlaveLogBookBehavior implements LogBookBehavior {
+    // Specific behaviour for device types lacking logbooks (data logger slaves, multi-element submeter)
+    private class LackingLogBookBehavior implements LogBookBehavior {
         @Override
         public void addLogBookTypes(List<LogBookType> logBookTypes) {
             if (!logBookTypes.isEmpty()) {
@@ -1249,12 +1261,18 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
         private final DeviceTypeImpl underConstruction;
 
-        DeviceTypeBuilderImpl(DeviceTypeImpl underConstruction, String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle, boolean isDataloggerSlave) {
+        DeviceTypeBuilderImpl(DeviceTypeImpl underConstruction, String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle, DeviceTypePurpose purpose) {
             this.underConstruction = underConstruction;
-            if (isDataloggerSlave) {
-                this.underConstruction.initializeDataloggerSlave(name, deviceLifeCycle);
-            } else {
-                this.underConstruction.initializeRegular(name, deviceProtocolPluggableClass, deviceLifeCycle);
+            switch (purpose){
+                case REGULAR:
+                    this.underConstruction.initializeRegular(name, deviceProtocolPluggableClass, deviceLifeCycle);
+                    break;
+                case DATALOGGER_SLAVE:
+                    this.underConstruction.initializeDataloggerSlave(name, deviceLifeCycle);
+                    break;
+                case SUBMETERING_ELEMENT:
+                    this.underConstruction.initializeSubmeter(name, deviceLifeCycle);
+                    break;
             }
         }
 
@@ -1339,6 +1357,12 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         @Override
         public DeviceConfigurationBuilder dataloggerEnabled(boolean dataloggerEnabled) {
             underConstruction.setDataloggerEnabled(dataloggerEnabled);
+            return this;
+        }
+
+        @Override
+        public DeviceConfigurationBuilder multiElementEnabled(boolean multiElementEnabled) {
+            underConstruction.setMultiElementEnabled(multiElementEnabled);
             return this;
         }
 

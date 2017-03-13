@@ -123,7 +123,9 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         DEVICE_MESSAGE_ENABLEMENTS("deviceMessageEnablements"),
         DEVICECONF_ESTIMATIONRULESET_USAGES("deviceConfigurationEstimationRuleSetUsages"),
         DATALOGGER_ENABLED("dataloggerEnabled"),
-        VALIDATE_ON_STORE("validateOnStore");
+        VALIDATE_ON_STORE("validateOnStore"),
+        MULTI_ELEMENT_ENABLED("multiElementEnabled");
+
         private final String javaFieldName;
 
         Fields(String javaFieldName) {
@@ -187,6 +189,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private List<DeviceConfigurationEstimationRuleSetUsage> deviceConfigurationEstimationRuleSetUsages = new ArrayList<>();
     private final Provider<DeviceConfigurationEstimationRuleSetUsageImpl> deviceConfigEstimationRuleSetUsageFactory;
     private boolean dataloggerEnabled;
+    private boolean multiElementEnabled;
     private boolean validateOnStore;
 
     private PropertySpecService propertySpecService;
@@ -220,7 +223,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     DeviceConfigurationImpl initialize(DeviceType deviceType, String name) {
         this.deviceType.set(deviceType);
         setName(name);
-        if (!getDeviceType().isDataloggerSlave()) {
+        if (!getDeviceType().isDataloggerSlave() && ! getDeviceType().isSubmeterElement()) {
             this.getDeviceType()
                     .getDeviceProtocolPluggableClass()
                     .ifPresent(deviceProtocolPluggableClass -> deviceProtocolPluggableClass
@@ -749,7 +752,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     private LogBookBehavior getLogBookBehavior() {
-        return getDeviceType().isDataloggerSlave() ? new DataloggerSlaveLogBookBehavior() : new RegularLogBookBehavior();
+        return ((getDeviceType().isDataloggerSlave() || getDeviceType().isSubmeterElement()) ? new LackingLogBookBehavior() : new RegularLogBookBehavior());
     }
 
     /**
@@ -810,7 +813,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
     }
 
-    private class DataloggerSlaveLogBookBehavior implements LogBookBehavior {
+    private class LackingLogBookBehavior implements LogBookBehavior {
 
         @Override
         public LogBookSpec.LogBookSpecBuilder createLogBookSpec(LogBookType logBookType) {
@@ -1480,13 +1483,25 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     public void setDataloggerEnabled(boolean dataloggerEnabled) {
         if (isActive() && dataloggerEnabled != this.dataloggerEnabled) {
-            throw DataloggerSlaveException.cannotChangeDataloggerFunctionalityEnabledOnceTheConfigIsActive(getThesaurus(), this);
+            throw DataloggerSlaveException.cannotChangeDataloggerFunctionalityEnabledOnceTheConfigIsActive(getThesaurus(), MessageSeeds.DATALOGGER_ENABLED_CANNOT_CHANGE_ON_ACTIVE_CONFIG , this);
         }
         this.dataloggerEnabled = dataloggerEnabled;
     }
-
+    @Override
     public boolean isDataloggerEnabled() {
         return this.dataloggerEnabled;
+    }
+
+    public void setMultiElementEnabled(boolean multiElementEnabled) {
+        if (isActive() && multiElementEnabled != this.multiElementEnabled) {
+            throw DataloggerSlaveException.cannotChangeDataloggerFunctionalityEnabledOnceTheConfigIsActive(getThesaurus(), MessageSeeds.MULTI_ELEMENT_ENABLEMENT_CANNOT_CHANGE_ON_ACTIVE_CONFIG ,this);
+        }
+        this.multiElementEnabled = multiElementEnabled;
+    }
+
+    @Override
+    public boolean isMultiElementEnabled() {
+        return this.multiElementEnabled;
     }
 
     public boolean getValidateOnStore() {
@@ -1700,6 +1715,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                 .gatewayType(getGatewayType())
                 .isDirectlyAddressable(isDirectlyAddressable())
                 .dataloggerEnabled(isDataloggerEnabled())
+                .multiElementEnabled(isMultiElementEnabled())
                 .validateOnStore(getValidateOnStore())
                 .add();
         this.getDeviceProtocolProperties().getPropertySpecs().forEach(cloneDeviceProtocolProperties(clone));

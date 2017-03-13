@@ -22,13 +22,21 @@ public class DataSourcesValidator implements ConstraintValidator<ValidDataSource
 
     @Override
     public boolean isValid(DeviceConfigurationImpl deviceConfiguration, ConstraintValidatorContext context) {
-        if (deviceConfiguration.isActive()) {
-            if (noDataSources(deviceConfiguration) && deviceConfiguration.isDataloggerEnabled()) {
+        if (deviceConfiguration.isActive() && noDataSources(deviceConfiguration)) {
+            if (deviceConfiguration.isDataloggerEnabled()) {
                 context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE + "}")
                         .addConstraintViolation().disableDefaultConstraintViolation();
                 return false;
-            } else if (noDataSources(deviceConfiguration) && deviceConfiguration.getDeviceType().isDataloggerSlave()) {
+            } else if (deviceConfiguration.isMultiElementEnabled()) {
+                context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.MULTI_ELEMENT_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE + "}")
+                        .addConstraintViolation().disableDefaultConstraintViolation();
+                return false;
+            } else if (deviceConfiguration.getDeviceType().isDataloggerSlave()) {
                 context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DATALOGGER_SLAVES_AT_LEAST_ONE_DATASOURCE + "}")
+                        .addConstraintViolation().disableDefaultConstraintViolation();
+                return false;
+            } else if (deviceConfiguration.getDeviceType().isSubmeterElement()) {
+                context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.MULTI_ELEMENT_SUBMETER_AT_LEAST_ONE_DATASOURCE + "}")
                         .addConstraintViolation().disableDefaultConstraintViolation();
                 return false;
             }

@@ -23,16 +23,16 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DataloggerSlaveTest extends DeviceTypeProvidingPersistenceTest {
+public class SubmeterDeviceTypeTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
     public void createDataloggerSlaveWithoutViolations() {
-        String deviceTypeName = "createDataloggerSlaveWithoutViolations";
+        String deviceTypeName = "createSubMeterDeviceTypeWithoutViolations";
         DeviceType deviceType;
         // Business method
         DeviceType.DeviceTypeBuilder deviceTypeBuilder = inMemoryPersistence.getDeviceConfigurationService()
-                .newDataloggerSlaveDeviceTypeBuilder(deviceTypeName, getDefaultDeviceLifeCycle());
+                .newMultiElementSubmeterTypeBuilder(deviceTypeName, getDefaultDeviceLifeCycle());
         String description = "For testing purposes only";
         deviceTypeBuilder.setDescription(description);
         deviceType = deviceTypeBuilder.create();
@@ -46,19 +46,19 @@ public class DataloggerSlaveTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(deviceType.getRegisterTypes()).isEmpty();
         assertThat(deviceType.getDeviceProtocolPluggableClass().isPresent()).isFalse();
         assertThat(deviceType.getDescription()).isEqualTo(description);
-        assertThat(deviceType.isDataloggerSlave()).isTrue();
-        assertThat(deviceType.isSubmeterElement()).isFalse();
+        assertThat(deviceType.isDataloggerSlave()).isFalse();
+        assertThat(deviceType.isSubmeterElement()).isTrue();
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "deviceLifeCycle")
     public void createDataloggerSlaveWithoutDeviceLifeCycleTest() {
-        String deviceTypeName = "createDataloggerSlaveWithoutViolations";
+        String deviceTypeName = "createSubMeterDeviceTypeWithoutViolations";
         DeviceType deviceType;
         // Business method
         DeviceType.DeviceTypeBuilder deviceTypeBuilder = inMemoryPersistence.getDeviceConfigurationService()
-                .newDataloggerSlaveDeviceTypeBuilder(deviceTypeName, null);
+                .newMultiElementSubmeterTypeBuilder(deviceTypeName, null);
         String description = "For testing purposes only";
         deviceTypeBuilder.setDescription(description);
         deviceType = deviceTypeBuilder.create();
@@ -67,12 +67,12 @@ public class DataloggerSlaveTest extends DeviceTypeProvidingPersistenceTest {
     @Test
     @Transactional
     public void canChangeFromDataloggerSlaveToRegularWhenNoConfigsTest() {
-        String deviceTypeName = "canChangeFromDataloggerSlaveToRegularWhenNoConfigsTest";
+        String deviceTypeName = "canChangeFromSubMeterDeviceTypeToRegularWhenNoConfigsTest";
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService()
-                .newDataloggerSlaveDeviceTypeBuilder(deviceTypeName, getDefaultDeviceLifeCycle())
+                .newMultiElementSubmeterTypeBuilder(deviceTypeName, getDefaultDeviceLifeCycle())
                 .create();
 
-        assertThat(deviceType.isDataloggerSlave()).isTrue();
+        assertThat(deviceType.isSubmeterElement()).isTrue();
 
         deviceType.setDeviceTypePurpose(DeviceTypePurpose.REGULAR);
         deviceType.setDeviceProtocolPluggableClass(deviceProtocolPluggableClass);
@@ -84,7 +84,7 @@ public class DataloggerSlaveTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    public void canChangeFromRegularDeviceTypeToDataloggerSlaveWhenNoConfigsTest() {
+    public void canChangeFromRegularDeviceTypeToMultiElementSubmeterTypeWhenNoConfigsTest() {
         String deviceTypeName = "canChangeFromRegularDeviceTypeToDataloggerSlaveWhenNoConfigsTest";
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService()
                 .newDeviceTypeBuilder(deviceTypeName, deviceProtocolPluggableClass, getDefaultDeviceLifeCycle())
@@ -92,20 +92,20 @@ public class DataloggerSlaveTest extends DeviceTypeProvidingPersistenceTest {
 
         assertThat(deviceType.isDataloggerSlave()).isFalse();
 
-        deviceType.setDeviceTypePurpose(DeviceTypePurpose.DATALOGGER_SLAVE);
+        deviceType.setDeviceTypePurpose(DeviceTypePurpose.SUBMETERING_ELEMENT);
         deviceType.update();
 
         DeviceType reloadedDeviceType = reloadDeviceType(deviceType);
-        assertThat(reloadedDeviceType.isDataloggerSlave()).isTrue();
+        assertThat(reloadedDeviceType.isSubmeterElement()).isTrue();
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CANNOT_CHANGE_DEVICE_TYPE_PURPOSE_WHEN_CONFIGS + "}", property = "deviceTypePurpose", strict = false)
-    public void cannotChangeFromDataloggerSlaveToRegularWhenConfigsTest() {
+    public void cannotChangeFromSubmeterDeviceTypeToRegularWhenConfigsTest() {
         String deviceTypeName = "cannotChangeFromDataloggerSlaveToRegularWhenConfigsTest";
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService()
-                .newDataloggerSlaveDeviceTypeBuilder(deviceTypeName, getDefaultDeviceLifeCycle())
+                .newMultiElementSubmeterTypeBuilder(deviceTypeName, getDefaultDeviceLifeCycle())
                 .create();
 
         deviceType.newConfiguration("Default").add();
@@ -118,7 +118,7 @@ public class DataloggerSlaveTest extends DeviceTypeProvidingPersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CANNOT_CHANGE_DEVICE_TYPE_PURPOSE_WHEN_CONFIGS + "}", property = "deviceTypePurpose")
-    public void cannotChangeFromRegularToDataloggerSlaveWhenConfigsTest() {
+    public void cannotChangeFromRegularToSubmeterDeviceTypeWhenConfigsTest() {
         String deviceTypeName = "cannotChangeFromRegularToDataloggerSlaveWhenConfigsTest";
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService()
                 .newDeviceTypeBuilder(deviceTypeName, deviceProtocolPluggableClass, getDefaultDeviceLifeCycle())
@@ -126,13 +126,13 @@ public class DataloggerSlaveTest extends DeviceTypeProvidingPersistenceTest {
 
         deviceType.newConfiguration("Default").add();
 
-        deviceType.setDeviceTypePurpose(DeviceTypePurpose.DATALOGGER_SLAVE);
+        deviceType.setDeviceTypePurpose(DeviceTypePurpose.SUBMETERING_ELEMENT);
         deviceType.update();
     }
 
     @Test(expected = DataloggerSlaveException.class)
     @Transactional
-    public void cannotChangeDeviceTypePurposeToDataloggerSlaveWhenAlreadyHaveConfigsWithLogBookSpecsTest() {
+    public void cannotChangeDeviceTypePurposeToSubmeterDeviceTypeWhenAlreadyHaveConfigsWithLogBookSpecsTest() {
         LogBookType logBookType = createLogBookType();
         String deviceTypeName = "cannotChangeDeviceTypePurposeToDataloggerSlaveWhen";
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService()
@@ -140,14 +140,14 @@ public class DataloggerSlaveTest extends DeviceTypeProvidingPersistenceTest {
                 .withLogBookTypes(Collections.singletonList(logBookType))
                 .create();
 
-        assertThat(deviceType.isDataloggerSlave()).isFalse();
+        assertThat(deviceType.isSubmeterElement()).isFalse();
 
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("Test");
         deviceConfigurationBuilder.newLogBookSpec(logBookType);
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
 
         try {
-            deviceType.setDeviceTypePurpose(DeviceTypePurpose.DATALOGGER_SLAVE);
+            deviceType.setDeviceTypePurpose(DeviceTypePurpose.SUBMETERING_ELEMENT);
             deviceType.update();
         } catch (DataloggerSlaveException e) {
             // Asserts
@@ -158,12 +158,12 @@ public class DataloggerSlaveTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test(expected = DataloggerSlaveException.class)
     @Transactional
-    public void cannotAddLogBookTypesToADataloggerSlaveDeviceTypeTest() {
+    public void cannotAddLogBookTypesToASubmeterDeviceTypeTest() {
         LogBookType logBookType = createLogBookType();
         String deviceTypeName = "cannotAddLogBookTypesToADataloggerSlaveDeviceTypeTest";
         try {
             DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService()
-                    .newDataloggerSlaveDeviceTypeBuilder(deviceTypeName, getDefaultDeviceLifeCycle())
+                    .newMultiElementSubmeterTypeBuilder(deviceTypeName, getDefaultDeviceLifeCycle())
                     .withLogBookTypes(Collections.singletonList(logBookType))
                     .create();
         } catch (DataloggerSlaveException e) {
