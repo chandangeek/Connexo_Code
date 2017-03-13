@@ -356,7 +356,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             duration: 60000,
             fn: Ext.bind(me.onTooLongOperation, me, [purpose, confWindow, {
                 title: Uni.I18n.translate('purpose.dataValidation.timeout.title1', 'IMT', 'Data validation takes longer than expected'),
-                msg: Uni.I18n.translate('purpose.dataValidation.timeout.msg1', 'IMT', 'Data validation takes longer than expected. Data validation will continue in the background.')
+                msg: Uni.I18n.translate('purpose.dataValidation.timeout.message', 'IMT', 'Data validation takes longer than expected and will continue in the background.')
             }])
         });
 
@@ -406,7 +406,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             duration: 60000,
             fn: Ext.bind(me.onTooLongOperation, me, [purpose, confirmationWindow, {
                 title: Uni.I18n.translate('purpose.dataEstimation.timeout.title1', 'IMT', 'Data estimation takes longer than expected'),
-                msg: Uni.I18n.translate('purpose.dataEstimation.timeout.msg1', 'IMT', 'Data estimation takes longer than expected. Data estimation will continue in the background.')
+                msg: Uni.I18n.translate('purpose.dataValidation.timeout.message', 'IMT', 'Data validation takes longer than expected and will continue in the background.')
             }])
         });
 
