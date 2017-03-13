@@ -103,7 +103,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                         deviceConfigurationId: deviceConfigurationId
                     });
                     me.getApplication().fireEvent('changecontentevent', widget);
-                    widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfiguration.get('name'));
+                    widget.down('#stepsMenu').setHeader(deviceConfiguration.get('name'));
                 }
             },
             widget,

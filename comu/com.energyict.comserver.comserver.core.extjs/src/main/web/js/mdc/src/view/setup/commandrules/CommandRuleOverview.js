@@ -22,7 +22,8 @@ Ext.define('Mdc.view.setup.commandrules.CommandRuleOverview', {
             items: [
                 {
                     ui: 'large',
-                    title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
+                    itemId: 'mdc-commandRule-overview-panel',
+                    title: Uni.I18n.translate('general.details', 'MDC', 'Details'),
                     flex: 1,
                     items: {
                         xtype: 'commandRulePreviewForm',

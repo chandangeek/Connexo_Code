@@ -89,7 +89,7 @@ Ext.define('Mdc.controller.setup.Messages', {
 
                 me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                 widget.deviceConfiguration = deviceConfig;
-                widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
+                widget.down('#stepsMenu').setHeader(deviceConfig.get('name'));
                 me.getApplication().fireEvent('changecontentevent', widget);
             },
             callback: function () {
