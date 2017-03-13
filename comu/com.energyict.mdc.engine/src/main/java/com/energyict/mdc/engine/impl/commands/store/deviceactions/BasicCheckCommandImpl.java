@@ -105,19 +105,7 @@ public class BasicCheckCommandImpl extends CompositeComCommandImpl implements Ba
         }
 
         if (this.verifyTimeDifferenceCommand != null) {
-            builder.addLabel("check time difference");
-            if (this.isJournalingLevelEnabled(serverLogLevel, LogLevel.DEBUG)) {
-                if (getMaximumClockDifference().isPresent()) {
-                    TimeDuration maxDiffInSeconds = new TimeDuration(getMaximumClockDifference().orElse(new TimeDuration(0)).getSeconds(), TimeDuration.TimeUnit.SECONDS);
-                    builder.addProperty("maximumClockDifference").append(maxDiffInSeconds);
-                }
-            }
-
-            if (this.verifyTimeDifferenceCommand != null
-                    && this.verifyTimeDifferenceCommand.getTimeDifference() != null && this.verifyTimeDifferenceCommand.getTimeDifference().isPresent()) {
-                TimeDuration diffInSeconds = new TimeDuration(this.verifyTimeDifferenceCommand.getTimeDifference().orElse(new TimeDuration(0)).getSeconds(), TimeDuration.TimeUnit.SECONDS);
-                builder.addProperty("timeDifference").append(diffInSeconds);
-            }
+            builder.addLabel("check maximum clock difference");
         }
     }
 

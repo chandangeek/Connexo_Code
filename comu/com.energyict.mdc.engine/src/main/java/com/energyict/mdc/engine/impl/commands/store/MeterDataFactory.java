@@ -14,11 +14,7 @@ import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.IntervalValue;
+import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 
 import java.math.BigDecimal;
@@ -71,6 +67,9 @@ public final class MeterDataFactory {
             EndDeviceEventImpl endDeviceEvent = EndDeviceEventImpl.of(meterProtocolEvent.getEventType().getMRID(), meterProtocolEvent.getTime().toInstant());
             endDeviceEvent.setLogBookId(logBookId);
             endDeviceEvent.setLogBookPosition(meterProtocolEvent.getDeviceEventId());
+            endDeviceEvent.setType(String.valueOf(meterProtocolEvent.getProtocolCode()));
+            endDeviceEvent.setDescription(meterProtocolEvent.getMessage());
+            endDeviceEvent.setEventData(meterProtocolEvent.getAdditionalInformation());
             endDeviceEvents.add(endDeviceEvent);
         }
         return endDeviceEvents;

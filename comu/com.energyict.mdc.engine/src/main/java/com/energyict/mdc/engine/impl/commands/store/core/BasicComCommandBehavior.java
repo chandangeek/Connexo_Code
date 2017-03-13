@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.engine.impl.commands.store.core;
 
+import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
@@ -24,8 +25,11 @@ import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 
+import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.Date;
 import java.util.List;
 
@@ -229,18 +233,12 @@ public class BasicComCommandBehavior implements CanProvideDescriptionTitle {
 
     private <T extends Issue> void buildErrorDescription(DescriptionBuilder builder, String heading, List<T> issues) {
         if (!issues.isEmpty()) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSSS");
             PropertyDescriptionBuilder listBuilder = builder.addListProperty(heading);
             for (T issue : issues) {
                 listBuilder.append(issue.getDescription());
-                appendIssueTimestamp(listBuilder, dateFormat, issue);
                 listBuilder.next();
             }
         }
-    }
-
-    private <T extends Issue> void appendIssueTimestamp(PropertyDescriptionBuilder builder, SimpleDateFormat dateFormat, T issue) {
-        builder.append(" (").append(dateFormat.format(Date.from(issue.getTimestamp()))).append(")");
     }
 
     public boolean hasExecuted() {

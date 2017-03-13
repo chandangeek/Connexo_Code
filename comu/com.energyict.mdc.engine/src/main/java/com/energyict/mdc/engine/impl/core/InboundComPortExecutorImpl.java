@@ -9,6 +9,7 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
+import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 
 import java.util.logging.Logger;
 
@@ -52,7 +53,9 @@ public class InboundComPortExecutorImpl implements InboundComPortExecutor {
     }
 
     private BinaryInboundDeviceProtocol newInboundDeviceProtocol() {
-        return (BinaryInboundDeviceProtocol) this.comPort.getComPortPool().getDiscoveryProtocolPluggableClass().getInboundDeviceProtocol();
+        InboundDeviceProtocol inboundDeviceProtocol = this.comPort.getComPortPool().getDiscoveryProtocolPluggableClass().getInboundDeviceProtocol();
+        inboundDeviceProtocol.copyProperties(comPort.getComPortPool().getTypedProperties());
+        return (BinaryInboundDeviceProtocol) inboundDeviceProtocol;
     }
 
 }
