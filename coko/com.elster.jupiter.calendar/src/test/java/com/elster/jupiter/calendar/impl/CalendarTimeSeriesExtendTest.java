@@ -185,7 +185,7 @@ public class CalendarTimeSeriesExtendTest {
 
         // Asserts
         Year expectedEndYear = Year.of(Year.now(this.clock).atDay(1).plusYears(1).getYear());
-        assertThat(calendar.getEndYear()).isEqualTo(expectedEndYear);
+        assertThat(calendar.getEndYear()).contains(expectedEndYear);
         verify(this.dataModel).update(calendar, CalendarImpl.Fields.ENDYEAR.fieldName());
     }
 

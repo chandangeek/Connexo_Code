@@ -225,7 +225,6 @@ public class CalendarCommands {
                     .addEvent("Demand response").withCode(97)
                     .add();
             calendarService.newCalendar(name, Year.of(2010), eventSet)
-                    .endYear(Year.of(2020))
                     .description("Description remains to be completed :-)")
                     .category(calendarService.findCategoryByName(OutOfTheBoxCategory.TOU.name()).get())
                     .mRID(name)

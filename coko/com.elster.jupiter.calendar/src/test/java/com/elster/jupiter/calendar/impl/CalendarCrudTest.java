@@ -98,7 +98,6 @@ public class CalendarCrudTest {
         assertThat(calendar.getName()).isEqualTo("Test");
         assertThat(calendar.getDescription()).isEqualTo("Description remains to be completed :-)");
         assertThat(calendar.getStartYear()).isEqualTo(Year.of(2010));
-        assertThat(calendar.getEndYear()).isEqualTo(Year.of(2018));
         List<Event> events = calendar.getEvents();
         assertThat(events.size()).isEqualTo(3);
         Event onPeak = events.get(0);
@@ -186,7 +185,6 @@ public class CalendarCrudTest {
         Category category = getCalendarService().findCategoryByName(OutOfTheBoxCategory.TOU.name()).orElseThrow(AssertionError::new);
         EventSet testEventSet = createTestEventSet();
         return getCalendarService().newCalendar(name, Year.of(2010), testEventSet)
-                .endYear(Year.of(2018))
                 .category(category)
                 .description("Description remains to be completed :-)")
                 .mRID(name + "-mrid")
@@ -244,7 +242,6 @@ public class CalendarCrudTest {
 
             service.newCalendar(null, Year.of(2010), eventSet)
                     .description("Description remains to be completed :-)")
-                    .endYear(Year.of(2018))
                     .mRID("Sample-TOU-rates")
                     .newDayType("Summer weekday")
                     .eventWithCode(3).startsFrom(LocalTime.of(13, 0, 0))
@@ -286,7 +283,6 @@ public class CalendarCrudTest {
 
             service.newCalendar("", Year.of(2010), eventSet)
                     .description("Description remains to be completed :-)")
-                    .endYear(Year.of(2018))
                     .mRID("Sample-TOU-rates")
                     .newDayType("Summer weekday")
                     .eventWithCode(3).startsFrom(LocalTime.of(13, 0, 0))
@@ -328,7 +324,6 @@ public class CalendarCrudTest {
 
             service.newCalendar("test", null, eventSet)
                     .description("Description remains to be completed :-)")
-                    .endYear(Year.of(2018))
                     .mRID("Sample-TOU-rates")
                     .newDayType("Summer weekday")
                     .eventWithCode(3).startsFrom(LocalTime.of(13, 0, 0))
@@ -371,7 +366,6 @@ public class CalendarCrudTest {
 
             service.newCalendar("test", Year.of(2010), eventSet)
                     .description("Description remains to be completed :-)")
-                    .endYear(Year.of(2018))
                     .mRID("Sample-TOU-rates")
                     .newDayType("Summer weekday")
                     .eventWithCode(3).startsFrom(LocalTime.of(13, 0, 0))
@@ -411,7 +405,6 @@ public class CalendarCrudTest {
 
             service.newCalendar("test", Year.of(2010), eventSet)
                     .description("Description remains to be completed :-)")
-                    .endYear(Year.of(2018))
                     .mRID("Sample-TOU-rates")
                     .newDayType("Summer weekday")
                     .eventWithCode(3).startsFrom(LocalTime.of(13, 0, 0))

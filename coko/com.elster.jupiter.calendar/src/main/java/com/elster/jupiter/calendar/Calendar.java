@@ -59,7 +59,7 @@ public interface Calendar extends HasId, HasName {
      *
      * @return The start of this Calendar
      */
-    Year getEndYear();
+    Optional<Year> getEndYear();
 
     /**
      * Gets the {@link Category} to which this Calendar belongs.

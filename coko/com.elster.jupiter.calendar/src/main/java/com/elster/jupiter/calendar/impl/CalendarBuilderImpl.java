@@ -60,12 +60,6 @@ public class CalendarBuilderImpl implements CalendarService.CalendarBuilder {
     }
 
     @Override
-    public CalendarService.CalendarBuilder endYear(Year setStartYear) {
-        this.calendarImpl.setEndYear(setStartYear);
-        return this;
-    }
-
-    @Override
     public CalendarService.CalendarBuilder mRID(String mRID) {
         this.calendarImpl.setmRID(mRID);
         return this;

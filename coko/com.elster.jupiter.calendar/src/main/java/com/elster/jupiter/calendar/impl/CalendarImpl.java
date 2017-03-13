@@ -475,8 +475,12 @@ public class CalendarImpl implements ServerCalendar {
         return Year.of(startYear);
     }
 
-    public Year getEndYear() {
-        return Year.of(endYear);
+    public Optional<Year> getEndYear() {
+        if (this.endYear == null) {
+            return Optional.empty();
+        } else {
+            return Optional.of(Year.of(endYear));
+        }
     }
 
     public boolean isAbstract() {

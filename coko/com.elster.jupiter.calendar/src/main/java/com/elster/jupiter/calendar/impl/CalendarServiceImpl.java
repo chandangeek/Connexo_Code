@@ -50,6 +50,8 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.Month;
+import java.time.MonthDay;
 import java.time.Year;
 import java.time.ZoneOffset;
 import java.util.Arrays;
@@ -414,11 +416,23 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     private void createPartitions() {
-        LocalDate startOfThisYear = LocalDate.now(this.clock).withDayOfYear(1);
-        LocalDate startOfNextYear = startOfThisYear.plusYears(1);
+        LocalDate now = LocalDate.now(this.clock);
+        LocalDate startOfThisYear = now.withDayOfYear(1);
+        LocalDate end;
+
+        LocalDate dec1stThisYear = Year.now(this.clock).atMonthDay(MonthDay.of(Month.DECEMBER, 1));
+        if (now.isAfter(dec1stThisYear)) {
+            /* Recurrent task that extends partitions runs on last sunday of the month.
+             * Also, the task that extends cached timeseries of Calendar (CalendarTimeSeriesEntity)
+             * runs on first of December so for safety, if we are already in the last month of the year
+             * we will create the initial partition until the end of the next year.*/
+            end = startOfThisYear.plusYears(2);
+        } else {
+            end = startOfThisYear.plusYears(1);
+        }
         Instant start = startOfThisYear.minusYears(1).atStartOfDay(ZoneOffset.UTC).toInstant();
         this.vault.activate(start);
-        this.vault.extendTo(startOfNextYear.atStartOfDay(ZoneOffset.UTC).toInstant(), Logger.getLogger(getClass().getPackage().getName()));
+        this.vault.extendTo(end.atStartOfDay(ZoneOffset.UTC).toInstant(), Logger.getLogger(getClass().getPackage().getName()));
     }
 
     @Override

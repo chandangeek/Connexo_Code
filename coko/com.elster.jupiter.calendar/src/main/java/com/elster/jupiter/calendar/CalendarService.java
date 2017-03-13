@@ -75,7 +75,6 @@ public interface CalendarService {
         CalendarBuilder category(Category category);
         CalendarBuilder name(String name);
         CalendarBuilder startYear(Year start);
-        CalendarBuilder endYear(Year setStartYear);
         CalendarBuilder mRID(String mRID);
         CalendarBuilder description(String description);
         DayTypeBuilder newDayType(String name);

@@ -156,7 +156,7 @@ public class CalendarTimeSeriesGenerateTest {
         // Asserts
         verify(this.vault).createRegularTimeSeries(this.recordSpec, ZoneOffset.UTC, Duration.ofHours(1), 0);
         verify(this.storer).execute();
-        assertThat(calendar.getEndYear()).isEqualTo(Year.now(this.clock));
+        assertThat(calendar.getEndYear()).contains(Year.now(this.clock));
     }
 
     @Test

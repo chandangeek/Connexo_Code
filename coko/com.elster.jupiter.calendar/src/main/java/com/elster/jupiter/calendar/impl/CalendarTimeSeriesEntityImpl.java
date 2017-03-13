@@ -170,9 +170,9 @@ class CalendarTimeSeriesEntityImpl implements CalendarTimeSeriesEntity, Persiste
         ServerCalendar calendar = this.calendar();
         TimeSeries timeSeries = timeSeries();
         TimeSeriesDataStorer storer = this.calendarService.getIdsService().createOverrulingStorer();
-        ServerCalendar.ZonedView zonedView = calendar.forZone(this.zoneId, calendar.getStartYear(), calendar.getEndYear());
+        ServerCalendar.ZonedView zonedView = calendar.forZone(this.zoneId, calendar.getStartYear(), calendar.getEndYear().get());
         timeSeries
-                .toList(this.yearRange(calendar.getStartYear(), calendar.getEndYear()))
+                .toList(this.yearRange(calendar.getStartYear(), calendar.getEndYear().get()))
                 .forEach(instant -> storer.add(timeSeries, instant, zonedView.eventFor(instant).getCode()));
         LOGGER.log(Level.INFO, () -> "Regenerated timeseries for calendar(id=" + this.calendar().getId() + ", name=" + this.calendar().getName() + ")");
         this.log(storer.execute());
