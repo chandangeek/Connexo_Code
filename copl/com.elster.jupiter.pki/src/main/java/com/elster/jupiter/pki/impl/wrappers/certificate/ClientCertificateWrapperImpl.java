@@ -53,4 +53,8 @@ public class ClientCertificateWrapperImpl extends RequestableCertificateWrapperI
         this.save();
     }
 
+    @Override
+    public KeyType getKeyType() {
+        return keyTypeReference.get();
+    }
 }
