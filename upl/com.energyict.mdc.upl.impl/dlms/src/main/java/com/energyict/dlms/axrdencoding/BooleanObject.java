@@ -64,7 +64,7 @@ public class BooleanObject extends AbstractDataType {
 	protected byte[] doGetBEREncodedByteArray() {
 		byte[] data = new byte[2];
 		data[0] = AxdrType.BOOLEAN.getTag();
-        data[1] = (byte) (state ? trueValue : FALSE);
+        data[1] = (byte) (state ? trueValue : VALUE_FALSE);
 		return data;
 	}
 
