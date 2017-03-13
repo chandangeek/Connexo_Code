@@ -6,10 +6,20 @@ import java.io.IOException;
 import java.math.BigDecimal;
 
 public class BooleanObject extends AbstractDataType {
+	
+	/** True. */
+	public static final BooleanObject TRUE = new BooleanObject(true) {
+	    public final void setTrueValue(final int trueValue) {
+	        throw new IllegalStateException("Cannot set the true value of the constant TRUE BooleanObject, use a local value if you want to use a custom value.");
+	    }
+	};
+	
+	/** False. */
+	public static final BooleanObject FALSE = new BooleanObject(false);
 
 	private static final int SIZE = 2;
     private int trueValue = 0xFF;
-    private static final int FALSE = 0x00;
+    private static final int VALUE_FALSE = 0x00;
 	private boolean state;
 
 	public BooleanObject(boolean state) {
@@ -32,7 +42,7 @@ public class BooleanObject extends AbstractDataType {
 			throw new ProtocolException("BooleanObject, invalid identifier " + berEncodedData[offset]);
 		}
 		offset++;
-        setState(berEncodedData[offset] != FALSE);
+        setState(berEncodedData[offset] != VALUE_FALSE);
 	}
 
 	public String toString() {
