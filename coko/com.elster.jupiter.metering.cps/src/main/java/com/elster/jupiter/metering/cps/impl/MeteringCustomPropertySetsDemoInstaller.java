@@ -218,6 +218,8 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
 
         ReadingType readingTypeMonthlyAplusWh = meteringService.getReadingType("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0")
                 .orElseGet(() -> meteringService.createReadingType("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
+        ReadingType readingTypeYearlyAplusWh = meteringService.getReadingType("1001.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0")
+                .orElseGet(() -> meteringService.createReadingType("1001.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
 
         MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
                 .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
@@ -227,19 +229,30 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
                 .orElseThrow(() -> new NoSuchElementException("Antenna custom property set not found"));
         config.addCustomPropertySet(registeredAntennaCPS);
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Monthly A+ kWh", readingTypeMonthlyAplusWh, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder monthlyBuilder = config.newReadingTypeDeliverable("Monthly A+ kWh", readingTypeMonthlyAplusWh, Formula.Mode.AUTO);
         CustomPropertySet antennaCPS = registeredAntennaCPS.getCustomPropertySet();
         List<PropertySpec> propertySpecs = antennaCPS.getPropertySpecs();
-        FormulaBuilder antennaPower = builder.property(antennaCPS, propertySpecs.stream()
+        FormulaBuilder monthlyAntennaPower = monthlyBuilder.property(antennaCPS, propertySpecs.stream()
                 .filter(propertySpec -> "antennaPower".equals(propertySpec.getName())).findFirst()
                 .orElseThrow(() -> new NoSuchElementException("antennaPower property spec not found")));
-        FormulaBuilder antennaCount = builder.property(antennaCPS, propertySpecs.stream()
+        FormulaBuilder monthlyAntennaCount = monthlyBuilder.property(antennaCPS, propertySpecs.stream()
                 .filter(propertySpec -> "antennaCount".equals(propertySpec.getName())).findFirst()
                 .orElseThrow(() -> new NoSuchElementException("antennaCount property spec not found")));
-        FormulaBuilder compositionCPS = builder.multiply(antennaPower, antennaCount);
-        FormulaBuilder monthlyConstant = builder.multiply(builder.constant(24), builder.constant(30));
+        FormulaBuilder monthlyCompositionCPS = monthlyBuilder.multiply(monthlyAntennaPower, monthlyAntennaCount);
+        FormulaBuilder monthlyConstant = monthlyBuilder.multiply(monthlyBuilder.constant(24), monthlyBuilder.constant(30));
 
-        contractBilling.addDeliverable(builder.build(builder.multiply(compositionCPS, monthlyConstant)));
+        ReadingTypeDeliverableBuilder yearlyBuilder = config.newReadingTypeDeliverable("Yearly A+ kWh", readingTypeYearlyAplusWh, Formula.Mode.AUTO);
+        FormulaBuilder yearlyAntennaPower = yearlyBuilder.property(antennaCPS, propertySpecs.stream()
+                .filter(propertySpec -> "antennaPower".equals(propertySpec.getName())).findFirst()
+                .orElseThrow(() -> new NoSuchElementException("antennaPower property spec not found")));
+        FormulaBuilder yearlyAntennaCount = yearlyBuilder.property(antennaCPS, propertySpecs.stream()
+                .filter(propertySpec -> "antennaCount".equals(propertySpec.getName())).findFirst()
+                .orElseThrow(() -> new NoSuchElementException("antennaCount property spec not found")));
+        FormulaBuilder yearlyCompositionCPS = yearlyBuilder.multiply(yearlyAntennaPower, yearlyAntennaCount);
+        FormulaBuilder yearlyConstant = yearlyBuilder.multiply(monthlyBuilder.constant(24), monthlyBuilder.constant(365));
+
+        contractBilling.addDeliverable(monthlyBuilder.build(monthlyBuilder.multiply(monthlyCompositionCPS, monthlyConstant)));
+        contractBilling.addDeliverable(monthlyBuilder.build(monthlyBuilder.multiply(yearlyCompositionCPS, yearlyConstant)));
     }
 
     void residentialPrepay() {
