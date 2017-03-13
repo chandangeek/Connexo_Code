@@ -239,6 +239,23 @@ public class ResourceHelper {
         }
     }
 
+    public void performMeterActivations(UsagePointInfo info, UsagePoint usagePoint) {
+        if (info.meterActivations != null && !info.meterActivations.isEmpty()) {
+            UsagePointMeterActivator linker = usagePoint.linkMeters();
+            info.meterActivations
+                    .stream()
+                    .filter(meterActivation -> meterActivation.meterRole != null && !Checks.is(meterActivation.meterRole.id).emptyOrOnlyWhiteSpace())
+                    .forEach(meterActivation -> {
+                        MeterRole meterRole = findMeterRoleOrThrowException(meterActivation.meterRole.id);
+                        linker.clear(meterRole);
+                        if (meterActivation.meter != null && !Checks.is(meterActivation.meter.name).emptyOrOnlyWhiteSpace()) {
+                            Meter meter = findMeterByNameOrThrowException(meterActivation.meter.name);
+                            linker.activate(meter, meterRole);
+                        }
+                    });
+            linker.complete();
+        }
+    }
     public List<UsagePointTransition> getAvailableTransitions(UsagePoint usagePoint) {
         return usagePointLifeCycleService.getAvailableTransitions(usagePoint.getState(), "INS");
     }
