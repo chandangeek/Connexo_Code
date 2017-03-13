@@ -27,6 +27,7 @@ Ext.define('Imt.rulesets.controller.AddPurposesToValidationRuleSet', {
     ],
 
     refs: [
+        {ref: 'page', selector: '#add-purposes-to-validation-rule-set'},
         {ref: 'previewPanel', selector: '#add-purposes-to-validation-rule-set #metrology-configuration-purpose-preview'}
     ],
 
@@ -67,6 +68,7 @@ Ext.define('Imt.rulesets.controller.AddPurposesToValidationRuleSet', {
                 ruleSetId: ruleSetId
             }));
             availableToAddPurposesStore.getProxy().setExtraParam('ruleSetId', ruleSetId);
+            me.getPage().down('#stepsMenu').setHeader(record.get('name'));
             availableToAddPurposesStore.load();
         }
 

@@ -29,6 +29,7 @@ Ext.define('Imt.rulesets.controller.ValidationRuleSetPurposes', {
     ],
 
     refs: [
+        {ref: 'page', selector: '#validation-rule-set-purposes'},
         {ref: 'previewPanel', selector: '#validation-rule-set-purposes #metrology-configuration-purpose-preview'}
     ],
 
@@ -76,6 +77,7 @@ Ext.define('Imt.rulesets.controller.ValidationRuleSetPurposes', {
                 adminPrivileges: Imt.privileges.MetrologyConfig.adminValidation,
                 ruleSetId: ruleSetId
             }));
+            me.getPage().down('#side-menu').setHeader(record.get('name'));
         }
 
         function loadCallback() {

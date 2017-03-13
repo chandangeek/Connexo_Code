@@ -29,6 +29,7 @@ Ext.define('Imt.rulesets.controller.EstimationRuleSetPurposes', {
     ],
 
     refs: [
+        {ref: 'page', selector: '#estimation-rule-set-purposes'},
         {ref: 'previewPanel', selector: '#estimation-rule-set-purposes #metrology-configuration-purpose-preview'}
     ],
 
@@ -76,6 +77,7 @@ Ext.define('Imt.rulesets.controller.EstimationRuleSetPurposes', {
                 adminPrivileges: Imt.privileges.MetrologyConfig.adminEstimation,
                 ruleSetId: ruleSetId
             }));
+            me.getPage().down('#side-menu').setHeader(record.get('name'));
         }
 
         function loadCallback() {
