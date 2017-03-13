@@ -27,6 +27,7 @@ import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartD
 import com.elster.jupiter.metering.config.UnsatisfiedMetrologyConfigurationEndDate;
 import com.elster.jupiter.metering.config.UnsatisfiedReadingTypeRequirements;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -362,7 +363,7 @@ public class UsagePointResource {
             usagePoint.update();
         } catch (UnsatisfiedReadingTypeRequirements ex) {
             throw new FormValidationException().addException("metrologyConfiguration",
-                    MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE.getDefaultFormat());
+                    com.elster.jupiter.metering.rest.impl.MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE.getDefaultFormat());
         } catch (UnsatisfiedMetrologyConfigurationEndDate ex) {
             throw new FormValidationException().addException("end", ex.getMessage());
         } catch (UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart | UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd ex) {
@@ -400,7 +401,7 @@ public class UsagePointResource {
             usagePoint.updateWithInterval(version, metrologyConfiguration, startTime, endTime);
         } catch (UnsatisfiedReadingTypeRequirements ex) {
             throw new FormValidationException().addException("metrologyConfiguration",
-                    MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE.getDefaultFormat());
+                    com.elster.jupiter.metering.rest.impl.MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE.getDefaultFormat());
         } catch (OverlapsOnMetrologyConfigurationVersionEnd | UnsatisfiedMerologyConfigurationEndDateInThePast | UnsatisfiedMetrologyConfigurationEndDate ex) {
             throw new FormValidationException().addException("end", ex.getMessage());
         } catch (OverlapsOnMetrologyConfigurationVersionStart ex) {
@@ -510,7 +511,7 @@ public class UsagePointResource {
             List<PropertyInfo> propertyInfos = Arrays.asList(editLocation.properties);
             for (PropertyInfo propertyInfo : propertyInfos) {
                 if (propertyInfo.required && ((propertyInfo.propertyValueInfo.value == null) || (propertyInfo.propertyValueInfo.value.toString().isEmpty()))) {
-                    validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.REQUIRED, "properties." + propertyInfo.key));
+                    validationBuilder.addValidationError(new LocalizedFieldValidationException(PrivateMessageSeeds.REQUIRED, "properties." + propertyInfo.key));
                 }
             }
         }
