@@ -68,7 +68,7 @@ public class UsagePointImportRecord extends FileImportRecord {
     private String transition;
     private Instant transitionDate;
     private Map<String, String> transitionAttributes;
-    private Map<RegisteredCustomPropertySet, CustomPropertySetRecord> customPropertySets;
+    private Map<String, CustomPropertySetRecord> customPropertySets;
 
     public UsagePointImportRecord() {
     }

@@ -195,6 +195,7 @@ enum OutOfTheBoxCategoryForImport {
                             usagePoint,
                             serviceProvider));
     }
+
     protected void addCalendar(OutOfTheBoxCategory category, String calendarName, Optional<Instant> usageStartTime, UsagePointImportRecord data, UsagePoint usagePoint, ServiceProvider serviceProvider) {
         Calendar calendar = serviceProvider.calendarService()
                 .findCalendarByName(calendarName)
