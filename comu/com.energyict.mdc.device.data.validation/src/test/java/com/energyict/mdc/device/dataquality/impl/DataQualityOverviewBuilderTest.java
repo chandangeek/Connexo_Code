@@ -167,7 +167,7 @@ public class DataQualityOverviewBuilderTest {
         // Business method
         DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
                 .forAllDevices()
-                .suspects()
+                .withSuspectsAmount()
                 .equalTo(10);
 
         // Asserts
@@ -181,7 +181,7 @@ public class DataQualityOverviewBuilderTest {
         // Business method
         DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
                 .forAllDevices()
-                .suspects()
+                .withSuspectsAmount()
                 .inRange(Range.atLeast(10L));
 
         // Asserts
@@ -195,7 +195,7 @@ public class DataQualityOverviewBuilderTest {
         // Business method
         DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
                 .forAllDevices()
-                .estimates()
+                .withEstimatesAmount()
                 .equalTo(10);
 
         // Asserts
@@ -209,7 +209,7 @@ public class DataQualityOverviewBuilderTest {
         // Business method
         DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
                 .forAllDevices()
-                .estimates()
+                .withEstimatesAmount()
                 .inRange(Range.atLeast(10L));
 
         // Asserts
@@ -223,7 +223,7 @@ public class DataQualityOverviewBuilderTest {
         // Business method
         DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
                 .forAllDevices()
-                .edited()
+                .withEditedAmount()
                 .equalTo(10);
 
         // Asserts
@@ -237,7 +237,7 @@ public class DataQualityOverviewBuilderTest {
         // Business method
         DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
                 .forAllDevices()
-                .edited()
+                .withEditedAmount()
                 .inRange(Range.atLeast(10L));
 
         // Asserts
@@ -251,7 +251,7 @@ public class DataQualityOverviewBuilderTest {
         // Business method
         DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
                 .forAllDevices()
-                .confirmed()
+                .withConfirmedAmount()
                 .equalTo(10);
 
         // Asserts
@@ -265,7 +265,7 @@ public class DataQualityOverviewBuilderTest {
         // Business method
         DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
                 .forAllDevices()
-                .confirmed()
+                .withConfirmedAmount()
                 .inRange(Range.atLeast(10L));
 
         // Asserts
@@ -279,7 +279,7 @@ public class DataQualityOverviewBuilderTest {
         // Business method
         DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
                 .forAllDevices()
-                .informatives()
+                .withInformativesAmount()
                 .equalTo(10);
 
         // Asserts
@@ -293,7 +293,7 @@ public class DataQualityOverviewBuilderTest {
         // Business method
         DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
                 .forAllDevices()
-                .informatives()
+                .withInformativesAmount()
                 .inRange(Range.atLeast(10L));
 
         // Asserts
