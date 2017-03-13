@@ -485,7 +485,9 @@ public class RegisterResource {
     }
 
     private ValidationStatusInfo determineStatus(Register<?, ?> register) {
-        return new ValidationStatusInfo(isValidationActive(register), register.getDevice().forValidation().getLastChecked(register), hasData(register));
+        return new ValidationStatusInfo(isValidationActive(register),
+                register.getDevice().forValidation().getLastChecked(register).orElse(null),
+                hasData(register));
     }
 
     private boolean isValidationActive(Register<?, ?> register) {
