@@ -49,7 +49,7 @@ public class MetrologyConfigurationInfoFactory {
                 .collect(Collectors.toList());
         info.usagePointRequirements = metrologyConfiguration.getUsagePointRequirements()
                 .stream()
-                .map(requirement -> SearchCriteriaVisualizationInfo.from(requirement.getSearchableProperty(), requirement.toValueBean()))
+                .map(requirement -> new SearchCriteriaVisualizationInfo(requirement.getSearchableProperty(), requirement.toValueBean()))
                 .collect(Collectors.toList());
         return info;
     }
