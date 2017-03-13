@@ -166,7 +166,9 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_SHIPMENT_DATE(2140, Keys.INVALID_SHIPMENT_DATE, "The shipment date ({0}) should be between {1} and {2}"),
     DUPLICATE_DEVICE_NAME(2141, Keys.DUPLICATE_DEVICE_NAME, "Name must be unique"),
     MULTIPLE_COMSCHEDULES_WITH_SAME_COMTASK(2142, Keys.MULTIPLE_COMSCHEDULES_WITH_SAME_COMTASK, "You can not set a ComSchedule on the device because it already contains a ComTask which is linked to another ComSchedule"),
-    GROUP_IS_USED_BY_ANOTHER_GROUP(2143, Keys.GROUP_IS_USED_BY_ANOTHER_GROUP, "The group is used by another group")
+    GROUP_IS_USED_BY_ANOTHER_GROUP(2143, Keys.GROUP_IS_USED_BY_ANOTHER_GROUP, "The group is used by another group"),
+    CANNOT_CHANGE_CONFIG_MULTI_ELEMENT_SUBMETER(2144, Keys.CANNOT_CHANGE_CONFIG_MULTI_ELEMENT_SUBMETER, "You cannot change the configuration of a multi-element submeter"),
+    CANNOT_CHANGE_CONFIG_FROM_MULTI_ELEMENT_ENABLED(2145, Keys.CANNOT_CHANGE_CONFIG_FROM_MULTI_ELEMENT_ENABLED,  "You cannot change the configuration of a multi-element enabled device" )
     ;
     private final int number;
     private final String key;
@@ -352,6 +354,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALID_SHIPMENT_DATE = "InvalidShipmentDate";
         public static final String MULTIPLE_COMSCHEDULES_WITH_SAME_COMTASK = "multiple.comschedules.with.same.comtask";
         public static final String GROUP_IS_USED_BY_ANOTHER_GROUP = "group.is.used.by.another.group";
-
+        public static final String CANNOT_CHANGE_CONFIG_MULTI_ELEMENT_SUBMETER = "device.config.change.not.on.multi.element.submeter";
+        public static final String CANNOT_CHANGE_CONFIG_FROM_MULTI_ELEMENT_ENABLED = "device.config.change.not.from.multi.element.enabled.device";
     }
 }

@@ -104,6 +104,14 @@ public class DeviceConfigurationChangeException extends LocalizedException imple
         return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.CANNOT_CHANGE_CONFIG_TO_DATALOGGER_ENABLED);
     }
 
+    public static DeviceConfigurationChangeException cannotChangeConfigOfMultiElementSubmeterDevice(Thesaurus thesaurus) {
+        return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.CANNOT_CHANGE_CONFIG_MULTI_ELEMENT_SUBMETER);
+    }
+
+    public static DeviceConfigurationChangeException cannotChangeConfigOfMultiElementEnabledDevice(Thesaurus thesaurus) {
+        return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.CANNOT_CHANGE_CONFIG_FROM_MULTI_ELEMENT_ENABLED);
+    }
+
     @Override
     public DeviceConfigurationChangeException get() {
         return this;
