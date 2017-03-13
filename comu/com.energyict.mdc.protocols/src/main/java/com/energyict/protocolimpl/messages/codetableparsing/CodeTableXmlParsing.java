@@ -22,6 +22,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
+import java.time.Year;
 import java.time.ZoneId;
 import java.time.format.TextStyle;
 import java.util.List;
@@ -132,7 +133,7 @@ public class CodeTableXmlParsing {
                      Use the interval of the best match. */
             root.appendChild(createSingleElement(document, codeTableInterval, Integer.toString(900)));
             root.appendChild(createSingleElement(document, codeTableFromYear, Integer.toString(calendar.getStartYear().getValue())));
-            root.appendChild(createSingleElement(document, codeTableToYear, Integer.toString(calendar.getEndYear().getValue())));
+            root.appendChild(createSingleElement(document, codeTableToYear, Integer.toString(calendar.getEndYear().map(Year::getValue).orElse(2050))));
             root.appendChild(createSingleElement(document, codeTableSeasonSetId, "0"));
             root.appendChild(createSingleElement(document, rootPassiveCalendarActivationTime, String.valueOf(activationTime)));
 

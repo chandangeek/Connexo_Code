@@ -12,6 +12,7 @@ import org.w3c.dom.Element;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.time.Year;
 import java.time.ZoneId;
 import java.time.format.TextStyle;
 import java.util.Locale;
@@ -58,7 +59,7 @@ public class CodeTableXml extends CodeTableXmlParsing {
                      Use the interval of the best match. */
             root.appendChild(createSingleElement(document, codeTableInterval, Integer.toString(900)));
             root.appendChild(createSingleElement(document, codeTableFromYear, Integer.toString(calendar.getStartYear().getValue())));
-            root.appendChild(createSingleElement(document, codeTableToYear, Integer.toString(calendar.getEndYear().getValue())));
+            root.appendChild(createSingleElement(document, codeTableToYear, Integer.toString(calendar.getEndYear().map(Year::getValue).orElse(2050))));
             root.appendChild(createSingleElement(document, codeTableSeasonSetId, "0"));
             root.appendChild(createSingleElement(document, rootPassiveCalendarActivationTime, String.valueOf(activationTime)));
 

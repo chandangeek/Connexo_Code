@@ -7,6 +7,7 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 import com.elster.jupiter.calendar.Calendar;
 
 import java.io.Serializable;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,7 +36,7 @@ public class CodeObject implements Serializable {
         co.setName(calendar.getName());
         co.setExternalName(null);
         co.setYearFrom(calendar.getStartYear().getValue());
-        co.setYearTo(calendar.getEndYear().getValue());
+        co.setYearTo(calendar.getEndYear().map(Year::getValue).orElse(2050));
         co.setInterval(900);
         co.setVerified(true);
         co.setRebuilt(true);
