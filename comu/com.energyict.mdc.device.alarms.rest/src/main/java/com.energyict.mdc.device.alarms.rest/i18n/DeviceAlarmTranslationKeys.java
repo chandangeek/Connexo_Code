@@ -9,9 +9,9 @@ import com.elster.jupiter.nls.TranslationKey;
 
 public enum DeviceAlarmTranslationKeys implements TranslationKey {
 
-    ALARM_ACTION_PHASE_CREATE("DeviceAlarmActionPhaseCreation", "Alarm creation"),
-    ALARM_ACTION_PHASE_OVERDUE("DeviceAlarmActionPhaseOverdue", "Alarm overdue"),
-    ALARM_ACTION_PHASE_CREATE_DESCRIPTION("DeviceAlarmActionPhaseCreationDescription", "The action will be performed at the alarm creation time"),
+    ALARM_ACTION_PHASE_CREATE("DeviceAlarmActionPhaseCreation", "At creation time"),
+    ALARM_ACTION_PHASE_OVERDUE("DeviceAlarmActionPhaseOverdue", "At overdue time"),
+    ALARM_ACTION_PHASE_CREATE_DESCRIPTION("DeviceAlarmActionPhaseCreationDescription", "The action will be performed when the alarm is created"),
     ALARM_ACTION_PHASE_OVERDUE_DESCRIPTION("DeviceAlarmActionPhaseOverdueDescription", "The action will be performed when the alarm becomes overdue"),
     ALARM_ASSIGNEE_UNASSIGNED ("AlarmAssigneeUnassigned", "Unassigned"),
     ALARM_DOES_NOT_EXIT("AlarmDoesNotExist", "Alarm doesn't exist"),
