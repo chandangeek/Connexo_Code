@@ -248,7 +248,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
             timeout = setTimeout(function () {
                 viewport.setLoading(false);
                 me.getApplication().fireEvent('acknowledge',
-                    Uni.I18n.translate('deviceloadprofiles.channels.activation.putToBackground', 'MDC', 'The data validation takes longer as expected and will continue in the background.'));
+                    Uni.I18n.translate('device.dataValidation.timeout.message', 'MDC', 'Data validation takes longer than expected and will continue in the background.'));
             }, 180000);
         }
     },

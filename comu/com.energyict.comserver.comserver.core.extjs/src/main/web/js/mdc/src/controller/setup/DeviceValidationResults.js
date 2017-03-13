@@ -326,7 +326,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                     }).show({
                             ui: 'notification-error',
                             title: Uni.I18n.translate('device.dataValidation.timeout.title1', 'MDC', 'Data validation takes longer than expected'),
-                            msg: Uni.I18n.translate('device.dataValidation.timeout.msg1', 'MDC', 'Data validation takes longer than expected. Data validation will continue in the background.'),
+                            msg: Uni.I18n.translate('device.dataValidation.timeout.message', 'MDC', 'Data validation takes longer than expected and will continue in the background.'),
                             icon: Ext.MessageBox.ERROR
                         });
                 }
