@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.readings.ReadingQuality;
@@ -97,7 +98,9 @@ public class OutputRegisterDataInfoFactory {
                     .system()
                     .map(ReadingModificationFlag::getApplicationInfo)
                     .orElse(null);
-            info.modificationDate = modificationFlag.getLast().getTimestamp();
+            if(modificationFlag.getLast() instanceof ReadingQualityRecord){
+                info.modificationDate = ((ReadingQualityRecord)modificationFlag.getLast()).getTimestamp();
+            }
         });
     }
 
