@@ -369,22 +369,22 @@ public class PKIServiceImplIT {
     @Transactional
     public void testCreateClientCertificate() throws Exception {
         KeyType privateKeyType = inMemoryPersistence.getPkiService()
-                .newAsymmetricKeyType("secp256r1")
+                .newAsymmetricKeyType("secp256r1-CC")
                 .description("check")
                 .ECDSA()
                 .curve("secp256r1")
                 .add();
-        KeyType certificateType = inMemoryPersistence.getPkiService().newClientCertificateType("TLS", "SHA256withECDSA").add();
+        KeyType certificateType = inMemoryPersistence.getPkiService().newClientCertificateType("TLS-CC", "SHA256withECDSA").add();
         KeyAccessorType certificateAccessorType = mock(KeyAccessorType.class);
         when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
         KeyAccessorType privateKeyAccessorType = mock(KeyAccessorType.class);
         when(privateKeyAccessorType.getKeyType()).thenReturn(privateKeyType);
         when(privateKeyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
         ClientCertificateWrapper comserver = inMemoryPersistence.getPkiService()
-                .newClientCertificateWrapper("comserver", certificateAccessorType, privateKeyAccessorType);
+                .newClientCertificateWrapper("comserver-cc", certificateAccessorType, privateKeyAccessorType);
 
         Optional<ClientCertificateWrapper> comserver1 = inMemoryPersistence.getPkiService()
-                .findClientCertificateWrapper("comserver");
+                .findClientCertificateWrapper("comserver-cc");
         assertThat(comserver1).isPresent();
     }
 
@@ -397,7 +397,7 @@ public class PKIServiceImplIT {
                 .ECDSA()
                 .curve("secp256r1")
                 .add();
-        KeyType certificateType = inMemoryPersistence.getPkiService().newClientCertificateType("TLS", "SHA256withECDSA").add();
+        KeyType certificateType = inMemoryPersistence.getPkiService().newClientCertificateType("TLS-EC", "SHA256withECDSA").add();
         KeyAccessorType certificateAccessorType = mock(KeyAccessorType.class);
         when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
         KeyAccessorType privateKeyAccessorType = mock(KeyAccessorType.class);
@@ -428,17 +428,17 @@ public class PKIServiceImplIT {
     @Transactional
     public void testCreateCsrForRSAKey() throws Exception {
         KeyType privateKeyType = inMemoryPersistence.getPkiService()
-                .newSymmetricKeyType("AES-128", "RSA", 1024)
+                .newSymmetricKeyType("AES-128-RSA", "RSA", 1024)
                 .description("check")
                 .add();
-        KeyType certificateType = inMemoryPersistence.getPkiService().newClientCertificateType("TLS", "SHA256withRSA").add();
+        KeyType certificateType = inMemoryPersistence.getPkiService().newClientCertificateType("TLS-RSA", "SHA256withRSA").add();
         KeyAccessorType certificateAccessorType = mock(KeyAccessorType.class);
         when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
         KeyAccessorType privateKeyAccessorType = mock(KeyAccessorType.class);
         when(privateKeyAccessorType.getKeyType()).thenReturn(privateKeyType);
         when(privateKeyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
 
-        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper("comserver", certificateAccessorType, privateKeyAccessorType);
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper("comserver-rsa", certificateAccessorType, privateKeyAccessorType);
         clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
 
         X500NameBuilder x500NameBuilder = new X500NameBuilder();
@@ -462,17 +462,17 @@ public class PKIServiceImplIT {
     @Transactional
     public void testCreateCsrForDSAKey() throws Exception {
         KeyType privateKeyType = inMemoryPersistence.getPkiService()
-                .newSymmetricKeyType("AES-128", "DSA", 512)
+                .newSymmetricKeyType("AES-128-DSA", "DSA", 512)
                 .description("shorty")
                 .add();
-        KeyType certificateType = inMemoryPersistence.getPkiService().newClientCertificateType("TLS", "SHA256withDSA").add();
+        KeyType certificateType = inMemoryPersistence.getPkiService().newClientCertificateType("TLS-DSA", "SHA256withDSA").add();
         KeyAccessorType certificateAccessorType = mock(KeyAccessorType.class);
         when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
         KeyAccessorType privateKeyAccessorType = mock(KeyAccessorType.class);
         when(privateKeyAccessorType.getKeyType()).thenReturn(privateKeyType);
         when(privateKeyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
 
-        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper("comserver", certificateAccessorType, privateKeyAccessorType);
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper("comserver-dsa", certificateAccessorType, privateKeyAccessorType);
         clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
 
         X500NameBuilder x500NameBuilder = new X500NameBuilder();
