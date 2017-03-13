@@ -959,7 +959,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     @Test
     @Transactional
     public void addKeyAccessorType() throws Exception {
-        inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128", "AES", 128);
+        inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128", "AES", 128).add();
 
         Optional<KeyType> aes128 = inMemoryPersistence.getPkiService().getKeyType("AES128");
         assertThat(deviceType.getKeyAccessorTypes()).isEmpty();
@@ -970,6 +970,44 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(deviceType.getKeyAccessorTypes().get(0).getName()).isEqualTo("GUAK");
         assertThat(deviceType.getKeyAccessorTypes().get(0).getKeyEncryptionMethod()).isEqualTo("SSM");
         assertThat(deviceType.getKeyAccessorTypes().get(0).getKeyType().getName()).isEqualTo("AES128");
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.FIELD_IS_REQUIRED+"}", property = "keyEncryptionMethod")
+    public void addKeyAccessorTypeWithoutKeyEncryptionMethod() throws Exception {
+        inMemoryPersistence.getPkiService().newSymmetricKeyType("AES256", "AES", 256).add();
+
+        Optional<KeyType> aes128 = inMemoryPersistence.getPkiService().getKeyType("AES256");
+        assertThat(deviceType.getKeyAccessorTypes()).isEmpty();
+        this.deviceType.addKeyAccessorType("GUAK", aes128.get()).description("general use AK").duration(TimeDuration.days(365)).add();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.FIELD_IS_REQUIRED+"}", property = "duration")
+    public void addKeyAccessorTypeWithoutDuration() throws Exception {
+        inMemoryPersistence.getPkiService().newSymmetricKeyType("AES256", "AES", 256).add();
+
+        Optional<KeyType> aes128 = inMemoryPersistence.getPkiService().getKeyType("AES256");
+        assertThat(deviceType.getKeyAccessorTypes()).isEmpty();
+        this.deviceType.addKeyAccessorType("GUAK", aes128.get()).description("general use AK").keyEncryptionMethod("DataVault").add();
+    }
+
+    @Test
+    @Transactional
+    public void addCertificateAccessorType() throws Exception {
+        inMemoryPersistence.getPkiService().newCertificateType("Friends").add();
+
+        Optional<KeyType> certs = inMemoryPersistence.getPkiService().getKeyType("Friends");
+        assertThat(deviceType.getKeyAccessorTypes()).isEmpty();
+        this.deviceType.addKeyAccessorType("TLS", certs.get()).description("just certificates").add();
+        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService()
+                .findDeviceType(this.deviceType.getId()).get();
+        assertThat(deviceType.getKeyAccessorTypes()).hasSize(1);
+        assertThat(deviceType.getKeyAccessorTypes().get(0).getName()).isEqualTo("TLS");
+        assertThat(deviceType.getKeyAccessorTypes().get(0).getKeyEncryptionMethod()).isNull();
+        assertThat(deviceType.getKeyAccessorTypes().get(0).getKeyType().getName()).isEqualTo("Friends");
     }
 
     private void setupLogBookTypesInExistingTransaction(String logBookTypeBaseName) {

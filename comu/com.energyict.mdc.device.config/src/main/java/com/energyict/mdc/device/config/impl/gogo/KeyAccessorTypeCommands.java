@@ -31,7 +31,8 @@ import static java.util.stream.Collectors.toList;
         property = {
                 "osgi.command.scope=kat",
                 "osgi.command.function=keyAccessorTypes",
-                "osgi.command.function=createKeyAccessorType"
+                "osgi.command.function=createKeyAccessorType",
+                "osgi.command.function=createCertificateAccessorType"
         },
         immediate = true)
 public class KeyAccessorTypeCommands {
@@ -79,7 +80,7 @@ public class KeyAccessorTypeCommands {
     }
 
     public void createKeyAccessorType() {
-        System.out.println("Usage: createKeyAccessorTypes <name> <device type id> <key type name> <encryption method> [duration in days]");
+        System.out.println("Usage: createKeyAccessorTypes <name> <device type id> <key type name> <encryption method> <duration in days>");
         System.out.println("Eg.  : createKeyAccessorTypes GUAK 153 AES128 SSM 365");
     }
 
@@ -93,10 +94,28 @@ public class KeyAccessorTypeCommands {
                     .orElseThrow(() -> new RuntimeException("No such key type"));
             KeyAccessorType.Builder builder = deviceType.addKeyAccessorType(name, keyType)
                     .keyEncryptionMethod(keyEncryptionMethod)
+                    .description("Created by gogo command")
+                    .duration(TimeDuration.days(duration[0]));
+            builder.add();
+            context.commit();
+        }
+    }
+
+    public void createCertificateAccessorType() {
+        System.out.println("Usage: createCertificateAccessorTypes <name> <device type id> <key type name>");
+        System.out.println("Eg.  : createCertificateAccessorTypes TLS 153 TLSClient");
+    }
+
+    public void createCertificateAccessorType(String name, long deviceTypeId, String keyTypeName) {
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            DeviceType deviceType = deviceConfigurationService.findDeviceType(deviceTypeId)
+                    .orElseThrow(() -> new RuntimeException("No such device type"));
+            KeyType keyType = pkiService.getKeyType(keyTypeName)
+                    .orElseThrow(() -> new RuntimeException("No such key type"));
+            KeyAccessorType.Builder builder = deviceType.addKeyAccessorType(name, keyType)
                     .description("Created by gogo command");
-            if (duration != null && duration.length >= 1) {
-                builder.duration(TimeDuration.days(duration[0]));
-            }
             builder.add();
             context.commit();
         }
