@@ -181,7 +181,7 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>slp</artifactId>
+            <artifactId>slp.importers</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
