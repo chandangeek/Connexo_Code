@@ -91,11 +91,11 @@ public class DataQualityOverviewFilterTest {
         resourceHelper = new ResourceHelper(meteringGroupsService, deviceConfigurationService,
                 validationService, estimationService, new ExceptionFactory(NlsModule.FakeThesaurus.INSTANCE));
 
-        when(overviewBuilder.suspects()).thenReturn(metricSpecificationBuilder);
-        when(overviewBuilder.confirmed()).thenReturn(metricSpecificationBuilder);
-        when(overviewBuilder.edited()).thenReturn(metricSpecificationBuilder);
-        when(overviewBuilder.estimates()).thenReturn(metricSpecificationBuilder);
-        when(overviewBuilder.informatives()).thenReturn(metricSpecificationBuilder);
+        when(overviewBuilder.withSuspectsAmount()).thenReturn(metricSpecificationBuilder);
+        when(overviewBuilder.withConfirmedAmount()).thenReturn(metricSpecificationBuilder);
+        when(overviewBuilder.withEditedAmount()).thenReturn(metricSpecificationBuilder);
+        when(overviewBuilder.withEstimatesAmount()).thenReturn(metricSpecificationBuilder);
+        when(overviewBuilder.withInformativesAmount()).thenReturn(metricSpecificationBuilder);
 
         // mock device groups
         when(meteringGroupsService.findEndDeviceGroup(anyInt())).thenReturn(Optional.empty());
@@ -218,6 +218,37 @@ public class DataQualityOverviewFilterTest {
     }
 
     @Test
+    public void periodFilterOnlyFromSpecified() throws Exception {
+        Instant from = Instant.now();
+        String filter = ExtjsFilter.filter()
+                .property("from", from.toEpochMilli())
+                .create();
+        JsonQueryFilter jsonQueryFilter = jsonQueryFilter(filter);
+
+        // Business method
+        DataQualityOverviewFilter.PERIOD.apply(jsonQueryFilter, overviewBuilder, resourceHelper);
+
+        // Asserts
+        verify(overviewBuilder).in(Range.atLeast(from));
+    }
+
+
+    @Test
+    public void periodFilterOnlyToSpecified() throws Exception {
+        Instant to = Instant.now();
+        String filter = ExtjsFilter.filter()
+                .property("to", to.toEpochMilli())
+                .create();
+        JsonQueryFilter jsonQueryFilter = jsonQueryFilter(filter);
+
+        // Business method
+        DataQualityOverviewFilter.PERIOD.apply(jsonQueryFilter, overviewBuilder, resourceHelper);
+
+        // Asserts
+        verify(overviewBuilder).in(Range.atMost(to));
+    }
+
+    @Test
     public void readingQualityFilter() throws Exception {
         String filter = ExtjsFilter.filter("readingQuality", Arrays.asList("suspects", "confirmed", "estimates", "informatives", "edited"));
         JsonQueryFilter jsonQueryFilter = jsonQueryFilter(filter);
@@ -336,27 +367,27 @@ public class DataQualityOverviewFilterTest {
 
     @Test
     public void amountOfSuspectsEqualToFilter() throws Exception {
-        applyAmountEqualsToFilter(DataQualityOverviewFilter.AMOUNT_OF_SUSPECTS, overviewBuilder::suspects);
+        applyAmountEqualsToFilter(DataQualityOverviewFilter.AMOUNT_OF_SUSPECTS, overviewBuilder::withSuspectsAmount);
     }
 
     @Test
     public void amountOfConfirmedEqualToFilter() throws Exception {
-        applyAmountEqualsToFilter(DataQualityOverviewFilter.AMOUNT_OF_CONFIRMED, overviewBuilder::confirmed);
+        applyAmountEqualsToFilter(DataQualityOverviewFilter.AMOUNT_OF_CONFIRMED, overviewBuilder::withConfirmedAmount);
     }
 
     @Test
     public void amountOfEstimatesEqualToFilter() throws Exception {
-        applyAmountEqualsToFilter(DataQualityOverviewFilter.AMOUNT_OF_ESTIMATES, overviewBuilder::estimates);
+        applyAmountEqualsToFilter(DataQualityOverviewFilter.AMOUNT_OF_ESTIMATES, overviewBuilder::withEstimatesAmount);
     }
 
     @Test
     public void amountOfInformativesEqualToFilter() throws Exception {
-        applyAmountEqualsToFilter(DataQualityOverviewFilter.AMOUNT_OF_INFORMATIVES, overviewBuilder::informatives);
+        applyAmountEqualsToFilter(DataQualityOverviewFilter.AMOUNT_OF_INFORMATIVES, overviewBuilder::withInformativesAmount);
     }
 
     @Test
     public void amountOfEditedEqualToFilter() throws Exception {
-        applyAmountEqualsToFilter(DataQualityOverviewFilter.AMOUNT_OF_EDITED, overviewBuilder::edited);
+        applyAmountEqualsToFilter(DataQualityOverviewFilter.AMOUNT_OF_EDITED, overviewBuilder::withEditedAmount);
     }
 
     private void applyAmountEqualsToFilter(DataQualityOverviewFilter amountFilter, Runnable assertion) throws Exception {
@@ -373,27 +404,27 @@ public class DataQualityOverviewFilterTest {
 
     @Test
     public void amountOfSuspectsGreaterThanFilter() throws Exception {
-        applyAmountGreaterThanFilter(DataQualityOverviewFilter.AMOUNT_OF_SUSPECTS, overviewBuilder::suspects);
+        applyAmountGreaterThanFilter(DataQualityOverviewFilter.AMOUNT_OF_SUSPECTS, overviewBuilder::withSuspectsAmount);
     }
 
     @Test
     public void amountOfConfirmedGreaterThanFilter() throws Exception {
-        applyAmountGreaterThanFilter(DataQualityOverviewFilter.AMOUNT_OF_CONFIRMED, overviewBuilder::confirmed);
+        applyAmountGreaterThanFilter(DataQualityOverviewFilter.AMOUNT_OF_CONFIRMED, overviewBuilder::withConfirmedAmount);
     }
 
     @Test
     public void amountOfEstimatesGreaterThanFilter() throws Exception {
-        applyAmountGreaterThanFilter(DataQualityOverviewFilter.AMOUNT_OF_ESTIMATES, overviewBuilder::estimates);
+        applyAmountGreaterThanFilter(DataQualityOverviewFilter.AMOUNT_OF_ESTIMATES, overviewBuilder::withEstimatesAmount);
     }
 
     @Test
     public void amountOfInformativesGreaterThanFilter() throws Exception {
-        applyAmountGreaterThanFilter(DataQualityOverviewFilter.AMOUNT_OF_INFORMATIVES, overviewBuilder::informatives);
+        applyAmountGreaterThanFilter(DataQualityOverviewFilter.AMOUNT_OF_INFORMATIVES, overviewBuilder::withInformativesAmount);
     }
 
     @Test
     public void amountOfEditedGreaterThanFilter() throws Exception {
-        applyAmountGreaterThanFilter(DataQualityOverviewFilter.AMOUNT_OF_EDITED, overviewBuilder::edited);
+        applyAmountGreaterThanFilter(DataQualityOverviewFilter.AMOUNT_OF_EDITED, overviewBuilder::withEditedAmount);
     }
 
     private void applyAmountGreaterThanFilter(DataQualityOverviewFilter amountFilter, Runnable assertion) throws Exception {
@@ -410,27 +441,27 @@ public class DataQualityOverviewFilterTest {
 
     @Test
     public void amountOfSuspectsLessThanFilter() throws Exception {
-        applyAmountLessThanFilter(DataQualityOverviewFilter.AMOUNT_OF_SUSPECTS, overviewBuilder::suspects);
+        applyAmountLessThanFilter(DataQualityOverviewFilter.AMOUNT_OF_SUSPECTS, overviewBuilder::withSuspectsAmount);
     }
 
     @Test
     public void amountOfConfirmedLessThanFilter() throws Exception {
-        applyAmountLessThanFilter(DataQualityOverviewFilter.AMOUNT_OF_CONFIRMED, overviewBuilder::confirmed);
+        applyAmountLessThanFilter(DataQualityOverviewFilter.AMOUNT_OF_CONFIRMED, overviewBuilder::withConfirmedAmount);
     }
 
     @Test
     public void amountOfEstimatesLessThanFilter() throws Exception {
-        applyAmountLessThanFilter(DataQualityOverviewFilter.AMOUNT_OF_ESTIMATES, overviewBuilder::estimates);
+        applyAmountLessThanFilter(DataQualityOverviewFilter.AMOUNT_OF_ESTIMATES, overviewBuilder::withEstimatesAmount);
     }
 
     @Test
     public void amountOfInformativesLessThanFilter() throws Exception {
-        applyAmountLessThanFilter(DataQualityOverviewFilter.AMOUNT_OF_INFORMATIVES, overviewBuilder::informatives);
+        applyAmountLessThanFilter(DataQualityOverviewFilter.AMOUNT_OF_INFORMATIVES, overviewBuilder::withInformativesAmount);
     }
 
     @Test
     public void amountOfEditedLessThanFilter() throws Exception {
-        applyAmountLessThanFilter(DataQualityOverviewFilter.AMOUNT_OF_EDITED, overviewBuilder::edited);
+        applyAmountLessThanFilter(DataQualityOverviewFilter.AMOUNT_OF_EDITED, overviewBuilder::withEditedAmount);
     }
 
     private void applyAmountLessThanFilter(DataQualityOverviewFilter amountFilter, Runnable assertion) throws Exception {
@@ -447,27 +478,27 @@ public class DataQualityOverviewFilterTest {
 
     @Test
     public void amountOfSuspectsBetweenFilter() throws Exception {
-        applyAmountBetweenFilter(DataQualityOverviewFilter.AMOUNT_OF_SUSPECTS, overviewBuilder::suspects);
+        applyAmountBetweenFilter(DataQualityOverviewFilter.AMOUNT_OF_SUSPECTS, overviewBuilder::withSuspectsAmount);
     }
 
     @Test
     public void amountOfConfirmedBetweenFilter() throws Exception {
-        applyAmountBetweenFilter(DataQualityOverviewFilter.AMOUNT_OF_CONFIRMED, overviewBuilder::confirmed);
+        applyAmountBetweenFilter(DataQualityOverviewFilter.AMOUNT_OF_CONFIRMED, overviewBuilder::withConfirmedAmount);
     }
 
     @Test
     public void amountOfEstimatesBetweenFilter() throws Exception {
-        applyAmountBetweenFilter(DataQualityOverviewFilter.AMOUNT_OF_ESTIMATES, overviewBuilder::estimates);
+        applyAmountBetweenFilter(DataQualityOverviewFilter.AMOUNT_OF_ESTIMATES, overviewBuilder::withEstimatesAmount);
     }
 
     @Test
     public void amountOfInformativesBetweenFilter() throws Exception {
-        applyAmountBetweenFilter(DataQualityOverviewFilter.AMOUNT_OF_INFORMATIVES, overviewBuilder::informatives);
+        applyAmountBetweenFilter(DataQualityOverviewFilter.AMOUNT_OF_INFORMATIVES, overviewBuilder::withInformativesAmount);
     }
 
     @Test
     public void amountOfEditedBetweenFilter() throws Exception {
-        applyAmountBetweenFilter(DataQualityOverviewFilter.AMOUNT_OF_EDITED, overviewBuilder::edited);
+        applyAmountBetweenFilter(DataQualityOverviewFilter.AMOUNT_OF_EDITED, overviewBuilder::withEditedAmount);
     }
 
     private void applyAmountBetweenFilter(DataQualityOverviewFilter amountFilter, Runnable assertion) throws Exception {
@@ -478,7 +509,7 @@ public class DataQualityOverviewFilterTest {
         amountFilter.applyIfPresent(jsonQueryFilter, overviewBuilder, resourceHelper);
 
         // Asserts
-        verify(metricSpecificationBuilder).inRange(Range.closed(10L, 100L));
+        verify(metricSpecificationBuilder).inRange(Range.open(10L, 100L));
         assertion.run();
     }
 

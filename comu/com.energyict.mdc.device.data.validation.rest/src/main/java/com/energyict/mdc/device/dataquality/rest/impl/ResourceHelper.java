@@ -17,6 +17,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 
 import javax.inject.Inject;
+import java.util.function.Supplier;
 
 public class ResourceHelper {
 
@@ -39,26 +40,30 @@ public class ResourceHelper {
 
     public EndDeviceGroup findEndDeviceGroupOrThrowException(long endDeviceGroupId) {
         return meteringGroupsService.findEndDeviceGroup(endDeviceGroupId)
-                .orElseThrow(() -> newException(MessageSeeds.NO_SUCH_DEVICE_GROUP, endDeviceGroupId));
+                .orElseThrow(newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_GROUP, endDeviceGroupId));
     }
 
     public DeviceType findDeviceTypeOrThrowException(long deviceTypeId) {
         return deviceConfigurationService.findDeviceType(deviceTypeId)
-                .orElseThrow(() -> newException(MessageSeeds.NO_SUCH_DEVICE_TYPE, deviceTypeId));
+                .orElseThrow(newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_TYPE, deviceTypeId));
     }
 
     public Validator findValidatorOrThrowException(String implementation) {
         return validationService.getAvailableValidators(QualityCodeSystem.MDC).stream()
                 .filter(validator -> validator.getClass().getName().equals(implementation))
                 .findAny()
-                .orElseThrow(() -> newException(MessageSeeds.NO_SUCH_VALIDATOR, implementation));
+                .orElseThrow(newExceptionSupplier(MessageSeeds.NO_SUCH_VALIDATOR, implementation));
     }
 
     public Estimator findEstimatorOrThrowException(String implementation) {
         return estimationService.getAvailableEstimators(QualityCodeSystem.MDC).stream()
                 .filter(estimator -> estimator.getClass().getName().equals(implementation))
                 .findAny()
-                .orElseThrow(() -> newException(MessageSeeds.NO_SUCH_ESTIMATOR, implementation));
+                .orElseThrow(newExceptionSupplier(MessageSeeds.NO_SUCH_ESTIMATOR, implementation));
+    }
+
+    public Supplier<LocalizedException> newExceptionSupplier(MessageSeeds messageSeed, Object... args) {
+        return () -> newException(messageSeed, args);
     }
 
     public LocalizedException newException(MessageSeeds messageSeed, Object... args) {

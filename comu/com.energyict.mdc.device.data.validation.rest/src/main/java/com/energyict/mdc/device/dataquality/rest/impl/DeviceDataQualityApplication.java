@@ -96,7 +96,7 @@ public class DeviceDataQualityApplication extends Application implements Message
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
     }
 
-    @org.osgi.service.component.annotations.Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
+    @Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
     public void setLicense(License license) {
         this.license = license;
     }

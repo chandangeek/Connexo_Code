@@ -125,31 +125,31 @@ public enum DataQualityOverviewFilter {
     AMOUNT_OF_SUSPECTS("amountOfSuspects") {
         @Override
         void apply(JsonQueryFilter filter, DataQualityOverviewBuilder overviewBuilder, ResourceHelper resourceHelper) {
-            super.applyFilterWithOperator(filter, overviewBuilder::suspects, resourceHelper);
+            super.applyFilterWithOperator(filter, overviewBuilder::withSuspectsAmount, resourceHelper);
         }
     },
     AMOUNT_OF_CONFIRMED("amountOfConfirmed") {
         @Override
         void apply(JsonQueryFilter filter, DataQualityOverviewBuilder overviewBuilder, ResourceHelper resourceHelper) {
-            super.applyFilterWithOperator(filter, overviewBuilder::confirmed, resourceHelper);
+            super.applyFilterWithOperator(filter, overviewBuilder::withConfirmedAmount, resourceHelper);
         }
     },
     AMOUNT_OF_ESTIMATES("amountOfEstimates") {
         @Override
         void apply(JsonQueryFilter filter, DataQualityOverviewBuilder overviewBuilder, ResourceHelper resourceHelper) {
-            super.applyFilterWithOperator(filter, overviewBuilder::estimates, resourceHelper);
+            super.applyFilterWithOperator(filter, overviewBuilder::withEstimatesAmount, resourceHelper);
         }
     },
     AMOUNT_OF_INFORMATIVES("amountOfInformatives") {
         @Override
         void apply(JsonQueryFilter filter, DataQualityOverviewBuilder overviewBuilder, ResourceHelper resourceHelper) {
-            super.applyFilterWithOperator(filter, overviewBuilder::informatives, resourceHelper);
+            super.applyFilterWithOperator(filter, overviewBuilder::withInformativesAmount, resourceHelper);
         }
     },
     AMOUNT_OF_EDITED("amountOfEdited") {
         @Override
         void apply(JsonQueryFilter filter, DataQualityOverviewBuilder overviewBuilder, ResourceHelper resourceHelper) {
-            super.applyFilterWithOperator(filter, overviewBuilder::edited, resourceHelper);
+            super.applyFilterWithOperator(filter, overviewBuilder::withEditedAmount, resourceHelper);
         }
     };
 
@@ -213,7 +213,7 @@ public enum DataQualityOverviewFilter {
                 }
                 long lowerBound = criteriaNode.get(0).numberValue().longValue();
                 long upperBound = criteriaNode.get(1).numberValue().longValue();
-                builder.inRange(Ranges.closed(lowerBound, upperBound));
+                builder.inRange(Ranges.open(lowerBound, upperBound));
             }
         },
         GREATER_THAN(">") {
