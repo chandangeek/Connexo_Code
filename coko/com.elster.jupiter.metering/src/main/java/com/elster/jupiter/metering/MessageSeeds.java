@@ -36,9 +36,7 @@ public enum MessageSeeds implements MessageSeed {
     START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE(7014, Constants.START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE, "Start date must be greater than or equal to Created date of usage point"),
     USAGE_POINT_DETAILS_NOT_UNIQUE(7015, Constants.UNIQUE_DETAILS, "The usage point already has details for this interval"),
     ACTIVATION_FAILED_BY_CUSTOM_VALIDATORS(7016, Constants.ACTIVATION_FAILED_BY_CUSTOM_VALIDATORS, "Usage point activation failed by custom validator: {0}"),
-    USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE(7017, Constants.USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE, "Usage point already has linked meter {0} for role {1}"),
     USAGE_POINT_INCORRECT_STAGE(7018, Constants.USAGE_POINT_INCORRECT_STAGE, "Incorrect usage point stage, should be preoperational"),
-    UNSATISFIED_READING_TYPE_REQUIREMENT_FOR_METER(7019, Constants.UNSATISFIED_READING_TYPE_REQUIREMENT_FOR_METER, "Meter {0} does not provide reading types required by purpose {1}"),
     CANNOT_START_PRIOR_TO_LATEST_CALENDAR_OF_SAME_CATEGORY(7020, "usagepoint.calendar.cannot.start.prior.of.same.category", "Cannot start calendar on usage point, prior to latest calendar of same category."),
     CANNOT_START_BEFORE_NOW(7022, "usagepoint.calendar.cannot.start.before.now", "Activation date can''t be in the past."),
 
