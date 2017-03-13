@@ -97,4 +97,12 @@ public enum Operator {
     public static Comparison isFalse(String fieldName) {
         return Operator.EQUAL.compare(fieldName, false);
     }
+
+    public static Comparison isNull(String fieldName) {
+        return Operator.ISNULL.compare(fieldName);
+    }
+
+    public static Comparison isNotNull(String fieldName) {
+        return Operator.ISNOTNULL.compare(fieldName);
+    }
 }
