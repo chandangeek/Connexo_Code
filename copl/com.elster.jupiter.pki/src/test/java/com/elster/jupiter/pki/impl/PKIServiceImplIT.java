@@ -9,6 +9,7 @@ import com.elster.jupiter.pki.ExtendedKeyUsage;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.KeyUsage;
+import com.elster.jupiter.pki.PlaintextPrivateKeyWrapper;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
@@ -30,6 +31,7 @@ import org.bouncycastle.operator.ContentVerifierProvider;
 import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.bc.BcECContentVerifierProviderBuilder;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.pkcs.bc.BcPKCS10CertificationRequest;
 
@@ -418,6 +420,74 @@ public class PKIServiceImplIT {
         assertThat(bcPkcs10.getSubject().toString()).contains("CN=ComserverTlsClient");
         ContentVerifierProvider verifierProvider = new BcECContentVerifierProviderBuilder(new DefaultDigestAlgorithmIdentifierFinder())
                 .build(bcPkcs10.getPublicKey());
+        boolean signatureValid = bcPkcs10.isSignatureValid(verifierProvider);
+        assertThat(signatureValid).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void testCreateCsrForRSAKey() throws Exception {
+        KeyType privateKeyType = inMemoryPersistence.getPkiService()
+                .newSymmetricKeyType("AES-128", "RSA", 1024)
+                .description("check")
+                .add();
+        KeyType certificateType = inMemoryPersistence.getPkiService().newClientCertificateType("TLS", "SHA256withRSA").add();
+        KeyAccessorType certificateAccessorType = mock(KeyAccessorType.class);
+        when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
+        KeyAccessorType privateKeyAccessorType = mock(KeyAccessorType.class);
+        when(privateKeyAccessorType.getKeyType()).thenReturn(privateKeyType);
+        when(privateKeyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
+
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper("comserver", certificateAccessorType, privateKeyAccessorType);
+        clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
+
+        X500NameBuilder x500NameBuilder = new X500NameBuilder();
+        x500NameBuilder.addRDN(BCStyle.CN, "ComserverTlsClient");
+        PKCS10CertificationRequest pkcs10CertificationRequest = clientCertificateWrapper.getPrivateKeyWrapper()
+                .generateCSR(x500NameBuilder.build(), certificateType.getAlgorithm());
+        clientCertificateWrapper.setCSR(pkcs10CertificationRequest);
+        clientCertificateWrapper.save();
+
+        // Assertions
+        assertThat(clientCertificateWrapper.getCSR()).isPresent();
+        BcPKCS10CertificationRequest bcPkcs10 = new BcPKCS10CertificationRequest(clientCertificateWrapper.getCSR().get().toASN1Structure());
+        assertThat(bcPkcs10.getSubject().toString()).contains("CN=ComserverTlsClient");
+        ContentVerifierProvider verifierProvider = new JcaContentVerifierProviderBuilder().build(((PlaintextPrivateKeyWrapper) clientCertificateWrapper
+                .getPrivateKeyWrapper()).getPublicKey());
+        boolean signatureValid = bcPkcs10.isSignatureValid(verifierProvider);
+        assertThat(signatureValid).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void testCreateCsrForDSAKey() throws Exception {
+        KeyType privateKeyType = inMemoryPersistence.getPkiService()
+                .newSymmetricKeyType("AES-128", "DSA", 512)
+                .description("shorty")
+                .add();
+        KeyType certificateType = inMemoryPersistence.getPkiService().newClientCertificateType("TLS", "SHA256withDSA").add();
+        KeyAccessorType certificateAccessorType = mock(KeyAccessorType.class);
+        when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
+        KeyAccessorType privateKeyAccessorType = mock(KeyAccessorType.class);
+        when(privateKeyAccessorType.getKeyType()).thenReturn(privateKeyType);
+        when(privateKeyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
+
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper("comserver", certificateAccessorType, privateKeyAccessorType);
+        clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
+
+        X500NameBuilder x500NameBuilder = new X500NameBuilder();
+        x500NameBuilder.addRDN(BCStyle.CN, "ComserverTlsClient");
+        PKCS10CertificationRequest pkcs10CertificationRequest = clientCertificateWrapper.getPrivateKeyWrapper()
+                .generateCSR(x500NameBuilder.build(), certificateType.getAlgorithm());
+        clientCertificateWrapper.setCSR(pkcs10CertificationRequest);
+        clientCertificateWrapper.save();
+
+        // Assertions
+        assertThat(clientCertificateWrapper.getCSR()).isPresent();
+        BcPKCS10CertificationRequest bcPkcs10 = new BcPKCS10CertificationRequest(clientCertificateWrapper.getCSR().get().toASN1Structure());
+        assertThat(bcPkcs10.getSubject().toString()).contains("CN=ComserverTlsClient");
+        ContentVerifierProvider verifierProvider = new JcaContentVerifierProviderBuilder().build(((PlaintextPrivateKeyWrapper) clientCertificateWrapper
+                .getPrivateKeyWrapper()).getPublicKey());
         boolean signatureValid = bcPkcs10.isSignatureValid(verifierProvider);
         assertThat(signatureValid).isTrue();
     }

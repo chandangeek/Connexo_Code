@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpecService;
 
 import javax.inject.Inject;
+import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPairGenerator;
@@ -17,10 +18,12 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
-import java.security.interfaces.RSAPrivateCrtKey;
+import java.security.interfaces.DSAParams;
+import java.security.interfaces.DSAPrivateKey;
+import java.security.spec.DSAPublicKeySpec;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.RSAPublicKeySpec;
 
 /**
  * Created by bvn on 2/14/17.
@@ -50,10 +53,15 @@ public class PlaintextDsaPrivateKey extends AbstractPlaintextPrivateKeyWrapperIm
     }
 
     protected PublicKey doGetPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
-        RSAPrivateCrtKey rsaPrivateKey = (RSAPrivateCrtKey)getPrivateKey();
-        RSAPublicKeySpec publicKeySpec = new RSAPublicKeySpec(rsaPrivateKey.getModulus(), rsaPrivateKey.getPublicExponent());
+        DSAPrivateKey privateKey = (DSAPrivateKey)getPrivateKey();
+        DSAParams dsaParams = privateKey.getParams();
+        BigInteger p = dsaParams.getP();
+        BigInteger q = dsaParams.getQ();
+        BigInteger g = dsaParams.getG();
+        BigInteger y = g.modPow(privateKey.getX(), p);
 
         KeyFactory keyFactory = KeyFactory.getInstance("DSA");
+        KeySpec publicKeySpec = new DSAPublicKeySpec(y, p, q, g);
         return keyFactory.generatePublic(publicKeySpec);
     }
 
