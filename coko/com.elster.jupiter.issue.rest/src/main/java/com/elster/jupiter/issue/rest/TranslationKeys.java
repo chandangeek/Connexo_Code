@@ -10,9 +10,9 @@ public enum TranslationKeys implements TranslationKey {
 
     ISSUE_ASSIGNEE_ME ("IssueAssigneeMe", "Me"),
     ISSUE_ASSIGNEE_UNASSIGNED ("IssueAssigneeUnassigned", "Unassigned"),
-    ISSUE_ACTION_PHASE_CREATE("IssueActionPhaseCreation", "Issue creation"),
-    ISSUE_ACTION_PHASE_OVERDUE("IssueActionPhaseOverdue", "Issue overdue"),
-    ISSUE_ACTION_PHASE_CREATE_DESCRIPTION("IssueActionPhaseCreationDescription", "The action will be performed at the issue creation time"),
+    ISSUE_ACTION_PHASE_CREATE("IssueActionPhaseCreation", "At creation time"),
+    ISSUE_ACTION_PHASE_OVERDUE("IssueActionPhaseOverdue", "At overdue time"),
+    ISSUE_ACTION_PHASE_CREATE_DESCRIPTION("IssueActionPhaseCreationDescription", "The action will be performed when the issue is created"),
     ISSUE_ACTION_PHASE_OVERDUE_DESCRIPTION("IssueActionPhaseOverdueDescription", "The action will be performed when the issue becomes overdue"),
     ISSUE_ACTION_PHASE_NOT_APPLICABLE_DESCRIPTION("IssueActionPhaseNotApplicableDescription", "The action will be never performed")
     ;
