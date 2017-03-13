@@ -33,20 +33,21 @@ public class UniqueTrustStoreNameValidator implements ConstraintValidator<Unique
     @Override
     public boolean isValid(TrustStore trustStore, ConstraintValidatorContext constraintValidatorContext) {
         Optional<TrustStore> namesake = dataModel.mapper(TrustStore.class).getUnique("name", trustStore.getName());
-        namesake.ifPresent(trustStore1 -> {
-            if (trustStore1.getId() != trustStore.getId()) {
+        if (namesake.isPresent()) {
+            if (namesake.get().getId() != trustStore.getId()) {
                 fail(constraintValidatorContext);
+                return false;
             }
-        });
+
+        }
         return true;
     }
 
-    private boolean fail(ConstraintValidatorContext context) {
+    private void fail(ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
         context.buildConstraintViolationWithTemplate(message)
                 .addPropertyNode("name")
                 .addConstraintViolation();
-        return false; // something is not valid
     }
 
 }

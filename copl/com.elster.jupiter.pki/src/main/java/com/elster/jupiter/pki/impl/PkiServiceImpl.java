@@ -255,8 +255,9 @@ public class PkiServiceImpl implements PkiService {
     }
 
     @Override
-    public CertificateWrapper newCertificateWrapper() {
+    public CertificateWrapper newCertificateWrapper(String alias) {
         RequestableCertificateWrapperImpl renewableCertificate = getDataModel().getInstance(RequestableCertificateWrapperImpl.class);
+        renewableCertificate.setAlias(alias);
         renewableCertificate.save();
         return renewableCertificate;
     }

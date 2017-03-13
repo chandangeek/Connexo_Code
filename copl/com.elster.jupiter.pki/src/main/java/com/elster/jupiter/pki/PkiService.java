@@ -118,7 +118,7 @@ public interface PkiService {
      */
     SymmetricKeyWrapper newSymmetricKeyWrapper(KeyAccessorType keyAccessorType);
 
-    CertificateWrapper newCertificateWrapper();
+    CertificateWrapper newCertificateWrapper(String alias);
 
     /**
      * Creates a new Client certificate wrapper.

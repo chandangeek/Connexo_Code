@@ -1,8 +1,11 @@
 package com.elster.jupiter.pki.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
+import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
@@ -72,6 +75,8 @@ public class PKIServiceImplIT {
 
     private static PkiInMemoryPersistence inMemoryPersistence = new PkiInMemoryPersistence();
 
+    @Rule
+    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
     @Rule
     public TestRule expectedRule = new ExpectedExceptionRule();
     @Rule
@@ -490,6 +495,85 @@ public class PKIServiceImplIT {
                 .getPrivateKeyWrapper()).getPublicKey());
         boolean signatureValid = bcPkcs10.isSignatureValid(verifierProvider);
         assertThat(signatureValid).isTrue();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.ALIAS_UNIQUE+"}", property="alias")
+    public void testDuplicateAliasForCertificate() throws Exception {
+        KeyType privateKeyType = inMemoryPersistence.getPkiService()
+                .newSymmetricKeyType("DUPLICATE", "DSA", 512)
+                .description("shorty")
+                .add();
+        KeyType certificateType = inMemoryPersistence.getPkiService().newClientCertificateType("TLS-DUPLICATE", "SHA256withDSA").add();
+        KeyAccessorType certificateAccessorType = mock(KeyAccessorType.class);
+        when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
+        KeyAccessorType privateKeyAccessorType = mock(KeyAccessorType.class);
+        when(privateKeyAccessorType.getKeyType()).thenReturn(privateKeyType);
+        when(privateKeyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
+
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper("comserver-dup", certificateAccessorType, privateKeyAccessorType);
+        ClientCertificateWrapper duplicate = inMemoryPersistence.getPkiService().newClientCertificateWrapper("comserver-dup", certificateAccessorType, privateKeyAccessorType);
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.ALIAS_UNIQUE+"}", property="alias")
+    public void testDuplicateAliasForDifferentCertificates() throws Exception {
+        KeyType privateKeyType = inMemoryPersistence.getPkiService()
+                .newSymmetricKeyType("DUPLICATE2", "DSA", 512)
+                .description("shorty")
+                .add();
+        KeyType certificateType = inMemoryPersistence.getPkiService().newClientCertificateType("TLS-DUPLICATE2", "SHA256withDSA").add();
+        KeyAccessorType certificateAccessorType = mock(KeyAccessorType.class);
+        when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
+        KeyAccessorType privateKeyAccessorType = mock(KeyAccessorType.class);
+        when(privateKeyAccessorType.getKeyType()).thenReturn(privateKeyType);
+        when(privateKeyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
+
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper("comserver-dup1", certificateAccessorType, privateKeyAccessorType);
+        CertificateWrapper duplicate = inMemoryPersistence.getPkiService().newCertificateWrapper("comserver-dup1");
+    }
+
+    @Test
+    @Transactional
+    public void testNoDuplicateAliasForCertificatesInKeyStores() throws Exception {
+        TrustStore ts1 = inMemoryPersistence.getPkiService().newTrustStore("ts1").add();
+        TrustStore ts2 = inMemoryPersistence.getPkiService().newTrustStore("ts2").add();
+        KeyType privateKeyType = inMemoryPersistence.getPkiService()
+                .newSymmetricKeyType("DUPLICATE3", "DSA", 512)
+                .description("shorty")
+                .add();
+        KeyType certificateType = inMemoryPersistence.getPkiService().newClientCertificateType("TLS-DUPLICATE3", "SHA256withDSA").add();
+        KeyAccessorType certificateAccessorType = mock(KeyAccessorType.class);
+        when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
+        KeyAccessorType privateKeyAccessorType = mock(KeyAccessorType.class);
+        when(privateKeyAccessorType.getKeyType()).thenReturn(privateKeyType);
+        when(privateKeyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
+
+        X509Certificate certificate = loadCertificate("myRootCA.cert");
+        ts1.addCertificate("myCertDup", certificate);
+        ts2.addCertificate("myCertDup", certificate);
+    }
+
+    @Test
+    @Transactional
+    public void testNoDuplicateAliasForCertificatesInAndOutOfKeyStore() throws Exception {
+        TrustStore ts1 = inMemoryPersistence.getPkiService().newTrustStore("ts3").add();
+        KeyType privateKeyType = inMemoryPersistence.getPkiService()
+                .newSymmetricKeyType("DUPLICATE4", "DSA", 512)
+                .description("shorty")
+                .add();
+        KeyType certificateType = inMemoryPersistence.getPkiService().newClientCertificateType("TLS-DUPLICATE4", "SHA256withDSA").add();
+        KeyAccessorType certificateAccessorType = mock(KeyAccessorType.class);
+        when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
+        KeyAccessorType privateKeyAccessorType = mock(KeyAccessorType.class);
+        when(privateKeyAccessorType.getKeyType()).thenReturn(privateKeyType);
+        when(privateKeyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
+
+        X509Certificate certificate = loadCertificate("myRootCA.cert");
+        ts1.addCertificate("myCert3", certificate);
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper("myCert3", certificateAccessorType, privateKeyAccessorType);
     }
 
     private X509Certificate createSelfSignedCertificate(String myself) throws Exception {

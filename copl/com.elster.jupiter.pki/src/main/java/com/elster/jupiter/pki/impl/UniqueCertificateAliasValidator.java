@@ -6,13 +6,20 @@ package com.elster.jupiter.pki.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapperImpl;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.Optional;
+import java.util.List;
 
+
+/**
+ * The alias of a certificate wrapper needs to be unique...
+ * - within a single truststore
+ * - outside any truststore
+ */
 public class UniqueCertificateAliasValidator implements ConstraintValidator<UniqueAlias,CertificateWrapper> {
 
     private final DataModel dataModel;
@@ -30,21 +37,34 @@ public class UniqueCertificateAliasValidator implements ConstraintValidator<Uniq
 
     @Override
     public boolean isValid(CertificateWrapper certificateWrapper, ConstraintValidatorContext constraintValidatorContext) {
-        Optional<CertificateWrapper> namesake = dataModel.mapper(CertificateWrapper.class).getUnique(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName(), certificateWrapper.getAlias());
-        namesake.ifPresent(certificateWrapper1 -> {
-            if (certificateWrapper1.getId() != certificateWrapper.getId()) {
-                fail(constraintValidatorContext);
+        List<CertificateWrapper> namesakes = dataModel.mapper(CertificateWrapper.class).find(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName(), certificateWrapper.getAlias());
+        for (CertificateWrapper namesake: namesakes) {
+            if (namesake.getId() != certificateWrapper.getId()) {
+                if (isInTrustStore(namesake) && isInTrustStore(certificateWrapper)) {
+                    if (((TrustedCertificate)namesake).getTrustStore().getId() == ((TrustedCertificate)certificateWrapper).getTrustStore().getId()) {
+                        fail(constraintValidatorContext);
+                        return false; // same alias in same truststore
+                    }
+                } else {
+                    if (!isInTrustStore(namesake) && !isInTrustStore(certificateWrapper)) {
+                        fail(constraintValidatorContext);
+                        return false; // Same alias, both certs are global
+                    }
+                }
             }
-        });
+        }
         return true;
     }
 
-    private boolean fail(ConstraintValidatorContext context) {
+    private boolean isInTrustStore(CertificateWrapper certificateWrapper) {
+        return TrustedCertificate.class.isAssignableFrom(certificateWrapper.getClass());
+    }
+
+    private void fail(ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
         context.buildConstraintViolationWithTemplate(message)
                 .addPropertyNode(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName())
                 .addConstraintViolation();
-        return false; // something is not valid
     }
 
 }
