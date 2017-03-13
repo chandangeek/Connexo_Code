@@ -76,12 +76,16 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                             },
                             {
                                 xtype: 'combobox',
-                                fieldLabel: Uni.I18n.translate('deviceCommunicationTask.protocolDialect', 'MDC', 'Protocol dialect'),
+                                fieldLabel: Uni.I18n.translate('deviceconnectionmethod.protocolDialect', 'MDC', 'Protocol dialect'),
                                 name: 'protocolDialect',
                                 itemId: 'protocolDialectComboBox',
+                                emptyText: Uni.I18n.translate('deviceconnectionmethod.selectProtocolDialect', 'MDC', 'Select a protocol dialect...'),
                                 store: this.protocolDialects,
                                 displayField: 'displayName',
                                 valueField: 'name',
+                                forceSelection: true,
+                                disabled: true,
+                                required: true,
                                 queryMode: 'local'
                             },
                             {

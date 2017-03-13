@@ -51,7 +51,6 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         {ref: 'connectionMethodActionMenu', selector: '#device-connection-method-action-menu'},
         {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
         {ref: 'deviceConnectionMethodSetup', selector: 'deviceConnectionMethodSetup'}
-
     ],
 
     init: function () {
@@ -119,7 +118,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             },
             '#deviceConnectionMethodPreview menuitem[action=viewConnectionHistory]': {
                 click: this.viewConnectionHistoryFromPreview
-            }
+            },
         });
     },
 
@@ -364,7 +363,9 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         this.comPortPoolStore.clearFilter(true);
         this.comPortPoolStore.getProxy().extraParams = ({compatibleWithConnectionTask: connectionMethod.get('id')});
         this.comPortPoolStore.load();
+
         this.getDeviceConnectionMethodEditView().down('#communicationPortPoolComboBox').setDisabled(false);
+        this.getDeviceConnectionMethodEditView().down('#protocolDialectComboBox').setDisabled(false);
         this.getDeviceConnectionMethodEditView().down('#connectionStrategyComboBox').setDisabled(false);
         this.getDeviceConnectionMethodEditView().down('#scheduleFieldContainer').setDisabled(false);
         this.getDeviceConnectionMethodEditView().down('#activeRadioGroup').setDisabled(false);
