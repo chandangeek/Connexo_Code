@@ -210,7 +210,7 @@ public class KeyAccessorCommands {
             clientCertificateWrapper.save();
             context.commit();
         } catch (Exception e) {
-            System.err.println("Failed to create CSR: "+e.getCause());
+            System.err.println("Failed to create CSR: "+e.getMessage());
         }
     }
 }
