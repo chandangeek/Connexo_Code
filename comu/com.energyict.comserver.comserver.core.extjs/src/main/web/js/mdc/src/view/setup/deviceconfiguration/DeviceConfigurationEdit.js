@@ -281,6 +281,56 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                             },
                                             {
                                                 xtype: 'fieldcontainer',
+                                                itemId: 'mdc-device-config-multi-element-device-container',
+                                                columnWidth: 0.5,
+                                                fieldLabel: Uni.I18n.translate('deviceconfiguration.multiElementFunctionality', 'MDC', 'Multi-element functionality'),
+                                                required: true,
+                                                layout: 'fit',
+                                                items: [
+                                                    {
+                                                        xtype: 'radiogroup',
+                                                        itemId: 'multiElementRadioGroup',
+                                                        name: "multiElementEnabled",
+                                                        msgTarget: 'under',
+                                                        combineErrors: true,
+                                                        columns: 1,
+                                                        vertical: true,
+                                                        items: [
+                                                            {
+                                                                name: 'multiElementEnabled',
+                                                                itemId: 'rbtn-device-config-multi-element-yes',
+                                                                boxLabel: '<b>' + Uni.I18n.translate('general.yes', 'MDC', 'Yes') + '</b>',
+                                                                inputValue: true,
+                                                                checked: false
+                                                            },
+                                                            {
+                                                                name: 'multiElementEnabled',
+                                                                itemId: 'rbtn-device-config-multi-element-no',
+                                                                boxLabel: '<b>' + Uni.I18n.translate('general.no', 'MDC', 'No') + '</b>',
+                                                                inputValue: false,
+                                                                checked: true
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                xtype: 'fieldcontainer',
+                                                fieldLabel: ' ',
+                                                padding: '-5 0 15 5',
+                                                itemId: 'multiElementMessage',
+                                                items: [
+                                                    {
+                                                        xtype: 'container',
+                                                        html: '<span style="color: grey;">' + Uni.I18n.translate('deviceconfiguration.multielement.description', 'MDC', 'Can be used as a multi-element device and share its own channels and registers with its submetering devices') + '</span>',
+                                                        setText: function(text) {
+                                                            this.update('<span style="color: grey;">' + text + '</span>');
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                xtype: 'fieldcontainer',
                                                 itemId: 'mdc-device-config-validate-on-store-container',
                                                 columnWidth: 0.5,
                                                 fieldLabel: Uni.I18n.translate('deviceconfiguration.validateOnStore', 'MDC', 'Validate data on storage'),

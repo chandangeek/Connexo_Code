@@ -126,7 +126,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 Uni.I18n.translatePlural('devicetype.registers', deviceTypes[0].get('registerCount'), 'MDC', 'No register types', '{0} register type', '{0} register types')
             );
 
-            if (deviceTypes[0].get('deviceTypePurpose') === 'DATALOGGER_SLAVE') {
+            if (deviceTypes[0].get('deviceTypePurpose') === 'DATALOGGER_SLAVE' || deviceTypes[0].get('deviceTypePurpose') === 'SUBMETERING_ELEMENT') {
                 logBookLink.hide();
             } else {
                 logBookLink.show();
@@ -180,7 +180,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
                     Ext.suspendLayouts();
                     if (widget.rendered) {
-
                         widget.down('deviceTypeSideMenu').setDeviceTypeTitle(deviceType.get('name'));
                         widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(
                         Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', deviceType.get('deviceConflictsCount'))
@@ -195,7 +194,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                             'No register types', '{0} register type', '{0} register types')
                     );
 
-                    if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE') {
+                    if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE' || deviceType.get('deviceTypePurpose') === 'SUBMETERING_ELEMENT') {
                         logBookLink.hide();
                     } else {
                         logBookLink.show();
@@ -491,6 +490,9 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 this.getProtocolCombo().show();
                 break;
             case 'DATALOGGER_SLAVE':
+                this.getProtocolCombo().hide();
+                break;
+            case 'SUBMETERING_ELEMENT':
                 this.getProtocolCombo().hide();
                 break;
         }

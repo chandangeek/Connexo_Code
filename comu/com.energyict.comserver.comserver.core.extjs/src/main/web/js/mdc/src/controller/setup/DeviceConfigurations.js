@@ -53,8 +53,10 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         {ref: 'typeOfGatewayRadioGroup', selector: '#deviceConfigurationEditForm #typeOfGatewayCombo'},
         {ref: 'typeOfGatewayRadioGroupContainer', selector: '#deviceConfigurationEditForm #typeOfGatewayComboContainer'},
         {ref: 'dataLoggerRadioGroup', selector: '#deviceConfigurationEditForm #dataLoggerRadioGroup'},
+        {ref: 'multiElementRadioGroup', selector: '#deviceConfigurationEditForm #multiElementRadioGroup'},
         {ref: 'validateOnStoreRadioGroup', selector: '#deviceConfigurationEditForm #validateOnStoreRadioGroup'},
         {ref: 'dataLoggerMessage', selector: '#deviceConfigurationEditForm #dataLoggerMessage'},
+        {ref: 'multiElementMessage', selector: '#deviceConfigurationEditForm #multiElementMessage'},
         {ref: 'editLogbookConfiguration', selector: 'edit-logbook-configuration'},
         {ref: 'previewActionMenu', selector: 'deviceConfigurationPreview #device-configuration-action-menu'},
         {ref: 'deviceConfigurationCloneForm', selector: '#deviceConfigurationCloneForm'},
@@ -482,58 +484,109 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     },
 
     setRadioButtons: function (deviceType, deviceConfiguration) {
-        var addressableRadioGroup = this.getAddressableRadioGroup(),
-            gatewayRadioGroup = this.getGatewayRadioGroup(),
-            gatewayMessage = this.getGatewayMessage(),
-            addressableMessage = this.getAddressableMessage(),
-            typeOfGatewayRadioGroup = this.getTypeOfGatewayRadioGroup(),
-            dataLoggerMessage = this.getDataLoggerMessage(),
-            dataLoggerRadioGroup = this.getDataLoggerRadioGroup(),
-            validateOnstoreRadioGroup = this.getValidateOnStoreRadioGroup();
-            isDataLoggerSlaveType = deviceType.isDataLoggerSlave();
+        this.initAddressableComponent(deviceType, deviceConfiguration);
+        this.initGatewayComponent(deviceType, deviceConfiguration);
+        this.initDataLoggerComponent(deviceType, deviceConfiguration);
+        this.initMultiElementComponent(deviceType, deviceConfiguration);
+    },
 
+    initAddressableComponent: function (deviceType, deviceConfiguration) {
+        var addressableMessage = this.getAddressableMessage(),
+            addressableRadioGroup = this.getAddressableRadioGroup(),
+            enabled = true;
         if (deviceConfiguration) {
             addressableRadioGroup.setValue({isDirectlyAddressable: deviceConfiguration.get('isDirectlyAddressable')});
-            gatewayRadioGroup.setValue({canBeGateway: deviceConfiguration.get('canBeGateway')});
-            typeOfGatewayRadioGroup.setValue({gatewayType: deviceConfiguration.get('gatewayType')});
-            dataLoggerRadioGroup.setValue({dataloggerEnabled: deviceConfiguration.get('dataloggerEnabled')});
-            if(validateOnstoreRadioGroup){
-                validateOnstoreRadioGroup.setValue({validateOnStore: deviceConfiguration.get('validateOnStore')})
-            }
-            if (deviceConfiguration.get('active')) {
-                addressableRadioGroup.disable();
-                gatewayRadioGroup.disable();
-                typeOfGatewayRadioGroup.disable();
-                dataLoggerRadioGroup.disable();
-            }
-        }
-
-        if (isDataLoggerSlaveType || !deviceType.get('canBeDirectlyAddressed')) {
-            addressableMessage.down('container').setText(
-                isDataLoggerSlaveType
-                    ? Uni.I18n.translate('deviceconfiguration.addressableMessage.dataLoggerSlaves', 'MDC', 'Data logger slaves are not directly addressable')
-                    : Uni.I18n.translate('deviceconfiguration.directlyAddressableMessage', 'MDC', 'The device cannot be directly addressed')
-            );
+            enabled =  !(deviceConfiguration.get('active'))
+        }else {
             addressableRadioGroup.setValue({isDirectlyAddressable: false});
+        }
+        if (!deviceType.get('canBeDirectlyAddressed')) {
+            addressableMessage.down('container').setText(Uni.I18n.translate('deviceconfiguration.directlyAddressableMessage', 'MDC', 'The device cannot be directly addressed'));
+            enabled = false;
+        }
+        if (deviceType.isDataLoggerSlave()) {
+            addressableMessage.down('container').setText(Uni.I18n.translate('deviceconfiguration.addressableMessage.dataLoggerSlaves', 'MDC', 'Data logger slaves are not directly addressable'));
+            enabled = false;
+        }
+        if (deviceType.isSubmeteringElement()) {
+            addressableMessage.down('container').setText(Uni.I18n.translate('deviceconfiguration.addressableMessage.submeteringElements', 'MDC', 'Submetering elements are not directly addressable'));
+            enabled = false;
+        }
+        if (!enabled){
             addressableRadioGroup.disable();
         }
+    },
 
-        if (isDataLoggerSlaveType || !deviceType.get('canBeGateway')) {
-            gatewayMessage.down('container').setText(
-                isDataLoggerSlaveType
-                ? Uni.I18n.translate('deviceconfiguration.gatewayMessage.dataLoggerSlaves', 'MDC', 'Data logger slaves cannot act as gateways')
-                : Uni.I18n.translate('deviceconfiguration.gatewayMessage.cannotActAsGateway', 'MDC', 'The device cannot act as a gateway')
-            );
+    initGatewayComponent: function (deviceType, deviceConfiguration){
+        var gatewayRadioGroup = this.getGatewayRadioGroup(),
+            gatewayMessage = this.getGatewayMessage(),
+            typeOfGatewayRadioGroup = this.getTypeOfGatewayRadioGroup(),
+            enabled = true;
+        if (deviceConfiguration){
+            gatewayRadioGroup.setValue({canBeGateway: deviceConfiguration.get('canBeGateway')});
+            typeOfGatewayRadioGroup.setValue({gatewayType: deviceConfiguration.get('gatewayType')});
+            enabled =  !deviceConfiguration.get('active');
+        }else {
             gatewayRadioGroup.setValue({canBeGateway: false});
+        }
+        if (!deviceType.get('canBeGateway')) {
+            gatewayMessage.down('container').setText(Uni.I18n.translate('deviceconfiguration.gatewayMessage.cannotActAsGateway', 'MDC', 'The device cannot act as a gateway'));
+            enabled = false;
+        }
+        if (deviceType.isDataLoggerSlave()) {
+            gatewayMessage.down('container').setText(Uni.I18n.translate('deviceconfiguration.gatewayMessage.dataLoggerSlaves', 'MDC', 'Data logger slaves cannot act as gateways'));
+            enabled = false;
+        }
+        if (deviceType.isSubmeteringElement()) {
+            gatewayMessage.down('container').setText(Uni.I18n.translate('deviceconfiguration.gateway.submeteringElements', 'MDC', 'Submetering elements cannot act as gateways'));
+            enabled = false;
+        }
+        if (!enabled){
             gatewayRadioGroup.disable();
         }
-
-        if (isDataLoggerSlaveType) {
-            dataLoggerMessage.down('container').setText(
-                Uni.I18n.translate('deviceconfiguration.dataLoggerMessage.dataLoggerSlaves', 'MDC', 'Data logger slaves cannot have data logger functionality')
-            );
+    },
+    initDataLoggerComponent: function (deviceType, deviceConfiguration){
+        var dataLoggerMessage = this.getDataLoggerMessage(),
+            dataLoggerRadioGroup = this.getDataLoggerRadioGroup(),
+            enabled = true;
+        if (deviceConfiguration){
+            dataLoggerRadioGroup.setValue({dataloggerEnabled: deviceConfiguration.get('dataloggerEnabled')});
+            enabled =  !deviceConfiguration.get('active');
+        }else {
             dataLoggerRadioGroup.setValue({dataloggerEnabled: false});
+        }
+        if (deviceType.isDataLoggerSlave()) {
+            dataLoggerMessage.down('container').setText(Uni.I18n.translate('deviceconfiguration.dataLoggerMessage.dataLoggerSlaves', 'MDC', 'Data logger slaves cannot have data logger functionality'));
+            enabled = false;
+        }
+        if (deviceType.isSubmeteringElement()) {
+            dataLoggerMessage.down('container').setText(Uni.I18n.translate('deviceconfiguration.dataLoggerMessage.submeteringElements', 'MDC', 'Submetering elements cannot have data logger functionality'));
+            enabled = false;
+        }
+        if (!enabled){
             dataLoggerRadioGroup.disable();
+        }
+    },
+    initMultiElementComponent: function (deviceType, deviceConfiguration){
+        var multiElementMessage = this.getMultiElementMessage(),
+            multiElementRadioGroup = this.getMultiElementRadioGroup(),
+            enabled = true;
+        if (deviceConfiguration){
+            multiElementRadioGroup.setValue({multiElementEnabled: deviceConfiguration.get('multiElementEnabled')});
+            enabled =  !deviceConfiguration.get('active');
+        }else {
+            multiElementRadioGroup.setValue({multiElementEnabled: false});
+        }
+        if (deviceType.isDataLoggerSlave()) {
+            multiElementMessage.down('container').setText(Uni.I18n.translate('deviceconfiguration.multiElementMessage.dataLoggerSlaves', 'MDC', 'Data logger slaves cannot have data multi-element functionality'));
+            enabled = false
+        }
+        if (deviceType.isSubmeteringElement()) {
+            multiElementMessage.down('container').setText(Uni.I18n.translate('deviceconfiguration.multiElementMessage.submeteringElements', 'MDC', 'Submetering elements cannot have multi-element functionality'));
+            enabled = false
+        }
+        if (!enabled){
+            multiElementRadioGroup.disable();
         }
     },
 
