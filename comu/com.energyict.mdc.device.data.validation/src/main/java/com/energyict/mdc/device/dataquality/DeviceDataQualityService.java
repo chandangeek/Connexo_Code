@@ -48,15 +48,15 @@ public interface DeviceDataQualityService {
 
         DataQualityOverviewBuilder havingInformatives();
 
-        MetricSpecificationBuilder suspects();
+        MetricSpecificationBuilder withSuspectsAmount();
 
-        MetricSpecificationBuilder confirmed();
+        MetricSpecificationBuilder withConfirmedAmount();
 
-        MetricSpecificationBuilder estimates();
+        MetricSpecificationBuilder withEstimatesAmount();
 
-        MetricSpecificationBuilder informatives();
+        MetricSpecificationBuilder withInformativesAmount();
 
-        MetricSpecificationBuilder edited();
+        MetricSpecificationBuilder withEditedAmount();
 
         DataQualityOverviews paged(int from, int to);
     }
