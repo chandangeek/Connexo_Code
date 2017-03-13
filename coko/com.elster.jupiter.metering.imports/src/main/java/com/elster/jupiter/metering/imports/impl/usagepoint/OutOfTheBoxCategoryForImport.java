@@ -7,12 +7,12 @@ package com.elster.jupiter.metering.imports.impl.usagepoint;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.OutOfTheBoxCategory;
+import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
+import com.elster.jupiter.fileimport.csvimport.fields.CommonField;
+import com.elster.jupiter.fileimport.csvimport.fields.FieldSetter;
+import com.elster.jupiter.fileimport.csvimport.fields.FileImportField;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.imports.impl.MessageSeeds;
-import com.elster.jupiter.metering.imports.impl.exceptions.ProcessorException;
-import com.elster.jupiter.metering.imports.impl.fields.CommonField;
-import com.elster.jupiter.metering.imports.impl.fields.FieldSetter;
-import com.elster.jupiter.metering.imports.impl.fields.FileImportField;
 import com.elster.jupiter.metering.imports.impl.parsers.InstantParser;
 import com.elster.jupiter.metering.imports.impl.parsers.LiteralStringParser;
 

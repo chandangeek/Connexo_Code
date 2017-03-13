@@ -93,6 +93,28 @@ public class UsagePointImportHelper implements OutOfTheBoxCategoryForImport.Serv
                     .getTemplateMembers()
                     .stream()
                     .collect(Collectors.toMap(LocationTemplate.TemplateField::getName, LocationTemplate.TemplateField::getRanking));
+
+            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMemberBuilder(locationData.get(ranking.get("locale")));
+            if (memberBuilder.isPresent()) {
+                setLocationAttributes(memberBuilder.get(), data, ranking);
+            } else {
+                setLocationAttributes(builder.member(), data, ranking).add();
+            }
+            usagePoint.setLocation(builder.create().getId());
+        }
+        if (geoCoordinatesData != null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)) {
+            usagePoint.setSpatialCoordinates(new SpatialCoordinatesFactory().fromStringValue(geoCoordinatesData.stream()
+                    .reduce((s, t) -> s + ":" + t)
+                    .get()));
+        }
+        usagePoint.setOutageRegion(data.getOutageRegion());
+        usagePoint.setReadRoute(data.getReadRoute());
+        usagePoint.setServicePriority(data.getServicePriority());
+        usagePoint.setServiceDeliveryRemark(data.getServiceDeliveryRemark());
+        usagePoint.update();
+        return usagePoint;
+    }
+
     public UsagePoint updateUsagePointForMultiSense(UsagePoint usagePoint, UsagePointImportRecord data) {
         updateLocation(usagePoint, data);
         usagePoint.update();
@@ -133,7 +155,7 @@ public class UsagePointImportHelper implements OutOfTheBoxCategoryForImport.Serv
 
 
     public void setMetrologyConfigurationForUsagePoint(UsagePointImportRecord data, UsagePoint usagePoint) {
-        if (data.getMetrologyConfiguration().isPresent()) {
+        data.getMetrologyConfigurationName().ifPresent(metrologyConfigurationName ->
             context.getMetrologyConfigurationService()
                     .findMetrologyConfiguration(metrologyConfigurationName)
                     .map(UsagePointMetrologyConfiguration.class::cast)
@@ -141,8 +163,7 @@ public class UsagePointImportHelper implements OutOfTheBoxCategoryForImport.Serv
                             usagePoint
                                     .apply(
                                         configuration,
-                                        data.getMetrologyConfigurationApplyTime().get()));
-        });
+                                        data.getMetrologyConfigurationApplyTime().get())));
     }
 
     private void addCustomPropertySetsValues(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data) {
