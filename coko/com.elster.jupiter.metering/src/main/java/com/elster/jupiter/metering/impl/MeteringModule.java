@@ -99,6 +99,7 @@ public class MeteringModule extends AbstractModule {
         bind(ServerMeteringService.class).toProvider(MeteringServiceProvider.class);
         bind(ServerMetrologyConfigurationService.class).toProvider(MetrologyConfigurationServiceProvider.class);
         bind(MetrologyConfigurationService.class).toProvider(MetrologyConfigurationServiceProvider.class);
+        bind(SyntheticLoadProfileService.class).toProvider(SyntheticLoadProfileServiceProvider.class);
         bind(VirtualFactory.class).to(VirtualFactoryImpl.class).in(Scopes.SINGLETON);
         bind(SqlBuilderFactory.class).to(SqlBuilderFactoryImpl.class).in(Scopes.SINGLETON);
         bind(DataAggregationService.class).annotatedWith(Names.named("dataAggregationMock")).toProvider(() -> dataAggregationMock);
@@ -144,6 +145,20 @@ public class MeteringModule extends AbstractModule {
         @Override
         public ServerMetrologyConfigurationService get() {
             return this.meteringDataModelService.getMetrologyConfigurationService();
+        }
+    }
+
+    private static class SyntheticLoadProfileServiceProvider implements Provider<SyntheticLoadProfileService> {
+        private final MeteringDataModelService meteringDataModelService;
+
+        @Inject
+        private SyntheticLoadProfileServiceProvider(MeteringDataModelService meteringDataModelService) {
+            this.meteringDataModelService = meteringDataModelService;
+        }
+
+        @Override
+        public SyntheticLoadProfileService get() {
+            return this.meteringDataModelService.getSyntheticLoadProfileService();
         }
     }
 

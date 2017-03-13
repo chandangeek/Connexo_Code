@@ -13,8 +13,8 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.ServerCalendarUsage;
 import com.elster.jupiter.metering.impl.ServerUsagePoint;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.slp.SyntheticLoadProfile;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.streams.Predicates;
 
@@ -130,7 +130,7 @@ class MeterActivationSetBuilder {
     }
 
     private Stream<Instant> switchTimestamps(MeterActivation meterActivation) {
-        return this.switchTimestampsFromRange(meterActivation.getRange());
+        return this.switchTimestampsFromRange(this.period.intersection(meterActivation.getRange()));
     }
 
     private Stream<ServerCalendarUsage> getOverlappingCalendarUsages() {
@@ -142,7 +142,7 @@ class MeterActivationSetBuilder {
     }
 
     private Stream<Instant> switchTimestamps(ServerCalendarUsage calendarUsage) {
-        return this.switchTimestampsFromRange(calendarUsage.getRange());
+        return this.switchTimestampsFromRange(this.period.intersection(calendarUsage.getRange()));
     }
 
     private Stream<Instant> getOverlappingSLPProperties(CustomPropertySet<UsagePoint, ?> customPropertySet) {

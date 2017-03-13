@@ -19,10 +19,10 @@ import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.ServerCalendarUsage;
 import com.elster.jupiter.metering.impl.ServerUsagePoint;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.slp.SyntheticLoadProfile;
 
 import com.google.common.collect.Range;
 

@@ -16,6 +16,21 @@ import java.util.List;
  * @since 2016-05-04 (15:40)
  */
 class RequirementsFromExpressionNode implements ServerExpressionNode.Visitor<List<VirtualRequirementNode>> {
+    private final boolean recursiveOnDeliverables;
+
+    public static RequirementsFromExpressionNode nonRecursiveOnDeliverables() {
+        return new RequirementsFromExpressionNode(false);
+    }
+
+    public static RequirementsFromExpressionNode recursiveOnDeliverables() {
+        return new RequirementsFromExpressionNode(true);
+    }
+
+    private RequirementsFromExpressionNode(boolean recursiveOnDeliverables) {
+        super();
+        this.recursiveOnDeliverables = recursiveOnDeliverables;
+    }
+
     @Override
     public List<VirtualRequirementNode> visitVirtualRequirement(VirtualRequirementNode requirement) {
         return Collections.singletonList(requirement);
@@ -23,7 +38,11 @@ class RequirementsFromExpressionNode implements ServerExpressionNode.Visitor<Lis
 
     @Override
     public List<VirtualRequirementNode> visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
-        return Collections.emptyList();
+        if (this.recursiveOnDeliverables) {
+            return deliverable.nestedRequirements(this);
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     @Override

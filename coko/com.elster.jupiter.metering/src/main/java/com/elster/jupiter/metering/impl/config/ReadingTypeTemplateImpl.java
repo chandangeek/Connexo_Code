@@ -27,6 +27,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -181,6 +182,18 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
     public void delete() {
         persistedAttributes.clear();
         this.dataModel.mapper(ReadingTypeTemplate.class).remove(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o
+                || o instanceof ReadingTypeTemplateImpl
+                && getId() == ((ReadingTypeTemplateImpl) o).getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
     private static class ReadingTypeTemplateAttributeSetterImpl implements ReadingTypeTemplateAttributeSetter {

@@ -6,6 +6,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
@@ -425,10 +426,14 @@ class ReadingTypeDeliverableForMeterActivationSet {
 
     Collection<Pair<ReadingTypeRequirement, ChannelContract>> getPreferredChannels() {
         return this.expressionNode
-                    .accept(new RequirementsFromExpressionNode())
+                    .accept(RequirementsFromExpressionNode.recursiveOnDeliverables())
                     .stream()
                     .map(node -> Pair.of(node.getRequirement(), node.getPreferredChannel()))
                     .collect(Collectors.toList());
+    }
+
+    List<VirtualRequirementNode> nestedRequirements(ServerExpressionNode.Visitor<List<VirtualRequirementNode>> visitor) {
+        return this.expressionNode.accept(visitor);
     }
 
 }

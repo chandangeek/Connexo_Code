@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -60,6 +61,8 @@ public class MeterImplTest {
     @Mock
     private ServerMeteringService meteringService;
     @Mock
+    private DataAggregationService aggregationService;
+    @Mock
     private ServerMetrologyConfigurationService metrologyConfigurationService;
     @Mock
     private Thesaurus thesaurus;
@@ -84,7 +87,7 @@ public class MeterImplTest {
         when(meteringService.getDataModel()).thenReturn(dataModel);
 
         doAnswer(invocation -> new MeterActivationImpl(dataModel, eventService, clock, thesaurus)).when(meterActivationFactory).get();
-        when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, channelBuilderFactory));
+        when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, aggregationService, channelBuilderFactory));
         when(thesaurus.forLocale(any())).thenAnswer(invocation -> invocation.getArguments()[0]);
         when(metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT)).thenReturn(meterRole);
         when(dataModel.getInstance(MeteringService.class)).thenReturn(meteringService);
