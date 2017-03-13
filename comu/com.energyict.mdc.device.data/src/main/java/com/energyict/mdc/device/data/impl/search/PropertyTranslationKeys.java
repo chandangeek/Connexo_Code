@@ -99,6 +99,11 @@ public enum PropertyTranslationKeys implements TranslationKey {
 
     DEVICE_DATA_STATUS_ACTIVE("device.data.status.ACTIVE", "Active"),
     DEVICE_DATA_STATUS_INACTIVE("device.data.status.INACTIVE", "Inactive"),
+    DEVICE_MANUFACTURER("device.manufacturer", "Manufacturer"),
+    DEVICE_MODEL_NBR("device.model.nbr", "Model number"),
+    DEVICE_MODEL_VERSION("device.model.version", "Model version"),
+    DEVICE_ATTRIBUTES("device.attributes", "Device attributes"),
+    DEVICE_MASTER_SEARCH_CRITERION_NAME("device.master.searchcriterion.search", "Has master device")
     ;
 
     private String key;

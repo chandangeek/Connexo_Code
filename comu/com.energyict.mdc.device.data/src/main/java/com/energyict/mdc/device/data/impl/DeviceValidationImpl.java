@@ -121,7 +121,7 @@ class DeviceValidationImpl implements DeviceValidation {
             if (channelsContainerLastChecked.isPresent() && lastChecked.isAfter(channelsContainerLastChecked.get())) {
                 throw InvalidLastCheckedException.lastCheckedAfterCurrentLastChecked(this.device, channelsContainerLastChecked.get(), lastChecked, this.thesaurus, MessageSeeds.LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED);
             }
-            this.validationService.updateLastChecked(channelsContainer, lastChecked);
+            validationService.updateLastChecked(channelsContainer, lastChecked);
         } else {
             Instant lastCheckedDateToSet = this.smallest(channelsContainerLastChecked.orElse(channelsContainer.getStart()), lastChecked);
             validationService.updateLastChecked(channelsContainer, lastCheckedDateToSet);

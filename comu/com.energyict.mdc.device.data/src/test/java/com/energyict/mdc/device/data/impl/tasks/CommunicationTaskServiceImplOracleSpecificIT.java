@@ -335,11 +335,6 @@ public class CommunicationTaskServiceImplOracleSpecificIT {
     }
 
     private SearchablePropertyValue buildSearchablePropertyCondition(String property, SearchablePropertyOperator operator, List<String> values) {
-        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
-        valueBean.propertyName = property;
-        valueBean.operator = operator;
-        valueBean.values = values;
-        SearchablePropertyValue searchablePropertyValue = new SearchablePropertyValue(null, valueBean);
-        return searchablePropertyValue;
+        return new SearchablePropertyValue(null, new SearchablePropertyValue.ValueBean(property, operator, values));
     }
 }

@@ -11,7 +11,9 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
+import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
@@ -46,6 +48,42 @@ public class MasterDeviceSearchableProperty extends AbstractSearchableDeviceProp
     }
 
     @Override
+    public boolean allowsIsDefined() {
+        return true;
+    }
+
+    @Override
+    public boolean allowsIsUnDefined() {
+        return true;
+    }
+
+    private SqlFragment visitComparison(Comparison comparison, Instant now) {
+        SqlBuilder sqlBuilder = new SqlBuilder();
+        if (comparison.getOperator() == Operator.ISNULL){         // device.topology.master IS NULL means that there is not (effective) physicalgateway reference with device is not linked to a mas
+            sqlBuilder.append("not exists");
+            sqlBuilder.spaceOpenBracket();
+            sqlBuilder.append("select originid from DTL_PHYSICALGATEWAYREFERENCE where");
+            sqlBuilder.add(isEffectiveGatewayReference(now, "DTL_PHYSICALGATEWAYREFERENCE"));
+            sqlBuilder.append(" AND ");
+            sqlBuilder.append(" originid = dev.id");
+            sqlBuilder.closeBracket();
+        }else{
+            sqlBuilder.spaceOpenBracket();
+            sqlBuilder.add(isEffectiveGatewayReference(now, "gateway_ref"));
+            sqlBuilder.append(" AND ");
+            sqlBuilder.append("gateway_ref.gatewayid");
+            sqlBuilder.space();
+            sqlBuilder.append(ListOperator.IN.getSymbol());
+            sqlBuilder.spaceOpenBracket();
+            sqlBuilder.append("select id from DDC_DEVICE where ");
+            sqlBuilder.add(this.toSqlFragment("name", comparison, now));
+            sqlBuilder.closeBracket();
+            sqlBuilder.closeBracket();
+        }
+        return sqlBuilder;
+    }
+
+    @Override
     protected boolean valueCompatibleForDisplay(Object value) {
         return value instanceof Device;
     }
@@ -60,21 +98,29 @@ public class MasterDeviceSearchableProperty extends AbstractSearchableDeviceProp
         builder.addTopologyForSlaves();
     }
 
+    public void appendJoinClauses(JoinClauseBuilder builder, Comparison comparison){
+        if (comparison.getOperator() == Operator.ISNULL)
+            return;
+        this.appendJoinClauses(builder);
+    }
+
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
+        if (condition.getClass().isAssignableFrom(Comparison.class)){
+            Comparison comparison = (Comparison) condition;
+            return visitComparison(comparison, now);
+        }
+        throw new IllegalArgumentException("Condition should be a comparison");
+    }
+
+    private SqlFragment isEffectiveGatewayReference(Instant now, String tablename){
         SqlBuilder sqlBuilder = new SqlBuilder();
-        sqlBuilder.spaceOpenBracket();
         sqlBuilder.openBracket();
-        sqlBuilder.append(MessageFormat.format(Operator.LESSTHANOREQUAL.getFormat(), "gateway_ref.starttime"));
+        sqlBuilder.append(MessageFormat.format(Operator.LESSTHANOREQUAL.getFormat(), tablename+".starttime"));
         sqlBuilder.add(this.toSqlFragment(now));
         sqlBuilder.append(" AND ");
-        sqlBuilder.append(MessageFormat.format(Operator.GREATERTHAN.getFormat(), "gateway_ref.endtime"));
+        sqlBuilder.append(MessageFormat.format(Operator.GREATERTHAN.getFormat(), tablename+".endtime"));
         sqlBuilder.add(this.toSqlFragment(now));
-        sqlBuilder.closeBracket();
-        sqlBuilder.append(" AND ");
-        sqlBuilder.append(" gateway_ref.gatewayid in ( select id from DDC_DEVICE where ");
-        sqlBuilder.add(this.toSqlFragment("name", condition, now));
-        sqlBuilder.closeBracket();
         sqlBuilder.closeBracket();
         return sqlBuilder;
     }
@@ -115,7 +161,7 @@ public class MasterDeviceSearchableProperty extends AbstractSearchableDeviceProp
 
     @Override
     protected TranslationKey getNameTranslationKey() {
-        return PropertyTranslationKeys.DEVICE_MASTER_NAME;
+        return PropertyTranslationKeys.DEVICE_MASTER_SEARCH_CRITERION_NAME;
     }
 
     @Override
