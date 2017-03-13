@@ -1,10 +1,16 @@
 package com.energyict.dlms.cosem;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.ParseUtils;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
@@ -13,11 +19,12 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
 import com.energyict.dlms.cosem.methods.DLMSClassMethods;
+import com.energyict.dlms.cosem.methods.WebPortalMethods;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.DataParseException;
-import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
 
 /**
  * Web portal configuration IC, V1.
@@ -210,7 +217,7 @@ public final class WebPortalSetupV1 extends AbstractCosemObject {
 		 * 
 		 * @param 		value		The value.
 		 * 
-		 * @return		The corresponding {@link AuthenticationMechanism}, <code>null</code> if none matches.
+		 * @return		The corresponding {@link WebPortalAuthenticationMechanism}, <code>null</code> if none matches.
 		 */
 		public static final WebPortalAuthenticationMechanism forValue(final int value) {
 			for (final WebPortalAuthenticationMechanism mechanism : WebPortalAuthenticationMechanism.values()) {
@@ -231,6 +238,45 @@ public final class WebPortalSetupV1 extends AbstractCosemObject {
 		 * @param 	value	The value.
 		 */
 		private WebPortalAuthenticationMechanism(final int value) {
+			this.value = value;
+		}
+	}
+	
+	public enum EnabledInterface {
+		
+		ALL(0),
+		ETHERNET_WAN(1),
+		ETHERNET_LAN(2),
+		WIRELESS_WAN(3),
+		IP6_TUNNEL(4),
+		PLC_NETWORK(5);
+		
+		/**
+		 * Returns the {@link EnabledInterface} that corresponds to the given value.
+		 * 
+		 * @param 		value		The value.
+		 * 
+		 * @return		The corresponding {@link EnabledInterface}, <code>null</code> if none matches.
+		 */
+		public static final EnabledInterface forValue(final int value) {
+			for (final EnabledInterface iface : EnabledInterface.values()) {
+				if (iface.value == value) {
+					return iface;
+				}
+			}
+			
+			return null;
+		}
+		
+		/** The value. */
+		private final int value;
+		
+		/**
+		 * Create a new instance.
+		 * 
+		 * @param 	value	The value.
+		 */
+		private EnabledInterface(final int value) {
 			this.value = value;
 		}
 	}
@@ -572,4 +618,146 @@ public final class WebPortalSetupV1 extends AbstractCosemObject {
 		this.write(WebPortalSetupV1Attribute.MAX_LOGIN_ATTEMPTS, new Unsigned16(attempts));
 	}
 	
+	/**
+	 * Returns the lockout duration (milliseconds).
+	 *  
+	 * @return	The lockout duration in ms.
+	 * 
+	 * @throws 	IOException		If an IO error occurs.
+	 */
+	public final long getLockoutDuration() throws IOException {
+		return this.readDataType(WebPortalSetupV1Attribute.LOCKOUT_DURATION, Unsigned32.class)
+				   .getValue();
+	}
+	
+	/**
+	 * Sets the lockout duration.
+	 * 
+	 * @param 		duration		The duration.
+	 * 
+	 * @throws 		IOException		If an IO error occurs.
+	 */
+	public final void setLockoutDuration(final long duration) throws IOException {
+		if (duration < 0 || duration > 0xFFFFFFFF) {
+			throw new IllegalArgumentException("Duration should be between 0 and 0xFFFFFFFF, you specified " + duration);
+		}
+		
+		this.write(WebPortalSetupV1Attribute.LOCKOUT_DURATION, new Unsigned32(duration));
+	}
+	
+	/**
+	 * Returns the {@link Set} of interfaces on which the web interface is available.
+	 * 
+	 * @return	The {@link Set} of interfaces on which the web interface is available.
+	 * 
+	 * @throws 	IOException		If an IO error occurs.
+	 */
+	public final Set<EnabledInterface> getEnabledInterfaces() throws IOException {
+		final Array enabledIfaceArray = this.readDataType(WebPortalSetupV1Attribute.ENABLED_INTERFACES, Array.class);
+		final Set<EnabledInterface> enabledIfaces = EnumSet.noneOf(WebPortalSetupV1.EnabledInterface.class);
+		
+		for (final AbstractDataType entry : enabledIfaceArray) {
+			final EnabledInterface correspondingInterface = EnabledInterface.forValue(entry.getTypeEnum().getValue());
+			enabledIfaces.add(correspondingInterface);
+		}
+		
+		return enabledIfaces;
+	}
+	
+	/**
+	 * Sets the interfaces on which the web interface should be enabled.
+	 * 
+	 * @param 		interfaces		The set of interfaces.
+	 * 
+	 * @throws 		IOException		If an IO error occurs.
+	 */
+	public final void setEnabledInterfaces(final Set<WebPortalSetupV1.EnabledInterface> interfaces) throws IOException {
+		final Array interfaceArray = new Array();
+		
+		for (final EnabledInterface iface : interfaces) {
+			interfaceArray.addDataType(new TypeEnum(iface.value));
+		}
+		
+		this.write(WebPortalSetupV1Attribute.ENABLED_INTERFACES, interfaceArray);
+	}
+	
+	/**
+	 * Returns the client certificates.
+	 * 
+	 * @return	The known client certificates.
+	 * 
+	 * @throws 	IOException					If an IO error occurs.
+	 * @throws 	GeneralSecurityException	If a security error occurs.
+	 */
+	public final X509Certificate[] getClientCertificates() throws IOException, GeneralSecurityException {
+		final Array certificateArray = this.readDataType(WebPortalSetupV1Attribute.CLIENT_CERTIFICATES, Array.class);
+		final List<X509Certificate> clientCertificates = new ArrayList<>();
+		
+		for (final AbstractDataType entry : certificateArray) {
+			final byte[] derEncodedCertificate = entry.getOctetString().getContentByteArray();
+			final X509Certificate[] parsedCertificates = ParseUtils.parseCertificates(derEncodedCertificate);
+			
+			for (final X509Certificate cert : parsedCertificates) {
+				clientCertificates.add(cert);
+			}
+		}
+		
+		return clientCertificates.toArray(new X509Certificate[ clientCertificates.size() ]);
+	}
+	
+	/**
+	 * Sets the user name mapped to a particular role.
+	 * 
+	 * @param 	role			The role.
+	 * @param 	username		The new user name.
+	 * 
+	 * @throws 	IOException		If an IO error occurs.
+	 */
+	public final void setUsername(final Role role, final String username) throws IOException {
+		final Structure usernameData = new Structure();
+		
+		usernameData.addDataType(new OctetString(role.getName().getBytes(StandardCharsets.US_ASCII)));
+		usernameData.addDataType(new OctetString(username.getBytes(StandardCharsets.US_ASCII)));
+		
+		this.methodInvoke(WebPortalMethods.CHANGE_USER_NAME, usernameData);
+	}
+	
+	/**
+	 * Sets the password for a particular role.
+	 * 
+	 * @param 	role			The role.
+	 * @param 	password		The new password.
+	 * 
+	 * @throws 	IOException		If an IO error occurs.
+	 */
+	public final void setPassword(final Role role, final byte[] password) throws IOException {
+		final Structure passwordData = new Structure();
+		
+		passwordData.addDataType(new OctetString(role.getName().getBytes(StandardCharsets.US_ASCII)));
+		passwordData.addDataType(new OctetString(password));
+		
+		this.methodInvoke(WebPortalMethods.CHANGE_USER_PASSWORD, passwordData);
+	}
+	
+	/**
+	 * Import a client certificate.
+	 * 
+	 * @param 		certificate		The new certificate.
+	 * 
+	 * @throws 		IOException		If an IO error occurs.
+	 */
+	public final void importClientCertificate(final X509Certificate certificate) throws IOException, GeneralSecurityException {
+		this.methodInvoke(WebPortalMethods.IMPORT_CLIENT_CERTIFICATE, new OctetString(ParseUtils.toDER(certificate)));
+	}
+	
+	/**
+	 * Removes a client certificate.
+	 * 
+	 * @param 		serialNumber	The serial number of the certificate.
+	 * 
+	 * @throws 		IOException		If an IO error occurs.
+	 */
+	public final void removeClientCertificate(final byte[] serialNumber) throws IOException {
+		this.methodInvoke(WebPortalMethods.REMOVE_CLIENT_CERTIFICATE, new OctetString(serialNumber));
+	}
 }
