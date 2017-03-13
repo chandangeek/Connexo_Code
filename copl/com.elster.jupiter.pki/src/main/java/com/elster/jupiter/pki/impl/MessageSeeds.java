@@ -27,8 +27,9 @@ public enum MessageSeeds implements MessageSeed {
     CERTIFICATE_EXCEPTION(1012, "CertificateException", "Could not read certificate"),
     CSR_EXCEPTION(1012, "CsrException", "Could not read CSR"),
     CERTIFICATE_ENCODING_EXCEPTION(1013, "CertificateEncodingException", "The certificate could not be properly encoded"),
-    ALIAS_IS_UNIQUE(1014, Keys.ALIAS_UNIQUE, "Alias must be unique"),
-    ;
+    ALIAS_IS_UNIQUE(1014, Keys.ALIAS_UNIQUE, "Alias must be unique within trust store, of globally, if not part of trust store"),
+    SIGNATURE_EXCEPTION(1015, "SignatureException", "An error occurred while signing"),
+    FAILED_TO_GENERATE_CSR(1016, "FailedToConstructCSR", "CSR could not be created");
 
     private final int number;
     private final String key;

@@ -21,7 +21,7 @@ import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.SymmetricKeyFactory;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.TrustStore;
-import com.elster.jupiter.pki.impl.wrappers.assymetric.AbstractPlaintextPrivateKeyWrapperImpl;
+import com.elster.jupiter.pki.impl.wrappers.asymmetric.AbstractPlaintextPrivateKeyWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.ClientCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.RequestableCertificateWrapperImpl;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -260,8 +260,9 @@ public class PkiServiceImpl implements PkiService {
     }
 
     @Override
-    public CertificateWrapper newCertificateWrapper() {
+    public CertificateWrapper newCertificateWrapper(String alias) {
         RequestableCertificateWrapperImpl renewableCertificate = getDataModel().getInstance(RequestableCertificateWrapperImpl.class);
+        renewableCertificate.setAlias(alias);
         renewableCertificate.save();
         return renewableCertificate;
     }
@@ -273,6 +274,11 @@ public class PkiServiceImpl implements PkiService {
                 .init(alias, privateKeyWrapper, certAccessorType.getKeyType());
         clientCertificate.save();
         return clientCertificate;
+    }
+
+    @Override
+    public Optional<ClientCertificateWrapper> findClientCertificateWrapper(String alias) {
+        return getDataModel().mapper(ClientCertificateWrapper.class).getUnique(ClientCertificateWrapperImpl.Fields.ALIAS.fieldName(), alias);
     }
 
     private class ClientCertificateTypeBuilderImpl extends CertificateTypeBuilderImpl implements ClientCertificateTypeBuilder {

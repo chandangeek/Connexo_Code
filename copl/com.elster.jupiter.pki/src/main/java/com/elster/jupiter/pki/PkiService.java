@@ -20,18 +20,6 @@ public interface PkiService {
 
     String COMPONENTNAME = "PKI";
 
-    CertificateWrapper newCertificateWrapper();
-
-    /**
-     * Creates a new Client certificate wrapper.
-     *
-     * @param alias
-     * @param certAccessorType The Key AccessorType describing the certificate
-     * @param privateKeyAccessorType The key accessor type describing the private key
-     * @return Persisted, empty ClientCertificateWrapper
-     */
-    ClientCertificateWrapper newClientCertificateWrapper(String alias, KeyAccessorType certAccessorType, KeyAccessorType privateKeyAccessorType);
-
     /**
      * Creates a new, empty trust store in Connexo.
      * @param name unique identifier for trust store
@@ -135,6 +123,20 @@ public interface PkiService {
      * @return a new symmetric key wrapper of the required type and encryption method, without value.
      */
     SymmetricKeyWrapper newSymmetricKeyWrapper(KeyAccessorType keyAccessorType);
+
+    CertificateWrapper newCertificateWrapper(String alias);
+
+    /**
+     * Creates a new Client certificate wrapper.
+     *
+     * @param alias The alias by which this CertificateHolder will be known
+     * @param certAccessorType The Key AccessorType describing the certificate
+     * @param privateKeyAccessorType The key accessor type describing the private key
+     * @return Persisted, empty ClientCertificateWrapper
+     */
+    ClientCertificateWrapper newClientCertificateWrapper(String alias, KeyAccessorType certAccessorType, KeyAccessorType privateKeyAccessorType);
+
+    Optional<ClientCertificateWrapper> findClientCertificateWrapper(String alias);
 
     public interface CertificateTypeBuilder {
         CertificateTypeBuilder description(String description);

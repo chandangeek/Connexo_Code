@@ -36,11 +36,27 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
             return Optional.empty();
         }
         try {
-            return Optional.of(new PKCS10CertificationRequest(this.csr));
+            return doGetCSR();
         } catch (IOException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.CSR_EXCEPTION, e);
         }
     }
 
+    private Optional<PKCS10CertificationRequest> doGetCSR() throws IOException {
+        return Optional.of(new PKCS10CertificationRequest(this.csr));
+    }
+
+    @Override
+    public void setCSR(PKCS10CertificationRequest csr) {
+        try {
+            doSetCSR(csr);
+        } catch (IOException e) {
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.CSR_EXCEPTION, e);
+        }
+    }
+
+    private void doSetCSR(PKCS10CertificationRequest csr) throws IOException {
+        this.csr = csr.getEncoded();
+    }
 
 }

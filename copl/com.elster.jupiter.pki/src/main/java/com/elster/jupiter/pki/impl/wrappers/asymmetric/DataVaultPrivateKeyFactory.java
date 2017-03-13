@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell Inc. All rights reserved.
  */
 
-package com.elster.jupiter.pki.impl.wrappers.assymetric;
+package com.elster.jupiter.pki.impl.wrappers.asymmetric;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.KeyAccessorType;

@@ -109,7 +109,7 @@ public class PlaintextSymmetricKey implements SymmetricKeyWrapper, Renewable {
     }
 
     @Override
-    public void renewValue() {
+    public void generateValue() {
         try {
             doRenewValue();
         } catch (NoSuchAlgorithmException e) {

@@ -5,6 +5,8 @@
 package com.elster.jupiter.pki;
 
 import aQute.bnd.annotation.ConsumerType;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 
 import java.security.InvalidKeyException;
 import java.security.PrivateKey;
@@ -16,10 +18,10 @@ import java.util.Map;
  * Through offering PropertySpecs & properties, a generic interface is offered for the UI
  */
 @ConsumerType
-public interface PrivateKeyWrapper extends HasDynamicPropertiesWithUpdatableValues {
+public interface PrivateKeyWrapper extends HasDynamicPropertiesWithUpdatableValues, Renewable {
 
     /**
-     * The exact date when the value of this element will expire. The value should be renewed by thia date.
+     * The exact date when the value of this element will expire. The value should be renewed by this date.
      * @return date until which this element is valid
      */
     Instant getExpirationTime();
@@ -40,12 +42,6 @@ public interface PrivateKeyWrapper extends HasDynamicPropertiesWithUpdatableValu
     PrivateKey getPrivateKey() throws InvalidKeyException;
 
     /**
-     * Generate a new random value for this entity.
-     * @throws InvalidKeyException
-     */
-    void renewValue() throws InvalidKeyException;
-
-    /**
      * These properties are defined by the implementor. In case of a plaintext key, there will be a property containing
      * the actual bytes of the private key. In case of a IrreversibleHsmPrivateKey, the property will be the private key
      * label (or maybe more, depending on the hsm interface?), in case of an IrreversibleDbPrivateKey, the properties will
@@ -53,4 +49,11 @@ public interface PrivateKeyWrapper extends HasDynamicPropertiesWithUpdatableValu
      * @param properties The properties and the values to set. Unknown properties will be ignored without warning.
      */
     void setProperties(Map<String, Object> properties);
+
+    /**
+     * Generates a CSR with provided distinguished name.
+     * @param subjectDN
+     */
+    PKCS10CertificationRequest generateCSR(X500Name subjectDN, String signatureAlgorithm);
+
 }

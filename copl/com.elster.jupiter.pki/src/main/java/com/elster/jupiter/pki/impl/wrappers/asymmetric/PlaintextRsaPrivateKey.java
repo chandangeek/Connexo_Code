@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell Inc. All rights reserved.
  */
 
-package com.elster.jupiter.pki.impl.wrappers.assymetric;
+package com.elster.jupiter.pki.impl.wrappers.asymmetric;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -15,9 +15,12 @@ import java.security.KeyFactory;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.RSAPublicKeySpec;
 
 /**
  * Created by bvn on 2/14/17.
@@ -39,11 +42,19 @@ public class PlaintextRsaPrivateKey extends AbstractPlaintextPrivateKeyWrapperIm
     }
 
     @Override
-    protected void doRenewValue() throws NoSuchAlgorithmException {
+    protected void doGenerateValue() throws NoSuchAlgorithmException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(getKeyType().getKeySize(), new SecureRandom());
         PrivateKey privateKey = keyGen.generateKeyPair().getPrivate();
         setPrivateKey(privateKey);
         this.save();
+    }
+
+    protected PublicKey doGetPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
+        RSAPrivateCrtKey rsaPrivateKey = (RSAPrivateCrtKey)getPrivateKey();
+        RSAPublicKeySpec publicKeySpec = new RSAPublicKeySpec(rsaPrivateKey.getModulus(), rsaPrivateKey.getPublicExponent());
+
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        return keyFactory.generatePublic(publicKeySpec);
     }
 }
