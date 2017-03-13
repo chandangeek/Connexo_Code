@@ -63,6 +63,7 @@ public class MetrologyConfigEstimationRuleSetResource {
                     return resourceHelper.getLinkableMetrologyContractInfo(metrologyContract, metrologyContract.getDeliverables()
                             .stream()
                             .map(deliverable -> new OutputMatchesInfo(deliverable.getName(), matchedDeliverables.contains(deliverable)))
+                            .sorted(Comparator.comparing(outputMatchesInfo -> outputMatchesInfo.outputName))
                             .sorted(Comparator.comparing(outputMatchesInfo -> !outputMatchesInfo.isMatched))
                             .collect(Collectors.toList()));
                 }).collect(Collectors.toList());
@@ -103,6 +104,7 @@ public class MetrologyConfigEstimationRuleSetResource {
                     List<OutputMatchesInfo> outputMatchesInfos = metrologyContract.getDeliverables()
                             .stream()
                             .map(deliverable -> new OutputMatchesInfo(deliverable.getName(), matchedDeliverables.contains(deliverable)))
+                            .sorted(Comparator.comparing(outputMatchesInfo -> outputMatchesInfo.outputName))
                             .sorted(Comparator.comparing((outputMatchesInfo -> !outputMatchesInfo.isMatched)))
                             .collect(Collectors.toList());
                     return resourceHelper.getLinkableMetrologyContractInfo(metrologyContract, outputMatchesInfos);
