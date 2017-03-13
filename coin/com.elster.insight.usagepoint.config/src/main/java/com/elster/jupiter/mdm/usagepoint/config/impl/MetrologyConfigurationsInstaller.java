@@ -35,7 +35,6 @@ import java.util.NoSuchElementException;
 class MetrologyConfigurationsInstaller {
 
     private static final String SERVICE_CATEGORY_NOT_FOUND = "Service category not found: ";
-    private static final String PURPOSE_NOT_FOUND = "Billing metrology purpose not found";
     private static final String SERVICEKIND = "SERVICEKIND";
     private static final String DETAIL_PHASE_CODE = "detail.phaseCode";
     private static final String ROLE_NOT_FOUND = "Default meter role not found";
@@ -43,7 +42,10 @@ class MetrologyConfigurationsInstaller {
     static final String MONTHLY_A_PLUS_WH = "13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     static final String MONTHLY_A_MINUS_WH = "13.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0";
     static final String DAILY_A_PLUS_WH = "11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    static final String DAILY_A_MINUS_WH = "11.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    static final String HOURLY_A_MINUS_WH = "0.0.7.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0";
     static final String MIN15_A_PLUS_WH = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    static final String MIN15_A_MINUS_WH = "0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0";
     static final String ACTIVE_ENERGY_TOU1 = "13.0.0.4.1.1.12.0.0.0.0.1.0.0.0.3.72.0";
     static final String ACTIVE_ENERGY_TOU2 = "13.0.0.4.1.1.12.0.0.0.0.2.0.0.0.3.72.0";
     static final String BULK_A_PLUS_WH = "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
@@ -108,18 +110,18 @@ class MetrologyConfigurationsInstaller {
                 .stream()
                 .findFirst()
                 .orElseGet(() -> meteringService.createReadingType(DAILY_A_PLUS_WH, "A+"));
-        ReadingType readingTypeDailyAminusWh = meteringService.findReadingTypes(Collections.singletonList("11.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+        ReadingType readingTypeDailyAminusWh = meteringService.findReadingTypes(Collections.singletonList(DAILY_A_MINUS_WH))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType("11.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "A-"));
+                .orElseGet(() -> meteringService.createReadingType(DAILY_A_MINUS_WH, "A-"));
         ReadingType readingType15minAplusWh = meteringService.findReadingTypes(Collections.singletonList(MIN15_A_PLUS_WH))
                 .stream()
                 .findFirst()
                 .orElseGet(() -> meteringService.createReadingType(MIN15_A_PLUS_WH, "A+"));
-        ReadingType readingType15minAminusWh = meteringService.findReadingTypes(Collections.singletonList("0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+        ReadingType readingType15minAminusWh = meteringService.findReadingTypes(Collections.singletonList(MIN15_A_MINUS_WH))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType("0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "A-"));
+                .orElseGet(() -> meteringService.createReadingType(MIN15_A_MINUS_WH, "A-"));
         ReadingType readingTypeAverageVoltagePhaseA = meteringService.findReadingTypes(Collections.singletonList("0.2.7.6.0.1.158.0.0.0.0.0.0.0.128.0.29.0"))
                 .stream()
                 .findFirst()
@@ -134,12 +136,9 @@ class MetrologyConfigurationsInstaller {
                 .orElseGet(() -> meteringService.createReadingType("0.2.7.6.0.1.158.0.0.0.0.0.0.0.32.0.29.0", "Average voltage"));
 
 
-        MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
-                .orElseThrow(() -> new NoSuchElementException(PURPOSE_NOT_FOUND));
-        MetrologyPurpose purposeInformation = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
-                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
-        MetrologyPurpose purposeVoltageMonitoring = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.VOLTAGE_MONITORING)
-                .orElseThrow(() -> new NoSuchElementException("Voltage monitoring metrology purpose not found"));
+        MetrologyPurpose purposeBilling = findPurposeOrThrowException(DefaultMetrologyPurpose.BILLING);
+        MetrologyPurpose purposeInformation = findPurposeOrThrowException(DefaultMetrologyPurpose.INFORMATION);
+        MetrologyPurpose purposeVoltageMonitoring = findPurposeOrThrowException(DefaultMetrologyPurpose.VOLTAGE_MONITORING);
 
         MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
         MetrologyContract contractInformation = config.addMetrologyContract(purposeInformation);
@@ -217,8 +216,7 @@ class MetrologyConfigurationsInstaller {
                 .findFirst()
                 .orElseGet(() -> meteringService.createReadingType(MONTHLY_A_MINUS_WH, "A-"));
 
-        MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
-                .orElseThrow(() -> new NoSuchElementException(PURPOSE_NOT_FOUND));
+        MetrologyPurpose purposeBilling = findPurposeOrThrowException(DefaultMetrologyPurpose.BILLING);
 
         MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
 
@@ -260,25 +258,37 @@ class MetrologyConfigurationsInstaller {
                 .orElseThrow(() -> new NoSuchElementException(ROLE_NOT_FOUND));
         config.addMeterRole(meterRole);
 
-        ReadingType readingTypeDailyAplusWh = meteringService.findReadingTypes(Collections.singletonList("11.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+        ReadingType readingTypeDailyAMinusWh = meteringService.findReadingTypes(Collections.singletonList(DAILY_A_MINUS_WH))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType("11.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "A-"));
-        ReadingType readingTypeMonthlyAplusWh = meteringService.findReadingTypes(Collections.singletonList("13.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                .orElseGet(() -> meteringService.createReadingType(DAILY_A_MINUS_WH, "A-"));
+        ReadingType readingTypeMonthlyAMinusWh = meteringService.findReadingTypes(Collections.singletonList(MONTHLY_A_MINUS_WH))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType("13.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "A-"));
+                .orElseGet(() -> meteringService.createReadingType(MONTHLY_A_MINUS_WH, "A-"));
+        ReadingType readingType15minAMinusWh = meteringService.findReadingTypes(Collections.singletonList(MIN15_A_MINUS_WH))
+                .stream()
+                .findFirst()
+                .orElseGet(() -> meteringService.createReadingType(MIN15_A_MINUS_WH, "A-"));
+        ReadingType readingTypeHourlyAMinusWh = meteringService.findReadingTypes(Collections.singletonList(HOURLY_A_MINUS_WH))
+                .stream()
+                .findFirst()
+                .orElseGet(() -> meteringService.createReadingType(HOURLY_A_MINUS_WH, "A-"));
 
-        MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
-                .orElseThrow(() -> new NoSuchElementException(PURPOSE_NOT_FOUND));
+        MetrologyPurpose purposeBilling = findPurposeOrThrowException(DefaultMetrologyPurpose.BILLING);
+        MetrologyPurpose purposeInformation = findPurposeOrThrowException(DefaultMetrologyPurpose.INFORMATION);
         MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
 
-        ReadingTypeRequirement requirementAminus = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_MINUS.getNameTranslation()
+        ReadingTypeRequirement requirementAMinus = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_MINUS.getNameTranslation()
                 .getDefaultFormat(), meterRole)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_MINUS));
 
-        contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeDailyAplusWh, requirementAminus, "Daily A- kWh"));
-        contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeMonthlyAplusWh, requirementAminus, "Monthly A- kWh"));
+        contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeDailyAMinusWh, requirementAMinus, "Daily A- kWh"));
+        contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeMonthlyAMinusWh, requirementAMinus, "Monthly A- kWh"));
+        ReadingTypeDeliverable min15 = buildFormulaSingleRequirement(config, readingType15minAMinusWh, requirementAMinus, "15-min A- kWh");
+        contractInformation.addDeliverable(min15);
+        contractInformation.addDeliverable(buildFormulaSingleDeliverable(config, readingTypeHourlyAMinusWh, min15, "Hourly A- kWh"));
     }
 
     private void residentialNetMeteringConsumption() {
@@ -324,10 +334,8 @@ class MetrologyConfigurationsInstaller {
                 .findFirst()
                 .orElseGet(() -> meteringService.createReadingType(BULK_A_PLUS_WH, "A+"));
 
-        MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
-                .orElseThrow(() -> new NoSuchElementException(PURPOSE_NOT_FOUND));
-        MetrologyPurpose purposeInformation = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
-                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyPurpose purposeBilling = findPurposeOrThrowException(DefaultMetrologyPurpose.BILLING);
+        MetrologyPurpose purposeInformation = findPurposeOrThrowException(DefaultMetrologyPurpose.INFORMATION);
 
         MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
         MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
@@ -375,8 +383,7 @@ class MetrologyConfigurationsInstaller {
                 .findFirst()
                 .orElseGet(() -> meteringService.createReadingType(BULK_A_PLUS_WH, "A+"));
 
-        MetrologyPurpose purposeInformation = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
-                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyPurpose purposeInformation = findPurposeOrThrowException(DefaultMetrologyPurpose.INFORMATION);
 
         MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
 
@@ -418,8 +425,7 @@ class MetrologyConfigurationsInstaller {
                 .findFirst()
                 .orElseGet(() -> meteringService.createReadingType(BILLING_GAS_FLOW, "Billing gas flow"));
 
-        MetrologyPurpose purposeInformation = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
-                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyPurpose purposeInformation = findPurposeOrThrowException(DefaultMetrologyPurpose.INFORMATION);
 
         MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
 
@@ -498,10 +504,8 @@ class MetrologyConfigurationsInstaller {
                 .findFirst()
                 .orElseGet(() -> meteringService.createReadingType("0.2.7.6.0.1.158.0.0.0.0.0.0.0.32.0.29.0", "Average voltage"));
 
-        MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
-                .orElseThrow(() -> new NoSuchElementException(PURPOSE_NOT_FOUND));
-        MetrologyPurpose purposeVoltageMonitoring = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.VOLTAGE_MONITORING)
-                .orElseThrow(() -> new NoSuchElementException("Voltage monitoring metrology purpose not found"));
+        MetrologyPurpose purposeBilling = findPurposeOrThrowException(DefaultMetrologyPurpose.BILLING);
+        MetrologyPurpose purposeVoltageMonitoring = findPurposeOrThrowException(DefaultMetrologyPurpose.VOLTAGE_MONITORING);
 
         MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
         MetrologyContract contractVoltageMonitoring = config.addMandatoryMetrologyContract(purposeVoltageMonitoring);
@@ -588,8 +592,7 @@ class MetrologyConfigurationsInstaller {
                 .findFirst()
                 .orElseGet(() -> meteringService.createReadingType("13.0.0.4.1.1.12.0.0.0.0.4.0.0.0.3.72.0", "A+"));
 
-        MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
-                .orElseThrow(() -> new NoSuchElementException(PURPOSE_NOT_FOUND));
+        MetrologyPurpose purposeBilling = findPurposeOrThrowException(DefaultMetrologyPurpose.BILLING);
         MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
 
         ReadingTypeRequirement requirementAplusToU1 = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS
@@ -647,11 +650,9 @@ class MetrologyConfigurationsInstaller {
                 .orElseGet(() -> meteringService.createReadingType("0.0.7.4.1.7.58.0.0.0.0.0.0.0.0.0.42.0", "Hourly volume m³"));
 
 
-        MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
-                .orElseThrow(() -> new NoSuchElementException(PURPOSE_NOT_FOUND));
+        MetrologyPurpose purposeBilling = findPurposeOrThrowException(DefaultMetrologyPurpose.BILLING);
         MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
-        MetrologyPurpose purposeInformation = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
-                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyPurpose purposeInformation = findPurposeOrThrowException(DefaultMetrologyPurpose.INFORMATION);
         MetrologyContract contractInformation = config.addMetrologyContract(purposeInformation);
 
         ReadingTypeRequirement requirementGasVolume = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.GAS_VOLUME
@@ -692,12 +693,10 @@ class MetrologyConfigurationsInstaller {
                 .findFirst()
                 .orElseGet(() -> meteringService.createReadingType("13.0.0.4.1.9.58.0.0.0.0.0.0.0.0.0.42.0", "Monthly consumption m³"));
 
-
-        MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
-                .orElseThrow(() -> new NoSuchElementException(PURPOSE_NOT_FOUND));
+        MetrologyPurpose purposeBilling = findPurposeOrThrowException(DefaultMetrologyPurpose.BILLING);
         MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
 
-        ReadingTypeRequirement requiremenPeakConsumption = config.newReadingTypeRequirement("Peak consumption", meterRolePeakConsumption)
+        ReadingTypeRequirement requirementPeakConsumption = config.newReadingTypeRequirement("Peak consumption", meterRolePeakConsumption)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.WATER_VOLUME))
                 .overrideAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, 42);
         ReadingTypeRequirement requirementOffPeakConsumption = config.newReadingTypeRequirement("Off peak consumption", meterRoleOffPeakConsumption)
@@ -705,14 +704,18 @@ class MetrologyConfigurationsInstaller {
                 .overrideAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, 42);
 
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Monthly consumption m³", readingTypeMonthlyConsumption, Formula.Mode.AUTO);
-        contractBilling.addDeliverable(builder.build(builder.plus(builder.requirement(requiremenPeakConsumption), builder
+        contractBilling.addDeliverable(builder.build(builder.plus(builder.requirement(requirementPeakConsumption), builder
                 .requirement(requirementOffPeakConsumption))));
-
     }
 
     ReadingTypeDeliverable buildFormulaSingleRequirement(UsagePointMetrologyConfiguration config, ReadingType readingType, ReadingTypeRequirement requirement, String name) {
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
         return builder.build(builder.requirement(requirement));
+    }
+
+    ReadingTypeDeliverable buildFormulaSingleDeliverable(UsagePointMetrologyConfiguration config, ReadingType readingType, ReadingTypeDeliverable underlying, String name) {
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
+        return builder.build(builder.deliverable(underlying));
     }
 
     ReadingTypeDeliverable buildFormulaSingleRequirement(UsagePointMetrologyConfiguration config, DeliverableType deliverableType, ReadingType readingType, ReadingTypeRequirement requirement, String name) {
@@ -730,8 +733,7 @@ class MetrologyConfigurationsInstaller {
     }
 
     ReadingTypeTemplate getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate defaultReadingTypeTemplate) {
-        return metrologyConfigurationService.findReadingTypeTemplate(defaultReadingTypeTemplate.getNameTranslation()
-                .getDefaultFormat())
+        return metrologyConfigurationService.findReadingTypeTemplate(defaultReadingTypeTemplate.getNameTranslation().getDefaultFormat())
                 .orElseThrow(() -> new NoSuchElementException("Default reading type template not found"));
     }
 
@@ -745,5 +747,10 @@ class MetrologyConfigurationsInstaller {
 
     void createMetrologyConfigurations() {
         this.install();
+    }
+
+    private MetrologyPurpose findPurposeOrThrowException(DefaultMetrologyPurpose purpose) {
+        return metrologyConfigurationService.findMetrologyPurpose(purpose)
+                .orElseThrow(() -> new NoSuchElementException(purpose.getName().getDefaultMessage() + " metrology purpose not found"));
     }
 }
