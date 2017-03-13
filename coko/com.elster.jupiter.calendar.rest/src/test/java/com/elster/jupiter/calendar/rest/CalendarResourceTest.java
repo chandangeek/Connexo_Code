@@ -74,7 +74,7 @@ public class CalendarResourceTest extends CalendarApplicationTest {
         when(calendar.getName()).thenReturn(CALENDAR_NAME);
         when(calendar.getDescription()).thenReturn(CALENDAR_DESCRIPTION);
         when(calendar.getStartYear()).thenReturn(Year.of(2010));
-        when(calendar.getEndYear()).thenReturn(Year.of(2020));
+        when(calendar.getEndYear()).thenReturn(Optional.of(Year.of(2020)));
         when(calendar.getStatus()).thenReturn(Status.ACTIVE);
 
         Category category = mock(Category.class);
@@ -105,7 +105,7 @@ public class CalendarResourceTest extends CalendarApplicationTest {
         when(dayType2.getId()).thenReturn(7L);
         when(dayType2.getName()).thenReturn(DAY_TYPE2_NAME);
 
-        ArrayList<DayType> dayTypes = new ArrayList<>();
+        List<DayType> dayTypes = new ArrayList<>();
         dayTypes.add(dayType);
         dayTypes.add(dayType2);
 
@@ -119,7 +119,7 @@ public class CalendarResourceTest extends CalendarApplicationTest {
         for(DayOfWeek dayOfWeek: DayOfWeek.values()) {
             when(period.getDayType(dayOfWeek)).thenReturn(dayType);
         }
-        when(periodTransition.getOccurrence()).thenReturn(LocalDate.of(2016,3,7));
+        when(periodTransition.getOccurrence()).thenReturn(LocalDate.of(2016, 3, 7));
 
         PeriodTransition periodTransition2 = mock(PeriodTransition.class);
         Period period2 = mock(Period.class);
@@ -129,7 +129,7 @@ public class CalendarResourceTest extends CalendarApplicationTest {
         for(DayOfWeek dayOfWeek: DayOfWeek.values()) {
             when(period2.getDayType(dayOfWeek)).thenReturn(dayType2);
         }
-        when(periodTransition2.getOccurrence()).thenReturn(LocalDate.of(2016,4,7));
+        when(periodTransition2.getOccurrence()).thenReturn(LocalDate.of(2016, 4, 7));
 
         PeriodTransition periodTransition3 = mock(PeriodTransition.class);
         Period period3 = mock(Period.class);
@@ -138,7 +138,7 @@ public class CalendarResourceTest extends CalendarApplicationTest {
         for(DayOfWeek dayOfWeek: DayOfWeek.values()) {
             when(period3.getDayType(dayOfWeek)).thenReturn(dayType2);
         }
-        when(periodTransition3.getOccurrence()).thenReturn(LocalDate.of(2016,5,7));
+        when(periodTransition3.getOccurrence()).thenReturn(LocalDate.of(2016, 5, 7));
 
         List<PeriodTransition> periodTransitions = new ArrayList<>();
         periodTransitions.add(periodTransition);

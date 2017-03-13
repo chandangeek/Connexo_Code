@@ -135,8 +135,7 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
     }
 
     private boolean isDayInCalendar(Calendar calendar, LocalDate calculatedDate) {
-        return calendar.getStartYear().getValue() <= calculatedDate.getYear() &&
-                ((calendar.getEndYear().getValue() == 0) || (calculatedDate.getYear() <= calendar.getEndYear().getValue()));
+        return calendar.getStartYear().getValue() <= calculatedDate.getYear();
     }
 
     private Map<LocalDate, DayType> calculateWeekInfo(Calendar calendar, LocalDate localDate, Map<Long, PeriodTransition> periodTransistions) {
