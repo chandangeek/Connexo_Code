@@ -39,6 +39,8 @@ class MetrologyConfigurationsInstaller {
     private static final String DETAIL_PHASE_CODE = "detail.phaseCode";
     private static final String ROLE_NOT_FOUND = "Default meter role not found";
     private static final String REACTIVE_ENERGY_PLUS = "Reactive energy+";
+    static final String YEARLY_A_PLUS_WH = "1001.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    static final String YEARLY_A_MINUS_WH = "1001.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0";
     static final String MONTHLY_A_PLUS_WH = "13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     static final String MONTHLY_A_MINUS_WH = "13.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0";
     static final String DAILY_A_PLUS_WH = "11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
@@ -69,6 +71,7 @@ class MetrologyConfigurationsInstaller {
         residentialConsumerWith4ToU();
         waterConfigurationCI();
         residentialGas();
+        residentialWater();
         residentialNonSmartInstallation();
         residentialGasNonSmartInstallation();
     }
@@ -215,6 +218,14 @@ class MetrologyConfigurationsInstaller {
                 .stream()
                 .findFirst()
                 .orElseGet(() -> meteringService.createReadingType(MONTHLY_A_MINUS_WH, "A-"));
+        ReadingType readingTypeYearlyAplusWh = meteringService.findReadingTypes(Collections.singletonList(YEARLY_A_PLUS_WH))
+                .stream()
+                .findFirst()
+                .orElseGet(() -> meteringService.createReadingType(YEARLY_A_PLUS_WH, "A+"));
+        ReadingType readingTypeYearlyAminusWh = meteringService.findReadingTypes(Collections.singletonList(YEARLY_A_MINUS_WH))
+                .stream()
+                .findFirst()
+                .orElseGet(() -> meteringService.createReadingType(YEARLY_A_MINUS_WH, "A-"));
 
         MetrologyPurpose purposeBilling = findPurposeOrThrowException(DefaultMetrologyPurpose.BILLING);
 
@@ -230,6 +241,8 @@ class MetrologyConfigurationsInstaller {
 
         contractBilling.addDeliverable(buildFormulaRequirementMax(config, readingTypeMonthlyAplusWh, requirementAplus, requirementAminus, "Monthly A+ kWh"));
         contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeMonthlyAminusWh, requirementAminus, "Monthly A- kWh"));
+        contractBilling.addDeliverable(buildFormulaRequirementMax(config, readingTypeYearlyAplusWh, requirementAplus, requirementAminus, "Yearly A+ kWh"));
+        contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeYearlyAminusWh, requirementAminus, "Yearly A- kWh"));
     }
 
     private void residentialNetMeteringProduction() {
@@ -663,6 +676,48 @@ class MetrologyConfigurationsInstaller {
         contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeDailyVolume, requirementGasVolume, "Daily volume m³"));
         contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeMonthlyVolume, requirementGasVolume, "Monthly volume m³"));
         contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingTypeHourlyVolume, requirementGasVolume, "Hourly volume m³"));
+    }
+
+    private void residentialWater() {
+        if (metrologyConfigurationService.findMetrologyConfiguration("Residential water").isPresent()) {
+            return;
+        }
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.GAS)
+                .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.WATER));
+        UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential water", serviceCategory)
+                .withDescription("Residential water").create();
+
+        config.addUsagePointRequirement(getUsagePointRequirement(SERVICEKIND, SearchablePropertyOperator.EQUAL, ServiceKind.WATER
+                .name()));
+        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP
+                .name()));
+
+        MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
+                .orElseThrow(() -> new NoSuchElementException(ROLE_NOT_FOUND));
+        config.addMeterRole(meterRole);
+
+        ReadingType readingTypeYearlyVolume = meteringService.findReadingTypes(Collections.singletonList("1001.0.0.4.1.9.58.0.0.0.0.0.0.0.0.0.42.0"))
+                .stream()
+                .findFirst()
+                .orElseGet(() -> meteringService.createReadingType("1001.0.0.4.1.9.58.0.0.0.0.0.0.0.0.0.42.0", "Yearly volume m³"));
+
+        ReadingType readingTypeDailyVolume = meteringService.findReadingTypes(Collections.singletonList("11.0.0.4.1.9.58.0.0.0.0.0.0.0.0.0.42.0"))
+                .stream()
+                .findFirst()
+                .orElseGet(() -> meteringService.createReadingType("11.0.0.4.1.9.58.0.0.0.0.0.0.0.0.0.42.0", "Daily volume m³"));
+
+        MetrologyPurpose purposeBilling = findPurposeOrThrowException(DefaultMetrologyPurpose.BILLING);
+        MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
+        MetrologyPurpose purposeInformation = findPurposeOrThrowException(DefaultMetrologyPurpose.INFORMATION);
+        MetrologyContract contractInformation = config.addMetrologyContract(purposeInformation);
+
+        ReadingTypeRequirement requirementWaterVolume = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.WATER_VOLUME
+                .getNameTranslation().getDefaultFormat(), meterRole)
+                .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.WATER_VOLUME))
+                .overrideAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, 42);
+
+        contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeYearlyVolume, requirementWaterVolume, "Yearly volume m³"));
+        contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingTypeDailyVolume, requirementWaterVolume, "Daily volume m³"));
     }
 
     private void waterConfigurationCI() {
