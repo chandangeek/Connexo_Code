@@ -149,7 +149,6 @@ public class ActiveEffectiveCalendarImplTest extends PersistenceIntegrationTest 
         return calendarService
                 .newCalendar("Calendar", Year.of(2010), eventSet)
                 .category(category)
-                .endYear(Year.of(2020))
                 .description("Description remains to be completed :-)")
                 .mRID("Calendar")
                 .newDayType("Summer weekday")
