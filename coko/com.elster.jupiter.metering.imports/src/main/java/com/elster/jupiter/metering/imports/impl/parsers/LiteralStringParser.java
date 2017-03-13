@@ -4,7 +4,7 @@
 
 package com.elster.jupiter.metering.imports.impl.parsers;
 
-import com.elster.jupiter.metering.imports.impl.FieldParser;
+import com.elster.jupiter.fileimport.csvimport.FieldParser;
 import com.elster.jupiter.util.Checks;
 
 public class LiteralStringParser implements FieldParser<String> {

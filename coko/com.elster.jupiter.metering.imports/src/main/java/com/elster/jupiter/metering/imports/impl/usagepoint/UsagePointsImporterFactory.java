@@ -10,9 +10,9 @@ import com.elster.jupiter.metering.imports.impl.AbstractFileImporterFactory;
 import com.elster.jupiter.metering.imports.impl.CsvImporter;
 import com.elster.jupiter.metering.imports.impl.DataImporterProperty;
 import com.elster.jupiter.metering.imports.impl.FileImportDescriptionBasedParser;
-import com.elster.jupiter.metering.imports.impl.FileImportLogger;
-import com.elster.jupiter.metering.imports.impl.FileImportParser;
-import com.elster.jupiter.metering.imports.impl.FileImportProcessor;
+import com.elster.jupiter.fileimport.csvimport.FileImportLogger;
+import com.elster.jupiter.fileimport.csvimport.FileImportParser;
+import com.elster.jupiter.fileimport.csvimport.FileImportProcessor;
 import com.elster.jupiter.metering.imports.impl.MeteringDataImporterContext;
 import com.elster.jupiter.metering.imports.impl.properties.SupportedNumberFormat;
 

@@ -5,7 +5,9 @@
 package com.elster.jupiter.metering.imports.impl;
 
 import com.elster.jupiter.fileimport.FileImportOccurrence;
-import com.elster.jupiter.metering.imports.impl.exceptions.ImportException;
+import com.elster.jupiter.fileimport.csvimport.FileImportLogger;
+import com.elster.jupiter.fileimport.csvimport.FileImportRecord;
+import com.elster.jupiter.fileimport.csvimport.exceptions.ImportException;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 

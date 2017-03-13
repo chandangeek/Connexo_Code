@@ -7,7 +7,7 @@ package com.elster.jupiter.metering.imports.impl.usagepoint;
 import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.imports.impl.CustomPropertySetRecord;
-import com.elster.jupiter.metering.imports.impl.FileImportRecord;
+import com.elster.jupiter.fileimport.csvimport.FileImportRecord;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Quantity;
 

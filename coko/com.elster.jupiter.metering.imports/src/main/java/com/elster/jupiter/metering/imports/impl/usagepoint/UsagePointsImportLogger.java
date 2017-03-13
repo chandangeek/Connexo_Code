@@ -5,7 +5,7 @@
 package com.elster.jupiter.metering.imports.impl.usagepoint;
 
 import com.elster.jupiter.metering.imports.impl.FileImportLoggerImpl;
-import com.elster.jupiter.metering.imports.impl.FileImportRecord;
+import com.elster.jupiter.fileimport.csvimport.FileImportRecord;
 import com.elster.jupiter.metering.imports.impl.MeteringDataImporterContext;
 import com.elster.jupiter.metering.imports.impl.TranslationKeys;
 import com.elster.jupiter.nls.TranslationKey;

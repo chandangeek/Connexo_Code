@@ -5,6 +5,7 @@
 package com.elster.jupiter.metering.imports.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -97,6 +98,7 @@ public class InMemoryIntegrationPersistence {
         modules.add(new TimeModule());
         modules.add(new UsagePointLifeCycleConfigurationModule());
         modules.add(new UsagePointLifeCycleModule());
+        modules.add(new CalendarModule());
         modules.add(new TaskModule());
         modules.add(bootstrapModule);
 

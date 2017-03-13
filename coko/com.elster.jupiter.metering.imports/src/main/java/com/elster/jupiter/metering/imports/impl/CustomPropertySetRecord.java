@@ -5,6 +5,7 @@
 package com.elster.jupiter.metering.imports.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.fileimport.csvimport.FileImportRecord;
 
 import java.time.Instant;
 import java.util.Optional;
