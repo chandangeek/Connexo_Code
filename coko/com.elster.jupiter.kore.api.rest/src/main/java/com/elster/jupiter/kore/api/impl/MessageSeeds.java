@@ -84,7 +84,14 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_METER_ACTIVATION_FOR_METER_ROLE(72, "NoSuchMeterActivation", "No such meter activation for meter role"),
     METROLOGY_CONTRACTS_INCOMPLETE(73, "MetrolsyContractsIncomplete", "The required metrology contracts are incomplete"),
     CAS_IS_NOT_ATTACHED_TO_USAGE_POINT(74, "CasIsNotAttachedToUsagePoint", "The custom attribute set with id {0} is not attached to the usage point"),
-    NO_SUCH_LOCATION(75, "NoSuchLocation", "No such location with id {0}");
+    NO_SUCH_LOCATION(75, "NoSuchLocation", "No such location with id {0}"),
+    NO_SUCH_ISSUE(76, "NoSuchIssue", "No such issue with id {0}"),
+    NO_SUCH_USER(77, "NoSuchUser", "No such User with id {0}"),
+    NO_SUCH_STATUS(78, "NoSuchStatus", "No such Status with key {0}"),
+    ISSUE_LOCK_ATTEMPT_FAILED(79, "IssueLockAttemptFailed", "Could not obtain a lock on issue with id {0}"),
+    BAD_FIELD_VALUE(80, "BadFieldValue", "Bad field value for {0}"),
+    ISSUE_ALREADY_CLOSED(81, "IssueAlreadyClosed", "Issue with id {0} already closed")
+    ;
 
     private final int number;
     private final String key;

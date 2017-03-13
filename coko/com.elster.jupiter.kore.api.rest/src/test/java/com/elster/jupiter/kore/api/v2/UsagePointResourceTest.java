@@ -13,6 +13,7 @@ import com.elster.jupiter.kore.api.impl.MessageSeeds;
 import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommand;
 import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandCallbackInfo;
 import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandInfo;
+import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.GasDetailBuilder;
@@ -81,7 +82,6 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
-
 
     @Test
     public void testUsagePointFields() throws Exception {
@@ -449,6 +449,8 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         info.coordinates.longitude = BigDecimal.valueOf(11.1);
         info.coordinates.elevation = BigDecimal.valueOf(12.1);
         info.version = 2L;
+        info.connectionState = new UsagePointConnectionStateInfo();
+        info.connectionState.connectionStateId = ConnectionState.CONNECTED.getId();
 
         UsagePoint usagePoint = mockUsagePoint(MRID, 2L, ServiceKind.ELECTRICITY);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
@@ -472,6 +474,7 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         verify(usagePoint).setServicePriority("new priority");
         verify(usagePoint).setLocation(13L);
         verify(usagePoint).update();
+        verify(usagePoint).setConnectionState(ConnectionState.CONNECTED, clock.instant());
 
         SpatialCoordinates coordinates = coordinatesArgumentCaptor.getValue();
         assertThat(coordinates.getLatitude().getValue()).isEqualTo(BigDecimal.valueOf(10.1));
@@ -550,7 +553,7 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         UsagePointInfo info = new UsagePointInfo();
         info.version = 2L;
         info.location = new LocationInfo();
-        info.location.locationId = 123123L;
+        info.location.locationId = 123L;
 
         // Business method
         Response response = target("/usagepoints/" + MRID).request().put(Entity.json(info));
@@ -560,7 +563,7 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Boolean>get("$.success")).isFalse();
         assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.NO_SUCH_LOCATION.getKey());
-        assertThat(jsonModel.<String>get("$.message")).isEqualTo(thesaurus.getFormat(MessageSeeds.NO_SUCH_LOCATION).format(123123L));
+        assertThat(jsonModel.<String>get("$.message")).isEqualTo(thesaurus.getFormat(MessageSeeds.NO_SUCH_LOCATION).format(info.location.locationId));
 
         verify(usagePoint, never()).update();
     }
