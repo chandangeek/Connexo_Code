@@ -1,10 +1,15 @@
-package com.energyict.protocolimpl.edmi.mk6.loadsurvey;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+package com.energyict.protocolimplv2.edmi.mk6.profiles;
 
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.edmi.common.command.CommandFactory;
 import com.energyict.protocolimpl.edmi.common.command.ReadCommand;
 import com.energyict.protocolimpl.edmi.common.core.RegisterUnitParser;
 import com.energyict.protocolimpl.edmi.mk6.registermapping.MK6RegisterInformation;
+import com.energyict.protocolimplv2.edmi.mk6.MK6;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -17,6 +22,7 @@ public class LoadSurvey implements Serializable {
 
 
     private CommandFactory commandFactory;
+    private boolean preventCrossingIntervalBoundaryWhenReading;
     private int registerId;
 
     private int nrOfChannels;
@@ -29,6 +35,7 @@ public class LoadSurvey implements Serializable {
 
     public LoadSurvey(CommandFactory commandFactory, int registerId) {
         this.setCommandFactory(commandFactory);
+        this.setPreventCrossingIntervalBoundaryWhenReading(((MK6) commandFactory.getProtocol()).getProperties().preventCrossingIntervalBoundaryWhenReading());
         this.setRegisterId(registerId);
         init();
     }
@@ -73,7 +80,9 @@ public class LoadSurvey implements Serializable {
     }
 
     public LoadSurveyData readFile(Date from) throws ProtocolException {
-        return new LoadSurveyData(this,from);
+        LoadSurveyData loadSurveyData = new LoadSurveyData(this);
+        loadSurveyData.readFile(from);
+        return loadSurveyData;
     }
 
     public CommandFactory getCommandFactory() {
@@ -82,6 +91,14 @@ public class LoadSurvey implements Serializable {
 
     private void setCommandFactory(CommandFactory commandFactory) {
         this.commandFactory = commandFactory;
+    }
+
+    public boolean preventCrossingIntervalBoundaryWhenReading() {
+        return preventCrossingIntervalBoundaryWhenReading;
+    }
+
+    private void setPreventCrossingIntervalBoundaryWhenReading(boolean preventCrossingIntervalBoundaryWhenReading) {
+        this.preventCrossingIntervalBoundaryWhenReading = preventCrossingIntervalBoundaryWhenReading;
     }
 
     public int getRegisterId() {

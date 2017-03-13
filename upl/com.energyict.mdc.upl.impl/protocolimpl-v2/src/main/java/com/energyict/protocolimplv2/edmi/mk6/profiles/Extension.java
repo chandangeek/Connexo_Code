@@ -1,4 +1,8 @@
-package com.energyict.protocolimpl.edmi.mk6.loadsurvey;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+package com.energyict.protocolimplv2.edmi.mk6.profiles;
 
 import java.io.Serializable;
 
