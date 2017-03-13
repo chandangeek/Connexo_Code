@@ -47,6 +47,12 @@ public interface PkiService {
     Optional<TrustStore> findTrustStore(String name);
 
     /**
+     * Returns a lost of all trust stores
+     * @return List of trust stores
+     */
+    List<TrustStore> getAllTrustStores();
+
+    /**
      * Get a list of names of all KeyEncryptionMethods that registered through whiteboard.
      * @return List of key encryption method names
      */
