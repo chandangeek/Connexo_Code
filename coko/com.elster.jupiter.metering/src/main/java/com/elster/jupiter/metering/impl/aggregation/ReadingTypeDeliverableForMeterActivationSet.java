@@ -6,7 +6,6 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
@@ -62,7 +61,7 @@ class ReadingTypeDeliverableForMeterActivationSet {
         this.expressionReadingType = expressionReadingType;
         this.requirements =
                 this.expressionNode
-                        .accept(new RequirementsFromExpressionNode())
+                        .accept(RequirementsFromExpressionNode.nonRecursiveOnDeliverables())
                         .stream()
                         .map(VirtualRequirementNode::getRequirement)
                         .collect(Collectors.toList());
@@ -77,7 +76,7 @@ class ReadingTypeDeliverableForMeterActivationSet {
 
     Stream<ServerDataAggregationService.DetailedCalendarUsage> getDetailedCalendarUsages() {
         return this.expressionNode
-                .accept(new RequirementsFromExpressionNode())
+                .accept(RequirementsFromExpressionNode.recursiveOnDeliverables())
                 .stream()
                 .map(VirtualRequirementNode::toDetailedCalendarUsage);
     }

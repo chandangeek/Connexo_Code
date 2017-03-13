@@ -26,6 +26,7 @@ import com.elster.jupiter.metering.impl.aggregation.SqlBuilderFactoryImpl;
 import com.elster.jupiter.metering.impl.aggregation.VirtualFactory;
 import com.elster.jupiter.metering.impl.aggregation.VirtualFactoryImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.properties.PropertySpecService;
