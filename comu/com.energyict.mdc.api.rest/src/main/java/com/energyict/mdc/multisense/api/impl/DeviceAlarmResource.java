@@ -7,7 +7,6 @@ package com.energyict.mdc.multisense.api.impl;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kore.api.v2.issue.IssueCommentShortInfo;
-import com.elster.jupiter.kore.api.v2.issue.IssueShortInfo;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PagedInfoList;
 import com.elster.jupiter.rest.util.ExceptionFactory;
