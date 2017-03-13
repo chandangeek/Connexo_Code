@@ -13,6 +13,8 @@ import com.elster.jupiter.tasks.TaskService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
+
 /**
  * Provides factory services for {@link CalendarTimeSeriesCacheHandler}.
  *
@@ -30,6 +32,20 @@ public class CalendarTimeSeriesCacheHandlerFactory implements MessageHandlerFact
     private volatile TaskService taskService;
     private volatile MeteringService meteringService;
     private volatile ServerDataAggregationService dataAggregationService;
+
+    // For OSGi purposes
+    public CalendarTimeSeriesCacheHandlerFactory() {
+        super();
+    }
+
+    // For testing purposes
+    @Inject
+    public CalendarTimeSeriesCacheHandlerFactory(TaskService taskService, MeteringService meteringService, ServerDataAggregationService dataAggregationService) {
+        this();
+        this.setTaskService(taskService);
+        this.setMeteringService(meteringService);
+        this.setDataAggregationService(dataAggregationService);
+    }
 
     @Reference
     public void setTaskService(TaskService taskService) {
