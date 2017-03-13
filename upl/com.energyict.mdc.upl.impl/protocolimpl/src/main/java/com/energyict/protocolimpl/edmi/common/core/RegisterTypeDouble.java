@@ -15,7 +15,7 @@ public class RegisterTypeDouble extends AbstractRegisterType {
     /** Creates a new instance of RegisterTypeByte */
     public RegisterTypeDouble(byte[] data) throws ProtocolException {
                 
-        // in case of reading TOU registers, if the 'D' is omitted with the R connand, the register is returned as float instead of double
+        // in case of reading TOU registers, if the 'D' is omitted with the R command, the register is returned as float instead of double
         // See EDMI register manual and command line protocol info page 4-4
         if (data.length == 8) {
             long bits = ((long)data[0] & 0xff) << 56   | 

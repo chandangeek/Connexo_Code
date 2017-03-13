@@ -16,73 +16,60 @@ import java.math.BigDecimal;
 
 
 /**
- *
  * @author koen
  */
 public class LoadSurveyChannel {
 
-	private int width;
-	private int type; // internal data type
-	private Unit unit;
-	private int scaling; // DecimalPointScaling (place of the decimal point)
-	private BigDecimal scalingFactor; // ScalingFactor (k, M, G, ...)
+    private int width;
+    private Unit unit;
+    private int decimalPointPosition; // DecimalPointScaling (place of the decimal point)
+    private BigDecimal scalingFactor; // ScalingFactor (k, M, G, ...)
+    private boolean isInstantaneousChannel;
 
+    /**
+     * Creates a new instance of LoadSurveyChannel
+     */
+    public LoadSurveyChannel() {
+    }
 
+    public int getWidth() {
+        return width;
+    }
 
-	/** Creates a new instance of LoadSurveyChannel */
-	public LoadSurveyChannel() {
-	}
+    public void setWidth(int width) {
+        this.width = width;
+    }
 
-	public String toString() {
-		// Generated code by ToStringBuilder
-		StringBuffer strBuff = new StringBuffer();
-		strBuff.append("LoadSurveyChannel:\n");
-		strBuff.append("   scaling="+getScaling()+"\n");
-		strBuff.append("   scalingFactor="+getScalingFactor()+"\n");
-		strBuff.append("   type="+getType()+"\n");
-		strBuff.append("   unit="+getUnit()+"\n");
-		strBuff.append("   width="+getWidth()+"\n");
-		return strBuff.toString();
-	}
+    public Unit getUnit() {
+        return unit;
+    }
 
-	public int getWidth() {
-		return width;
-	}
+    public void setUnit(Unit unit) {
+        this.unit = unit;
+    }
 
-	public void setWidth(int width) {
-		this.width = width;
-	}
+    public int getDecimalPointPosition() {
+        return decimalPointPosition;
+    }
 
-	public int getType() {
-		return type;
-	}
+    public void setDecimalPointPosition(int decimalPointPosition) {
+        this.decimalPointPosition = decimalPointPosition;
+    }
 
-	public void setType(int type) {
-		this.type = type;
-	}
+    public BigDecimal getScalingFactor() {
+        return scalingFactor;
+    }
 
-	public Unit getUnit() {
-		return unit;
-	}
+    public void setScalingFactor(BigDecimal scalingFactor) {
+        this.scalingFactor = scalingFactor;
+    }
 
-	public void setUnit(Unit unit) {
-		this.unit = unit;
-	}
+    public boolean isInstantaneousChannel() {
+        return isInstantaneousChannel;
+    }
 
-	public int getScaling() {
-		return scaling;
-	}
-
-	public void setScaling(int scaling) {
-		this.scaling = scaling;
-	}
-
-	public BigDecimal getScalingFactor() {
-		return scalingFactor;
-	}
-
-	public void setScalingFactor(BigDecimal scalingFactor) {
-		this.scalingFactor = scalingFactor;
-	}
+    public void markAsInstantaneousChannel() {
+        isInstantaneousChannel = true;
+    }
 
 }

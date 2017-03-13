@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.edmi.common.command;
 
 import com.energyict.protocolimpl.edmi.common.CommandLineProtocol;
+import com.energyict.protocolimpl.edmi.common.core.DataType;
 import com.energyict.protocolimpl.edmi.common.core.DateTimeBuilder;
 
 import java.util.Date;
@@ -15,6 +16,7 @@ public class TimeInfo {
     private final int CLOCK_COMMAND_READ_STD = 0xF03D; // std time
     private final int CLOCK_COMMAND_WRITE_STD = 0xF03D; // std time
     private final int DST_USED = 0xF015;
+
     CommandLineProtocol commandLineProtocol;
     
     /** Creates a new instance of TimeInfo */
@@ -37,6 +39,6 @@ public class TimeInfo {
     }
     
     public Date getTime() {
-        return commandLineProtocol.getCommandFactory().getReadCommand(CLOCK_COMMAND_READ_STD).getRegister().getDate();
+        return commandLineProtocol.getCommandFactory().getReadCommand(CLOCK_COMMAND_READ_STD, DataType.T_TIME_DATE_SINCE__1_97).getRegister().getDate();
     }
 }

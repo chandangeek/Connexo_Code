@@ -4,6 +4,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.edmi.common.core.AbstractRegisterType;
+import com.energyict.protocolimpl.edmi.common.core.DataType;
 import com.energyict.protocolimpl.edmi.common.core.RegisterTypeParser;
 import com.energyict.protocolimpl.edmi.common.core.RegisterUnitParser;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -16,6 +17,7 @@ public class ReadCommand extends AbstractCommand {
     private static final char EXTENDED_READ_COMMAND = 'M';
     private static final char READ_COMMAND = 'R';
     private int registerId;
+    private DataType presetDataType;
     private byte[] data;
     private AbstractRegisterType register;
     private Unit unit;
@@ -89,10 +91,18 @@ public class ReadCommand extends AbstractCommand {
             setData(ProtocolUtils.getSubArray(rawData, 3, rawData.length - 1));
         }
 
-        InformationCommand ic = getCommandFactory().getInformationCommand(getRegisterId());
+        char type;
+        if (getPresetDataType() == null) {
+            InformationCommand ic = getCommandFactory().getInformationCommand(getRegisterId());
+            type = ic.getDataType();
+            setUnit(RegisterUnitParser.parse(ic.getMeasurementUnit()));
+        } else {
+            type = getPresetDataType().getType();
+            setUnit(Unit.getUndefined());
+        }
+
         RegisterTypeParser rtp = new RegisterTypeParser(getCommandFactory().getProtocol().getTimeZone());
-        register = rtp.parse2External(ic.getDataType(), getData());
-        setUnit(RegisterUnitParser.parse(ic.getMeasurementUnit()));
+        register = rtp.parse2External(type, getData());
     }
 
     public int getRegisterId() {
@@ -101,6 +111,14 @@ public class ReadCommand extends AbstractCommand {
 
     public void setRegisterId(int registerId) {
         this.registerId = registerId;
+    }
+
+    public DataType getPresetDataType() {
+        return presetDataType;
+    }
+
+    public void setPresetDataType(DataType presetDataType) {
+        this.presetDataType = presetDataType;
     }
 
     public byte[] getData() {

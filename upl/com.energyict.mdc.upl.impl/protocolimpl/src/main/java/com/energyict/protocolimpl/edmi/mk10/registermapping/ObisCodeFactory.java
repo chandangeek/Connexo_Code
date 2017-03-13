@@ -17,8 +17,11 @@ import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.edmi.common.CommandLineProtocol;
 import com.energyict.protocolimpl.edmi.common.command.ReadCommand;
+import com.energyict.protocolimpl.edmi.common.core.DataType;
 import com.energyict.protocolimpl.edmi.common.core.DateTimeBuilder;
 import com.energyict.protocolimpl.edmi.common.core.TOUChannelTypeParser;
+import com.energyict.protocolimpl.edmi.common.registermapping.BillingInfo;
+import com.energyict.protocolimpl.edmi.common.registermapping.TOURegisterInfo;
 import com.energyict.util.Pair;
 
 import java.math.BigDecimal;
@@ -47,7 +50,6 @@ public class ObisCodeFactory {
     private final int TYPE_ENERGY = 0;
     private final int TYPE_MAX_DEMAND = 1;
 
-
     // tou period
     private final int PERIOD_CURRENT = 0;
     private final int PERIOD_PREVIOUS1 = 1;
@@ -67,7 +69,7 @@ public class ObisCodeFactory {
         TOUChannelTypeParser tou_ctp;
 
         for (int channel = CHANNEL_START; channel < CHANNEL_NR_OF_CHANNELS; channel++) {
-            int c_definitions = getProtocol().getCommandFactory().getReadCommand(MK10Register.TOU_CHANNEL_DEFINITIONS + channel).getRegister().getBigDecimal().intValue();
+            int c_definitions = getProtocol().getCommandFactory().getReadCommand(MK10RegisterInformation.TOU_CHANNEL_DEFINITIONS.getRegisterId() + channel, DataType.I_SHORT).getRegister().getBigDecimal().intValue();
             tou_ctp = new TOUChannelTypeParser(c_definitions);
 
             if (tou_ctp.isChannel() && (tou_ctp.getObisCField() > 0)) {
@@ -76,27 +78,17 @@ public class ObisCodeFactory {
                 int dps = tou_ctp.getDecimalPointScaling();
                 Unit unit = tou_ctp.getUnit();
 
-                String name1 = "Energy " + tou_ctp.getName() + " Current period";
-                String name2 = "Energy " + tou_ctp.getName() + " Previous period";
-                String name3 = "Energy " + tou_ctp.getName() + " Billing total period";
-                String name4 = "Energy " + tou_ctp.getName() + " Total period";
-
-                String name5 = "Max demand " + tou_ctp.getName() + " Current period";
-                String name6 = "Max demand " + tou_ctp.getName() + " Previous period";
-                String name7 = "Max demand " + tou_ctp.getName() + " Billing totalent period";
-                String name8 = "Max demand " + tou_ctp.getName() + " Total period";
-
                 // energy tou registers
-                addTOURegisters(TYPE_ENERGY, channel, PERIOD_CURRENT, obisc, name1, rates, dps, unit);
-                addTOURegisters(TYPE_ENERGY, channel, PERIOD_PREVIOUS1, obisc, name2, rates, dps, unit);
-                addTOURegisters(TYPE_ENERGY, channel, PERIOD_BILLING_TOTAL, obisc, name3, rates, dps, unit);
-                addTOURegisters(TYPE_ENERGY, channel, PERIOD_TOTAL, obisc, name4, rates, dps, unit);
+                addTOURegisters(TYPE_ENERGY, channel, PERIOD_CURRENT, obisc, "Energy " + tou_ctp.getName() + " Current period", rates, dps, unit);
+                addTOURegisters(TYPE_ENERGY, channel, PERIOD_PREVIOUS1, obisc, "Energy " + tou_ctp.getName() + " Previous period", rates, dps, unit);
+                addTOURegisters(TYPE_ENERGY, channel, PERIOD_BILLING_TOTAL, obisc, "Energy " + tou_ctp.getName() + " Billing total period", rates, dps, unit);
+                addTOURegisters(TYPE_ENERGY, channel, PERIOD_TOTAL, obisc, "Energy " + tou_ctp.getName() + " Total period", rates, dps, unit);
 
                 // max demand registers
-                addTOURegisters(TYPE_MAX_DEMAND, channel, PERIOD_CURRENT, obisc, name5, rates, dps, unit);
-                addTOURegisters(TYPE_MAX_DEMAND, channel, PERIOD_PREVIOUS1, obisc, name6, rates, dps, unit);
-                addTOURegisters(TYPE_MAX_DEMAND, channel, PERIOD_BILLING_TOTAL, obisc, name7, rates, dps, unit);
-                addTOURegisters(TYPE_MAX_DEMAND, channel, PERIOD_TOTAL, obisc, name8, rates, dps, unit);
+                addTOURegisters(TYPE_MAX_DEMAND, channel, PERIOD_CURRENT, obisc, "Max demand " + tou_ctp.getName() + " Current period", rates, dps, unit);
+                addTOURegisters(TYPE_MAX_DEMAND, channel, PERIOD_PREVIOUS1, obisc, "Max demand " + tou_ctp.getName() + " Previous period", rates, dps, unit);
+                addTOURegisters(TYPE_MAX_DEMAND, channel, PERIOD_BILLING_TOTAL, obisc, "Max demand " + tou_ctp.getName() + " Billing totalent period", rates, dps, unit);
+                addTOURegisters(TYPE_MAX_DEMAND, channel, PERIOD_TOTAL, obisc, "Max demand " + tou_ctp.getName() + " Total period", rates, dps, unit);
             }
         }
     }
@@ -211,19 +203,17 @@ public class ObisCodeFactory {
         ReadCommand rc = getProtocol().getCommandFactory().getReadCommand(touri.getEdmiEnergyRegisterId());
         Date to = null;
         int dp = touri.getDecimalPoint();
-        Unit unit = touri.getUnit();
-        int scaler = unit.getScale();
+        Unit unit = Unit.get(rc.getUnit().getBaseUnit().getDlmsCode(), touri.getUnit().getScale());
 
         if (touri.hasBillingTimestampDate()) {
             to = doValidateDate(getBillingInfo().getToDate());
         }
 
         registerValue = rc.getRegister().getBigDecimal();
-        registerValue = registerValue.movePointLeft(scaler);
-        registerValue = registerValue.setScale(dp, BigDecimal.ROUND_HALF_UP);
+        registerValue = registerValue.movePointLeft(dp > 1 ? dp : 0);   //TODO: check behaviour in case decimal point position is set to 1
 
         if (touri.hasTimeOfMaxDemandDate()) {
-            Date eventDate = doValidateDate(getProtocol().getCommandFactory().getReadCommand(touri.getEdmiMaxDemandRegisterId()).getRegister().getDate());
+            Date eventDate = doValidateDate(getProtocol().getCommandFactory().getReadCommand(touri.getMK10TimeOfMaxDemandRegisterId(), DataType.T_TIME_DATE_SINCE__1_97).getRegister().getDate());
             return new RegisterValue(obisCode, new Quantity(registerValue, unit), eventDate, null, to);
         } else {
             return new RegisterValue(obisCode, new Quantity(registerValue, unit), null, null, to);

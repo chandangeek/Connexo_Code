@@ -10,7 +10,6 @@
 
 package com.energyict.protocolimpl.edmi.mk6.registermapping;
 
-
 /**
  *
  * @author koen
@@ -58,5 +57,4 @@ public class RegisterInf {
     public void setDescription(String description) {
         this.description = description;
     }
-    
 }

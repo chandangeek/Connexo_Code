@@ -27,4 +27,11 @@ public interface CommandLineProtocol {
 
     String getConfiguredSerialNumber();
 
+    /**
+     * Boolean indicating whether the CommandLineProtocol is an MK10 instance or otherwise ann MK6 instance
+     *
+     * @return true in case of MK10, false in case of MK6
+     */
+    boolean isMK10();
+
 }

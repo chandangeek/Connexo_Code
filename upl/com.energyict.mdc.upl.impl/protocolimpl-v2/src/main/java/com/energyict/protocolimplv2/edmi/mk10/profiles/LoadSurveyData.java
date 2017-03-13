@@ -18,7 +18,10 @@ import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.edmi.common.command.Atlas1FileAccessReadCommand;
 import com.energyict.protocolimpl.edmi.common.command.CommandFactory;
 import com.energyict.protocolimpl.edmi.common.core.AbstractRegisterType;
+import com.energyict.protocolimpl.edmi.common.core.RegisterTypeFloat;
 import com.energyict.protocolimpl.edmi.common.core.RegisterTypeParser;
+import com.energyict.util.Pair;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -43,7 +46,7 @@ public class LoadSurveyData {
     private int numberOfRecords;
     private int maxNrOfEntries = -1;
     private List<IntervalData> collectedIntervalData;
-    private CommandLineProfileIntervalStatusBits intervalStatusBits;
+    private MK10ProfileIntervalStatusBits intervalStatusBits;
 
 
     /**
@@ -51,30 +54,49 @@ public class LoadSurveyData {
      */
     public LoadSurveyData(LoadSurvey loadSurvey) {
         this.setLoadSurvey(loadSurvey);
-        this.setIntervalStatusBits(new CommandLineProfileIntervalStatusBits());
+        this.setIntervalStatusBits(new MK10ProfileIntervalStatusBits());
     }
 
     public void readFile(Date from) throws ProtocolException {
-        long interval = getLoadSurvey().getProfileInterval();
-        Date loadSurveyStartDate = getLoadSurvey().getStartTime();
-        long firstRecord = getLoadSurvey().getFirstEntry();
-        Date firstDate = new Date(loadSurveyStartDate.getTime() + (firstRecord * (interval * 1000)));
+        Pair<Integer, byte[]> pair;
+        if (!getLoadSurvey().preventCrossingIntervalBoundaryWhenReading()) { // Don't care that we cross an interval boundary when reading data (all data read remains valid)
+            long firstEntry = getLoadSurvey().getUpdatedFirstEntry();
+            Date firstDate = new Date(getLoadSurvey().getStartTime().getTime() + (firstEntry * (getLoadSurvey().getProfileInterval() * 1000)));
+            pair = doReadFile(from, firstEntry, firstDate);
+        } else { // Prevent cross of interval boundary (to avoid we read out data skewed with one interval) - this only applies to certain older meters
+            long firstEntry;
+            Date firstDate;
+            long updatedFirstEntry;
+            do {
+                firstEntry = getLoadSurvey().getUpdatedFirstEntry();
+                firstDate = new Date(getLoadSurvey().getStartTime().getTime() + (firstEntry * (getLoadSurvey().getProfileInterval() * 1000)));
+                pair = doReadFile(from, firstEntry, firstDate);
+                updatedFirstEntry = getLoadSurvey().getUpdatedFirstEntry();
+            } while (firstEntry != updatedFirstEntry);
+        }
 
+        setNumberOfRecords(pair.getFirst());
+        setData(pair.getLast());
+        buildCollectedIntervalData();
+    }
+
+    private Pair<Integer, byte[]> doReadFile(Date from, long firstEntry, Date firstDate) {
         int records = 0;
         long startRecord;
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         Atlas1FileAccessReadCommand farc;
 
+
         long seconds_div = (from.getTime() - firstDate.getTime()) / 1000;
         if (seconds_div < 0) {
-            startRecord = firstRecord; // From date is earlier than first date - start reading from first date
+            startRecord = firstEntry; // From date is earlier than first date - start reading from first date
         } else {
-            startRecord = firstRecord + (seconds_div / interval) + 1; // Move pointer forwards to start reading from the first entry after the given from date
+            startRecord = firstEntry + (seconds_div / getLoadSurvey().getProfileInterval()) + 1; // Move pointer forwards to start reading from the first entry after the given from date
         }
 
         farc = getCommandFactory().getAtlas1FileAccessReadCommand(getLoadSurvey().getLoadProfileDescription().getSurveyNr(), startRecord, 0x0001);
         startRecord = farc.getStartRecord(); // The actual start record (most likely the same as requested start record)
-        setFirstTimeStamp(new Date(loadSurveyStartDate.getTime() + (startRecord * (interval * 1000))));
+        setFirstTimeStamp(new Date(getLoadSurvey().getStartTime().getTime() + (startRecord * (getLoadSurvey().getProfileInterval() * 1000))));
 
         do {
             farc = getCommandFactory().getAtlas1FileAccessReadCommand(getLoadSurvey().getLoadProfileDescription().getSurveyNr(), startRecord, getMaximumEntries());
@@ -82,10 +104,7 @@ public class LoadSurveyData {
             records += farc.getNumberOfRecords();
             byteArrayOutputStream.write(farc.getData(), 0, farc.getData().length);
         } while ((getLoadSurvey().getLastEntry() - (farc.getStartRecord() + farc.getNumberOfRecords())) > 0);
-
-        setNumberOfRecords(records);
-        setData(byteArrayOutputStream.toByteArray());
-        buildCollectedIntervalData();
+        return new Pair<>(records, byteArrayOutputStream.toByteArray());
     }
 
     private int getMaximumEntries() {
@@ -133,14 +152,15 @@ public class LoadSurveyData {
     /**
      * Test if the intervalData has valid data.<br/>
      * The data is considered invalid in case all intervalValues are marked with (and only) the missing flag.
+     *
      * @param intervalData
      * @return true in case data is valid
      */
     private boolean hasValidData(IntervalData intervalData) {
         ListIterator it = intervalData.getIntervalValueIterator();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             IntervalValue intervalValue = (IntervalValue) it.next();
-            if (intervalValue.getEiStatus() != IntervalStateBits.MISSING)  {
+            if (intervalValue.getEiStatus() != IntervalStateBits.MISSING) {
                 return true;
             }
         }
@@ -158,7 +178,10 @@ public class LoadSurveyData {
             if (loadSurveyChannel.isStatusChannel()) {
                 channelValue = rtp.parse2Internal('C', getData(intervalIndex, channel));
             } else {
-                channelValue = rtp.parseFromRaw('F', getData(intervalIndex, channel), decimalPointPositionScaling);
+                channelValue = rtp.parse2Internal(loadSurveyChannel.isInstantaneousChannel() ? 'I' : 'H', getData(intervalIndex, channel));
+                if (!loadSurveyChannel.isInstantaneousChannel() && decimalPointPositionScaling != 1) {  //TODO: check behaviour in case decimal point position is set to 1
+                    channelValue = new RegisterTypeFloat(channelValue.getBigDecimal().movePointLeft(decimalPointPositionScaling).floatValue());
+                }
             }
             channelValues[channel] = channelValue;
         }
@@ -167,7 +190,9 @@ public class LoadSurveyData {
 
     private byte[] getData(int intervalIndex, int channelIndex) {
         int offset = (intervalIndex * getLoadSurvey().getRecordSize()) + (channelIndex * 2);
-        return ProtocolUtils.getSubArray2(getData(), offset, getLoadSurvey().getLoadSurveyChannels()[channelIndex].getWidth());
+        byte[] bytes = ProtocolUtils.getSubArray2(getData(), offset, getLoadSurvey().getLoadSurveyChannels()[channelIndex].getWidth());
+        ArrayUtils.reverse(bytes); // Convert little endian to big endian
+        return bytes;
     }
 
     public LoadSurvey getLoadSurvey() {
@@ -202,11 +227,11 @@ public class LoadSurveyData {
         this.numberOfRecords = numberOfRecords;
     }
 
-    public CommandLineProfileIntervalStatusBits getIntervalStatusBits() {
+    public MK10ProfileIntervalStatusBits getIntervalStatusBits() {
         return intervalStatusBits;
     }
 
-    private void setIntervalStatusBits(CommandLineProfileIntervalStatusBits intervalStatusBits) {
+    private void setIntervalStatusBits(MK10ProfileIntervalStatusBits intervalStatusBits) {
         this.intervalStatusBits = intervalStatusBits;
     }
 

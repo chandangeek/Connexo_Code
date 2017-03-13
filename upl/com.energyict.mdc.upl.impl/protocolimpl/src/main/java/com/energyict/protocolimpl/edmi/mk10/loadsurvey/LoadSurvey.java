@@ -12,8 +12,9 @@ package com.energyict.protocolimpl.edmi.mk10.loadsurvey;
 
 import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.edmi.common.command.CommandFactory;
+import com.energyict.protocolimpl.edmi.common.core.DataType;
 import com.energyict.protocolimpl.edmi.common.core.SurveyChannelTypeParser;
-import com.energyict.protocolimpl.edmi.mk10.registermapping.MK10Register;
+import com.energyict.protocolimpl.edmi.mk10.registermapping.MK10RegisterInformation;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -27,9 +28,9 @@ import java.util.Date;
 public class LoadSurvey {
 
 	private static final String	LF	= "\n";
-	private static final int BASE_REGISTER_ID = MK10Register.SURVEY1_STARTDATE;
 
 	private CommandFactory commandFactory;
+	private int baseRegisterId;
 	private int LoadSurveyNumber;
 	private int registerId;
 	private int nrOfChannels;
@@ -47,6 +48,7 @@ public class LoadSurvey {
 		this.setCommandFactory(commandFactory);
 		this.setLoadSurveyNumber(LoadSurveyNumber);
 		this.genRegisterId();
+		this.setBaseRegisterId(MK10RegisterInformation.SURVEY_BASE_REGISTER.getRegisterId());
 		init();
 	}
 
@@ -76,18 +78,18 @@ public class LoadSurvey {
 		// Channels and Interval are in the same register (Base registerId + 6)
 		// Number of channels -> Bit 0 to 5
 		// Interval           -> Bit 6 to 11 (The interval is stored in minutes)
-		int ChannelsIntervalRegister = getCommandFactory().getReadCommand(registerId + 6).getRegister().getBigDecimal().intValue();
+		int ChannelsIntervalRegister = getCommandFactory().getReadCommand(registerId + 6, DataType.I_SHORT).getRegister().getBigDecimal().intValue();
 		int channels = (ChannelsIntervalRegister & 0x001F);
 		int interval = ((ChannelsIntervalRegister & 0x0FC0) >> 6) * 60;
 
-		setFirstEntry(getCommandFactory().getReadCommand(registerId + 2).getRegister().getBigDecimal().longValue());
-		setLastEntry(getCommandFactory().getReadCommand(registerId + 4).getRegister().getBigDecimal().longValue());
+		setFirstEntry(getCommandFactory().getReadCommand(registerId + 2, DataType.L_LONG).getRegister().getBigDecimal().longValue());
+		setLastEntry(getCommandFactory().getReadCommand(registerId + 4, DataType.L_LONG).getRegister().getBigDecimal().longValue());
 		setStoredEntries(getLastEntry() - getFirstEntry());
 
 		setNrOfChannels(channels + 1); 					// Always 1 additional channel with the status! Number of load survey channels, excluding the 0 channel.
 		setProfileInterval(interval); 					// Seconds between readings, for fixed interval load surveys.
 		setLoadSurveyChannels(new LoadSurveyChannel[getNrOfChannels()]);
-		setStartTime(getCommandFactory().getReadCommand(registerId + 0x00B0).getRegister().getDate()); // The first time that was stored in the survey ever.
+		setStartTime(getCommandFactory().getReadCommand(registerId + 0x00B0, DataType.T_TIME_DATE_SINCE__1_97).getRegister().getDate()); // The first time that was stored in the survey ever.
 
 		setNrOfEntries(0xFFFF); 						// Max nr of entries in the load survey. The MK10 meter only supports 32 entries per channel.
 		setEntryWidth((getNrOfChannels() * 2) - 1); 	// The total entry width (including status word). This is the sum of the channel widths minus 1 for the status width.
@@ -96,28 +98,27 @@ public class LoadSurvey {
 			LoadSurveyChannel lsc = new LoadSurveyChannel();
 
 			if ((channel+1) == nrOfChannels) { 	 //Last channel in loadsurvey is statuschannel.
-				lsc.setScaling(0);
+				lsc.setDecimalPointPosition(0);
 				lsc.setScalingFactor(new BigDecimal(0));
 				lsc.setUnit(Unit.getUndefined());
-				lsc.setType('C');
 				lsc.setWidth(1);
 			}
 			else {
-				int tempreg = (BASE_REGISTER_ID + 0x0040 + channel + (0x0020 * getLoadSurveyNumber()));
-				int ChannelDef = getCommandFactory().getReadCommand(tempreg).getRegister().getBigDecimal().intValue();
+				int tempreg = (getBaseRegisterId() + 0x0040 + channel + (0x0020 * getLoadSurveyNumber()));
+				int ChannelDef = getCommandFactory().getReadCommand(tempreg, DataType.I_SHORT).getRegister().getBigDecimal().intValue();
 				SurveyChannelTypeParser ctp = new SurveyChannelTypeParser(ChannelDef);
-				lsc.setScaling(ctp.getDecimalPointPosition());
+				lsc.setDecimalPointPosition(ctp.getDecimalPointPosition());
 				lsc.setUnit(ctp.getUnit());
 				lsc.setWidth(2);
 
 				if(ctp.isInstantaneous()){
-					tempreg = (BASE_REGISTER_ID + (0x0008 + ctp.getInstantaneousType()));
-					BigDecimal bdScalingFactor = getCommandFactory().getReadCommand(tempreg).getRegister().getBigDecimal();
+					tempreg = (getBaseRegisterId() + (0x0008 + ctp.getInstantaneousType()));
+					BigDecimal bdScalingFactor = getCommandFactory().getReadCommand(tempreg, DataType.F_FLOAT).getRegister().getBigDecimal();
 					lsc.setScalingFactor(bdScalingFactor);
+                    lsc.markAsInstantaneousChannel();
 				} else {
 					lsc.setScalingFactor(ctp.getScalingFactor());
 				}
-
 			}
 			getLoadSurveyChannels()[channel]=lsc;
 		}
@@ -160,12 +161,20 @@ public class LoadSurvey {
 		LoadSurveyNumber = loadSurveyNumber;
 	}
 
+	public int getBaseRegisterId() {
+		return baseRegisterId;
+	}
+
+	private void setBaseRegisterId(int baseRegisterId) {
+		this.baseRegisterId = baseRegisterId;
+	}
+
 	public int getRegisterId() {
 		return registerId;
 	}
 
 	private void genRegisterId() {
-		this.registerId = BASE_REGISTER_ID + getLoadSurveyNumber();
+		this.registerId = getBaseRegisterId() + getLoadSurveyNumber();
 	}
 
 	public int getNrOfChannels() {
@@ -254,7 +263,7 @@ public class LoadSurvey {
 	 * @throws IOException
 	 */
 	public long getUpdatedFirstEntry() throws IOException {
-		return getCommandFactory().getReadCommand(registerId + 2).getRegister().getBigDecimal().longValue();
+		return getCommandFactory().getReadCommand(registerId + 2,DataType.L_LONG).getRegister().getBigDecimal().longValue();
 	}
 	
 	/**
@@ -263,7 +272,7 @@ public class LoadSurvey {
 	 * @throws IOException
 	 */
 	public long getUpdatedLastEntry() throws IOException {
-		return getCommandFactory().getReadCommand(registerId + 4).getRegister().getBigDecimal().longValue();
+		return getCommandFactory().getReadCommand(registerId + 4, DataType.L_LONG).getRegister().getBigDecimal().longValue();
 	}
 
 }
