@@ -250,11 +250,11 @@ public class DataQualityResultsResourceTest extends DeviceDataQualityRestApplica
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
-        verify(overviewBuilder).suspects();
-        verify(overviewBuilder).confirmed();
-        verify(overviewBuilder).estimates();
-        verify(overviewBuilder).informatives();
-        verify(overviewBuilder).edited();
+        verify(overviewBuilder).withSuspectsAmount();
+        verify(overviewBuilder).withConfirmedAmount();
+        verify(overviewBuilder).withEstimatesAmount();
+        verify(overviewBuilder).withInformativesAmount();
+        verify(overviewBuilder).withEditedAmount();
         verify((DeviceDataQualityService.MetricSpecificationBuilder) overviewBuilder, times(5)).equalTo(10);
     }
 
