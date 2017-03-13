@@ -44,7 +44,7 @@ public class DataLoggerSlaveDeviceInfoFactory {
     }
 
     public List<DataLoggerSlaveDeviceInfo> from(Device dataLogger) {
-        if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()) {
+        if (dataLogger.getDeviceConfiguration().isDataloggerEnabled() || dataLogger.getDeviceConfiguration().isMultiElementEnabled()) {
             // DataLoggerSlaveDeviceInfo holding the unlinked data logger channels/registers
             slaveDeviceInfoForUnlinkedDataLoggerElements = new DataLoggerSlaveDeviceInfo();
             List<DataLoggerSlaveDeviceInfo> slaveDeviceInfos = new ArrayList<>();

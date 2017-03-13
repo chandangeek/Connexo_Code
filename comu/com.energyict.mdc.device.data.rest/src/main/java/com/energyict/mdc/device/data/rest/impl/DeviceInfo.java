@@ -57,6 +57,8 @@ public class DeviceInfo extends DeviceVersionInfo {
     public Boolean isGateway;
     public Boolean isDataLogger;
     public Boolean isDataLoggerSlave;
+    public Boolean isMultiElementMeter;
+    public Boolean isMultiElementSubmeter;
     public String serviceCategory;
     public String usagePoint;
     public DeviceEstimationStatusInfo estimationStatus;
