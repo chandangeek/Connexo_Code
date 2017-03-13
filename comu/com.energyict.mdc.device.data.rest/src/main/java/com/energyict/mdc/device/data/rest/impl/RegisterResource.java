@@ -429,6 +429,7 @@ public class RegisterResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response validateNow(@PathParam("name") String name, @PathParam("registerId") long registerId, RegisterTriggerValidationInfo validationInfo) {
+        validationInfo.name = name;
         Device device = resourceHelper.lockDeviceOrThrowException(validationInfo);
         Register<?, ?> register = doGetRegister(name, registerId);
         if (validationInfo.lastChecked == null) {
