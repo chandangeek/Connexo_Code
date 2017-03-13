@@ -140,7 +140,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         }
         List<String> inputTriggeringEventTypeList = getEndDeviceEventTypes(triggeringEndDeviceEventTypes);
         if (isAllEventTypesList(inputTriggeringEventTypeList)) {
-            return getLoggedEvents(relativePeriod.get()).size() > eventCountThreshold;
+            return getLoggedEvents(relativePeriod.get()).size() >= eventCountThreshold;
         } else if (getMatchingEventOccurenceCount(inputTriggeringEventTypeList, Collections.singletonList(this.getEventTypeMrid())) == 0) {
             return false;
         }
@@ -242,7 +242,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         String regexVal;
         if (inputEvent.contains(WILDCARD)) {
             testVal = loggedEvent;
-            regexVal = escape(inputEvent).replaceAll("\\*", ".+");     //Replace the * wildcards with proper regex wildcard
+            regexVal = escape(inputEvent).replaceAll("\\*", "\\\\d+");     //Replace the * wildcards with proper regex wildcard
         } else {
             return inputEvent.equals(loggedEvent);
         }
