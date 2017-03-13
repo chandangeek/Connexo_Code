@@ -7,7 +7,6 @@ package com.elster.jupiter.metering.impl.aggregation;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.tasks.TaskService;
 
 import org.osgi.service.component.annotations.Component;
