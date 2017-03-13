@@ -104,6 +104,18 @@ public class DeviceAttributesInfoFactory {
         info.serialNumber.displayValue = device.getSerialNumber();
         fillAvailableAndEditable(info.serialNumber, DeviceAttribute.SERIAL_NUMBER, state);
 
+        info.manufacturer = new DeviceAttributeInfo<>();
+        info.manufacturer.displayValue = device.getManufacturer();
+        fillAvailableAndEditable(info.manufacturer, DeviceAttribute.MANUFACTURER, state);
+
+        info.modelNbr = new DeviceAttributeInfo<>();
+        info.modelNbr.displayValue = device.getModelNumber();
+        fillAvailableAndEditable(info.modelNbr, DeviceAttribute.MODEL_NUMBER, state);
+
+        info.modelVersion = new DeviceAttributeInfo<>();
+        info.modelVersion.displayValue = device.getModelVersion();
+        fillAvailableAndEditable(info.modelVersion, DeviceAttribute.MODEL_VERSION, state);
+
         info.multiplier = new DeviceAttributeInfo<>();
         info.multiplier.displayValue = device.getMultiplier();
         fillAvailableAndEditable(info.multiplier, DeviceAttribute.MULTIPLIER, state);
@@ -255,6 +267,15 @@ public class DeviceAttributesInfoFactory {
         State state = device.getState();
         if (DeviceAttribute.SERIAL_NUMBER.isEditableForState(state) && info.serialNumber != null) {
             device.setSerialNumber(info.serialNumber.displayValue);
+        }
+        if (DeviceAttribute.MANUFACTURER.isEditableForState(state) && info.manufacturer != null) {
+            device.setManufacturer(info.manufacturer.displayValue);
+        }
+        if (DeviceAttribute.MODEL_NUMBER.isEditableForState(state) && info.modelNbr != null) {
+            device.setModelNumber(info.modelNbr.displayValue);
+        }
+        if (DeviceAttribute.MODEL_VERSION.isEditableForState(state) && info.modelVersion != null) {
+            device.setModelVersion(info.modelVersion.displayValue);
         }
         if (DeviceAttribute.YEAR_OF_CERTIFICATION.isEditableForState(state) && info.yearOfCertification != null) {
             device.setYearOfCertification(info.yearOfCertification.displayValue);
