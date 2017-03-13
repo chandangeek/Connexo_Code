@@ -10,7 +10,9 @@ import com.energyict.mdc.device.config.DeviceTypePurpose;
 public enum DeviceTypePurposeTranslationKeys implements TranslationKey {
 
     REGULAR(DeviceTypePurpose.REGULAR, "Standard device type"),
-    DATALOGGER_SLAVE(DeviceTypePurpose.DATALOGGER_SLAVE, "Datalogger slave device type"),;
+    DATALOGGER_SLAVE(DeviceTypePurpose.DATALOGGER_SLAVE, "Datalogger slave device type"),
+    SUBMETERING_ELEMENT(DeviceTypePurpose.SUBMETERING_ELEMENT, "Multi-element submeter")
+    ;
 
     private final DeviceTypePurpose deviceTypePurpose;
     private final String defaultFormat;

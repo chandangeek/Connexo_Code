@@ -266,6 +266,18 @@ public class DeviceConfigurationResource {
     }
 
     private void validateDataloggerHasDataSourcesForActivation(DeviceConfiguration deviceConfiguration) {
+        if (noDataSources(deviceConfiguration)) {
+            if (deviceConfiguration.isDataloggerEnabled()) {
+                throw new TranslatableApplicationException(thesaurus, MessageSeeds.DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE);
+            } else if (deviceConfiguration.isMultiElementEnabled()){
+                throw new TranslatableApplicationException(thesaurus, MessageSeeds.DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE);
+            } else if (deviceConfiguration.getDeviceType().isDataloggerSlave()) {
+                throw new TranslatableApplicationException(thesaurus, MessageSeeds.MULTI_ELEMENT_SUBMETER_AT_LEAST_ONE_DATASOURCE);
+            }else if (deviceConfiguration.getDeviceType().isSubmeterElement()) {
+                throw new TranslatableApplicationException(thesaurus, MessageSeeds.MULTI_ELEMENT_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE);
+            }
+        }
+
         if (noDataSources(deviceConfiguration) && deviceConfiguration.isDataloggerEnabled()) {
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE);
         } else if (noDataSources(deviceConfiguration) && deviceConfiguration.getDeviceType().isDataloggerSlave()) {

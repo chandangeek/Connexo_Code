@@ -77,8 +77,7 @@ public class DeviceTypeInfo {
             deviceTypeInfo.deviceLifeCycleName = deviceLifeCycle.getName();
         }
         deviceTypeInfo.version = deviceType.getVersion();
-        deviceTypeInfo.deviceTypePurpose = deviceType.isDataloggerSlave() ? DeviceTypePurpose.DATALOGGER_SLAVE.name() : DeviceTypePurpose.REGULAR
-                .name();
+        deviceTypeInfo.deviceTypePurpose = deviceType.isDataloggerSlave() ? DeviceTypePurpose.DATALOGGER_SLAVE.name() : (deviceType.isSubmeterElement() ? DeviceTypePurpose.SUBMETERING_ELEMENT.name() : DeviceTypePurpose.REGULAR.name());
         deviceTypeInfo.fileManagementEnabled = deviceType.isFileManagementEnabled();
         return deviceTypeInfo;
     }

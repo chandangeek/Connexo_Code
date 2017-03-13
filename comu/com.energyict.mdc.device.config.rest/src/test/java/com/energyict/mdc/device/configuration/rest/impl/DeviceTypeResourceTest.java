@@ -211,6 +211,27 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
     }
 
     @Test
+    public void createMultiElementSubmeterTest() {
+        DeviceLifeCycle deviceLifeCycle = mockStandardDeviceLifeCycle();
+        DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
+        deviceTypeInfo.name = "newName";
+        deviceTypeInfo.deviceLifeCycleId = deviceLifeCycle.getId();
+        deviceTypeInfo.deviceTypePurpose = DeviceTypePurpose.SUBMETERING_ELEMENT.name();
+        Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
+
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(deviceLifeCycle));
+        DeviceType.DeviceTypeBuilder deviceTypeBuilder = mock(DeviceType.DeviceTypeBuilder.class);
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
+        when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+        when(deviceTypeBuilder.create()).thenReturn(deviceType);
+        when(deviceConfigurationService.newMultiElementSubmeterTypeBuilder("newName", deviceLifeCycle)).thenReturn(deviceTypeBuilder);
+
+        Response response = target("/devicetypes/").request().post(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
     public void testGetAllDeviceTypesWithFullPage() throws Exception {
         Finder<DeviceType> finder = mockFinder(Arrays.asList(mockDeviceType("device type 1", 66), mockDeviceType("device type 2", 66), mockDeviceType("device type 3", 66), mockDeviceType("device type 4", 66)));
         when(deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
