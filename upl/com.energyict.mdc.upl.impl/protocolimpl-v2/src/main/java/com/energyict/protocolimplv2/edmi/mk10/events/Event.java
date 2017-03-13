@@ -110,7 +110,7 @@ public class Event {
             this.eventDescription += "A ripple code listed in the meter setup was received. Index: 0x " + ProtocolUtils.buildStringHex(eventType & 0x000F, 2);
         } else if ((eventType & 0xF000) == 0x1000) {
             this.eiServerEventCode = MeterEvent.OTHER;
-            int relayNumber = eventType & 0x0F00;
+            int relayNumber = (eventType & 0x0F00) >> 8;
             description = "- Relay number: " + relayNumber;
             description += ", status: ";
             description += ((eventType & 0x0080) == 0x0080) ? "enabled" : "disabled";

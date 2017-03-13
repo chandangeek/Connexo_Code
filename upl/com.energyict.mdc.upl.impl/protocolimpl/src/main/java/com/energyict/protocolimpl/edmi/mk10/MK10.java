@@ -22,7 +22,7 @@ import com.energyict.protocolimpl.edmi.common.command.CommandResponseException;
 import com.energyict.protocolimpl.edmi.common.command.TimeInfo;
 import com.energyict.protocolimpl.edmi.common.connection.ExtendedCommandLineConnection;
 import com.energyict.protocolimpl.edmi.common.connection.MiniECommandLineConnection;
-import com.energyict.protocolimpl.edmi.mk10.registermapping.MK10Register;
+import com.energyict.protocolimpl.edmi.mk10.registermapping.MK10RegisterInformation;
 import com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeFactory;
 import com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeMapper;
 import com.energyict.protocolimpl.edmi.mk10.streamfilters.MK10PushInputStream;
@@ -159,18 +159,18 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport, Comma
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {
-        return "Equipment model id:" + getCommandFactory().getReadCommand(MK10Register.SYSTEM_MODEL_ID).getRegister().getString() + "\n" + // Equipment model id
-                "Software version:" + getCommandFactory().getReadCommand(MK10Register.SYSTEM_SOFTWARE_VERSION).getRegister().getString() + "\n" + // Software version
-                "Software revision:" + getCommandFactory().getReadCommand(MK10Register.SYSTEM_SOFTWARE_REVISION).getRegister().getString() + "\n" + // Software revision
-                "Bootloader revision:" + getCommandFactory().getReadCommand(MK10Register.SYSTEM_BOOTLOADER_REVISION).getRegister().getString() + "\n" + // Software revision
+        return "Equipment model id:" + getCommandFactory().getReadCommand(MK10RegisterInformation.SYSTEM_MODEL_ID).getRegister().getString() + "\n" + // Equipment model id
+                "Software version:" + getCommandFactory().getReadCommand(MK10RegisterInformation.SYSTEM_SOFTWARE_VERSION).getRegister().getString() + "\n" + // Software version
+                "Software revision:" + getCommandFactory().getReadCommand(MK10RegisterInformation.SYSTEM_SOFTWARE_REVISION).getRegister().getString() + "\n" + // Software revision
+                "Bootloader revision:" + getCommandFactory().getReadCommand(MK10RegisterInformation.SYSTEM_BOOTLOADER_REVISION).getRegister().getString() + "\n" + // Software revision
                 "Serial number:" + getSerialNumber(); // serial number
     }
 
     public String getSerialNumber() {
-        return getCommandFactory().getReadCommand(MK10Register.SYSTEM_SERIALNUMBER).getRegister().getString(); // Serial number
+        return getCommandFactory().getReadCommand(MK10RegisterInformation.SYSTEM_SERIAL_NUMBER).getRegister().getString(); // Serial number
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return mk10Profile.getProfileData(from, to, includeEvents);
     }
 
@@ -256,6 +256,11 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport, Comma
     @Override
     public String getConfiguredSerialNumber() {
         return getInfoTypeSerialNumber();
+    }
+
+    @Override
+    public boolean isMK10() {
+        return true;
     }
 
     public boolean useHardCodedInfo() {

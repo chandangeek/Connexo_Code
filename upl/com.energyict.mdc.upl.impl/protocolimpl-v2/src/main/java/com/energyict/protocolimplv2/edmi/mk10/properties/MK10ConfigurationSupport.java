@@ -20,6 +20,7 @@ public class MK10ConfigurationSupport implements ConfigurationSupport {
 
     public static final String CONNECTION_MODE = "ConnectionMode";
     public static final ConnectionMode DEFAULT_CONNECTION_MODE = ConnectionMode.EXTENDED_COMMAND_LINE;
+    public static final String PREVENT_CROSSING_INTERVAL_BOUNDARY_WHEN_READING_PROFILES = "PreventCrossingIntervalBoundaryWhenReadingProfiles";
 
     public MK10ConfigurationSupport() {
     }
@@ -33,10 +34,15 @@ public class MK10ConfigurationSupport implements ConfigurationSupport {
     public List<PropertySpec> getOptionalProperties() {
         return Arrays.asList(
                 connectionModePropertySpec(),
+                preventCrossingIntervalBoundaryWhenReadingPropertySpec(),
                 timeZonePropertySpec(),
                 deviceIdPropertySpec(),
                 callHomeIdPropertySpec()
         );
+    }
+
+    private PropertySpec preventCrossingIntervalBoundaryWhenReadingPropertySpec() {
+        return PropertySpecFactory.notNullableBooleanPropertySpec(PREVENT_CROSSING_INTERVAL_BOUNDARY_WHEN_READING_PROFILES, false);
     }
 
     private PropertySpec deviceIdPropertySpec() {

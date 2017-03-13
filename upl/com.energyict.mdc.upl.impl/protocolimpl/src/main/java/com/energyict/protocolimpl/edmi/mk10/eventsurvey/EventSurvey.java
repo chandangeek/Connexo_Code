@@ -13,6 +13,7 @@ package com.energyict.protocolimpl.edmi.mk10.eventsurvey;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.edmi.common.command.Atlas1FileAccessReadCommand;
 import com.energyict.protocolimpl.edmi.common.command.CommandFactory;
+import com.energyict.protocolimpl.edmi.common.core.DataType;
 import com.energyict.protocolimpl.edmi.common.core.DateTimeBuilder;
 
 import java.io.IOException;
@@ -55,8 +56,8 @@ public class EventSurvey {
 			eventset[lognr] = new LinkedHashSet();
 			eventset[lognr].clear();
 
-			long firstentry = getCommandFactory().getReadCommand(registerId + 0x0005 + lognr).getRegister().getBigDecimal().longValue();
-			long lastentry = getCommandFactory().getReadCommand(registerId + 0x000A + lognr).getRegister().getBigDecimal().longValue();
+			long firstentry = getCommandFactory().getReadCommand(registerId + 0x0005 + lognr, DataType.L_LONG).getRegister().getBigDecimal().longValue();
+			long lastentry = getCommandFactory().getReadCommand(registerId + 0x000A + lognr, DataType.L_LONG).getRegister().getBigDecimal().longValue();
 
 			while (firstentry < lastentry) {
 				farc = this.getCommandFactory().getAtlas1FileAccessReadCommand(lognr + 2, firstentry, 0xFFFF);

@@ -13,7 +13,10 @@ package com.energyict.protocolimpl.edmi.mk10.loadsurvey;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.edmi.common.command.Atlas1FileAccessReadCommand;
 import com.energyict.protocolimpl.edmi.common.core.AbstractRegisterType;
+import com.energyict.protocolimpl.edmi.common.core.DataType;
+import com.energyict.protocolimpl.edmi.common.core.RegisterTypeFloat;
 import com.energyict.protocolimpl.edmi.common.core.RegisterTypeParser;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -153,7 +156,9 @@ public class LoadSurveyData {
 
 	private byte[] getData(int intervalIndex, int channelIndex) throws IOException {
 		int offset = (intervalIndex * getLoadSurvey().getEntryWidth()) + (channelIndex * 2);
-		return ProtocolUtils.getSubArray2(getData(), offset, getLoadSurvey().getLoadSurveyChannels()[channelIndex].getWidth());
+		byte[] bytes = ProtocolUtils.getSubArray2(getData(), offset, getLoadSurvey().getLoadSurveyChannels()[channelIndex].getWidth());
+        ArrayUtils.reverse(bytes); // Convert little endian to big endian
+        return bytes;
 	}
 
 	public AbstractRegisterType[] getChannelValues(int intervalIndex) throws IOException {
@@ -161,13 +166,16 @@ public class LoadSurveyData {
 		RegisterTypeParser rtp = new RegisterTypeParser(loadSurvey.getCommandFactory().getProtocol().getTimeZone());
 		AbstractRegisterType channelValue;
 		for (int channel=0;channel<loadSurvey.getNrOfChannels();channel++) {
-			char chan_type = (char)loadSurvey.getLoadSurveyChannels()[channel].getType();
-			int chan_scaler = loadSurvey.getLoadSurveyChannels()[channel].getScaling();
+			LoadSurveyChannel loadSurveyChannel = loadSurvey.getLoadSurveyChannels()[channel];
+			int chan_scaler = loadSurveyChannel.getDecimalPointPosition();
 
 			if (channel == (loadSurvey.getNrOfChannels() - 1)) {
-				channelValue = rtp.parse2Internal('C', getData(intervalIndex, channel));
+				channelValue = rtp.parse2Internal(DataType.C_BYTE.getType(), getData(intervalIndex, channel));
 			} else {
-				channelValue = rtp.parseFromRaw(chan_type, getData(intervalIndex, channel), chan_scaler);
+				channelValue = rtp.parse2External(loadSurveyChannel.isInstantaneousChannel() ? DataType.I_SHORT.getType() : DataType.H_HEX_SHORT.getType() , getData(intervalIndex, channel));
+				if (chan_scaler != 1) { // 1 = don't shift left; 3 = shift left with 3 positions
+					channelValue = new RegisterTypeFloat(channelValue.getBigDecimal().movePointLeft(chan_scaler).floatValue());
+				}
 			}
 			channelValues[channel] = channelValue;
 		}

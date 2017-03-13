@@ -34,7 +34,7 @@ import com.energyict.protocolimpl.edmi.common.command.TimeInfo;
 import com.energyict.protocolimpl.edmi.common.connection.CommandLineConnection;
 import com.energyict.protocolimpl.edmi.common.connection.ExtendedCommandLineConnection;
 import com.energyict.protocolimpl.edmi.common.connection.MiniECommandLineConnection;
-import com.energyict.protocolimpl.edmi.mk10.registermapping.MK10Register;
+import com.energyict.protocolimpl.edmi.mk10.registermapping.MK10RegisterInformation;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
 import com.energyict.protocolimplv2.comchannels.ComChannelOutputStreamAdapter;
@@ -101,7 +101,7 @@ public class MK10 implements DeviceProtocol, CommandLineProtocol {
         return configurationSupport;
     }
 
-    private MK10Properties getProperties() {
+    public MK10Properties getProperties() {
         if (properties == null) {
             properties = new MK10Properties();
         }
@@ -241,6 +241,11 @@ public class MK10 implements DeviceProtocol, CommandLineProtocol {
     }
 
     @Override
+    public boolean isMK10() {
+        return true;
+    }
+
+    @Override
     public boolean useHardCodedInfo() {
         return true;
     }
@@ -278,7 +283,7 @@ public class MK10 implements DeviceProtocol, CommandLineProtocol {
 
     @Override
     public void daisyChainedLogOn() {
-        logOn();
+        getCommandFactory().logon(getProperties().getDeviceId(), getProperties().getPassword());
     }
 
     @Override
@@ -298,7 +303,7 @@ public class MK10 implements DeviceProtocol, CommandLineProtocol {
 
     @Override
     public String getSerialNumber() {
-        return getCommandFactory().getReadCommand(MK10Register.SYSTEM_SERIALNUMBER).getRegister().getString(); // Serial number
+        return getCommandFactory().getReadCommand(MK10RegisterInformation.SYSTEM_SERIAL_NUMBER).getRegister().getString(); // Serial number
     }
 
     @Override

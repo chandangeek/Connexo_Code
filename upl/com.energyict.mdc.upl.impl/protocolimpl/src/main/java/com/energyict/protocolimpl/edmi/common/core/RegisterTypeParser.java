@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.edmi.common.core;
 
 import com.energyict.protocol.ProtocolException;
 
-import java.math.BigDecimal;
 import java.util.TimeZone;
 
 /**
@@ -25,26 +24,6 @@ public class RegisterTypeParser {
 
     public AbstractRegisterType parse2Internal(char type, byte[] data) throws ProtocolException {
         return parse(type, data, false);
-    }
-
-    public AbstractRegisterType parseFromRaw(char type, byte[] data) throws ProtocolException {
-        return this.parseFromRaw(type, data, 0);
-    }
-
-    public AbstractRegisterType parseFromRaw(char type, byte[] data, int chan_scaler) throws ProtocolException {
-        switch (type) {
-            case 'F': // Float
-                byte[] bta = {0x00, 0x00, 0x00, 0x00};
-                int highvalue = (data[1]) & 0x00FF;
-                int lowvalue = (data[0]) & 0x00FF;
-                double value = lowvalue + (highvalue * 256);
-                BigDecimal bi = new BigDecimal(value);
-                RegisterTypeFloat rt = new RegisterTypeFloat(bta);
-                rt.setValue(bi.movePointLeft(chan_scaler).floatValue());
-                return rt;
-            default:
-                return null;
-        }
     }
 
     private AbstractRegisterType parse(char type, byte[] data, boolean external) throws ProtocolException {

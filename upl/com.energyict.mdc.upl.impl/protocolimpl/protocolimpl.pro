@@ -761,5 +761,8 @@
 -keepnames class com.energyict.protocolimpl.modbus.spiraxsarco.RIM20
 
 -keepnames class com.energyict.protocolimpl.edmi.common.**  { public *; protected *; }
--keep class com.energyict.protocolimpl.edmi.mk10.registermapping.MK10Register { *;}
+-keep class com.energyict.protocolimpl.edmi.mk10.registermapping.MK10RegisterInformation { *;}
 -keep class com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeMapper { public *; }
+
+-keep class com.energyict.protocolimpl.edmi.mk6.registermapping.MK6RegisterInformation { *; }
+-keep class com.energyict.protocolimpl.edmi.mk6.registermapping.ObisCodeMapper { public *; }
