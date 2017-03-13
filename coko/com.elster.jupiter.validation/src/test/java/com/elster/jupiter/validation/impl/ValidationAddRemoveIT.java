@@ -121,9 +121,7 @@ public class ValidationAddRemoveIT {
     @Mock
     private Validator minMax;
     @Mock
-    private Validator conseqZero;
-    @Mock
-    private PropertySpec min, max, conZero;
+    private PropertySpec min, max;
 
     private BigDecimalFactory valueFactory = new BigDecimalFactory();
     private MeterActivation meterActivation;
@@ -234,7 +232,6 @@ public class ValidationAddRemoveIT {
         });
     }
 
-
     @After
     public void tearDown() {
         inMemoryBootstrapModule.deactivate();
@@ -260,9 +257,8 @@ public class ValidationAddRemoveIT {
                 channel.removeReadings(QualityCodeSystem.MDC, readings.subList(1, readings.size()));
                 channelsContainerValidations = valDataModel.mapper(ChannelsContainerValidation.class).find("channelsContainer", meterActivation.getChannelsContainer());
                 channelValidation = channelsContainerValidations.get(0).getChannelValidations().iterator().next();
-                assertThat(channelValidation.getLastChecked()).isEqualTo(date1.plusSeconds(900));
+                assertThat(channelValidation.getLastChecked()).isEqualTo(date1.plusSeconds(900 * 2).minusMillis(1));
             }
         });
     }
-
 }
