@@ -9,6 +9,12 @@ import com.energyict.mdc.device.data.Device;
 
 import java.time.Instant;
 
+/**
+ * Represent Links between (slave) device/gateway
+ *                 between data logger slave/ data logger
+ *                 between multi-element submeter/ multi-element meter
+ * Each link is valid for a given period (=Effectivity)
+ */
 public interface PhysicalGatewayReference extends Effectivity {
 
     enum PhysicalGatewayReferenceDiscriminator {
@@ -19,7 +25,11 @@ public interface PhysicalGatewayReference extends Effectivity {
         /**
          * data logger slave to data logger reference
          */
-        DATA_LOGGER_REFERENCE
+        DATA_LOGGER_REFERENCE,
+        /**
+         * Multi-element submeter to multi-element meter reference
+         */
+        MULTI_ELEMENT_REFERENCE
     }
 
     /**

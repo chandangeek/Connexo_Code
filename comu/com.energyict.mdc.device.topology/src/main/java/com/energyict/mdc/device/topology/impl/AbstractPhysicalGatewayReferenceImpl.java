@@ -41,7 +41,8 @@ public abstract class AbstractPhysicalGatewayReferenceImpl implements PhysicalGa
     public static final Map<String, Class<? extends PhysicalGatewayReference>> IMPLEMENTERS =
             ImmutableMap.<String, Class<? extends PhysicalGatewayReference>>of(
                     "" + PhysicalGatewayReferenceDiscriminator.DEFAULT.ordinal(), PhysicalGatewayReferenceImpl.class,
-                    "" + PhysicalGatewayReferenceDiscriminator.DATA_LOGGER_REFERENCE.ordinal(), DataLoggerReferenceImpl.class);
+                    "" + PhysicalGatewayReferenceDiscriminator.DATA_LOGGER_REFERENCE.ordinal(), DataLoggerReferenceImpl.class,
+                    "" + PhysicalGatewayReferenceDiscriminator.MULTI_ELEMENT_REFERENCE.ordinal(), DataLoggerReferenceImpl.class);
 
     private long id;
     private Reference<Device> origin = ValueReference.absent();
