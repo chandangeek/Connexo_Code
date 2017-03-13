@@ -70,7 +70,7 @@ public class AM130ConfigurationSupport implements ConfigurationSupport {
     protected PropertySpec cipheringTypePropertySpec() {
         return PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(
                 DlmsProtocolProperties.CIPHERING_TYPE,
-                DEFAULT_CIPHERING_TYPE.getDescription(),
+                this.getDefaultCipheringType().getDescription(),
                 CipheringType.GLOBAL.getDescription(),
                 CipheringType.DEDICATED.getDescription(),
                 CipheringType.GENERAL_GLOBAL.getDescription(),
@@ -111,5 +111,13 @@ public class AM130ConfigurationSupport implements ConfigurationSupport {
     protected PropertySpec callHomeIdPropertySpec() {
         return PropertySpecFactory.stringPropertySpec(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
     }
-
+    
+    /**
+     * Returns the default ciphering type.
+     * 
+     * @return	The default ciphering type.
+     */
+    protected CipheringType getDefaultCipheringType() {
+    	return DEFAULT_CIPHERING_TYPE;
+    }
 }

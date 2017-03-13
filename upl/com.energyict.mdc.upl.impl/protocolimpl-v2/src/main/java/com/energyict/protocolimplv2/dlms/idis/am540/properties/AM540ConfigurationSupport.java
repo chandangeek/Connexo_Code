@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.dlms.idis.am540.properties;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
@@ -116,7 +117,8 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
                 this.skipFramecounterAuthenticationTagValidation(),
                 this.useFixedObjectList(),
                 this.skipSlaveDevices(),
-                this.validateLoadProfileChannelsPropertySpec()
+                this.validateLoadProfileChannelsPropertySpec(),
+                this.cipheringTypePropertySpec()
         );
     }
     
@@ -274,5 +276,13 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
     protected PropertySpec validateLoadProfileChannelsPropertySpec() {
         return PropertySpecFactory.notNullableBooleanPropertySpec(VALIDATE_LOAD_PROFILE_CHANNELS);
     }
-
+    
+    /**
+     * Returns the default ciphering type.
+     * 
+     * @return	The default ciphering type.
+     */
+    protected CipheringType getDefaultCipheringType() {
+    	return CipheringType.GLOBAL;
+    }
 }
