@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.metering.Channel;
@@ -18,6 +19,7 @@ import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.text.MessageFormat;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -255,6 +257,10 @@ class VirtualRequirementNode implements ServerExpressionNode {
     String sqlName() {
         this.ensureVirtualized();
         return this.virtualRequirement.sqlName();
+    }
+
+    ServerDataAggregationService.DetailedCalendarUsage toDetailedCalendarUsage() {
+        return this.virtualRequirement.toDetailedCalendarUsage();
     }
 
 }

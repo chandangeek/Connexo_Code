@@ -54,6 +54,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -129,6 +130,39 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
                 throw new UnderlyingSQLFailedException(e);
             }
         }
+    }
+
+    @Override
+    public List<DetailedCalendarUsage> introspect(ServerUsagePoint usagePoint, Instant instant) {
+        return usagePoint
+                .getEffectiveMetrologyConfiguration(instant)
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
+                .map(metrologyConfiguration -> this.introspect(usagePoint, instant, metrologyConfiguration))
+                .orElseGet(Collections::emptyList);
+    }
+
+    private List<DetailedCalendarUsage> introspect(ServerUsagePoint usagePoint, Instant instant, MetrologyConfiguration metrologyConfiguration) {
+        return metrologyConfiguration
+                    .getContracts()
+                    .stream()
+                    .map(contract -> this.introspect(usagePoint, instant, contract))
+                    .flatMap(java.util.function.Function.identity())
+                    .collect(Collectors.toList());
+    }
+
+    private Stream<DetailedCalendarUsage> introspect(ServerUsagePoint usagePoint, Instant instant, MetrologyContract contract) {
+        VirtualFactory virtualFactory = this.virtualFactoryProvider.get();
+        Range<Instant> period = Range.atLeast(instant);
+        Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation =
+                this.prepareCalculation(
+                        usagePoint, contract, period,
+                        () -> new DataAggregationAnalysisLogger().calendarIntrospectionStarted(usagePoint, contract, period),
+                        virtualFactory);
+        return deliverablesPerMeterActivation
+                    .values()
+                    .stream()
+                    .flatMap(Collection::stream)
+                    .flatMap(ReadingTypeDeliverableForMeterActivationSet::getDetailedCalendarUsages);
     }
 
     @Override

@@ -122,6 +122,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>slp</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>tasks</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>junit</groupId>
@@ -171,11 +175,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>datavault</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>tasks</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

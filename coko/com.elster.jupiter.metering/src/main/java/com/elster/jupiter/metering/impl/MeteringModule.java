@@ -26,12 +26,10 @@ import com.elster.jupiter.metering.impl.aggregation.SqlBuilderFactoryImpl;
 import com.elster.jupiter.metering.impl.aggregation.VirtualFactory;
 import com.elster.jupiter.metering.impl.aggregation.VirtualFactoryImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.users.UserService;
 
 import com.google.common.collect.Range;
@@ -93,8 +91,6 @@ public class MeteringModule extends AbstractModule {
         requireBinding(CustomPropertySetService.class);
         requireBinding(PropertySpecService.class);
         requireBinding(SearchService.class);
-//        requireBinding(UsagePointLifeCycleConfigurationService.class);
-
         bindConstant().annotatedWith(Names.named("requiredReadingTypes")).to(readingTypes);
         bindConstant().annotatedWith(Names.named("createReadingTypes")).to(createReadingTypes);
         bind(MeteringDataModelService.class).to(MeteringDataModelServiceImpl.class).in(Scopes.SINGLETON);
@@ -120,20 +116,6 @@ public class MeteringModule extends AbstractModule {
         @Override
         public ServerMeteringService get() {
             return this.meteringDataModelService.getMeteringService();
-        }
-    }
-
-    private static class ThesaurusProvider implements Provider<Thesaurus> {
-        private final MeteringDataModelService meteringDataModelService;
-
-        @Inject
-        private ThesaurusProvider(MeteringDataModelService meteringDataModelService) {
-            this.meteringDataModelService = meteringDataModelService;
-        }
-
-        @Override
-        public Thesaurus get() {
-            return this.meteringDataModelService.getThesaurus();
         }
     }
 
@@ -204,6 +186,11 @@ public class MeteringModule extends AbstractModule {
         @Override
         public MetrologyContractCalculationIntrospector introspect(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
             return dataAggregationService.introspect(usagePoint, contract, period);
+        }
+
+        @Override
+        public List<DetailedCalendarUsage> introspect(ServerUsagePoint usagePoint, Instant instant) {
+            return Collections.emptyList();
         }
 
         @Override

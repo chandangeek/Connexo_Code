@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.metering.impl.aggregation.DataSourceTableFactory.dual;
 
@@ -58,8 +59,12 @@ class ReadingTypeDeliverableForMeterActivationSet {
         this.meterActivationSequenceNumber = meterActivationSequenceNumber;
         this.expressionNode = expressionNode;
         this.expressionReadingType = expressionReadingType;
-        this.requirements = this.expressionNode.accept(new RequirementsFromExpressionNode()).stream()
-                .map(VirtualRequirementNode::getRequirement).collect(Collectors.toList());
+        this.requirements =
+                this.expressionNode
+                        .accept(new RequirementsFromExpressionNode())
+                        .stream()
+                        .map(VirtualRequirementNode::getRequirement)
+                        .collect(Collectors.toList());
         this.targetReadingType = VirtualReadingType.from(deliverable.getReadingType());
     }
 
@@ -67,6 +72,13 @@ class ReadingTypeDeliverableForMeterActivationSet {
         List<ReadingQualityRecord> result = new ArrayList<>();
         requirements.forEach(r -> result.addAll(meterActivationSet.getReadingQualitiesFor(r, getReadingQualitiesRange(timestamp))));
         return result;
+    }
+
+    Stream<ServerDataAggregationService.DetailedCalendarUsage> getDetailedCalendarUsages() {
+        return this.expressionNode
+                .accept(new RequirementsFromExpressionNode())
+                .stream()
+                .map(VirtualRequirementNode::toDetailedCalendarUsage);
     }
 
     private long getId() {

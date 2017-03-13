@@ -21,6 +21,7 @@ import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.impl.aggregation.CalendarTimeSeriesCacheHandlerFactory;
 import com.elster.jupiter.metering.impl.upgraders.GasDayOptionsCreator;
 import com.elster.jupiter.metering.impl.upgraders.GasDayRelativePeriodCreator;
 import com.elster.jupiter.nls.Layer;
@@ -353,6 +354,7 @@ public class InstallerImpl implements FullInstaller {
 
     private void createQueues() {
         this.createQueue(SwitchStateMachineEvent.DESTINATION, DefaultTranslationKey.SWITCH_STATE_MACHINE_SUBSCRIBER);
+        this.createQueue(CalendarTimeSeriesCacheHandlerFactory.TASK_DESTINATION, DefaultTranslationKey.CALENDAR_TIMESERIES_CACHE_HANDLER_SUBSCRIBER);
     }
 
     private void createQueue(String queueDestination, TranslationKey queueSubscriber) {

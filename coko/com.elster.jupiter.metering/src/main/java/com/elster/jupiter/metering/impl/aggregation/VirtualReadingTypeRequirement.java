@@ -25,6 +25,7 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -311,6 +312,13 @@ class VirtualReadingTypeRequirement {
         this.preferredChannel = Optional.of(preferredChannel);
     }
 
+    public ServerDataAggregationService.DetailedCalendarUsage toDetailedCalendarUsage() {
+        return new DetailedCalendarUsageImpl(
+                this.calendar,
+                this.targetReadingType.getIntervalLength(),
+                this.getPreferredChannel().getZoneId());
+    }
+
     private static class EventFromReadingType implements Event {
         private final VirtualReadingType readingType;
 
@@ -353,4 +361,32 @@ class VirtualReadingTypeRequirement {
             return this.readingType.toString();
         }
     }
+
+    private class DetailedCalendarUsageImpl implements ServerDataAggregationService.DetailedCalendarUsage {
+        private final Calendar calendar;
+        private final IntervalLength intervalLength;
+        private final ZoneId zoneId;
+
+        private DetailedCalendarUsageImpl(Calendar calendar, IntervalLength intervalLength, ZoneId zoneId) {
+            this.calendar = calendar;
+            this.intervalLength = intervalLength;
+            this.zoneId = zoneId;
+        }
+
+        @Override
+        public Calendar getCalendar() {
+            return calendar;
+        }
+
+        @Override
+        public IntervalLength getIntervalLength() {
+            return intervalLength;
+        }
+
+        @Override
+        public ZoneId getZoneId() {
+            return zoneId;
+        }
+    }
+
 }
