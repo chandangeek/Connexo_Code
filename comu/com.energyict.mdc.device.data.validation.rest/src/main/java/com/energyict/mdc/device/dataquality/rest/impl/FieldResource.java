@@ -13,7 +13,6 @@ import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -47,7 +46,6 @@ public class FieldResource {
     }
 
     @GET
-    @Transactional
     @Path("/kpiDeviceGroups")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_DATA_QUALITY_KPI_CONFIGURATION, Privileges.Constants.VIEW_DATA_QUALITY_RESULTS})
@@ -62,7 +60,6 @@ public class FieldResource {
     }
 
     @GET
-    @Transactional
     @Path("/deviceTypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_DATA_QUALITY_KPI_CONFIGURATION, Privileges.Constants.VIEW_DATA_QUALITY_RESULTS})
@@ -76,7 +73,6 @@ public class FieldResource {
     }
 
     @GET
-    @Transactional
     @Path("/validators")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_DATA_QUALITY_KPI_CONFIGURATION, Privileges.Constants.VIEW_DATA_QUALITY_RESULTS})
@@ -90,7 +86,6 @@ public class FieldResource {
     }
 
     @GET
-    @Transactional
     @Path("/estimators")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_DATA_QUALITY_KPI_CONFIGURATION, Privileges.Constants.VIEW_DATA_QUALITY_RESULTS})

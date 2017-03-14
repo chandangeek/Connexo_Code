@@ -96,7 +96,7 @@ public class FieldResourceTest extends DeviceDataQualityRestApplicationJerseyTes
         Validator validator_3 = mockValidator("V3");
         Validator validator_4 = mockValidator("V4");
 
-        when(validationService.getAvailableValidators(QualityCodeSystem.MDC)).thenReturn(Arrays.asList(validator_4, validator_2, validator_3, validator_1));
+        when(validationService.getAvailableValidators(QualityCodeSystem.MDC)).thenReturn(Arrays.asList(validator_4, validator_3, validator_2, validator_1));
 
         // Business method
         String response = target("/fields/validators").queryParam("start", 1).queryParam("limit", 2).request().get(String.class);
@@ -121,7 +121,7 @@ public class FieldResourceTest extends DeviceDataQualityRestApplicationJerseyTes
         Estimator estimator_3 = mockEstimator("E3");
         Estimator estimator_4 = mockEstimator("E4");
 
-        when(estimationService.getAvailableEstimators(QualityCodeSystem.MDC)).thenReturn(Arrays.asList(estimator_4, estimator_2, estimator_3, estimator_1));
+        when(estimationService.getAvailableEstimators(QualityCodeSystem.MDC)).thenReturn(Arrays.asList(estimator_4, estimator_3, estimator_2, estimator_1));
 
         // Business method
         String response = target("/fields/estimators").queryParam("start", 1).queryParam("limit", 2).request().get(String.class);
