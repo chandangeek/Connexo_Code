@@ -11,6 +11,8 @@ import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePointAccountability;
@@ -18,6 +20,7 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.aggregation.CalendarTimeSeriesCacheHandlerFactory;
 import com.elster.jupiter.metering.impl.aggregation.ServerDataAggregationService;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePointImpl;
@@ -38,6 +41,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import com.google.inject.name.Names;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorFactory;
@@ -57,6 +61,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -115,6 +120,8 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
     private Calendar calendarWithCompatibleEvents;
     @Mock
     private Calendar calendarWithOtherEvents;
+    @Mock
+    private DestinationSpec destinationSpec;
 
     private Injector injector;
 
@@ -162,6 +169,12 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
         when(state.getStage()).thenReturn(stage);
         when(lifeCycle.getStates()).thenReturn(Collections.singletonList(state));
         when(this.usagePointLifeCycleConfigurationService.getDefaultLifeCycle()).thenReturn(lifeCycle);
+    }
+
+    @Before
+    public void initializeMessagingMocks() {
+        MessageBuilder messageBuilder = mock(MessageBuilder.class);
+        when(this.destinationSpec.message(anyString())).thenReturn(messageBuilder);
     }
 
     @Before
@@ -220,6 +233,9 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
                 bind(UsagePointLifeCycleConfigurationService.class).toInstance(usagePointLifeCycleConfigurationService);
                 bind(MeterActivation.class).to(MeterActivationImpl.class);
                 bind(UsagePointAccountability.class).to(UsagePointAccountabilityImpl.class);
+                bind(DestinationSpec.class)
+                        .annotatedWith(Names.named(CalendarTimeSeriesCacheHandlerFactory.TASK_DESTINATION))
+                        .toInstance(destinationSpec);
             }
         };
     }

@@ -106,7 +106,7 @@ public enum PrivateMessageSeeds implements MessageSeed {
     UNSATISFIED_READING_TYPE_REQUIREMENT_FOR_METER(7019, Constants.UNSATISFIED_READING_TYPE_REQUIREMENT_FOR_METER, "Meter {0} does not provide reading types required by purpose {1}"),
 
     DENOMINATOR_CANNOT_BE_ZERO(8001, Constants.DENOMINATOR_CANNOT_BE_ZERO, "Denominator cannot be 0"),
-    REQUIRED_CAS_MISSING(8002, Constants.REQUIRED_CAS_MISSING, "Required custom property sets are missing"),
+    REQUIRED_CPS_MISSING(8002, Constants.REQUIRED_CPS_MISSING, "Required custom property sets are missing"),
 
     CANNOT_START_PRIOR_TO_LATEST_CALENDAR_OF_SAME_CATEGORY(17020, "usagepoint.calendar.cannot.start.prior.of.same.category", "Cannot start calendar on usage point, prior to latest calendar of same category."),
     CANNOT_START_BEFORE_NOW(17022, "usagepoint.calendar.cannot.start.before.now", "Activation date can''t be in the past."),
@@ -114,8 +114,8 @@ public enum PrivateMessageSeeds implements MessageSeed {
     CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE(9001, Constants.CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE, "Can''t remove usage point life cycle because it''s in use by at least one of the usage point."),
     CAN_NOT_DELETE_ACTIVE_STATE(9002, Constants.CAN_NOT_DELETE_ACTIVE_STATE, "This state can''t be removed from this usage point life cycle because one or more usage points use this state."),
 
-    CONNECTION_STATE_CHANGE_BEFORE_INSTALLATION_TIME(10001, "connection.state.change.before.installation.time", "Connection state change should be after usage point installation time"),
-    CONNECTION_STATE_CHANGE_BEFORE_LATEST_CHANGE(10002, "connection.state.change.before.latest.change", "Connection state change should be after the latest connection state change on usage point");
+    CONNECTION_STATE_CHANGE_BEFORE_INSTALLATION_TIME(12001, "connection.state.change.before.installation.time", "Connection state change should be after usage point installation time"),
+    CONNECTION_STATE_CHANGE_BEFORE_LATEST_CHANGE(12002, "connection.state.change.before.latest.change", "Connection state change should be after the latest connection state change on usage point");
 
     private final int number;
     private final String key;
@@ -179,7 +179,7 @@ public enum PrivateMessageSeeds implements MessageSeed {
         public static final String CUSTOM_PROPERTY_MUST_BE_SLP = "cps.property.not.slp";
         public static final String CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE = "can.not.delete.active.life.cycle";
         public static final String CAN_NOT_DELETE_ACTIVE_STATE = "can.not.delete.active.state";
-        public static final String REQUIRED_CAS_MISSING = "required.cas.missing";
+        public static final String REQUIRED_CPS_MISSING = "required.cps.missing";
         public static final String TIME_OF_USE_BUCKET_INCONSISTENCY = "time.of.use.bucket.inconsistency";
         public static final String UNSATISFIED_READING_TYPE_REQUIREMENT_FOR_METER = "unsatisfied.reading.type.requirement.for.meter";
         public static final String USAGE_POINT_INCORRECT_STAGE = "usage.point.incorrect.stage";

@@ -27,9 +27,6 @@ import com.elster.jupiter.metering.impl.UsagePointAccountabilityImpl;
 import com.elster.jupiter.metering.impl.UsagePointImpl;
 import com.elster.jupiter.metering.impl.UsagePointMeterActivatorImpl;
 import com.elster.jupiter.metering.impl.UsagePointStateTemporalImpl;
-import com.elster.jupiter.metering.impl.aggregation.CalendarTimeSeriesCacheHandler;
-import com.elster.jupiter.metering.impl.aggregation.CalendarTimeSeriesCacheHandlerFactory;
-import com.elster.jupiter.metering.impl.aggregation.ServerDataAggregationService;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyContractChannelsContainerImpl;
@@ -160,8 +157,7 @@ public class CalendarTimeSeriesCacheHandlerMessagePostTest {
 
     @Before
     public void initializeMessagingMocks() {
-        this.messageBuilder = mock(MessageBuilder.class);
-        when(this.destinationSpec.message(anyString())).thenReturn(messageBuilder);
+        when(this.destinationSpec.message(anyString())).thenReturn(this.messageBuilder);
     }
 
     @Before

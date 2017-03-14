@@ -10,6 +10,7 @@ import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -57,6 +58,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -161,6 +163,8 @@ public class UsagePointImplTest {
         when(representation4.getDelegate()).thenReturn(user4);
         when(dataModel.mapper(MeterActivation.class)).thenReturn(meterActivationMapper);
 
+        MessageBuilder messageBuilder = mock(MessageBuilder.class);
+        when(this.destinationSpec.message(anyString())).thenReturn(messageBuilder);
         usagePoint = new UsagePointImpl(clock, dataModel, eventService, thesaurus, this.destinationSpec, meterActivationProvider, accountabilityProvider,
                 customPropertySetService, metrologyConfigurationService, dataAggregationService, usagePointLifeCycleConfigurationService)
                 .init(NAME, serviceCategory);

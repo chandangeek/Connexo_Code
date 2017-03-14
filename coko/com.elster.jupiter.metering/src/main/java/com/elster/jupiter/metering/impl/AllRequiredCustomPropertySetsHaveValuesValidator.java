@@ -20,7 +20,7 @@ public class AllRequiredCustomPropertySetsHaveValuesValidator implements Constra
                 .filter(propertySet -> propertySet.getCustomPropertySet().isRequired())
                 .anyMatch(propertySet -> propertySet.getValues() == null || propertySet.getValues().isEmpty())) {
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("{" + PrivateMessageSeeds.Constants.REQUIRED_CAS_MISSING + "}")
+            context.buildConstraintViolationWithTemplate("{" + PrivateMessageSeeds.Constants.REQUIRED_CPS_MISSING + "}")
                     .addPropertyNode("customPropertySets")
                     .addConstraintViolation();
             return false;
