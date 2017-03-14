@@ -4,6 +4,11 @@
 
 package com.elster.jupiter.orm.query.impl;
 
+import com.elster.jupiter.orm.QueryStream;
+import com.elster.jupiter.orm.impl.DataMapperImpl;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -27,11 +32,6 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
-
-import com.elster.jupiter.orm.QueryStream;
-import com.elster.jupiter.orm.impl.DataMapperImpl;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
 
 public class QueryStreamImpl<T> implements QueryStream<T> {
 
@@ -279,9 +279,14 @@ public class QueryStreamImpl<T> implements QueryStream<T> {
 
 	@Override
 	public QueryStream<T> sorted(Order order, Order... extra) {
-		this.orders = new Order[extra.length + 1];
-		this.orders[0] = order;
-		System.arraycopy(extra, 0, orders, 1, extra.length);
+		if (extra.length != 0) {
+			this.orders = new Order[extra.length];
+			System.arraycopy(extra, 0, orders, 0, extra.length);
+		} else {
+			this.orders = new Order[extra.length + 1];
+			this.orders[0] = order;
+			System.arraycopy(extra, 0, orders, 1, extra.length);
+		}
 		return this;
 	}
 
