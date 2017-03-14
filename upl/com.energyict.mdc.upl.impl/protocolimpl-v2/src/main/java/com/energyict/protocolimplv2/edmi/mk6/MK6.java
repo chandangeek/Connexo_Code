@@ -275,7 +275,7 @@ public class MK6 implements DeviceProtocol, CommandLineProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2017-22-07 14:27:09 +0100$";
+        return "$Date: 2017-03-14 14:27:09 +0100$";
     }
 
     @Override
