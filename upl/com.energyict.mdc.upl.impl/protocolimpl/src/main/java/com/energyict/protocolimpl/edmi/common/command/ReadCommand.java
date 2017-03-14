@@ -65,7 +65,7 @@ public class ReadCommand extends AbstractCommand {
     protected void parse(byte[] rawData) throws CommandResponseException, ProtocolException {
         if (command == EXTENDED_READ_COMMAND) {
             if (rawData.length < 5) {
-                throw new CommandResponseException("Response for File access read command should have a minimum length of 16; actual size was " + data.length);
+                throw new CommandResponseException("Response for readCommand should have a minimum length of 5; actual size was " + rawData.length);
             } else if (command != (char) rawData[0]) {
                 throw new CommandResponseException("Extended readCommand, request command " + command + " != response command " + (char) rawData[0]);
             }
@@ -77,8 +77,8 @@ public class ReadCommand extends AbstractCommand {
             setRegisterId(tempRegisterId);
             setData(ProtocolUtils.getSubArray(rawData, 5, rawData.length - 1));
         } else if (command == READ_COMMAND) {
-            if (rawData.length < 5) {
-                throw new CommandResponseException("Response for File access read command should have a minimum length of 16; actual size was " + data.length);
+            if (rawData.length < 4) {
+                throw new CommandResponseException("Response for readCommand should have a minimum length of 4; actual size was " + rawData.length);
             } else if (command != (char) rawData[0]) {
                 throw new CommandResponseException("ReadCommand, request command " + command + " != response command " + (char) rawData[0]);
             }
