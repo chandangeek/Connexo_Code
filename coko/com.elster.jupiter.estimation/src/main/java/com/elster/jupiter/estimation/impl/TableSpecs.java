@@ -42,14 +42,15 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).map("name").add();
-            table.column("QUALITY_SYSTEM").number().conversion(NUMBER2ENUM).notNull().map("qualityCodeSystem").since(version(10, 2)).installValue("2").add();
+            Column qualitySystemColumn = table.column("QUALITY_SYSTEM").number().conversion(NUMBER2ENUM).notNull().map("qualityCodeSystem").since(version(10, 2)).installValue("2").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(DESCRIPTION_LENGTH).map("description").add();
             Column obsoleteColumn = table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
             table.addAuditColumns();
             table.primaryKey("EST_PK_ESTIMATIONRULESET").on(idColumn).add();
             table.unique("EST_U_ESTIMATIONRULESET").on(mRIDColumn).add();
-            table.unique("EST_U_RULE_SET_NAME").on(nameColumn, obsoleteColumn).add();
+            table.unique("EST_U_RULE_SET_NAME").on(nameColumn, obsoleteColumn).upTo(version(10, 3)).add();
+            table.unique("EST_U_RULE_SET_NAME").on(nameColumn, obsoleteColumn, qualitySystemColumn).since(version(10, 3)).add();
         }
     },
     EST_ESTIMATIONRULE {
