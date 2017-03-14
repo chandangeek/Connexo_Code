@@ -9,13 +9,15 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
+import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 
 import java.util.Collections;
@@ -33,9 +35,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointTransitionImplIT extends BaseTestIT {
     private UsagePointLifeCycle lifeCycle;
-    private UsagePointState state1;
-    private UsagePointState state2;
-    private UsagePointState state3;
+    private State state1;
+    private State state2;
+    private State state3;
 
     private com.elster.jupiter.events.EventType createSystemEventType(String eventTypeSymbol) {
         return get(EventService.class).buildEventTypeWithTopic("usage/point/lifecycle/" + eventTypeSymbol)
@@ -51,9 +53,11 @@ public class UsagePointTransitionImplIT extends BaseTestIT {
     @Before
     public void before() {
         this.lifeCycle = get(UsagePointLifeCycleConfigurationService.class).newUsagePointLifeCycle("Test");
-        this.state1 = this.lifeCycle.newState("State1").setStage(UsagePointStage.Key.OPERATIONAL).complete();
-        this.state2 = this.lifeCycle.newState("State2").setStage(UsagePointStage.Key.OPERATIONAL).complete();
-        this.state3 = this.lifeCycle.newState("State3").setStage(UsagePointStage.Key.OPERATIONAL).complete();
+        Stage stage = get(UsagePointLifeCycleConfigurationService.class).getDefaultStageSet().getStageByName(UsagePointStage.OPERATIONAL.getKey()).get();
+        FiniteStateMachineUpdater updater = this.lifeCycle.getUpdater();
+        this.state1 = updater.newCustomState("State 1", stage).complete();
+        this.state2 = updater.newCustomState("State 2", stage).complete();
+        this.state3 = updater.newCustomState("State 3", stage).complete();
     }
 
     @Test

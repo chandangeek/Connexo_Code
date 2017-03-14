@@ -22,7 +22,6 @@ import com.elster.jupiter.usagepoint.lifecycle.config.MicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.util.streams.DecoratedStream;
 
@@ -85,8 +84,8 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
     @SuppressWarnings("unused")
     private Instant modTime;
 
-    private UsagePointState fromState;
-    private UsagePointState toState;
+    private State fromState;
+    private State toState;
     private EnumSet<Level> levels = EnumSet.noneOf(Level.class);
 
     private final DataModel dataModel;
@@ -98,7 +97,7 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
         this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
     }
 
-    UsagePointTransitionImpl init(UsagePointLifeCycleImpl lifeCycle, String name, UsagePointState fromState, UsagePointState toState) {
+    UsagePointTransitionImpl init(UsagePointLifeCycleImpl lifeCycle, String name, State fromState, State toState) {
         this.lifeCycle.set(lifeCycle);
         this.name = name;
         this.fromState = fromState;
@@ -126,9 +125,9 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
     private void postLoadStates() {
         long fromId = this.fsmTransition.get().getFrom().getId();
         long toId = this.fsmTransition.get().getTo().getId();
-        List<UsagePointState> states = this.lifeCycle.get().getStates();
+        List<State> states = this.lifeCycle.get().getStates();
         for (int i = 0; i < states.size() && (this.fromState == null || this.toState == null); i++) {
-            UsagePointState state = states.get(i);
+            State state = states.get(i);
             if (state.getId() == fromId) {
                 this.fromState = state;
             } else if (state.getId() == toId) {
@@ -153,12 +152,12 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
     }
 
     @Override
-    public UsagePointState getFrom() {
+    public State getFrom() {
         return this.fromState;
     }
 
     @Override
-    public UsagePointState getTo() {
+    public State getTo() {
         return this.toState;
     }
 

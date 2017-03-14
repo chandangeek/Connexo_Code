@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.config;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ConsumerType;
@@ -27,7 +28,7 @@ public interface MicroCheck extends HasName {
      *
      * @return true if micro check is mandatory
      */
-    default boolean isMandatoryForTransition(UsagePointState fromState, UsagePointState toState) {
+    default boolean isMandatoryForTransition(State fromState, State toState) {
         return false;
     }
 }
