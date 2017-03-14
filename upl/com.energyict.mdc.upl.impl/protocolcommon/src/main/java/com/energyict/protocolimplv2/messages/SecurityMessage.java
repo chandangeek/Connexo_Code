@@ -1,5 +1,9 @@
 package com.energyict.protocolimplv2.messages;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
+
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
@@ -10,10 +14,6 @@ import com.energyict.protocolimplv2.messages.enums.ClientSecuritySetup;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.UserNames;
-
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
 
 
 /**

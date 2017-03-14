@@ -178,6 +178,8 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
                     if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSessionProperties().getRetries() + 1)) {
                         if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
                             return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);
+                        } else if (DLMSIOExceptionHandler.isTemporaryFailure(e)) {
+                        	return this.dataNotAvailable(offlineRegister);
                         } else {
                             return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
                         }
