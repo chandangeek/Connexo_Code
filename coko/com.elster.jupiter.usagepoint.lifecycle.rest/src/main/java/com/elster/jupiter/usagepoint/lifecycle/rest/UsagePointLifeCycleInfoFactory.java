@@ -34,7 +34,7 @@ public class UsagePointLifeCycleInfoFactory {
         info.version = lifeCycle.getVersion();
         info.obsolete = lifeCycle.isObsolete();
         info.isDefault = lifeCycle.isDefault();
-        info.states = lifeCycle.getStates().stream().map(this.stateInfoFactory::from).collect(Collectors.toList());
+        info.states = lifeCycle.getStates().stream().map(state -> this.stateInfoFactory.from(lifeCycle, state)).collect(Collectors.toList());
         info.transitionsCount = lifeCycle.getTransitions().size();
         return info;
     }

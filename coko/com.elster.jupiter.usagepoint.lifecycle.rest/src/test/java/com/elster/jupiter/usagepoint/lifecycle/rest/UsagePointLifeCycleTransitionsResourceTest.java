@@ -5,12 +5,13 @@
 package com.elster.jupiter.usagepoint.lifecycle.rest;
 
 import com.elster.jupiter.devtools.tests.FakeBuilder;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 
 import com.jayway.jsonpath.JsonModel;
@@ -37,9 +38,9 @@ public class UsagePointLifeCycleTransitionsResourceTest extends UsagePointLifeCy
     @Mock
     private UsagePointLifeCycle lifeCycle;
     @Mock
-    private UsagePointState fromState;
+    private State fromState;
     @Mock
-    private UsagePointState toState;
+    private State toState;
     @Mock
     private UsagePointTransition transition;
     @Mock
@@ -47,7 +48,7 @@ public class UsagePointLifeCycleTransitionsResourceTest extends UsagePointLifeCy
     @Mock
     private MicroCheck microCheck;
     @Mock
-    private UsagePointStage stage;
+    private Stage stage;
 
     @Before
     public void before() {
@@ -60,19 +61,17 @@ public class UsagePointLifeCycleTransitionsResourceTest extends UsagePointLifeCy
         when(lifeCycle.getId()).thenReturn(12L);
         when(lifeCycle.getVersion()).thenReturn(4L);
 
-        when(fromState.getLifeCycle()).thenReturn(lifeCycle);
         when(fromState.getId()).thenReturn(56L);
         when(fromState.getName()).thenReturn("From");
         when(fromState.getVersion()).thenReturn(1L);
-        when(fromState.getStage()).thenReturn(stage);
+        when(fromState.getStage()).thenReturn(Optional.of(stage));
 
-        when(toState.getLifeCycle()).thenReturn(lifeCycle);
         when(toState.getId()).thenReturn(57L);
         when(toState.getName()).thenReturn("To");
         when(toState.getVersion()).thenReturn(1L);
-        when(toState.getStage()).thenReturn(stage);
+        when(toState.getStage()).thenReturn(Optional.of(stage));
 
-        when(stage.getKey()).thenReturn(UsagePointStage.Key.OPERATIONAL);
+        when(stage.getName()).thenReturn(UsagePointStage.OPERATIONAL.getKey());
 
         when(transition.getId()).thenReturn(6L);
         when(transition.getVersion()).thenReturn(7L);

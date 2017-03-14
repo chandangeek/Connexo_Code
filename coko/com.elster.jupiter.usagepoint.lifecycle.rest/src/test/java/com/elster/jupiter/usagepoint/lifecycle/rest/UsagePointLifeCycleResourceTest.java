@@ -6,12 +6,12 @@ package com.elster.jupiter.usagepoint.lifecycle.rest;
 
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleRemoveException;
 
@@ -75,13 +75,13 @@ public class UsagePointLifeCycleResourceTest extends UsagePointLifeCycleApplicat
     @Test
     public void testGetLifeCycleById() {
         when(usagePointLifeCycleConfigurationService.findUsagePointLifeCycle(12L)).thenReturn(Optional.of(lifeCycle));
-        UsagePointState state = mock(UsagePointState.class);
+        State state = mock(State.class);
         when(state.getId()).thenReturn(4L);
         when(state.getName()).thenReturn("State");
         when(state.isInitial()).thenReturn(true);
-        when(state.getLifeCycle()).thenReturn(lifeCycle);
         when(state.getVersion()).thenReturn(3L);
-        when(state.getStage()).thenReturn(mock(UsagePointStage.class));
+        Stage stage = mock(Stage.class);
+        when(state.getStage()).thenReturn(Optional.of(stage));
         when(lifeCycle.getId()).thenReturn(12L);
         when(lifeCycle.getName()).thenReturn("Life cycle");
         when(lifeCycle.getVersion()).thenReturn(4L);
@@ -341,7 +341,7 @@ public class UsagePointLifeCycleResourceTest extends UsagePointLifeCycleApplicat
 
     @Test
     public void testGetAllMicroActions() {
-        UsagePointState usagePointState = mock(UsagePointState.class);
+        State usagePointState = mock(State.class);
         when(usagePointLifeCycleConfigurationService.findUsagePointState(23L)).thenReturn(Optional.of(usagePointState));
         MicroAction microAction = mock(MicroAction.class);
         when(usagePointLifeCycleConfigurationService.getMicroActions()).thenReturn(Collections.singleton(microAction));
@@ -366,7 +366,7 @@ public class UsagePointLifeCycleResourceTest extends UsagePointLifeCycleApplicat
 
     @Test
     public void testGetAllMicroChecks() {
-        UsagePointState usagePointState = mock(UsagePointState.class);
+        State usagePointState = mock(State.class);
         when(usagePointLifeCycleConfigurationService.findUsagePointState(23L)).thenReturn(Optional.of(usagePointState));
         MicroCheck microCheck = mock(MicroCheck.class);
         when(usagePointLifeCycleConfigurationService.getMicroChecks()).thenReturn(Collections.singleton(microCheck));

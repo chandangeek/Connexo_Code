@@ -5,6 +5,7 @@
 package com.elster.jupiter.usagepoint.lifecycle.rest.impl;
 
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -12,7 +13,6 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.usagepoint.lifecycle.config.Privileges;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.rest.BusinessProcessInfo;
 import com.elster.jupiter.usagepoint.lifecycle.rest.BusinessProcessInfoFactory;
@@ -186,8 +186,8 @@ public class UsagePointLifeCycleResource {
     public PagedInfoList getAllMicroChecks(@BeanParam JsonQueryParameters queryParams,
                                            @QueryParam("fromState") long fromStateId,
                                            @QueryParam("toState") long toStateId) {
-        UsagePointState fromState = this.resourceHelper.getStateByIdOrThrowException(fromStateId);
-        UsagePointState toState = this.resourceHelper.getStateByIdOrThrowException(toStateId);
+        State fromState = this.resourceHelper.getStateByIdOrThrowException(fromStateId);
+        State toState = this.resourceHelper.getStateByIdOrThrowException(toStateId);
         List<MicroActionAndCheckInfo> privileges = this.usagePointLifeCycleConfigurationService.getMicroChecks()
                 .stream()
                 .map(check -> check.isMandatoryForTransition(fromState, toState)
@@ -204,8 +204,8 @@ public class UsagePointLifeCycleResource {
     public PagedInfoList getAllMicroActions(@BeanParam JsonQueryParameters queryParams,
                                             @QueryParam("fromState") long fromStateId,
                                             @QueryParam("toState") long toStateId) {
-        UsagePointState fromState = this.resourceHelper.getStateByIdOrThrowException(fromStateId);
-        UsagePointState toState = this.resourceHelper.getStateByIdOrThrowException(toStateId);
+        State fromState = this.resourceHelper.getStateByIdOrThrowException(fromStateId);
+        State toState = this.resourceHelper.getStateByIdOrThrowException(toStateId);
         List<MicroActionAndCheckInfo> privileges = this.usagePointLifeCycleConfigurationService.getMicroActions()
                 .stream()
                 .map(action -> action.isMandatoryForTransition(fromState, toState)

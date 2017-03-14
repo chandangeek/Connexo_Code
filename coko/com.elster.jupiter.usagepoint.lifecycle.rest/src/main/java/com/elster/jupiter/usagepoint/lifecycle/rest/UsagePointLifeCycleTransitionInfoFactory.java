@@ -30,8 +30,8 @@ public class UsagePointLifeCycleTransitionInfoFactory {
         info.id = transition.getId();
         info.name = transition.getName();
         info.version = transition.getVersion();
-        info.fromState = this.stateInfoFactory.from(transition.getFrom());
-        info.toState = this.stateInfoFactory.from(transition.getTo());
+        info.fromState = this.stateInfoFactory.from(transition.getLifeCycle(), transition.getFrom());
+        info.toState = this.stateInfoFactory.from(transition.getLifeCycle(), transition.getTo());
         info.parent = new VersionInfo<>(transition.getLifeCycle().getId(), transition.getLifeCycle().getVersion());
         return info;
     }

@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.rest;
 
+import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 
@@ -21,5 +22,5 @@ public class UsagePointLifeCycleStateInfo {
     public List<BusinessProcessInfo> onEntry = new ArrayList<>();
     public List<BusinessProcessInfo> onExit = new ArrayList<>();
     public VersionInfo<Long> parent;
-    public UsagePointStage.Key stage;
+    public String stage;
 }
