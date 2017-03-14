@@ -256,8 +256,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         addDetailsInfo(info, usagePoint);
         addCustomPropertySetInfo(info, usagePoint);
         addLocationInfo(info, usagePoint);
-        info.state = this.stateInfoFactory.from(usagePoint.getState());
-        info.lifeCycle = this.lifeCycleInfoFactory.shortInfo(usagePoint.getState().getLifeCycle());
+        info.state = this.stateInfoFactory.from(usagePoint.getLifeCycle(), usagePoint.getState());
+        info.lifeCycle = this.lifeCycleInfoFactory.shortInfo(usagePoint.getLifeCycle());
         info.lastTransitionTime = usagePointLifeCycleService.getLastUsagePointStateChangeRequest(usagePoint).map(cr -> cr.getTransitionTime().toEpochMilli()).orElse(null);
         return info;
     }
