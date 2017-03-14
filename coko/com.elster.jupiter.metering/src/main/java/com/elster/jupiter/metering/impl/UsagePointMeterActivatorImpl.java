@@ -168,13 +168,14 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                 getMeterTimeLine(activation.getMeter(), this.meterTimeLines).adjust(activation, activateVisitor));
         this.usagePoint.touch();
         refreshMeterActivations();
-        // Notify
-        eventService.postEvent(EventType.USAGEPOINT_UPDATED.topic(), this.usagePoint);
+
+        notifyInterestedComponents();
     }
 
     private Stream<Meter> convertMeterActivationsToStreamOfMeters(List<MeterActivation> meterActivations) {
         return DecoratedStream.decorate(meterActivations.stream())
-                .filter(ma -> ma.getMeterRole().isPresent() && ma.getMeter().isPresent())
+                .filter(ma -> ma.getMeterRole().isPresent())
+                .filter(ma -> ma.getMeter().isPresent())
                 .distinct(ma -> ma.getMeter().get())
                 .map(ma -> ma.getMeter().get());
     }
@@ -194,6 +195,15 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         return timeLine;
     }
 
+    private void startValidation() {
+        if (!this.useThrowingValidator) {
+            Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), this);
+        } else {
+            ValidationReport validationReport = new ThrowingValidationReport(this.metrologyConfigurationService.getThesaurus());
+            validate(validationReport);
+        }
+    }
+
     private void refreshMeterActivations() {
         this.usagePoint.refreshMeterActivations();
         this.activationChanges.stream()
@@ -203,13 +213,17 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                 .forEach(MeterImpl::refreshMeterActivations);
     }
 
-    private void startValidation() {
-        if (!this.useThrowingValidator) {
-            Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), this);
-        } else {
-            ValidationReport validationReport = new ThrowingValidationReport(this.metrologyConfigurationService.getThesaurus());
-            validate(validationReport);
-        }
+    private void notifyInterestedComponents() {
+        eventService.postEvent(EventType.USAGEPOINT_UPDATED.topic(), this.usagePoint);
+        this.meterTimeLines
+                .values()
+                .stream()
+                .map(TimeLine::getElements)
+                .flatMap(Collection::stream)
+                .map(Activation::getStart)
+                .sorted()
+                .findFirst()
+                .ifPresent(earliestChange -> this.usagePoint.postCalendarTimeSeriesCacheHandlerMessage(earliestChange));
     }
 
     @Override
@@ -577,6 +591,10 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         public void addAll(Collection<T> elements) {
             addAll(elements, this.ranges);
             Collections.sort(this.ranges, this.comparator);
+        }
+
+        public List<T> getElements() {
+            return this.getElements(Function.identity());
         }
 
         public List<T> getElements(Function<T, T> mapper) {

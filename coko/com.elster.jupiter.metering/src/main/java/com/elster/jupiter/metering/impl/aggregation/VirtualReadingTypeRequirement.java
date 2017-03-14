@@ -267,8 +267,7 @@ class VirtualReadingTypeRequirement {
         if ((this.preferredChannel == null) || (!this.preferredChannel.isPresent())) {
             this.preferredChannel = this.findPreferredChannel();
         }
-        return this.preferredChannel.orElseThrow(() -> new IllegalStateException("Calculation of preferred channel for requirement " + this
-                .readingTypeForSqlComment() + " failed before"));
+        return this.preferredChannel.orElseThrow(() -> new IllegalStateException("Calculation of preferred channel for requirement " + this.readingTypeForSqlComment() + " failed before"));
     }
 
     private Optional<ChannelContract> findPreferredChannel() {
@@ -374,8 +373,8 @@ class VirtualReadingTypeRequirement {
         }
 
         @Override
-        public Calendar getCalendar() {
-            return calendar;
+        public Optional<Calendar> getCalendar() {
+            return Optional.ofNullable(this.calendar);
         }
 
         @Override

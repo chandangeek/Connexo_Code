@@ -10,8 +10,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.impl.ServerUsagePoint;
-import com.elster.jupiter.tasks.TaskExecutor;
-import com.elster.jupiter.tasks.TaskOccurrence;
 
 import java.time.Instant;
 
@@ -68,7 +66,12 @@ public class CalendarTimeSeriesCacheHandler implements MessageHandler {
     }
 
     private void execute(ServerDataAggregationService.DetailedCalendarUsage calendarUsage) {
-        calendarUsage.getCalendar().toTimeSeries(calendarUsage.getIntervalLength().toTemporalAmount(), calendarUsage.getZoneId());
+        calendarUsage
+            .getCalendar()
+            .ifPresent(calendar ->
+                calendar.toTimeSeries(
+                        calendarUsage.getIntervalLength().toTemporalAmount(),
+                        calendarUsage.getZoneId()));
     }
 
 }

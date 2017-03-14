@@ -591,7 +591,7 @@ public class UsagePointImpl implements ServerUsagePoint {
      *
      * @param when The point in time on which a change to the timeline of this UsagePoint was made
      */
-    private void postCalendarTimeSeriesCacheHandlerMessage(Instant when) {
+    void postCalendarTimeSeriesCacheHandlerMessage(Instant when) {
         this.postCalendarTimeSeriesCacheHandlerMessageDestination
                 .message(CalendarTimeSeriesCacheHandler.payloadFor(this, when))
                 .send();

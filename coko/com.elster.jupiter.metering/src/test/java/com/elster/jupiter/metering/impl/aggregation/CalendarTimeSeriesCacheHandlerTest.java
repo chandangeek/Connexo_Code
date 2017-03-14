@@ -56,7 +56,7 @@ public class CalendarTimeSeriesCacheHandlerTest {
         when(this.meteringService.findUsagePointById(USAGEPOINT_ID)).thenReturn(Optional.of(this.usagePoint));
         when(this.usagePoint.getId()).thenReturn(USAGEPOINT_ID);
 
-        when(this.calendarUsage.getCalendar()).thenReturn(this.calendar);
+        when(this.calendarUsage.getCalendar()).thenReturn(Optional.of(this.calendar));
         when(this.calendarUsage.getIntervalLength()).thenReturn(IntervalLength.MINUTE15);
         when(this.calendarUsage.getZoneId()).thenReturn(ZoneOffset.UTC);
     }
@@ -98,7 +98,7 @@ public class CalendarTimeSeriesCacheHandlerTest {
 
         Calendar additionalCalendar = mock(Calendar.class);
         ServerDataAggregationService.DetailedCalendarUsage additionalUsage = mock(ServerDataAggregationService.DetailedCalendarUsage.class);
-        when(additionalUsage.getCalendar()).thenReturn(additionalCalendar);
+        when(additionalUsage.getCalendar()).thenReturn(Optional.of(additionalCalendar));
         when(additionalUsage.getIntervalLength()).thenReturn(IntervalLength.HOUR1);
         ZoneOffset additionalZoneId = ZoneOffset.ofHours(2);
         when(additionalUsage.getZoneId()).thenReturn(additionalZoneId);

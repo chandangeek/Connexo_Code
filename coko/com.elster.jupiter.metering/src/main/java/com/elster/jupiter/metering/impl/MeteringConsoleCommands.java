@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -50,6 +52,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -76,6 +79,7 @@ import java.util.stream.Stream;
         "osgi.command.function=meterActivations",
         "osgi.command.function=renameMeter",
         "osgi.command.function=activateMeter",
+        "osgi.command.function=addCalendar",
         "osgi.command.function=addUsagePointToCurrentMeterActivation",
         "osgi.command.function=endCurrentMeterActivation",
         "osgi.command.function=advanceStartDate",
@@ -109,6 +113,8 @@ import java.util.stream.Stream;
 @SuppressWarnings("unused")
 public class MeteringConsoleCommands {
 
+    private volatile Clock clock;
+    private volatile CalendarService calendarService;
     private volatile ServerMeteringService meteringService;
     private volatile DataModel dataModel;
     private volatile UserService userService;
@@ -116,6 +122,11 @@ public class MeteringConsoleCommands {
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile ServerMetrologyConfigurationService metrologyConfigurationService;
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
 
     @Reference
     public void setUserService(UserService userService) {
@@ -140,6 +151,11 @@ public class MeteringConsoleCommands {
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
+    public void setCalendarService(CalendarService calendarService) {
+        this.calendarService = calendarService;
     }
 
     @Reference
@@ -480,6 +496,33 @@ public class MeteringConsoleCommands {
                 setLocationAttributes(builder.member(), location).add();
             }
             return builder;
+        }
+    }
+
+    public void addCalendar() {
+        System.out.println("Usage: addCalendar <calendar id> <usage point id> [<utc timestamp>]");
+    }
+
+    public void addCalendar(long calendarId, long usagePointId) {
+        this.addCalendar(calendarId, usagePointId, this.clock.instant());
+    }
+
+    public void addCalendar(long calendarId, long usagePointId, long utcTimeStamp) {
+        this.addCalendar(calendarId, usagePointId, Instant.ofEpochMilli(utcTimeStamp));
+    }
+
+    private void addCalendar(long calendarId, long usagePointId, Instant from) {
+        this.addCalendar(
+                this.calendarService.findCalendar(calendarId).orElseThrow(() -> new IllegalArgumentException("Calendar with id " + calendarId + " not found")),
+                this.meteringService.findUsagePointById(usagePointId).orElseThrow(() -> new IllegalArgumentException("Usage point with id " + usagePointId + " not found")),
+                from);
+    }
+
+    private void addCalendar(Calendar calendar, UsagePoint usagePoint, Instant from) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            usagePoint.getUsedCalendars().addCalendar(calendar, from);
+            context.commit();
         }
     }
 

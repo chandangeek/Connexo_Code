@@ -57,8 +57,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
 /**
  * Provides an implementation for the {@link DataAggregationService} interface.
  *
@@ -134,25 +132,27 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
 
     @Override
     public List<DetailedCalendarUsage> introspect(ServerUsagePoint usagePoint, Instant instant) {
+        Range<Instant> period = Range.atLeast(instant);
         return usagePoint
-                .getEffectiveMetrologyConfiguration(instant)
+                .getEffectiveMetrologyConfigurations(period)
+                .stream()
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
-                .map(metrologyConfiguration -> this.introspect(usagePoint, instant, metrologyConfiguration))
-                .orElseGet(Collections::emptyList);
+                .map(metrologyConfiguration -> this.introspect(usagePoint, period, metrologyConfiguration))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 
-    private List<DetailedCalendarUsage> introspect(ServerUsagePoint usagePoint, Instant instant, MetrologyConfiguration metrologyConfiguration) {
+    private List<DetailedCalendarUsage> introspect(ServerUsagePoint usagePoint, Range<Instant> period, MetrologyConfiguration metrologyConfiguration) {
         return metrologyConfiguration
                     .getContracts()
                     .stream()
-                    .map(contract -> this.introspect(usagePoint, instant, contract))
+                    .map(contract -> this.introspect(usagePoint, period, contract))
                     .flatMap(java.util.function.Function.identity())
                     .collect(Collectors.toList());
     }
 
-    private Stream<DetailedCalendarUsage> introspect(ServerUsagePoint usagePoint, Instant instant, MetrologyContract contract) {
+    private Stream<DetailedCalendarUsage> introspect(ServerUsagePoint usagePoint, Range<Instant> period, MetrologyContract contract) {
         VirtualFactory virtualFactory = this.virtualFactoryProvider.get();
-        Range<Instant> period = Range.atLeast(instant);
         Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation =
                 this.prepareCalculation(
                         usagePoint, contract, period,
