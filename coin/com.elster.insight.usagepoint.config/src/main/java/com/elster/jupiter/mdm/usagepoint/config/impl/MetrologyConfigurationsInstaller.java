@@ -39,10 +39,11 @@ class MetrologyConfigurationsInstaller {
     private static final String DETAIL_PHASE_CODE = "detail.phaseCode";
     private static final String ROLE_NOT_FOUND = "Default meter role not found";
     private static final String REACTIVE_ENERGY_PLUS = "Reactive energy+";
-    static final String YEARLY_A_PLUS_WH = "1001.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     static final String YEARLY_A_MINUS_WH = "1001.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    static final String YEARLY_NET_WH = "1001.0.0.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0";
     static final String MONTHLY_A_PLUS_WH = "13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     static final String MONTHLY_A_MINUS_WH = "13.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    static final String MONTHLY_NET_WH = "13.0.0.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0";
     static final String DAILY_A_PLUS_WH = "11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     static final String DAILY_A_MINUS_WH = "11.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0";
     static final String HOURLY_A_MINUS_WH = "0.0.7.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0";
@@ -210,18 +211,18 @@ class MetrologyConfigurationsInstaller {
                 .orElseThrow(() -> new NoSuchElementException("Production meter role not found"));
         config.addMeterRole(meterRoleProduction);
 
-        ReadingType readingTypeMonthlyAplusWh = meteringService.findReadingTypes(Collections.singletonList(MONTHLY_A_PLUS_WH))
+        ReadingType readingTypeMonthlyNetWh = meteringService.findReadingTypes(Collections.singletonList(MONTHLY_NET_WH))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType(MONTHLY_A_PLUS_WH, "A+"));
+                .orElseGet(() -> meteringService.createReadingType(MONTHLY_NET_WH, "Monthly net Wh"));
         ReadingType readingTypeMonthlyAminusWh = meteringService.findReadingTypes(Collections.singletonList(MONTHLY_A_MINUS_WH))
                 .stream()
                 .findFirst()
                 .orElseGet(() -> meteringService.createReadingType(MONTHLY_A_MINUS_WH, "A-"));
-        ReadingType readingTypeYearlyAplusWh = meteringService.findReadingTypes(Collections.singletonList(YEARLY_A_PLUS_WH))
+        ReadingType readingTypeYearlyNetWh = meteringService.findReadingTypes(Collections.singletonList(YEARLY_NET_WH))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType(YEARLY_A_PLUS_WH, "A+"));
+                .orElseGet(() -> meteringService.createReadingType(YEARLY_NET_WH, "Yearly net Wh"));
         ReadingType readingTypeYearlyAminusWh = meteringService.findReadingTypes(Collections.singletonList(YEARLY_A_MINUS_WH))
                 .stream()
                 .findFirst()
@@ -239,9 +240,9 @@ class MetrologyConfigurationsInstaller {
                 .getDefaultFormat(), meterRoleProduction)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_MINUS));
 
-        contractBilling.addDeliverable(buildFormulaRequirementMax(config, readingTypeMonthlyAplusWh, requirementAplus, requirementAminus, "Monthly A+ kWh"));
+        contractBilling.addDeliverable(buildNonNegativeNetFormula(config, readingTypeMonthlyNetWh, requirementAplus, requirementAminus, "Monthly Net kWh"));
         contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeMonthlyAminusWh, requirementAminus, "Monthly A- kWh"));
-        contractBilling.addDeliverable(buildFormulaRequirementMax(config, readingTypeYearlyAplusWh, requirementAplus, requirementAminus, "Yearly A+ kWh"));
+        contractBilling.addDeliverable(buildNonNegativeNetFormula(config, readingTypeYearlyNetWh, requirementAplus, requirementAminus, "Yearly Net kWh"));
         contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeYearlyAminusWh, requirementAminus, "Yearly A- kWh"));
     }
 
@@ -678,11 +679,11 @@ class MetrologyConfigurationsInstaller {
         contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingTypeHourlyVolume, requirementGasVolume, "Hourly volume m³"));
     }
 
-    private void residentialWater() {
+    void residentialWater() {
         if (metrologyConfigurationService.findMetrologyConfiguration("Residential water").isPresent()) {
             return;
         }
-        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.GAS)
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.WATER)
                 .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.WATER));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential water", serviceCategory)
                 .withDescription("Residential water").create();
@@ -779,8 +780,8 @@ class MetrologyConfigurationsInstaller {
         return builder.build(builder.requirement(requirement));
     }
 
-    ReadingTypeDeliverable buildFormulaRequirementMax(UsagePointMetrologyConfiguration config, ReadingType readingType,
-                                                              ReadingTypeRequirement requirementPlus, ReadingTypeRequirement requirementMinus, String name) {
+    ReadingTypeDeliverable buildNonNegativeNetFormula(UsagePointMetrologyConfiguration config, ReadingType readingType,
+                                                      ReadingTypeRequirement requirementPlus, ReadingTypeRequirement requirementMinus, String name) {
 
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
         return builder.build(builder.maximum(builder.minus(builder.requirement(requirementPlus), builder.requirement(requirementMinus)), builder
