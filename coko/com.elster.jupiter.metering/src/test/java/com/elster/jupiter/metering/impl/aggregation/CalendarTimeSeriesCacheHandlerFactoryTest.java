@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.tasks.TaskService;
 
@@ -35,13 +36,13 @@ public class CalendarTimeSeriesCacheHandlerFactoryTest {
         CalendarTimeSeriesCacheHandlerFactory instance = this.getInstance();
 
         // Business method
-        instance.newMessageHandler();
+        MessageHandler messageHandler = instance.newMessageHandler();
 
         // Asserts
-        verify(this.taskService).createMessageHandler(any(CalendarTimeSeriesCacheHandler.class));
+        assertThat(messageHandler).isNotNull();
     }
 
     private CalendarTimeSeriesCacheHandlerFactory getInstance() {
-        return new CalendarTimeSeriesCacheHandlerFactory(this.taskService, this.meteringService, this.dataAggregationService);
+        return new CalendarTimeSeriesCacheHandlerFactory(this.meteringService, this.dataAggregationService);
     }
 }

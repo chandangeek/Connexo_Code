@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
@@ -29,7 +31,7 @@ import java.time.Instant;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-03-13 (13:32)
  */
-class CalendarTimeSeriesCacheHandler implements TaskExecutor {
+public class CalendarTimeSeriesCacheHandler implements MessageHandler {
 
     static final String USAGE_POINT_TIMESTAMP_SEPARATOR = "#";
 
@@ -41,13 +43,13 @@ class CalendarTimeSeriesCacheHandler implements TaskExecutor {
         this.dataAggregationService = dataAggregationService;
     }
 
-    static String payloadFor(UsagePoint usagePoint, Instant timestamp) {
+    public static String payloadFor(UsagePoint usagePoint, Instant timestamp) {
         return Long.toString(usagePoint.getId()) + USAGE_POINT_TIMESTAMP_SEPARATOR + Long.toString(timestamp.toEpochMilli());
     }
 
     @Override
-    public void execute(TaskOccurrence occurrence) {
-        String[] usagePointIdAndUtcTimestamp = occurrence.getPayLoad().split(USAGE_POINT_TIMESTAMP_SEPARATOR);
+    public void process(Message message) {
+        String[] usagePointIdAndUtcTimestamp = new String(message.getPayload()).split(USAGE_POINT_TIMESTAMP_SEPARATOR);
         long usagePointId = Long.parseLong(usagePointIdAndUtcTimestamp[0]);
         long utcTimestamp = Long.parseLong(usagePointIdAndUtcTimestamp[1]);
         Instant instant = Instant.ofEpochMilli(utcTimestamp);

@@ -7,7 +7,6 @@ package com.elster.jupiter.metering.impl.aggregation;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.tasks.TaskService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -28,7 +27,6 @@ public class CalendarTimeSeriesCacheHandlerFactory implements MessageHandlerFact
     public static final String TASK_NAME = "Calendar timeseries cache handler";
     public static final String TASK_SUBSCRIBER_DISPLAYNAME = "Caches the definition of a calendar for every interval that is likely to be used when applied to a usagepoint";
 
-    private volatile TaskService taskService;
     private volatile MeteringService meteringService;
     private volatile ServerDataAggregationService dataAggregationService;
 
@@ -39,16 +37,10 @@ public class CalendarTimeSeriesCacheHandlerFactory implements MessageHandlerFact
 
     // For testing purposes
     @Inject
-    public CalendarTimeSeriesCacheHandlerFactory(TaskService taskService, MeteringService meteringService, ServerDataAggregationService dataAggregationService) {
+    public CalendarTimeSeriesCacheHandlerFactory(MeteringService meteringService, ServerDataAggregationService dataAggregationService) {
         this();
-        this.setTaskService(taskService);
         this.setMeteringService(meteringService);
         this.setDataAggregationService(dataAggregationService);
-    }
-
-    @Reference
-    public void setTaskService(TaskService taskService) {
-        this.taskService = taskService;
     }
 
     @Reference
@@ -63,7 +55,7 @@ public class CalendarTimeSeriesCacheHandlerFactory implements MessageHandlerFact
 
     @Override
     public MessageHandler newMessageHandler() {
-        return this.taskService.createMessageHandler(new CalendarTimeSeriesCacheHandler(meteringService, this.dataAggregationService));
+        return new CalendarTimeSeriesCacheHandler(this.meteringService, this.dataAggregationService);
     }
 
 }

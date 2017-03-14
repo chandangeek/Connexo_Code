@@ -9,6 +9,7 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -133,6 +134,8 @@ public class UsagePointImplTest {
     private DataMapper<Meter> meterFactory;
     @Mock
     private UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
+    @Mock
+    private DestinationSpec destinationSpec;
 
     @Before
     public void setUp() {
@@ -158,7 +161,7 @@ public class UsagePointImplTest {
         when(representation4.getDelegate()).thenReturn(user4);
         when(dataModel.mapper(MeterActivation.class)).thenReturn(meterActivationMapper);
 
-        usagePoint = new UsagePointImpl(clock, dataModel, eventService, thesaurus, meterActivationProvider, accountabilityProvider,
+        usagePoint = new UsagePointImpl(clock, dataModel, eventService, thesaurus, this.destinationSpec, meterActivationProvider, accountabilityProvider,
                 customPropertySetService, metrologyConfigurationService, dataAggregationService, usagePointLifeCycleConfigurationService)
                 .init(NAME, serviceCategory);
         usagePoint.setInstallationTime(Instant.EPOCH);

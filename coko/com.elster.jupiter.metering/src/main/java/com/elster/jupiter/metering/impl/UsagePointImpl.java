@@ -13,6 +13,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
@@ -55,6 +56,8 @@ import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartD
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart;
 import com.elster.jupiter.metering.config.UnsatisfiedMetrologyConfigurationEndDate;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.aggregation.CalendarTimeSeriesCacheHandler;
+import com.elster.jupiter.metering.impl.aggregation.CalendarTimeSeriesCacheHandlerFactory;
 import com.elster.jupiter.metering.impl.aggregation.MeterActivationSet;
 import com.elster.jupiter.metering.impl.aggregation.ServerDataAggregationService;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
@@ -83,6 +86,7 @@ import com.elster.jupiter.util.units.Quantity;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
+import com.google.inject.name.Named;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -176,6 +180,7 @@ public class UsagePointImpl implements ServerUsagePoint {
     private final DataModel dataModel;
     private final EventService eventService;
     private final Thesaurus thesaurus;
+    private final DestinationSpec postCalendarTimeSeriesCacheHandlerMessageDestination;
     private final Provider<MeterActivationImpl> meterActivationFactory;
     private final Provider<UsagePointAccountabilityImpl> accountabilityFactory;
     private final CustomPropertySetService customPropertySetService;
@@ -187,7 +192,10 @@ public class UsagePointImpl implements ServerUsagePoint {
     @Inject
     UsagePointImpl(
             Clock clock, DataModel dataModel, EventService eventService,
-            Thesaurus thesaurus, Provider<MeterActivationImpl> meterActivationFactory,
+            Thesaurus thesaurus,
+            @Named(CalendarTimeSeriesCacheHandlerFactory.TASK_DESTINATION)
+            DestinationSpec postCalendarTimeSeriesCacheHandlerMessageDestination,
+            Provider<MeterActivationImpl> meterActivationFactory,
             Provider<UsagePointAccountabilityImpl> accountabilityFactory,
             CustomPropertySetService customPropertySetService,
             ServerMetrologyConfigurationService metrologyConfigurationService,
@@ -197,6 +205,7 @@ public class UsagePointImpl implements ServerUsagePoint {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
+        this.postCalendarTimeSeriesCacheHandlerMessageDestination = postCalendarTimeSeriesCacheHandlerMessageDestination;
         this.meterActivationFactory = meterActivationFactory;
         this.accountabilityFactory = accountabilityFactory;
         this.customPropertySetService = customPropertySetService;
@@ -561,6 +570,7 @@ public class UsagePointImpl implements ServerUsagePoint {
                 createEffectiveMetrologyConfigurationWithContracts(metrologyConfiguration, optionalContractsToActivate, effectiveInterval);
         this.metrologyConfigurations.add(effectiveMetrologyConfiguration);
         activateMetersOnMetrologyConfiguration(this.getMeterActivations(start));
+        this.postCalendarTimeSeriesCacheHandlerMessage(start);
     }
 
     private void activateMetersOnMetrologyConfiguration(List<MeterActivation> meterActivations) {
@@ -571,6 +581,20 @@ public class UsagePointImpl implements ServerUsagePoint {
                 .forEach(meterActivation -> linker.activate(meterActivation.getMeter().get(), meterActivation.getMeterRole().get()));
 
         linker.complete();
+    }
+
+    /**
+     * Post a message on the {@link CalendarTimeSeriesCacheHandlerFactory}'s queue
+     * to make sure that the linked calendar (if any at that point in time)
+     * has a cached timeseries for all the intervals required by the
+     * deliverables of all contracts of the metrology configuration (if any at that point in time).
+     *
+     * @param when The point in time on which a change to the timeline of this UsagePoint was made
+     */
+    private void postCalendarTimeSeriesCacheHandlerMessage(Instant when) {
+        this.postCalendarTimeSeriesCacheHandlerMessageDestination
+                .message(CalendarTimeSeriesCacheHandler.payloadFor(this, when))
+                .send();
     }
 
     private void validateEffectiveMetrologyConfigurationInterval(Instant start, Instant end) {
@@ -1183,6 +1207,7 @@ public class UsagePointImpl implements ServerUsagePoint {
         MeterActivationImpl result = meterActivationFactory.get().init(meter, meterRole, this, from);
         result.save();
         adopt(result);
+        this.postCalendarTimeSeriesCacheHandlerMessage(from);
         return result;
     }
 
@@ -1351,7 +1376,7 @@ public class UsagePointImpl implements ServerUsagePoint {
 
     @Override
     public UsedCalendars getUsedCalendars() {
-        return new UsedCalendarsImpl(this.dataModel, this.clock, thesaurus, this);
+        return new UsedCalendarsImpl(this.dataModel, this.clock, this.thesaurus, this.postCalendarTimeSeriesCacheHandlerMessageDestination, this);
     }
 
     @Override

@@ -5,9 +5,9 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.impl.ServerUsagePoint;
-import com.elster.jupiter.tasks.TaskOccurrence;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -42,7 +42,7 @@ public class CalendarTimeSeriesCacheHandlerTest {
     @Mock
     private ServerDataAggregationService dataAggregationService;
     @Mock
-    private TaskOccurrence taskOccurrence;
+    private Message message;
     @Mock
     private ServerUsagePoint usagePoint;
     @Mock
@@ -52,7 +52,7 @@ public class CalendarTimeSeriesCacheHandlerTest {
 
     @Before
     public void initializeMocks() {
-        when(this.taskOccurrence.getPayLoad()).thenReturn(PAYLOAD);
+        when(this.message.getPayload()).thenReturn(PAYLOAD.getBytes());
         when(this.meteringService.findUsagePointById(USAGEPOINT_ID)).thenReturn(Optional.of(this.usagePoint));
         when(this.usagePoint.getId()).thenReturn(USAGEPOINT_ID);
 
@@ -67,7 +67,7 @@ public class CalendarTimeSeriesCacheHandlerTest {
         when(this.dataAggregationService.introspect(this.usagePoint, Instant.ofEpochMilli(UTC_TIMESTAMP))).thenReturn(Collections.emptyList());
 
         // Business method
-        instance.execute(this.taskOccurrence);
+        instance.process(this.message);
 
         // Asserts
         verify(this.meteringService).findUsagePointById(USAGEPOINT_ID);
@@ -81,7 +81,7 @@ public class CalendarTimeSeriesCacheHandlerTest {
         when(this.dataAggregationService.introspect(this.usagePoint, Instant.ofEpochMilli(UTC_TIMESTAMP))).thenReturn(Collections.singletonList(this.calendarUsage));
 
         // Business method
-        instance.execute(this.taskOccurrence);
+        instance.process(this.message);
 
         // Asserts
         verify(this.meteringService).findUsagePointById(USAGEPOINT_ID);
@@ -107,7 +107,7 @@ public class CalendarTimeSeriesCacheHandlerTest {
             .thenReturn(Arrays.asList(this.calendarUsage, additionalUsage));
 
         // Business method
-        instance.execute(this.taskOccurrence);
+        instance.process(this.message);
 
         // Asserts
         verify(this.meteringService).findUsagePointById(USAGEPOINT_ID);
@@ -128,7 +128,7 @@ public class CalendarTimeSeriesCacheHandlerTest {
         when(this.meteringService.findUsagePointById(USAGEPOINT_ID)).thenReturn(Optional.empty());
 
         // Business method
-        instance.execute(this.taskOccurrence);
+        instance.process(this.message);
 
         // Asserts: see expected exception rule
         verify(this.meteringService).findUsagePointById(USAGEPOINT_ID);

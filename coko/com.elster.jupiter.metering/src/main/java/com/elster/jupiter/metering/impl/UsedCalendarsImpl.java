@@ -7,12 +7,14 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.aggregation.CalendarTimeSeriesCacheHandler;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
@@ -38,12 +40,14 @@ public class UsedCalendarsImpl implements UsagePoint.UsedCalendars {
     private final DataModel dataModel;
     private final Clock clock;
     private final Thesaurus thesaurus;
+    private final DestinationSpec postCalendarTimeSeriesCacheHandlerMessageDestination;
     private final UsagePointImpl usagePoint;
 
-    public UsedCalendarsImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, UsagePointImpl usagePoint) {
+    public UsedCalendarsImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, DestinationSpec postCalendarTimeSeriesCacheHandlerMessageDestination, UsagePointImpl usagePoint) {
         this.dataModel = dataModel;
         this.clock = clock;
         this.thesaurus = thesaurus;
+        this.postCalendarTimeSeriesCacheHandlerMessageDestination = postCalendarTimeSeriesCacheHandlerMessageDestination;
         this.usagePoint = usagePoint;
     }
 
@@ -89,7 +93,14 @@ public class UsedCalendarsImpl implements UsagePoint.UsedCalendars {
         CalendarUsageImpl calendarOnUsagePoint = CalendarUsageImpl.create(this.dataModel, startAt, this.usagePoint, calendar);
         Save.CREATE.validate(this.dataModel, calendarOnUsagePoint);
         calendarOnUsagePoint.save();
+        this.postCalendarTimeSeriesCacheHandlerMessage(startAt);
         return calendarOnUsagePoint;
+    }
+
+    private void postCalendarTimeSeriesCacheHandlerMessage(Instant startAt) {
+        this.postCalendarTimeSeriesCacheHandlerMessageDestination
+                .message(CalendarTimeSeriesCacheHandler.payloadFor(this.usagePoint, startAt))
+                .send();
     }
 
     @Override

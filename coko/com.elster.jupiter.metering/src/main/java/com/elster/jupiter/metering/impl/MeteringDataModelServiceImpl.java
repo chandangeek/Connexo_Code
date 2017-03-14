@@ -12,6 +12,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.AmiBillingReadyKind;
 import com.elster.jupiter.metering.BypassStatus;
@@ -36,6 +37,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecordFactory;
 import com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecordFactoryImpl;
+import com.elster.jupiter.metering.impl.aggregation.CalendarTimeSeriesCacheHandlerFactory;
 import com.elster.jupiter.metering.impl.aggregation.DataAggregationServiceImpl;
 import com.elster.jupiter.metering.impl.aggregation.InstantTruncaterFactory;
 import com.elster.jupiter.metering.impl.aggregation.ServerDataAggregationService;
@@ -73,6 +75,7 @@ import com.elster.jupiter.util.json.JsonService;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
+import com.google.inject.name.Names;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
@@ -144,6 +147,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
 
     private boolean createAllReadingTypes;
     private String[] requiredReadingTypes;
+    private DestinationSpec calendarTimeSeriesCacheHandlerMessageDestination;
 
     @SuppressWarnings("unused")
     public MeteringDataModelServiceImpl() {
@@ -203,6 +207,12 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         registerUsagePointSearchDoamin();
         installDataModel();
         registerServices(bundleContext);
+        cacheCalendarTimeSeriesCacheHandlerDestinationSpec();
+    }
+
+    private void cacheCalendarTimeSeriesCacheHandlerDestinationSpec() {
+        // Assumed to be running after the installer or upgrader
+        this.calendarTimeSeriesCacheHandlerMessageDestination = this.messageService.getDestinationSpec(CalendarTimeSeriesCacheHandlerFactory.TASK_DESTINATION).get();
     }
 
     private void registerDatabaseTables() {
@@ -266,6 +276,9 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 bind(Publisher.class).toInstance(publisher);
                 bind(CalendarService.class).toInstance(calendarService);
                 bind(SimpleChannelContract.class).to(ChannelImpl.class);
+                bind(DestinationSpec.class)
+                        .annotatedWith(Names.named(CalendarTimeSeriesCacheHandlerFactory.TASK_DESTINATION))
+                        .toProvider(() -> calendarTimeSeriesCacheHandlerMessageDestination);
             }
         });
     }
@@ -332,7 +345,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         if (bundleContext != null) {
             this.serviceRegistrations.add(
                     bundleContext.registerService(
-                            new String[]{DataAggregationService.class.getName()},
+                            new String[]{DataAggregationService.class.getName(), ServerDataAggregationService.class.getName()},
                             this.dataAggregationService,
                             noServiceProperties()));
         }
