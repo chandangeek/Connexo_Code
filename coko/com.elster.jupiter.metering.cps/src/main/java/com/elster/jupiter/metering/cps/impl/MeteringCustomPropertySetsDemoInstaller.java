@@ -62,6 +62,7 @@ import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -69,13 +70,14 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-@Component(name = "com.elster.jupiter.metering.cps", service = {TranslationKeyProvider.class, MessageSeedProvider.class}, property = "name=CPM")
+import static com.elster.jupiter.orm.Version.version;
+
+@Component(name = "com.elster.jupiter.metering.cps", service = {TranslationKeyProvider.class, MessageSeedProvider.class}, property = "name=CPM", immediate = true)
 public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyProvider, MessageSeedProvider {
 
     public static final String COMPONENT_NAME = "CPM";
@@ -142,11 +144,12 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
                 bind(MeteringCustomPropertySetsDemoInstaller.class).toInstance(MeteringCustomPropertySetsDemoInstaller.this);
             }
         });
 
-        upgradeService.register(InstallIdentifier.identifier("Example", "CPM"), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Example", "CPM"), dataModel, Installer.class, ImmutableMap.of(version(10, 3), UpgraderV10_3.class));
 
         this.registerCustomPropertySets();
     }
@@ -229,9 +232,10 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
                 .orElseThrow(() -> new NoSuchElementException("Antenna custom property set not found"));
         config.addCustomPropertySet(registeredAntennaCPS);
 
-        ReadingTypeDeliverableBuilder monthlyBuilder = config.newReadingTypeDeliverable("Monthly A+ kWh", readingTypeMonthlyAplusWh, Formula.Mode.AUTO);
         CustomPropertySet antennaCPS = registeredAntennaCPS.getCustomPropertySet();
         List<PropertySpec> propertySpecs = antennaCPS.getPropertySpecs();
+
+        ReadingTypeDeliverableBuilder monthlyBuilder = config.newReadingTypeDeliverable("Monthly A+ kWh", readingTypeMonthlyAplusWh, Formula.Mode.AUTO);
         FormulaBuilder monthlyAntennaPower = monthlyBuilder.property(antennaCPS, propertySpecs.stream()
                 .filter(propertySpec -> "antennaPower".equals(propertySpec.getName())).findFirst()
                 .orElseThrow(() -> new NoSuchElementException("antennaPower property spec not found")));
@@ -249,10 +253,10 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
                 .filter(propertySpec -> "antennaCount".equals(propertySpec.getName())).findFirst()
                 .orElseThrow(() -> new NoSuchElementException("antennaCount property spec not found")));
         FormulaBuilder yearlyCompositionCPS = yearlyBuilder.multiply(yearlyAntennaPower, yearlyAntennaCount);
-        FormulaBuilder yearlyConstant = yearlyBuilder.multiply(monthlyBuilder.constant(24), monthlyBuilder.constant(365));
+        FormulaBuilder yearlyConstant = yearlyBuilder.multiply(yearlyBuilder.constant(24), yearlyBuilder.constant(365));
 
         contractBilling.addDeliverable(monthlyBuilder.build(monthlyBuilder.multiply(monthlyCompositionCPS, monthlyConstant)));
-        contractBilling.addDeliverable(monthlyBuilder.build(monthlyBuilder.multiply(yearlyCompositionCPS, yearlyConstant)));
+        contractBilling.addDeliverable(yearlyBuilder.build(yearlyBuilder.multiply(yearlyCompositionCPS, yearlyConstant)));
     }
 
     void residentialPrepay() {
