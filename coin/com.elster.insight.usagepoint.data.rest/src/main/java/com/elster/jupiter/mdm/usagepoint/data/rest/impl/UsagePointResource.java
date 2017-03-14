@@ -114,6 +114,7 @@ import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -126,7 +127,7 @@ import java.util.stream.Stream;
 public class UsagePointResource {
 
     private static TemporalAmountComparator temporalAmountComparator = new TemporalAmountComparator();
-    private static TreeMap<TemporalAmount, TemporalAmount> validationOverviewLevelsPerIntervalLength = new TreeMap<>(temporalAmountComparator);
+    private static NavigableMap<TemporalAmount, TemporalAmount> validationOverviewLevelsPerIntervalLength = new TreeMap<>(temporalAmountComparator);
 
     static {
         validationOverviewLevelsPerIntervalLength.put(Duration.ofMinutes(1), Period.ofDays(1));
@@ -385,7 +386,7 @@ public class UsagePointResource {
     @Path("/{name}/activatemeters")
     public Response activateMeters(@PathParam("name") String name, UsagePointInfo info) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, info.version);
-        resourceHelper.activateMeters(info, usagePoint);
+        resourceHelper.performMeterActivations(info, usagePoint);
         return Response.ok().entity(usagePointInfoFactory.fullInfoFrom(usagePoint)).build();
     }
 
@@ -965,9 +966,9 @@ public class UsagePointResource {
         });
     }
 
-    private void checkMeterRolesActivationTime(List<MeterRoleInfo> meterRoles, Instant usagePointCreateDate, RestValidationBuilder restValidationBuilder) {
+    private void checkMeterRolesActivationTime(List<MeterRoleInfo> meterRoles, Instant installationTime, RestValidationBuilder restValidationBuilder) {
         meterRoles.stream()
-                .filter(role -> role.activationTime.isBefore(usagePointCreateDate))
+                .filter(role -> role.activationTime.isBefore(installationTime))
                 .findFirst()
                 .ifPresent(meterRoleInfo -> {
             restValidationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_ACTIVATION_TIME_OF_METER_ROLE, "meter.role." + meterRoleInfo.name));
@@ -994,7 +995,7 @@ public class UsagePointResource {
             if (info.metrologyConfiguration != null) {
                 UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
                 info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
-                checkMeterRolesActivationTime(info.metrologyConfiguration.meterRoles, usagePoint.getCreateDate(), validationBuilder);
+                checkMeterRolesActivationTime(info.metrologyConfiguration.meterRoles, usagePoint.getInstallationTime(), validationBuilder);
                 usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) resourceHelper.findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id);
                 usagePoint.apply(usagePointMetrologyConfiguration);
                 resourceHelper.activateMeters(info, usagePoint);
