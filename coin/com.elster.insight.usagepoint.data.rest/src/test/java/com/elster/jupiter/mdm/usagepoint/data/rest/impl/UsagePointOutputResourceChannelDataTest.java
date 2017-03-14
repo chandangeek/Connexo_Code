@@ -22,6 +22,7 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
@@ -582,6 +583,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         doReturn(Collections.singletonList(estimationRule)).when(estimationRuleSet).getRules();
         when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
         when(estimationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
+        when(usagePointConfigurationService.getEstimationRuleSets(any(MetrologyContract.class))).thenReturn(Collections.singletonList(estimationRuleSet));
         doReturn(Collections.singleton(regularReadingType)).when(estimationRule).getReadingTypes();
         when(estimationRuleSet.getId()).thenReturn(15L);
 
@@ -590,8 +592,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(estimationService).getEstimationRuleSets();
         verify(estimationRuleSet).getRules();
-        verify(estimationRule, times(2)).getRuleSet();
-        verify(estimationRuleSet).getQualityCodeSystem();
+        verify(estimationRule, times(3)).getRuleSet();
+        verify(estimationRuleSet, times(2)).getQualityCodeSystem();
         verify(estimationRule).getReadingTypes();
         verify(estimationRuleSet).getId();
     }
