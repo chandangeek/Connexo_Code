@@ -29,7 +29,9 @@ public enum MessageSeeds implements MessageSeed {
     CERTIFICATE_ENCODING_EXCEPTION(1013, "CertificateEncodingException", "The certificate could not be properly encoded"),
     ALIAS_IS_UNIQUE(1014, Keys.ALIAS_UNIQUE, "Alias must be unique within trust store, of globally, if not part of trust store"),
     SIGNATURE_EXCEPTION(1015, "SignatureException", "An error occurred while signing"),
-    FAILED_TO_GENERATE_CSR(1016, "FailedToConstructCSR", "CSR could not be created");
+    FAILED_TO_GENERATE_CSR(1016, "FailedToConstructCSR", "CSR could not be created"),
+    INCORRECT_KEY_ENCRYTION_METHOD(1017, "IncorrectKeyEncryptionMethod", "Can not handle non-plaintext keys"),
+    FAILED_TO_WRAP_WK(1018, "FailedToWrapWK", "Failed to AES wrap the WK: {0}");
 
     private final int number;
     private final String key;
