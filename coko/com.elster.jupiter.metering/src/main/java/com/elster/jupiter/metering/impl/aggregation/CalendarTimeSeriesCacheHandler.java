@@ -54,11 +54,11 @@ class CalendarTimeSeriesCacheHandler implements TaskExecutor {
                 .orElseThrow(() -> new IllegalArgumentException("Usagepoint with ID " + usagePointId + " not found"));
     }
 
-    private Void execute(ServerUsagePoint usagePoint, Instant instant) {
+    private ServerUsagePoint execute(ServerUsagePoint usagePoint, Instant instant) {
         this.dataAggregationService
                 .introspect(usagePoint, instant)
                 .forEach(this::execute);
-        return null;
+        return usagePoint;
     }
 
     private void execute(ServerDataAggregationService.DetailedCalendarUsage calendarUsage) {
