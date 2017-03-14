@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.issue.share;
 
-import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.security.Privileges;
@@ -14,6 +13,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.HasValidProperties;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.users.User;
+
+import aQute.bnd.annotation.ConsumerType;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,8 +43,13 @@ public abstract class AbstractIssueAction implements IssueAction {
     }
 
     @Override
+    public boolean isApplicable(String reasonName){
+        return true;
+    }
+
+    @Override
     public boolean isApplicableForUser(User user) {
-        return user.getPrivileges().stream().filter(p -> Privileges.Constants.ACTION_ISSUE.equals(p.getName())).findAny().isPresent();
+        return user.getPrivileges().stream().anyMatch(p -> Privileges.Constants.ACTION_ISSUE.equals(p.getName()));
     }
 
     @Override

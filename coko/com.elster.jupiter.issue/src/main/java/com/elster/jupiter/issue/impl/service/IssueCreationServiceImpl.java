@@ -184,10 +184,10 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
 
     @Override
-    public void processAlarmCreationEvent(int ruleId, IssueEvent event, String raiseEventProps) {
+    public void processAlarmCreationEvent(int ruleId, IssueEvent event, boolean logOnSameAlarm) {
         findCreationRuleById(ruleId).ifPresent(firedRule -> {
                     CreationRuleTemplate template = firedRule.getTemplate();
-                    if (logOnSameAlarm(raiseEventProps)) {
+                    if (logOnSameAlarm) {
                         Optional<? extends OpenIssue> existingIssue = event.findExistingIssue();
                         if (existingIssue.isPresent()) {
                             template.updateIssue(existingIssue.get(), event);
