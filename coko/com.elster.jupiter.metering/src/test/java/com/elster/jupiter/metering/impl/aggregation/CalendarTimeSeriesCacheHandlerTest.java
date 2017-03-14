@@ -21,6 +21,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -53,6 +54,7 @@ public class CalendarTimeSeriesCacheHandlerTest {
     public void initializeMocks() {
         when(this.taskOccurrence.getPayLoad()).thenReturn(PAYLOAD);
         when(this.meteringService.findUsagePointById(USAGEPOINT_ID)).thenReturn(Optional.of(this.usagePoint));
+        when(this.usagePoint.getId()).thenReturn(USAGEPOINT_ID);
 
         when(this.calendarUsage.getCalendar()).thenReturn(this.calendar);
         when(this.calendarUsage.getIntervalLength()).thenReturn(IntervalLength.MINUTE15);
@@ -130,6 +132,17 @@ public class CalendarTimeSeriesCacheHandlerTest {
 
         // Asserts: see expected exception rule
         verify(this.meteringService).findUsagePointById(USAGEPOINT_ID);
+    }
+
+    @Test
+    public void payloadFor() {
+        // Business method
+        String payload = CalendarTimeSeriesCacheHandler.payloadFor(this.usagePoint, Instant.ofEpochMilli(UTC_TIMESTAMP));
+
+        // Asserts
+        verify(this.usagePoint).getId();
+        assertThat(payload).contains(Long.toString(USAGEPOINT_ID));
+        assertThat(payload).contains(Long.toString(UTC_TIMESTAMP));
     }
 
     private CalendarTimeSeriesCacheHandler getInstance() {

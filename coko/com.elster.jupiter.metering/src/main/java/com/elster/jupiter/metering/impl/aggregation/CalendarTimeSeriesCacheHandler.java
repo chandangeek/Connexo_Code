@@ -41,6 +41,10 @@ class CalendarTimeSeriesCacheHandler implements TaskExecutor {
         this.dataAggregationService = dataAggregationService;
     }
 
+    static String payloadFor(UsagePoint usagePoint, Instant timestamp) {
+        return Long.toString(usagePoint.getId()) + USAGE_POINT_TIMESTAMP_SEPARATOR + Long.toString(timestamp.toEpochMilli());
+    }
+
     @Override
     public void execute(TaskOccurrence occurrence) {
         String[] usagePointIdAndUtcTimestamp = occurrence.getPayLoad().split(USAGE_POINT_TIMESTAMP_SEPARATOR);
