@@ -15,14 +15,11 @@ import com.energyict.mdw.amr.RegisterGroup;
 import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.amr.RegisterSpec;
 import com.energyict.mdw.core.*;
-import com.energyict.mdw.coreimpl.DeviceImpl;
-import com.energyict.mdw.coreimpl.DeviceTypeImpl;
 import com.energyict.mdwswing.decorators.mdc.NextExecutionSpecsShadowDecorator;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
-import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
@@ -407,9 +404,9 @@ public class MasterDataSerializer {
                 final int logicalDeviceId = 1;  //Linky and AM540 devices always use 1 as logical device
                 int clientTypeId = getClientTypeId(comTaskEnablement);
 
-                List<Object> loadProfileObisCodes = getLoadProfileObisCodesForComTask(deviceConfiguration, comTaskEnablement);
-                List<Object> registerObisCodes = getRegisterObisCodesForComTask(deviceConfiguration, comTaskEnablement);
-                List<Object> logBookObisCodes = getLogBookObisCodesForComTask(deviceConfiguration, comTaskEnablement);
+                List<SchedulableItem> loadProfileObisCodes = getLoadProfileObisCodesForComTask(deviceConfiguration, comTaskEnablement);
+                List<SchedulableItem> registerObisCodes = getRegisterObisCodesForComTask(deviceConfiguration, comTaskEnablement);
+                List<SchedulableItem> logBookObisCodes = getLogBookObisCodesForComTask(deviceConfiguration, comTaskEnablement);
 
                 if (isConfiguredToCollectLoadProfileData(comTaskEnablement) && loadProfileObisCodes.isEmpty()) {
                     allMasterData.getWarningKeys().add("emptyLoadProfileComTask");
@@ -445,7 +442,7 @@ public class MasterDataSerializer {
         return ((ServerComTask) comTaskEnablement.getComTask()).isConfiguredToCollectLoadProfileData();
     }
 
-    private boolean isReadMeterDataTask(List<Object> loadProfileObisCodes, List<Object> registerObisCodes, List<Object> logBookObisCodes) {
+    private boolean isReadMeterDataTask(List<SchedulableItem> loadProfileObisCodes, List<SchedulableItem> registerObisCodes, List<SchedulableItem> logBookObisCodes) {
         return !(loadProfileObisCodes.isEmpty() && registerObisCodes.isEmpty() && logBookObisCodes.isEmpty());
     }
 
@@ -466,8 +463,8 @@ public class MasterDataSerializer {
         }
     }
 
-    private List<Object> getLogBookObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
-        Set<Object> logBookObisCodes = new HashSet<>();
+    private List<SchedulableItem> getLogBookObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
+        Set<SchedulableItem> logBookObisCodes = new HashSet<>();
         if (isConfiguredToCollectEvents(comTaskEnablement)) {
             for (ProtocolTask protocolTask : comTaskEnablement.getComTask().getProtocolTasks()) {
                 if (protocolTask instanceof LogBooksTask) {
@@ -475,7 +472,7 @@ public class MasterDataSerializer {
                     if (logBookTypes.isEmpty()) {
                     //if no specific logbook type is specified in logbook protocol task then use the logbook specification from device configuration
                         for (LogBookSpec logBook : deviceConfiguration.getLogBookSpecs()) {
-                            logBookObisCodes.add(logBook.getDeviceObisCode());
+                            logBookObisCodes.add(new SchedulableItem(logBook.getDeviceObisCode()));
                         }
                     } else {
                     //if we have specific logbook types defined in logbook protocol task then add only then add only logbook types obiscodes
@@ -483,7 +480,7 @@ public class MasterDataSerializer {
 
                         for (LogBookSpec logBook : deviceConfiguration.getLogBookSpecs()) {
                             if(logBookTypes.contains(logBook.getLogBookType())){
-                                logBookObisCodes.add(logBook.getDeviceObisCode());
+                                logBookObisCodes.add(new SchedulableItem(logBook.getDeviceObisCode()));
                             }
                         }
                     }
@@ -491,7 +488,7 @@ public class MasterDataSerializer {
             }
 
         }
-        return new ArrayList<>(logBookObisCodes);
+        return new ArrayList<SchedulableItem>(logBookObisCodes);
     }
 
     /**
@@ -501,15 +498,15 @@ public class MasterDataSerializer {
         return ((ServerComTask) comTaskEnablement.getComTask()).isConfiguredToCollectEvents();
     }
 
-    private List<Object> getRegisterObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
-        Set<ObisCode> registerObisCodes = new HashSet<>();
+    private List<SchedulableItem> getRegisterObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
+        Set<SchedulableItem> registerObisCodes = new HashSet<>();
         if (isConfiguredToCollectRegisterData(comTaskEnablement)) {
             for (ProtocolTask protocolTask : comTaskEnablement.getComTask().getProtocolTasks()) {
                 if (protocolTask instanceof RegistersTask) {
                     final List<RegisterGroup> registerGroups = ((RegistersTask) protocolTask).getRegisterGroups();
                     if (registerGroups.isEmpty()) {
                         for (RegisterSpec register : deviceConfiguration.getRegisterSpecs()) {
-                            registerObisCodes.add(register.getDeviceObisCode());
+                            registerObisCodes.add(new SchedulableItem(register.getDeviceObisCode()));
                         }
                     } else {
                         for (RegisterSpec register : deviceConfiguration.getRegisterSpecs()) {
@@ -519,7 +516,7 @@ public class MasterDataSerializer {
                                     RegisterGroup rtuRegisterGroup = registerMapping.getRtuRegisterGroup();
                                     if (rtuRegisterGroup != null) {
                                         if (rtuRegisterGroup.getId() == registerGroup.getId()) {
-                                            registerObisCodes.add(register.getDeviceObisCode());
+                                            registerObisCodes.add(new SchedulableItem(register.getDeviceObisCode()));
                                             break;
                                         }
                                     }
@@ -540,16 +537,16 @@ public class MasterDataSerializer {
         return ((ServerComTask) comTaskEnablement.getComTask()).isConfiguredToCollectRegisterData();
     }
 
-    private List<Object> filterOutUnwantedRegisterObisCodes(Set<ObisCode> obisCodes) {
-        Iterator<ObisCode> iterator = obisCodes.iterator();
+    private List<SchedulableItem> filterOutUnwantedRegisterObisCodes(Set<SchedulableItem> obisCodes) {
+        Iterator<SchedulableItem> iterator = obisCodes.iterator();
         while (iterator.hasNext()) {
-            Object obisCode = iterator.next();
-            if (obisCode.equals(Clock.getDefaultObisCode()) || obisCode.equals(FIXED_SERIAL_NUMBER_OBISCODE)) {
-                getLogger().warning("Filtering out register with obiscode '" + obisCode.toString() + "', it is already present in the mirror logical device by default.");
+            SchedulableItem item = iterator.next();
+            if (item.getObisCode().equals(Clock.getDefaultObisCode()) || item.equals(FIXED_SERIAL_NUMBER_OBISCODE)) {
+                getLogger().warning("Filtering out register with obiscode '" + item.getObisCode().toString() + "', it is already present in the mirror logical device by default.");
                 iterator.remove();
             }
         }
-        return new ArrayList<Object>(obisCodes);
+        return new ArrayList<SchedulableItem>(obisCodes);
     }
 
     private Logger getLogger() {
@@ -559,25 +556,25 @@ public class MasterDataSerializer {
         return logger;
     }
 
-    private List<Object> getLoadProfileObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
-        Set<ObisCode> loadProfileObisCodes = new HashSet<>();
+    private List<SchedulableItem> getLoadProfileObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
+        Set<SchedulableItem> loadProfileObisCodes = new HashSet<>();
         if (isConfiguredToCollectLoadProfileData(comTaskEnablement)) {
             for (ProtocolTask protocolTask : comTaskEnablement.getComTask().getProtocolTasks()) {
                 if (protocolTask instanceof LoadProfilesTask) {
                     final List<LoadProfileType> loadProfileTypes = ((LoadProfilesTask) protocolTask).getLoadProfileTypes();
                     if (loadProfileTypes.isEmpty()) {
                         for (LoadProfileSpec loadProfile : deviceConfiguration.getLoadProfileSpecs()) {
-                            loadProfileObisCodes.add(loadProfile.getDeviceObisCode());
+                            loadProfileObisCodes.add(new SchedulableItem(loadProfile.getDeviceObisCode()));
                         }
                     } else {
                         for (LoadProfileType loadProfileType : loadProfileTypes) {
-                            loadProfileObisCodes.add(loadProfileType.getObisCode());
+                            loadProfileObisCodes.add(new SchedulableItem(loadProfileType.getObisCode()));
                         }
                     }
                 }
             }
         }
-        return new ArrayList<Object>(loadProfileObisCodes);
+        return new ArrayList<SchedulableItem>(loadProfileObisCodes);
     }
 
     private Beacon3100ClientType getClientType(Device device, ComTaskEnablement comTaskEnablement) {
