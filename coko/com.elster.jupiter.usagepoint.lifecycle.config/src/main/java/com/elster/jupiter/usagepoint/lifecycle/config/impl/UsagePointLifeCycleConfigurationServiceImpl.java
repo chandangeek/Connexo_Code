@@ -256,7 +256,7 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
         lifeCycle.setStateMachine(stateMachine);
         UsagePointState underConstruction = this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmStateUnderConstruction, UsagePointStage.Key.PRE_OPERATIONAL);
         UsagePointState active = this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmStateActive, UsagePointStage.Key.OPERATIONAL);
-        UsagePointState inactive = this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmStateInactive, UsagePointStage.Key.OPERATIONAL);
+        UsagePointState inactive = this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmStateInactive, UsagePointStage.Key.SUSPENDED);
         UsagePointState demolished = this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmStateDemolished, UsagePointStage.Key.POST_OPERATIONAL);
         lifeCycle.save();
         lifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_INSTALL_ACTIVE).format(), underConstruction, active).complete();

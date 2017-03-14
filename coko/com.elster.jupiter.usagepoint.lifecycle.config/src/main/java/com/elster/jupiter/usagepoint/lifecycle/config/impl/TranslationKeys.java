@@ -15,9 +15,10 @@ public enum TranslationKeys implements TranslationKey {
     TRANSITION_ACTIVATE("usage.point.transition.activate", "Activate"),
     TRANSITION_DEMOLISH_FROM_ACTIVE("usage.point.transition.demolish.from.active", "Demolish"),
     TRANSITION_DEMOLISH_FROM_INACTIVE("usage.point.transition.demolish.from.inactive", "Demolish"),
-    USAGE_POINT_STAGE_PRE_OPERATIONAL(Keys.STAGE_PREFIX + UsagePointStage.Key.PRE_OPERATIONAL, "Preoperational"),
+    USAGE_POINT_STAGE_PRE_OPERATIONAL(Keys.STAGE_PREFIX + UsagePointStage.Key.PRE_OPERATIONAL, "Pre-operational"),
+    USAGE_POINT_STAGE_SUSPENDED(Keys.STAGE_PREFIX + UsagePointStage.Key.SUSPENDED, "Suspended"),
     USAGE_POINT_STAGE_OPERATIONAL(Keys.STAGE_PREFIX + UsagePointStage.Key.OPERATIONAL, "Operational"),
-    USAGE_POINT_STAGE_POST_OPERATIONAL(Keys.STAGE_PREFIX + UsagePointStage.Key.POST_OPERATIONAL, "Post operational")
+    USAGE_POINT_STAGE_POST_OPERATIONAL(Keys.STAGE_PREFIX + UsagePointStage.Key.POST_OPERATIONAL, "Post-operational")
     ;
 
     private final String key;
