@@ -198,7 +198,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
 
-        record.getProxy().setParams(router.arguments.usagePointId);
+        record.getProxy().setParams(decodeURIComponent(router.arguments.usagePointId));
         Ext.create('Uni.view.window.Confirmation', {confirmText: Uni.I18n.translate('general.abort', 'IMT', 'Abort')}).show({
             title: Uni.I18n.translate('usagePointHistory.abortTransitionTitle', 'IMT', "Abort state change from '{0}' to '{1}'?", [record.get('fromStateName'), record.get('toStateName')]),
             msg: Uni.I18n.translate('usagePointHistory.abortTransitionMsg', 'IMT', 'The scheduled state change will be aborted.'),
