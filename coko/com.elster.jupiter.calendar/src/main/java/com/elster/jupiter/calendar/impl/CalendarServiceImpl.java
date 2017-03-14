@@ -68,7 +68,7 @@ import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.calendar",
-        service = {CalendarService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
+        service = {CalendarService.class, ServerCalendarService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = "name=" + CalendarService.COMPONENTNAME,
         immediate = true)
 public class CalendarServiceImpl implements ServerCalendarService, MessageSeedProvider, TranslationKeyProvider {
@@ -209,7 +209,7 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
                 bind(DataModel.class).toInstance(dataModel);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
-                bind(CalendarService.class).toInstance(CalendarServiceImpl.this);
+                bind(CalendarService.class).to(ServerCalendarService.class);
                 bind(ServerCalendarService.class).toInstance(CalendarServiceImpl.this);
                 bind(EventService.class).toInstance(eventService);
                 bind(IdsService.class).toInstance(idsService);
