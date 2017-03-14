@@ -107,7 +107,7 @@ class DataQualityOverviewSqlBuilder {
     }
 
     private void appendOrderByClause() {
-        this.sqlBuilder.append(" order by dev.name");
+        this.sqlBuilder.append(" order by upper(dev.name)");
     }
 
     private void appendKpiTypeWithClauses() {
