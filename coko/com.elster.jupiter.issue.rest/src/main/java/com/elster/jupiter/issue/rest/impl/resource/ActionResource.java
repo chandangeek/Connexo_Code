@@ -19,14 +19,21 @@ import com.elster.jupiter.util.conditions.Condition;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.CREATED_ACTIONS;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.PHASE;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.REASON;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/actions")
@@ -77,7 +84,8 @@ public class ActionResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE,Privileges.Constants.ASSIGN_ISSUE,Privileges.Constants.CLOSE_ISSUE,Privileges.Constants.COMMENT_ISSUE,Privileges.Constants.ACTION_ISSUE})
     public PagedInfoList getAllActionPhases(@BeanParam JsonQueryParameters queryParameters) {
-        List<CreationRuleActionPhaseInfo> infos = Arrays.asList(CreationRuleActionPhase.values()).stream().map(phase -> new CreationRuleActionPhaseInfo(phase, getThesaurus())).collect(Collectors.toList());
+        List<CreationRuleActionPhaseInfo> infos = Arrays.stream(CreationRuleActionPhase.values())
+                .filter(p -> !p.getTitleId().equals("IssueActionPhaseNotApplicable")).map(phase -> new CreationRuleActionPhaseInfo(phase, getThesaurus())).collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("creationRuleActionPhases", infos, queryParameters);
     }
 }

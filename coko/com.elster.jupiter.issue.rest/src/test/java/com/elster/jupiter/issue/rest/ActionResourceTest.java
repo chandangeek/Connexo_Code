@@ -42,7 +42,7 @@ public class ActionResourceTest extends IssueRestApplicationJerseyTest {
         assertThat(json.<Number> get("$.total")).isEqualTo(2);
         assertThat(json.<List<?>> get("$.creationRuleActionPhases")).hasSize(2);
         assertThat(json.<List<String>> get("$.creationRuleActionPhases[*].uuid")).containsExactly("CREATE", "OVERDUE");
-        assertThat(json.<List<String>> get("$.creationRuleActionPhases[*].title")).containsExactly("Issue creation", "Issue overdue");
+        assertThat(json.<List<String>> get("$.creationRuleActionPhases[*].title")).containsExactly("At creation time", "At overdue time");
     }
 
     @Test
