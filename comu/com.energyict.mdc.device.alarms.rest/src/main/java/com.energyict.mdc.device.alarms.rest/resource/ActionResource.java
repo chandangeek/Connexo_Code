@@ -62,9 +62,15 @@ public class ActionResource extends BaseAlarmResource {
         List<IssueActionTypeInfo> ruleActionTypes = query.select(condition).stream()
                 .filter(issueActionType -> issueActionType.getIssueType() != null)
                 .filter(at -> at.createIssueAction().isPresent() && !createdActionTypeIds.contains(at.getId()))
-                .map(actionInfoFactory::asInfo)
+                .filter(issueActionType -> isStartProcessApplicable(issueReason, issueActionType))
+                .map(i-> actionInfoFactory.asInfo(i, issueReason.isPresent() ? issueReason.get().getName() : null))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("ruleActionTypes", ruleActionTypes, params);
+    }
+
+    private boolean isStartProcessApplicable(@SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<IssueReason> issueReason, IssueActionType actionType){
+        return actionType.createIssueAction().map(i -> i.isApplicable(issueReason.isPresent() ? issueReason.get().getName() : null))
+                .orElse(true);
     }
 
 

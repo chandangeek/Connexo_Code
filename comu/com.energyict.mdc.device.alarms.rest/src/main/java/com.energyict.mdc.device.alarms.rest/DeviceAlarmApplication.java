@@ -21,6 +21,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -49,6 +50,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -76,9 +78,11 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
     private volatile IssueCreationService issueCreationService;
     private volatile IssueAssignmentService issueAssignmentService;
     private volatile BpmService bpmService;
+    private volatile TimeService timeService;
+    private volatile Clock clock;
 
 
-    public DeviceAlarmApplication(){
+    public DeviceAlarmApplication() {
 
     }
 
@@ -133,7 +137,7 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
     }
 
     @Reference
-    public void setUserService(UserService userService){
+    public void setUserService(UserService userService) {
         this.userService = userService;
     }
 
@@ -143,12 +147,12 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
     }
 
     @Reference
-    public void setMeteringService(MeteringService meteringService){
+    public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
 
     @Reference
-    public void setLogBookService(LogBookService logBookService){
+    public void setLogBookService(LogBookService logBookService) {
         this.logBookService = logBookService;
     }
 
@@ -163,7 +167,7 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
     }
 
     @Reference
-    public void setIssueService(IssueService issueService){
+    public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
         this.issueActionService = issueService.getIssueActionService();
         this.issueCreationService = issueService.getIssueCreationService();
@@ -179,6 +183,16 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
     @Reference
     public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
         this.propertyValueInfoService = propertyValueInfoService;
+    }
+
+    @Reference
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 
     class HK2Binder extends AbstractBinder {
@@ -200,6 +214,8 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
             bind(nlsService).to(NlsService.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(bpmService).to(BpmService.class);
+            bind(timeService).to(TimeService.class);
+            bind(clock).to(Clock.class);
             bind(CreationRuleInfoFactory.class).to(CreationRuleInfoFactory.class);
             bind(CreationRuleTemplateInfoFactory.class).to(CreationRuleTemplateInfoFactory.class);
             bind(CreationRuleActionInfoFactory.class).to(CreationRuleActionInfoFactory.class);

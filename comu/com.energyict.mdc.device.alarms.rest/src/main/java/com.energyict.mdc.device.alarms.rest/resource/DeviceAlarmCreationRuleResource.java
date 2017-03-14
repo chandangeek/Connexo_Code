@@ -15,15 +15,25 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleActionBuilder;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleUpdater;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.time.DefaultRelativePeriodDefinition;
+import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
+import com.energyict.mdc.device.alarms.impl.ModuleConstants;
 import com.energyict.mdc.device.alarms.security.Privileges;
+
+import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -39,11 +49,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.Clock;
+import java.time.ZonedDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
@@ -55,12 +68,18 @@ public class DeviceAlarmCreationRuleResource extends BaseAlarmResource {
     private final CreationRuleInfoFactory ruleInfoFactory;
     private final PropertyValueInfoService propertyValueInfoService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final TimeService timeService;
+    private final Clock clock;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public DeviceAlarmCreationRuleResource(CreationRuleInfoFactory ruleInfoFactory, PropertyValueInfoService propertyValueInfoService, ConcurrentModificationExceptionFactory conflictFactory) {
+    public DeviceAlarmCreationRuleResource(CreationRuleInfoFactory ruleInfoFactory, PropertyValueInfoService propertyValueInfoService, ConcurrentModificationExceptionFactory conflictFactory, TimeService timeService, Clock clock, Thesaurus thesaurus) {
         this.ruleInfoFactory = ruleInfoFactory;
         this.propertyValueInfoService = propertyValueInfoService;
         this.conflictFactory = conflictFactory;
+        this.timeService = timeService;
+        this.clock = clock;
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -116,17 +135,10 @@ public class DeviceAlarmCreationRuleResource extends BaseAlarmResource {
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
-    public CreationRule findAndLockCreationRule(CreationRuleInfo info) {
-        return getIssueService().getIssueCreationService().findAndLockCreationRuleByIdAndVersion(info.id, info.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                        .withActualVersion(() -> getIssueService().getIssueCreationService().findCreationRuleById(info.id).map(CreationRule::getVersion).orElse(null))
-                        .supplier());
-    }
-
     @POST
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_ALARM_CREATION_RULE)
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_ALARM_CREATION_RULE)
     public Response addCreationRule(CreationRuleInfo rule) {
         try (TransactionContext context = getTransactionService().getContext()) {
             CreationRuleBuilder builder = getIssueService().getIssueCreationService().newCreationRule();
@@ -141,9 +153,9 @@ public class DeviceAlarmCreationRuleResource extends BaseAlarmResource {
 
     @PUT
     @Path("/{id}")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_ALARM_CREATION_RULE)
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_ALARM_CREATION_RULE)
     public Response editCreationRule(@PathParam("id") long id, CreationRuleInfo rule) {
         try (TransactionContext context = getTransactionService().getContext()) {
             CreationRule creationRule = findAndLockCreationRule(rule);
@@ -194,6 +206,31 @@ public class DeviceAlarmCreationRuleResource extends BaseAlarmResource {
         return Response.ok().build();
     }
 
+    @GET
+    @Path("/relativeperiods")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({com.elster.jupiter.issue.security.Privileges.Constants.ADMINISTRATE_CREATION_RULE, com.elster.jupiter.issue.security.Privileges.Constants.VIEW_CREATION_RULE})
+    public PagedInfoList getRelativePeriods(@BeanParam JsonQueryParameters queryParameters) {
+        ZonedDateTime now = ZonedDateTime.now(clock);
+        List<RelativePeriod> relativePeriods = fetchRelativePeriods().stream()
+                .sorted((RelativePeriod rp1, RelativePeriod rp2) -> {
+                    int cmp = Long.compare(getIntervalLengthDifference(rp1, now), getIntervalLengthDifference(rp2, now));
+                    if (cmp == 0) {
+                        return Long.compare(
+                                Math.abs(rp1.getOpenClosedZonedInterval(now).upperEndpoint().toInstant().toEpochMilli() - now.toInstant().toEpochMilli()),
+                                Math.abs(rp2.getOpenClosedZonedInterval(now).upperEndpoint().toInstant().toEpochMilli() - now.toInstant().toEpochMilli()));
+                    } else {
+                        return cmp;
+                    }
+                })
+                .collect(Collectors.toList());
+
+        List<IdWithNameInfo> infos = relativePeriods.stream()
+                .map(period -> new IdWithNameInfo(period.getId(), findTranslatedRelativePeriod(period.getName())))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("relativePeriods", infos, queryParameters);
+    }
+
 
     @POST
     @Path("/validateaction")
@@ -204,6 +241,13 @@ public class DeviceAlarmCreationRuleResource extends BaseAlarmResource {
         setAction(info, actionBuilder);
         actionBuilder.complete().validate();
         return Response.ok().build();
+    }
+
+    private CreationRule findAndLockCreationRule(CreationRuleInfo info) {
+        return getIssueService().getIssueCreationService().findAndLockCreationRuleByIdAndVersion(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> getIssueService().getIssueCreationService().findCreationRuleById(info.id).map(CreationRule::getVersion).orElse(null))
+                        .supplier());
     }
 
     private void setBaseFields(CreationRuleInfo rule, CreationRuleBuilder builder) {
@@ -237,7 +281,7 @@ public class DeviceAlarmCreationRuleResource extends BaseAlarmResource {
     }
 
     private void setActions(CreationRuleInfo rule, CreationRuleBuilder builder) {
-        rule.actions.stream().forEach((info) -> setAction(info, builder.newCreationRuleAction()));
+        rule.actions.forEach((info) -> setAction(info, builder.newCreationRuleAction()));
     }
 
     private void setAction(CreationRuleActionInfo actionInfo, CreationRuleActionBuilder actionBuilder) {
@@ -257,5 +301,35 @@ public class DeviceAlarmCreationRuleResource extends BaseAlarmResource {
                 actionBuilder.complete();
             }
         }
+    }
+
+    private List<? extends RelativePeriod> fetchRelativePeriods() {
+        return timeService.getRelativePeriodQuery().select(Where.where("relativePeriodCategoryUsages.relativePeriodCategory.name")
+                .isEqualTo(ModuleConstants.ALARM_RELATIVE_PERIOD_CATEGORY));
+    }
+
+    private String findTranslatedRelativePeriod(String name) {
+        return defaultRelativePeriodDefinitionTranslationKeys()
+                .filter(e -> e.getDefaultFormat().equals(name))
+                .findFirst()
+                .map(e -> thesaurus.getFormat(e).format())
+                .orElse(name);
+    }
+
+    private Stream<TranslationKey> defaultRelativePeriodDefinitionTranslationKeys() {
+        return Stream.of(DefaultRelativePeriodDefinition.RelativePeriodTranslationKey.values());
+    }
+
+    private long getIntervalLengthDifference(RelativePeriod relativePeriod, ZonedDateTime now) {
+        Range<ZonedDateTime> interval = relativePeriod.getOpenClosedZonedInterval(now);
+        ZonedDateTime relativePeriodStart = interval.lowerEndpoint();
+        if (now.isAfter(relativePeriodStart)) {
+            return getIntervalLength(interval.intersection(Range.atMost(now)));
+        }
+        return Long.MAX_VALUE;
+    }
+
+    private long getIntervalLength(Range<ZonedDateTime> interval) {
+        return interval.upperEndpoint().toInstant().toEpochMilli() - interval.lowerEndpoint().toInstant().toEpochMilli();
     }
 }
