@@ -56,6 +56,7 @@ Ext.define('Dal.view.creationrules.EditForm', {
                         queryMode: 'local',
                         displayField: 'displayName',
                         valueField: 'name',
+                        editable: false,
                         width: 320,
                         forceSelection: true,
                         listeners: {
@@ -314,6 +315,9 @@ Ext.define('Dal.view.creationrules.EditForm', {
     },
 
     loadRecord: function (record) {
+        if(!record){
+            return;
+        }
         var me = this,
             templateCombo = me.down('[name=template]'),
             actionsGrid = me.down('alarms-creation-rules-actions-list'),
