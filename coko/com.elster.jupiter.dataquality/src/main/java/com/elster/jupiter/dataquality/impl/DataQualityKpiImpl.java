@@ -299,4 +299,8 @@ public abstract class DataQualityKpiImpl implements HasId, DataQualityKpi, Persi
     Set<Long> intersection(Set<Long> first, Set<Long> second) {
         return first.stream().filter(second::contains).collect(Collectors.toSet());
     }
+
+    void triggerNow() {
+        this.dataQualityKpiTask.get().triggerNow();
+    }
 }
