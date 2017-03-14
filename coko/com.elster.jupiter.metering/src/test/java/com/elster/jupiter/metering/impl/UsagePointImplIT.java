@@ -7,6 +7,10 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.StageSet;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
@@ -16,8 +20,8 @@ import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsage
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 
 import com.google.common.collect.Range;
 
@@ -32,6 +36,7 @@ import org.junit.Test;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.in;
 
 /**
  * Integration test for the {@link UsagePointImpl} component.
@@ -49,6 +54,7 @@ public class UsagePointImplIT {
     public ExpectedConstraintViolationRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.getTransactionService());
+    private UsagePointLifeCycleConfigurationService usagePointLifeCycleConfService;
 
     @BeforeClass
     public static void setUp() {
@@ -273,9 +279,14 @@ public class UsagePointImplIT {
     @Test
     @Transactional
     public void testCanChangeStateForUsagePoint() {
-        UsagePointLifeCycle lifeCycle = inMemoryBootstrapModule.getUsagePointLifeCycleConfService().newUsagePointLifeCycle("Test");
-        UsagePointState initialState = lifeCycle.getStates().stream().filter(UsagePointState::isInitial).findFirst().get();
-        UsagePointState state2 = lifeCycle.newState("State 2").setStage(UsagePointStage.Key.OPERATIONAL).complete();
+        usagePointLifeCycleConfService = inMemoryBootstrapModule.getUsagePointLifeCycleConfService();
+        StageSet defaultStageSet = usagePointLifeCycleConfService.getDefaultStageSet();
+        Stage stage = defaultStageSet.getStageByName(UsagePointStage.OPERATIONAL.getKey()).get();
+        UsagePointLifeCycle lifeCycle = usagePointLifeCycleConfService.newUsagePointLifeCycle("Test");
+        State initialState = lifeCycle.getStates().stream().filter(State::isInitial).findFirst().get();
+        FiniteStateMachineUpdater updater = lifeCycle.getUpdater();
+        State state2 = updater.newCustomState("State 2", stage).complete();
+        updater.complete();
         ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("testCanChangeStateForUsagePoint", AUG_1ST_2016).create();
 
@@ -291,8 +302,12 @@ public class UsagePointImplIT {
     @Transactional
     public void testCanNotChangeStateForUsagePointIfItHasOtherStatesInFuture() {
         UsagePointLifeCycle lifeCycle = inMemoryBootstrapModule.getUsagePointLifeCycleConfService().newUsagePointLifeCycle("Test");
-        UsagePointState initialState = lifeCycle.getStates().stream().filter(UsagePointState::isInitial).findFirst().get();
-        UsagePointState state2 = lifeCycle.newState("State 2").setStage(UsagePointStage.Key.OPERATIONAL).complete();
+        State initialState = lifeCycle.getStates().stream().filter(State::isInitial).findFirst().get();
+        StageSet defaultStageSet = inMemoryBootstrapModule.getUsagePointLifeCycleConfService().getDefaultStageSet();
+        Stage stage = defaultStageSet.getStageByName(UsagePointStage.OPERATIONAL.getKey()).get();
+        FiniteStateMachineUpdater updater = lifeCycle.getUpdater();
+        State state2 = updater.newCustomState("State 2", stage).complete();
+        updater.complete();
         ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("testCanNotChangeStateForUsagePointIfItHasOtherStatesInFuture", AUG_1ST_2016).create();
 
@@ -306,7 +321,7 @@ public class UsagePointImplIT {
         UsagePointLifeCycle lifeCycle = inMemoryBootstrapModule.getUsagePointLifeCycleConfService().newUsagePointLifeCycle("Test");
         ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("testCanNotDeleteUsagePointLifeCycleWhichIsInUse", AUG_1ST_2016).create();
-        ((UsagePointImpl) usagePoint).setState(lifeCycle.getStates().stream().filter(UsagePointState::isInitial).findFirst().get(), AUG_15TH_2016);
+        ((UsagePointImpl) usagePoint).setState(lifeCycle.getStates().stream().filter(State::isInitial).findFirst().get(), AUG_15TH_2016);
 
         lifeCycle.remove();
     }
@@ -315,19 +330,22 @@ public class UsagePointImplIT {
     @Transactional
     public void testCanNotDeleteUsagePointStateWhichIsInUse() {
         UsagePointLifeCycle lifeCycle = inMemoryBootstrapModule.getUsagePointLifeCycleConfService().newUsagePointLifeCycle("Test");
-        UsagePointState state = lifeCycle.newState("State").setStage(UsagePointStage.Key.OPERATIONAL).complete();
+        StageSet defaultStageSet = inMemoryBootstrapModule.getUsagePointLifeCycleConfService().getDefaultStageSet();
+        Stage stage = defaultStageSet.getStageByName(UsagePointStage.OPERATIONAL.getKey()).get();
+        FiniteStateMachineUpdater updater = lifeCycle.getUpdater();
+        State state = updater.newCustomState("State", stage).complete();
+        updater.complete();
         ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("testCanNotDeleteUsagePointStateWhichIsInUse", AUG_1ST_2016).create();
         ((UsagePointImpl) usagePoint).setState(state, AUG_15TH_2016);
-
-        state.remove();
+        lifeCycle.removeState(state);
     }
 
     @Test
     @Transactional
     public void testCanQueryUsagePointsWithState() {
         UsagePointLifeCycle lifeCycle = inMemoryBootstrapModule.getUsagePointLifeCycleConfService().newUsagePointLifeCycle("Test");
-        UsagePointState initialState = lifeCycle.getStates().stream().filter(UsagePointState::isInitial).findFirst().get();
+        State initialState = lifeCycle.getStates().stream().filter(State::isInitial).findFirst().get();
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("testCanQueryUsagePointsWithState", AUG_1ST_2016).create();
@@ -342,6 +360,8 @@ public class UsagePointImplIT {
     @Transactional
     public void linkMetrologyConfigurationToUsagePointWithIncorrectStage() {
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        StageSet defaultStageSet = inMemoryBootstrapModule.getUsagePointLifeCycleConfService().getDefaultStageSet();
+        Stage stage = defaultStageSet.getStageByName(UsagePointStage.OPERATIONAL.getKey()).get();
         Instant now = inMemoryBootstrapModule.getClock().instant();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory
@@ -353,7 +373,10 @@ public class UsagePointImplIT {
                         .newUsagePointMetrologyConfiguration("testMC", serviceCategory)
                         .create();
         configuration.activate();
-        usagePoint.getState().startUpdate().setStage(UsagePointStage.Key.OPERATIONAL).complete();
+        FiniteStateMachineUpdater finiteStateMachineUpdater = usagePoint.getState().getFiniteStateMachine().startUpdate();
+        finiteStateMachineUpdater.state(usagePoint.getState().getName()).stage(stage).complete();
+        finiteStateMachineUpdater.complete();
+        usagePoint = inMemoryBootstrapModule.getMeteringService().findUsagePointById(usagePoint.getId()).get();
         usagePoint.apply(configuration, now);
     }
 }

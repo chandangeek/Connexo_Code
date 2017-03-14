@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl.search;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -12,7 +13,6 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.util.conditions.Condition;
 
 import java.util.Collections;
@@ -70,12 +70,12 @@ public class UsagePointStateSearchableProperty implements SearchableUsagePointPr
     @Override
     public PropertySpec getSpecification() {
         return this.propertySpecService
-                .referenceSpec(UsagePointState.class)
+                .referenceSpec(State.class)
                 .named(FIELD_NAME, PropertyTranslationKeys.USAGEPOINT_STATE)
                 .fromThesaurus(this.thesaurus)
                 .addValues(this.configurationService.getUsagePointStates().find()
                         .stream()
-                        .sorted(Comparator.comparing(UsagePointState::getName))
+                        .sorted(Comparator.comparing(State::getName))
                         .collect(Collectors.toList()))
                 .markExhaustive()
                 .finish();
@@ -98,9 +98,9 @@ public class UsagePointStateSearchableProperty implements SearchableUsagePointPr
 
     @Override
     public String toDisplay(Object value) {
-        if (value instanceof UsagePointState) {
-            UsagePointState state = (UsagePointState) value;
-            return new StringBuilder(state.getName()).append(" (").append(state.getLifeCycle().getName()).append(")").toString();
+        if (value instanceof State) {
+            State state = (State) value;
+            return new StringBuilder(state.getName()).append(" (").append(state.getFiniteStateMachine().getName()).append(")").toString();
         }
         throw new IllegalArgumentException("Value not compatible with domain");
     }

@@ -6,6 +6,8 @@ package com.elster.jupiter.metering.impl.search;
 
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -19,7 +21,6 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 
@@ -35,8 +36,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.filter;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -53,7 +56,7 @@ public class UsagePointStateSearchablePropertyTest {
     @Mock
     private OrmService ormService;
     @Mock
-    private UsagePointState usagePointState;
+    private State usagePointState;
     @Mock
     private UsagePointLifeCycle usagePointLifeCycle;
     @Mock
@@ -69,7 +72,6 @@ public class UsagePointStateSearchablePropertyTest {
         when(this.messageFormat.format(anyVararg())).thenReturn("No translation");
         Finder statesFinder = FakeBuilder.initBuilderStub(Collections.singletonList(this.usagePointState), Finder.class);
         when(this.configurationService.getUsagePointStates()).thenReturn(statesFinder);
-        when(this.usagePointState.getLifeCycle()).thenReturn(this.usagePointLifeCycle);
         when(this.usagePointLifeCycle.getName()).thenReturn("life cycle");
     }
 
@@ -138,7 +140,7 @@ public class UsagePointStateSearchablePropertyTest {
         // Asserts
         assertThat(specification).isNotNull();
         assertThat(specification.isReference()).isTrue();
-        assertThat(specification.getValueFactory().getValueType()).isEqualTo(UsagePointState.class);
+        assertThat(specification.getValueFactory().getValueType()).isEqualTo(State.class);
     }
 
     @Test
@@ -189,6 +191,9 @@ public class UsagePointStateSearchablePropertyTest {
     public void displayString() {
         UsagePointStateSearchableProperty property = this.getTestInstance();
         when(usagePointState.getName()).thenReturn("name");
+        FiniteStateMachine stateMachine = mock(FiniteStateMachine.class);
+        when(stateMachine.getName()).thenReturn("life cycle");
+        when(usagePointState.getFiniteStateMachine()).thenReturn(stateMachine);
         // Business method
         String displayValue = property.toDisplay(usagePointState);
 

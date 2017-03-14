@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
@@ -11,7 +12,6 @@ import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.util.time.Interval;
 
 import com.google.common.collect.Range;
@@ -27,7 +27,7 @@ public class UsagePointStateTemporalImpl implements Effectivity {
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    private Reference<UsagePointState> state = ValueReference.absent();
+    private Reference<State> state = ValueReference.absent();
     private Interval interval;
     @SuppressWarnings("unused")
     private long version;
@@ -43,14 +43,14 @@ public class UsagePointStateTemporalImpl implements Effectivity {
         this.dataModel = dataModel;
     }
 
-    UsagePointStateTemporalImpl init(UsagePointImpl usagePoint, UsagePointState state, Instant startTime) {
+    UsagePointStateTemporalImpl init(UsagePointImpl usagePoint, State state, Instant startTime) {
         this.usagePoint.set(usagePoint);
         this.state.set(state);
         this.interval = Interval.of(Range.atLeast(startTime));
         return this;
     }
 
-    public UsagePointState getState() {
+    public State getState() {
         return this.state.get();
     }
 

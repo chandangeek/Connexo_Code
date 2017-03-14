@@ -10,6 +10,8 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
+import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
+import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -417,7 +419,11 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         UsagePoint usagePoint = serviceCategory
                 .newUsagePoint("testUP", now)
                 .create();
-        usagePoint.getState().startUpdate().setStage(UsagePointStage.Key.OPERATIONAL).complete();
+        Stage stage = inMemoryBootstrapModule.getUsagePointLifeCycleConfService().getDefaultStageSet().getStageByName(UsagePointStage.OPERATIONAL.getKey()).get();
+        FiniteStateMachineUpdater updater = usagePoint.getLifeCycle().getUpdater();
+        updater.state(usagePoint.getState().getName()).stage(stage).complete();
+        updater.complete();
+        usagePoint = inMemoryBootstrapModule.getMeteringService().findUsagePointById(usagePoint.getId()).get();
         usagePoint.linkMeters().activate(meter, meterRole).complete();
     }
 
