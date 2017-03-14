@@ -6,7 +6,7 @@ Ext.define('Imt.purpose.view.ReadingEstimationWithRuleWindow', {
     extend: 'Ext.window.Window',
     alias: 'widget.reading-estimation-with-rule-window',
     modal: true,
-    title: Uni.I18n.translate('general.selectEstimationRule', 'IMT', 'Select estimation rule'),
+    title: Uni.I18n.translate('general.estimateValueWithRule', 'IMT', 'Estimate with rule'),
     bothSuspected: false,
     record: null,
 
