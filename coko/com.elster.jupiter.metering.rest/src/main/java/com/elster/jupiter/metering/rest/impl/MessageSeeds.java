@@ -22,8 +22,9 @@ public enum MessageSeeds implements MessageSeed {
     TOO_MANY_READINGTYPES(10, "readingtype.tooManyReadingTypes", "You are going to add {0} reading types. The limit is 1000."),
     READINGTYPE_CREATING_FAIL(11, "readingtype.creatingFail", "Failed creating reading types."),
     DENOMINATOR_CANNOT_BE_ZERO(12, "denominator.cannot.be.zero", "Denominator cannot be 0"),
-    UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE(7005, "unsatisfied.reading.type.requirements.for.device", "Devices activated on this usage point in specified period of time don''t provide reading types specified in selected metrology configuration."),
-    NO_USAGE_POINT_WITH_NAME(13, "NoUsagePointWithName", "No usage point with name {0}");
+    UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE(13, "unsatisfied.reading.type.requirements.for.device", "Devices activated on this usage point in specified period of time don''t provide reading types specified in selected metrology configuration."),
+    NO_USAGE_POINT_WITH_NAME(14, "NoUsagePointWithName", "No usage point with name {0}"),
+    REQUIRED(15, "field.required", "This field is required");
 
     private final int number;
     private final String key;

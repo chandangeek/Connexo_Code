@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationService;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -27,7 +26,6 @@ import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartD
 import com.elster.jupiter.metering.config.UnsatisfiedMetrologyConfigurationEndDate;
 import com.elster.jupiter.metering.config.UnsatisfiedReadingTypeRequirements;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -481,14 +479,14 @@ public class UsagePointResource {
         }
 
         if (parts.length != 3) {
-            validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_COORDINATES, fieldName));
+            validationBuilder.addValidationError(new LocalizedFieldValidationException(com.elster.jupiter.metering.MessageSeeds.INVALID_COORDINATES, fieldName));
             return;
         }
 
         if (Arrays.stream(parts)
                 .anyMatch(element -> element.split(",").length > 2
                         || element.split(".").length > 2)) {
-            validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_COORDINATES, fieldName));
+            validationBuilder.addValidationError(new LocalizedFieldValidationException(com.elster.jupiter.metering.MessageSeeds.INVALID_COORDINATES, fieldName));
             return;
         }
 
@@ -499,10 +497,10 @@ public class UsagePointResource {
                     || numericLatitude.compareTo(BigDecimal.valueOf(90)) > 0
                     || numericLongitude.compareTo(BigDecimal.valueOf(-180)) < 0
                     || numericLongitude.compareTo(BigDecimal.valueOf(180)) > 0) {
-                validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_COORDINATES, fieldName));
+                validationBuilder.addValidationError(new LocalizedFieldValidationException(com.elster.jupiter.metering.MessageSeeds.INVALID_COORDINATES, fieldName));
             }
         } catch (Exception e) {
-            validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_COORDINATES, fieldName));
+            validationBuilder.addValidationError(new LocalizedFieldValidationException(com.elster.jupiter.metering.MessageSeeds.INVALID_COORDINATES, fieldName));
         }
     }
 
@@ -511,7 +509,7 @@ public class UsagePointResource {
             List<PropertyInfo> propertyInfos = Arrays.asList(editLocation.properties);
             for (PropertyInfo propertyInfo : propertyInfos) {
                 if (propertyInfo.required && ((propertyInfo.propertyValueInfo.value == null) || (propertyInfo.propertyValueInfo.value.toString().isEmpty()))) {
-                    validationBuilder.addValidationError(new LocalizedFieldValidationException(PrivateMessageSeeds.REQUIRED, "properties." + propertyInfo.key));
+                    validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.REQUIRED, "properties." + propertyInfo.key));
                 }
             }
         }
