@@ -26,6 +26,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
@@ -91,9 +92,10 @@ public class ChannelResource {
     private final TopologyService topologyService;
     private final MeteringService meteringService;
     private final EstimationRuleInfoFactory estimationRuleInfoFactory;
+    private final DeviceConfigurationService deviceConfigurationService;
 
     @Inject
-    public ChannelResource(ExceptionFactory exceptionFactory, Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, ValidationInfoFactory validationInfoFactory, IssueDataValidationService issueDataValidationService, EstimationHelper estimationHelper, TopologyService topologyService, MeteringService meteringService, EstimationRuleInfoFactory estimationRuleInfoFactory) {
+    public ChannelResource(ExceptionFactory exceptionFactory, Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, ValidationInfoFactory validationInfoFactory, IssueDataValidationService issueDataValidationService, EstimationHelper estimationHelper, TopologyService topologyService, MeteringService meteringService, EstimationRuleInfoFactory estimationRuleInfoFactory, DeviceConfigurationService deviceConfigurationService) {
         this.exceptionFactory = exceptionFactory;
         this.channelHelper = channelHelper;
         this.resourceHelper = resourceHelper;
@@ -105,6 +107,7 @@ public class ChannelResource {
         this.topologyService = topologyService;
         this.meteringService = meteringService;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @GET
@@ -466,7 +469,7 @@ public class ChannelResource {
             } else {
                 if (channelDataInfo.value != null) {
                     BaseReading baseReading = channelDataInfo.createNew();
-                    if (channelDataInfo.mainValidationInfo.ruleId != 0) {
+                    if (channelDataInfo.mainValidationInfo != null &&  channelDataInfo.mainValidationInfo.ruleId!= 0) {
                         ((BaseReadingImpl)baseReading).addQuality("2.8." + channelDataInfo.mainValidationInfo.ruleId);
                         estimatedReadings.add(baseReading);
                     } else {
@@ -475,7 +478,7 @@ public class ChannelResource {
                 }
                 if (channelDataInfo.collectedValue != null) {
                     BaseReading baseReading = channelDataInfo.createNewBulk();
-                    if (channelDataInfo.bulkValidationInfo.ruleId != 0) {
+                    if (channelDataInfo.bulkValidationInfo != null && channelDataInfo.bulkValidationInfo.ruleId != 0) {
                         ((BaseReadingImpl)baseReading).addQuality("2.8." + channelDataInfo.bulkValidationInfo.ruleId);
                         estimatedBulkReadings.add(baseReading);
                     } else {
@@ -530,15 +533,31 @@ public class ChannelResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ESTIMATE_WITH_RULE})
-    public PagedInfoList getEstimationRulesForChannelData(@PathParam("name") String name, @PathParam("channelid") long channelId, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getEstimationRulesForChannelData(@PathParam("name") String name, @PathParam("channelid") long channelId, @QueryParam("isBulk") boolean isBulk, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
-        List<EstimationRuleInfo> estimationRuleInfos = estimationHelper.getAllEstimationRules()
-                .stream()
-                .filter(estimationRule -> estimationRule.getRuleSet().getQualityCodeSystem().equals(QualityCodeSystem.MDC))
-                .filter(estimationRule -> estimationRule.getReadingTypes().contains(channel.getReadingType()))
-                .map(estimationRuleInfoFactory::asInfo)
-                .collect(Collectors.toList());
+        List<EstimationRuleInfo> estimationRuleInfos;
+        if (isBulk) {
+            estimationRuleInfos = estimationHelper.getAllEstimationRules()
+                    .stream()
+                    .filter(estimationRule -> estimationRule.getRuleSet()
+                            .getQualityCodeSystem()
+                            .equals(QualityCodeSystem.MDC))
+                    .filter(estimationRule -> !deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(estimationRule.getRuleSet()).find().isEmpty())
+                    .filter(estimationRule -> estimationRule.getReadingTypes().contains(channel.getReadingType().getCalculatedReadingType().orElse(null)))
+                    .map(estimationRuleInfoFactory::asInfo)
+                    .collect(Collectors.toList());
+        } else {
+            estimationRuleInfos = estimationHelper.getAllEstimationRules()
+                    .stream()
+                    .filter(estimationRule -> estimationRule.getRuleSet()
+                            .getQualityCodeSystem()
+                            .equals(QualityCodeSystem.MDC))
+                    .filter(estimationRule -> !deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(estimationRule.getRuleSet()).find().isEmpty())
+                    .filter(estimationRule -> estimationRule.getReadingTypes().contains(channel.getReadingType()))
+                    .map(estimationRuleInfoFactory::asInfo)
+                    .collect(Collectors.toList());
+        }
 
         return PagedInfoList.fromPagedList("rules", estimationRuleInfos, queryParameters);
     }
