@@ -2,32 +2,26 @@ package com.energyict.protocolimpl.mbus.generic;
 
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.LinkException;
-import com.energyict.dialer.coreimpl.DirectDialer;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.base.ProtocolConnection;
-import com.energyict.protocolimpl.mbus.core.CIField51h;
 import com.energyict.protocolimpl.mbus.core.CIField72h;
 import com.energyict.protocolimpl.mbus.core.CIField7Ah;
 import com.energyict.protocolimpl.mbus.core.DataRecord;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.doReturn;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
