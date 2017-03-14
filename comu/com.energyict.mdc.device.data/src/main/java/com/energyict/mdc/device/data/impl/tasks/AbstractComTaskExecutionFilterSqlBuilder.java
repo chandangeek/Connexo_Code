@@ -13,7 +13,6 @@ import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.impl.tasks.report.AbstractTaskFilterSqlBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
@@ -22,8 +21,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static com.energyict.mdc.device.data.impl.tasks.DeviceStateSqlBuilder.DEVICE_STATE_ALIAS_NAME;
 
 /**
  * Provides code reuse opportunities to build SQL queries that will
