@@ -9,7 +9,7 @@ Ext.define('Dal.view.creationrules.ActionMenu', {
         this.items = [
             {
                 itemId: 'activate',
-                text: Uni.I18n.translate('general.activate', 'ISU', 'Activate'),
+                text: Uni.I18n.translate('general.activate', 'DAL', 'Activate'),
                 privileges: Isu.privileges.Issue.adminRule,
                 action: 'activate',
                 section: this.SECTION_ACTION
