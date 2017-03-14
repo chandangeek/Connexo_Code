@@ -9,11 +9,7 @@ import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.estimation.EstimationTask;
-import com.elster.jupiter.metering.ChannelsContainer;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -41,6 +37,8 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 class EstimationTaskExecutor implements TaskExecutor {
 
@@ -117,11 +115,13 @@ class EstimationTaskExecutor implements TaskExecutor {
             try (TransactionContext transactionContext = transactionService.getContext()) {
                 estimationService.estimate(system, meterActivation.getChannelsContainer(), period(meterActivation.getChannelsContainer(), relativePeriod, triggerTime), taskLogger);
                 transactionContext.commit();
+
             }
         } catch (Exception ex) {
-            transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to estimate " + meterActivation.getMeter().map(IdentifiedObject::getMRID)
-                    .orElseGet(() -> meterActivation.getUsagePoint(triggerTime).map(IdentifiedObject::getMRID).orElse("Unknown"))
-                    + " . Error: " + ex.getLocalizedMessage(), ex));
+            transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to estimate "+ meterActivation.getMeter()
+                    .map(IdentifiedObject::getName)
+                    .orElseGet(() -> meterActivation.getUsagePoint(triggerTime).map(IdentifiedObject::getName).orElse("Unknown"))
+                    + " . Error: " + ex.getLocalizedMessage(), ex +"."));
         }
     }
 
@@ -137,9 +137,9 @@ class EstimationTaskExecutor implements TaskExecutor {
                 estimate(system, channelsContainer, relativePeriod, occurrence, taskLogger);
             }
         } catch (Exception ex) {
-            transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to estimate "
-                    + channelsContainer.getUsagePoint().map(IdentifiedObject::getMRID).orElse("Unknown")
-                    + " . Error: " + ex.getLocalizedMessage(), ex));
+            transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to estimate "+channelsContainer.getUsagePoint()
+                    .map(IdentifiedObject::getName).orElse("Unknown")
+                    + " . Error: " + ex.getLocalizedMessage(), ex +"."));
         }
     }
 
@@ -184,5 +184,12 @@ class EstimationTaskExecutor implements TaskExecutor {
         return meteringService.getChannelsContainerWithReadingQualitiesQuery(
                 relativePeriod.getOpenClosedInterval(
                         ZonedDateTime.ofInstant(occurrence.getTriggerTime(), ZoneId.systemDefault())), ReadingQualityType.of(system, QualityCodeIndex.SUSPECT));
+    }
+    private boolean getMatchingMetrologyPurposes(MetrologyContract metrologyContract, ReadingType readingType) {
+        return metrologyContract.getDeliverables()
+                .stream()
+                .filter(readingTypeDeliverable -> readingTypeDeliverable.getReadingType().equals((readingType)))
+                .findAny()
+                .isPresent();
     }
 }

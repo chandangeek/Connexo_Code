@@ -24,17 +24,11 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.ChannelsContainer;
-import com.elster.jupiter.metering.CimChannel;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
-import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -57,13 +51,11 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.After;
 import org.junit.Before;
@@ -158,7 +150,28 @@ public class EstimationServiceImplTest {
     private ReadingQualityWithTypeFetcher fetcher;
     @Mock
     private ReadingQualityWithTypeFetcher emptyFetcher;
-
+    @Mock
+    private UsagePoint usagePoint;
+    @Mock
+    private EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint;
+    @Mock
+    private UsagePointMetrologyConfiguration usagePointMetrologyConfiguration;
+    @Mock
+    List<MetrologyContract> metrologyContracts;
+    @Mock
+    MetrologyContract metrologyContract;
+    @Mock
+    List<ReadingTypeDeliverable> readingTypeDeliverables;
+    @Mock
+    Stream<MetrologyContract> metrologyContractStream;
+    @Mock
+    Stream<ReadingTypeDeliverable> readingTypeDeliverableStream;
+    @Mock
+    ReadingType readingType;
+    @Mock
+    ReadingTypeDeliverable readingTypeDeliverable;
+    @Mock
+    Stream<String> stringStream;
     private LogRecorder logRecorder;
 
     @Before
@@ -203,6 +216,10 @@ public class EstimationServiceImplTest {
         doReturn(ImmutableSet.of(readingType1, readingType2)).when(rule1).getReadingTypes();
         doReturn(ImmutableSet.of(readingType1, readingType2)).when(rule2).getReadingTypes();
         doReturn(Collections.singletonList(channel)).when(channelsContainer).getChannels();
+        doReturn(Optional.of(usagePoint)).when(channelsContainer).getUsagePoint();
+        when(usagePoint.getName()).thenReturn("some name");
+        when(meter.getName()).thenReturn("some meter");
+        when(readingType1.getAliasName()).thenReturn("some channel");
         doReturn(Arrays.asList(readingType1, readingType2)).when(channel).getReadingTypes();
         doReturn(true).when(channel).isRegular();
         List<ReadingQualityRecord> readingQualityRecords = readingQualities();
@@ -227,6 +244,21 @@ public class EstimationServiceImplTest {
         doReturn(channelsContainer).when(channel).getChannelsContainer();
         doReturn(Optional.of(meter)).when(channelsContainer).getMeter();
         when(channelsContainer.getReadingTypes(any())).thenReturn(new HashSet<>(Arrays.asList(readingType1, readingType2)));
+        when(channelsContainer.getUsagePoint()).thenReturn(Optional.of(usagePoint));
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
+        when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
+        when(usagePointMetrologyConfiguration.getContracts()).thenReturn(metrologyContracts);
+        when(metrologyContracts.stream()).thenReturn(metrologyContractStream);
+        when(metrologyContract.getDeliverables()).thenReturn(readingTypeDeliverables);
+        when(readingTypeDeliverables.stream()).thenReturn(readingTypeDeliverableStream);
+        when(readingTypeDeliverableStream.filter(readingTypeDeliverable -> readingTypeDeliverable.getReadingType().equals((readingType))))
+                .thenReturn(readingTypeDeliverableStream);
+        when(readingTypeDeliverableStream.findAny()).thenReturn(Optional.of(readingTypeDeliverable));
+        when(Optional.of(readingTypeDeliverable).isPresent()).thenReturn(true);
+        when(metrologyContractStream.filter(metrologyContract -> true)).thenReturn(metrologyContractStream);
+        when(metrologyContractStream.map(metrologyContract -> metrologyContract.getMetrologyPurpose().getName()))
+                .thenReturn(stringStream);
+        when(stringStream.collect(Collectors.joining(" ,"))).thenReturn("djakdjajl");
         doAnswer(invocation -> {
             List<EstimationBlock> estimationBlocks = (List<EstimationBlock>) invocation.getArguments()[0];
             SimpleEstimationResult.EstimationResultBuilder builder = SimpleEstimationResult.builder();
