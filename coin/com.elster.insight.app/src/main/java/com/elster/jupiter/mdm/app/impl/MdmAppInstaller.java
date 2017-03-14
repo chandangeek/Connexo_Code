@@ -93,7 +93,7 @@ public class MdmAppInstaller {
                     com.elster.jupiter.metering.security.Privileges.Constants.VIEW_OWN_USAGEPOINT,
                     com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
                     com.elster.jupiter.metering.security.Privileges.Constants.ESTIMATE_WITH_RULE,
-
+                    com.elster.jupiter.metering.security.Privileges.Constants.EDIT_WITH_ESTIMATOR,
                     //validation
                     com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
                     com.elster.jupiter.validation.security.Privileges.Constants.VALIDATE_MANUAL,
