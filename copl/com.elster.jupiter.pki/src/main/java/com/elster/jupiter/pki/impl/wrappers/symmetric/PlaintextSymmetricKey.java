@@ -147,7 +147,7 @@ public class PlaintextSymmetricKey implements SymmetricKeyWrapper, Renewable {
     }
 
     @Override
-    public byte[] cosemPskExportDataConcentrator(SymmetricKeyWrapper smartMeterWorkingKey) throws HsmException {
+    public byte[] wrapMeterKeyForConcentrator(SymmetricKeyWrapper smartMeterWorkingKey) throws HsmException {
         if (!PlaintextSymmetricKey.class.isAssignableFrom(smartMeterWorkingKey.getClass())) {
             throw new DataEncryptionException(thesaurus, MessageSeeds.INCORRECT_KEY_ENCRYTION_METHOD);
         }

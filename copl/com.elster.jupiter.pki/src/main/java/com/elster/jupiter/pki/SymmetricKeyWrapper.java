@@ -24,12 +24,13 @@ public interface SymmetricKeyWrapper extends HasDynamicPropertiesWithUpdatableVa
      * This function is used to do the encrypted export of stored PSK for the data concentrator. The import of key into
      * the smart meter is done during the personalisation by the manufacturer or in case of renewal and done by the
      * renewal function by using key wrapping.
-     * This method is called on the DC MasterKey which is stored inside the Connexo DB. This key wraps the smart meter
+     * This method should be called on the DC MasterKey which is stored inside the Connexo DB. This key wraps the smart meter
      * key by using NIST wrapping.
      * @param smartMeterWorkingKey - Smart Meter Working key which is stored as PSK inside Connexo DB. It will be wrapped
      * by the DC Master Key (data concentrator).
      * @return the byte array that contains the cryptogram (AES-wrapped) of the exported Device-WK that can be imported
      * into a data concentrator.
+     * @see com.atos.worldline.jss.api.custom.energy.Energy.cosemPskExportDataConcentrator
      */
-    byte[] cosemPskExportDataConcentrator(SymmetricKeyWrapper smartMeterWorkingKey) throws HsmException, DataEncryptionException;
+    byte[] wrapMeterKeyForConcentrator(SymmetricKeyWrapper smartMeterWorkingKey) throws HsmException, DataEncryptionException;
 }
