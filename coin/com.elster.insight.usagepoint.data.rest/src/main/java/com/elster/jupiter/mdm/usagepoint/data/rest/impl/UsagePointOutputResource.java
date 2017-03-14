@@ -9,6 +9,7 @@ import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.Estimator;
+import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -100,6 +101,7 @@ public class UsagePointOutputResource {
     private final DataValidationTaskInfoFactory dataValidationTaskInfoFactory;
     private final EstimationTaskInfoFactory estimationTaskInfoFactory;
     private final EstimationRuleInfoFactory estimationRuleInfoFactory;
+    private final UsagePointConfigurationService usagePointConfigurationService;
 
     private static final String INTERVAL_START = "intervalStart";
     private static final String INTERVAL_END = "intervalEnd";
@@ -119,7 +121,7 @@ public class UsagePointOutputResource {
                              MeteringService meteringService,
                              DataValidationTaskInfoFactory dataValidationTaskInfoFactory,
                              EstimationTaskInfoFactory estimationTaskInfoFactory,
-                             EstimationRuleInfoFactory estimationRuleInfoFactory) {
+                             EstimationRuleInfoFactory estimationRuleInfoFactory, UsagePointConfigurationService usagePointConfigurationService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.estimationHelper = estimationHelper;
@@ -136,6 +138,7 @@ public class UsagePointOutputResource {
         this.dataValidationTaskInfoFactory = dataValidationTaskInfoFactory;
         this.estimationTaskInfoFactory = estimationTaskInfoFactory;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
+        this.usagePointConfigurationService = usagePointConfigurationService;
     }
 
     @GET
@@ -414,15 +417,17 @@ public class UsagePointOutputResource {
                 .map(ReadingTypeDeliverable::getReadingType)
                 .collect(Collectors.toList());
 
-        List<EstimationRuleInfo> estimationRuleInfos = getMatchingEstimationRules(readingTypesFromContract);
+        List<EstimationRuleInfo> estimationRuleInfos = getMatchingEstimationRules(readingTypesFromContract, metrologyContract);
 
         return PagedInfoList.fromPagedList("rules", estimationRuleInfos, queryParameters);
     }
 
-    private List<EstimationRuleInfo> getMatchingEstimationRules(List<ReadingType> readingTypesFromContract) {
+    private List<EstimationRuleInfo> getMatchingEstimationRules(List<ReadingType> readingTypesFromContract, MetrologyContract metrologyContract) {
         return estimationService.getEstimationRuleSets()
                 .stream()
+                .filter(ruleSet -> usagePointConfigurationService.getEstimationRuleSets(metrologyContract).contains(ruleSet))
                 .flatMap(ruleSet -> ruleSet.getRules().stream())
+                .filter(estimationRule -> estimationRule.getRuleSet().getQualityCodeSystem().equals(QualityCodeSystem.MDM))
                 .filter(estimationRule -> estimationRule.getReadingTypes()
                         .stream()
                         .filter(readingTypesFromContract::contains)
