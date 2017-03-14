@@ -18,11 +18,14 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 
@@ -31,6 +34,7 @@ import org.json.JSONObject;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -54,6 +58,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private final IssueCreationService issueCreationService;
     private final IssueService issueService;
     private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final TimeService timeService;
 
     private String type;
@@ -64,11 +69,12 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private boolean active;
 
     @Inject
-    public IssueRuleBuilder(IssueCreationService issueCreationService, IssueService issueService, DeviceConfigurationService deviceConfigurationService, TimeService timeService) {
+    public IssueRuleBuilder(IssueCreationService issueCreationService, IssueService issueService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TimeService timeService) {
         super(IssueRuleBuilder.class);
         this.issueCreationService = issueCreationService;
         this.issueService = issueService;
         this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.timeService = timeService;
     }
 
@@ -276,29 +282,35 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                 .find().stream()
                 .sorted(Comparator.comparing(DeviceType::getId))
                 .forEach(deviceType ->
-                        deviceType.getDeviceLifeCycle().getFiniteStateMachine().getStates().stream().distinct()
-                                .sorted(Comparator.comparing(State::getId))
-                                .forEach(state -> list.add(new HasIdAndName() {
-                                                               @Override
-                                                               public String getId() {
-                                                                   return deviceType.getId() + SEPARATOR + state.getId();
-                                                               }
+                        list.add(new HasIdAndName() {
+                                     @Override
+                                     public String getId() {
+                                         return deviceType.getId() + SEPARATOR + deviceType.getDeviceLifeCycle().getId() + SEPARATOR + deviceType.getDeviceLifeCycle()
+                                                 .getFiniteStateMachine()
+                                                 .getStates()
+                                                 .stream()
+                                                 .sorted(Comparator.comparing(State::getId))
+                                                 .map(HasId::getId)
+                                                 .map(String::valueOf)
+                                                 .collect(Collectors.joining(","));
+                                     }
 
-                                                               @Override
-                                                               public String getName() {
-                                                                   try {
-                                                                       JSONObject jsonId = new JSONObject();
-                                                                       jsonId.put("deviceTypeName", deviceType.getName());
-                                                                       jsonId.put("lifeCycleStateName", deviceType.getName() + "." + state.getName());
-                                                                       return jsonId.toString();
-                                                                   } catch (JSONException e) {
-                                                                       e.printStackTrace();
-                                                                   }
-                                                                   return "";
-                                                               }
-                                                           }
-                                )));
-
+                                     @Override
+                                     public String getName() {
+                                         try {
+                                             JSONObject jsonObj = new JSONObject();
+                                             jsonObj.put("deviceTypeName", deviceType.getName());
+                                             jsonObj.put("lifeCycleStateName", deviceType.getDeviceLifeCycle().getFiniteStateMachine().getStates().stream()
+                                                     .sorted(Comparator.comparing(State::getId)).collect(Collectors.collectingAndThen(Collectors.toList(), Collection::stream))
+                                                     .map(state -> getStateName(state) + " (" + deviceType.getDeviceLifeCycle().getName() + ")").collect(Collectors.toList()));
+                                             return jsonObj.toString();
+                                         } catch (JSONException e) {
+                                             e.printStackTrace();
+                                         }
+                                         return "";
+                                     }
+                                 }
+                        ));
         return list;
     }
 
@@ -326,5 +338,12 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                 return "";
             }
         };
+    }
+
+    private String getStateName(State state) {
+        return DefaultState
+                .from(state)
+                .map(deviceLifeCycleConfigurationService::getDisplayName)
+                .orElseGet(state::getName);
     }
 }
