@@ -22,7 +22,6 @@ import com.energyict.mdc.app.MdcAppService;
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.engine.monitor.app.MdcMonitorAppService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.scheduling.SchedulingService;
