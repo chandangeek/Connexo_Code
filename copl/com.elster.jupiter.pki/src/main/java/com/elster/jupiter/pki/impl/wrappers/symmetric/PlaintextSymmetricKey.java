@@ -10,8 +10,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.pki.DataEncryptionException;
-import com.elster.jupiter.pki.HsmException;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.Renewable;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
@@ -20,13 +18,11 @@ import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
-import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
-import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Base64;
@@ -144,21 +140,6 @@ public class PlaintextSymmetricKey implements SymmetricKeyWrapper, Renewable {
     public List<PropertySpec> getPropertySpecs() {
         return EnumSet.allOf(Properties.class)
                 .stream().map(properties -> properties.asPropertySpec(propertySpecService)).collect(toList());
-    }
-
-    @Override
-    public byte[] wrapMeterKeyForConcentrator(SymmetricKeyWrapper smartMeterWorkingKey) throws HsmException {
-        if (!PlaintextSymmetricKey.class.isAssignableFrom(smartMeterWorkingKey.getClass())) {
-            throw new DataEncryptionException(thesaurus, MessageSeeds.INCORRECT_KEY_ENCRYTION_METHOD);
-        }
-        PlaintextSymmetricKey plaintextWK = (PlaintextSymmetricKey) smartMeterWorkingKey;
-        try {
-            final Cipher aesWrap = Cipher.getInstance("AESWrap");
-            aesWrap.init(Cipher.UNWRAP_MODE, new SecretKeySpec(this.getKey().getEncoded(), "AES"));
-            return aesWrap.unwrap(plaintextWK.getKey().getEncoded(), "AES", Cipher.SECRET_KEY).getEncoded();
-        } catch (GeneralSecurityException e) {
-            throw new DataEncryptionException(thesaurus, MessageSeeds.FAILED_TO_WRAP_WK, e.getMessage());
-        }
     }
 
     protected void save() {
