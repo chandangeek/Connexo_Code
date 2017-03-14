@@ -82,6 +82,7 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
         ChannelDataCompletionSummaryImpl generalSummary = new ChannelDataCompletionSummaryImpl(interval, ChannelDataCompletionSummaryType.GENERAL);
         ChannelDataCompletionSummaryImpl editedSummary = new ChannelDataCompletionSummaryImpl(interval, ChannelDataCompletionSummaryType.EDITED);
         ChannelDataCompletionSummaryImpl validSummary = new ChannelDataCompletionSummaryImpl(interval, ChannelDataCompletionSummaryType.VALID);
+        ChannelDataCompletionSummaryImpl estimatedSummary = new ChannelDataCompletionSummaryImpl(interval, ChannelDataCompletionSummaryType.ESTIMATED);
         summaryList.add(generalSummary);
         channel.findReadingQualities() // supply the map with all qualities to consider
                 .inTimeInterval(interval)
@@ -102,6 +103,7 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
                 ));
         gatherEdited(qualityTypesByAllTimings, editedSummary);
         summaryList.add(editedSummary);
+        summaryList.add(estimatedSummary);
         Optional<Instant> lastCheckedOptional = validationService.getLastChecked(channel);
         int uncheckedTimingsCount;
         if (lastCheckedOptional.isPresent()) {
@@ -111,6 +113,7 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
             uncheckedTimings.clear(); // removed from qualityTypesByAllTimings
             if (Range.atMost(lastChecked).isConnected(interval)) { // something is validated
                 gatherStatistics(qualityTypesByAllTimings, generalSummary);
+                gatherEstimated(qualityTypesByAllTimings, estimatedSummary);
                 gatherValidated(qualityTypesByAllTimings, validSummary);
                 if (validSummary.getSum() > 0) {
                     summaryList.add(validSummary);
@@ -130,6 +133,14 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
                         .filter(entry -> entry.getValue().stream().anyMatch(flag.getQualityTypePredicate()))
                         .map(Map.Entry::getKey)
                         .count()));
+    }
+
+    private static void gatherEstimated(Map<Instant, Set<ReadingQualityType>> qualityTypesByAllTimings,
+                                     ChannelDataCompletionSummaryImpl summary) {
+        accountFlagValue(summary, ChannelDataCompletionSummaryType.ESTIMATED, (int) qualityTypesByAllTimings.entrySet().stream()
+                .filter(entry -> entry.getValue().stream().anyMatch(ReadingQualityType::hasEstimatedCategory))
+                .map(Map.Entry::getKey)
+                .count());
     }
 
     private static void gatherStatistics(Map<Instant, Set<ReadingQualityType>> qualityTypesByAllTimings,

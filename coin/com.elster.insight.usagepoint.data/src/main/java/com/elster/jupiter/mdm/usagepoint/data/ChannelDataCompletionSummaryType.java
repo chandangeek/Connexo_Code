@@ -4,12 +4,10 @@
 
 package com.elster.jupiter.mdm.usagepoint.data;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-
-public enum ChannelDataCompletionSummaryType implements TranslationKey {
+public enum ChannelDataCompletionSummaryType implements IChannelDataCompletionSummaryFlag {
     GENERAL("statisticsGeneral", "General"),
     EDITED("statisticsEdited", "Edited"),
+    ESTIMATED("statisticsEstimated", "Estimated"),
     VALID("statisticsValid", "Valid");
 
     private String key, translation;
@@ -28,8 +26,4 @@ public enum ChannelDataCompletionSummaryType implements TranslationKey {
     public String getDefaultFormat() {
         return translation;
     }
-
-    public String getDisplayName(Thesaurus thesaurus) {
-        return thesaurus.getFormat(this).format();
-    };
 }
