@@ -21,6 +21,7 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
@@ -36,7 +37,9 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
+import com.elster.jupiter.usagepoint.lifecycle.impl.UsagePointLifeCycleModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
@@ -57,6 +60,7 @@ public class InMemoryPersistence {
 
     private ValidationService validationService;
     private EstimationService estimationService;
+    private NlsService nlsService;
 
     public void activate() {
         initMocks();
@@ -70,6 +74,7 @@ public class InMemoryPersistence {
                 new FileImportModule(),
                 new WebServicesModule(),
                 new UsagePointLifeCycleConfigurationModule(),
+                new UsagePointLifeCycleModule(),
                 new MeteringModule(),
                 new BasicPropertiesModule(),
                 new TimeModule(),
@@ -94,6 +99,7 @@ public class InMemoryPersistence {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(MeteringGroupsService.class);
             injector.getInstance(DataQualityKpiService.class);
+            injector.getInstance(UsagePointLifeCycleService.class);
             ctx.commit();
         }
     }

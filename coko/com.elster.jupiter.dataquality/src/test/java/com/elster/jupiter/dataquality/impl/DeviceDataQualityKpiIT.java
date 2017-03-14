@@ -245,7 +245,6 @@ public class DeviceDataQualityKpiIT extends BaseTestIT {
         assertThat(get(KpiService.class).getKpi(removedKpi.getId())).isEmpty();
     }
 
-
     @Test
     @Transactional
     public void updateMembersAfterDeviceAddedIntoGroup() {

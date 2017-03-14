@@ -25,6 +25,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.ValidationService;
 
@@ -45,7 +46,7 @@ import static com.elster.jupiter.util.streams.Predicates.not;
 @UniqueUsagePointGroupAndPurpose(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.USAGEPOINT_GROUP_AND_PURPOSE_MUST_BE_UNIQUE + "}")
 public final class UsagePointDataQualityKpiImpl extends DataQualityKpiImpl implements UsagePointDataQualityKpi {
 
-    private static final String KPI_MEMBER_NAME_SUFFIX_SEPARATOR = ":";
+    static final String KPI_MEMBER_NAME_SUFFIX_SEPARATOR = ":";
 
     public enum Fields {
 
@@ -127,7 +128,7 @@ public final class UsagePointDataQualityKpiImpl extends DataQualityKpiImpl imple
         // create kpis for new usage points in group
         usagePointIdsInGroup.stream()
                 .filter(not(commonElements::contains))
-                .forEach(id -> createDataQualityKpiMember(id, interval));
+                .forEach(usagePointId -> createDataQualityKpiMemberIfPurposeActive(usagePointId, interval));
 
         // update existing kpis with the new kpi members (in case new validators/estimators deployed)
         dataQualityKpiMembersMap.entrySet().stream()
@@ -147,23 +148,27 @@ public final class UsagePointDataQualityKpiImpl extends DataQualityKpiImpl imple
     }
 
     private Map<Long, DataQualityKpiMember> createDataQualityKpiMembers(Range<Instant> interval) {
-        return getUsagePointGroup().getMembers(getClock().instant()).stream()
-                .collect(Collectors.toMap(
-                        UsagePoint::getId,
-                        usagePoint -> createDataQualityKpiMember(usagePoint, interval)));
+        return getUsagePointGroup().getMembers(getClock().instant())
+                .stream()
+                .map(usagePoint -> Pair.of(usagePoint.getId(), createDataQualityKpiMemberIfPurposeActive(usagePoint, interval)))
+                .filter(pair -> pair.getLast().isPresent())
+                .collect(Collectors.toMap(Pair::getFirst, pair -> pair.getLast().get()));
     }
 
-    private DataQualityKpiMemberImpl createDataQualityKpiMember(long usagePointId, Range<Instant> interval) {
+    private Optional<DataQualityKpiMember> createDataQualityKpiMemberIfPurposeActive(long usagePointId, Range<Instant> interval) {
         UsagePoint usagePoint = getMeteringService().findUsagePointById(usagePointId).get();
-        return createDataQualityKpiMember(usagePoint, interval);
+        return createDataQualityKpiMemberIfPurposeActive(usagePoint, interval);
     }
 
-    private DataQualityKpiMemberImpl createDataQualityKpiMember(UsagePoint usagePoint, Range<Instant> interval) {
+    private Optional<DataQualityKpiMember> createDataQualityKpiMemberIfPurposeActive(UsagePoint usagePoint, Range<Instant> interval) {
+        Set<ChannelsContainer> channelContainers = getChannelsContainersForPurpose(usagePoint, getMetrologyPurpose(), interval);
+        if (channelContainers.isEmpty()) {
+            return Optional.empty();
+        }
         KpiBuilder kpiBuilder = getKpiService().newKpi();
         kpiBuilder.interval(getFrequency());
         kpiBuilder.timeZone(usagePoint.getZoneId());
 
-        Set<ChannelsContainer> channelContainers = getChannelsContainers(usagePoint, interval);
         actualKpiMemberTypes()
                 .map(DataQualityKpiMemberType::getName)
                 .flatMap(member ->
@@ -175,7 +180,7 @@ public final class UsagePointDataQualityKpiImpl extends DataQualityKpiImpl imple
 
         DataQualityKpiMemberImpl dataQualityKpiMember = DataQualityKpiMemberImpl.from(getDataModel(), this, kpiBuilder.create());
         getKpiMembers().add(dataQualityKpiMember);
-        return dataQualityKpiMember;
+        return Optional.of(dataQualityKpiMember);
     }
 
     private Map<Long, DataQualityKpiMember> usagePointIdsInKpiMembers() {
@@ -198,10 +203,10 @@ public final class UsagePointDataQualityKpiImpl extends DataQualityKpiImpl imple
                 .map(HasId::getId).collect(Collectors.toSet());
     }
 
-    private Set<ChannelsContainer> getChannelsContainers(UsagePoint usagePoint, Range<Instant> interval) {
+    private Set<ChannelsContainer> getChannelsContainersForPurpose(UsagePoint usagePoint, MetrologyPurpose metrologyPurpose, Range<Instant> interval) {
         return usagePoint.getEffectiveMetrologyConfigurations(interval)
                 .stream()
-                .map(effectiveMC -> getChannelsContainerForPurpose(effectiveMC, this.metrologyPurpose.get()))
+                .map(effectiveMC -> getChannelsContainerForPurpose(effectiveMC, metrologyPurpose))
                 .flatMap(Functions.asStream())
                 .collect(Collectors.toSet());
     }
