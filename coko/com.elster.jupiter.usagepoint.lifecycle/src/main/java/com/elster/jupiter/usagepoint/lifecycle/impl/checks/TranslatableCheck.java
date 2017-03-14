@@ -4,12 +4,12 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.impl.checks;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckViolation;
 import com.elster.jupiter.usagepoint.lifecycle.config.DefaultTransition;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.impl.MicroCategoryTranslationKeys;
 
 import javax.inject.Inject;
@@ -54,7 +54,7 @@ public abstract class TranslatableCheck implements ExecutableMicroCheck {
     }
 
     @Override
-    public boolean isMandatoryForTransition(UsagePointState fromState, UsagePointState toState) {
+    public boolean isMandatoryForTransition(State fromState, State toState) {
         Set<DefaultTransition> candidates = getTransitionCandidates();
         return candidates != null
                 && !candidates.isEmpty()
