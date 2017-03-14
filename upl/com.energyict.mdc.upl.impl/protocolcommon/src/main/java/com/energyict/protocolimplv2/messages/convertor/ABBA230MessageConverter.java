@@ -9,7 +9,6 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
@@ -24,7 +23,7 @@ import java.util.Map;
 
 /**
  * Represents a MessageConverter for the legacy ABBA230 IEC1107 protocol.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 8/03/13
  * Time: 16:26
@@ -32,12 +31,13 @@ import java.util.Map;
 public class ABBA230MessageConverter extends AbstractMessageConverter {
 
     private static final String CHARSET = "UTF-8";
+
     private static final String CONNECT_LOAD = "ConnectLoad";
     private static final String DISCONNECT_LOAD = "DisconnectLoad";
     private static final String ARM_METER = "ArmMeter";
     private static final String BILLING_RESET = "BillingReset";
     private static final String UPGRADE_METER_FIRMWARE = "UpgradeMeterFirmware";
-    private static final String UPGRADE_METER_SCHEME = "UpgradeMeterScheme";
+    private static final String UPGRADE_METER_SCHEME = "UploadMeterScheme";
 
     private final DeviceMessageFileExtractor deviceMessageFileExtractor;
 
@@ -48,8 +48,10 @@ public class ABBA230MessageConverter extends AbstractMessageConverter {
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
-        if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateUserFileAttributeName) || propertySpec.getName().equals(DeviceMessageConstants.MeterScheme)) {
-            return this.deviceMessageFileExtractor.contents((DeviceMessageFile) messageAttribute, Charset.forName(CHARSET));
+        if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateFileAttributeName)) {
+            return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.MeterScheme)) {
+            return this.deviceMessageFileExtractor.contents((DeviceMessageFile) messageAttribute, Charset.forName(CHARSET));    //Return the content of the file, should be ASCII (XML)
         } else {
             return messageAttribute.toString();
         }

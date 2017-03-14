@@ -47,8 +47,8 @@ public final class DeviceMessageConstants {
     public static final String dstEndAlgorithmAttributeDefaultTranslation = "DST end algorithm";
     public static final String firmwareUpdateVersionNumberAttributeName = "FirmwareDeviceMessage.upgrade.version";
     public static final String firmwareUpdateVersionNumberAttributeDefaultTranslation = "Version number";
-    public static final String firmwareUpdateUserFileAttributeName = "FirmwareDeviceMessage.upgrade.userfile";
-    public static final String firmwareUpdateUserFileAttributeDefaultTranslation = "Firmware userfile";
+    public static final String firmwareUpdateFileAttributeName = "FirmwareDeviceMessage.upgrade.userfile";
+    public static final String firmwareUpdateUserFileAttributeDefaultTranslation = "Firmware file";
     public static final String firmwareUpdateImageIdentifierAttributeName = "FirmwareDeviceMessage.image.identifier";
     public static final String firmwareUpdateImageIdentifierAttributeDefaultTranslation = "Image identifier";
     public static final String deviceIdsAttributeName = "FirmwareDeviceMessage.deviceIds";
@@ -114,14 +114,14 @@ public final class DeviceMessageConstants {
     public static final String activityCalendarTypeAttributeDefaultTranslation = "Type";
     public static final String activityCalendarNameAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.name";
     public static final String activityCalendarNameAttributeDefaultTranslation = "Name";
-    public static final String activityCalendarCodeTableAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.codetable";
-    public static final String activityCalendarCodeTableAttributeDefaultTranslation = "Code table";
+    public static final String activityCalendarAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.codetable";
+    public static final String activityCalendarCodeTableAttributeDefaultTranslation = "Activity calendar";
     public static final String contractsXmlUserFileAttributeName = "ActivityCalendarDeviceMessage.contractsxmluserfile";
-    public static final String contractsXmlUserFileAttributeDefaultTranslation = "User file";
-    public static final String specialDaysCodeTableAttributeName = "ActivityCalendarDeviceMessage.specialdays.codetable";
-    public static final String specialDaysCodeTableAttributeDefaultTranslation = "Code table";
+    public static final String contractsXmlUserFileAttributeDefaultTranslation = "File";
+    public static final String specialDaysAttributeName = "ActivityCalendarDeviceMessage.specialdays.codetable";
+    public static final String specialDaysCodeTableAttributeDefaultTranslation = "Calendar";
     public static final String XmlUserFileAttributeName = "ActivityCalendarDeviceMessage.xml.userfile";
-    public static final String XmlUserFileAttributeDefaultTranslation = "XML user file";
+    public static final String XmlUserFileAttributeDefaultTranslation = "XML file";
     public static final String activityCalendarActivationDateAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.activationdate";
     public static final String activityCalendarActivationDateAttributeDefaultTranslation = "Activation date";
     public static final String encryptionLevelAttributeName = "SecurityMessage.dlmsencryption.encryptionlevel";
@@ -404,7 +404,7 @@ public final class DeviceMessageConstants {
     public static final String xmlConfigAttributeName = "AdvancedTestMessage.xmlconfig";
     public static final String xmlConfigAttributeDefaultTranslation = "XML";
     public static final String UserFileConfigAttributeName = "AdvancedTestMessage.configuserfile";
-    public static final String UserFileConfigAttributeDefaultTranslation = "Configuration user file";
+    public static final String UserFileConfigAttributeDefaultTranslation = "Configuration file";
     public static final String loadProfileAttributeName = "load profile";
     public static final String loadProfileAttributeDefaultTranslation = "LoadProfile";
     public static final String fromDateAttributeName = "from";
@@ -1077,8 +1077,8 @@ public final class DeviceMessageConstants {
     public static final String ZigBeeConfigurationZigBeeAddressAttributeDefaultTranslation = "ZigBee IEEE address";
     public static final String ZigBeeConfigurationMirrorAddressAttributeName = "ZigBeeConfigurationDeviceMessage.mirrorieeeaddress";
     public static final String ZigBeeConfigurationMirrorAddressAttributeDefaultTranslation = "Mirror IEEE address";
-    public static final String ZigBeeConfigurationFirmwareUpdateUserFileAttributeName = "ZigBeeConfigurationDeviceMessage.userfile";
-    public static final String ZigBeeConfigurationFirmwareUpdateUserFileAttributeDefaultTranslation = "User file";
+    public static final String ZigBeeConfigurationFirmwareUpdateFileAttributeName = "ZigBeeConfigurationDeviceMessage.userfile";
+    public static final String ZigBeeConfigurationFirmwareUpdateFileAttributeDefaultTranslation = "File";
     public static final String ZigBeeConfigurationSASInsecureJoinAttributeName = "ZigBeeConfigurationDeviceMessage.SAS.insecurejoin";
     public static final String ZigBeeConfigurationSASInsecureJoinAttributeDefaultTranslation = "Insecure join";
     public static final String ZigBeeConfigurationSASExtendedPanIdAttributeName = "ZigBeeConfigurationDeviceMessage.SAS.extendedpanid";
@@ -1086,14 +1086,14 @@ public final class DeviceMessageConstants {
     public static final String ZigBeeConfigurationSASPanChannelMaskAttributeName = "ZigBeeConfigurationDeviceMessage.SAS.panchannelmask";
     public static final String ZigBeeConfigurationSASPanChannelMaskAttributeDefaultTranslation = "PAN channel mask";
     public static final String ZigBeeConfigurationHANRestoreUserFileAttributeName = "ZigBeeConfigurationDeviceMessage.hanrestoreuserfile";
-    public static final String ZigBeeConfigurationHANRestoreUserFileAttributeDefaultTranslation = "HAN restore user file";
+    public static final String ZigBeeConfigurationHANRestoreUserFileAttributeDefaultTranslation = "HAN restore file";
     public static final String ZigBeeConfigurationDeviceType = "ZigBeeConfigurationDeviceMessage.devicetype";
     public static final String ZigBeeConfigurationDeviceTypeDefaultTranslation = "Device type";
 
     public static final String StandingChargeAttributeName = "PricingInformation.standingcharge";
     public static final String StandingChargeAttributeDefaultTranslation = "Standing charge";
     public static final String PricingInformationUserFileAttributeName = "PricingInformation.userfile";
-    public static final String PricingInformationUserFileAttributeDefaultTranslation = "User file";
+    public static final String PricingInformationUserFileAttributeDefaultTranslation = "File";
     public static final String PricingInformationActivationDateAttributeName = "PricingInformation.activationdate";
     public static final String PricingInformationActivationDateAttributeDefaultTranslation = "Activation date";
     public static final String currency = "currency";
@@ -1106,7 +1106,7 @@ public final class DeviceMessageConstants {
     public static final String alarmFilterAttributeName = "AlarmConfigurationMessage.alarmfilter";
     public static final String alarmFilterAttributeDefaultTranslation = "Alarm filter";
     public static final String configUserFileAttributeName = "GeneralDeviceMessage.configuserfile";
-    public static final String configUserFileAttributeDefaultTranslation = "Configuration user file";
+    public static final String configUserFileAttributeDefaultTranslation = "Configuration file";
     public static final String xmlMessageAttributeName = "GeneralDeviceMessage.xmlMessage";
     public static final String xmlMessageAttributeDefaultTranslation = "XML message";
     public static final String transportTypeAttributeName = "AlarmConfigurationMessage.transportType";
@@ -1298,8 +1298,8 @@ public final class DeviceMessageConstants {
     public static final String rfAddressDefaultTranslation = "RF address";
     public static final String waveCardFirmware = "waveCardFirmware";
     public static final String waveCardFirmwareDefaultTranslation = "Wavecard firmware";
-    public static final String nodeListUserFile = "Node list user file";
-    public static final String nodeListUserFileDefaultTranslation = "nodeListUserFile";
+    public static final String nodeListUserFile = "nodeListUserFile";
+    public static final String nodeListUserFileDefaultTranslation = "Node list file";
     public static final String enableWavenis = "enableWavenis";
     public static final String enableWavenisDefaultTranslation = "Enable Wavenis";
     public static final String rfCommand = "rfCommand";
@@ -1319,7 +1319,7 @@ public final class DeviceMessageConstants {
     public static final String fileInfo = "fileInfo";
     public static final String fileInfoDefaultTranslation = "File information";
     public static final String sslCertificateUserFile = "sslCertificateUserFile";
-    public static final String sslCertificateUserFileDefaultTranslation = "SSL certificate user file";
+    public static final String sslCertificateUserFileDefaultTranslation = "SSL certificate file";
     public static final String servletURL = "servletURL";
     public static final String servletURLDefaultTranslation = "Servlet URL";
     public static final String logLevel = "logLevel";

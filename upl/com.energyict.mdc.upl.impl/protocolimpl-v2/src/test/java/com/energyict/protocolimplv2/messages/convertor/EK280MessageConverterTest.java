@@ -202,7 +202,7 @@ public class EK280MessageConverterTest extends AbstractMessageConverterTest {
                 return "end";
             case DeviceMessageConstants.activityCalendarNameAttributeName:
                 return "TariffCalendar";
-            case DeviceMessageConstants.activityCalendarCodeTableAttributeName:
+            case DeviceMessageConstants.activityCalendarAttributeName:
                 return "base64_codeTable";
             case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
                 return new Date(1441101600000l);

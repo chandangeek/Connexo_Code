@@ -48,14 +48,14 @@ import java.util.Optional;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UserFileConfigAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.authenticationLevelAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileGroupIdListAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.encryptionLevelAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fromDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.loadProfileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterTimeAttributeName;
@@ -66,7 +66,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newWr
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newWrappedEncryptionKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysCodeTableAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.toDateAttributeName;
 
 /**
@@ -229,10 +229,10 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case UserFileConfigAttributeName:
-            case firmwareUpdateUserFileAttributeName: {
                 return ProtocolTools.getHexStringFromBytes(this.messageFileExtractor.binaryContents((DeviceMessageFile) messageAttribute), "");
-            }
-            case activityCalendarCodeTableAttributeName: {
+            case firmwareUpdateFileAttributeName:
+                return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
+            case activityCalendarAttributeName: {
                 this.calendarExtractor.threadContext().setDevice(offlineDevice);
                 this.calendarExtractor.threadContext().setMessage(offlineDeviceMessage);
                 return convertCodeTableToXML((TariffCalendar) messageAttribute, this.calendarExtractor);
@@ -254,7 +254,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
                 return ((Password) messageAttribute).getValue();
             case meterTimeAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());
-            case specialDaysCodeTableAttributeName:
+            case specialDaysAttributeName:
                 return parseSpecialDays((TariffCalendar) messageAttribute, this.calendarExtractor);
             case loadProfileAttributeName:
                 return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.loadProfileExtractor);

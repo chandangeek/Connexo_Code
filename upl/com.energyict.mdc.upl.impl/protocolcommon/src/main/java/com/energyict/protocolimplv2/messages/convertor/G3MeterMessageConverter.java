@@ -1,18 +1,15 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
-import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
-
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
@@ -38,7 +35,7 @@ import java.util.Date;
 import java.util.Map;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarTypeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.adp_Blacklist_table_entry_TTL;
@@ -49,7 +46,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.captu
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.consumerProducerModeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.disableDefaultRouting;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.encryptionLevelAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterTimeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
@@ -59,7 +56,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newWr
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.plcTypeFirmwareUpdateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.pskAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.resumeFirmwareUpdateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysCodeTableAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysAttributeName;
 
 /**
  * Represents a MessageConverter that maps the new G3 meter (AS330D / Sagemcom) messages to legacy XML
@@ -69,12 +66,10 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.speci
  */
 public class G3MeterMessageConverter extends AbstractMessageConverter {
 
-    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
     private final TariffCalendarExtractor tariffCalendarExtractor;
 
-    public G3MeterMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor tariffCalendarExtractor) {
+    public G3MeterMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor tariffCalendarExtractor) {
         super(messagingProtocol, propertySpecService, nlsService, converter);
-        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
         this.tariffCalendarExtractor = tariffCalendarExtractor;
     }
 
@@ -95,12 +90,12 @@ public class G3MeterMessageConverter extends AbstractMessageConverter {
             return ((Password) messageAttribute).getValue();
         } else if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime());
-        } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
+        } else if (propertySpec.getName().equals(activityCalendarAttributeName)) {
             return convertCodeTableToXML((TariffCalendar) messageAttribute, this.tariffCalendarExtractor);
-        } else if (propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
+        } else if (propertySpec.getName().equals(specialDaysAttributeName)) {
             return convertSpecialDaysCodeTableToXML((TariffCalendar) messageAttribute, this.tariffCalendarExtractor);
-        } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            return this.deviceMessageFileExtractor.contents((DeviceMessageFile) messageAttribute);  //Bytes of the userFile, as a string
+        } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
+            return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
         } else if (propertySpec.getName().equals(resumeFirmwareUpdateAttributeName)
                 || propertySpec.getName().equals(plcTypeFirmwareUpdateAttributeName)) {
             return messageAttribute.toString();
@@ -182,10 +177,10 @@ public class G3MeterMessageConverter extends AbstractMessageConverter {
                 .put(messageSpec(SecurityMessage.CHANGE_LLS_SECRET_HEX), new MultipleAttributeMessageEntry("ChangeLLSSecret", "LLS_Secret"))
                 .put(messageSpec(SecurityMessage.WRITE_PSK), new MultipleAttributeMessageEntry("WritePlcPsk", "PSK"))
 
-                .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE), new ActivityCalendarMessageEntry(activityCalendarTypeAttributeName, activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName))
-                .put(messageSpec(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE), new SpecialDaysMessageEntry(activityCalendarTypeAttributeName, specialDaysCodeTableAttributeName))
+                .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE), new ActivityCalendarMessageEntry(activityCalendarTypeAttributeName, activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarAttributeName))
+                .put(messageSpec(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE), new SpecialDaysMessageEntry(activityCalendarTypeAttributeName, specialDaysAttributeName))
 
-                .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE), new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName, resumeFirmwareUpdateAttributeName, plcTypeFirmwareUpdateAttributeName))
+                .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE), new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateFileAttributeName, resumeFirmwareUpdateAttributeName, plcTypeFirmwareUpdateAttributeName))
                 .build();
     }
 }

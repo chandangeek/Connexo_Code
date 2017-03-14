@@ -45,7 +45,6 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.CertificateAliasFinder;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
@@ -57,7 +56,6 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceGroup;
-import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.CertificateAlias;
@@ -106,9 +104,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.io.StringReader;
 import java.math.BigDecimal;
@@ -116,7 +112,6 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
-import java.sql.SQLException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -157,8 +152,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.certi
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.certificateIssuerAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.certificateTypeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.commonNameAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterSerialNumberAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usernameAttributeName;
@@ -187,14 +182,13 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private final Converter converter;
     private final DeviceMasterDataExtractor deviceMasterDataExtractor;
     private final DeviceGroupExtractor deviceGroupExtractor;
-    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
     private final DeviceExtractor deviceExtractor;
     private final CertificateAliasFinder certificateAliasFinder;
     private final CertificateWrapperExtractor certificateWrapperExtractor;
     private MasterDataSync masterDataSync;
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor = null;
 
-    public Beacon3100Messaging(Beacon3100 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMasterDataExtractor deviceMasterDataExtractor, DeviceGroupExtractor deviceGroupExtractor, DeviceMessageFileExtractor deviceMessageFileExtractor, DeviceExtractor deviceExtractor, CertificateAliasFinder certificateAliasFinder, CertificateWrapperExtractor certificateWrapperExtractor) {
+    public Beacon3100Messaging(Beacon3100 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMasterDataExtractor deviceMasterDataExtractor, DeviceGroupExtractor deviceGroupExtractor, DeviceExtractor deviceExtractor, CertificateAliasFinder certificateAliasFinder, CertificateWrapperExtractor certificateWrapperExtractor) {
         super(protocol, collectedDataFactory, issueFactory);
         this.objectMapperService = objectMapperService;
         this.propertySpecService = propertySpecService;
@@ -202,7 +196,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         this.converter = converter;
         this.deviceMasterDataExtractor = deviceMasterDataExtractor;
         this.deviceGroupExtractor = deviceGroupExtractor;
-        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
         this.deviceExtractor = deviceExtractor;
         this.certificateAliasFinder = certificateAliasFinder;
         this.certificateWrapperExtractor = certificateWrapperExtractor;
@@ -344,10 +337,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 || propertySpec.getName().equals(DeviceMessageConstants.systemRebootThreshold)
                 || propertySpec.getName().equals(DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName)) {
             return String.valueOf(((Duration) messageAttribute).getSeconds()); //Return value in seconds
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateUserFileAttributeName)) {
-            final DeviceMessageFile userFile = (DeviceMessageFile) messageAttribute;
-            final File tempFile = this.writeToTempDirectory(userFile);
-            return tempFile.getAbsolutePath();
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateFileAttributeName)) {
+            return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
         } else if (propertySpec.getName().equals(DeviceMessageConstants.encryptionLevelAttributeName)) {
             return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(DeviceMessageConstants.authenticationLevelAttributeName)) {
@@ -410,83 +401,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             return Optional.of(multicastSerializer.serialize(device, offlineDevice, deviceMessage));
         } else {
             return Optional.empty();
-        }
-    }
-
-    /**
-     * Writes the given {@link DeviceMessageFile} to the temp directory.
-     *
-     * @param deviceMessageFile The user file to write to the temp.
-     * @return The {@link File} that was written.
-     */
-    private File writeToTempDirectory(final DeviceMessageFile deviceMessageFile) {
-        final File tempDirectory = new File(System.getProperty(TEMP_DIR));
-        final String fileName = "beacon-3100-firmware-" + deviceMessageFileExtractor.id(deviceMessageFile);
-
-        try {
-            FIRMWARE_FILE_LOCK.lock();
-
-            final File tempFile = new File(tempDirectory, fileName);
-
-            if (tempFile.exists()) {
-                if (this.getLogger().isLoggable(Level.INFO)) {
-                    this.getLogger().log(Level.INFO, "Already have a file called [" + tempFile + "], checking file size.");
-                }
-
-                if (tempFile.length() != deviceMessageFileExtractor.size(deviceMessageFile)) {
-                    if (this.getLogger().isLoggable(Level.INFO)) {
-                        this.getLogger().log(Level.INFO, "File size differs for file [" + tempFile + "], deleting.");
-                    }
-                    if (!tempFile.delete()) {
-                        throw new IllegalStateException("Could not delete file : [" + tempFile + "] : delete() returns false !");
-                    }
-                }
-            }
-
-            if (!tempFile.exists()) {
-                if (this.getLogger().isLoggable(Level.INFO)) {
-                    this.getLogger().log(Level.INFO, "Copying user file to [" + tempFile + "].");
-                }
-
-                if (!tempFile.createNewFile()) {
-                    throw new IllegalStateException("Could not create temporary file [" + tempFile + "] : create() returns false !");
-                }
-
-                try (final OutputStream outStream = new FileOutputStream(tempFile)) {
-
-                    deviceMessageFileExtractor.processFileAsStream(deviceMessageFile, inStream -> {
-                                final byte[] buffer = new byte[2048];
-
-                                try {
-                                    int bytesRead = inStream.read(buffer);
-
-                                    while (bytesRead != -1) {
-                                        outStream.write(buffer, 0, bytesRead);
-                                        bytesRead = inStream.read(buffer);
-                                    }
-
-                                    outStream.flush();
-                                } catch (IOException e) {
-                                    if (getLogger().isLoggable(Level.WARNING)) {
-                                        getLogger().log(Level.WARNING, "IO error while writing temporary file : [" + e.getMessage() + "]", e);
-                                    }
-
-                                    throw new IllegalStateException("IO error while writing temporary file : [" + e.getMessage() + "]", e);
-                                }
-                            }
-                    );
-                }
-            }
-
-            return tempFile;
-        } catch (SQLException | IOException e) {
-            if (getLogger().isLoggable(Level.WARNING)) {
-                getLogger().log(Level.WARNING, "Error while writing temporary file : [" + e.getMessage() + "]", e);
-            }
-
-            throw new IllegalStateException("Error while writing temporary file : [" + e.getMessage() + "]", e);
-        } finally {
-            FIRMWARE_FILE_LOCK.unlock();
         }
     }
 
@@ -1065,7 +979,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
      */
     private CollectedMessage dcMulticastUpgrade(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
 
-        String filePath = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getValue();
+        String filePath = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateFileAttributeName).getValue();
         String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getValue();
 
         String unicastClientWPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, UnicastClientWPort).getValue();
@@ -1188,7 +1102,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private CollectedMessage transferSlaveFirmwareFileToDC(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
 
-        String filePath = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getValue();
+        String filePath = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateFileAttributeName).getValue();
         String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getValue();
 
         ImageTransfer it = getCosemObjectFactory().getImageTransfer(MULTICAST_FIRMWARE_UPGRADE_OBISCODE);
@@ -1513,7 +1427,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
-        String filePath = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getValue();
+        String filePath = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateFileAttributeName).getValue();
         String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getValue(); // Will return empty string if the MessageAttribute could not be found
 
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();

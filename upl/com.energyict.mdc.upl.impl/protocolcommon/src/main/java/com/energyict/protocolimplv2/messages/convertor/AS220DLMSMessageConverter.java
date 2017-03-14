@@ -1,18 +1,15 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
-import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.HexString;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
-
 import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
@@ -70,15 +67,15 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SYNCH
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.TIME_OUT_FRAME_NOT_OKAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.TIME_OUT_NOT_ADDRESSEDAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.normalThresholdAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
 
 /**
  * Represents a MessageConverter for the DLMS AS220 protocol
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 8/03/13
  * Time: 16:26
@@ -86,7 +83,11 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.overT
 public class AS220DLMSMessageConverter extends AbstractMessageConverter {
 
     private final TariffCalendarExtractor tariffCalendarExtractor;
-    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
+
+    public AS220DLMSMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor tariffCalendarExtractor) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
+        this.tariffCalendarExtractor = tariffCalendarExtractor;
+    }
 
     private static String[] getChannelFrequencyTags() {
         return new String[]{
@@ -132,17 +133,11 @@ public class AS220DLMSMessageConverter extends AbstractMessageConverter {
                 "CHANNEL6_CREDITWEIGHT"};
     }
 
-    public AS220DLMSMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor tariffCalendarExtractor, DeviceMessageFileExtractor deviceMessageFileExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
-        this.tariffCalendarExtractor = tariffCalendarExtractor;
-        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
-    }
-
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
             return dateTimeFormat.format((Date) messageAttribute);
-        } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
+        } else if (propertySpec.getName().equals(activityCalendarAttributeName)) {
             return convertCodeTableToXML((TariffCalendar) messageAttribute, this.tariffCalendarExtractor);
         } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)) {
             return String.valueOf(Temporals.toSeconds((TemporalAmount) messageAttribute));
@@ -187,8 +182,8 @@ public class AS220DLMSMessageConverter extends AbstractMessageConverter {
             return messageAttribute.toString();
         } else if (propertySpec.getName().equals(RawDataAttributeName)) {
             return ((HexString) messageAttribute).getContent();
-        } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            return this.deviceMessageFileExtractor.contents((DeviceMessageFile) messageAttribute);
+        } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
+            return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
         }
         return EMPTY_FORMAT;
     }
@@ -197,8 +192,8 @@ public class AS220DLMSMessageConverter extends AbstractMessageConverter {
         return ImmutableMap
                 .<DeviceMessageSpec, MessageEntryCreator>builder()
                 .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVATE_PASSIVE_CALENDAR), new MultipleAttributeMessageEntry("ActivatePassiveCalendar", "ActivationTime"))
-                .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND), new AS220ActivityCalendarMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName))
-                .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME), new AS220ActivityCalendarMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName))
+                .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND), new AS220ActivityCalendarMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarAttributeName))
+                .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME), new AS220ActivityCalendarMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarAttributeName))
 
                 .put(messageSpec(ContactorDeviceMessage.CONTACTOR_CLOSE), new SimpleTagMessageEntry("ConnectEmeter"))
                 .put(messageSpec(ContactorDeviceMessage.CONTACTOR_OPEN), new SimpleTagMessageEntry("DisconnectEmeter"))
@@ -217,7 +212,7 @@ public class AS220DLMSMessageConverter extends AbstractMessageConverter {
                 .put(messageSpec(PLCConfigurationDeviceMessage.SetSFSKRepeater), new MultipleAttributeMessageEntry("SetSFSKRepeater", "REPEATER"))
 
                 .put(messageSpec(MBusSetupDeviceMessage.DecommissionAll), new SimpleTagMessageEntry("DecommissionAll"))
-                .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE), new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName))
+                .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE), new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateFileAttributeName))
                 .build();
     }
 }

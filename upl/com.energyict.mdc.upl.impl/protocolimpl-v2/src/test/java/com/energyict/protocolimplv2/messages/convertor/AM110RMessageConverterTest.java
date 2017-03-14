@@ -174,8 +174,8 @@ public class AM110RMessageConverterTest extends AbstractMessageConverterTest{
                     return "1";
                 case DeviceMessageConstants.ZigBeeConfigurationForceRemovalAttributeName:
                     return false;
-                case DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName:
-                case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
+                case DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateFileAttributeName:
+                case DeviceMessageConstants.firmwareUpdateFileAttributeName:
                     UserFile mockedUserFile = mock(UserFile.class);
                     when(mockedUserFile.loadFileInByteArray()).thenReturn("Content".getBytes(Charset.forName("UTF-8")));
                     return mockedUserFile;

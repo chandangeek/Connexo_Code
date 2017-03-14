@@ -14,7 +14,6 @@ import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
@@ -30,17 +29,17 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.configUserFileAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysCodeTableAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysAttributeName;
 
 /**
  * Class that:
  * - Formats the device message attributes from objects to proper string values
  * - Executes a given message
  * - Has a list of all supported device message specs
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 22/11/13
  * Time: 11:32
@@ -72,36 +71,37 @@ public class EDPMessaging extends AbstractDlmsMessaging implements DeviceMessage
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         return Arrays.asList(
-                    this.get(ContactorDeviceMessage.CLOSE_RELAY),
-                    this.get(ContactorDeviceMessage.OPEN_RELAY),
-                    this.get(ContactorDeviceMessage.SET_RELAY_CONTROL_MODE),
-                    this.get(PublicLightingDeviceMessage.SET_RELAY_OPERATING_MODE),
-                    this.get(PublicLightingDeviceMessage.SET_TIME_SWITCHING_TABLE),
-                    this.get(PublicLightingDeviceMessage.SET_THRESHOLD_OVER_CONSUMPTION),
-                    this.get(PublicLightingDeviceMessage.SET_OVERALL_MINIMUM_THRESHOLD),
-                    this.get(PublicLightingDeviceMessage.SET_OVERALL_MAXIMUM_THRESHOLD),
-                    this.get(PublicLightingDeviceMessage.SET_RELAY_TIME_OFFSETS_TABLE),
-                    this.get(PublicLightingDeviceMessage.WRITE_GPS_COORDINATES),
-                    this.get(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE),
-                    this.get(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT),
-                    this.get(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME),
-                    this.get(DeviceActionMessage.BILLING_RESET),
-                    this.get(DeviceActionMessage.BILLING_RESET_CONTRACT_1),
-                    this.get(DeviceActionMessage.BILLING_RESET_CONTRACT_2),
-                    this.get(DeviceActionMessage.SET_PASSIVE_EOB_DATETIME));
+                this.get(ContactorDeviceMessage.CLOSE_RELAY),
+                this.get(ContactorDeviceMessage.OPEN_RELAY),
+                this.get(ContactorDeviceMessage.SET_RELAY_CONTROL_MODE),
+                this.get(PublicLightingDeviceMessage.SET_RELAY_OPERATING_MODE),
+                this.get(PublicLightingDeviceMessage.SET_TIME_SWITCHING_TABLE),
+                this.get(PublicLightingDeviceMessage.SET_THRESHOLD_OVER_CONSUMPTION),
+                this.get(PublicLightingDeviceMessage.SET_OVERALL_MINIMUM_THRESHOLD),
+                this.get(PublicLightingDeviceMessage.SET_OVERALL_MAXIMUM_THRESHOLD),
+                this.get(PublicLightingDeviceMessage.SET_RELAY_TIME_OFFSETS_TABLE),
+                this.get(PublicLightingDeviceMessage.WRITE_GPS_COORDINATES),
+                this.get(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE),
+                this.get(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT),
+                this.get(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME),
+                this.get(DeviceActionMessage.BILLING_RESET),
+                this.get(DeviceActionMessage.BILLING_RESET_CONTRACT_1),
+                this.get(DeviceActionMessage.BILLING_RESET_CONTRACT_2),
+                this.get(DeviceActionMessage.SET_PASSIVE_EOB_DATETIME));
     }
 
     @Override
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
-            case activityCalendarCodeTableAttributeName:
+            case activityCalendarAttributeName:
                 EDPActivityCalendarParser parser = new EDPActivityCalendarParser((TariffCalendar) messageAttribute, this.calendarExtractor);
                 return convertCodeTableToAXDR(parser);
-            case specialDaysCodeTableAttributeName:
+            case specialDaysAttributeName:
                 return parseSpecialDays((TariffCalendar) messageAttribute, this.calendarExtractor);
             case configUserFileAttributeName:
-            case firmwareUpdateUserFileAttributeName:
                 return this.messageFileExtractor.contents((DeviceMessageFile) messageAttribute);
+            case firmwareUpdateFileAttributeName:
+                return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
             case activityCalendarActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());     //Epoch
             default:

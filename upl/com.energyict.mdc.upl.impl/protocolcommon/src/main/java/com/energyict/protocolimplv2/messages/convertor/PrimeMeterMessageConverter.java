@@ -11,7 +11,6 @@ import com.energyict.mdc.upl.properties.HexString;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
@@ -36,7 +35,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.Multi
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MulticastAddress3AttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activationDatedAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contractsXmlUserFileAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 
 /**
  * Represents a MessageConverter for the Prime meter protocols
@@ -79,7 +78,7 @@ public class PrimeMeterMessageConverter extends AbstractMessageConverter {
                 .put(messageSpec(PLCConfigurationDeviceMessage.SetMulticastAddresses), new MultipleAttributeMessageEntry("SetMulticastAddresses", "Address 1", "Address 2", "Address 3"))
                 .put(messageSpec(SecurityMessage.CHANGE_CLIENT_PASSWORDS), new MultipleAttributeMessageEntry("ChangePasswords", "reading", "management", "firmware"))
 
-                .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE), new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName))
+                .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE), new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateFileAttributeName))
                 .build();
     }
 
@@ -93,8 +92,8 @@ public class PrimeMeterMessageConverter extends AbstractMessageConverter {
                 || propertySpec.getName().equals(MulticastAddress2AttributeName)
                 || propertySpec.getName().equals(MulticastAddress3AttributeName)) {
             return ((HexString) messageAttribute).getContent();
-        } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            return this.deviceMessageFileExtractor.contents((DeviceMessageFile) messageAttribute);
+        } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
+            return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
         } else if (propertySpec.getName().equals(DeviceMessageConstants.newReadingClientPasswordAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.newManagementClientPasswordAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.newFirmwareClientPasswordAttributeName)) {

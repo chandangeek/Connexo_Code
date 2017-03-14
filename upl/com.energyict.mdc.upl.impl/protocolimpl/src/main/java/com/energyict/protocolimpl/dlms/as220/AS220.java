@@ -1,8 +1,6 @@
 package com.energyict.protocolimpl.dlms.as220;
 
 import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
@@ -37,62 +35,56 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- *
  * @author kvds, jme
- *
  */
 public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProtocol {
 
-    private static final int	PROFILETYPE_EMETER_ONLY	    = 1;
-    private static final int	PROFILETYPE_PLC_ONLY	    = 2;
-    private static final int    PROFILETYPE_PQ_ONLY         = 4;
+    private static final int PROFILETYPE_EMETER_ONLY = 1;
+    private static final int PROFILETYPE_PLC_ONLY = 2;
+    private static final int PROFILETYPE_PQ_ONLY = 4;
 
-	private static final ObisCode	FW_VERSION_ACTIVE_OBISCODE	= ObisCode.fromString("1.0.0.2.0.255");
-	private static final ObisCode	FW_VERSION_PASSIVE_OBISCODE	= ObisCode.fromString("1.1.0.2.0.255");
-
-    private int iNROfIntervals = -1;
-
+    private static final ObisCode FW_VERSION_ACTIVE_OBISCODE = ObisCode.fromString("1.0.0.2.0.255");
+    private static final ObisCode FW_VERSION_PASSIVE_OBISCODE = ObisCode.fromString("1.1.0.2.0.255");
     private final EMeter eMeter = new EMeter(this);
     private final PLC plc = new PLC(this);
     private final PowerQuality powerQuality = new PowerQuality(this);
+    private final List<SubMessageProtocol> messagingList;
+    private int iNROfIntervals = -1;
     private GMeter gMeter = new GMeter(this);
     private ObiscodeMapper ocm = null;
-
-	private final List<SubMessageProtocol> messagingList;
-
     private FirmwareVersions activeFirmwareVersion;
     private FirmwareVersions passiveFirmwareVersion;
 
-    public AS220(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
+    public AS220(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor) {
         super(propertySpecService);
-    	messagingList = new ArrayList<>();
-    	messagingList.add(new AS220Messaging(this, calendarFinder, extractor, deviceMessageFileFinder, deviceMessageFileExtractor));
-    	messagingList.add(new PLCMessaging(this));
+        messagingList = new ArrayList<>();
+        messagingList.add(new AS220Messaging(this, calendarFinder, extractor));
+        messagingList.add(new PLCMessaging(this));
     }
 
     public EMeter geteMeter() {
-		return eMeter;
-	}
-
-    public GMeter getgMeter(){
-    	return gMeter;
+        return eMeter;
     }
 
-    public void setGMeter(GMeter gMeter){
-    	this.gMeter = gMeter;
+    public GMeter getgMeter() {
+        return gMeter;
+    }
+
+    public void setGMeter(GMeter gMeter) {
+        this.gMeter = gMeter;
     }
 
     public PLC getPlc() {
-		return plc;
-	}
+        return plc;
+    }
 
-    public PowerQuality getPowerQuality(){
+    public PowerQuality getPowerQuality() {
         return powerQuality;
     }
 
     @Override
     public void setTime() throws IOException {
-    	geteMeter().getClockController().shiftTime();
+        geteMeter().getClockController().shiftTime();
     }
 
     @Override
@@ -111,31 +103,31 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     }
 
     @Override
-	public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-		RetryHandler retry = new RetryHandler();
-		do {
-			try {
-				try {
-					return getAs220ObisCodeMapper().getRegisterValue(obisCode);
-				} catch (DataAccessResultException e) {
-					retry.logFailure(e);
-				}
-			} catch (IOException e) {
-				throw new IOException("Problems while reading register " + obisCode.toString() + ": " + e.getMessage());
-			}
-		} while (retry.canRetry());
+    public RegisterValue readRegister(ObisCode obisCode) throws IOException {
+        RetryHandler retry = new RetryHandler();
+        do {
+            try {
+                try {
+                    return getAs220ObisCodeMapper().getRegisterValue(obisCode);
+                } catch (DataAccessResultException e) {
+                    retry.logFailure(e);
+                }
+            } catch (IOException e) {
+                throw new IOException("Problems while reading register " + obisCode.toString() + ": " + e.getMessage());
+            }
+        } while (retry.canRetry());
         throw new IOException("Problems while reading register with obiscode " + obisCode.toString());
-	}
+    }
 
     @Override
-	public int getNumberOfChannels() throws IOException {
-		switch (getProfileType()) {
+    public int getNumberOfChannels() throws IOException {
+        switch (getProfileType()) {
 
             // three separate Profiles
             case PROFILETYPE_EMETER_ONLY:
-				return geteMeter().getNrOfChannels();
-			case PROFILETYPE_PLC_ONLY:
-				return getPlc().getNrOfChannels();
+                return geteMeter().getNrOfChannels();
+            case PROFILETYPE_PLC_ONLY:
+                return getPlc().getNrOfChannels();
             case PROFILETYPE_PQ_ONLY:
                 return getPowerQuality().getNrOfChannels();
 
@@ -151,37 +143,38 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
             case PROFILETYPE_EMETER_ONLY + PROFILETYPE_PLC_ONLY + PROFILETYPE_PQ_ONLY: // Eprofile + PLC profile + PQ profile
                 return geteMeter().getNrOfChannels() + getPlc().getNrOfChannels() + getPowerQuality().getNrOfChannels();
 
-			default:
-				return 0;
-		}
-	}
+            default:
+                return 0;
+        }
+    }
 
     protected ObiscodeMapper getAs220ObisCodeMapper() {
-    	if (ocm  == null) {
-    		ocm = new As220ObisCodeMapper(this);
-    	}
-    	return ocm;
-	}
+        if (ocm == null) {
+            ocm = new As220ObisCodeMapper(this);
+        }
+        return ocm;
+    }
 
-	public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-    	return getAs220ObisCodeMapper().getRegisterInfo(obisCode);
+    public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
+        return getAs220ObisCodeMapper().getRegisterInfo(obisCode);
     }
 
     /**
      * Getter for the list of {@link SubMessageProtocol}
+     *
      * @return the current {@link SubMessageProtocol} object
      */
     public List<SubMessageProtocol> getMessagingList() {
-		return messagingList;
-	}
+        return messagingList;
+    }
 
-	/**
-	 * This method requests for the NR of intervals that can be stored in the
-	 * memory of the remote meter.
-	 *
-	 * @return NR of intervals that can be stored in the memory of the remote meter.
-	 * @exception IOException
-	 */
+    /**
+     * This method requests for the NR of intervals that can be stored in the
+     * memory of the remote meter.
+     *
+     * @return NR of intervals that can be stored in the memory of the remote meter.
+     * @throws IOException
+     */
     private int getNROfIntervals() throws IOException {
         if (iNROfIntervals == -1) {
             iNROfIntervals = getCosemObjectFactory().getLoadProfile().getProfileGeneric().getProfileEntries();
@@ -192,14 +185,14 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Calendar calendar = Calendar.getInstance(getTimeZone());
-        calendar.add(Calendar.MONTH,-2);
-        return getProfileData(calendar.getTime(),includeEvents);
+        calendar.add(Calendar.MONTH, -2);
+        return getProfileData(calendar.getTime(), includeEvents);
     }
 
     @Override
-	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-		return getProfileData(lastReading, null, includeEvents);
-	}
+    public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
+        return getProfileData(lastReading, null, includeEvents);
+    }
 
     @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
@@ -271,78 +264,78 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     }
 
     protected boolean validateFromToDates(Date from, Date to) {
-		long diff = to.getTime() - from.getTime();
-		final int minimumDiff = 1 * 60 * 1000;
-		if (diff <= minimumDiff) {
+        long diff = to.getTime() - from.getTime();
+        final int minimumDiff = 1 * 60 * 1000;
+        if (diff <= minimumDiff) {
             String sb = "Unable to read profile data, from date is after or to short to the to date! " +
                     "[from=" + from +
                     ", to=" + to +
                     ", diff=" + diff + " ms]";
             getLogger().warning(sb);
-			return true;
-		}
-		return false;
-	}
-
-    @Override
-	public List<MessageCategorySpec> getMessageCategories() {
-		List<MessageCategorySpec> list = new ArrayList<>();
-		for (SubMessageProtocol messaging : getMessagingList()) {
-			list.addAll(messaging.getMessageCategories());
-		}
-		return list;
-	}
-
-    @Override
-	public String writeMessage(Message msg) {
-		for (SubMessageProtocol messaging : getMessagingList()) {
-			if (messaging.canHandleMessage(msg.getSpec())) {
-				return messaging.writeMessage(msg);
-			}
-		}
-		return "";
-	}
-
-    @Override
-	public String writeTag(MessageTag msgTag) {
-		for (SubMessageProtocol messaging : getMessagingList()) {
-			if (messaging.canHandleMessage(msgTag.getName())) {
-				return messaging.writeTag(msgTag);
-			}
-		}
-		return "";
+            return true;
+        }
+        return false;
     }
 
     @Override
-	public String writeValue(MessageValue msgValue) {
-		return msgValue.getValue();
-	}
+    public List<MessageCategorySpec> getMessageCategories() {
+        List<MessageCategorySpec> list = new ArrayList<>();
+        for (SubMessageProtocol messaging : getMessagingList()) {
+            list.addAll(messaging.getMessageCategories());
+        }
+        return list;
+    }
 
     @Override
-	public void applyMessages(List messageEntries) throws IOException {
-		for (SubMessageProtocol messaging : getMessagingList()) {
-			for (Iterator iterator = messageEntries.iterator(); iterator.hasNext();) {
-				MessageEntry messageEntry = (MessageEntry) iterator.next();
-				if (messaging.canHandleMessage(messageEntry)) {
-					messaging.applyMessages(messageEntries);
-				}
-			}
-		}
-	}
+    public String writeMessage(Message msg) {
+        for (SubMessageProtocol messaging : getMessagingList()) {
+            if (messaging.canHandleMessage(msg.getSpec())) {
+                return messaging.writeMessage(msg);
+            }
+        }
+        return "";
+    }
 
     @Override
-	public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
-		for (SubMessageProtocol messaging : getMessagingList()) {
-			if (messaging.canHandleMessage(messageEntry)) {
-				return messaging.queryMessage(messageEntry);
-			}
-		}
-		return MessageResult.createFailed(messageEntry);
-	}
+    public String writeTag(MessageTag msgTag) {
+        for (SubMessageProtocol messaging : getMessagingList()) {
+            if (messaging.canHandleMessage(msgTag.getName())) {
+                return messaging.writeTag(msgTag);
+            }
+        }
+        return "";
+    }
 
-	@Override
-	protected void doConnect() {
-	}
+    @Override
+    public String writeValue(MessageValue msgValue) {
+        return msgValue.getValue();
+    }
+
+    @Override
+    public void applyMessages(List messageEntries) throws IOException {
+        for (SubMessageProtocol messaging : getMessagingList()) {
+            for (Iterator iterator = messageEntries.iterator(); iterator.hasNext(); ) {
+                MessageEntry messageEntry = (MessageEntry) iterator.next();
+                if (messaging.canHandleMessage(messageEntry)) {
+                    messaging.applyMessages(messageEntries);
+                }
+            }
+        }
+    }
+
+    @Override
+    public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
+        for (SubMessageProtocol messaging : getMessagingList()) {
+            if (messaging.canHandleMessage(messageEntry)) {
+                return messaging.queryMessage(messageEntry);
+            }
+        }
+        return MessageResult.createFailed(messageEntry);
+    }
+
+    @Override
+    protected void doConnect() {
+    }
 
     public FirmwareVersions getActiveFirmwareVersion() throws IOException {
         if (activeFirmwareVersion == null) {
@@ -358,11 +351,11 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
         return passiveFirmwareVersion;
     }
 
-	@Override
-	public String getRegistersInfo() throws IOException {
-		ExtendedLogging el = new ExtendedLogging(this);
-		return el.getExtendedLogging();
-	}
+    @Override
+    public String getRegistersInfo() throws IOException {
+        ExtendedLogging el = new ExtendedLogging(this);
+        return el.getExtendedLogging();
+    }
 
     @Override
     public int getProfileInterval() throws IOException {
@@ -370,14 +363,18 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
             switch (getProfileType()) {
                 // three separate Profiles
                 case PROFILETYPE_EMETER_ONLY:
-                    iInterval = geteMeter().getProfileInterval();break;
+                    iInterval = geteMeter().getProfileInterval();
+                    break;
                 case PROFILETYPE_PLC_ONLY:
-                    iInterval = getPlc().getProfileInterval();break;
+                    iInterval = getPlc().getProfileInterval();
+                    break;
                 case PROFILETYPE_PQ_ONLY:
-                    iInterval = getPowerQuality().getProfileInterval();break;
+                    iInterval = getPowerQuality().getProfileInterval();
+                    break;
                 default: // Default we use the profile of the Emeter
-                    iInterval = geteMeter().getProfileInterval();break;
-}
+                    iInterval = geteMeter().getProfileInterval();
+                    break;
+            }
         }
         return iInterval;
     }

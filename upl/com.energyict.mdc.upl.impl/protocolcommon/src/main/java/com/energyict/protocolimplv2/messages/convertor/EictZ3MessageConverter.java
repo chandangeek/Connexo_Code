@@ -1,16 +1,13 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
-import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
@@ -28,7 +25,7 @@ import java.util.Map;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorModeAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.openKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.transferKeyAttributeName;
 
@@ -41,11 +38,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.trans
  */
 public class EictZ3MessageConverter extends AbstractMessageConverter {
 
-    private final DeviceMessageFileExtractor messageFileExtractor;
-
-    public EictZ3MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor) {
+    public EictZ3MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         super(messagingProtocol, propertySpecService, nlsService, converter);
-        this.messageFileExtractor = messageFileExtractor;
     }
 
     @Override
@@ -56,8 +50,8 @@ public class EictZ3MessageConverter extends AbstractMessageConverter {
             return messageAttribute.toString();
         } else if (propertySpec.getName().equals(openKeyAttributeName) || propertySpec.getName().equals(transferKeyAttributeName)) {
             return ((Password) messageAttribute).getValue();
-        } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            return this.messageFileExtractor.contents((DeviceMessageFile) messageAttribute);
+        } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
+            return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
         }
         return EMPTY_FORMAT;
     }
@@ -74,7 +68,7 @@ public class EictZ3MessageConverter extends AbstractMessageConverter {
                 .put(messageSpec(MBusSetupDeviceMessage.Decommission), new OneTagMessageEntry(RtuMessageConstant.MBUS_DECOMMISSION))
                 .put(messageSpec(MBusSetupDeviceMessage.SetEncryptionKeys), new SetMBusEncryptionKeysMessageEntry(openKeyAttributeName, transferKeyAttributeName))
 
-                .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE), new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName))
+                .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE), new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateFileAttributeName))
                 .build();
     }
 }

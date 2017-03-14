@@ -94,8 +94,10 @@ import org.xml.sax.SAXException;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.RandomAccessFile;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -1233,22 +1235,13 @@ public class Dsmr23MessageExecutor extends MessageParser {
     protected void doFirmwareUpgrade(MessageHandler messageHandler, MessageEntry messageEntry) throws IOException, InterruptedException {
         log(Level.INFO, "Handling message Firmware upgrade");
 
-        String userFileID = messageHandler.getUserFileId();
+        String path = messageHandler.getFirmwareFilePath();
 
-        if (!ParseUtils.isInteger(userFileID)) {
-            String str = "Not a valid entry for the userFile.";
-            throw new IOException(str);
-        }
-        Optional<DeviceMessageFile> deviceMessageFile = getMessageFileFinder().from(userFileID);
-        if (!deviceMessageFile.isPresent()) {
-            String str = "Not a valid entry for the userfileID " + userFileID;
-            throw new IOException(str);
-        }
-
-        byte[] imageData = getMessageFileExtractor().binaryContents(deviceMessageFile.get());
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
-        it.upgrade(imageData);
-        if (messageHandler.getActivationDate().equalsIgnoreCase("")) { // Do an execute now
+        try (final RandomAccessFile file = new RandomAccessFile(new File(path), "r")) {
+            it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), true, ImageTransfer.DEFAULT_IMAGE_NAME, false);
+        }
+        if ("".equalsIgnoreCase(messageHandler.getActivationDate())) { // Do an execute now
             it.imageActivation();
 
             //Below is a solution for not immediately activating the image so the current connection isn't lost
@@ -1261,7 +1254,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
 //					sas.writeExecutionTime(dateArray);
 
 
-        } else if (!messageHandler.getActivationDate().equalsIgnoreCase("")) {
+        } else if (!"".equalsIgnoreCase(messageHandler.getActivationDate())) {
             SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
             String strDate = messageHandler.getActivationDate();
             Array dateArray = convertUnixToDateTimeArray(strDate);

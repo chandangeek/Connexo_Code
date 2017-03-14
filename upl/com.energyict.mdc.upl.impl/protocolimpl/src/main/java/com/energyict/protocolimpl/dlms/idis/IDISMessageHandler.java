@@ -46,6 +46,7 @@ import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimpl.utils.TempFileLoader;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
@@ -309,9 +310,11 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
             resume = false;
         }
 
-        String imageData = getIncludedContent(messageEntry.getContent());
+        String path = getIncludedContent(messageEntry.getContent());
+        String base64EncodedImage = new String(TempFileLoader.loadTempFile(path));
+
         Base64EncoderDecoder decoder = new Base64EncoderDecoder();
-        byte[] binaryImage = decoder.decode(imageData);
+        byte[] binaryImage = decoder.decode(base64EncodedImage);
         String firmwareIdentifier;
         int length = binaryImage[0];
         firmwareIdentifier = new String(ProtocolTools.getSubArray(binaryImage, 1, 1 + length));   //The image_identifier is included in the header of the bin file

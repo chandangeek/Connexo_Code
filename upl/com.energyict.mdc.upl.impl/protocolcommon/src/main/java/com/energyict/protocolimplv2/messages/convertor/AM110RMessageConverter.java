@@ -10,7 +10,6 @@ import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -23,7 +22,6 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.google.common.collect.ImmutableMap;
 
-import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.Map;
 
@@ -98,9 +96,9 @@ public class AM110RMessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
             case DeviceMessageConstants.ZigBeeConfigurationActivationDateAttributeName:
                 return europeanDateTimeFormat.format((Date) messageAttribute);
-            case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
-            case DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName:
-                return this.deviceMessageFileExtractor.contents((DeviceMessageFile) messageAttribute, Charset.forName("UTF-8"));
+            case DeviceMessageConstants.firmwareUpdateFileAttributeName:
+            case DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateFileAttributeName:
+                return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
             case DeviceMessageConstants.ZigBeeConfigurationHANRestoreUserFileAttributeName:
                 return this.deviceMessageFileExtractor.id((DeviceMessageFile) messageAttribute);
             default:

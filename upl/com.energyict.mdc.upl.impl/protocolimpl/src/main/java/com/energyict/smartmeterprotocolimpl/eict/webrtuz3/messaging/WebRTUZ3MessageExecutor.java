@@ -64,7 +64,9 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -162,17 +164,12 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
 
                     log(Level.INFO, "Handling message: Firmware upgrade");
 
-                    String userFileID = messageHandler.getUserFileId();
-
-                    if (!ParseUtils.isInteger(userFileID)) {
-                        String str = "Not a valid entry for the current meter message (" + content + ").";
-                        throw new IOException(str);
-                    }
-                    DeviceMessageFile deviceMessageFile = this.messageFileFinder.from(userFileID).orElseThrow(() -> new IllegalArgumentException("Not a valid entry for the userfileID " + userFileID));
-
-                    byte[] imageData = this.messageFileExtractor.binaryContents(deviceMessageFile);
+                    String path = messageHandler.getFirmwareFilePath();
                     ImageTransfer it = getCosemObjectFactory().getImageTransfer();
-                    it.upgrade(imageData);
+                    try (final RandomAccessFile file = new RandomAccessFile(new File(path), "r")) {
+                        it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), true, ImageTransfer.DEFAULT_IMAGE_NAME, false);
+                    }
+
                     if ("".equalsIgnoreCase(messageHandler.getActivationDate())) { // Do an execute now
                         it.imageActivation();
 
@@ -198,16 +195,11 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                 } else if (rffirmware) {
                     log(Level.INFO, "Handling message: RF-Firmware upgrade");
 
-                    String userFileID = messageHandler.getUserFileId();
-
-                    if (!ParseUtils.isInteger(userFileID)) {
-                        String str = "Not a valid entry for the current meter message (" + content + ").";
-                        throw new IOException(str);
-                    }
-                    DeviceMessageFile deviceMessageFile = this.messageFileFinder.from(userFileID).orElseThrow(() -> new IllegalArgumentException("Not a valid entry for the userfileID " + userFileID));
-                    byte[] imageData = this.messageFileExtractor.binaryContents(deviceMessageFile);
+                    String path = messageHandler.getFirmwareFilePath();
                     ImageTransfer it = getCosemObjectFactory().getImageTransfer(RF_FIRMWARE_OBISCODE);
-                    it.upgrade(imageData);
+                    try (final RandomAccessFile file = new RandomAccessFile(new File(path), "r")) {
+                        it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), true, ImageTransfer.DEFAULT_IMAGE_NAME, false);
+                    }
 
                     if ("".equalsIgnoreCase(messageHandler.getActivationDate())) { // Do an execute now
 

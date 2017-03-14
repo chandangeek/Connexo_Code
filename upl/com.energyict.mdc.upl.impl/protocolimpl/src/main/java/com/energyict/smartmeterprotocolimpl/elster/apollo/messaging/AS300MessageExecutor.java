@@ -26,7 +26,6 @@ import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.messaging.TimeOfUseMessageBuilder;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
@@ -38,6 +37,7 @@ import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimpl.utils.TempFileLoader;
 import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
 import org.xml.sax.SAXException;
@@ -48,7 +48,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -365,22 +364,12 @@ public class AS300MessageExecutor extends MessageParser {
     private void updateFirmware(MessageHandler messageHandler, String content, String trackingId) throws IOException {
         log(Level.INFO, "Handling message Firmware upgrade");
 
-        String userFileID = messageHandler.getUserFileId();
         boolean resume = false;
         if ((trackingId != null) && trackingId.toLowerCase().contains(RESUME)) {
             resume = true;
         }
-
-        if (!com.energyict.protocolimpl.generic.ParseUtils.isInteger(userFileID)) {
-            String str = "Not a valid entry for the userFile.";
-            throw new IOException(str);
-        }
-
-        Optional<DeviceMessageFile> deviceMessageFile = messageFileFinder.from(userFileID);
-        if (!deviceMessageFile.isPresent()) {
-            String str = "Not a valid entry for the userfileID " + userFileID;
-            throw new IOException(str);
-        }
+        String path = messageHandler.getFirmwareFilePath();
+        byte[] bytes = TempFileLoader.loadTempFile(path);
 
         String[] parts = content.split("=");
         Date date = null;
@@ -399,7 +388,7 @@ public class AS300MessageExecutor extends MessageParser {
             throw new NestedIOException(e);
         }
 
-        byte[] imageData = new Base64EncoderDecoder().decode(messageFileExtractor.binaryContents(deviceMessageFile.get()));
+        byte[] imageData = new Base64EncoderDecoder().decode(bytes);
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
         if (resume) {
             int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();

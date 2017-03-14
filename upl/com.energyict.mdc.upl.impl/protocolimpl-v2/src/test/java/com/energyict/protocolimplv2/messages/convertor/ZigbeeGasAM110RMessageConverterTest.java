@@ -1,23 +1,21 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.PricingInformationMessage;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.gas.ZigbeeGas;
+import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.text.ParseException;
-
-import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -119,7 +117,7 @@ public class ZigbeeGasAM110RMessageConverterTest extends AbstractMessageConverte
                 case DeviceMessageConstants.ConversionFactor:
                 case DeviceMessageConstants.StandingChargeAttributeName:
                     return new BigDecimal(1);
-                case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
+                case DeviceMessageConstants.firmwareUpdateFileAttributeName:
                 case DeviceMessageConstants.contractsXmlUserFileAttributeName:
                     UserFile mockedUserFile = mock(UserFile.class);
                     when(mockedUserFile.loadFileInByteArray()).thenReturn("Content".getBytes(Charset.forName("UTF-8")));

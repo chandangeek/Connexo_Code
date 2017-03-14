@@ -10,7 +10,6 @@ import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -54,10 +53,12 @@ public class UkHubMessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.ZigBeeConfigurationActivationDateAttributeName:
                 return europeanDateTimeFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.UserFileConfigAttributeName:
-            case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
             case DeviceMessageConstants.ZigBeeConfigurationHANRestoreUserFileAttributeName:
-            case DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName:
-                return this.deviceMessageFileExtractor.id((DeviceMessageFile) messageAttribute);
+                DeviceMessageFile deviceMessageFile = (DeviceMessageFile) messageAttribute;
+                return String.valueOf(deviceMessageFileExtractor.id(deviceMessageFile));
+            case DeviceMessageConstants.firmwareUpdateFileAttributeName:
+            case DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateFileAttributeName:
+                return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
             default:
                 return messageAttribute.toString();
         }
@@ -95,8 +96,8 @@ public class UkHubMessageConverter extends AbstractMessageConverter {
                 .put(messageSpec(DeviceActionMessage.REBOOT_DEVICE), new OneTagMessageEntry("Reboot"))
 
                 // Firmware
-                .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE), new WebRTUFirmwareUpgradeWithUserFileMessageEntry(DeviceMessageConstants.firmwareUpdateUserFileAttributeName))
-                .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE), new WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry(DeviceMessageConstants.firmwareUpdateUserFileAttributeName, DeviceMessageConstants.firmwareUpdateActivationDateAttributeName))
+                .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE), new WebRTUFirmwareUpgradeWithUserFileMessageEntry(DeviceMessageConstants.firmwareUpdateFileAttributeName))
+                .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE), new WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry(DeviceMessageConstants.firmwareUpdateFileAttributeName, DeviceMessageConstants.firmwareUpdateActivationDateAttributeName))
 
                 //XMLConfig
                 .put(messageSpec(AdvancedTestMessage.XML_CONFIG), new XmlConfigMessageEntry(DeviceMessageConstants.xmlConfigAttributeName))

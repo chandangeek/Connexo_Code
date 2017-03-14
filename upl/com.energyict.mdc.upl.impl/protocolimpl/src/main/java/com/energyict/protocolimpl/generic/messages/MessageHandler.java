@@ -304,12 +304,12 @@ public class MessageHandler extends DefaultHandler {
     /**********************************************/
 
 
-    private String userfileId;
+    private String firmwareFilePath;
     private String activationDate;
     private String imageIdentifier;
 
     private void handleFirmWareUpgrade(Attributes attrbs) {
-        this.userfileId = attrbs.getValue(RtuMessageConstant.FIRMWARE);
+        this.firmwareFilePath = attrbs.getValue(RtuMessageConstant.FIRMWARE_PATH);
         this.activationDate = ProtocolTools.getEpochTimeFromString(attrbs.getValue(RtuMessageConstant.FIRMWARE_ACTIVATE_DATE));
         this.imageIdentifier = attrbs.getValue(RtuMessageConstant.FIRMWARE_IMAGE_IDENTIFIER);
     }
@@ -318,8 +318,8 @@ public class MessageHandler extends DefaultHandler {
         return imageIdentifier;
     }
 
-    public String getUserFileId() {
-        return this.userfileId;
+    public String getFirmwareFilePath() {
+        return this.firmwareFilePath;
     }
 
     public String getActivationDate() {

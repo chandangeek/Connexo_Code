@@ -11,7 +11,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-
 import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
@@ -786,7 +785,7 @@ public abstract class GenericMessaging implements Messaging {
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
         MessageValueSpec msgVal = new MessageValueSpec(" ");
         tagSpec.add(msgVal);
-        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.FIRMWARE, true));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.FIRMWARE_PATH, true));
 
         /*
            * The Act. Now value is deleted, we use the ActivationDate to check if

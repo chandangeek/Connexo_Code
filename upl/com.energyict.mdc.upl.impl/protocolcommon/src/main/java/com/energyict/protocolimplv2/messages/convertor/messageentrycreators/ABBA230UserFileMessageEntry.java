@@ -7,13 +7,12 @@ import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 
 /**
- * Creates a MessageEntry consisting of a tag with the content of a UserFile included as value, as is used for the IEC1107 ABBA230 protocol
+ * Creates a MessageEntry consisting of a tag with a path to a temp file, as is used for the IEC1107 ABBA230 protocol
  * <p/>
  * Copyrights EnergyICT
  * Date: 12/03/13
@@ -32,13 +31,13 @@ public class ABBA230UserFileMessageEntry implements MessageEntryCreator {
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         String userFileAttributeName = getMessageName(offlineDeviceMessage).equals(ConfigurationChangeDeviceMessage.UploadMeterScheme.name())
                 ? DeviceMessageConstants.MeterScheme
-                : DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+                : DeviceMessageConstants.firmwareUpdateFileAttributeName;
 
         OfflineDeviceMessageAttribute userFileAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, userFileAttributeName);
-        String fileContent = userFileAttribute.getValue();
+        String path = userFileAttribute.getValue();
 
         MessageTag messageTag = new MessageTag(tag);
-        messageTag.add(new MessageValue(fileContent));
+        messageTag.add(new MessageValue(path));
         return MessageEntry.fromContent(messagingProtocol.writeTag(messageTag)).andMessage(offlineDeviceMessage).finish();
     }
 

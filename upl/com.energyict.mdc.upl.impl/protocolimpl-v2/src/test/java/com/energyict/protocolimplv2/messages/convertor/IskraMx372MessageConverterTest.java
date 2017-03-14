@@ -161,7 +161,7 @@ public class IskraMx372MessageConverterTest extends AbstractMessageConverterTest
                 case DeviceMessageConstants.inactivityTimeoutAttributeName:
                 case DeviceMessageConstants.powerLimitThresholdAttributeName:
                 case DeviceMessageConstants.contractualPowerLimitAttributeName:
-                case DeviceMessageConstants.activityCalendarCodeTableAttributeName:
+                case DeviceMessageConstants.activityCalendarAttributeName:
                     return 1;
                 case DeviceMessageConstants.loadLimitStartDateAttributeName:
                     return europeanDateTimeFormat.parse("01/10/2013 00:00:00");

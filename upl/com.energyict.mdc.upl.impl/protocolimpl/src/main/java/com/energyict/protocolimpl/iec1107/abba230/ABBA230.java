@@ -66,6 +66,7 @@ import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
+import com.energyict.protocolimpl.utils.TempFileLoader;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -1035,7 +1036,8 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
                 this.logger.info("*************************** FIRMWARE UPGRADE ***************************");
                 int start = messageEntry.getContent().indexOf(FIRMWAREPROGRAM) + FIRMWAREPROGRAM.length() + 1;
                 int end = messageEntry.getContent().lastIndexOf(FIRMWAREPROGRAM) - 2;
-                String firmwareXMLData = messageEntry.getContent().substring(start, end);
+                String path = messageEntry.getContent().substring(start, end);
+                String firmwareXMLData = new String(TempFileLoader.loadTempFile(path));
                 blankCheck();
 
                 //	    		File file = new File("C:/Documents and Settings/kvds/My Documents/projecten/ESB/sphasefw.xml");

@@ -177,8 +177,8 @@ public class UkHubMessageConverterTest extends AbstractMessageConverterTest {
                 case DeviceMessageConstants.ZigBeeConfigurationForceRemovalAttributeName:
                     return Boolean.FALSE;
                 case DeviceMessageConstants.ZigBeeConfigurationHANRestoreUserFileAttributeName:
-                case DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName:
-                case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
+                case DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateFileAttributeName:
+                case DeviceMessageConstants.firmwareUpdateFileAttributeName:
                 case DeviceMessageConstants.UserFileConfigAttributeName:
                     UserFile mockedUserFile = mock(UserFile.class);
                     when(mockedUserFile.getId()).thenReturn(10);

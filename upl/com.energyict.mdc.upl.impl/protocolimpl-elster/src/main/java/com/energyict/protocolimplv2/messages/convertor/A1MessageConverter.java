@@ -10,7 +10,6 @@ import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
@@ -41,7 +40,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activ
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.apnAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.enableDSTAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.enableRSSIMultipleSampling;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.masterKey;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
@@ -100,7 +99,7 @@ public class A1MessageConverter extends AbstractMessageConverter {
                 .put(messageSpec(ClockDeviceMessage.ConfigureClock), new MultipleAttributeMessageEntry("SetClockConfiguration", "TIMEZONE_OFFSET", "DST_ENABLED", "DST_DEVIATION"))
 
                 // Firmware upgrade
-                .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE), new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName))
+                .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE), new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateFileAttributeName))
                 .build();
     }
 
@@ -123,9 +122,11 @@ public class A1MessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(StartOfGasDayAttributeName)) {
             LocalTime timeOfDay = (LocalTime) messageAttribute;
             return String.format("%02d", timeOfDay.getHour()) + ":" + String.format("%02d", timeOfDay.getMinute()) + ":" + String.format("%02d", timeOfDay.getSecond());
-        } else if (propertySpec.getName().equals(XmlUserFileAttributeName) || propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
+        } else if (propertySpec.getName().equals(XmlUserFileAttributeName)) {
             DeviceMessageFile deviceMessageFile = (DeviceMessageFile) messageAttribute;
             return this.messageFileExtractor.contents(deviceMessageFile);  //Bytes of the deviceMessageFile, as a string
+        } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
+            return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
         } else {
             return messageAttribute.toString();
         }

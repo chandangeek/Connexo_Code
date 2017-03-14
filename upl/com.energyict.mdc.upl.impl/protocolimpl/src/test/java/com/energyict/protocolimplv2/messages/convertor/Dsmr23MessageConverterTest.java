@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.Manager;
 import com.energyict.mdc.messages.DeviceMessageSpecFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -17,8 +18,6 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.cbo.Unit;
 import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Code;
@@ -47,6 +46,11 @@ import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -54,14 +58,8 @@ import java.time.Period;
 import java.util.Arrays;
 import java.util.Date;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.apnAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.authenticationLevelAttributeName;
@@ -74,7 +72,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emerg
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyThresholdAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.encryptionLevelAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fromDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.loadProfileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
@@ -84,7 +82,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.norma
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.p1InformationAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysCodeTableAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.toDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usernameAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.whiteListPhoneNumbersAttributeName;
@@ -198,7 +196,7 @@ public class Dsmr23MessageConverterTest {
         final int userFileId = 324532;
         final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter(null, this.propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor, this.numberLookupExtractor, this.messageFileExtractor, this.calendarExtractor);
         PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.getName()).thenReturn(firmwareUpdateUserFileAttributeName);
+        when(propertySpec.getName()).thenReturn(firmwareUpdateFileAttributeName);
         UserFile userFile = mock(UserFile.class);
         when(userFile.getId()).thenReturn(userFileId);
 
@@ -228,7 +226,7 @@ public class Dsmr23MessageConverterTest {
         final int codeTableId = 324532;
         final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter(null, this.propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor, this.numberLookupExtractor, this.messageFileExtractor, this.calendarExtractor);
         PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.getName()).thenReturn(activityCalendarCodeTableAttributeName);
+        when(propertySpec.getName()).thenReturn(activityCalendarAttributeName);
         Code codeAttribute = mock(Code.class);
         when(codeAttribute.getId()).thenReturn(codeTableId);
 
@@ -686,7 +684,7 @@ public class Dsmr23MessageConverterTest {
         final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter(smartMeterProtocol, this.propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor, this.numberLookupExtractor, this.messageFileExtractor, this.calendarExtractor);
         OfflineDeviceMessage firmwareUpgrade = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute offlineDeviceMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
-        when(offlineDeviceMessageAttribute.getName()).thenReturn(firmwareUpdateUserFileAttributeName);
+        when(offlineDeviceMessageAttribute.getName()).thenReturn(firmwareUpdateFileAttributeName);
         when(offlineDeviceMessageAttribute.getValue()).thenReturn(String.valueOf(userFileId));
         when(firmwareUpgrade.getDeviceMessageAttributes()).thenReturn(Arrays.asList(offlineDeviceMessageAttribute));
         when(firmwareUpgrade.getDeviceMessageSpecPrimaryKey()).thenReturn(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE.getPrimaryKey().getValue());
@@ -709,7 +707,7 @@ public class Dsmr23MessageConverterTest {
         final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter(smartMeterProtocol, this.propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor, this.numberLookupExtractor, this.messageFileExtractor, this.calendarExtractor);
         OfflineDeviceMessage firmwareUpgrade = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute userFileMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
-        when(userFileMessageAttribute.getName()).thenReturn(firmwareUpdateUserFileAttributeName);
+        when(userFileMessageAttribute.getName()).thenReturn(firmwareUpdateFileAttributeName);
         when(userFileMessageAttribute.getValue()).thenReturn(String.valueOf(userFileId));
         OfflineDeviceMessageAttribute activationDateMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(activationDateMessageAttribute.getName()).thenReturn(firmwareUpdateActivationDateAttributeName);
@@ -735,7 +733,7 @@ public class Dsmr23MessageConverterTest {
         final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter(smartMeterProtocol, this.propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor, this.numberLookupExtractor, this.messageFileExtractor, this.calendarExtractor);
         OfflineDeviceMessage activityCalendarConfiguration = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute codeTableMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
-        when(codeTableMessageAttribute.getName()).thenReturn(activityCalendarCodeTableAttributeName);
+        when(codeTableMessageAttribute.getName()).thenReturn(activityCalendarAttributeName);
         when(codeTableMessageAttribute.getValue()).thenReturn(String.valueOf(codeTableId));
         OfflineDeviceMessageAttribute activityCalendarNameMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(activityCalendarNameMessageAttribute.getName()).thenReturn(activityCalendarNameAttributeName);
@@ -762,7 +760,7 @@ public class Dsmr23MessageConverterTest {
         final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter(smartMeterProtocol, this.propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor, this.numberLookupExtractor, this.messageFileExtractor, this.calendarExtractor);
         OfflineDeviceMessage activityCalendarConfiguration = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute codeTableMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
-        when(codeTableMessageAttribute.getName()).thenReturn(activityCalendarCodeTableAttributeName);
+        when(codeTableMessageAttribute.getName()).thenReturn(activityCalendarAttributeName);
         when(codeTableMessageAttribute.getValue()).thenReturn(String.valueOf(codeTableId));
         OfflineDeviceMessageAttribute activityCalendarNameMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(activityCalendarNameMessageAttribute.getName()).thenReturn(activityCalendarNameAttributeName);
@@ -791,7 +789,7 @@ public class Dsmr23MessageConverterTest {
         final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter(smartMeterProtocol, this.propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor, this.numberLookupExtractor, this.messageFileExtractor, this.calendarExtractor);
         OfflineDeviceMessage activityCalendarConfiguration = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute codeTableMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
-        when(codeTableMessageAttribute.getName()).thenReturn(specialDaysCodeTableAttributeName);
+        when(codeTableMessageAttribute.getName()).thenReturn(specialDaysAttributeName);
         when(codeTableMessageAttribute.getValue()).thenReturn(String.valueOf(codeTableId));
         when(activityCalendarConfiguration.getDeviceMessageAttributes()).thenReturn(Arrays.asList(codeTableMessageAttribute));
         when(activityCalendarConfiguration.getDeviceMessageSpecPrimaryKey()).thenReturn(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND.getPrimaryKey().getValue());

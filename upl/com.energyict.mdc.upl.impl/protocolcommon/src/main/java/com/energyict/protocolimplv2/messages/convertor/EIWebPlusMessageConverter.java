@@ -10,7 +10,7 @@ import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
+import com.energyict.protocolimpl.utils.TempFileLoader;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
@@ -32,6 +32,8 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleValueMessageEntry;
 import com.google.common.collect.ImmutableMap;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Map;
 
@@ -53,12 +55,26 @@ public class EIWebPlusMessageConverter extends AbstractMessageConverter {
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
-        if (propertySpec.getName().equals(DeviceMessageConstants.waveCardFirmware)
-                || propertySpec.getName().equals(DeviceMessageConstants.sslCertificateUserFile)
-                || propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateUserFileAttributeName)
+        if (propertySpec.getName().equals(DeviceMessageConstants.sslCertificateUserFile)
                 || propertySpec.getName().equals(DeviceMessageConstants.PricingInformationUserFileAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.nodeListUserFile)) {
             return this.deviceMessageFileExtractor.contents((DeviceMessageFile) messageAttribute, Charset.forName("US-ASCII"));
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.waveCardFirmware)
+                || propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateFileAttributeName)) {
+            //Return the actual content of the file, it will be sent to the RTU+Server using the EIWebPlus servlet.
+            String path = messageAttribute.toString();      //This is the path of the temp file representing the FirmwareVersion
+            byte[] image;
+            try {
+                image = TempFileLoader.loadTempFile(path);
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
+
+            try {
+                return new String(image, "US-ASCII");
+            } catch (UnsupportedEncodingException e) {
+                return new String(image);
+            }
         } else if (propertySpec.getName().equals(DeviceMessageConstants.newPasswordAttributeName)) {
             return ((Password) messageAttribute).getValue();
         }

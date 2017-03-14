@@ -20,7 +20,7 @@ import java.text.ParseException;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorModeAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.openKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.transferKeyAttributeName;
 import static org.junit.Assert.assertEquals;
@@ -87,7 +87,7 @@ public class EictZ3MessageConverterTest extends AbstractMessageConverterTest {
             return BigDecimal.valueOf(1);
         } else if (propertySpec.getName().equals(openKeyAttributeName) || propertySpec.getName().equals(transferKeyAttributeName)) {
             return new Password("0101001010101010");
-        } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
+        } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
             UserFile userFile = mock(UserFile.class);
             when(userFile.loadFileInByteArray()).thenReturn("Firmware bytes".getBytes());
             return userFile;

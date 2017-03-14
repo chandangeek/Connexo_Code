@@ -1,9 +1,5 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages;
 
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -12,6 +8,9 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus.IDISMBusMessageExecutor;
@@ -21,13 +20,15 @@ import com.energyict.protocolimplv2.nta.dsmr40.messages.DSMR40ActivityCalendarCo
 import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40MessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.Dsmr50Properties;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.Calendar;
 import java.util.logging.Level;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName;
@@ -35,7 +36,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newWr
 
 /**
  * Messsage executor implementation for DSMR 5.0
- * <p/>
+ * <p>
  * Mostly reuses the DSMR4.0 functionality, but changes a few things.<br/>
  * <b>Important:</b> for DSMR5.0, the new keys (message to change AK and/or EK) are used immediately, instead of only at the start of the next message!
  * Also, when changing the encryption key, the framecounter is restarted.
@@ -67,29 +68,36 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
 
     @Override
     protected void upgradeFirmwareWithActivationDateAndImageIdentifier(OfflineDeviceMessage pendingMessage) throws IOException {
-        String userFile = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getValue();
+        String path = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateFileAttributeName).getValue();
         String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateActivationDateAttributeName).getValue();   // Will return empty string if the MessageAttribute could not be found
         String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getValue(); // Will return empty string if the MessageAttribute could not be found
-        byte[] image = ProtocolTools.getBytesFromHexString(userFile, "");
 
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
-        if (isResume(pendingMessage)) {
-            int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
-            if (lastTransferredBlockNumber > 0) {
-                it.setStartIndex(lastTransferredBlockNumber - 1);
-            }
-        }
 
-        it.setBooleanValue(getBooleanValue());
-        it.setUsePollingVerifyAndActivate(true);    //Poll verification
-        it.setPollingDelay(10000);
-        it.setPollingRetries(30);
-        it.setDelayBeforeSendingBlocks(5000);
-        it.setCheckNumberOfBlocksInPreviousSession(((Dsmr50Properties) getProtocol().getDlmsSessionProperties()).getCheckNumberOfBlocksDuringFirmwareResume());
-        if (imageIdentifier.isEmpty()) {
-            it.upgrade(image, false);
-        } else {
-            it.upgrade(image, false, imageIdentifier, false);
+        try (RandomAccessFile file = new RandomAccessFile(new File(path), "r")) {
+
+            if (imageIdentifier.isEmpty()) {
+                imageIdentifier = getImageIdentifierFromFile(file);
+            }
+
+            if (isResume(pendingMessage)) {
+                int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
+                if (lastTransferredBlockNumber > 0) {
+                    it.setStartIndex(lastTransferredBlockNumber - 1);
+                }
+            }
+
+            it.setBooleanValue(getBooleanValue());
+            it.setUsePollingVerifyAndActivate(true);    //Poll verification
+            it.setPollingDelay(10000);
+            it.setPollingRetries(30);
+            it.setDelayBeforeSendingBlocks(5000);
+            it.setCheckNumberOfBlocksInPreviousSession(((Dsmr50Properties) getProtocol().getDlmsSessionProperties()).getCheckNumberOfBlocksDuringFirmwareResume());
+            if (imageIdentifier.isEmpty()) {
+                it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), false, ImageTransfer.DEFAULT_IMAGE_NAME, false);
+            } else {
+                it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), false, imageIdentifier, false);
+            }
         }
 
         if (activationDate.isEmpty()) {
@@ -108,6 +116,52 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
             Array dateArray = convertActivationDateEpochToDateTimeArray(activationDate);
             sas.writeExecutionTime(dateArray);
         }
+    }
+
+    private String getImageIdentifierFromFile(RandomAccessFile file) throws IOException {
+        file.seek(0);
+        byte[] fileStart = new byte[1024];
+        file.readFully(fileStart);
+        file.seek(0);
+
+        int first = -1;
+        int last = -1;
+        for (int i = 0; i < fileStart.length; i++)
+            if (first == -1) {
+                if (isAsciiPrintable((char) (fileStart[i] & 0xFF))) {
+                    first = i;
+                }
+            } else {
+                if (!isAsciiPrintable((char) (fileStart[i] & 0xFF))) {
+                    last = i;
+                    i = fileStart.length;
+                }
+            }
+        if (first == -1) {
+            return "";
+        } else if (last == -1) {
+            last = fileStart.length;
+        }
+        return new String(fileStart, first, last - first);
+    }
+
+    /**
+     * <p>Checks whether the character is ASCII 7 bit printable.</p>
+     * <p>
+     * <pre>
+     *   CharUtils.isAsciiPrintable('a')  = true
+     *   CharUtils.isAsciiPrintable('A')  = true
+     *   CharUtils.isAsciiPrintable('3')  = true
+     *   CharUtils.isAsciiPrintable('-')  = true
+     *   CharUtils.isAsciiPrintable('\n') = false
+     *   CharUtils.isAsciiPrintable('&copy;') = false
+     * </pre>
+     *
+     * @param ch the character to check
+     * @return true if between 32 and 126 inclusive
+     */
+    private boolean isAsciiPrintable(char ch) {
+        return ch >= 32 && ch < 127;
     }
 
     @Override

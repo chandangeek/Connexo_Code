@@ -35,6 +35,7 @@ import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimpl.utils.TempFileLoader;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.AM110R;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.AM110RRegisterFactory;
 import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
@@ -174,7 +175,7 @@ public class AM110RMessageExecutor extends MessageParser {
     private void firmwareUpdate(MessageEntry messageEntry) throws IOException, InterruptedException {
         log(Level.INFO, "Upgrade firmware message received.");
 
-        String userFileContent = getIncludedContent(messageEntry.getContent());
+        String path = getIncludedContent(messageEntry.getContent());
 
         Date activationDate = null;
         String activationDateString = getValueFromXMLTag(RtuMessageConstant.ACTIVATE_DATE, messageEntry.getContent());
@@ -187,7 +188,8 @@ public class AM110RMessageExecutor extends MessageParser {
             throw new IOException("Error parsing the given activation date: " + e.getMessage());
         }
 
-        byte[] imageData = new Base64EncoderDecoder().decode(userFileContent);
+        String base64EncodedImage = new String(TempFileLoader.loadTempFile(path));
+        byte[] imageData = new Base64EncoderDecoder().decode(base64EncodedImage);
         ImageTransfer it = getCosemObjectFactory().getImageTransfer(AM110RRegisterFactory.FIRMWARE_UPDATE);
         if ((messageEntry.getTrackingId() != null) && !messageEntry.getTrackingId().toLowerCase().contains(NORESUME)) {
             int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();

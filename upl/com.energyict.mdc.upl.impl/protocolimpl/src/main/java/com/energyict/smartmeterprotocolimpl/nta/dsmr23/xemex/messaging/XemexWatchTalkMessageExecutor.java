@@ -6,6 +6,7 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
@@ -15,18 +16,17 @@ import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.TariffCalendar;
-import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessageExecutor;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MessageExecutor;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex.messaging.cosem.XemexWatchTalkImageTransfer;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Level;
 
 /**
@@ -136,20 +136,8 @@ public class XemexWatchTalkMessageExecutor extends Dsmr23MessageExecutor {
             resume = false;
         }
 
-        String userFileID = messageHandler.getUserFileId();
-        if (!ParseUtils.isInteger(userFileID)) {
-            String str = "Not a valid entry for the userFile.";
-            throw new IOException(str);
-        }
+        String path = messageHandler.getFirmwareFilePath();
 
-        Optional<DeviceMessageFile> deviceMessageFile = getMessageFileFinder().from(userFileID);
-
-        if (!deviceMessageFile.isPresent()) {
-            String str = "Not a valid entry for the userfileID " + userFileID;
-            throw new IOException(str);
-        }
-
-        byte[] imageData = getMessageFileExtractor().binaryContents(deviceMessageFile.get());
         XemexWatchTalkImageTransfer it = new XemexWatchTalkImageTransfer(getCosemObjectFactory().getProtocolLink());
         it.setBooleanValue(getBooleanValue());
         it.setUsePollingInit(true);    //Poll image transfer status during init
@@ -169,10 +157,13 @@ public class XemexWatchTalkMessageExecutor extends Dsmr23MessageExecutor {
             }
         }
 
-        if (imageIdentifier != null && imageIdentifier.length() > 0) {
-            it.upgrade(imageData, true, imageIdentifier, false);
-        } else {
-            it.upgrade(imageData, true);
+        try (final RandomAccessFile file = new RandomAccessFile(new File(path), "r")) {
+            ImageTransfer.RandomAccessFileImageBlockSupplier image = new ImageTransfer.RandomAccessFileImageBlockSupplier(file);
+            if (imageIdentifier != null && imageIdentifier.length() > 0) {
+                it.upgrade(image, true, imageIdentifier, false);
+            } else {
+                it.upgrade(image, true, ImageTransfer.DEFAULT_IMAGE_NAME, false);
+            }
         }
         if (messageHandler.getActivationDate().equalsIgnoreCase("")) { // Do an execute now
             it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!

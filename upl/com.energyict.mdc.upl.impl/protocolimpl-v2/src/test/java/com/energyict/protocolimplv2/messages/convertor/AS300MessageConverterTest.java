@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
@@ -14,8 +15,6 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
-
-import com.energyict.cpo.PropertySpec;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
@@ -24,15 +23,14 @@ import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.PricingInformationMessage;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
-
-import java.text.ParseException;
-import java.util.Date;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.text.ParseException;
+import java.util.Date;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -201,7 +199,7 @@ public class AS300MessageConverterTest extends AbstractMessageConverterTest {
                     DeviceMessageFile mockedUserFile = mock(DeviceMessageFile.class);
                     when(this.calendarExtractor.contents(mockedUserFile)).thenReturn("Content");
                     return mockedUserFile;
-                case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
+                case DeviceMessageConstants.firmwareUpdateFileAttributeName:
                     mockedUserFile = mock(DeviceMessageFile.class);
                     when(this.calendarExtractor.id(mockedUserFile)).thenReturn("1");
                     return mockedUserFile;
@@ -212,7 +210,7 @@ public class AS300MessageConverterTest extends AbstractMessageConverterTest {
                     return europeanDateTimeFormat.parse("28/10/2013 10:00:00");
                 case DeviceMessageConstants.activityCalendarNameAttributeName:
                     return "MyActivityCal";
-                case DeviceMessageConstants.activityCalendarCodeTableAttributeName:
+                case DeviceMessageConstants.activityCalendarAttributeName:
                     TariffCalendar tariffCalendar = mock(TariffCalendar.class);
                     when(this.calendarExtractor.id(tariffCalendar)).thenReturn("8");
                     return tariffCalendar;

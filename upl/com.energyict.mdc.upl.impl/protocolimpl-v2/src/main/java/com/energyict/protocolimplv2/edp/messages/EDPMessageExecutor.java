@@ -1,13 +1,5 @@
 package com.energyict.protocolimplv2.edp.messages;
 
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.ResultType;
-
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Integer16;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -24,8 +16,16 @@ import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimpl.utils.TempFileLoader;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
@@ -35,18 +35,18 @@ import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.PublicLightingDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
-import sun.misc.BASE64Decoder;
 
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Scanner;
 import java.util.TimeZone;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.beginDatesAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.configUserFileAttributeName;
@@ -57,7 +57,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.offOf
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.onOffsetsAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.relayNumberAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.relayOperatingModeAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysCodeTableAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysAttributeName;
 
 /**
  * Copyrights EnergyICT
@@ -196,7 +196,7 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
 
     private void writeSpecialDays(OfflineDeviceMessage pendingMessage) throws IOException {
         int contract = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, contractAttributeName).getValue());
-        String specialDaysHex = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, specialDaysCodeTableAttributeName).getValue();
+        String specialDaysHex = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, specialDaysAttributeName).getValue();
         long activationDate = Long.parseLong(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarActivationDateAttributeName).getValue());
 
         ObisCode obisCode;
@@ -230,7 +230,7 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
     private void writeActivityCalendar(OfflineDeviceMessage pendingMessage) throws IOException {
         int contract = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, contractAttributeName).getValue());
         String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getValue();
-        String profiles = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarCodeTableAttributeName).getValue();
+        String profiles = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarAttributeName).getValue();
         long epoch = Long.parseLong(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarActivationDateAttributeName).getValue());
 
         ObisCode obisCode;
@@ -294,9 +294,9 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
     }
 
     private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
-        String userFileContents = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
-        BASE64Decoder decoder = new BASE64Decoder();
-        byte[] binaryImage = decoder.decodeBuffer(userFileContents);
+        String path = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
+        String base64encodedImage = new String(TempFileLoader.loadTempFile(path));
+        byte[] binaryImage = Base64.getDecoder().decode(base64encodedImage);
 
         ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
         imageTransfer.setBooleanValue(0x01);    //Meter only takes 0x01 as boolean value "true"

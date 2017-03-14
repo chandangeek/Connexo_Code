@@ -1,5 +1,8 @@
 package com.energyict.protocolimplv2.eict.webrtuz3;
 
+import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.modem.rxtx.RxTxAtModemConnectionType;
 import com.energyict.mdc.channels.serial.modem.serialio.SioAtModemConnectionType;
@@ -15,7 +18,6 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -32,10 +34,6 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimpl.properties.TypedProperties;
@@ -63,22 +61,20 @@ import java.util.Optional;
  */
 public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Protocol {
 
+    private final NlsService nlsService;
+    private final Converter converter;
+    private final TariffCalendarExtractor calendarExtractor;
+    private final NumberLookupExtractor numberLookupExtractor;
     private LoadProfileBuilder loadProfileBuilder;
     private LogBookParser logBookParser;
     private WebRTUZ3RegisterFactory registerFactory;
     private WebRTUZ3Messaging webRTUZ3Messaging;
-    private final NlsService nlsService;
-    private final Converter converter;
-    private final TariffCalendarExtractor calendarExtractor;
-    private final DeviceMessageFileExtractor messageFileExtractor;
-    private final NumberLookupExtractor numberLookupExtractor;
 
-    public WebRTUZ3(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, NumberLookupExtractor numberLookupExtractor) {
+    public WebRTUZ3(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
         this.nlsService = nlsService;
         this.converter = converter;
         this.calendarExtractor = calendarExtractor;
-        this.messageFileExtractor = messageFileExtractor;
         this.numberLookupExtractor = numberLookupExtractor;
     }
 
@@ -179,7 +175,7 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
 
     private WebRTUZ3Messaging getMessaging() {
         if (webRTUZ3Messaging == null) {
-            webRTUZ3Messaging = new WebRTUZ3Messaging(this, this.getPropertySpecService(), this.nlsService, this.converter, this.getCollectedDataFactory(), this.getIssueFactory(), calendarExtractor, messageFileExtractor, numberLookupExtractor);
+            webRTUZ3Messaging = new WebRTUZ3Messaging(this, this.getPropertySpecService(), this.nlsService, this.converter, this.getCollectedDataFactory(), this.getIssueFactory(), calendarExtractor, numberLookupExtractor);
         }
         return webRTUZ3Messaging;
     }
@@ -196,8 +192,8 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         return Arrays.asList(
-                    new TcpDeviceProtocolDialect(this.getPropertySpecService()),
-                    new SerialDeviceProtocolDialect(this.getPropertySpecService()));
+                new TcpDeviceProtocolDialect(this.getPropertySpecService()),
+                new SerialDeviceProtocolDialect(this.getPropertySpecService()));
     }
 
     @Override

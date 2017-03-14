@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
@@ -12,7 +11,6 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HexString;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -31,8 +29,8 @@ import java.util.Map;
  */
 public class CryptoDsmr23MessageConverter extends Dsmr23MessageConverter {
 
-    public CryptoDsmr23MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor, NumberLookupExtractor numberLookupExtractor, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter, loadProfileExtractor, numberLookupExtractor, messageFileExtractor, calendarExtractor);
+    public CryptoDsmr23MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor, NumberLookupExtractor numberLookupExtractor, TariffCalendarExtractor calendarExtractor) {
+        super(messagingProtocol, propertySpecService, nlsService, converter, loadProfileExtractor, numberLookupExtractor, calendarExtractor);
     }
 
     @Override
@@ -42,7 +40,7 @@ public class CryptoDsmr23MessageConverter extends Dsmr23MessageConverter {
         registry.put(messageSpec(SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY), new MultipleAttributeMessageEntry(RtuMessageConstant.SERVICEKEY_AK, RtuMessageConstant.SERVICEKEY_PREPAREDDATA, RtuMessageConstant.SERVICEKEY_SIGNATURE, RtuMessageConstant.SERVICEKEY_VERIFYKEY));
         registry.put(messageSpec(SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY), new MultipleAttributeMessageEntry(RtuMessageConstant.SERVICEKEY_EK, RtuMessageConstant.SERVICEKEY_PREPAREDDATA, RtuMessageConstant.SERVICEKEY_SIGNATURE, RtuMessageConstant.SERVICEKEY_VERIFYKEY));
 
-                //Contactor change is (by default) not supported in the crypto protocols
+        //Contactor change is (by default) not supported in the crypto protocols
         registry.remove(messageSpec(ContactorDeviceMessage.CONTACTOR_OPEN));
         registry.remove(messageSpec(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE));
         registry.remove(messageSpec(ContactorDeviceMessage.CONTACTOR_CLOSE));

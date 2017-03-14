@@ -1,11 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimpl.iec1107.abba230.ABBA230;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
@@ -13,12 +12,11 @@ import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-
-import java.nio.charset.Charset;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.nio.charset.Charset;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -81,7 +79,7 @@ public class ABBA230MessageConverterTest extends AbstractMessageConverterTest {
                 UserFile mockedUserFile = mock(UserFile.class);
                 when(mockedUserFile.loadFileInByteArray()).thenReturn("<XML>content_MeterScheme</XML>".getBytes(Charset.forName("UTF-8")));
                 return mockedUserFile;
-            case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
+            case DeviceMessageConstants.firmwareUpdateFileAttributeName:
                 mockedUserFile = mock(UserFile.class);
                 when(mockedUserFile.loadFileInByteArray()).thenReturn("<XML>content_FirmwareUpdate</XML>".getBytes(Charset.forName("UTF-8")));
                 return mockedUserFile;

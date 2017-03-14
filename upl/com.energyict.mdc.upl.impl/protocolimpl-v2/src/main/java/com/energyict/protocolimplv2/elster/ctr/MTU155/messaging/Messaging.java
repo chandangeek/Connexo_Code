@@ -4,7 +4,6 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -16,7 +15,6 @@ import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
-import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
@@ -54,10 +52,9 @@ public class Messaging implements DeviceMessageSupport {
     private final NlsService nlsService;
     private final Converter converter;
     private final TariffCalendarExtractor calendarExtractor;
-    private final DeviceMessageFileExtractor messageFileExtractor;
     private final LoadProfileExtractor loadProfileExtractor;
 
-    public Messaging(MTU155 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, LoadProfileExtractor loadProfileExtractor) {
+    public Messaging(MTU155 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor calendarExtractor, LoadProfileExtractor loadProfileExtractor) {
         this.protocol = protocol;
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
@@ -65,7 +62,6 @@ public class Messaging implements DeviceMessageSupport {
         this.nlsService = nlsService;
         this.converter = converter;
         this.calendarExtractor = calendarExtractor;
-        this.messageFileExtractor = messageFileExtractor;
         this.loadProfileExtractor = loadProfileExtractor;
     }
 
@@ -154,13 +150,12 @@ public class Messaging implements DeviceMessageSupport {
             case DeviceMessageConstants.temporaryKeyAttributeName:
             case DeviceMessageConstants.passwordAttributeName:
                 return ((Password) messageAttribute).getValue();
-            case DeviceMessageConstants.activityCalendarCodeTableAttributeName:
+            case DeviceMessageConstants.activityCalendarAttributeName:
                 return CodeTableBase64Builder.getXmlStringFromCodeTable((TariffCalendar) messageAttribute, this.calendarExtractor);
             case DeviceMessageConstants.loadProfileAttributeName:
                 return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.loadProfileExtractor);
-            case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
-                DeviceMessageFile messageFile = (DeviceMessageFile) messageAttribute;
-                return this.messageFileExtractor.contents(messageFile);
+            case DeviceMessageConstants.firmwareUpdateFileAttributeName:
+                return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
             default:
                 return messageAttribute.toString();
         }

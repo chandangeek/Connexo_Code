@@ -8,7 +8,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
-
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
@@ -49,7 +48,7 @@ public class InHomeDisplayMessaging extends GenericMessaging implements MessageP
 
     private MessageCategorySpec getFirmwareUpgradeMessageCategorySpec() {
         MessageCategorySpec pricingInformationCategory = new MessageCategorySpec("Firmware");
-        pricingInformationCategory.addMessageSpec(addMsgWithValuesAndOptionalValue("Upgrade firmware", RtuMessageConstant.FIRMWARE_UPGRADE, false, RtuMessageConstant.ACTIVATE_DATE, RtuMessageConstant.FIRMWARE));
+        pricingInformationCategory.addMessageSpec(addMsgWithValuesAndOptionalValue("Upgrade firmware", RtuMessageConstant.FIRMWARE_UPGRADE, false, RtuMessageConstant.ACTIVATE_DATE, RtuMessageConstant.FIRMWARE_PATH));
         return pricingInformationCategory;
     }
 
@@ -70,7 +69,7 @@ public class InHomeDisplayMessaging extends GenericMessaging implements MessageP
     @Override
     public String writeTag(final MessageTag msgTag) {
         if (msgTag.getName().equalsIgnoreCase(RtuMessageConstant.FIRMWARE_UPGRADE)) {
-            return writeUserFileTag(msgTag, RtuMessageConstant.FIRMWARE);
+            return writeUserFileTag(msgTag, RtuMessageConstant.FIRMWARE_PATH);
         } else if (msgTag.getName().equalsIgnoreCase(RtuMessageConstant.ZIGBEE_NCP_FIRMWARE_UPGRADE)) {
             return writeUserFileTag(msgTag, RtuMessageConstant.ZIGBEE_NCP_FIRMWARE_FILE_ID);
         } else {

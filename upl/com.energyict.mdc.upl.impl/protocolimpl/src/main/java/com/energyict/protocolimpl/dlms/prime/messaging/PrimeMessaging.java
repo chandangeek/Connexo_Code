@@ -1,8 +1,6 @@
 package com.energyict.protocolimpl.dlms.prime.messaging;
 
 import com.energyict.dlms.DlmsSession;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.protocol.MessageResult;
@@ -21,8 +19,6 @@ import java.util.List;
 public class PrimeMessaging {
 
     private final DlmsSession session;
-    private final DeviceMessageFileFinder deviceMessageFileFinder;
-    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
     private final DisconnectControl disconnectControl;
     private final ClockControl clockControl;
     private final FirmwareUpgrade firmwareUpgrade;
@@ -34,13 +30,11 @@ public class PrimeMessaging {
     private final PasswordSetup passwordSetup;
     private final BasicIntervalSetup basicIntervalSetup;
 
-    public PrimeMessaging(DlmsSession session, PrimeProperties properties, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
+    public PrimeMessaging(DlmsSession session, PrimeProperties properties) {
         this.session = session;
-        this.deviceMessageFileFinder = deviceMessageFileFinder;
-        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
         this.disconnectControl = new DisconnectControl(session);
         this.clockControl = new ClockControl(session);
-        this.firmwareUpgrade = new FirmwareUpgrade(session, properties, deviceMessageFileFinder, deviceMessageFileExtractor);
+        this.firmwareUpgrade = new FirmwareUpgrade(session, properties);
         this.tariffControl = new TariffControl(session);
         this.powerQuality = new PowerQuality(session);
         this.demandResponse = new DemandResponse(session);
@@ -48,33 +42,6 @@ public class PrimeMessaging {
         this.communicationSetup = new CommunicationSetup(session);
         this.passwordSetup = new PasswordSetup(session);
         this.basicIntervalSetup = new BasicIntervalSetup(session);
-    }
-
-    public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
-        if (disconnectControl.canHandle(messageEntry)) {
-            return disconnectControl.execute(messageEntry);
-        } else if (clockControl.canHandle(messageEntry)) {
-            return clockControl.execute(messageEntry);
-        } else if (firmwareUpgrade.canHandle(messageEntry)) {
-            return firmwareUpgrade.execute(messageEntry);
-        } else if (tariffControl.canHandle(messageEntry)) {
-            return tariffControl.execute(messageEntry);
-        } else if (this.powerQuality.canHandle(messageEntry)) {
-        	return this.powerQuality.execute(messageEntry);
-        } else if (this.demandResponse.canHandle(messageEntry)) {
-        	return this.demandResponse.execute(messageEntry);
-        } else if (this.powerFailure.canHandle(messageEntry)) {
-        	return this.powerFailure.execute(messageEntry);
-        } else if (this.communicationSetup.canHandle(messageEntry)) {
-        	return this.communicationSetup.execute(messageEntry);
-        } else if (this.passwordSetup.canHandle(messageEntry)) {
-        	return this.passwordSetup.execute(messageEntry);
-        } else if (this.basicIntervalSetup.canHandle(messageEntry)) {
-        	return this.basicIntervalSetup.execute(messageEntry);
-        }
-
-        session.getLogger().severe("Unable to handle message [" + messageEntry.getContent() + "]!");
-        return MessageResult.createFailed(messageEntry);
     }
 
     public static List<MessageCategorySpec> getMessageCategories() {
@@ -90,5 +57,32 @@ public class PrimeMessaging {
         specs.add(PasswordSetup.getCategorySpec());
 
         return specs;
+    }
+
+    public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
+        if (disconnectControl.canHandle(messageEntry)) {
+            return disconnectControl.execute(messageEntry);
+        } else if (clockControl.canHandle(messageEntry)) {
+            return clockControl.execute(messageEntry);
+        } else if (firmwareUpgrade.canHandle(messageEntry)) {
+            return firmwareUpgrade.execute(messageEntry);
+        } else if (tariffControl.canHandle(messageEntry)) {
+            return tariffControl.execute(messageEntry);
+        } else if (this.powerQuality.canHandle(messageEntry)) {
+            return this.powerQuality.execute(messageEntry);
+        } else if (this.demandResponse.canHandle(messageEntry)) {
+            return this.demandResponse.execute(messageEntry);
+        } else if (this.powerFailure.canHandle(messageEntry)) {
+            return this.powerFailure.execute(messageEntry);
+        } else if (this.communicationSetup.canHandle(messageEntry)) {
+            return this.communicationSetup.execute(messageEntry);
+        } else if (this.passwordSetup.canHandle(messageEntry)) {
+            return this.passwordSetup.execute(messageEntry);
+        } else if (this.basicIntervalSetup.canHandle(messageEntry)) {
+            return this.basicIntervalSetup.execute(messageEntry);
+        }
+
+        session.getLogger().severe("Unable to handle message [" + messageEntry.getContent() + "]!");
+        return MessageResult.createFailed(messageEntry);
     }
 }

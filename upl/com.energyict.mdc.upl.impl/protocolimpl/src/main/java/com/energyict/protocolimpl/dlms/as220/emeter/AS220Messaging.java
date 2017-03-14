@@ -2,8 +2,6 @@ package com.energyict.protocolimpl.dlms.as220.emeter;
 
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
@@ -73,15 +71,11 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
     private final AS220 as220;
     private final TariffCalendarFinder calendarFinder;
     private final TariffCalendarExtractor extractor;
-    private final DeviceMessageFileFinder deviceMessageFileFinder;
-    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
 
-    public AS220Messaging(AS220 as220, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
+    public AS220Messaging(AS220 as220, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor) {
         this.as220 = as220;
         this.calendarFinder = calendarFinder;
         this.extractor = extractor;
-        this.deviceMessageFileFinder = deviceMessageFileFinder;
-        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
         addSupportedMessageTag(CONNECT_EMETER);
         addSupportedMessageTag(DISCONNECT_EMETER);
         addSupportedMessageTag(ARM_EMETER);
@@ -158,7 +152,7 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
                 getAs220().geteMeter().getClockController().setTime();
             } else if (isMessageTag(FIRMWARE_UPDATE, messageEntry)) {
                 getAs220().getLogger().info("FIRMWARE_UPDATE message received");
-                AS220ImageTransfer imageTransfer = new AS220ImageTransfer(this, messageEntry, deviceMessageFileFinder, deviceMessageFileExtractor);
+                AS220ImageTransfer imageTransfer = new AS220ImageTransfer(this, messageEntry);
                 imageTransfer.initiate();
                 imageTransfer.upgrade();
                 imageTransfer.activate();

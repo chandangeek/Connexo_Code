@@ -28,7 +28,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.Multi
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MulticastAddress3AttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activationDatedAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contractsXmlUserFileAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newFirmwareClientPasswordAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newManagementClientPasswordAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newReadingClientPasswordAttributeName;
@@ -96,7 +96,7 @@ public class PrimeMeterMessageConverterTest extends AbstractMessageConverterTest
             UserFile userFile = mock(UserFile.class);
             when(userFile.loadFileInByteArray()).thenReturn("XML content".getBytes());
             return userFile;
-        } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
+        } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
             UserFile userFile = mock(UserFile.class);
             when(userFile.loadFileInByteArray()).thenReturn("Firmware bytes".getBytes());
             return userFile;

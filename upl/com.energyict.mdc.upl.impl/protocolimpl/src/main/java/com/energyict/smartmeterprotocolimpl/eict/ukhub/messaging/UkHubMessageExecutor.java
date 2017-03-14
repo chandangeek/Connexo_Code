@@ -43,6 +43,7 @@ import com.energyict.protocolimpl.generic.csvhandling.TestObject;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimpl.utils.TempFileLoader;
 import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.ObisCodeProvider;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
@@ -248,17 +249,11 @@ public class UkHubMessageExecutor extends MessageParser {
     private void firmwareUpdate(MessageHandler messageHandler, String content, String trackingId) throws IOException {
         log(Level.INFO, "Handling message Firmware upgrade");
 
-        String userFileID = messageHandler.getUserFileId();
         boolean resume = false;
         if ((trackingId != null) && trackingId.toLowerCase().contains(RESUME)) {
             resume = true;
         }
-
-        if (!ParseUtils.isInteger(userFileID)) {
-            String str = "Not a valid entry for the userFile.";
-            throw new IOException(str);
-        }
-        DeviceMessageFile deviceMessageFile = this.messageFileFinder.from(userFileID).orElseThrow(() -> new IllegalArgumentException("Not a valid entry for the userfileID " + userFileID));
+        String path = messageHandler.getFirmwareFilePath();
 
         String[] parts = content.split("=");
         Date date = null;
@@ -277,7 +272,8 @@ public class UkHubMessageExecutor extends MessageParser {
             throw new NestedIOException(e);
         }
 
-        byte[] imageData = new Base64EncoderDecoder().decode(this.messageFileExtractor.binaryContents(deviceMessageFile));
+        byte[] base64EncodedFile = TempFileLoader.loadTempFile(path);
+        byte[] imageData = new Base64EncoderDecoder().decode(base64EncodedFile);
         ImageTransfer it = getCosemObjectFactory().getImageTransfer(ObisCodeProvider.FIRMWARE_UPDATE);
         if (resume) {
             int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
@@ -297,13 +293,8 @@ public class UkHubMessageExecutor extends MessageParser {
 
     private void zigbeeNCPFirmwareUpdate(MessageHandler messageHandler, String content) throws IOException {
         getLogger().info("Executing Zigbee NCP firmware update message");
-        String userFileId = messageHandler.getZigbeeNCPFirmwareUpgradeUserFileId();
-
-        Optional<DeviceMessageFile> deviceMessageFile = messageFileFinder.from(userFileId);
-        if (!deviceMessageFile.isPresent()) {
-            throw new ProtocolException("No UserFile found with ID : " + userFileId);
-        }
-        byte[] bytes = messageFileExtractor.binaryContents(deviceMessageFile.get());
+        String path = messageHandler.getFirmwareFilePath();
+        byte[] base64EncodedFile = TempFileLoader.loadTempFile(path);
 
         String[] parts = content.split("=");
         Date date = null;
@@ -322,7 +313,7 @@ public class UkHubMessageExecutor extends MessageParser {
             throw new NestedIOException(e);
         }
 
-        byte[] imageData = new Base64EncoderDecoder().decode(bytes);
+        byte[] imageData = new Base64EncoderDecoder().decode(base64EncodedFile);
         ImageTransfer it = getCosemObjectFactory().getImageTransfer(ObisCodeProvider.ZIGBEE_NCP_FIRMWARE_UPDATE);
         it.upgrade(imageData);
         if (date != null) {

@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.cbo.TimeDuration;
+import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
@@ -8,9 +10,6 @@ import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
@@ -18,15 +17,14 @@ import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.PricingInformationMessage;
 import com.energyict.smartmeterprotocolimpl.elster.AS300P.AS300P;
-
-import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.text.ParseException;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.text.ParseException;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -148,7 +146,7 @@ public class AS300PMessageConverterTest extends AbstractMessageConverterTest {
                     return "2";
                 case DeviceMessageConstants.StandingChargeAttributeName:
                     return new BigDecimal(1);
-                case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
+                case DeviceMessageConstants.firmwareUpdateFileAttributeName:
                 case DeviceMessageConstants.contractsXmlUserFileAttributeName:
                 case DeviceMessageConstants.PricingInformationUserFileAttributeName:
                     UserFile mockedUserFile = mock(UserFile.class);

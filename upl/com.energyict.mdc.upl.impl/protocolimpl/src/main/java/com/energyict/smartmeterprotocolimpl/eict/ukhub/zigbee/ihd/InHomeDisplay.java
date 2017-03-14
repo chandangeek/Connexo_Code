@@ -38,7 +38,7 @@ public class InHomeDisplay extends UkHub {
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new InHomeDisplayMessaging(new InHomeDisplayMessageExecutor(this, messageFileFinder, messageFileExtractor));
+            messageProtocol = new InHomeDisplayMessaging(new InHomeDisplayMessageExecutor(this));
         }
         return messageProtocol;
     }

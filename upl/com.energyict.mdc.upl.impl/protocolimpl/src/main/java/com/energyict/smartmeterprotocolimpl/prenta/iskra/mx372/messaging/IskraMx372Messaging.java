@@ -236,7 +236,7 @@ public class IskraMx372Messaging extends ProtocolMessages {
 
     private MessageCategorySpec getFirmwareCategory() {
         MessageCategorySpec catFirmware = new MessageCategorySpec(RtuMessageCategoryConstants.FIRMWARE);
-        catFirmware.addMessageSpec(addMessageWithValue("Upgrade Firmware", RtuMessageConstant.FIRMWARE, false));
+        catFirmware.addMessageSpec(addMessageWithValue("Upgrade Firmware", RtuMessageConstant.FIRMWARE_PATH, false));
         return catFirmware;
     }
 

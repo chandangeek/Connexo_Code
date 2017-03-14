@@ -5,8 +5,6 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.GenericRead;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.cache.CachingProtocol;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -30,15 +28,14 @@ import java.util.logging.Level;
 
 /**
  * Prime protocol, that should be able to read all the prime compliant devices (L&G, ZIV, Current, Elster, ...)
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 21/02/12
  * Time: 14:43
  */
 abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol implements SerialNumberSupport, CachingProtocol {
 
-    private final DeviceMessageFileFinder deviceMessageFileFinder;
-    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
+    private final PrimeProperties properties;
     private PrimeProfile loadProfile;
     private PrimeEventLogs eventLogs;
     private PrimeClock clock;
@@ -46,11 +43,8 @@ abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol implements
     private PrimeMeterInfo meterInfo;
     private PrimeMessaging messaging;
     private ProfileCacheImpl cache = new ProfileCacheImpl();
-    private final PrimeProperties properties;
 
-    protected AbstractPrimeMeter(PropertySpecService propertySpecService, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor, NlsService nlsService) {
-        this.deviceMessageFileFinder = deviceMessageFileFinder;
-        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
+    protected AbstractPrimeMeter(PropertySpecService propertySpecService, NlsService nlsService) {
         this.properties = new PrimeProperties(propertySpecService, nlsService);
     }
 
@@ -66,7 +60,7 @@ abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol implements
         this.clock = new PrimeClock(getSession());
         this.meterInfo = new PrimeMeterInfo(getSession());
         this.registers = new PrimeRegisters(getProperties(), getSession(), meterInfo);
-        this.messaging = new PrimeMessaging(getSession(), getProperties(), deviceMessageFileFinder, deviceMessageFileExtractor);
+        this.messaging = new PrimeMessaging(getSession(), getProperties());
     }
 
     @Override

@@ -19,7 +19,6 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
@@ -80,7 +79,6 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
     private final TariffCalendarExtractor calendarExtractor;
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
-    private final DeviceMessageFileExtractor messageFileExtractor;
     private final LoadProfileExtractor loadProfileExtractor;
     /**
      * The offline rtu
@@ -108,14 +106,13 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
     private LoadProfileBuilder loadProfileBuilder;
     private Messaging messaging;
 
-    public MTU155(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, LoadProfileExtractor loadProfileExtractor) {
+    public MTU155(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor calendarExtractor, LoadProfileExtractor loadProfileExtractor) {
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
         this.calendarExtractor = calendarExtractor;
-        this.messageFileExtractor = messageFileExtractor;
         this.loadProfileExtractor = loadProfileExtractor;
         this.securityCapabilities = new Mtu155SecuritySupport(propertySpecService);
     }
@@ -282,7 +279,7 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
 
     public Messaging getMessaging() {
         if (messaging == null) {
-            this.messaging = new Messaging(this, collectedDataFactory, issueFactory, propertySpecService, nlsService, converter, calendarExtractor, this.messageFileExtractor, this.loadProfileExtractor);
+            this.messaging = new Messaging(this, collectedDataFactory, issueFactory, propertySpecService, nlsService, converter, calendarExtractor, this.loadProfileExtractor);
         }
         return messaging;
     }

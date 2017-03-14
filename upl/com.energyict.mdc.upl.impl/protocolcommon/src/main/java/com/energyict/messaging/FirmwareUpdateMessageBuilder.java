@@ -1,12 +1,10 @@
 package com.energyict.messaging;
 
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.protocolimpl.utils.TempFileLoader;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-import java.util.Optional;
+import java.io.IOException;
 
 /**
  * Message builder class responsible of generating and parsing FirmwareUpdate messages.
@@ -22,37 +20,58 @@ public class FirmwareUpdateMessageBuilder extends AbstractMessageBuilder {
 
     private static final String MESSAGETAG = "FirmwareUpdate";
     private static final String TAG_URL = "Url";
-    private static final String TAG_USERFILE = "UserFileId";
-    private final DeviceMessageFileFinder deviceMessageFileFinder;
-    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
 
-    private String userFileContent = null;
+    private String url;
+    private String path;
 
-    public FirmwareUpdateMessageBuilder(DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
-        this.deviceMessageFileFinder = deviceMessageFileFinder;
-        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
+    public FirmwareUpdateMessageBuilder() {
+        super();
     }
 
     protected static String getMessageNodeTag() {
         return MESSAGETAG;
     }
 
-    public String getUserFileContent() {
-        return userFileContent;
+    public static MessageBuilder fromXml(String xmlString) throws SAXException, IOException {
+        MessageBuilder builder = new FirmwareUpdateMessageBuilder();
+        builder.initFromXml(xmlString);
+        return builder;
     }
 
-    protected void setUserFileContent(String userFileContent) {
-        this.userFileContent = userFileContent;
+    public String getUrl() {
+        return url;
     }
 
-    private void setUserFileId(String userFileId) {
-        Optional<DeviceMessageFile> deviceMessageFile = deviceMessageFileFinder.from(userFileId);
-        if (deviceMessageFile.isPresent()) {
-            setUserFileContent(deviceMessageFileExtractor.contents(deviceMessageFile.get()));
-        }
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public byte[] getFirmwareBytes() throws IOException {
+        return TempFileLoader.loadTempFile(getPath());
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 
     // Parsing the message use SAX
+
+    public String getDescription() {
+        StringBuilder builder = new StringBuilder(MESSAGETAG);
+        builder.append(" ");
+        if (url != null) {
+            builder.append("Url='").append(url).append("', ");
+        }
+        if (path != null) {
+            builder.append("Path='").append(getPath()).append("', ");
+        }
+        return builder.toString();
+    }
+
     public AdvancedMessageHandler getMessageHandler(MessageBuilder builder) {
         return new FirmwareUpdateMessageHandler((FirmwareUpdateMessageBuilder) builder, getMessageNodeTag());
     }
@@ -66,6 +85,10 @@ public class FirmwareUpdateMessageBuilder extends AbstractMessageBuilder {
             this.msgBuilder = builder;
         }
 
+        protected AbstractMessageBuilder getMessageBuilder() {
+            return msgBuilder;
+        }
+
         public void startElement(String namespaceURI, String localName,
                                  String qName, Attributes atts) throws SAXException {
             super.startElement(namespaceURI, localName, qName, atts);
@@ -73,18 +96,12 @@ public class FirmwareUpdateMessageBuilder extends AbstractMessageBuilder {
 
         public void endElement(String uri, String localName, String qName) throws SAXException {
             if (TAG_URL.equals(localName)) {
-                //Not used anymore
-            }
-            if (TAG_USERFILE.equals(localName)) {
-                String userFileId = (String) getCurrentValue();
-                if (userFileId != null) {
-                    this.msgBuilder.setUserFileId(userFileId);
-                }
+                msgBuilder.setUrl((String) getCurrentValue());
             }
 
-            // We have an included file...
+            // We have an included path to a temporary file
             if (INCLUDED_USERFILE_TAG.equals(localName)) {
-                this.msgBuilder.setUserFileContent((String) this.getCurrentValue());
+                this.msgBuilder.setPath((String) this.getCurrentValue());
             }
         }
     }

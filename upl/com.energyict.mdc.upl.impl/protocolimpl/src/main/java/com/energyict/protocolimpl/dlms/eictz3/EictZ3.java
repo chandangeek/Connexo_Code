@@ -58,8 +58,6 @@ import com.energyict.mdc.upl.MeterProtocol;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
@@ -329,8 +327,6 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      */
     private static final int FATAL_DEVICE_ERROR = 0x0001;
     private final PropertySpecService propertySpecService;
-    private final DeviceMessageFileFinder deviceMessageFileFinder;
-    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
     private final NlsService nlsService;
     /**
      * The COSEM object factory.
@@ -506,10 +502,8 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      */
     private ApplicationServiceObject aso;
 
-    public EictZ3(PropertySpecService propertySpecService, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor, NlsService nlsService) {
+    public EictZ3(PropertySpecService propertySpecService, NlsService nlsService) {
         this.propertySpecService = propertySpecService;
-        this.deviceMessageFileFinder = deviceMessageFileFinder;
-        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
         this.nlsService = nlsService;
     }
 
@@ -1885,10 +1879,12 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         if (isEpIOFirmwareUpgrade(messageEntry.getContent())) {
             logger.info("Received a firmware upgrade message, using firmware message builder...");
 
-            final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder(deviceMessageFileFinder, deviceMessageFileExtractor);
+            final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder();
 
+            byte[] firmwareBytes;
             try {
                 builder.initFromXml(messageEntry.getContent());
+                firmwareBytes = builder.getFirmwareBytes();
             } catch (final SAXException e) {
                 logger.log(Level.SEVERE, "Cannot process firmware upgrade message due to an XML parsing error [" + e.getMessage() + "]", e);
 
@@ -1902,15 +1898,12 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
                 return MessageResult.createFailed(messageEntry);
             }
 
-            // We requested an inlined file...
-            if (builder.getUserFileContent() != null) {
+            if (firmwareBytes != null) {
                 logger.info("Pulling out user file and dispatching to the device...");
 
-                final byte[] upgradeFileData = builder.getUserFileContent().getBytes();
-
-                if (upgradeFileData.length > 0) {
+                if (firmwareBytes.length > 0) {
                     try {
-                        this.upgradeDevice(upgradeFileData);
+                        this.upgradeDevice(firmwareBytes);
                     } catch (final IOException e) {
                         if (logger.isLoggable(Level.SEVERE)) {
                             logger.log(Level.SEVERE, "Caught an IO error when trying upgrade [" + e.getMessage() + "]", e);
@@ -1918,13 +1911,13 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
                     }
                 } else {
                     if (logger.isLoggable(Level.WARNING)) {
-                        logger.log(Level.WARNING, "Length of the upgrade file is not valid [" + upgradeFileData.length + " bytes], failing message.");
+                        logger.log(Level.WARNING, "Length of the upgrade file is not valid [" + firmwareBytes.length + " bytes], failing message.");
                     }
 
                     return MessageResult.createFailed(messageEntry);
                 }
             } else {
-                logger.log(Level.WARNING, "The message did not contain a user file to use for the upgrade, message fails...");
+                logger.log(Level.WARNING, "The message did not contain a file to use for the upgrade, message fails...");
 
                 return MessageResult.createFailed(messageEntry);
             }

@@ -28,7 +28,7 @@ public class BeaconPSKProvider extends G3GatewayPSKProvider {
     }
 
     protected DeviceProtocol newGatewayProtocol(InboundDiscoveryContext context) {
-        return new Beacon3100(context.getPropertySpecService(), context.getNlsService(), context.getConverter(), context.getCollectedDataFactory(), context.getIssueFactory(), context.getObjectMapperService(), context.getDeviceMasterDataExtractor(), context.getDeviceGroupExtractor(), context.getX509Service(), context.getKeyStoreService(), context.getCertificateWrapperExtractor(), context.getMessageFileExtractor(), context.getDeviceExtractor(), context.getCertificateAliasFinder());
+        return new Beacon3100(context.getPropertySpecService(), context.getNlsService(), context.getConverter(), context.getCollectedDataFactory(), context.getIssueFactory(), context.getObjectMapperService(), context.getDeviceMasterDataExtractor(), context.getDeviceGroupExtractor(), context.getX509Service(), context.getKeyStoreService(), context.getCertificateWrapperExtractor(), context.getDeviceExtractor(), context.getCertificateAliasFinder());
     }
 
     protected DlmsSession getDlmsSession(DeviceProtocol gatewayProtocol) {

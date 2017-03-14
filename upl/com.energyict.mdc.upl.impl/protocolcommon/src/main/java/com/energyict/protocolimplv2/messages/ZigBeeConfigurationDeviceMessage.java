@@ -7,7 +7,6 @@ import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
@@ -96,14 +95,14 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecSupplie
     ZigBeeNCPFirmwareUpdateWithUserFile(6011, "ZigBee NCP firmware update with user file") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(this.messageFileSpec(service, DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName, DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeDefaultTranslation));
+            return Collections.singletonList(this.messageFileSpec(service, DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateFileAttributeName, DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateFileAttributeDefaultTranslation));
         }
     },
     ZigBeeNCPFirmwareUpdateWithUserFileAndActivate(6012, "ZigBee NCP firmware update with user file and activation date") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.messageFileSpec(service, DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName, DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeDefaultTranslation),
+                    this.messageFileSpec(service, DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateFileAttributeName, DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateFileAttributeDefaultTranslation),
                     this.dateTimeSpec(service, DeviceMessageConstants.ZigBeeConfigurationActivationDateAttributeName, DeviceMessageConstants.ZigBeeConfigurationActivationDateAttributeDefaultTranslation)
             );
         }

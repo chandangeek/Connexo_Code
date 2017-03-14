@@ -11,7 +11,6 @@ import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
-
 import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
@@ -42,7 +41,7 @@ import java.util.TimeZone;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.TIME_OUT_NOT_ADDRESSEDAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.actionWhenUnderThresholdAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.alarmFilterAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.capturePeriodAttributeName;
@@ -54,20 +53,20 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emerg
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileGroupIdListAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileIdAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyThresholdAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.monitoredValueAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.normalThresholdAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.phaseAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.relayNumberAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.resumeFirmwareUpdateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysCodeTableAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.thresholdInAmpereAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.underThresholdDurationAttributeName;
 
 /**
  * Represents a MessageConverter for the legacy IDIS protocol
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 8/03/13
  * Time: 16:26
@@ -77,6 +76,12 @@ public class IDISMessageConverter extends AbstractMessageConverter {
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("dd/mm/yyyy hh:mm");
     private final DeviceMessageFileExtractor deviceMessageFileExtractor;
     private final TariffCalendarExtractor calendarExtractor;
+
+    protected IDISMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor calendarExtractor) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
+        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
+        this.calendarExtractor = calendarExtractor;
+    }
 
     private static String[] getLimiterAttributes() {
         String[] result = new String[10];
@@ -91,12 +96,6 @@ public class IDISMessageConverter extends AbstractMessageConverter {
         result[8] = "Emergency profile group id list (comma separated, e.g. 1,2,3)";
         result[9] = "Action when under threshold (0: nothing, 2: reconnect)";
         return result;
-    }
-
-    protected IDISMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor calendarExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
-        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
-        this.calendarExtractor = calendarExtractor;
     }
 
     @Override
@@ -117,15 +116,16 @@ public class IDISMessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(contactorActivationDateAttributeName)) {
             SIMPLE_DATE_FORMAT.setTimeZone(TimeZone.getDefault());  //Use system timezone
             return SIMPLE_DATE_FORMAT.format((Date) messageAttribute);
-        } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
+        } else if (propertySpec.getName().equals(activityCalendarAttributeName)) {
             return convertCodeTableToXML((TariffCalendar) messageAttribute, this.calendarExtractor);
-        } else if (propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
+        } else if (propertySpec.getName().equals(specialDaysAttributeName)) {
             return convertSpecialDaysCodeTableToXML((TariffCalendar) messageAttribute, this.calendarExtractor);
         } else if (propertySpec.getName().equals(resumeFirmwareUpdateAttributeName)) {
             return messageAttribute.toString();
-        } else if (propertySpec.getName().equals(configUserFileAttributeName)
-                || propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
+        } else if (propertySpec.getName().equals(configUserFileAttributeName)) {
             return this.deviceMessageFileExtractor.contents((DeviceMessageFile) messageAttribute);  //Bytes of the userFile, as a string
+        } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
+            return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
         } else if (propertySpec.getName().equals(monitoredValueAttributeName)) {
             return String.valueOf(MonitoredValue.fromDescription(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(actionWhenUnderThresholdAttributeName)) {
@@ -147,8 +147,8 @@ public class IDISMessageConverter extends AbstractMessageConverter {
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
         return ImmutableMap
                 .<DeviceMessageSpec, MessageEntryCreator>builder()
-                .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME), new ActivityCalendarMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName))
-                .put(messageSpec(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND), new SpecialDaysMessageEntry(specialDaysCodeTableAttributeName))
+                .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME), new ActivityCalendarMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarAttributeName))
+                .put(messageSpec(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND), new SpecialDaysMessageEntry(specialDaysAttributeName))
                 .put(messageSpec(AlarmConfigurationMessage.RESET_ALL_ALARM_BITS), new SimpleTagMessageEntry("ResetAllAlarmBits"))
                 .put(messageSpec(AlarmConfigurationMessage.RESET_ALL_ERROR_BITS), new SimpleTagMessageEntry("ResetAllErrorBits"))
                 .put(messageSpec(AlarmConfigurationMessage.WRITE_ALARM_FILTER), new MultipleAttributeMessageEntry("WriteAlarmFilter", "Alarm filter (decimal value)"))
@@ -166,7 +166,7 @@ public class IDISMessageConverter extends AbstractMessageConverter {
                 .put(messageSpec(LoadProfileMessage.WRITE_CAPTURE_PERIOD_LP2), new MultipleAttributeMessageEntry("WriteLP2CapturePeriod", "Capture period (seconds)"))
                 .put(messageSpec(MBusSetupDeviceMessage.Commission), new SimpleTagMessageEntry("SlaveCommission"))
                 .put(messageSpec(PLCConfigurationDeviceMessage.SetTimeoutNotAddressed), new MultipleAttributeMessageEntry("SetTimeOutNotAddressed", "timeout_not_addressed"))
-                .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION), new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName, resumeFirmwareUpdateAttributeName))
+                .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION), new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateFileAttributeName, resumeFirmwareUpdateAttributeName))
                 .build();
     }
 

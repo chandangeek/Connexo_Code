@@ -57,7 +57,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.day;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.enableAutomaticDemandResetAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.enableDSTAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.hour;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysCodeTableAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysAttributeName;
 
 /**
  * @author sva
@@ -187,7 +187,7 @@ public class MessageFactory implements DeviceMessageSupport {
 
     private void configureHolidayList(OfflineDeviceMessage pendingMessage) throws AbntException {
         AbntActivityCalendarXmlParser activityCalendarXmlParser = new AbntActivityCalendarXmlParser();
-        activityCalendarXmlParser.parseContent(getDeviceMessageAttributeValue(pendingMessage, specialDaysCodeTableAttributeName));
+        activityCalendarXmlParser.parseContent(getDeviceMessageAttributeValue(pendingMessage, specialDaysAttributeName));
 
         HolidayRecords holidayRecords = new HolidayRecords();
         for (String holiday : activityCalendarXmlParser.getSpecialDays()) {

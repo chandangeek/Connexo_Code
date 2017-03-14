@@ -29,7 +29,7 @@ import java.util.Date;
 import java.util.Map;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.dayOfMonth;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.dayOfWeek;
@@ -68,7 +68,7 @@ public class ActarisSL7000MessageConverter extends AbstractMessageConverter {
                     .put(messageSpec(DeviceActionMessage.BILLING_RESET), new DemandResetMessageEntry())
 
                     // Time of use
-                    .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME), new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName))
+                    .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME), new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarAttributeName))
                     .build();
     }
 
@@ -81,7 +81,7 @@ public class ActarisSL7000MessageConverter extends AbstractMessageConverter {
                 return ((Boolean) messageAttribute).booleanValue() ? "1" : "0";
             case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime()); //Millis since 1970
-            case activityCalendarCodeTableAttributeName:
+            case activityCalendarAttributeName:
                 TariffCalendar calender = (TariffCalendar) messageAttribute;
                 return this.tariffCalendarExtractor.id(calender) + TimeOfUseMessageEntry.SEPARATOR + encode(calender); //The ID and the XML representation of the code table, separated by a |
             default:

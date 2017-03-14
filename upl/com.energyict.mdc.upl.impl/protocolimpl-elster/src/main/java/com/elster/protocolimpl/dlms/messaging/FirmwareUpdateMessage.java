@@ -1,11 +1,11 @@
 package com.elster.protocolimpl.dlms.messaging;
 
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-
 import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleImageTransferObject;
 import com.elster.protocols.streams.TimeoutIOException;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.protocolimpl.utils.TempFileLoader;
 import sun.misc.BASE64Decoder;
 
 import java.io.ByteArrayInputStream;
@@ -40,11 +40,12 @@ public abstract class FirmwareUpdateMessage extends AbstractDlmsMessage {
         int start = messageEntry.getContent().indexOf("<" + ATTR_CODE_FIRMWAREFILE + ">");
         int end = messageEntry.getContent().indexOf("</" + ATTR_CODE_FIRMWAREFILE + ">");
 
-        String firmwareFile = messageEntry.getContent().substring(start + 2 + ATTR_CODE_FIRMWAREFILE.length(), end);
+        String path = messageEntry.getContent().substring(start + 2 + ATTR_CODE_FIRMWAREFILE.length(), end);
 
         try {
+            String base64EncodedImage = new String(TempFileLoader.loadTempFile(path));
             BASE64Decoder decoder = new BASE64Decoder();
-            byte[] decodedBytes = decoder.decodeBuffer(firmwareFile);
+            byte[] decodedBytes = decoder.decodeBuffer(base64EncodedImage);
 
             String identifier = getFirmwareIdentifier(decodedBytes);
 
@@ -80,8 +81,7 @@ public abstract class FirmwareUpdateMessage extends AbstractDlmsMessage {
             throw new IOException("Image transfer not enabled");
         }
 
-        if (isSameImage(imageTransferObject, imageSize, identifier)   )
-        {
+        if (isSameImage(imageTransferObject, imageSize, identifier)) {
             getLogger().info("continuing transfer image");
             switch (imageTransferObject.getImageTransferStatus()) {
                 case IMAGE_ACTIVATION_FAILED:

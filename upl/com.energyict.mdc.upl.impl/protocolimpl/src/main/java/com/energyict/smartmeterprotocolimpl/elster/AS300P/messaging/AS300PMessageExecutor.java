@@ -1,8 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.elster.AS300P.messaging;
 
-import com.energyict.mdc.upl.io.NestedIOException;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -23,6 +20,8 @@ import com.energyict.dlms.cosem.GenericInvoke;
 import com.energyict.dlms.cosem.GenericWrite;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
@@ -30,6 +29,7 @@ import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.utils.TempFileLoader;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.messaging.xml.XMLParser;
 import com.energyict.smartmeterprotocolimpl.elster.AS300P.AS300PObisCodeProvider;
 
@@ -369,7 +369,8 @@ public class AS300PMessageExecutor extends MessageParser {
 
     private void updateFirmware(MessageEntry messageEntry) throws IOException {
         log(Level.INFO, "Upgrade firmware message received.");
-        String userFileContent = getIncludedContent(messageEntry.getContent());
+        String path = getIncludedContent(messageEntry.getContent());
+        byte[] userFileContent = TempFileLoader.loadTempFile(path);
 
         Date activationDate = null;
         String activationDateString = getValueFromXMLTag(RtuMessageConstant.ACTIVATION_DATE, messageEntry.getContent());

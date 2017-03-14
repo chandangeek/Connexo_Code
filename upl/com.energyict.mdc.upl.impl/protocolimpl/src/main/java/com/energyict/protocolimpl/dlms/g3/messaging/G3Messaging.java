@@ -51,6 +51,7 @@ import com.energyict.protocolimpl.messaging.AnnotatedMessaging;
 import com.energyict.protocolimpl.messaging.RtuMessageHandler;
 import com.energyict.protocolimpl.messaging.messages.FirmwareUpdateMessage;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimpl.utils.TempFileLoader;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
@@ -372,7 +373,10 @@ public class G3Messaging extends AnnotatedMessaging {
         }
 
         this.session.getLogger().info("Sending firmware upgrade message");
-        byte[] firmwareBytes = new Base64EncoderDecoder().decode(splitContent2[0]);
+        String path = splitContent2[0];
+
+        String base64EncodedImage = new String(TempFileLoader.loadTempFile(path));
+        byte[] firmwareBytes = new Base64EncoderDecoder().decode(base64EncodedImage);
         ImageTransfer imageTransfer = this.session.getCosemObjectFactory().getImageTransfer(imageTransferObisCode);
         imageTransfer.setUsePollingVerifyAndActivate(true);         //Use polling to check the result of the image verification
         if (resume) {
