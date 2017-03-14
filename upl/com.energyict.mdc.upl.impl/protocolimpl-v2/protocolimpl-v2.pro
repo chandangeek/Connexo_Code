@@ -89,9 +89,19 @@
 	public *;
 	protected *;
 }
+-keepnames class com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.message.T210DMessaging
+-keep public class com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.message.T210DMessaging {
+	public *;
+	protected *;
+}
 -keepnames class com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessageExecutor
 -keepnames class com.energyict.protocolimplv2.dlms.idis.am540.messages.AM540MessageExecutor
 -keep public class com.energyict.protocolimplv2.dlms.idis.am540.messages.AM540MessageExecutor {
+	public *;
+	protected *;
+}
+-keepnames class com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.message.T210DMessageExecutor
+-keep public class com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.message.T210DMessageExecutor {
 	public *;
 	protected *;
 }
@@ -132,6 +142,11 @@
 	protected *;
 }
 -keep public class com.energyict.mdc.protocol.inbound.g3.Beacon3100PushEventNotification {
+	public *;
+	protected *;
+}
+-keepnames class com.energyict.mdc.protocol.inbound.idis.T210DPushEventNotification
+-keep public class com.energyict.mdc.protocol.inbound.idis.T210DPushEventNotification {
 	public *;
 	protected *;
 }

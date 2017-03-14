@@ -113,7 +113,7 @@ public class AM130 extends AM500 {
         initDlmsSession(comChannel);
     }
 
-    private void initDlmsSession(ComChannel comChannel) {
+    protected void initDlmsSession(ComChannel comChannel) {
         readFrameCounter(comChannel, (int)getDlmsSessionProperties().getTimeout());
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
     }
