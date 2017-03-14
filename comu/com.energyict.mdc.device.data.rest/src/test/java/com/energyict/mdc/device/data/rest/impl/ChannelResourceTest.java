@@ -14,6 +14,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ValuesRangeConflict;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
@@ -463,6 +464,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channelDataUpdater.editBulkChannelData(anyList())).thenReturn(channelDataUpdater);
         when(channelDataUpdater.confirmChannelData(anyList())).thenReturn(channelDataUpdater);
         when(channelDataUpdater.removeChannelData(anyList())).thenReturn(channelDataUpdater);
+        when(channelDataUpdater.estimateBulkChannelData(anyList())).thenReturn(channelDataUpdater);
+        when(channelDataUpdater.estimateChannelData(anyList())).thenReturn(channelDataUpdater);
         when(channel.startEditingData()).thenReturn(channelDataUpdater);
         when(device.getId()).thenReturn(1L);
         when(channelsContainer.getChannels()).thenReturn(Arrays.asList(meteringChannel));
@@ -1001,11 +1004,14 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testGetEstimationRulesForChannelData() {
+        Finder finder = mock(Finder.class);
         ReadingType readingType = mockReadingType("1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18");
         when(channel.getReadingType()).thenReturn(readingType);
         doReturn(Collections.singletonList(estimationRuleSet)).when(estimationService).getEstimationRuleSets();
         doReturn(Collections.singletonList(estimationRule)).when(estimationRuleSet).getRules();
         doReturn(Collections.singleton(readingType)).when(estimationRule).getReadingTypes();
+        when(deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(estimationRuleSet)).thenReturn(finder);
+        when(finder.find()).thenReturn(Collections.singletonList(estimationRuleSet));
 
         Response response = target("devices/" + "1/channels/" + CHANNEL_ID1 + "/data/estimateWithRule").request().get();
 
