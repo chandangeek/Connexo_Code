@@ -24,7 +24,8 @@ Ext.define('Imt.purpose.controller.Readings', {
         'Uni.store.DataIntervalAndZoomLevels',
         'Imt.purpose.store.RegisterReadings',
         'Imt.usagepointmanagement.store.UsagePointTypes',
-        'Imt.purpose.store.Estimators'
+        'Imt.purpose.store.Estimators',
+        'Imt.purpose.store.EstimationRules'
     ],
 
     models: [

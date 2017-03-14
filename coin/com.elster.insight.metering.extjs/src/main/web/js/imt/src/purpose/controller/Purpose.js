@@ -21,7 +21,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Imt.usagepointmanagement.store.UsagePointTypes',
         'Imt.purpose.store.ValidationTasks',
         'Imt.purpose.store.EstimationTasks',
-        'Imt.usagepointmanagement.store.Periods'
+        'Imt.usagepointmanagement.store.Periods',
+        'Imt.purpose.store.EstimationRules'
     ],
 
     models: [
