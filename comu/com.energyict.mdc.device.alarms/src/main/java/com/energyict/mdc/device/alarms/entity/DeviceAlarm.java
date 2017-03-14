@@ -15,5 +15,5 @@ public interface DeviceAlarm extends Issue {
 
     Boolean isStatusCleared();
 
-    void setClearedStatus();
+    void toggleClearedStatus();
 }

@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.alarms.impl;
 
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.entity.IssueActionClassLoadFailedException;
@@ -17,6 +18,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.alarms.impl.actions.AssignDeviceAlarmAction;
 import com.energyict.mdc.device.alarms.impl.actions.CloseDeviceAlarmAction;
+import com.energyict.mdc.device.alarms.impl.actions.StartProcessAlarmAction;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import com.google.inject.AbstractModule;
@@ -47,6 +49,7 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
     private volatile UserService userService;
     private volatile DataModel dataModel;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile BpmService bpmService;
 
     private Injector injector;
     private Map<String, Provider<? extends IssueAction>> actionProviders = new HashMap<>();
@@ -63,6 +66,7 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
                                      IssueService issueService,
                                      PropertySpecService propertySpecService,
                                      UserService userService,
+                                     BpmService bpmService,
                                      ThreadPrincipalService threadPrincipalService) {
         this();
         setOrmService(ormService);
@@ -71,6 +75,7 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
         setPropertySpecService(propertySpecService);
         setUserService(userService);
         setThreadPrincipalService(threadPrincipalService);
+        setBpmService(bpmService);
 
         activate();
     }
@@ -88,6 +93,7 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(UserService.class).toInstance(userService);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
+                bind(BpmService.class).toInstance(bpmService);
             }
         });
 
@@ -120,6 +126,11 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
     }
 
     @Reference
+    public final void setBpmService(BpmService bpmService) {
+        this.bpmService = bpmService;
+    }
+
+    @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
@@ -141,8 +152,9 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
 
     private void addDefaultActions() {
         try {
-            actionProviders.put(CloseDeviceAlarmAction.class.getName(), injector.getProvider(CloseDeviceAlarmAction.class));
+            actionProviders.put(StartProcessAlarmAction.class.getName(), injector.getProvider(StartProcessAlarmAction.class));
             actionProviders.put(AssignDeviceAlarmAction.class.getName(), injector.getProvider(AssignDeviceAlarmAction.class));
+            actionProviders.put(CloseDeviceAlarmAction.class.getName(), injector.getProvider(CloseDeviceAlarmAction.class));
         } catch (ConfigurationException | ProvisionException e) {
             LOG.warning(e.getMessage());
         }

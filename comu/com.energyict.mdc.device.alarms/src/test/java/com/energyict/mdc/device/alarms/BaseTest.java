@@ -5,6 +5,8 @@
 package com.energyict.mdc.device.alarms;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
@@ -213,7 +215,8 @@ public abstract class BaseTest {
                 new ProtocolApiModule(),
                 new DeviceAlarmModule(),
                 new CalendarModule(),
-                new TimeModule()
+                new TimeModule(),
+                new BpmModule()
         );
 
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
@@ -228,6 +231,7 @@ public abstract class BaseTest {
             injector.getInstance(MasterDataService.class);
             injector.getInstance(DeviceAlarmService.class);
             injector.getInstance(TimeService.class);
+            injector.getInstance(BpmService.class);
             issueService = injector.getInstance(IssueService.class);
             IssueType type = issueService.createIssueType("alarm", MESSAGE_SEED_DEFAULT_TRANSLATION, "ALM");
             issueService.createReason(ALARM_DEFAULT_REASON, type, MESSAGE_SEED_DEFAULT_TRANSLATION, MESSAGE_SEED_DEFAULT_TRANSLATION);
