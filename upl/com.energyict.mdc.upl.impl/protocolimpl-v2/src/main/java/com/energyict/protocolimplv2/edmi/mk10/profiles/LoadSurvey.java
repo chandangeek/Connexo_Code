@@ -15,8 +15,10 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.edmi.common.CommandLineProtocol;
 import com.energyict.protocolimpl.edmi.common.command.CommandFactory;
+import com.energyict.protocolimpl.edmi.common.core.DataType;
 import com.energyict.protocolimpl.edmi.common.core.SurveyChannelTypeParser;
-import com.energyict.protocolimpl.edmi.mk10.registermapping.MK10Register;
+import com.energyict.protocolimpl.edmi.mk10.registermapping.MK10RegisterInformation;
+import com.energyict.protocolimplv2.edmi.mk10.MK10;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -32,13 +34,13 @@ import java.util.TimeZone;
  */
 public class LoadSurvey {
 
-    private static final int BASE_REGISTER_ID = MK10Register.SURVEY1_STARTDATE;
-
     private String meterSerialNumber;
     private TimeZone timeZone;
     private CommandFactory commandFactory;
+    private boolean preventCrossingIntervalBoundaryWhenReading;
     private LoadProfileDescription loadProfileDescription;
     private int baseRegisterId;
+    private int registerId;
 
     private int nrOfChannels;
     private LoadSurveyChannel[] loadSurveyChannels;
@@ -56,7 +58,9 @@ public class LoadSurvey {
         this.setMeterSerialNumber(protocol.getConfiguredSerialNumber());
         this.setTimeZone(protocol.getTimeZone());
         this.setCommandFactory(protocol.getCommandFactory());
+        this.setPreventCrossingIntervalBoundaryWhenReading(((MK10) protocol).getProperties().preventCrossingIntervalBoundaryWhenReading());
         this.setLoadProfileDescription(loadProfileDescription);
+        this.setBaseRegisterId(MK10RegisterInformation.SURVEY_BASE_REGISTER.getRegisterId());
         this.calculateRegisterId();
         this.initialize();
     }
@@ -68,20 +72,20 @@ public class LoadSurvey {
         // Channels and Interval are in the same register (Base registerId + 6)
         // Number of channels -> Bit 0 to 5
         // Interval           -> Bit 6 to 11 (The interval is stored in minutes)
-        int ChannelsIntervalRegister = getCommandFactory().getReadCommand(getBaseRegisterId() + 6).getRegister().getBigDecimal().intValue();
+        int ChannelsIntervalRegister = getCommandFactory().getReadCommand(getRegisterId() + 6, DataType.I_SHORT).getRegister().getBigDecimal().intValue();
         setNrOfChannels((ChannelsIntervalRegister & 0x003F) + 1);   // Always 1 additional channel with the status! Number of load survey channels, excluding the 0 channel.
         setProfileInterval(((ChannelsIntervalRegister & 0x0FC0) >> 6) * 60);
 
-        setFirstEntry(getCommandFactory().getReadCommand(getBaseRegisterId() + 2).getRegister().getBigDecimal().longValue());
-        setLastEntry(getCommandFactory().getReadCommand(getBaseRegisterId() + 4).getRegister().getBigDecimal().longValue());
+        setFirstEntry(getCommandFactory().getReadCommand(getRegisterId() + 2, DataType.L_LONG).getRegister().getBigDecimal().longValue());
+        setLastEntry(getCommandFactory().getReadCommand(getRegisterId() + 4, DataType.L_LONG).getRegister().getBigDecimal().longValue());
         setStoredEntries(getLastEntry() - getFirstEntry());
-        setStartTime(getCommandFactory().getReadCommand(getBaseRegisterId() + 0x00B0).getRegister().getDate()); // The start time of the load survey
+        setStartTime(getCommandFactory().getReadCommand(getRegisterId() + 0x00B0, DataType.T_TIME_DATE_SINCE__1_97).getRegister().getDate()); // The start time of the load survey
 
         setLoadSurveyChannels(new LoadSurveyChannel[getNrOfChannels()]);
         for (int channel = 0; channel < getNrOfChannels() - 1; channel++) {
             LoadSurveyChannel lsc = new LoadSurveyChannel();
-            int tempReg = (BASE_REGISTER_ID + (getLoadProfileDescription().equals(LoadProfileDescription.REGULAR_PROFILE) ? 0x0040 : 0x0060) + channel);
-            int ChannelDef = getCommandFactory().getReadCommand(tempReg).getRegister().getBigDecimal().intValue();
+            int tempReg = (getBaseRegisterId() + (getLoadProfileDescription().equals(LoadProfileDescription.REGULAR_PROFILE) ? 0x0040 : 0x0060) + channel);
+            int ChannelDef = getCommandFactory().getReadCommand(tempReg, DataType.I_SHORT).getRegister().getBigDecimal().intValue();
 
             SurveyChannelTypeParser ctp = new SurveyChannelTypeParser(ChannelDef);
             lsc.setDecimalPointPositionScaling(ctp.getDecimalPointPosition());
@@ -90,11 +94,13 @@ public class LoadSurvey {
             lsc.setObisCode(ctp.getChannelObisCode());
 
             if (ctp.isInstantaneous()) {
-                tempReg = (BASE_REGISTER_ID + (0x0008 + ctp.getInstantaneousType()));
-                BigDecimal bdScalingFactor = getCommandFactory().getReadCommand(tempReg).getRegister().getBigDecimal();
+                tempReg = (getBaseRegisterId() + (0x0008 + ctp.getInstantaneousType()));
+                BigDecimal bdScalingFactor = getCommandFactory().getReadCommand(tempReg, DataType.F_FLOAT).getRegister().getBigDecimal();
                 lsc.setScalingFactor(bdScalingFactor);
+                lsc.markAsInstantaneousChannel();
             } else {
                 lsc.setScalingFactor(ctp.getScalingFactor());
+                lsc.setDecimalPointPositionScaling(ctp.getDecimalPointPosition());
             }
             getLoadSurveyChannels()[channel] = lsc;
         }
@@ -159,6 +165,14 @@ public class LoadSurvey {
         this.commandFactory = commandFactory;
     }
 
+    public boolean preventCrossingIntervalBoundaryWhenReading() {
+        return preventCrossingIntervalBoundaryWhenReading;
+    }
+
+    private void setPreventCrossingIntervalBoundaryWhenReading(boolean preventCrossingIntervalBoundaryWhenReading) {
+        this.preventCrossingIntervalBoundaryWhenReading = preventCrossingIntervalBoundaryWhenReading;
+    }
+
     public LoadProfileDescription getLoadProfileDescription() {
         return loadProfileDescription;
     }
@@ -171,8 +185,16 @@ public class LoadSurvey {
         return baseRegisterId;
     }
 
+    private void setBaseRegisterId(int baseRegisterId) {
+        this.baseRegisterId = baseRegisterId;
+    }
+
+    public int getRegisterId() {
+        return registerId;
+    }
+
     private void calculateRegisterId() {
-        this.baseRegisterId = BASE_REGISTER_ID + getLoadProfileDescription().getSurveyNr();
+        this.registerId = getBaseRegisterId() + getLoadProfileDescription().getSurveyNr();
     }
 
     public int getNrOfChannels() {
@@ -245,5 +267,13 @@ public class LoadSurvey {
             }
         }
         return size;
+    }
+
+    /**
+     * Read the firstEntry from the device again
+     * @return the first entry from the buffer
+     */
+    public long getUpdatedFirstEntry() {
+        return getCommandFactory().getReadCommand(getRegisterId() + 2).getRegister().getBigDecimal().longValue();
     }
 }

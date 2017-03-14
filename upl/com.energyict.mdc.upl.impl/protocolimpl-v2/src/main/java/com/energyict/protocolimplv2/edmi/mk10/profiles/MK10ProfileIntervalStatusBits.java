@@ -7,7 +7,7 @@ import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
  * @author sva
  * @since 27/02/2017 - 15:38
  */
-public class CommandLineProfileIntervalStatusBits implements ProfileIntervalStatusBits {
+public class MK10ProfileIntervalStatusBits implements ProfileIntervalStatusBits {
 
     @Override
     public int getEisStatusCode(int protocolStatusCode) {

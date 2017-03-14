@@ -15,6 +15,7 @@ import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.edmi.common.command.Atlas1FileAccessReadCommand;
 import com.energyict.protocolimpl.edmi.common.command.CommandFactory;
+import com.energyict.protocolimpl.edmi.common.core.DataType;
 import com.energyict.protocolimpl.edmi.common.core.DateTimeBuilder;
 
 import java.util.ArrayList;
@@ -46,8 +47,8 @@ public class EventSurvey {
     public List<MeterProtocolEvent> readFile(Date lastReading) throws ProtocolException {
         Atlas1FileAccessReadCommand farc;
 
-        long firstEntry = getCommandFactory().getReadCommand(BASE_REGISTER_ID + 0x0005 + getLogBookDescription().getEventLogCode()).getRegister().getBigDecimal().longValue();
-        long lastEntry = getCommandFactory().getReadCommand(BASE_REGISTER_ID + 0x000A + getLogBookDescription().getEventLogCode()).getRegister().getBigDecimal().longValue();
+        long firstEntry = getCommandFactory().getReadCommand(BASE_REGISTER_ID + 0x0005 + getLogBookDescription().getEventLogCode(), DataType.L_LONG).getRegister().getBigDecimal().longValue();
+        long lastEntry = getCommandFactory().getReadCommand(BASE_REGISTER_ID + 0x000A + getLogBookDescription().getEventLogCode(), DataType.L_LONG).getRegister().getBigDecimal().longValue();
         int lastReadingSecondsSince1996 = DateTimeBuilder.getSecondsSince1996FromDate(this.commandFactory.getProtocol().getTimeZone(), lastReading);
 
         List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();

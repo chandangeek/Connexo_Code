@@ -57,12 +57,12 @@ public class GeniusFileAccessInfoCommand extends AbstractCommand {
         offset+=4;
         setStartRecord(ProtocolTools.getIntFromBytes(data,offset,4));
         offset+=4;
-        setNumberOfRecords(ProtocolTools.getIntFromBytes(data,offset,2));   //TODO: isn't this 2 bytes?
+        setNumberOfRecords(ProtocolTools.getIntFromBytes(data,offset,4));
         offset+=4;
         setRecordSize(ProtocolTools.getIntFromBytes(data,offset,2));
         offset+=2;
         setFileType(ProtocolTools.getIntFromBytes(data,offset++,1));
-        setFileName(new String(ProtocolUtils.getSubArray(data,offset))); //TODO: why date.length - 2, CRC is already stripped of
+        setFileName(new String(ProtocolUtils.getSubArray(data,offset, data.length -2))); // Strip of last byte, as the name is null (0x00) terminated
     }
     
     public int getRegisterId() {

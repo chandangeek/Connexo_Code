@@ -1,18 +1,27 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
+import com.energyict.cpo.ObjectMapperFactory;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.obis.ObisCode;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.*;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
 public class Beacon3100ClientTypeTest {
 
     @Test
     public void testEquals() throws Exception {
-
-
         Beacon3100ClientType beacon3100ClientType1 = new Beacon3100ClientType(1,1,0,5,3);
         Beacon3100ClientType beacon3100ClientType2 = new Beacon3100ClientType(1,1,0,3,0);
         Beacon3100ClientType beacon3100ClientType3 = new Beacon3100ClientType(1,1,0,3,0);
@@ -27,5 +36,16 @@ public class Beacon3100ClientTypeTest {
         assertTrue(beacon3100ClientType2.equals(beacon3100ClientType3));
         assertFalse(beacon3100ClientType1.equals(beacon3100ClientType2));
         assertFalse(beacon3100ClientType1.equals(beacon3100ClientType3));
+    }
+
+    @Test
+    public void testObisCodesCast() {
+        Set<SchedulableItem> items = new HashSet<>();
+        items.add(new SchedulableItem(new ObisCode(1,1,1,1,1,1,true)));
+        items.add(new SchedulableItem(new ObisCode(2,2,2,2,2,2,false)));
+        List<SchedulableItem> profiles = new ArrayList<>(items);
+        Beacon3100Schedulable schedulable = new Beacon3100Schedulable(null, 1, 1, 1, profiles, null, null);
+        schedulable.updateBufferSizeForAllLoadProfiles(new Unsigned32(10));
+        schedulable.toStructure();
     }
 }

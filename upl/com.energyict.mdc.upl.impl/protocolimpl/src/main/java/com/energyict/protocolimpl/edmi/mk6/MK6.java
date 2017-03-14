@@ -27,6 +27,7 @@ import com.energyict.protocolimpl.edmi.common.command.CommandFactory;
 import com.energyict.protocolimpl.edmi.common.command.TimeInfo;
 import com.energyict.protocolimpl.edmi.common.connection.ExtendedCommandLineConnection;
 import com.energyict.protocolimpl.edmi.common.connection.MiniECommandLineConnection;
+import com.energyict.protocolimpl.edmi.mk6.registermapping.MK6RegisterInformation;
 import com.energyict.protocolimpl.edmi.mk6.registermapping.ObisCodeFactory;
 import com.energyict.protocolimpl.edmi.mk6.registermapping.ObisCodeMapper;
 
@@ -52,10 +53,6 @@ public class MK6 extends AbstractProtocol implements Serializable, CommandLinePr
 
     private static final int DEBUG = 0;
 
-    /**
-     * Generated SerialVersionUID
-     */
-    private static final long serialVersionUID = 4668911907276635756L;
     private transient ExtendedCommandLineConnection commandLineConnection = null;
     private CommandFactory commandFactory = null;
     private ObisCodeFactory obisCodeFactory = null;
@@ -151,16 +148,16 @@ public class MK6 extends AbstractProtocol implements Serializable, CommandLinePr
     }
 
     public String getFirmwareVersion() throws IOException {
-        return "Equipment model id:" + getCommandFactory().getReadCommand(0xF000).getRegister().getString() + "\n" + // Equipment model id
-                "Software revision:" + getCommandFactory().getReadCommand(0xF003).getRegister().getString() + "\n" + // software version
-                "Last version nr:" + getCommandFactory().getReadCommand(0xFC18).getRegister().getString() + "\n" + // last version number
-                "Last revision nr:" + getCommandFactory().getReadCommand(0xFC19).getRegister().getString() + "\n" + // last revision number
-                "Software revision nr:" + getCommandFactory().getReadCommand(0xF090).getRegister().getString() + "\n" + // software revision number
+        return "Equipment model id:" + getCommandFactory().getReadCommand(MK6RegisterInformation.SYSTEM_MODEL_ID).getRegister().getString() + "\n" + // Equipment model id
+                "Software version:" + getCommandFactory().getReadCommand(MK6RegisterInformation.SYSTEM_SOFTWARE_VERSION).getRegister().getString() + "\n" + // software version
+                "Last version nr:" + getCommandFactory().getReadCommand(MK6RegisterInformation.SYSTEM_LAST_VERSION_NUMBER).getRegister().getString() + "\n" + // last version number
+                "Last revision nr:" + getCommandFactory().getReadCommand(MK6RegisterInformation.SYSTEM_LAST_REVISION_NUMBER).getRegister().getString() + "\n" + // last revision number
+                "Software revision nr:" + getCommandFactory().getReadCommand(MK6RegisterInformation.SYSTEM_SOFTWARE_REVISION).getRegister().getString() + "\n" + // software revision number
                 "Serial number:" + getSerialNumber(); // serial number
     }
 
     public String getSerialNumber() {
-        return getCommandFactory().getReadCommand(0xF002).getRegister().getString(); // Serial number
+        return getCommandFactory().getReadCommand(MK6RegisterInformation.SYSTEM_SERIAL_NUMBER).getRegister().getString(); // Serial number
     }
 
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
@@ -263,6 +260,11 @@ public class MK6 extends AbstractProtocol implements Serializable, CommandLinePr
     @Override
     public String getConfiguredSerialNumber() {
         return getInfoTypeSerialNumber();
+    }
+
+    @Override
+    public boolean isMK10() {
+        return false;
     }
 
     /**

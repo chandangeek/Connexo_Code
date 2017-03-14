@@ -8,7 +8,7 @@
  * Open. You can then make changes to the template in the Source Editor.
  */
 
-package com.energyict.protocolimpl.edmi.mk10.registermapping;
+package com.energyict.protocolimpl.edmi.common.registermapping;
 
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
@@ -26,6 +26,13 @@ public class TOURegisterInfo {
     private boolean hasBillingTimestampDate;
     private int decimalPoint;
     private Unit unit;
+
+    /**
+     * Creates a new instance of ObisCodeInfo
+     */
+    public TOURegisterInfo(ObisCode obisCode, int edmiEnergyRegisterId, String description, boolean hasTimeOfMaxDemandDate, boolean hasBillingTimestampDate) {
+        this(obisCode, edmiEnergyRegisterId, description, hasTimeOfMaxDemandDate, hasBillingTimestampDate, -1, null);
+    }
 
     /**
      * Creates a new instance of ObisCodeInfo
@@ -77,9 +84,18 @@ public class TOURegisterInfo {
 
     // Set bits aa to 2 to get the time of maxdemand register,
     // else return a invalid register to generate a "CAN register not found" error when read.
-    public int getEdmiMaxDemandRegisterId() {
+    public int getMK10TimeOfMaxDemandRegisterId() {
         if (this.hasTimeOfMaxDemandDate()) {
-            this.edmiMaxDemandRegisterId = (this.edmiEnergyRegisterId & 0x9FFF) | 0x4000;
+            this.edmiMaxDemandRegisterId = (this.edmiEnergyRegisterId & 0x9FFF) | 0x4000;   // Enforces type 'aa' to 2 (= time of max demand)
+        } else {
+            this.edmiMaxDemandRegisterId = 0xFFFF;
+        }
+        return edmiMaxDemandRegisterId;
+    }
+
+    public int getMK6TimeOfMaxDemandRegisterId() {
+        if (this.hasTimeOfMaxDemandDate()) {
+            this.edmiMaxDemandRegisterId = this.edmiEnergyRegisterId | 0x8000;  // register 8XXXi = time of maximum demand
         } else {
             this.edmiMaxDemandRegisterId = 0xFFFF;
         }

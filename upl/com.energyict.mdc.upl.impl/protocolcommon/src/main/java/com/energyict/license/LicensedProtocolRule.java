@@ -318,16 +318,17 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     Mx382_IDIS(278, "com.energyict.protocolimplv2.dlms.idis.iskra.mx382.Mx382"),
 
     MIGRATION_DUMMY_PROTOCOL(279, "com.energyict.protocolimpl.migration.DummyProtocol"),
-
     T210D(281, "com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.T210D"),
-
     QUAD4(282, "com.elster.us.protocolimpl.landisgyr.quad4.Quad4"),
 
     //Evn crypto protocols
     EVN_CRYPTO_AM540(283, "com.evn.protocolimplv2.dlms.idis.am540.CryptoAM540", FamilyRule.G3_PLC, FamilyRule.ELSTER_IDIS_P2),
     EVN_CRYPTO_BEACON3100(284, "com.evn.protocolimplv2.eict.rtu3.beacon3100.CryptoBeacon3100", FamilyRule.G3_PLC, FamilyRule.ELSTER_IDIS_P2),
+
     T210D_MBUS_DEVICE(285, "com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.MBusDevice"),
-    CRYPTO_T210D(286, "com.sagemcom.protocolimplv2.dlms.idis.T210D.CryptoT210D"),
+    MK10_V2(286, "com.energyict.protocolimplv2.edmi.mk10.MK10", FamilyRule.EDMI),
+    MK6_V2(287, "com.energyict.protocolimplv2.edmi.mk6.MK6"),
+    CRYPTO_T210D(288, "com.sagemcom.protocolimplv2.dlms.idis.T210D.CryptoT210D"),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),

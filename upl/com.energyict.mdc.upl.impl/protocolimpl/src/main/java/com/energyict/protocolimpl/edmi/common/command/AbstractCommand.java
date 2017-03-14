@@ -32,13 +32,16 @@ abstract public class AbstractCommand {
 
     public void invoke() {
         int retries = 0;
-        try {
-            byte[] cmdData = prepareBuild();
-            responseData = getCommandFactory().getProtocol().getCommandLineConnection().sendCommand(cmdData);
-            parseResponseData();
-        } catch (IOException e) {
-            if (retries++ >= getCommandFactory().getProtocol().getMaxNrOfRetries()) {
-                throw ConnectionCommunicationException.numberOfRetriesReached(e, retries);
+        while(true) {
+            try {
+                byte[] cmdData = prepareBuild();
+                responseData = getCommandFactory().getProtocol().getCommandLineConnection().sendCommand(cmdData);
+                parseResponseData();
+                return;
+            } catch (IOException e) {
+                if (retries++ >= getCommandFactory().getProtocol().getMaxNrOfRetries()) {
+                    throw ConnectionCommunicationException.numberOfRetriesReached(e, retries);
+                }
             }
         }
     }

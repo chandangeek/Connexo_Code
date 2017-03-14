@@ -26,6 +26,7 @@ public class LoadSurveyChannel {
 	private Unit unit;
 	private int decimalPointPositionScaling;
 	private BigDecimal scalingFactor;
+	private boolean isInstantaneousChannel;
 	private boolean isStatusChannel;
 	private ObisCode obisCode;
 
@@ -66,6 +67,14 @@ public class LoadSurveyChannel {
 	public void setScalingFactor(BigDecimal scalingFactor) {
 		this.scalingFactor = scalingFactor;
 	}
+
+    public boolean isInstantaneousChannel() {
+        return isInstantaneousChannel;
+    }
+
+    public void markAsInstantaneousChannel() {
+        isInstantaneousChannel = true;
+    }
 
     public boolean isStatusChannel() {
         return isStatusChannel;

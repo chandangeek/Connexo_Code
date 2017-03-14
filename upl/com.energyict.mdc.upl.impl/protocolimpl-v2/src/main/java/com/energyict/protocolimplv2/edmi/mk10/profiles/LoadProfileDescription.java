@@ -8,8 +8,8 @@ import com.energyict.obis.ObisCode;
  */
 public enum LoadProfileDescription {
 
-    REGULAR_PROFILE(0, ObisCode.fromString("0.0.99.1.0.255")),
-    INSTRUMENTATION_PROFILE(1, ObisCode.fromString("0.0.99.2.0.255")),
+    REGULAR_PROFILE(0, ObisCode.fromString("1.0.99.1.0.255")),
+    INSTRUMENTATION_PROFILE(1, ObisCode.fromString("1.0.99.2.0.255")),
     UNKNOWN(-1, ObisCode.fromString("0.0.0.0.0.0"));
 
     private final int surveyNr;

@@ -1,13 +1,117 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
-import com.energyict.cbo.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.BlocksPerCycle;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.BroadcastClientWPort;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayAfterLastBlock;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayBetweenBlockSentFast;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayBetweenBlockSentSlow;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayPerBlock;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.LogicalDeviceLSap;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MaxCycles;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MeterTimeZone;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MulticastClientWPort;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.PadLastBlock;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.RequestedBlockSize;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityLevelBroadcast;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityLevelMulticast;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityLevelUnicast;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityPolicyBroadcast;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityPolicyMulticastV0;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SkipStepActivate;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SkipStepEnable;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SkipStepVerify;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UnicastClientWPort;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UnicastFrameCounterType;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UseTransferredBlockStatus;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.apnAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.certificateEntityAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.certificateIssuerAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.certificateTypeAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.commonNameAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterSerialNumberAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newMasterKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newWrappedEncryptionKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newWrappedMasterKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usernameAttributeName;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.RandomAccessFile;
+import java.io.StringReader;
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.apache.commons.codec.binary.Base64;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.energyict.cbo.ApplicationException;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.CertificateAlias;
+import com.energyict.cbo.CertificateWrapperId;
+import com.energyict.cbo.Password;
+import com.energyict.cbo.PrivateKeyAlias;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.TimeDuration;
+import com.energyict.cbo.Unit;
 import com.energyict.cpo.BusinessObject;
 import com.energyict.cpo.ObjectMapperFactory;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.AssociationLN;
+import com.energyict.dlms.cosem.ConcentratorSetup;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultCode;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.EventPushNotificationConfig;
+import com.energyict.dlms.cosem.FirewallSetup;
+import com.energyict.dlms.cosem.G3NetworkManagement;
+import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.ImageTransfer.RandomAccessFileImageBlockSupplier;
+import com.energyict.dlms.cosem.InactiveFirmwareIC;
+import com.energyict.dlms.cosem.ModemWatchdogConfiguration;
+import com.energyict.dlms.cosem.NTPServerAddress;
+import com.energyict.dlms.cosem.PPPSetup;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.ScheduleManager;
+import com.energyict.dlms.cosem.SecuritySetup;
+import com.energyict.dlms.cosem.UplinkPingConfiguration;
+import com.energyict.dlms.cosem.WebPortalSetupV1;
+import com.energyict.dlms.cosem.WebPortalSetupV1.Role;
+import com.energyict.dlms.cosem.WebPortalSetupV1.WebPortalAuthenticationMechanism;
 import com.energyict.dlms.cosem.methods.NetworkInterfaceType;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
@@ -26,7 +130,12 @@ import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.CertificateWrapper;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.ECCCurve;
+import com.energyict.mdw.core.Group;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
@@ -41,7 +150,11 @@ import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.BeaconCache;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks.Beacon3100LogBookFactory;
-import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.*;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastMeterState;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastProperty;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastProtocolConfiguration;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastSerializer;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastUpgradeState;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.BroadcastUpgrade;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.DeviceInfoSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSerializer;
@@ -51,7 +164,18 @@ import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurat
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
+import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
+import com.energyict.protocolimplv2.messages.DLMSGatewayMessage;
+import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.FirewallConfigurationMessage;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.LogBookDeviceMessage;
+import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
+import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
+import com.energyict.protocolimplv2.messages.UplinkConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
 import com.energyict.protocolimplv2.messages.enums.DLMSGatewayNotificationRelayType;
@@ -61,24 +185,6 @@ import com.energyict.protocolimplv2.messages.validators.KeyMessageChangeValidato
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import com.energyict.util.function.Consumer;
-import org.apache.commons.codec.binary.Base64;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.*;
-import java.math.BigDecimal;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
  * Copyrights EnergyICT
@@ -104,7 +210,13 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     public static final ObisCode SNMP_SETUP_NEW_OBISCODE = ObisCode.fromString("0.128.96.194.0.255");
     public static final ObisCode RTU_DISCOVERY_SETUP_NEW_OBISCODE = ObisCode.fromString("0.128.96.195.0.255");
     public static final ObisCode TIME_SERVER_NEW_OBISCODE = ObisCode.fromString("0.128.96.196.0.255");
+    
+    /** Old (pre-1.9) OBIS of the web portal setup IC. */
+    private static final ObisCode WEB_PORTAL_SETUP_OLD_OBIS = ObisCode.fromString("0.0.128.0.13.255");
+    
+    /** New (1.9 and up) OBIS of the web portal setup IC. */
     public static final ObisCode WEB_PORTAL_CONFIG_NEW_OBISCODE = ObisCode.fromString("0.128.96.197.0.255");
+    
     public static final ObisCode PING_SERVICE_NEW_OBISCODE = ObisCode.fromString("0.160.96.144.0.255");
     public static final ObisCode SCHEDULE_MANAGER_NEW_OBISCODE = ObisCode.fromString("0.187.96.160.0.255");
     public static final ObisCode CLIENT_MANAGER_NEW_OBISCODE = ObisCode.fromString("0.187.96.170.0.255");
@@ -181,7 +293,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.SetModemWatchdogParameters2);
         SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.SetPrimaryDNSAddress);
         SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.SetSecondaryDNSAddress);
-        SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.EnableNetworkInterfacesForWebPortal);
         SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.EnableNetworkInterfacesForSetupObject);
         SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.SetHttpPort);
         SUPPORTED_MESSAGES.add(NetworkConnectivityMessage.SetHttpsPort);
@@ -205,8 +316,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         SUPPORTED_MESSAGES.add(FirewallConfigurationMessage.ConfigureFWGPRS);
         SUPPORTED_MESSAGES.add(FirewallConfigurationMessage.ConfigureFWLAN);
         SUPPORTED_MESSAGES.add(FirewallConfigurationMessage.ConfigureFWWAN);
-        SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD1);
-        SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD2);
         SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD);
         SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetMaxNumberOfHopsAttributeName);
         SUPPORTED_MESSAGES.add(PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName);
@@ -674,8 +783,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = dcMulticastUpgrade(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.ReadMulticastProgress)) {
                         collectedMessage = readMulticastProgress(pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.EnableNetworkInterfacesForWebPortal)) {
-                        enableNetworkInterfaces(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.EnableNetworkInterfacesForSetupObject)) {
                         enableInterfacesForSetupObject(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(LogBookDeviceMessage.ResetMainLogbook)) {
@@ -1661,18 +1768,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         return getCosemObjectFactory().getAssociationLN();
     }
 
-    private void enableNetworkInterfaces(OfflineDeviceMessage pendingMessage) throws IOException {
-        boolean isEthernetWanEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ETHERNET_WAN).getDeviceMessageAttributeValue());
-        boolean isEthernetLanEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ETHERNET_LAN).getDeviceMessageAttributeValue());
-        boolean isWirelessWanEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.WIRELESS_WAN).getDeviceMessageAttributeValue());
-        boolean isIp6_TunnelEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.IP6_TUNNEL).getDeviceMessageAttributeValue());
-        boolean isPlc_NetworkEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.PLC_NETWORK).getDeviceMessageAttributeValue());
-        boolean allInterfacesEnabled = isEthernetWanEnabled && isEthernetLanEnabled && isWirelessWanEnabled && isIp6_TunnelEnabled && isPlc_NetworkEnabled;
-
-        Array interfacesArray = getInterfacesToEnable(isEthernetWanEnabled, isEthernetLanEnabled, isWirelessWanEnabled, isIp6_TunnelEnabled, isPlc_NetworkEnabled, allInterfacesEnabled);
-        getCosemObjectFactory().getWebPortalConfig().enableInterfaces(interfacesArray);
-    }
-
     private void enableInterfacesForSetupObject(OfflineDeviceMessage pendingMessage) throws IOException {
         String attributeName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.setupObjectAttributeName).getDeviceMessageAttributeValue();
         NetworkConnectivityMessage.BeaconSetupObject beaconSetupObject = NetworkConnectivityMessage.BeaconSetupObject.valueOf(attributeName);
@@ -1682,33 +1777,50 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         boolean isIp6_TunnelEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.IP6_TUNNEL).getDeviceMessageAttributeValue());
         boolean isPlc_NetworkEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.PLC_NETWORK).getDeviceMessageAttributeValue());
         boolean allInterfacesEnabled = isEthernetWanEnabled && isEthernetLanEnabled && isWirelessWanEnabled && isIp6_TunnelEnabled && isPlc_NetworkEnabled;
-
-        Array interfacesArray = getInterfacesToEnable(isEthernetWanEnabled, isEthernetLanEnabled, isWirelessWanEnabled, isIp6_TunnelEnabled, isPlc_NetworkEnabled, allInterfacesEnabled);
-        enableInterfacesOnBeaconSetupObject(beaconSetupObject, interfacesArray);
+        
+		final Set<NetworkInterfaceType> enabledInterfaces = this.getInterfacesToEnable(isEthernetWanEnabled, isEthernetLanEnabled, isWirelessWanEnabled, isIp6_TunnelEnabled, isPlc_NetworkEnabled, allInterfacesEnabled);
+        
+        switch (beaconSetupObject) {
+        	case Web_Portal_Config_New_ObisCode: {
+        		final WebPortalSetupV1 webportalSetup = this.getCosemObjectFactory().getWebPortalSetupV1(WEB_PORTAL_SETUP_OLD_OBIS);
+        		webportalSetup.setEnabledInterfaces(enabledInterfaces);
+        		
+        		break;
+        	}
+        	
+        	case Web_Portal_Config_Old_ObisCode: {
+        		final WebPortalSetupV1 webportalSetup = this.getCosemObjectFactory().getWebPortalSetupV1(WEB_PORTAL_CONFIG_NEW_OBISCODE);
+        		webportalSetup.setEnabledInterfaces(enabledInterfaces);
+        		
+        		break;
+        	}
+        	
+	        default: {
+	            Array interfacesArray = new Array();
+	            
+	            for (final NetworkInterfaceType enabledIface : enabledInterfaces) {
+	            	interfacesArray.addDataType(new TypeEnum(enabledIface.getNetworkType()));
+	            }
+	            
+	            enableInterfacesOnBeaconSetupObject(beaconSetupObject, interfacesArray);
+	        }
+        }
     }
 
-    private Array getInterfacesToEnable(boolean isEthernetWanEnabled, boolean isEthernetLanEnabled, boolean isWirelessWanEnabled, boolean isIp6_TunnelEnabled, boolean isPlc_NetworkEnabled, boolean allInterfacesEnabled) {
-        Array interfacesArray = new Array();
+    private final Set<NetworkInterfaceType> getInterfacesToEnable(boolean isEthernetWanEnabled, boolean isEthernetLanEnabled, boolean isWirelessWanEnabled, boolean isIp6_TunnelEnabled, boolean isPlc_NetworkEnabled, boolean allInterfacesEnabled) {
+        final Set<NetworkInterfaceType> enabledInterfaces = EnumSet.noneOf(NetworkInterfaceType.class);
+        
         if (allInterfacesEnabled) {
-            interfacesArray.addDataType(new TypeEnum(NetworkInterfaceType.ALL.getNetworkType()));
+        	enabledInterfaces.add(NetworkInterfaceType.ALL);
         } else {
-            if (isEthernetWanEnabled) {
-                interfacesArray.addDataType(new TypeEnum(NetworkInterfaceType.ETHERNET_WAN.getNetworkType()));
-            }
-            if (isEthernetLanEnabled) {
-                interfacesArray.addDataType(new TypeEnum(NetworkInterfaceType.ETHERNET_LAN.getNetworkType()));
-            }
-            if (isWirelessWanEnabled) {
-                interfacesArray.addDataType(new TypeEnum(NetworkInterfaceType.WIRELESS_WAN.getNetworkType()));
-            }
-            if (isIp6_TunnelEnabled) {
-                interfacesArray.addDataType(new TypeEnum(NetworkInterfaceType.IP6_TUNNEL.getNetworkType()));
-            }
-            if (isPlc_NetworkEnabled) {
-                interfacesArray.addDataType(new TypeEnum(NetworkInterfaceType.PLC_NETWORK.getNetworkType()));
-            }
+        	if (isEthernetLanEnabled) enabledInterfaces.add(NetworkInterfaceType.ETHERNET_LAN);
+        	if (isEthernetWanEnabled) enabledInterfaces.add(NetworkInterfaceType.ETHERNET_WAN);
+        	if (isWirelessWanEnabled) enabledInterfaces.add(NetworkInterfaceType.WIRELESS_WAN);
+        	if (isPlc_NetworkEnabled) enabledInterfaces.add(NetworkInterfaceType.PLC_NETWORK);
+        	if (isIp6_TunnelEnabled) enabledInterfaces.add(NetworkInterfaceType.IP6_TUNNEL);
         }
-        return interfacesArray;
+        
+        return enabledInterfaces;
     }
 
     private void enableInterfacesOnBeaconSetupObject(NetworkConnectivityMessage.BeaconSetupObject beaconSetupObject, Array interfacesArray) throws IOException {
@@ -1730,12 +1842,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 break;
             case RTU_Discovery_New_ObisCode:
                 getCosemObjectFactory().getRtuDiscoverySetup(RTU_DISCOVERY_SETUP_NEW_OBISCODE).enableInterfaces(interfacesArray);
-                break;
-            case Web_Portal_Config_Old_ObisCode:
-                getCosemObjectFactory().getWebPortalConfig().enableInterfaces(interfacesArray);
-                break;
-            case Web_Portal_Config_New_ObisCode:
-                getCosemObjectFactory().getWebPortalConfig(WEB_PORTAL_CONFIG_NEW_OBISCODE).enableInterfaces(interfacesArray);
                 break;
         }
     }
@@ -2013,11 +2119,33 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         getCosemObjectFactory().getWebPortalConfig().changeUser2Password(newPassword);
     }
 
+    /**
+     * Change the password for a particular role.
+     * 
+     * @param 	pendingMessage		The message.
+     * 
+     * @throws 	IOException			If an IO error occurs.
+     */
     private void changeUserPassword(OfflineDeviceMessage pendingMessage) throws IOException {
         String userName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.usernameAttributeName).getDeviceMessageAttributeValue();
         String newPassword = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.passwordAttributeName).getDeviceMessageAttributeValue();
 
-        getCosemObjectFactory().getWebPortalConfig().changeUserPassword(userName, newPassword);
+        this.getWebportalSetupICv1().setPassword(Role.forName(userName), newPassword.getBytes(StandardCharsets.US_ASCII));
+    }
+    
+    /**
+     * Returns the {@link WebPortalSetupV1} instance.
+     * 
+     * @return	The {@link WebPortalSetupV1} instance.
+     * 
+     * @throws 	NotInObjectListException		If the object is not known.
+     */
+    private final WebPortalSetupV1 getWebportalSetupICv1() throws NotInObjectListException {
+    	if (this.readOldObisCodes()) {
+    		return this.getCosemObjectFactory().getWebPortalSetupV1(WEB_PORTAL_SETUP_OLD_OBIS);
+    	} else {
+    		return this.getCosemObjectFactory().getWebPortalSetupV1(WEB_PORTAL_CONFIG_NEW_OBISCODE);
+    	}
     }
 
     private void writeUplinkPingInterval(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -2059,39 +2187,45 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private void setHttpPort(OfflineDeviceMessage pendingMessage) throws IOException {
         String httpPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SetHttpPortAttributeName).getDeviceMessageAttributeValue();
-        getCosemObjectFactory().getWebPortalConfig().setHttpPort(httpPort);
+        
+        this.getWebportalSetupICv1().setHttpsPort(Integer.parseInt(httpPort));
     }
 
     private void setHttpsPort(OfflineDeviceMessage pendingMessage) throws IOException {
         String httpsPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SetHttpsPortAttributeName).getDeviceMessageAttributeValue();
-        getCosemObjectFactory().getWebPortalConfig().setHttpsPort(httpsPort);
+
+        this.getWebportalSetupICv1().setHttpsPort(Integer.parseInt(httpsPort));
     }
 
     private void setMaxLoginAttempts(OfflineDeviceMessage pendingMessage) throws IOException {
-        /*final long logAttempts = Long.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SET_MAX_LOGIN_ATTEMPTS).getDeviceMessageAttributeValue());*/
         String logAttempts = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SET_MAX_LOGIN_ATTEMPTS).getDeviceMessageAttributeValue();
-        getCosemObjectFactory().getWebPortalConfig().setMaxLoginAttempts(logAttempts);
+        
+        this.getWebportalSetupICv1().setMaxLoginAttempts(Integer.parseInt(logAttempts));
     }
 
     private void setLockoutDuration(OfflineDeviceMessage pendingMessage) throws IOException {
         String duration = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SET_LOCKOUT_DURATION).getDeviceMessageAttributeValue();
-        getCosemObjectFactory().getWebPortalConfig().setLockoutDuration(duration);
+        
+        this.getWebportalSetupICv1().setLockoutDuration(Long.parseLong(duration));
     }
 
     private void enableGzipCompression(OfflineDeviceMessage pendingMessage) throws IOException {
         boolean enableGzip = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ENABLE_GZIP_COMPRESSION).getDeviceMessageAttributeValue());
-        getCosemObjectFactory().getWebPortalConfig().enableGzipCompression(enableGzip);
+        
+        this.getWebportalSetupICv1().setGzipEnabled(enableGzip);
     }
 
     private void enableSSL(OfflineDeviceMessage pendingMessage) throws IOException {
         boolean enableSSL = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.enableSSL).getDeviceMessageAttributeValue());
-        getCosemObjectFactory().getWebPortalConfig().enableSSL(enableSSL);
+        
+        this.getWebportalSetupICv1().setGzipEnabled(enableSSL);
     }
 
     private void setAuthenticationMechanism(OfflineDeviceMessage pendingMessage) throws IOException {
         String authName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SET_AUTHENTICATION_MECHANISM).getDeviceMessageAttributeValue();
         int auth = AuthenticationMechanism.fromAuthName(authName);
-        getCosemObjectFactory().getWebPortalConfig().setAuthenticationMechanism(auth);
+        
+        this.getWebportalSetupICv1().setWebPortalAuthenticationMechanism(WebPortalAuthenticationMechanism.forValue(auth));
     }
 
     private void setDeviceLogLevel(OfflineDeviceMessage pendingMessage) throws IOException {

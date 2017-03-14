@@ -223,3 +223,6 @@
 }
 -keepnames class com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties
 -keepnames class com.energyict.protocolimplv2.security.SecurityPropertySpecName
+
+-keepnames class com.energyict.protocolimplv2.edmi.mk10.MK10
+-keepnames class com.energyict.protocolimplv2.edmi.MK6.MK6

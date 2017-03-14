@@ -30,21 +30,21 @@ public class RegisterUnitParser {
             case 'M':
                 return Unit.get(BaseUnit.MINUTE);
             case 'N':
-                return Unit.get("");
+                return Unit.getUndefined();
             case 'O':    
                 return Unit.get(BaseUnit.CUBICMETER);
             case 'P':    
                 return Unit.get(BaseUnit.PERCENT);
             case 'Q': // power factor   
-                return Unit.get("");
+                return Unit.getUndefined();
             case 'R':    
-                return Unit.get("var");
+                return Unit.get(BaseUnit.VOLTAMPEREREACTIVE);
             case 'S':    
-                return Unit.get("VA");
+                return Unit.get(BaseUnit.VOLTAMPERE);
             case 'T':    
                 return Unit.get(BaseUnit.SECOND);
             case 'U': // unknown   
-                return Unit.get("");
+                return Unit.getUndefined();
             case 'V':
                 return Unit.get(BaseUnit.VOLT);
             case 'W':
@@ -52,11 +52,11 @@ public class RegisterUnitParser {
             case 'X':
                 return Unit.get(BaseUnit.WATTHOUR);
             case 'Y':
-                return Unit.get("varh");
+                return Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR);
             case 'Z':
-                return Unit.get("VAh");
+                return Unit.get(BaseUnit.VOLTAMPEREHOUR);
             default: 
-                return Unit.get("");
+                return Unit.getUndefined();
         }
     }
 }

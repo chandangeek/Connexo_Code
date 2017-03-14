@@ -55,15 +55,15 @@ public class ObisCodeMapper {
         // *********************************************************************************
         // General purpose ObisRegisters & abstract general service
         if (obisCode.toString().contains("1.0.96.1.0.255")) {
-            return new RegisterValue(obisCode, getProtocol().getCommandFactory().getReadCommand(MK10Register.SYSTEM_SERIALNUMBER).getRegister().getString());
+            return new RegisterValue(obisCode, getProtocol().getCommandFactory().getReadCommand(MK10RegisterInformation.SYSTEM_SERIAL_NUMBER).getRegister().getString());
         } else if (obisCode.toString().contains("1.0.96.2.0.255")) {
-            return new RegisterValue(obisCode, getProtocol().getCommandFactory().getReadCommand(MK10Register.SYSTEM_MODEL_ID).getRegister().getString());
+            return new RegisterValue(obisCode, getProtocol().getCommandFactory().getReadCommand(MK10RegisterInformation.SYSTEM_MODEL_ID).getRegister().getString());
         } else if (obisCode.toString().contains("1.0.0.2.0.255")) {
-            return new RegisterValue(obisCode, getProtocol().getCommandFactory().getReadCommand(MK10Register.SYSTEM_SOFTWARE_VERSION).getRegister().getString());
+            return new RegisterValue(obisCode, getProtocol().getCommandFactory().getReadCommand(MK10RegisterInformation.SYSTEM_SOFTWARE_VERSION).getRegister().getString());
         } else if (obisCode.toString().contains("1.0.0.2.8.255")) {
-            return new RegisterValue(obisCode, getProtocol().getCommandFactory().getReadCommand(MK10Register.SYSTEM_SOFTWARE_REVISION).getRegister().getString());
+            return new RegisterValue(obisCode, getProtocol().getCommandFactory().getReadCommand(MK10RegisterInformation.SYSTEM_SOFTWARE_REVISION).getRegister().getString());
         } else if (obisCode.toString().contains("1.1.0.2.8.255")) {
-            return new RegisterValue(obisCode, getProtocol().getCommandFactory().getReadCommand(MK10Register.SYSTEM_BOOTLOADER_REVISION).getRegister().getString());
+            return new RegisterValue(obisCode, getProtocol().getCommandFactory().getReadCommand(MK10RegisterInformation.SYSTEM_BOOTLOADER_REVISION).getRegister().getString());
         } else if ((obisCode.toString().contains("1.0.0.1.0.255")) || (obisCode.toString().contains("1.1.0.1.0.255"))) { // billing counter
             return new RegisterValue(obisCode, new Quantity(new BigDecimal("" + getObisCodeFactory().getBillingInfo().getNrOfBillingResets()), Unit.get("")));
         } // billing counter
@@ -76,14 +76,16 @@ public class ObisCodeMapper {
                 throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
             }
         } else if ((obisCode.toString().contains("1.0.0.4.2.255")) || (obisCode.toString().contains("1.1.0.4.2.255"))) { // CT numerator
-            return new RegisterValue(obisCode, new Quantity(getProtocol().getCommandFactory().getReadCommand(MK10Register.CT_MULTIPLIER).getRegister().getBigDecimal(), Unit.get("")));
+            return new RegisterValue(obisCode, new Quantity(getProtocol().getCommandFactory().getReadCommand(MK10RegisterInformation.CT_MULTIPLIER).getRegister().getBigDecimal(), Unit.get("")));
         } else if ((obisCode.toString().contains("1.0.0.4.3.255")) || (obisCode.toString().contains("1.1.0.4.3.255"))) { // VT numerator
-            return new RegisterValue(obisCode, new Quantity(getProtocol().getCommandFactory().getReadCommand(MK10Register.VT_MULTIPLIER).getRegister().getBigDecimal(), Unit.get("")));
+            return new RegisterValue(obisCode, new Quantity(getProtocol().getCommandFactory().getReadCommand(MK10RegisterInformation.VT_MULTIPLIER).getRegister().getBigDecimal(), Unit.get("")));
         } else if ((obisCode.toString().contains("1.0.0.4.5.255")) || (obisCode.toString().contains("1.1.0.4.5.255"))) { // CT denominator
-            return new RegisterValue(obisCode, new Quantity(getProtocol().getCommandFactory().getReadCommand(MK10Register.CT_DIVISOR).getRegister().getBigDecimal(), Unit.get("")));
+            return new RegisterValue(obisCode, new Quantity(getProtocol().getCommandFactory().getReadCommand(MK10RegisterInformation.CT_DIVISOR).getRegister().getBigDecimal(), Unit.get("")));
         } else if ((obisCode.toString().contains("1.0.0.4.6.255")) || (obisCode.toString().contains("1.1.0.4.6.255"))) { // VT denominator
-            return new RegisterValue(obisCode, new Quantity(getProtocol().getCommandFactory().getReadCommand(MK10Register.VT_DIVISOR).getRegister().getBigDecimal(), Unit.get("")));
+            return new RegisterValue(obisCode, new Quantity(getProtocol().getCommandFactory().getReadCommand(MK10RegisterInformation.VT_DIVISOR).getRegister().getBigDecimal(), Unit.get("")));
         } else {
+            //TODO: also map the instantaneous registers (3.2.2 Instantaneous Measurement Registers)
+
             // *********************************************************************************
             // electricity related registers
             return getObisCodeFactory().getRegisterValue(obisCode);

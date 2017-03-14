@@ -260,10 +260,25 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new EventPushNotificationConfig(protocolLink, getObjectReference(obisCode));
     }
 
+    @Deprecated
     public WebPortalConfig getWebPortalConfig() throws NotInObjectListException {
         return new WebPortalConfig(protocolLink, getObjectReference(WebPortalConfig.getDefaultObisCode()));
     }
+    
+    /**
+     * Returns an instance of the {@link WebPortalSetupV1} class (Beacon3100).
+     * 
+     * @param 		obis		Logical name of the instance.
+     * 
+     * @return		An instance of the {@link WebPortalSetupV1}.
+     * 
+     * @throws 		NotInObjectListException		If the instance is not defined.
+     */
+    public final WebPortalSetupV1 getWebPortalSetupV1(final ObisCode obis) throws NotInObjectListException {
+    	return new WebPortalSetupV1(this.protocolLink, this.getObjectReference(obis));
+    }
 
+    @Deprecated
     public WebPortalConfig getWebPortalConfig(ObisCode obisCode) throws NotInObjectListException {
         return new WebPortalConfig(protocolLink, getObjectReference(obisCode));
     }

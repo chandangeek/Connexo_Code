@@ -3,6 +3,9 @@ package com.energyict.protocolimpl.edmi.common.command;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.edmi.common.CommandLineProtocol;
 import com.energyict.protocolimpl.edmi.common.connection.MiniECommandLineConnection;
+import com.energyict.protocolimpl.edmi.common.core.DataType;
+import com.energyict.protocolimpl.edmi.mk10.registermapping.MK10RegisterInformation;
+import com.energyict.protocolimpl.edmi.mk6.registermapping.MK6RegisterInformation;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -70,8 +73,21 @@ public class CommandFactory implements Serializable {
     }
 
     public ReadCommand getReadCommand(int registerId) {
+        return getReadCommand(registerId, null); // If data type left null, it will be read out from the device
+    }
+
+    public ReadCommand getReadCommand(MK6RegisterInformation registerInformation) {
+        return getReadCommand(registerInformation.getRegisterId(), registerInformation.getDataType());
+    }
+
+    public ReadCommand getReadCommand(MK10RegisterInformation registerInformation) {
+        return getReadCommand(registerInformation.getRegisterId(), registerInformation.getDataType());
+    }
+
+    public ReadCommand getReadCommand(int registerId, DataType dataType) {
         ReadCommand rc = new ReadCommand(this);
         rc.setRegisterId(registerId);
+        rc.setPresetDataType(dataType);
         rc.invoke();
         return rc;
     }
@@ -94,7 +110,7 @@ public class CommandFactory implements Serializable {
         return farc;
     }
 
-    public GeniusFileAccessInfoCommand getGeniesFileAccessInfoCommand(int registerId) {
+    public GeniusFileAccessInfoCommand getGeniusFileAccessInfoCommand(int registerId) {
         GeniusFileAccessInfoCommand faic = new GeniusFileAccessInfoCommand(this);
         faic.setRegisterId(registerId);
         faic.invoke();
@@ -102,8 +118,8 @@ public class CommandFactory implements Serializable {
     }
 
     public GeniusFileAccessSearchCommand getGeniusFileAccessSearchForwardCommand(int registerId, Date date) {
-        GeniusFileAccessInfoCommand faic = getGeniesFileAccessInfoCommand(registerId);
-        return getGeniusFileAccessSearchCommand(registerId, faic.getStartRecord(), date, 1);
+        GeniusFileAccessInfoCommand faic = getGeniusFileAccessInfoCommand(registerId);
+        return getGeniusFileAccessSearchCommand(registerId, faic.getStartRecord(), date, 1); // Direction = 1: Searches from the start record forwards
     }
 
     public GeniusFileAccessSearchCommand getGeniusFileAccessSearchForwardCommand(int registerId, long startRecord, Date date) {
@@ -111,7 +127,7 @@ public class CommandFactory implements Serializable {
     }
 
     public GeniusFileAccessSearchCommand getGeniusFileAccessSearchBackwardCommand(int registerId, long startRecord, Date date) {
-        return getGeniusFileAccessSearchCommand(registerId, startRecord, date, 0);
+        return getGeniusFileAccessSearchCommand(registerId, startRecord, date, 0); // Direction = 0: Searches from the start record backwards
     }
 
     public GeniusFileAccessSearchCommand getGeniusFileAccessSearchCommand(int registerId, long startRecord, Date date, int direction) {

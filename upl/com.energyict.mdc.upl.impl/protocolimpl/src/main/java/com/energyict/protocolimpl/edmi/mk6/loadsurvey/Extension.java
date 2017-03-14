@@ -1,13 +1,3 @@
-/*
- * ExtensionControl.java
- *
- * Created on 31 maart 2006, 13:51
- *
- * To change this template, choose Tools | Options and locate the template under
- * the Source Creation and Management node. Right-click the template and choose
- * Open. You can then make changes to the template in the Source Editor.
- */
-
 package com.energyict.protocolimpl.edmi.mk6.loadsurvey;
 
 import java.io.Serializable;
@@ -19,8 +9,6 @@ import java.io.Serializable;
  */
 public class Extension implements Serializable{
     
-	/** Generated SerialVersionUID */
-	private static final long serialVersionUID = 7839896346244404521L;
 	private String name;
     private int registerId;
     
@@ -45,7 +33,4 @@ public class Extension implements Serializable{
     private void setRegisterId(int registerId) {
         this.registerId = registerId;
     }
-    
-    
-    
 }

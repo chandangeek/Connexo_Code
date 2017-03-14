@@ -80,10 +80,6 @@ public class SurveyChannelTypeParser {
             case 0x0B:
                 isInstantaneous = true; // 5 cycle readings, frequency compensated
                 break;
-            case 0x0C:
-            case 0x0D:
-                isPulse = true; // Extra pulse input channels
-                break;
             case 0x0F:
                 isTesting = true; // Reserved for test functions
                 break;
@@ -102,8 +98,8 @@ public class SurveyChannelTypeParser {
             Pair<Integer, Integer> pair = parseTestChannel(regFunction, regValue, scalingCode);
             constructChannelObisCode(pair.getFirst(), Phase.NOT_APPLICABLE, type, pair.getLast());
         } else if (isPulse) {
-            Pair<Integer, Integer> pair = parsePulseChannel(regValue, scalingCode);
-            constructChannelObisCode(pair.getFirst(), Phase.NOT_APPLICABLE, type, pair.getLast());
+            parsePulseChannel(regValue, scalingCode);
+            constructPulseChannelObisCode(regValue, type);
         }
     }
 
@@ -231,9 +227,9 @@ public class SurveyChannelTypeParser {
                 dField = (dField == null) ? 2 : dField;
             case 0x1C:
                 dField = (dField == null) ? 3 : dField;
-                this.unit = Unit.get(BaseUnit.UNITLESS); // Channel value base unit is Unbalanced Voltage 123 or THD Voltage angle A-C
-                this.instantType = POWER;
-                return new Pair<>(regFunction <= 0x09 ? 128 : 129, dField);
+                this.unit = Unit.get(BaseUnit.UNITLESS); // Channel value base unit is Unbalanced Voltage 123 or THD Voltage A-C
+                this.instantType = ANGLE;
+                return new Pair<>(regFunction <= 0x09 ? 128 : 129, dField); // 128 = Unbalance Voltage 123, 129 = THD Voltage ABC
             default:
                 throw new ProtocolException("Load survey channel definition contains invalid/unsupported instantaneous register (function '" + regFunction + "'" + ", value '" + regValue + "')");
         }
@@ -269,10 +265,9 @@ public class SurveyChannelTypeParser {
         }
     }
 
-    private Pair<Integer, Integer> parsePulseChannel(int regValue, int scaling) {
+    private void parsePulseChannel(int regValue, int scaling) {
         this.ScalingFactor = 10 ^ scaling;
         this.unit = Unit.getUndefined();
-        return new Pair<>(82, regValue);
     }
 
     public int getDecimalPointPosition() {
@@ -376,6 +371,10 @@ public class SurveyChannelTypeParser {
 
     private void constructChannelObisCode(int baseObisC, Phase phase, Type type, int eField) {
         this.obisCode = ObisCode.fromString(Utils.format("1.1.{0}.{1}.{2}.255", new Object[]{baseObisC + phase.getOffset(), type.getType(), eField}));
+    }
+
+    private void constructPulseChannelObisCode(int bField, Type type) {
+        this.obisCode = ObisCode.fromString(Utils.format("1.{0}.82.{1}.0.255", new Object[]{bField, type.getType()}));
     }
 
     private enum Phase {
