@@ -214,7 +214,7 @@ class MetrologyConfigurationsInstaller {
         ReadingType readingTypeMonthlyNetWh = meteringService.findReadingTypes(Collections.singletonList(MONTHLY_NET_WH))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType(MONTHLY_NET_WH, "Monthly net Wh"));
+                .orElseGet(() -> meteringService.createReadingType(MONTHLY_NET_WH, "Monthly net kWh"));
         ReadingType readingTypeMonthlyAminusWh = meteringService.findReadingTypes(Collections.singletonList(MONTHLY_A_MINUS_WH))
                 .stream()
                 .findFirst()
@@ -222,7 +222,7 @@ class MetrologyConfigurationsInstaller {
         ReadingType readingTypeYearlyNetWh = meteringService.findReadingTypes(Collections.singletonList(YEARLY_NET_WH))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType(YEARLY_NET_WH, "Yearly net Wh"));
+                .orElseGet(() -> meteringService.createReadingType(YEARLY_NET_WH, "Yearly net kWh"));
         ReadingType readingTypeYearlyAminusWh = meteringService.findReadingTypes(Collections.singletonList(YEARLY_A_MINUS_WH))
                 .stream()
                 .findFirst()

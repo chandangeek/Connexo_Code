@@ -211,28 +211,25 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
 
     private void upgradeResidentialProsumerWith2Meter() {
         Optional<MetrologyConfiguration> usagePointMetrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration("Residential prosumer with 2 meter");
-        if (usagePointMetrologyConfiguration.isPresent() && usagePointMetrologyConfiguration.get()
-                .getDeliverables()
-                .stream()
-                .noneMatch(d -> d.getName().equals("Yearly Net kWh"))) {
+        if (usagePointMetrologyConfiguration.isPresent()) {
             UsagePointMetrologyConfiguration config = (UsagePointMetrologyConfiguration) usagePointMetrologyConfiguration
                     .get();
-            ReadingType readingTypeMonthlyAplusWh = meteringService.findReadingTypes(Collections.singletonList("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+            ReadingType readingTypeMonthlyAplusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.MONTHLY_A_PLUS_WH))
                     .stream()
                     .findFirst()
-                    .orElseGet(() -> meteringService.createReadingType("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
-            ReadingType readingTypeMonthlyNetWh = meteringService.findReadingTypes(Collections.singletonList("13.0.0.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                    .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.MONTHLY_A_PLUS_WH, "A+"));
+            ReadingType readingTypeMonthlyNetWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.MONTHLY_NET_WH))
                     .stream()
                     .findFirst()
-                    .orElseGet(() -> meteringService.createReadingType("13.0.0.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0", "Monthly Net Wh"));
-            ReadingType readingTypeYearlyNetWh = meteringService.findReadingTypes(Collections.singletonList("1001.0.0.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                    .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.MONTHLY_NET_WH, "Monthly Net kWh"));
+            ReadingType readingTypeYearlyNetWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.YEARLY_NET_WH))
                     .stream()
                     .findFirst()
-                    .orElseGet(() -> meteringService.createReadingType("1001.0.0.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0", "Yearly Net Wh"));
-            ReadingType readingTypeYearlyAminusWh = meteringService.findReadingTypes(Collections.singletonList("1001.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                    .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.YEARLY_NET_WH, "Yearly Net kWh"));
+            ReadingType readingTypeYearlyAminusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.YEARLY_A_MINUS_WH))
                     .stream()
                     .findFirst()
-                    .orElseGet(() -> meteringService.createReadingType("1001.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "A-"));
+                    .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.YEARLY_A_MINUS_WH, "A-"));
 
             MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
                     .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
@@ -272,10 +269,14 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
                                         buildNonNegativeNetFormula(config, readingTypeMonthlyNetWh, requirementAplus, requirementAminus, "Monthly Net kWh"));
                             }
                         }
-                        contractBilling.addDeliverable(metrologyConfigurationsInstaller.
-                                buildNonNegativeNetFormula(config, readingTypeYearlyNetWh, requirementAplus, requirementAminus, "Yearly Net kWh"));
-                        contractBilling.addDeliverable(metrologyConfigurationsInstaller.
-                                buildFormulaSingleRequirement(config, readingTypeYearlyAminusWh, requirementAminus, "Yearly A- kWh"));
+                        if (config.getDeliverables().stream().noneMatch(deliverabl -> deliverabl.getName().equals("Yearly Net kWh"))) {
+                            contractBilling.addDeliverable(metrologyConfigurationsInstaller.
+                                    buildNonNegativeNetFormula(config, readingTypeYearlyNetWh, requirementAplus, requirementAminus, "Yearly Net kWh"));
+                        }
+                        if (config.getDeliverables().stream().noneMatch(deliverabl -> deliverabl.getName().equals("Yearly A- kWh"))) {
+                            contractBilling.addDeliverable(metrologyConfigurationsInstaller.
+                                    buildFormulaSingleRequirement(config, readingTypeYearlyAminusWh, requirementAminus, "Yearly A- kWh"));
+                        }
                     }
             );
         }
