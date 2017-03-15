@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
@@ -7,8 +8,6 @@ import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.apache.commons.collections.map.HashedMap;
 
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.axrdencoding.Array;
@@ -30,14 +29,16 @@ public class Beacon3100ProtocolConfiguration {
 	private static final Set<String> IGNORED_PROPERTY_NAMES = new HashSet<>();
 	
 	/** Contains overrides. */
-	private static final Map<String, Object> OVERRIDES = new HashedMap();
+	private static final Map<String, Object> OVERRIDES = new HashMap<>();
 
 	/** Setup the ignores property names set. */
 	static {
 		IGNORED_PROPERTY_NAMES.add(IDIS.CALLING_AP_TITLE);
 		
 		// We'll need to override this one, default for the management client is true.
-		OVERRIDES.put(AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER, Boolean.TRUE);
+		OVERRIDES.put(AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER, Boolean.FALSE);
+		OVERRIDES.put(AM540ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER, Boolean.TRUE);
+		OVERRIDES.put(AM540ConfigurationSupport.VALIDATE_CACHED_FRAMECOUNTER, Boolean.FALSE);
 	}
 	
 	/**
