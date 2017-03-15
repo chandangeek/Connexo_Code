@@ -213,6 +213,11 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         MeterActivationInfo meterActivationInfo = new MeterActivationInfo();
         meterActivationInfo.interval = new IntervalInfo();
         meterActivationInfo.interval.start = null;
+        Meter mock = mock(Meter.class);
+        when(mock.getId()).thenReturn(123456789L);
+        when(meteringService.findMeterByMRID(METER_MRID)).thenReturn(Optional.of(mock));
+        meterActivationInfo.meter = METER_MRID;
+        meterActivationInfo.meterRole = "meterRole";
 
         // Business method
         Response post = target("/usagepoints/" + MRID + "/meteractivations").request().post(Entity.json(meterActivationInfo));

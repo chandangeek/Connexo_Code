@@ -142,11 +142,7 @@ public class MeterActivationResource {
         UsagePoint usagePoint = meteringService.findUsagePointByMRID(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
 
-        if (meterActivationInfo.interval == null || meterActivationInfo.interval.start == null) {
-            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "interval.start");
-        }
 
-        Instant start = Instant.ofEpochMilli(meterActivationInfo.interval.start).truncatedTo(ChronoUnit.MINUTES);
 
         if (meterActivationInfo.meter == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "meter");
@@ -164,6 +160,10 @@ public class MeterActivationResource {
             return meterActivationInfo;
         }
 
+        if (meterActivationInfo.interval == null || meterActivationInfo.interval.start == null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "interval.start");
+        }
+        Instant start = Instant.ofEpochMilli(meterActivationInfo.interval.start).truncatedTo(ChronoUnit.MINUTES);
         if (!usagePoint.getMeterActivations().isEmpty() && start.isBefore(usagePoint.getMeterActivations()
                 .get(usagePoint.getMeterActivations().size() - 1)
                 .getStart())) {
