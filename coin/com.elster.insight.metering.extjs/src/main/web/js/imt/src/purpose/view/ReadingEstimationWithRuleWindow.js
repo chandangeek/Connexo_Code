@@ -9,6 +9,7 @@ Ext.define('Imt.purpose.view.ReadingEstimationWithRuleWindow', {
     title: Uni.I18n.translate('general.estimateValueWithRule', 'IMT', 'Estimate with rule'),
     bothSuspected: false,
     record: null,
+    hasRules: false,
 
     requires: [
         'Uni.util.FormErrorMessage',
@@ -39,29 +40,47 @@ Ext.define('Imt.purpose.view.ReadingEstimationWithRuleWindow', {
                     margin: '10 0 10 20'
                 },
                 {
-                    xtype: 'combobox',
-                    itemId: 'estimation-rule-field',
-                    name: 'estimationRule',
+                    xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('estimationDevice.estimation rule', 'IMT', 'Estimation rule'),
+                    itemId: 'estimator-container',
                     required: true,
-                    editable: false,
-                    store: 'Imt.purpose.store.EstimationRules',
-                    valueField: 'id',
-                    displayField: 'name',
-                    queryMode: 'local',
-                    forceSelection: true,
-                    emptyText: Uni.I18n.translate('general.selectAnEstimationRule', 'IMT', 'Select an estimation rule...'),
-                    listeners: {
-                        change: {
-                            fn: function (implementationCombo, newValue) {
-                                var estimator = implementationCombo.getStore().getById(newValue);
+                    items: [
+                        {
+                            xtype: 'combobox',
+                            itemId: 'estimation-rule-field',
+                            width: 280,
+                            name: 'estimationRule',
+                            editable: false,
+                            store: 'Imt.purpose.store.EstimationRules',
+                            valueField: 'id',
+                            displayField: 'name',
+                            queryMode: 'local',
+                            forceSelection: true,
+                            hidden: !me.hasRules,
+                            emptyText: Uni.I18n.translate('general.selectAnEstimationRule', 'IMT', 'Select an estimation rule...'),
+                            listeners: {
+                                change: {
+                                    fn: function (implementationCombo, newValue) {
+                                        var estimator = implementationCombo.getStore().getById(newValue);
 
-                                estimator && me.down('property-form').loadRecord(estimator);
-                                me.updateLayout();
-                                me.center();
+                                        estimator && me.down('property-form').loadRecord(estimator);
+                                        me.updateLayout();
+                                        me.center();
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            xtype: 'component',
+                            html: Uni.I18n.translate('noEstimationRules.message', 'IMT', 'No applicable estimation rules'),
+                            itemId: 'no-estimation-rules-component',
+                            hidden: me.hasRules,
+                            style: {
+                                'color': '#FF0000',
+                                'margin': '6px 0px 6px 0px'
                             }
                         }
-                    }
+                    ]
                 },
                 {
                     xtype: 'property-form',

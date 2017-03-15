@@ -46,6 +46,10 @@ Ext.define('Imt.purpose.controller.Readings', {
 
     refs: [
         {
+            ref: 'outputChannelMainPage',
+            selector: 'output-channel-main'
+        },
+        {
             ref: 'readingsList',
             selector: '#output-readings #readings-list'
         },
@@ -204,7 +208,8 @@ Ext.define('Imt.purpose.controller.Readings', {
         var me = this,
             validationResult = menu.record.get('validationResult') === 'validationStatus.suspect' ||
                 menu.record.get('estimatedNotSaved') === true,
-            estimationRulesCount = me.getStore('Imt.purpose.store.EstimationRules').getCount();
+            estimationRulesCount = me.getOutputChannelMainPage().controller.hasEstimationRule;
+
         Ext.suspendLayouts();
         menu.down('#estimate-value').setVisible(validationResult);
         menu.down('#estimate-value-with-rule').setVisible(validationResult && estimationRulesCount);
@@ -368,7 +373,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             canEstimateWithRule = false,
             button = me.getReadingsList().down('#readings-bulk-action-button'),
             menu = button.down('menu'),
-            estimationRulesCount = me.getStore('Imt.purpose.store.EstimationRules').getCount();
+            estimationRulesCount = me.getOutputChannelMainPage().controller.hasEstimationRule;
 
         selectedRecords.forEach(function (record) {
             if (canEstimate && canConfirm && canReset) {
@@ -439,10 +444,13 @@ Ext.define('Imt.purpose.controller.Readings', {
     },
 
     estimateWithRule: function (record) {
-        Ext.widget('reading-estimation-with-rule-window', {
-            itemId: 'channel-reading-estimation-with-rule-window',
-            record: record
-        }).show();
+        this.getStore('Imt.purpose.store.EstimationRules').load(function (records) {
+            Ext.widget('reading-estimation-with-rule-window', {
+                itemId: 'channel-reading-estimation-with-rule-window',
+                record: record,
+                hasRules: Boolean(records.length)
+            }).show();
+        });
     },
 
     estimateReadingWithEstimator: function () {

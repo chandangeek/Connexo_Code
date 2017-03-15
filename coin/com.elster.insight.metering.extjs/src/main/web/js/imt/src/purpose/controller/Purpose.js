@@ -58,6 +58,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
         }
     ],
 
+    hasEstimationRule: false,
+
     init: function () {
         this.control({
             'output-channel-main #readings-graph': {
@@ -240,6 +242,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
                         var estimationRulesStore = me.getStore('Imt.purpose.store.EstimationRules');
                         estimationRulesStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId, outputId: outputId}
                         estimationRulesStore.load(function(records){
+                            me.hasEstimationRule = Boolean(records.length);
                             displayPage();
                         });
                     } else {
