@@ -72,6 +72,11 @@ public class CompositeThesaurus implements IThesaurus {
                 .orElseGet(() -> new NlsTranslationFormatImpl(this, nlsStringFor(key)));
     }
 
+    @Override
+    public NlsMessageFormat getSimpleFormat(MessageSeed seed) {
+        return new NlsTranslationFormatImpl(this, nlsStringFor(seed));
+    }
+
     private NlsString nlsStringFor(MessageSeed seed) {
         String key = seed.getKey();
         String defaultFormat = seed.getDefaultFormat();

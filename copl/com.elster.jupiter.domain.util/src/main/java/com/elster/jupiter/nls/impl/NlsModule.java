@@ -50,6 +50,11 @@ public class NlsModule extends AbstractModule {
         }
 
         @Override
+        public NlsMessageFormat getSimpleFormat(MessageSeed seed) {
+            return getFormat(seed);
+        }
+
+        @Override
         public Map<String, String> getTranslationsForCurrentLocale() {
             return Collections.emptyMap();
         }
