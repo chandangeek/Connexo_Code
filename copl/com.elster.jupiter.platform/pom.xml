@@ -282,6 +282,11 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
+                <artifactId>pki.extjs</artifactId>
+                <version>1.0.0${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
                 <artifactId>properties</artifactId>
                 <version>2.2.0${revision}</version>
                 <scope>provided</scope>
@@ -740,6 +745,7 @@
                 <module>../com.elster.jupiter.osgi.goodies</module>
                 <module>../com.elster.jupiter.pki</module>
                 <module>../com.elster.jupiter.pki.rest</module>
+                <module>../com.elster.jupiter.pki.extjs</module>
                 <module>../com.elster.jupiter.properties</module>
                 <module>../com.elster.jupiter.properties.rest</module>
                 <module>../com.elster.jupiter.public.rest.util</module>
