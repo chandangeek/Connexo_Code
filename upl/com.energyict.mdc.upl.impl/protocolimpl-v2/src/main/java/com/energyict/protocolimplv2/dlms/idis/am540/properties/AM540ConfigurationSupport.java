@@ -26,6 +26,9 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.VALIDATE_LOAD_PRO
  */
 public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
 
+	/** Use service specific global ciphering by default. */
+	public static final CipheringType DEFAULT_CIPHERING_TYPE = CipheringType.GLOBAL;
+	
     public static final String AARQ_TIMEOUT_PROPERTY = "AARQTimeout";
     public static final String AARQ_RETRIES_PROPERTY = "AARQRetries";
     public static final String USE_EQUIPMENT_IDENTIFIER_AS_SERIAL = "UseEquipmentIdentifierAsSerialNumber";
@@ -39,8 +42,11 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
     public static final String USE_CACHED_FRAME_COUNTER = "UseCachedFrameCounter";
     public static final String VALIDATE_CACHED_FRAMECOUNTER = "ValidateCachedFrameCounterAndFallback";
     public static final String FRAME_COUNTER_RECOVERY_RETRIES = "FrameCounterRecoveryRetries";
-    public static final String FRAME_COUNTER_RECOVERY_STEP = "FrameCounterRecoveryStep"; 
-    
+    public static final String FRAME_COUNTER_RECOVERY_STEP = "FrameCounterRecoveryStep";
+    public static final String IP_V4_ADDRESS = "IPv4Address";
+    public static final String IP_V6_ADDRESS = "IPv6Address";
+    public static final String SHORT_ADDRESS_PAN = "ShortAddressPAN";
+
     /** 
      * Indicates whether the meter supports hundreths or not.
      * 
@@ -118,10 +124,25 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
                 this.useFixedObjectList(),
                 this.skipSlaveDevices(),
                 this.validateLoadProfileChannelsPropertySpec(),
-                this.cipheringTypePropertySpec()
+                this.cipheringTypePropertySpec(),
+                this.ipV4Address(),
+                this.ipV6Address(),
+                this.shortAddressPan()
         );
     }
-    
+
+    private PropertySpec shortAddressPan() {
+        return PropertySpecFactory.bigDecimalPropertySpec(AM540ConfigurationSupport.SHORT_ADDRESS_PAN);
+    }
+
+    private PropertySpec ipV6Address() {
+        return PropertySpecFactory.stringPropertySpec(AM540ConfigurationSupport.IP_V6_ADDRESS);
+    }
+
+    private PropertySpec ipV4Address() {
+        return PropertySpecFactory.stringPropertySpec(AM540ConfigurationSupport.IP_V4_ADDRESS);
+    }
+
     private PropertySpec frameCounterRecoveryRetries() {
         return PropertySpecFactory.bigDecimalPropertySpec(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_RETRIES, BigDecimal.valueOf(100));
     }
@@ -282,7 +303,7 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
      * 
      * @return	The default ciphering type.
      */
-    protected CipheringType getDefaultCipheringType() {
-    	return CipheringType.GLOBAL;
+    protected final CipheringType getDefaultCipheringType() {
+    	return DEFAULT_CIPHERING_TYPE;
     }
 }
