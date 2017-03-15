@@ -93,6 +93,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     channelModel: null,
     fromSpecification: false,
+    hasEstimationRule: false,
 
     init: function () {
         this.control({
@@ -139,6 +140,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             },
             '#deviceLoadProfileChannelsEditCustomAttributes #channel-custom-attributes-property-form': {
                 showRestoreAllBtn: this.showRestoreAllBtn
+            },
+            '#channel-reading-estimation-with-rule-window #value-to-estimate-radio-group': {
+                change: this.updateEstimateWithRuleWindow
             }
         });
     },
@@ -268,9 +272,18 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             }
         });
         var estimationRulesStore = me.getStore('Mdc.store.EstimationRulesOnChannelMainValue');
-        estimationRulesStore.getProxy().extraParams = {deviceId: deviceId, channelId: channelId}
+        estimationRulesStore.getProxy().extraParams = {deviceId: deviceId, channelId: channelId, isBulk: false};
         estimationRulesStore.load(function(records){
-            onDependenciesLoad();
+            if (records.length) {
+                me.hasEstimationRule = true;
+                onDependenciesLoad();
+            } else {
+                estimationRulesStore.getProxy().extraParams = {deviceId: deviceId, channelId: channelId, isBulk: true};
+                estimationRulesStore.load(function(records){
+                    me.hasEstimationRule = Boolean(records.length);
+                    onDependenciesLoad();
+                });
+            }
         });
     },
 
@@ -445,7 +458,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     beforeShowMenu: function (menu) {
         var me = this,
             validationResult = menu.record.get('validationResult'),
-            estimationRulesCount = me.getStore('Mdc.store.EstimationRulesOnChannelMainValue').getCount(),
+            estimationRulesCount = me.hasEstimationRule,
             mainStatus = false,
             bulkStatus = false;
 
@@ -694,12 +707,15 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         var me = this,
             bothSuspected = false,
             mainValueSuspect = false,
-            bulkValueSuspect = false;
+            bulkValueSuspect = false,
+            estimationRulesStore = me.getStore('Mdc.store.EstimationRulesOnChannelMainValue');
 
         if (!Ext.isArray(record)) {
-            bothSuspected = record.get('validationResult') &&
-                record.get('validationResult').main == 'suspect' &&
-                record.get('validationResult').bulk == 'suspect';
+            if (record.get('validationResult')) {
+                mainValueSuspect = record.get('validationResult').main == 'suspect';
+                bulkValueSuspect = record.get('validationResult').bulk == 'suspect';
+                bothSuspected = mainValueSuspect && bulkValueSuspect;
+            }
         } else {
             Ext.Array.findBy(record, function (item) {
                 mainValueSuspect = item.get('validationResult') && item.get('validationResult').main == 'suspect';
@@ -711,14 +727,37 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             });
             bothSuspected = mainValueSuspect && bulkValueSuspect;
         }
-        Ext.widget('reading-estimation-with-rule-window', {
-            itemId: 'channel-reading-estimation-with-rule-window',
-            record: record,
-            bothSuspected: bothSuspected
-        }).show();
+
+        estimationRulesStore.getProxy().setExtraParam('isBulk', !bothSuspected ? bulkValueSuspect : false);
+        estimationRulesStore.load(function (records) {
+            showWindow(Boolean(records.length));
+        });
+
+        function showWindow(hasRules) {
+            Ext.widget('reading-estimation-with-rule-window', {
+                itemId: 'channel-reading-estimation-with-rule-window',
+                record: record,
+                bothSuspected: bothSuspected,
+                hasRules: hasRules
+            }).show();
+        }
     },
 
+    updateEstimateWithRuleWindow: function (radiogroup, newValue, oldValue, eOpts) {
+        var me = this,
+            estimationRulesStore = me.getStore('Mdc.store.EstimationRulesOnChannelMainValue'),
+            window = me.getReadingEstimationWithRuleWindow();
 
+        estimationRulesStore.getProxy().setExtraParam('isBulk', newValue.isBulk);
+        estimationRulesStore.load(function(records) {
+            var isNotEmpty = Boolean(records.length);
+            Ext.suspendLayouts();
+            window.down('#estimator-field').setVisible(isNotEmpty);
+            window.down('#no-estimation-rules-component').setVisible(!isNotEmpty);
+            window.down('#property-form').removeAll(true);
+            Ext.resumeLayouts(true);
+        });
+    },
 
     estimateReading: function () {
         var me = this,
@@ -1000,7 +1039,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     onDataGridSelectionChange: function (selectionModel, selectedRecords) {
         var me = this,
             button = me.getPage().down('#device-channel-data-bulk-action-button'),
-            estimationRulesCount = me.getStore('Mdc.store.EstimationRulesOnChannelMainValue').getCount(),
+            estimationRulesCount = me.hasEstimationRule,
             menu = button.down('menu');
 
         Ext.suspendLayouts();

@@ -9,6 +9,7 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWithRuleWindow', {
     title: Uni.I18n.translate('general.EstimateWithRule', 'MDC', 'Estimate with rule'),
     bothSuspected: false,
     record: null,
+    hasRules: false,
 
     requires: [
         'Uni.util.FormErrorMessage',
@@ -64,29 +65,47 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWithRuleWindow', {
                     ]
                 },
                 {
-                    xtype: 'combobox',
-                    itemId: 'estimator-field',
-                    name: 'estimatorImpl',
+                    xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('estimationDevice.estimationRule', 'MDC', 'Estimation rule'),
+                    itemId: 'estimator-container',
                     required: true,
-                    editable: false,
-                    store: 'Mdc.store.EstimationRulesOnChannelMainValue',
-                    valueField: 'id',
-                    displayField: 'name',
-                    queryMode: 'local',
-                    forceSelection: true,
-                    emptyText: Uni.I18n.translate('general.selectAnEstimationRule', 'MDC', 'Select an estimation rule...'),
-                    listeners: {
-                        change: {
-                            fn: function (implementationCombo, newValue) {
-                                var estimator = implementationCombo.getStore().getById(newValue);
+                    items: [
+                        {
+                            xtype: 'combobox',
+                            itemId: 'estimator-field',
+                            width: 280,
+                            name: 'estimatorImpl',
+                            editable: false,
+                            store: 'Mdc.store.EstimationRulesOnChannelMainValue',
+                            valueField: 'id',
+                            displayField: 'name',
+                            queryMode: 'local',
+                            forceSelection: true,
+                            hidden: !me.hasRules,
+                            emptyText: Uni.I18n.translate('general.selectAnEstimationRule', 'MDC', 'Select an estimation rule...'),
+                            listeners: {
+                                change: {
+                                    fn: function (implementationCombo, newValue) {
+                                        var estimator = implementationCombo.getStore().getById(newValue);
 
-                                estimator && me.down('property-form').loadRecord(estimator);
-                                me.updateLayout();
-                                me.center();
+                                        estimator && me.down('property-form').loadRecord(estimator);
+                                        me.updateLayout();
+                                        me.center();
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            xtype: 'component',
+                            html: Uni.I18n.translate('noEstimationRules.message', 'MDC', 'No applicable estimation rules'),
+                            itemId: 'no-estimation-rules-component',
+                            hidden: me.hasRules,
+                            style: {
+                                'color': '#FF0000',
+                                'margin': '6px 0px 6px 0px'
                             }
                         }
-                    }
+                    ]
                 },
                 {
                     xtype: 'property-form',
@@ -126,10 +145,8 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWithRuleWindow', {
     },
 
     getEstimator: function(){
-        var me = this;
-        return me.down('#estimator-field')
-            .getStore()
-            .getById(me.down('#estimator-field').getValue())
-            .get('estimatorImpl');
+        var me = this,
+            record = me.down('#estimator-field').getStore().getById(me.down('#estimator-field').getValue());
+        return record ? record.get('estimatorImpl') : '';
     }
 });
