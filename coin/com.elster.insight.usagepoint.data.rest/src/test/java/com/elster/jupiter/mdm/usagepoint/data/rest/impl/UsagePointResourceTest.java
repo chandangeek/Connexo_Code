@@ -544,6 +544,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         verify(effectiveMetrologyConfigurationOnUsagePoint, times(1)).close(now);
     }
 
+
     @Test
     public void testCanActivateAndClearMetersOnUsagePoint() {
         Meter meter1 = mock(Meter.class);
@@ -589,7 +590,8 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         info.version = usagePoint.getVersion();
         info.meterActivations = Arrays.asList(meterActivation1, meterActivation2, meterActivation3);
 
-        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/activatemeters").request().put(Entity.json(info));
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/activatemeters").request()
+                .put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
 
         verify(linker).activate(eq(meter1), eq(meterRole1));
