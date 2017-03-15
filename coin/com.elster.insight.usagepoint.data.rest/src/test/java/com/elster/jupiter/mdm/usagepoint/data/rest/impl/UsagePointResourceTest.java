@@ -515,6 +515,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         info.name = "Test";
         info.version = 1L;
         info.customPropertySets = Collections.singletonList(casInfo);
+        info.activationTime = Instant.now();
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/metrologyconfiguration").queryParam("validate", "true")
                 .queryParam("customPropertySetId", 1L)
                 .request()
@@ -527,7 +528,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         response = target("usagepoints/" + USAGE_POINT_NAME + "/metrologyconfiguration").queryParam("validate", "false").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(200);
-        verify(usagePoint).apply(usagePointMetrologyConfiguration, now);
+        verify(usagePoint).apply(eq(usagePointMetrologyConfiguration), any(Instant.class));
 
         //unlink usage point
 
@@ -741,7 +742,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         verify(usagePointBuilder).create();
         verify(transactionService).getContext();
-        verify(usagePoint).apply(any());
+        verify(usagePoint).apply(any(), any(Instant.class));
     }
 
     @Test
@@ -764,7 +765,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         verify(usagePointLifeCycleService).scheduleTransition(usagePoint, transition, transitionToPerform.effectiveTimestamp, "INS", Collections.emptyMap());
         verify(usagePointBuilder).create();
         verify(transactionService).getContext();
-        verify(usagePoint).apply(any());
+        verify(usagePoint).apply(any(), any(Instant.class));
         verify(usagePointLifeCycleService).scheduleTransition(any(), any(), any(), any(),any());
     }
 
@@ -777,6 +778,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         configurationInfo.id = 1L;
         configurationInfo.name = "Test";
         configurationInfo.version = 1L;
+        configurationInfo.activationTime = Instant.now();
         configurationInfo.customPropertySets = Collections.singletonList(casInfo);
         Meter meter1 = mock(Meter.class);
         when(meter1.getName()).thenReturn("meter1");
