@@ -748,6 +748,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             estimationRulesStore = me.getStore('Mdc.store.EstimationRulesOnChannelMainValue'),
             window = me.getReadingEstimationWithRuleWindow();
 
+        window.down('#estimator-field').reset();
         estimationRulesStore.getProxy().setExtraParam('isBulk', newValue.isBulk);
         estimationRulesStore.load(function(records) {
             var isNotEmpty = Boolean(records.length);
