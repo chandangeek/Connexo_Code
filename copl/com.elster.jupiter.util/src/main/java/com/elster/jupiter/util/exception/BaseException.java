@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.util.exception;
 
+import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.HashMap;
@@ -69,5 +70,9 @@ public abstract class BaseException extends RuntimeException {
 
     public MessageSeed getMessageSeed() {
         return messageSeed;
+    }
+
+    public String getErrorCode() {
+        return messageSeed.getModule() + new DecimalFormat("0000").format(messageSeed.getNumber());
     }
 }
