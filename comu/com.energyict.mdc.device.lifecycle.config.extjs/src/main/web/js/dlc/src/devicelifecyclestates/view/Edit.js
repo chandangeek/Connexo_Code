@@ -9,7 +9,8 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
     requires: [
         'Uni.view.container.ContentContainer',
         'Uni.grid.column.Default',
-        'Uni.grid.column.RemoveAction'
+        'Uni.grid.column.RemoveAction',
+        'Dlc.devicelifecyclestates.store.Stages'
     ],
 
     content: [
@@ -52,6 +53,19 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                     fieldLabel: Uni.I18n.translate('general.name', 'DLC', 'Name'),
                     required: true,
                     hidden: true
+                },
+                {
+                    xtype: 'combobox',
+                    itemId: 'cbo-stage',
+                    name: 'stageName',
+                    msgTarget: 'under',
+                    required: true,
+                    fieldLabel: Uni.I18n.translate('general.Stage', 'DLC', 'Stage'),
+                    store: 'Dlc.devicelifecyclestates.store.Stages',
+                    forceSelection: true,
+                    emptyText: Uni.I18n.translate('deviceLifeCycleStates.selectAStage', 'DLC', 'Select a stage...'),
+                    displayField: 'displayValue',
+                    valueField: 'id'
                 },
                 {
                     xtype: 'fieldcontainer',

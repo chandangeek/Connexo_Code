@@ -29,6 +29,11 @@ Ext.define('Dlc.devicelifecyclestates.view.Grid', {
                 flex: 1
             },
             {
+                header: Uni.I18n.translate('general.stage', 'DLC', 'Stage'),
+                dataIndex: 'stage',
+                flex: 1
+            },
+            {
                 xtype: 'uni-actioncolumn',
                 width: 120,
                 dynamicPrivilege: Dlc.dynamicprivileges.DeviceLifeCycle.viable,
