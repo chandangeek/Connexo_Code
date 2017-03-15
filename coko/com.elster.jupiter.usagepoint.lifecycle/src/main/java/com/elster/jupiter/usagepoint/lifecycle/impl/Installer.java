@@ -65,11 +65,6 @@ public class Installer implements FullInstaller {
                 logger
         );
         doTry(
-                "Create default usage point lifecycle",
-                this::createLifeCycle,
-                logger
-        );
-        doTry(
                 "Set default life cycle to all usage points",
                 this::setInitialStateForInstalledUsagePoints,
                 logger
@@ -106,11 +101,6 @@ public class Installer implements FullInstaller {
                 destinationSpecOptional.get().subscribe(subscriberName, UsagePointLifeCycleService.COMPONENT_NAME, Layer.DOMAIN);
             }
         }
-    }
-
-    private void createLifeCycle() {
-        this.usagePointLifeCycleConfigurationService.newUsagePointLifeCycle(this.thesaurus.getFormat(TranslationKeys.LIFE_CYCLE_NAME).format())
-                .markAsDefault();
     }
 
     private void setInitialStateForInstalledUsagePoints() {

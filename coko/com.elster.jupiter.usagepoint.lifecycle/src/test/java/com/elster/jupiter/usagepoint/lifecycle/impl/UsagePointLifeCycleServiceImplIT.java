@@ -302,7 +302,7 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
         UsagePointLifeCycle lifeCycle = get(UsagePointLifeCycleConfigurationService.class).getDefaultLifeCycle();
         assertThat(lifeCycle.isDefault()).isEqualTo(true);
 
-        assertThat(lifeCycle.getName()).isEqualTo(TranslationKeys.LIFE_CYCLE_NAME.getDefaultFormat());
+        assertThat(lifeCycle.getName()).isEqualTo("Standard usage point life cycle");
 
         Optional<State> underConstruction = lifeCycle.getStates().stream().filter(state -> state.getName().equals(DefaultState.UNDER_CONSTRUCTION.getKey())).findFirst();
         Optional<State> active = lifeCycle.getStates().stream().filter(state -> state.getName().equals(DefaultState.ACTIVE.getKey())).findFirst();
