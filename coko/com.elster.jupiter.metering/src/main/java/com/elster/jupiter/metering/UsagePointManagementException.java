@@ -16,4 +16,8 @@ public class UsagePointManagementException extends UsagePointMeterActivationExce
     public static UsagePointManagementException incorrectStage(Thesaurus thesaurus) {
         return new UsagePointManagementException(thesaurus, MessageSeeds.USAGE_POINT_INCORRECT_STAGE);
     }
+
+    public static UsagePointManagementException incorrectApplyTime(Thesaurus thesaurus) {
+        return new UsagePointManagementException(thesaurus, MessageSeeds.START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE);
+    }
 }
