@@ -143,7 +143,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         return G3GatewayPSKProviderFactory.getInstance().getPSKProvider(getDeviceIdentifier(), getContext());
     }
 
-    private MeterProtocolEvent getMeterProtocolEvent() {
+    protected MeterProtocolEvent getMeterProtocolEvent() {
         if (collectedLogBook!=null){
             if (collectedLogBook.getCollectedMeterEvents().size()>0) {
                 return collectedLogBook.getCollectedMeterEvents().get(0);

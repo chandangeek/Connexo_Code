@@ -76,7 +76,6 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
 
     protected ObisCode logbookObisCode;
     protected CollectedLogBook collectedLogBook;
-    protected DeviceIdentifier deviceIdentifier;
     private ComChannel comChannel;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
     private DeviceIdentifier originDeviceId;
