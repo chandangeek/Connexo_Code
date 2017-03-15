@@ -26,6 +26,9 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.VALIDATE_LOAD_PRO
  */
 public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
 
+	/** Use service specific global ciphering by default. */
+	public static final CipheringType DEFAULT_CIPHERING_TYPE = CipheringType.GLOBAL;
+	
     public static final String AARQ_TIMEOUT_PROPERTY = "AARQTimeout";
     public static final String AARQ_RETRIES_PROPERTY = "AARQRetries";
     public static final String USE_EQUIPMENT_IDENTIFIER_AS_SERIAL = "UseEquipmentIdentifierAsSerialNumber";
@@ -282,7 +285,7 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
      * 
      * @return	The default ciphering type.
      */
-    protected CipheringType getDefaultCipheringType() {
-    	return CipheringType.GLOBAL;
+    protected final CipheringType getDefaultCipheringType() {
+    	return DEFAULT_CIPHERING_TYPE;
     }
 }
