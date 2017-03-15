@@ -198,4 +198,16 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
         }
         return plcRegisterMapper;
     }
+    
+    
+    /**
+     * Indicates whether or not we are mapping billing registers from a billing profile.
+     * 
+     * @return	<code>true</code> if we are mapping, <code>false</code> if we are not (for example when we have a mirror on a Beacon).
+     */
+    @Override
+    protected final boolean mapBillingRegistersFromBillingProfile() {
+    	// Don't map these if we are using a mirror, because they have already been mapped by the Beacon itself (as it runs the AM540 protocol).
+    	return !((AM540)this.getMeterProtocol()).getDlmsSessionProperties().useBeaconMirrorDeviceDialect();
+    }
 }

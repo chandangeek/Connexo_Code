@@ -83,8 +83,11 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
         List<OfflineRegister> subSet;
         List<CollectedRegister> result = new ArrayList<>();
 
-        result.addAll(readBillingRegisters(offlineRegisters));      // Cause these cannot be read out in bulk
-        filterOutAllAllBillingRegistersFromList(offlineRegisters);  // Cause they are already read out (see previous line)
+        if (this.mapBillingRegistersFromBillingProfile()) {
+	        result.addAll(readBillingRegisters(offlineRegisters));      // Cause these cannot be read out in bulk
+	        filterOutAllAllBillingRegistersFromList(offlineRegisters);  // Cause they are already read out (see previous line)
+        }
+        
         result.addAll(filterOutAllInvalidRegistersFromList(offlineRegisters)); // For each invalid one, an 'Incompatible' collectedRegister will be added
 
         int from = 0;
@@ -523,5 +526,14 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
             }
             return Unknown;
         }
+    }
+    
+    /**
+     * Indicates whether or not we are mapping billing registers from a billing profile.
+     * 
+     * @return	<code>true</code> if we are mapping, <code>false</code> if we are not (for example when we have a mirror on a Beacon).
+     */
+    protected boolean mapBillingRegistersFromBillingProfile() {
+    	return true;
     }
 }
