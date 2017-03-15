@@ -301,11 +301,13 @@
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>dataquality</artifactId>
                 <version>1.0.0${revision}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>dataquality.rest</artifactId>
                 <version>1.0.0${revision}</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
