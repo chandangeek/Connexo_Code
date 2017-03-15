@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 
@@ -11,6 +12,8 @@ import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Optional;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 public class  UniqueValidationRuleSetNameValidator implements ConstraintValidator<UniqueName, ValidationRuleSet> {
 
@@ -33,7 +36,8 @@ public class  UniqueValidationRuleSetNameValidator implements ConstraintValidato
     }
 
     private boolean checkValidity(ValidationRuleSet ruleSet, ConstraintValidatorContext context) {
-        Optional<ValidationRuleSet> alreadyExisting = validationService.getValidationRuleSet(ruleSet.getName());
+        Condition condition = where("name").isEqualTo(ruleSet.getName()).and(where("qualityCodeSystem").isEqualTo(ruleSet.getQualityCodeSystem())).and(where(ValidationRuleSetImpl.OBSOLETE_TIME_FIELD).isNull());
+        Optional<ValidationRuleSet> alreadyExisting = validationService.getRuleSetQuery().select(condition).stream().findFirst();
         return !alreadyExisting.isPresent() || !checkExisting(ruleSet, alreadyExisting.get(), context);
     }
 
