@@ -421,7 +421,7 @@ public class EventPushNotificationParserTest extends TestCase {
 
         DeviceIdentifier needle = new DialHomeIdDeviceIdentifier("02237EFFFEFDAF26");
         boolean found = false;
-        for (DeviceIdentifier device : collectedTopology.getSlaveDeviceIdentifiers().keySet()){
+        for (DeviceIdentifier device : collectedTopology.getJoinedSlaveDeviceIdentifiers().keySet()){
             if (device.getIdentifier().equals(needle.getIdentifier())){
                 found = true;
             }

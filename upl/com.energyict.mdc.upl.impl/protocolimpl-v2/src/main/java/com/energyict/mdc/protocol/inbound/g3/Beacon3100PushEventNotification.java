@@ -58,6 +58,16 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
     protected CollectedTopology collectedTopology;
 
     private static final int PLC_G3_REGISTER_NODE = 0xC2;
+    private static final int PLC_G3_UNREGISTER_NODE = 0xC3;
+    private static final int PLC_G3_NODE_LINK_LOST = 0xCB;
+    private static final int PLC_G3_NODE_LINK_RECOVERED = 0xCC;
+
+
+    private enum TopologyAction {
+        REMOVE,
+        ADD
+    }
+
 
     protected BeaconPSKProvider getPskProvider() {
         return BeaconPSKProviderFactory.getInstance(provideProtocolJavaClasName).getPSKProvider(getDeviceIdentifier(), getContext());
@@ -93,6 +103,7 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
     public DiscoverResultType doDiscovery() {
         DiscoverResultType discoverResultType = super.doDiscovery();
 
+        // do a specific Beacon post-processing of the push event
         try {
             searchForTopologyUpdateEvents();
         } catch (JSONException e) {
@@ -110,18 +121,82 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
         }
 
         switch (receivedEvent.getProtocolCode()){
+
+            /**
+             * Generates when node successfully joins the PAN.
+             */
             case PLC_G3_REGISTER_NODE:
                 this.collectedTopology = extractTopologyUpdateFromRegisterEvent(receivedEvent);
-                if (collectedTopology!=null) {
-                    getContext().getLogger().info("> topology info extracted: " + collectedTopology.getAdditionalCollectedDeviceInfo().toString());
-                }
+                break;
+
+            /**
+             * Generated when node is considered lost (i.e. does no longer respond without proper de-registration from the network)
+             */
+            case PLC_G3_NODE_LINK_LOST:
+                this.collectedTopology = extractNodeInformation(receivedEvent, TopologyAction.REMOVE);
+                break;
+
+            /**
+             * Generated when a node recovered from the lost state (i.e. it is reachable again after being unreachable for prolonged period of time).
+             */
+            case PLC_G3_NODE_LINK_RECOVERED:
+                this.collectedTopology = extractNodeInformation(receivedEvent, TopologyAction.ADD);
+                break;
+
+            /**
+             * Generated when node leaves the PAN.
+             */
+            case PLC_G3_UNREGISTER_NODE:
+                this.collectedTopology = extractNodeInformation(receivedEvent, TopologyAction.REMOVE);
+        }
+
+        logWhatWeDiscovered();
+    }
+
+    private void logWhatWeDiscovered() {
+        if (collectedTopology!=null) {
+            if (collectedTopology.getJoinedSlaveDeviceIdentifiers()!=null) {
+                getContext().getLogger().info("> joined devices: " + collectedTopology.getJoinedSlaveDeviceIdentifiers());
+            }
+            if (collectedTopology.getLostSlaveDeviceIdentifiers()!=null) {
+                getContext().getLogger().info("> lost devices: " + collectedTopology.getLostSlaveDeviceIdentifiers());
+            }
+            if (collectedTopology.getAdditionalCollectedDeviceInfo()!=null) {
+                getContext().getLogger().info("> device parameters: " + collectedTopology.getAdditionalCollectedDeviceInfo().toString());
+            }
+        }
+    }
+
+    private CollectedTopology extractNodeInformation(MeterProtocolEvent receivedEvent, TopologyAction action) {
+        String macAddress = receivedEvent.getMessage();
+        if (macAddress==null || macAddress.length()==0){
+            return null;
+        }
+
+        macAddress = macAddress.replace(":","").replace(".","");
+        DeviceIdentifier slaveDeviceIdentified = new DialHomeIdDeviceIdentifier(macAddress);
+
+        CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(getDeviceIdentifier());
+
+        switch (action){
+            case ADD:
+                LastSeenDateInfo lastSeenDateInfo = new LastSeenDateInfo(G3Properties.PROP_LASTSEENDATE, getNow());
+                deviceTopology.addJoinedSlaveDevice(slaveDeviceIdentified, lastSeenDateInfo);
+                break;
+
+            case REMOVE:
+                deviceTopology.addLostSlaveDevice(slaveDeviceIdentified);
                 break;
 
         }
+
+        return deviceTopology;
     }
 
 
     /**
+     * Generates when node successfully joins the PAN.
+     *
      * Received message contains JSON structure with EUI-64 of the meter, and list of possible service access points for that meter.
      * Included SAP list depends on the configuration.
      *
@@ -155,7 +230,7 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
 
         BigDecimal lastSeenDate = getNow();
         LastSeenDateInfo lastSeenDateInfo = new LastSeenDateInfo(G3Properties.PROP_LASTSEENDATE, lastSeenDate);
-        deviceTopology.addSlaveDevice(slaveDeviceIdentifier, lastSeenDateInfo);
+        deviceTopology.addJoinedSlaveDevice(slaveDeviceIdentifier, lastSeenDateInfo);
 
         if (json.has(JSON_SAP_DLMS_GW)) {
             int SAP_DLMS_GW = getJsonInt(json, JSON_SAP_DLMS_GW);
