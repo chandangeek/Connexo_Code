@@ -172,7 +172,8 @@ Ext.define('Mtr.readingtypes.controller.ReadingTypes', {
                 if (operation.response.status === 400) {
                     var result = Ext.decode(operation.response.responseText, true),
                         title = Uni.I18n.translate('readingtypesmanagment.readingTypeNotActivateDeactivate', 'MTR', 'Reading type did not {0}', [me.msg]),
-                        message = Uni.I18n.translate('general.serverError', 'MTR', 'Server error');
+                        message = Uni.I18n.translate('general.serverError', 'MTR', 'Server error'),
+                        errorCode='';
                     if (!Ext.isEmpty(operation.response.statusText)) {
                         message = operation.response.statusText;
                     }
@@ -180,8 +181,10 @@ Ext.define('Mtr.readingtypes.controller.ReadingTypes', {
                         message = result.message;
                     } else if (result && result.error) {
                         message = result.error;
+                    } if (result && result.errorCode) {
+                        errorCode = result.errorCode;
                     }
-                    me.getApplication().getController('Uni.controller.Error').showError(title, message);
+                    me.getApplication().getController('Uni.controller.Error').showError(title, message, errorCode);
                 }
             }
         };
