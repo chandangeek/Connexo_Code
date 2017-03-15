@@ -19,7 +19,7 @@ public class OriginDeviceTypeIsMultiElementSubmeterValidator implements Constrai
     @Override
     public boolean isValid(SubMeterReferenceImpl subMeterReference, ConstraintValidatorContext constraintValidatorContext) {
         Device origin = subMeterReference.getOrigin();
-        return (origin != null && origin.getDeviceType().isSubmeterElement());
+        return (origin != null && origin.getDeviceType().isMultiElementSlave());
     }
 
 }
