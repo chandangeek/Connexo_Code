@@ -100,6 +100,7 @@ public enum TableSpecs {
             Table<KeyAccessorType> table = dataModel.addTable(name(), KeyAccessorType.class);
             table.map(KeyAccessorTypeImpl.class);
             Column id = table.addAutoIdColumn();
+            table.setJournalTableName("DTC_KEYACCESSORTYPEJRNL");
             table.addAuditColumns();
             table.column("NAME")
                     .varChar()
