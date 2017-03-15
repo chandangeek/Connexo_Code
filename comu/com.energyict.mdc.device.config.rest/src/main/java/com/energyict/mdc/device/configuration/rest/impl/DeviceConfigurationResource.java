@@ -270,11 +270,11 @@ public class DeviceConfigurationResource {
             if (deviceConfiguration.isDataloggerEnabled()) {
                 throw new TranslatableApplicationException(thesaurus, MessageSeeds.DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE);
             } else if (deviceConfiguration.isMultiElementEnabled()){
-                throw new TranslatableApplicationException(thesaurus, MessageSeeds.DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE);
-            } else if (deviceConfiguration.getDeviceType().isDataloggerSlave()) {
-                throw new TranslatableApplicationException(thesaurus, MessageSeeds.MULTI_ELEMENT_SUBMETER_AT_LEAST_ONE_DATASOURCE);
-            }else if (deviceConfiguration.getDeviceType().isSubmeterElement()) {
                 throw new TranslatableApplicationException(thesaurus, MessageSeeds.MULTI_ELEMENT_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE);
+            } else if (deviceConfiguration.getDeviceType().isDataloggerSlave()) {
+                throw new TranslatableApplicationException(thesaurus, MessageSeeds.DATALOGGER_SLAVES_AT_LEAST_ONE_DATASOURCE);
+            }else if (deviceConfiguration.getDeviceType().isMultiElementSlave()) {
+                throw new TranslatableApplicationException(thesaurus, MessageSeeds.MULTI_ELEMENT_SLAVE_AT_LEAST_ONE_DATASOURCE);
             }
         }
 
@@ -308,6 +308,9 @@ public class DeviceConfigurationResource {
         }
         if (deviceConfigurationInfo.dataloggerEnabled != null) {
             deviceConfigurationBuilder.dataloggerEnabled(deviceConfigurationInfo.dataloggerEnabled);
+        }
+        if (deviceConfigurationInfo.multiElementEnabled != null) {
+            deviceConfigurationBuilder.multiElementEnabled(deviceConfigurationInfo.multiElementEnabled);
         }
         if(deviceConfigurationInfo.validateOnStore != null){
             deviceConfigurationBuilder.validateOnStore(deviceConfigurationInfo.validateOnStore);

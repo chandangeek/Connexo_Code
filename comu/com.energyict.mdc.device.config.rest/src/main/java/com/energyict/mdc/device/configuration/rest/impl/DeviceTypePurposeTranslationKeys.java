@@ -11,7 +11,7 @@ public enum DeviceTypePurposeTranslationKeys implements TranslationKey {
 
     REGULAR(DeviceTypePurpose.REGULAR, "Standard device type"),
     DATALOGGER_SLAVE(DeviceTypePurpose.DATALOGGER_SLAVE, "Datalogger slave device type"),
-    SUBMETERING_ELEMENT(DeviceTypePurpose.SUBMETERING_ELEMENT, "Multi-element submeter")
+    MULTI_ELEMENT_SLAVE(DeviceTypePurpose.MULTI_ELEMENT_SLAVE, "Multi-element slave device type")
     ;
 
     private final DeviceTypePurpose deviceTypePurpose;

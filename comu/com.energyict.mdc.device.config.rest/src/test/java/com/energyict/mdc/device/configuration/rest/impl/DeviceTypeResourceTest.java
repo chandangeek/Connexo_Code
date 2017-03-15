@@ -216,7 +216,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
         deviceTypeInfo.name = "newName";
         deviceTypeInfo.deviceLifeCycleId = deviceLifeCycle.getId();
-        deviceTypeInfo.deviceTypePurpose = DeviceTypePurpose.SUBMETERING_ELEMENT.name();
+        deviceTypeInfo.deviceTypePurpose = DeviceTypePurpose.MULTI_ELEMENT_SLAVE.name();
         Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
 
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(deviceLifeCycle));
@@ -225,7 +225,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
         when(deviceTypeBuilder.create()).thenReturn(deviceType);
-        when(deviceConfigurationService.newMultiElementSubmeterTypeBuilder("newName", deviceLifeCycle)).thenReturn(deviceTypeBuilder);
+        when(deviceConfigurationService.newMultiElementSlaveDeviceTypeBuilder("newName", deviceLifeCycle)).thenReturn(deviceTypeBuilder);
 
         Response response = target("/devicetypes/").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());

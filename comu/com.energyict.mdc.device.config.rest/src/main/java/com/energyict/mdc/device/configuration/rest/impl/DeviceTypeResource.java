@@ -186,8 +186,8 @@ public class DeviceTypeResource {
                 deviceType = deviceConfigurationService.newDataloggerSlaveDeviceTypeBuilder(deviceTypeInfo.name, deviceLifeCycleRef
                         .isPresent() ? deviceLifeCycleRef.get() : null).create();
                 break;
-            case "SUBMETERING_ELEMENT":
-                deviceType = deviceConfigurationService.newMultiElementSubmeterTypeBuilder(deviceTypeInfo.name, deviceLifeCycleRef
+            case "MULTI_ELEMENT_SLAVE":
+                deviceType = deviceConfigurationService.newMultiElementSlaveDeviceTypeBuilder(deviceTypeInfo.name, deviceLifeCycleRef
                         .isPresent() ? deviceLifeCycleRef.get() : null).create();
                 break;
 
@@ -206,7 +206,7 @@ public class DeviceTypeResource {
         DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(deviceTypeInfo);
         deviceType.setName(deviceTypeInfo.name);
         deviceType.setDeviceTypePurpose(getDeviceTypePurpose(deviceTypeInfo));
-        if (!deviceType.isDataloggerSlave() && !deviceType.isSubmeterElement()) {
+        if (!deviceType.isDataloggerSlave() && !deviceType.isMultiElementSlave()) {
             deviceType.setDeviceProtocolPluggableClass(deviceTypeInfo.deviceProtocolPluggableClassName);
         }
         if (deviceTypeInfo.registerTypes != null) {
