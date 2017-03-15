@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.units.Unit;
 import com.energyict.mdc.device.data.Device;
@@ -28,6 +29,7 @@ import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
@@ -74,15 +76,18 @@ public class CreateUsagePointsForDevicesCommand {
                 .orElseGet(newUsagePointSupplier(device));
         usagePoint.forCustomProperties().getPropertySetsOnServiceCategory().stream()
                 .filter(cps -> "com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension".equals(cps.getCustomPropertySet().getId()))
-                .forEach(cps -> cps.setValues(getUsagePointGeneralDomainExtensionValues(clock.instant())));
+                .forEach(cps -> cps.setValues(getUsagePointGeneralDomainExtensionValues(clock.instant().plusSeconds(60))));
         usagePoint.forCustomProperties().getAllPropertySets().stream()
                 .filter(cps -> "com.elster.jupiter.metering.cps.impl.metrology.UsagePointTechInstElectrDE".equals(cps.getCustomPropertySet().getId()))
                 .forEach(cps -> cps.setValues(getUsagePointTechnicalInstallationDomainExtensionValues()));
+        UsagePointMetrologyConfiguration metrologyConfiguration;
         if (device.getDeviceConfiguration().getName().equals(DeviceConfigurationTpl.CONSUMERS.getName())) {
-            usagePoint.apply(Builders.from(MetrologyConfigurationTpl.CONSUMER).get());
+           metrologyConfiguration = Builders.from(MetrologyConfigurationTpl.CONSUMER).get();
         } else {
-            usagePoint.apply(Builders.from(MetrologyConfigurationTpl.PROSUMER).get());
+            metrologyConfiguration = Builders.from(MetrologyConfigurationTpl.PROSUMER).get();
         }
+        metrologyConfiguration.addMeterRole(metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT));
+        usagePoint.apply(metrologyConfiguration, clock.instant());
         usagePoint.update();
         setUsagePoint(device, usagePoint);
     }
