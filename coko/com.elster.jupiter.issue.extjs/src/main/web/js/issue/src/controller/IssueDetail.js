@@ -308,7 +308,7 @@ Ext.define('Isu.controller.IssueDetail', {
                             }
                         });
                     } else {
-                        me.getApplication().getController('Uni.controller.Error').showError(model.get('name'), responseText.data.actions[0].message);
+                        me.getApplication().getController('Uni.controller.Error').showError(model.get('name'), responseText.data.actions[0].message, responseText.data.actions[0].errorCode);
                     }
                 }
             }

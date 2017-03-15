@@ -186,7 +186,7 @@ Ext.define('Isu.controller.IssuesOverview', {
                         me.getApplication().fireEvent('acknowledge', response.data.actions[0].message);
                         me.getIssuesGrid().getStore().load();
                     } else {
-                        me.getApplication().getController('Uni.controller.Error').showError(model.get('name'), responseText.data.actions[0].message);
+                        me.getApplication().getController('Uni.controller.Error').showError(model.get('name'), responseText.data.actions[0].message, responseText.data.actions[0].errorCode);
                     }
                 }
             }
