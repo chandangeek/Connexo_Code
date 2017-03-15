@@ -8,12 +8,14 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverablesCollector;
 import com.elster.jupiter.metering.impl.AggregatedChannelImpl;
 import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.metering.impl.ChannelImpl;
@@ -21,6 +23,7 @@ import com.elster.jupiter.metering.impl.ChannelsContainerImpl;
 import com.elster.jupiter.metering.impl.IReadingType;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.orm.associations.Effectivity;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.time.Interval;
 
 import com.google.common.collect.Range;
@@ -32,13 +35,17 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImpl {
+public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImpl
+        implements MetrologyContractChannelsContainer {
 
     public enum Fields {
         EFFECTIVE_CONTRACT("effectiveMetrologyContract");
@@ -68,7 +75,6 @@ public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImp
         this.effectiveMetrologyContract.add(effectiveMetrologyContract);
         // Each channel must have just one reading type (main), which is equal to reading type from deliverable.
         effectiveMetrologyContract.getMetrologyContract().getDeliverables()
-                .stream()
                 .forEach(deliverable -> storeChannel(channelFactory.get().init(this, Collections.singletonList((IReadingType) deliverable.getReadingType()))));
         return this;
     }
@@ -81,6 +87,7 @@ public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImp
                 .get());
     }
 
+    @Override
     public MetrologyContract getMetrologyContract() {
         return this.effectiveMetrologyContract.get(0).getMetrologyContract();
     }
@@ -150,5 +157,37 @@ public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImp
         return this.getMetrologyConfigurationOnUsagePoint()
                 .getUsagePoint()
                 .getZoneId();
+    }
+
+    @Override
+    public Map<Channel, Range<Instant>> findDependentChannelScope(Map<Channel, Range<Instant>> scope) {
+        // outputs can only depend on outputs from the same contract => same channels container
+        Map<ReadingType, Range<Instant>> scopeByReadingType = scope.entrySet().stream()
+                .collect(Collectors.toMap(channelAndRange -> channelAndRange.getKey().getMainReadingType(),
+                        Map.Entry::getValue));
+        return getDeepDependencyMap().entrySet().stream()
+                .map(deliverableAndUnderlyingDeliverables -> Pair.of(deliverableAndUnderlyingDeliverables.getKey().getReadingType(),
+                        deliverableAndUnderlyingDeliverables.getValue().stream()
+                                .map(deliverable -> scopeByReadingType.get(deliverable.getReadingType()))
+                                .filter(Objects::nonNull)
+                                .reduce(Range::span)
+                                .orElse(null)))
+                .filter(Pair::hasLast)
+                .map(readingTypeAndRange -> Pair.of(getChannel(readingTypeAndRange.getFirst()).orElse(null), readingTypeAndRange.getLast()))
+                .filter(Pair::hasFirst)
+                .collect(Collectors.toMap(Pair::getFirst, Pair::getLast));
+    }
+
+    /**
+     * @return Map of all {@link ReadingTypeDeliverable ReadingTypeDeliverables} in a corresponding {@link MetrologyContract}
+     * to {@link Set Sets} of their underlying deliverables
+     * (i.e. of those deliverables used directly or transitively during data aggregation for them).
+     */
+    private Map<ReadingTypeDeliverable, Set<ReadingTypeDeliverable>> getDeepDependencyMap() {
+        List<ReadingTypeDeliverable> deliverables = getMetrologyContract().getDeliverables();
+        Map<ReadingTypeDeliverable, Set<ReadingTypeDeliverable>> dependencyMap = new HashMap<>(deliverables.size(), 1);
+        deliverables.forEach(deliverable -> dependencyMap.computeIfAbsent(deliverable,
+                del -> del.getFormula().getExpressionNode().accept(ReadingTypeDeliverablesCollector.recursive(dependencyMap))));
+        return dependencyMap;
     }
 }
