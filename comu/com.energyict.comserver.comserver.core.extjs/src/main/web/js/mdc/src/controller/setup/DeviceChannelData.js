@@ -635,7 +635,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 event.record.get('confirmed') && event.record.set('confirmed', false);
             }
             Ext.resumeLayouts();
-        } else if (condition) {
+        } else if (!event.record.isModified('collectedValue') && condition) {
             me.resetChanges(event.record, point);
         }
     },
