@@ -1071,7 +1071,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         if (destinationDeviceConfiguration.isDataloggerEnabled()) {
             throw DeviceConfigurationChangeException.cannotchangeConfigToDataLoggerEnabled(thesaurus);
         }
-        if (getDeviceType().isSubmeterElement()) {
+        if (getDeviceType().isMultiElementSlave()) {
             throw DeviceConfigurationChangeException.cannotChangeConfigOfMultiElementSubmeterDevice(thesaurus);
         }
         if (getDeviceConfiguration().isMultiElementEnabled()) {
