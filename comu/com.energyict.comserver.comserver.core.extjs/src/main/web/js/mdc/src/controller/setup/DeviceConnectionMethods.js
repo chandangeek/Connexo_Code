@@ -118,7 +118,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             },
             '#deviceConnectionMethodPreview menuitem[action=viewConnectionHistory]': {
                 click: this.viewConnectionHistoryFromPreview
-            },
+            }
         });
     },
 
@@ -148,8 +148,8 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                                         deviceId: device.getId()
                                     },
                                     callback: function (records, operation, success) {
-                                        me.showCorrectButtons(connectionMethodsStore, widget, success);
                                         viewport.setLoading(false);
+                                        me.showCorrectButtons(connectionMethodsStore, widget, success);
                                     }
                                 });
                                 me.getApplication().fireEvent('changecontentevent', widget);
@@ -371,7 +371,6 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         this.getDeviceConnectionMethodEditView().down('#activeRadioGroup').setDisabled(false);
         this.getDeviceConnectionMethodEditView().down('#comWindowField').setDisabled(false);
         this.getDeviceConnectionMethodEditView().down('#numberOfSimultaneousConnections').setDisabled(false);
-        this.getDeviceConnectionMethodEditView().down('#protocolDialectComboBox').setDisabled(false);
         if (connectionMethod.get('connectionStrategyInfo')['connectionStrategy'] === 'MINIMIZE_CONNECTIONS') {
             this.getDeviceConnectionMethodEditView().down('form').down('#scheduleFieldContainer').setVisible(true);
             if (connectionMethod.get('temporalExpression')) {
@@ -592,23 +591,28 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
 
     removeDeviceConnectionMethod: function (btn, text, opt) {
         if (btn === 'confirm') {
-            var connectionMethodsStore;
             var connectionMethodToDelete = opt.config.connectionMethodToDelete;
             var me = opt.config.me;
             var widget = me.getDeviceConnectionMethodSetup();
             connectionMethodToDelete.getProxy().setExtraParam('deviceId', me.deviceId);
             connectionMethodToDelete.destroy({
                 success: function () {
-                    location.href = '#/devices/' + encodeURIComponent(me.deviceId) + '/connectionmethods';
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.saveSuccess.msg.remove', 'MDC', 'Connection method removed'));
-                    connectionMethodsStore = Ext.StoreManager.get('ConnectionMethodsOfDeviceConfigurationCombo');
-                    connectionMethodsStore.load({
-                        params: {
-                            available: true,
-                            deviceId: me.deviceId // TOCHECK
-                        },
-                        callback: function (records, operation, success) {
-                            me.showCorrectButtons(connectionMethodsStore, widget, success);
+                    var deviceModel = Ext.ModelManager.getModel('Mdc.model.Device');
+                    deviceModel.load(me.deviceId, {
+                        success: function (device) {
+                            var connectionMethodsStore = Ext.StoreManager.get('ConnectionMethodsOfDeviceConfigurationCombo');
+                            connectionMethodsStore.getProxy().setUrl(device.get('deviceTypeId'), device.get('deviceConfigurationId'));
+                            connectionMethodsStore.load({
+                                params: {
+                                    available: true,
+                                    deviceId: device.get("id")
+                                },
+                                callback: function (records, operation, success) {
+                                    me.showCorrectButtons(connectionMethodsStore, widget, success);
+                                    location.href = '#/devices/' + encodeURIComponent(me.deviceId) + '/connectionmethods';
+                                }
+                            });
                         }
                     });
                 }

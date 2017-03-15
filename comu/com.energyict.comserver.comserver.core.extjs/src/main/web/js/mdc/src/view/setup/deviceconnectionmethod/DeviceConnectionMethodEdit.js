@@ -86,7 +86,9 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                 forceSelection: true,
                                 disabled: true,
                                 required: true,
-                                queryMode: 'local'
+                                queryMode: 'local',
+                                typeAhead: true,
+                                msgTarget: 'under'
                             },
                             {
                                 xtype: 'combobox',
