@@ -1,24 +1,25 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.properties;
 
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import static com.energyict.dlms.common.DlmsProtocolProperties.CIPHERING_TYPE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS;
+
+import java.math.BigDecimal;
 
 import com.energyict.cbo.TimeDuration;
+import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
+import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am130.properties.IDISSecurityProvider;
 import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
-
-import java.math.BigDecimal;
-
-import static com.energyict.dlms.common.DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS;
 
 /**
  * @author sva
@@ -196,4 +197,20 @@ public class AM540Properties extends IDISProperties {
         return getProperties().getTypedProperty(AM540ConfigurationSupport.INITIAL_FRAME_COUNTER, BigDecimal.valueOf(100)).longValue();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ProtocolProperty
+    public final CipheringType getCipheringType() {
+        final String cipheringDescription = getProperties().getTypedProperty(CIPHERING_TYPE, AM540ConfigurationSupport.DEFAULT_CIPHERING_TYPE.getDescription());
+        
+        for (CipheringType cipheringType : CipheringType.values()) {
+            if (cipheringType.getDescription().equals(cipheringDescription)) {
+                return cipheringType;
+            }
+        }
+        
+        return AM540ConfigurationSupport.DEFAULT_CIPHERING_TYPE;
+    }
 }
