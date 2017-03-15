@@ -34,6 +34,7 @@ import static com.energyict.mdc.device.data.impl.tasks.DeviceStateSqlBuilder.DEV
  */
 abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTaskFilterSqlBuilder {
 
+    private final String deviceName;
     private final Set<ConnectionTypePluggableClass> connectionTypes;
     private final Set<ComPortPool> comPortPools;
     private final Set<DeviceType> deviceTypes;
@@ -44,6 +45,7 @@ abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTaskFilter
 
     AbstractConnectionTaskFilterSqlBuilder(ConnectionTaskFilterSpecification filterSpecification, Clock clock, QueryExecutor<Device> deviceQueryExecutor) {
         super(clock);
+        this.deviceName = filterSpecification.deviceName;
         this.connectionTypes = new HashSet<>(filterSpecification.connectionTypes);
         this.comPortPools = new HashSet<>(filterSpecification.comPortPools);
         this.deviceTypes = new HashSet<>(filterSpecification.deviceTypes);
@@ -90,6 +92,7 @@ abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTaskFilter
         this.appendConnectionTypeSql();
         this.appendComPortPoolSql();
         this.appendDeviceTypeSql();
+        this.appendDeviceNameSql(this.deviceName);
     }
 
     void appendJoinedTables() {

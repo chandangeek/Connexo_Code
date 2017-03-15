@@ -33,6 +33,7 @@ import static com.energyict.mdc.device.data.impl.tasks.DeviceStateSqlBuilder.DEV
  */
 public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractTaskFilterSqlBuilder {
 
+    private final String deviceName;
     private final Set<DeviceType> deviceTypes;
     private final Set<ComTask> comTasks;
     private final Set<ComSchedule> comSchedules;
@@ -42,6 +43,7 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
 
     public AbstractComTaskExecutionFilterSqlBuilder(Clock clock, ComTaskExecutionFilterSpecification filter, QueryExecutor<Device> queryExecutor) {
         super(clock);
+        this.deviceName = filter.deviceName;
         this.deviceTypes = new HashSet<>(filter.deviceTypes);
         this.comTasks = new HashSet<>(filter.comTasks);
         this.comSchedules = new HashSet<>(filter.comSchedules);
@@ -87,6 +89,7 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
         this.appendDeviceInGroupSql();
         this.appendComTaskSql();
         this.appendComSchedulesSql();
+        this.appendDeviceNameSql(this.deviceName);
     }
 
     private void appendDeviceTypeSql() {

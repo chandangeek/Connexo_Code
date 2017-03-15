@@ -16,9 +16,11 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
 import java.time.Clock;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -37,6 +39,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     private Set<CompletionCode> completionCodes;
     public Interval lastSessionStart = null;
     public Interval lastSessionEnd = null;
+    private final Set<ConnectionTypePluggableClass> connectionTypes;
 
     public ComTaskExecutionFilterSqlBuilder(ComTaskExecutionFilterSpecification filterSpecification, Clock clock, QueryExecutor<Device> queryExecutor) {
         super(clock, filterSpecification, queryExecutor);
@@ -46,6 +49,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         this.completionCodes.addAll(filterSpecification.latestResults);
         this.lastSessionStart = filterSpecification.lastSessionStart;
         this.lastSessionEnd = filterSpecification.lastSessionEnd;
+        this.connectionTypes = new HashSet<>(filterSpecification.connectionTypes);
     }
 
     private void copyTaskStatuses(ComTaskExecutionFilterSpecification filterSpecification) {
@@ -69,7 +73,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         }
         if (   !filterSpecification.comTasks.isEmpty()
             && !filterSpecification.comSchedules.isEmpty()) {
-            throw new IllegalArgumentException("Communiation tasks and communication schedules cannot be combined");
+            throw new IllegalArgumentException("Communication tasks and communication schedules cannot be combined");
         }
     }
 
@@ -122,6 +126,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         this.appendCompletionCodeClause();
         this.appendLastSessionIntervalWhereClause();
         this.appendDeviceInGroupSql();
+        this.appendConnectionTypeSql();
     }
 
     private void appendCompletionCodeClause() {
@@ -145,8 +150,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     }
 
     private void appendLastSessionIntervalWhereClause() {
-        if (!this.isNull(this.lastSessionStart)
-                || !this.isNull(this.lastSessionEnd)) {
+        if (!this.isNull(this.lastSessionStart) || !this.isNull(this.lastSessionEnd)) {
             this.appendWhereOrAnd();
             this.append(" exists (select * from ");
             this.append(TableSpecs.DDC_COMSESSION.name());
@@ -166,6 +170,20 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
                 this.appendIntervalWhereClause("cs", "stopdate", this.lastSessionEnd, IntervalBindStrategy.MILLIS);
                 this.append(" )");
             }
+            this.append(")");
+        }
+    }
+
+    private void appendConnectionTypeSql() {
+        if (!this.connectionTypes.isEmpty()) {
+            this.appendWhereOrAnd();
+            this.append(" exists (select * from ");
+            this.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            this.append(" contask where contask.id = ");
+            this.append(communicationTaskAliasName());
+            this.append(".connectiontask ");
+            this.appendWhereOrAnd();
+            this.appendInClause("contask.connectiontypepluggableClass", this.connectionTypes);
             this.append(")");
         }
     }
