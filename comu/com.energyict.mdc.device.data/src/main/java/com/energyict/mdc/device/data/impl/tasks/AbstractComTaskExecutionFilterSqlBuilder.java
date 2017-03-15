@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.energyict.mdc.device.config.DeviceType;
@@ -37,7 +38,7 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
     private final Set<DeviceType> deviceTypes;
     private final Set<ComTask> comTasks;
     private final Set<ComSchedule> comSchedules;
-    private final Set<DefaultState> restrictedDeviceStates;
+    private final Set<EndDeviceStage> restrictedDeviceStages;
     private final QueryExecutor<Device> queryExecutor;
     private final List<EndDeviceGroup> deviceGroups;
 
@@ -47,16 +48,16 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
         this.deviceTypes = new HashSet<>(filter.deviceTypes);
         this.comTasks = new HashSet<>(filter.comTasks);
         this.comSchedules = new HashSet<>(filter.comSchedules);
-        this.restrictedDeviceStates = DefaultState.fromKeys(filter.restrictedDeviceStates);
+        this.restrictedDeviceStages = EndDeviceStage.fromKeys(filter.restrictedDeviceStages);
         this.deviceGroups = new ArrayList<>(filter.deviceGroups);
         this.queryExecutor = queryExecutor;
     }
 
-    ClauseAwareSqlBuilder newActualBuilderForRestrictedStates() {
+    ClauseAwareSqlBuilder newActualBuilderForRestrictedStages() {
         ClauseAwareSqlBuilder actualBuilder = ClauseAwareSqlBuilder
-                .withExcludedStates(
-                        DEVICE_STATE_ALIAS_NAME,
-                        this.restrictedDeviceStates,
+                .withExcludedStages(
+                        DeviceStageSqlBuilder.DEVICE_STAGE_ALIAS_NAME,
+                        this.restrictedDeviceStages,
                         this.getClock().instant());
         this.setActualBuilder(actualBuilder);
         return actualBuilder;
@@ -73,7 +74,7 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
         this.append(deviceContainerAliasName);
         this.append(".device = dev.id ");
         this.append(" join ");
-        this.append(DeviceStateSqlBuilder.DEVICE_STATE_ALIAS_NAME);
+        this.append(DeviceStageSqlBuilder.DEVICE_STAGE_ALIAS_NAME);
         this.append(" kd on dev.meterid = kd.id ");
     }
 

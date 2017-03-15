@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.tasks;
 
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceType;
@@ -95,5 +96,12 @@ public class ComTaskExecutionFilterSpecification {
      * if you want all ConnectionTypePluggableClasses that are configured in the system.
      */
     public Set<ConnectionTypePluggableClass> connectionTypes = new HashSet<>();
+
+    /**
+     * The Set of device stages
+     * Comtasks of devices in such stages will be excluded from the result
+     * Default value: exclude comtasks of "Pre-operational" and "Post-operational" devices
+     */
+    public Set<String> restrictedDeviceStages = new HashSet<>(Arrays.asList(EndDeviceStage.PRE_OPERATIONAL.getKey(), EndDeviceStage.POST_OPERATIONAL.getKey()));
 
 }

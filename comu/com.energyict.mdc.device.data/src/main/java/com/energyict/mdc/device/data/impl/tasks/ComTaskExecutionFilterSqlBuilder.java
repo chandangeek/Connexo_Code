@@ -82,7 +82,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     }
 
     public ClauseAwareSqlBuilder build(SqlBuilder sqlBuilder, String communicationTaskAliasName) {
-        ClauseAwareSqlBuilder actualBuilder = this.newActualBuilderForRestrictedStates();
+        ClauseAwareSqlBuilder actualBuilder = this.newActualBuilderForRestrictedStages();
         WithClauses.BUSY_CONNECTION_TASK.appendTo(actualBuilder, BUSY_ALIAS_NAME);
         actualBuilder.append(sqlBuilder);
         this.appendDeviceStateJoinClauses(communicationTaskAliasName);
@@ -93,6 +93,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
             if (statusIterator.hasNext()) {
                 this.unionAll();
                 this.append(sqlStartClause);
+                this.appendDeviceStateJoinClauses(communicationTaskAliasName);
             }
         }
         if (this.taskStatuses.isEmpty()) {
