@@ -361,6 +361,10 @@ Ext.define('Uni.view.menu.SideMenu', {
         var me = this;
         if (me.rendered) {
             if (title) {
+                Ext.create('Ext.tip.ToolTip', {
+                    target: me.down('#side-menu-header-object-name').getEl(),
+                    html: Ext.htmlEncode(title)
+                });
                 me.down('#side-menu-header-object-name').update(Ext.htmlEncode(title));
             }
             me.updateLayout();
