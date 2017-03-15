@@ -142,7 +142,6 @@ public class PlaintextSymmetricKey implements SymmetricKeyWrapper, Renewable {
                 .stream().map(properties -> properties.asPropertySpec(propertySpecService)).collect(toList());
     }
 
-
     protected void save() {
         Save.action(id).save(dataModel, this);
     }

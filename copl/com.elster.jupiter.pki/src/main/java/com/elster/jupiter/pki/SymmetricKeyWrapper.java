@@ -19,4 +19,5 @@ public interface SymmetricKeyWrapper extends HasDynamicPropertiesWithUpdatableVa
      * @return date until which this element is valid
      */
     Instant getExpirationTime();
+
 }
