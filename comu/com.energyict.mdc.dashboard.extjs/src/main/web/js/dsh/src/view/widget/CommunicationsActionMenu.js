@@ -25,6 +25,12 @@ Ext.define('Dsh.view.widget.CommunicationsActionMenu', {
                 action: 'viewLog',
                 itemId: 'dsh-communication-actions-menu-view-log',
                 section: this.SECTION_VIEW
+            },
+            {
+                text: Uni.I18n.translate('general.viewConnections', 'DSH', 'View connections'),
+                action: 'viewConnections',
+                itemId: 'dsh-communication-actions-menu-view-connections',
+                section: this.SECTION_VIEW
             }
         ];
         this.callParent(arguments);

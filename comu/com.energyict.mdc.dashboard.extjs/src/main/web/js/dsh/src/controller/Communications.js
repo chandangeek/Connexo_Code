@@ -56,6 +56,10 @@ Ext.define('Dsh.controller.Communications', {
         {
             ref: 'connectionsPreviewActionBtn',
             selector: '#connectionsPreviewActionBtn'
+        },
+        {
+            ref: 'connectionTypeFilter',
+            selector: 'dsh-view-widget-communicationstopfilter #connection-type-filter'
         }
     ],
 
@@ -102,6 +106,9 @@ Ext.define('Dsh.controller.Communications', {
                 break;
             case 'runNow':
                 me.communicationRunNow(menu.record);
+                break;
+            case 'viewConnections':
+                me.viewConnections(menu.record);
                 break;
         }
     },
@@ -252,5 +259,14 @@ Ext.define('Dsh.controller.Communications', {
 
     forwardToBulk: function () {
         location.href = '#/workspace/communications/details/bulk?' + Uni.util.QueryString.getQueryString();
+    },
+
+    viewConnections: function (record) {
+        var connectionType = record.get('connectionTask').connectionType,
+            storeIndex = this.getConnectionTypeFilter().getStore().findExact("name", connectionType),
+            connectionTypeRecord = storeIndex!=-1 ? this.getConnectionTypeFilter().getStore().getAt(storeIndex) : undefined;
+
+        location.href = '#/workspace/connections/details?device=' + encodeURIComponent(record.get('connectionTask').device.name)
+            + (Ext.isEmpty(connectionTypeRecord) ? '' : '&connectionTypes=' + connectionTypeRecord.get('id'));
     }
 });
