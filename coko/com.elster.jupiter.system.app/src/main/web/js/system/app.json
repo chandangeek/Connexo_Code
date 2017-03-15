@@ -15,7 +15,8 @@
         "com.elster.jupiter.servicecalltype.extjs",
         "com.elster.jupiter.bpm.extjs",
         "com.elster.jupiter.calendar.extjs",
-        "com.elster.jupiter.webservices.extjs"
+        "com.elster.jupiter.webservices.extjs",
+        "com.elster.jupiter.pki.extjs"
     ],
 
     "id": "7cde7b38-a4d1-4e19-aed4-8b4b3e92293e"

@@ -55,6 +55,10 @@ Ext.onReady(function () {
         {
             name: 'Wss',
             path: '../../apps/wss/src'
+        },
+        {
+            name: 'Pkj',
+            path: '../../apps/pkj/src'
         }
     ];
 
