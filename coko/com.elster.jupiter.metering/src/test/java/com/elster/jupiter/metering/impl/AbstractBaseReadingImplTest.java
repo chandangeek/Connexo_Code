@@ -24,6 +24,10 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 
 import javax.inject.Provider;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorFactory;
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
@@ -90,9 +94,22 @@ public abstract class AbstractBaseReadingImplTest {
         when(idsService.getRecordSpec(anyString(), anyInt())).thenReturn(Optional.of(recordSpec));
         when(entry.getTimeStamp()).thenReturn(DATE);
         when(entry.getRecordDateTime()).thenReturn(RECORD_DATE);
-        when(entry.getBigDecimal(anyInt())).thenAnswer(invocationOnMock -> BigDecimal.valueOf((int) invocationOnMock.getArguments()[0]));
+        when(entry.getBigDecimal(anyInt())).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return BigDecimal.valueOf((long) (int) invocationOnMock.getArguments()[0]);
+            }
+        });
+        MeterActivationContraintValidatorFactory contraintValidatorFactory = new MeterActivationContraintValidatorFactory(dataModel, thesaurus);
+        ValidatorFactory validatorFactory = Validation.byDefaultProvider()
+                .configure()
+                .constraintValidatorFactory(contraintValidatorFactory)
+                .messageInterpolator(thesaurus)
+                .buildValidatorFactory();
         final Provider<ChannelImpl> channelFactory = () -> new ChannelImpl(dataModel, idsService, meteringService, clock, eventService);
         final Provider<ChannelBuilder> channelBuilder = () -> new ChannelBuilderImpl(dataModel, channelFactory);
+        when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
+        when(meter.getUsagePoint(any())).thenReturn(Optional.empty());
         when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, aggregationService, channelBuilder));
         when(meter.getHeadEndInterface()).thenReturn(Optional.empty());
         meterActivation = new MeterActivationImpl(dataModel, eventService, clock, thesaurus).init(meter, null, null, Instant.EPOCH);

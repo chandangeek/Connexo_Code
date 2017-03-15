@@ -20,6 +20,8 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 
 import com.google.common.collect.Range;
 
@@ -145,6 +147,10 @@ public class UsagePointConfigurationIT {
         usagePoint = electricity.newUsagePoint("mrId", Instant.EPOCH).create();
         AmrSystem system = meteringService.findAmrSystem(1).get();
         Meter meter = system.newMeter("meter", "myName").create();
+        ServerMetrologyConfigurationService metrologyConfigurationService = inMemoryBootstrapModule.getMetrologyConfigurationService();
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = metrologyConfigurationService.newUsagePointMetrologyConfiguration("UP", meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get()).create();
+        usagePointMetrologyConfiguration.addMeterRole(metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT));
+        usagePoint.apply(usagePointMetrologyConfiguration, ACTIVE_DATE.toInstant());
         meterActivation = usagePoint.activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .findDefaultMeterRole(DefaultMeterRole.DEFAULT), ACTIVE_DATE.toInstant());
         usagePoint = meteringService.findUsagePointById(usagePoint.getId()).get();
