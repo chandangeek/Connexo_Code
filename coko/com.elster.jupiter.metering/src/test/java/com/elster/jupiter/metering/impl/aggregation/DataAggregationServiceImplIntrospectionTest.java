@@ -230,6 +230,7 @@ public class DataAggregationServiceImplIntrospectionTest {
         when(virtualConsumption.sqlName()).thenReturn("vrt-consumption");
         VirtualReadingTypeRequirement virtualProduction = mock(VirtualReadingTypeRequirement.class);
         when(virtualProduction.sqlName()).thenReturn("vrt-production");
+        when(usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(effectiveMetrologyConfiguration));
 
         // Setup contract deliverables
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(netConsumption));
@@ -360,6 +361,7 @@ public class DataAggregationServiceImplIntrospectionTest {
         when(consumption.getMatchesFor(channelsContainer)).thenReturn(Collections.singletonList(productionReadingType15min));
         when(consumption.getMatchingChannelsFor(channelsContainer)).thenReturn(Collections.singletonList(chn1));
         when(production.getMatchingChannelsFor(channelsContainer)).thenReturn(Collections.singletonList(chn2));
+        when(usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(effectiveMetrologyConfiguration));
 
         // Business method
         MetrologyContractCalculationIntrospector introspector = service.introspect(this.usagePoint, this.contract, aggregationPeriod);
@@ -484,6 +486,7 @@ public class DataAggregationServiceImplIntrospectionTest {
         when(production.getMatchingChannelsFor(channelsContainer1)).thenReturn(Collections.singletonList(chnJan2));
         when(consumption.getMatchingChannelsFor(channelsContainer2)).thenReturn(Collections.singletonList(chnFeb1));
         when(production.getMatchingChannelsFor(channelsContainer2)).thenReturn(Collections.singletonList(chnFeb2));
+        when(usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(effectiveMetrologyConfiguration));
 
         // Business method
         MetrologyContractCalculationIntrospector introspector = service.introspect(this.usagePoint, this.contract, aggregationPeriod);
@@ -574,6 +577,7 @@ public class DataAggregationServiceImplIntrospectionTest {
         when(consumption.getMatchingChannelsFor(channelsContainer)).thenReturn(Collections.singletonList(chn15min));
         when(consumption.getMatchingChannelsFor(channelsContainer)).thenReturn(Collections.singletonList(chn60min));
         when(virtualConsumption.getPreferredChannel()).thenReturn(chn60min);
+        when(usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(effectiveMetrologyConfiguration));
 
         // Business method
         MetrologyContractCalculationIntrospector introspector = service.introspect(this.usagePoint, this.contract, aggregationPeriod);
