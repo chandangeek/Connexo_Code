@@ -273,9 +273,6 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     }
 
     public ReadingTypeDeliverable doBuild() {
-        if (metrologyConfiguration.getDeliverables().stream().anyMatch(deliverable -> deliverable.getReadingType().equals(readingType))) {
-            throw new ReadingTypeAlreadyUsedOnMetrologyConfiguration(formulaBuilder.getThesaurus());
-        }
         return metrologyConfiguration.addReadingTypeDeliverable(name, deliverableType, readingType, formulaBuilder.build());
     }
 
