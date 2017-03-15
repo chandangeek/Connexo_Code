@@ -23,7 +23,7 @@ public class UsagePointLifeCycleInfoFactory {
     public UsagePointLifeCycleInfo shortInfo(UsagePointLifeCycle lifeCycle) {
         UsagePointLifeCycleInfo info = new UsagePointLifeCycleInfo();
         info.id = lifeCycle.getId();
-        info.name = lifeCycle.getName();
+        info.name = thesaurus.getString(lifeCycle.getName(), lifeCycle.getName());
         info.version = lifeCycle.getVersion();
         info.obsolete = lifeCycle.isObsolete();
         info.isDefault = lifeCycle.isDefault();
