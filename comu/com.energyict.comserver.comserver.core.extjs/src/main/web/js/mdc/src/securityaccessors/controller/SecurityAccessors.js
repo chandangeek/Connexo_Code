@@ -316,7 +316,9 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                         me.getSecurityAccessorsGrid().setLoading();
                         record.destroy({
                             callback: function () {
-                                Uni.I18n.translate('securityaccessors.removeSecurityAccessorSuccess', 'MDC', 'Security accessor removed');
+                                me.getApplication().fireEvent('acknowledge',
+                                    Uni.I18n.translate('securityaccessors.removeSecurityAccessorSuccess', 'MDC', 'Security accessor removed')
+                                );
                                 me.getSecurityAccessorsGrid().down('pagingtoolbartop').resetPaging();
                                 me.getSecurityAccessorsGrid().down('pagingtoolbarbottom').resetPaging();
                                 store.load({
