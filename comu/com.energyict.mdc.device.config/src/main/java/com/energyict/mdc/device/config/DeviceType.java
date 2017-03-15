@@ -192,7 +192,7 @@ public interface DeviceType extends HasId, HasName {
      * Device type used for submeter elements (= virtual slaves of a regular device for 'ad hoc' configuration of datasources
      * @return true is this device type is used for submeter elements within a regular device, for if not
      */
-    boolean isSubmeterElement();
+    boolean isMultiElementSlave();
 
     void setDeviceTypePurpose(DeviceTypePurpose deviceTypePurpose);
 

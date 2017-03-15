@@ -112,7 +112,7 @@ public interface DeviceConfigurationService {
      * @param deviceLifeCycle The DeviceLifeCycle
      * @return The newly created multi-element submeter DeviceType
      */
-    DeviceType.DeviceTypeBuilder newMultiElementSubmeterTypeBuilder(String name, DeviceLifeCycle deviceLifeCycle);
+    DeviceType.DeviceTypeBuilder newMultiElementSlaveDeviceTypeBuilder(String name, DeviceLifeCycle deviceLifeCycle);
 
     /**
      * Find the {@link DeviceType} which is uniquely identified by the provided ID.

@@ -816,7 +816,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MULTI_ELEMENT_SUBMETER_AT_LEAST_ONE_DATASOURCE + "}")
     public void createSubmeterConfigWithoutResourcesTest() {
         DeviceType dataloggerSlaveDeviceType = inMemoryPersistence.getDeviceConfigurationService()
-                .newMultiElementSubmeterTypeBuilder("Submeter", inMemoryPersistence.getDeviceLifeCycleConfigurationService()
+                .newMultiElementSlaveDeviceTypeBuilder("Submeter", inMemoryPersistence.getDeviceLifeCycleConfigurationService()
                         .findDefaultDeviceLifeCycle().get()).create();
         DeviceConfiguration deviceConfiguration = dataloggerSlaveDeviceType.newConfiguration("createSubmeterConfigWithoutResourcesTest").add();
         deviceConfiguration.activate();

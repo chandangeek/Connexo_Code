@@ -172,10 +172,10 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         return this;
     }
 
-    private DeviceType initializeSubmeter(String name, DeviceLifeCycle deviceLifeCycle) {
+    private DeviceType initializeMultiElementSlave(String name, DeviceLifeCycle deviceLifeCycle) {
         this.setName(name);
         this.setDeviceLifeCycle(deviceLifeCycle, this.clock.instant());
-        this.deviceTypePurpose = DeviceTypePurpose.SUBMETERING_ELEMENT;
+        this.deviceTypePurpose = DeviceTypePurpose.MULTI_ELEMENT_SLAVE;
         return this;
     }
 
@@ -443,8 +443,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public boolean isSubmeterElement() {
-        return deviceTypePurpose.equals(DeviceTypePurpose.SUBMETERING_ELEMENT);
+    public boolean isMultiElementSlave() {
+        return deviceTypePurpose.equals(DeviceTypePurpose.MULTI_ELEMENT_SLAVE);
     }
 
     @Override
@@ -1012,7 +1012,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     private ProtocolBehavior getProtocolBehavior() {
-        return isDataloggerSlave() || isSubmeterElement() ? new LackingProtocolBehavior() : new RegularProtocolBehavior();
+        return isDataloggerSlave() || isMultiElementSlave() ? new LackingProtocolBehavior() : new RegularProtocolBehavior();
     }
 
     interface ProtocolBehavior {
@@ -1052,7 +1052,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
         @Override
         public Optional<DeviceProtocolPluggableClass> getDeviceProtocolPluggableClass() {
-            if (DeviceTypeImpl.this.deviceProtocolPluggableClass == null && !isDataloggerSlave() && !isSubmeterElement()) {
+            if (DeviceTypeImpl.this.deviceProtocolPluggableClass == null && !isDataloggerSlave() && !isMultiElementSlave()) {
                 Optional<DeviceProtocolPluggableClass> optionalDeviceProtocolPluggableClass = this.findDeviceProtocolPluggableClass(DeviceTypeImpl.this.deviceProtocolPluggableClassId);
                 optionalDeviceProtocolPluggableClass.ifPresent(consumer -> DeviceTypeImpl.this.deviceProtocolPluggableClass = consumer);
             }
@@ -1114,7 +1114,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     private LogBookBehavior getLogBookTypeBehavior() {
-        return isDataloggerSlave() || isSubmeterElement() ? new LackingLogBookBehavior() : new RegularLogBookBehavior();
+        return isDataloggerSlave() || isMultiElementSlave() ? new LackingLogBookBehavior() : new RegularLogBookBehavior();
     }
 
     /**
@@ -1270,8 +1270,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                 case DATALOGGER_SLAVE:
                     this.underConstruction.initializeDataloggerSlave(name, deviceLifeCycle);
                     break;
-                case SUBMETERING_ELEMENT:
-                    this.underConstruction.initializeSubmeter(name, deviceLifeCycle);
+                case MULTI_ELEMENT_SLAVE:
+                    this.underConstruction.initializeMultiElementSlave(name, deviceLifeCycle);
                     break;
             }
         }

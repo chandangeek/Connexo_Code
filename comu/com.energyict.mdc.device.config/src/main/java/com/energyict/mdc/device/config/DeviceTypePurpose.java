@@ -30,5 +30,5 @@ public enum DeviceTypePurpose {
      * Submeters give us the same functionality as a data logger slave (=physical device) that we can link and unlink from its 'multi-element' meter.
      * But as they are not real hardware devices, they have no real lifecycle.
      */
-    SUBMETERING_ELEMENT;
+    MULTI_ELEMENT_SLAVE;
 }

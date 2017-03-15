@@ -47,7 +47,7 @@ public class DataloggerSlaveTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(deviceType.getDeviceProtocolPluggableClass().isPresent()).isFalse();
         assertThat(deviceType.getDescription()).isEqualTo(description);
         assertThat(deviceType.isDataloggerSlave()).isTrue();
-        assertThat(deviceType.isSubmeterElement()).isFalse();
+        assertThat(deviceType.isMultiElementSlave()).isFalse();
     }
 
     @Test

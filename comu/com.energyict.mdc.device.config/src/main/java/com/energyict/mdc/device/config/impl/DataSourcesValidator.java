@@ -35,7 +35,7 @@ public class DataSourcesValidator implements ConstraintValidator<ValidDataSource
                 context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DATALOGGER_SLAVES_AT_LEAST_ONE_DATASOURCE + "}")
                         .addConstraintViolation().disableDefaultConstraintViolation();
                 return false;
-            } else if (deviceConfiguration.getDeviceType().isSubmeterElement()) {
+            } else if (deviceConfiguration.getDeviceType().isMultiElementSlave()) {
                 context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.MULTI_ELEMENT_SUBMETER_AT_LEAST_ONE_DATASOURCE + "}")
                         .addConstraintViolation().disableDefaultConstraintViolation();
                 return false;

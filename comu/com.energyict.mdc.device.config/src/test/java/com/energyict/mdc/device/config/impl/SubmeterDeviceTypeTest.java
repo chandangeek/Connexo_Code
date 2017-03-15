@@ -32,7 +32,7 @@ public class SubmeterDeviceTypeTest extends DeviceTypeProvidingPersistenceTest {
         DeviceType deviceType;
         // Business method
         DeviceType.DeviceTypeBuilder deviceTypeBuilder = inMemoryPersistence.getDeviceConfigurationService()
-                .newMultiElementSubmeterTypeBuilder(deviceTypeName, getDefaultDeviceLifeCycle());
+                .newMultiElementSlaveDeviceTypeBuilder(deviceTypeName, getDefaultDeviceLifeCycle());
         String description = "For testing purposes only";
         deviceTypeBuilder.setDescription(description);
         deviceType = deviceTypeBuilder.create();
@@ -47,7 +47,7 @@ public class SubmeterDeviceTypeTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(deviceType.getDeviceProtocolPluggableClass().isPresent()).isFalse();
         assertThat(deviceType.getDescription()).isEqualTo(description);
         assertThat(deviceType.isDataloggerSlave()).isFalse();
-        assertThat(deviceType.isSubmeterElement()).isTrue();
+        assertThat(deviceType.isMultiElementSlave()).isTrue();
     }
 
     @Test
@@ -58,7 +58,7 @@ public class SubmeterDeviceTypeTest extends DeviceTypeProvidingPersistenceTest {
         DeviceType deviceType;
         // Business method
         DeviceType.DeviceTypeBuilder deviceTypeBuilder = inMemoryPersistence.getDeviceConfigurationService()
-                .newMultiElementSubmeterTypeBuilder(deviceTypeName, null);
+                .newMultiElementSlaveDeviceTypeBuilder(deviceTypeName, null);
         String description = "For testing purposes only";
         deviceTypeBuilder.setDescription(description);
         deviceType = deviceTypeBuilder.create();
@@ -69,10 +69,10 @@ public class SubmeterDeviceTypeTest extends DeviceTypeProvidingPersistenceTest {
     public void canChangeFromDataloggerSlaveToRegularWhenNoConfigsTest() {
         String deviceTypeName = "canChangeFromSubMeterDeviceTypeToRegularWhenNoConfigsTest";
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService()
-                .newMultiElementSubmeterTypeBuilder(deviceTypeName, getDefaultDeviceLifeCycle())
+                .newMultiElementSlaveDeviceTypeBuilder(deviceTypeName, getDefaultDeviceLifeCycle())
                 .create();
 
-        assertThat(deviceType.isSubmeterElement()).isTrue();
+        assertThat(deviceType.isMultiElementSlave()).isTrue();
 
         deviceType.setDeviceTypePurpose(DeviceTypePurpose.REGULAR);
         deviceType.setDeviceProtocolPluggableClass(deviceProtocolPluggableClass);
@@ -92,11 +92,11 @@ public class SubmeterDeviceTypeTest extends DeviceTypeProvidingPersistenceTest {
 
         assertThat(deviceType.isDataloggerSlave()).isFalse();
 
-        deviceType.setDeviceTypePurpose(DeviceTypePurpose.SUBMETERING_ELEMENT);
+        deviceType.setDeviceTypePurpose(DeviceTypePurpose.MULTI_ELEMENT_SLAVE);
         deviceType.update();
 
         DeviceType reloadedDeviceType = reloadDeviceType(deviceType);
-        assertThat(reloadedDeviceType.isSubmeterElement()).isTrue();
+        assertThat(reloadedDeviceType.isMultiElementSlave()).isTrue();
     }
 
     @Test
@@ -105,7 +105,7 @@ public class SubmeterDeviceTypeTest extends DeviceTypeProvidingPersistenceTest {
     public void cannotChangeFromSubmeterDeviceTypeToRegularWhenConfigsTest() {
         String deviceTypeName = "cannotChangeFromDataloggerSlaveToRegularWhenConfigsTest";
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService()
-                .newMultiElementSubmeterTypeBuilder(deviceTypeName, getDefaultDeviceLifeCycle())
+                .newMultiElementSlaveDeviceTypeBuilder(deviceTypeName, getDefaultDeviceLifeCycle())
                 .create();
 
         deviceType.newConfiguration("Default").add();
@@ -126,7 +126,7 @@ public class SubmeterDeviceTypeTest extends DeviceTypeProvidingPersistenceTest {
 
         deviceType.newConfiguration("Default").add();
 
-        deviceType.setDeviceTypePurpose(DeviceTypePurpose.SUBMETERING_ELEMENT);
+        deviceType.setDeviceTypePurpose(DeviceTypePurpose.MULTI_ELEMENT_SLAVE);
         deviceType.update();
     }
 
@@ -140,14 +140,14 @@ public class SubmeterDeviceTypeTest extends DeviceTypeProvidingPersistenceTest {
                 .withLogBookTypes(Collections.singletonList(logBookType))
                 .create();
 
-        assertThat(deviceType.isSubmeterElement()).isFalse();
+        assertThat(deviceType.isMultiElementSlave()).isFalse();
 
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("Test");
         deviceConfigurationBuilder.newLogBookSpec(logBookType);
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
 
         try {
-            deviceType.setDeviceTypePurpose(DeviceTypePurpose.SUBMETERING_ELEMENT);
+            deviceType.setDeviceTypePurpose(DeviceTypePurpose.MULTI_ELEMENT_SLAVE);
             deviceType.update();
         } catch (DataloggerSlaveException e) {
             // Asserts
@@ -163,7 +163,7 @@ public class SubmeterDeviceTypeTest extends DeviceTypeProvidingPersistenceTest {
         String deviceTypeName = "cannotAddLogBookTypesToADataloggerSlaveDeviceTypeTest";
         try {
             DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService()
-                    .newMultiElementSubmeterTypeBuilder(deviceTypeName, getDefaultDeviceLifeCycle())
+                    .newMultiElementSlaveDeviceTypeBuilder(deviceTypeName, getDefaultDeviceLifeCycle())
                     .withLogBookTypes(Collections.singletonList(logBookType))
                     .create();
         } catch (DataloggerSlaveException e) {

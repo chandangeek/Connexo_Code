@@ -223,7 +223,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     DeviceConfigurationImpl initialize(DeviceType deviceType, String name) {
         this.deviceType.set(deviceType);
         setName(name);
-        if (!getDeviceType().isDataloggerSlave() && ! getDeviceType().isSubmeterElement()) {
+        if (!getDeviceType().isDataloggerSlave() && ! getDeviceType().isMultiElementSlave()) {
             this.getDeviceType()
                     .getDeviceProtocolPluggableClass()
                     .ifPresent(deviceProtocolPluggableClass -> deviceProtocolPluggableClass
@@ -752,7 +752,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     private LogBookBehavior getLogBookBehavior() {
-        return ((getDeviceType().isDataloggerSlave() || getDeviceType().isSubmeterElement()) ? new LackingLogBookBehavior() : new RegularLogBookBehavior());
+        return ((getDeviceType().isDataloggerSlave() || getDeviceType().isMultiElementSlave()) ? new LackingLogBookBehavior() : new RegularLogBookBehavior());
     }
 
     /**

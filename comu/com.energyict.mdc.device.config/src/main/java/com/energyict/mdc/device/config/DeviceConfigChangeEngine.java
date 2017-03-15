@@ -40,7 +40,7 @@ public final class DeviceConfigChangeEngine {
      * @return the calculated DeviceConfigChangeActions
      */
     public List<DeviceConfigChangeAction> calculateDeviceConfigChangeActionsForConflicts(DeviceType deviceType) {
-        if (!deviceType.isDataloggerSlave() && !deviceType.isSubmeterElement()) {
+        if (!deviceType.isDataloggerSlave() && !deviceType.isMultiElementSlave()) {
             List<DeviceConfigChangeAction> deviceConfigChangeActions = new ArrayList<>();
             deviceType.getConfigurations().stream()
                     .filter(DeviceConfiguration::isActive) // only perform the check on active device configurations

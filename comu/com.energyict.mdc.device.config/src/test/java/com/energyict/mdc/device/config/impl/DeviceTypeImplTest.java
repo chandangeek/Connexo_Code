@@ -140,7 +140,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(deviceType.getDeviceProtocolPluggableClass().get()).isEqualTo(this.deviceProtocolPluggableClass);
         assertThat(deviceType.getDescription()).isNotEmpty();
         assertThat(deviceType.isDataloggerSlave()).isFalse();
-        assertThat(deviceType.isSubmeterElement()).isFalse();
+        assertThat(deviceType.isMultiElementSlave()).isFalse();
         assertThat(deviceType.getDeviceUsageType()).isEqualTo(DeviceUsageType.NONE);
     }
 

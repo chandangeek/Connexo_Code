@@ -242,8 +242,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public DeviceType.DeviceTypeBuilder newMultiElementSubmeterTypeBuilder(String name, DeviceLifeCycle deviceLifeCycle) {
-        return new DeviceTypeImpl.DeviceTypeBuilderImpl(getDataModel().getInstance(DeviceTypeImpl.class), name, null, deviceLifeCycle, DeviceTypePurpose.SUBMETERING_ELEMENT);
+    public DeviceType.DeviceTypeBuilder newMultiElementSlaveDeviceTypeBuilder(String name, DeviceLifeCycle deviceLifeCycle) {
+        return new DeviceTypeImpl.DeviceTypeBuilderImpl(getDataModel().getInstance(DeviceTypeImpl.class), name, null, deviceLifeCycle, DeviceTypePurpose.MULTI_ELEMENT_SLAVE);
     }
 
     @Override
