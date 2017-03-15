@@ -202,7 +202,6 @@ public class UsagePointLifeCycleIT extends BaseTestIT {
     public void testInactiveStateHaveSuspendStageAfterLifeCycleCreated(){
         UsagePointLifeCycleConfigurationService service = get(UsagePointLifeCycleConfigurationService.class);
         UsagePointLifeCycle lifeCycle = service.newUsagePointLifeCycle("Test");
-        UsagePointState inactiveState = lifeCycle.newState("Inactive").setStage(UsagePointStage.Key.SUSPENDED).complete();
         assertThat(
         lifeCycle.getStates()
                 .stream()
