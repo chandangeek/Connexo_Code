@@ -73,7 +73,7 @@ public class UsagePointStateSearchableProperty implements SearchableUsagePointPr
                 .referenceSpec(State.class)
                 .named(FIELD_NAME, PropertyTranslationKeys.USAGEPOINT_STATE)
                 .fromThesaurus(this.thesaurus)
-                .addValues(this.configurationService.getUsagePointStates().find()
+                .addValues(this.configurationService.getUsagePointStates()
                         .stream()
                         .sorted(Comparator.comparing(State::getName))
                         .collect(Collectors.toList()))
@@ -100,7 +100,17 @@ public class UsagePointStateSearchableProperty implements SearchableUsagePointPr
     public String toDisplay(Object value) {
         if (value instanceof State) {
             State state = (State) value;
-            return new StringBuilder(state.getName()).append(" (").append(state.getFiniteStateMachine().getName()).append(")").toString();
+            String stateName = thesaurus.getString(state.getName(), state.getName());
+            String stateMachineName = state.getFiniteStateMachine().getName();
+            //all usage point lifecycles are prefixed as an fsm. Because it's not possible to get the UP lifecycle here, a small workarround is done
+            //using the finite state machine name with the prefix
+            //plus just a small check to be absolutely sure
+            int index = stateMachineName.indexOf(UsagePointLifeCycleConfigurationService.FSM_NAME_PREFIX);
+            if(index == 0) {
+                stateMachineName = stateMachineName.substring(UsagePointLifeCycleConfigurationService.FSM_NAME_PREFIX.length());
+            }
+            String lifecycleName = thesaurus.getString(stateMachineName, stateMachineName);
+            return new StringBuilder(stateName).append(" (").append(lifecycleName).append(")").toString();
         }
         throw new IllegalArgumentException("Value not compatible with domain");
     }

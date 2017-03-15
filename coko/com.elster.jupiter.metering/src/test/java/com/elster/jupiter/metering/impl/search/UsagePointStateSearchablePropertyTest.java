@@ -70,8 +70,7 @@ public class UsagePointStateSearchablePropertyTest {
         this.propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
         when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(this.messageFormat);
         when(this.messageFormat.format(anyVararg())).thenReturn("No translation");
-        Finder statesFinder = FakeBuilder.initBuilderStub(Collections.singletonList(this.usagePointState), Finder.class);
-        when(this.configurationService.getUsagePointStates()).thenReturn(statesFinder);
+        when(this.configurationService.getUsagePointStates()).thenReturn(Collections.singletonList(this.usagePointState));
         when(this.usagePointLifeCycle.getName()).thenReturn("life cycle");
     }
 
@@ -194,6 +193,8 @@ public class UsagePointStateSearchablePropertyTest {
         FiniteStateMachine stateMachine = mock(FiniteStateMachine.class);
         when(stateMachine.getName()).thenReturn("life cycle");
         when(usagePointState.getFiniteStateMachine()).thenReturn(stateMachine);
+        when(thesaurus.getString("name", "name")).thenReturn("name");
+        when(thesaurus.getString("life cycle", "life cycle")).thenReturn("life cycle");
         // Business method
         String displayValue = property.toDisplay(usagePointState);
 
