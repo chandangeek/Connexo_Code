@@ -110,7 +110,7 @@ Ext.define('Pkj.controller.TrustStores', {
                 if (success) {
                     viewport.setLoading(false);
                     me.getApplication().fireEvent('acknowledge', operation.action === 'update'
-                        ? Uni.I18n.translate('truststores.saveSuccess', 'MDC', 'trust store saved')
+                        ? Uni.I18n.translate('truststores.saveSuccess', 'PKJ', 'trust store saved')
                         : Uni.I18n.translate('truststores.addSuccess', 'PKJ', 'trust store added'));
                     me.navigateToTrustStoresOverviewPage();
                 } else {
