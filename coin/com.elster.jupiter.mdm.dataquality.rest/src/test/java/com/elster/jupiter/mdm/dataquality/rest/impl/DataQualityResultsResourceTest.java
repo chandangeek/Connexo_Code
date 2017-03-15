@@ -17,8 +17,6 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
-import com.elster.jupiter.util.HasId;
-import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.validation.Validator;
 
@@ -44,7 +42,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
 
 public class DataQualityResultsResourceTest extends DeviceDataQualityRestApplicationJerseyTest {
 
@@ -54,6 +51,8 @@ public class DataQualityResultsResourceTest extends DeviceDataQualityRestApplica
     private static final String METROLOGY_CONFIGURATION_NAME = "Metrology configuration";
     private static final Long METROLOGY_PURPOSE_ID = 124L;
     private static final String METROLOGY_PURPOSE_NAME = "Billing";
+    private static final Long METROLOGY_CONTRACT_ID = 125L;
+    private static final boolean IS_EFFECTIVE = true;
 
     private static final Long REGISTER_SUSPECTS = 11L;
     private static final Long CHANNEL_SUSPECTS = 12L;
@@ -95,12 +94,11 @@ public class DataQualityResultsResourceTest extends DeviceDataQualityRestApplica
                 UsagePointDataQualityService.MetricSpecificationBuilder.class);
         when(usagePointDataQualityService.forAllUsagePoints()).thenReturn(overviewBuilder);
         when(dataQualityOverviews.allOverviews()).thenReturn(Collections.singletonList(dataQualityOverview));
-        DataQualityKpiResults dataQualityKpiResults = mockDataQualityKpiResults();
         when(dataQualityOverview.getUsagePointName()).thenReturn(USAGEPOINT_NAME);
         when(dataQualityOverview.getServiceKind()).thenReturn(SERVICE_KIND);
-        HasId metrologyConfiguration = mockIdWithName(METROLOGY_CONFIGURATION_ID, METROLOGY_CONFIGURATION_NAME);
-        when(dataQualityOverview.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
-        when(dataQualityOverview.getMetrologyPurposeId()).thenReturn(METROLOGY_PURPOSE_ID);
+        DataQualityOverview.UsagePointConfigurationOverview configurationOverview = mockUsagePointConfigurationOverview();
+        when(dataQualityOverview.getConfigurationOverview()).thenReturn(configurationOverview);
+        DataQualityKpiResults dataQualityKpiResults = mockDataQualityKpiResults();
         when(dataQualityOverview.getDataQualityKpiResults()).thenReturn(dataQualityKpiResults);
 
         mockServiceCategory();
@@ -116,19 +114,22 @@ public class DataQualityResultsResourceTest extends DeviceDataQualityRestApplica
         return serviceCategory;
     }
 
+    private DataQualityOverview.UsagePointConfigurationOverview mockUsagePointConfigurationOverview() {
+        DataQualityOverview.UsagePointConfigurationOverview configuration = mock(DataQualityOverview.UsagePointConfigurationOverview.class);
+        when(configuration.getMetrologyConfigurationId()).thenReturn(METROLOGY_CONFIGURATION_ID);
+        when(configuration.getMetrologyConfigurationName()).thenReturn(METROLOGY_CONFIGURATION_NAME);
+        when(configuration.getMetrologyPurposeId()).thenReturn(METROLOGY_PURPOSE_ID);
+        when(configuration.getMetrologyContractId()).thenReturn(METROLOGY_CONTRACT_ID);
+        when(configuration.isEffective()).thenReturn(IS_EFFECTIVE);
+        return configuration;
+    }
+
     private MetrologyPurpose mockMetrologyPurpose() {
         MetrologyPurpose metrologyPurpose = mock(MetrologyPurpose.class);
         when(metrologyPurpose.getId()).thenReturn(METROLOGY_PURPOSE_ID);
         when(metrologyPurpose.getName()).thenReturn(METROLOGY_PURPOSE_NAME);
         when(metrologyConfigurationService.findMetrologyPurpose(METROLOGY_PURPOSE_ID)).thenReturn(Optional.of(metrologyPurpose));
         return metrologyPurpose;
-    }
-
-    private <H extends HasId & HasName> H mockIdWithName(long id, String name) {
-        Object mock = mock(Object.class, withSettings().extraInterfaces(HasId.class, HasName.class));
-        when(((HasId) mock).getId()).thenReturn(id);
-        when(((HasName) mock).getName()).thenReturn(name);
-        return (H) mock;
     }
 
     private void mockValidators() {
@@ -141,40 +142,6 @@ public class DataQualityResultsResourceTest extends DeviceDataQualityRestApplica
         when(estimator_1.getDisplayName()).thenReturn(ESTIMATOR_1);
         when(estimator_2.getDisplayName()).thenReturn(ESTIMATOR_2);
         when(estimationService.getAvailableEstimators(QualityCodeSystem.MDM)).thenReturn(Arrays.asList(estimator_1, estimator_2));
-    }
-
-    @Test
-    public void getDataQualityOverview() {
-        // Business method
-        String response = target("/dataQualityResults").request().get(String.class);
-
-        // Asserts
-        JsonModel jsonModel = JsonModel.create(response);
-        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.dataQualityResults[0].usagePointName")).isEqualTo(USAGEPOINT_NAME);
-        assertThat(jsonModel.<String>get("$.dataQualityResults[0].serviceCategory")).isEqualTo(SERVICE_KIND.getDefaultFormat());
-        assertThat(jsonModel.<Number>get("$.dataQualityResults[0].metrologyConfiguration.id")).isEqualTo(METROLOGY_CONFIGURATION_ID.intValue());
-        assertThat(jsonModel.<String>get("$.dataQualityResults[0].metrologyConfiguration.name")).isEqualTo(METROLOGY_CONFIGURATION_NAME);
-        assertThat(jsonModel.<Number>get("$.dataQualityResults[0].metrologyPurpose.id")).isEqualTo(METROLOGY_PURPOSE_ID.intValue());
-        assertThat(jsonModel.<String>get("$.dataQualityResults[0].metrologyPurpose.name")).isEqualTo(METROLOGY_PURPOSE_NAME);
-        assertThat(jsonModel.<Number>get("$.dataQualityResults[0].amountOfSuspects")).isEqualTo(TOTAL_SUSPECTS.intValue());
-        assertThat(jsonModel.<Number>get("$.dataQualityResults[0].amountOfConfirmed")).isEqualTo(AMOUNT_OF_CONFIRMED.intValue());
-        assertThat(jsonModel.<Number>get("$.dataQualityResults[0].amountOfEstimates")).isEqualTo(AMOUNT_OF_ESTIMATES.intValue());
-        assertThat(jsonModel.<Number>get("$.dataQualityResults[0].amountOfInformatives")).isEqualTo(AMOUNT_OF_INFORMATIVES.intValue());
-        assertThat(jsonModel.<Number>get("$.dataQualityResults[0].amountOfAdded")).isEqualTo(AMOUNT_OF_ADDED.intValue());
-        assertThat(jsonModel.<Number>get("$.dataQualityResults[0].amountOfEdited")).isEqualTo(AMOUNT_OF_EDITED.intValue());
-        assertThat(jsonModel.<Number>get("$.dataQualityResults[0].amountOfRemoved")).isEqualTo(AMOUNT_OF_REMOVED.intValue());
-        assertThat(jsonModel.<Number>get("$.dataQualityResults[0].amountOfTotalEdited"))
-                .isEqualTo(AMOUNT_OF_ADDED.intValue() + AMOUNT_OF_EDITED.intValue() + AMOUNT_OF_REMOVED.intValue());
-        assertThat(jsonModel.<Number>get("$.dataQualityResults[0].channelSuspects")).isEqualTo(CHANNEL_SUSPECTS.intValue());
-        assertThat(jsonModel.<Number>get("$.dataQualityResults[0].registerSuspects")).isEqualTo(REGISTER_SUSPECTS.intValue());
-        assertThat(jsonModel.<Number>get("$.dataQualityResults[0].lastSuspect")).isEqualTo(LAST_SUSPECT.toEpochMilli());
-        assertThat(jsonModel.<List<String>>get("$.dataQualityResults[0].suspectsPerValidator[*].name")).containsExactly("V1", "V2");
-        assertThat(jsonModel.<List<Number>>get("$.dataQualityResults[0].suspectsPerValidator[*].value"))
-                .containsExactly(SUSPECTS_BY_VALIDATOR_1.intValue(), SUSPECTS_BY_VALIDATOR_2.intValue());
-        assertThat(jsonModel.<List<String>>get("$.dataQualityResults[0].estimatesPerEstimator[*].name")).containsExactly("E1", "E2");
-        assertThat(jsonModel.<List<Number>>get("$.dataQualityResults[0].estimatesPerEstimator[*].value"))
-                .containsExactly(ESTIMATES_BY_ESTIMATOR_1.intValue(), ESTIMATES_BY_ESTIMATOR_2.intValue());
     }
 
     private DataQualityKpiResults mockDataQualityKpiResults() {
@@ -200,6 +167,41 @@ public class DataQualityResultsResourceTest extends DeviceDataQualityRestApplica
 
         when(results.getLastSuspect()).thenReturn(LAST_SUSPECT);
         return results;
+    }
+
+    @Test
+    public void getDataQualityOverview() {
+        // Business method
+        String response = target("/dataQualityResults").request().get(String.class);
+
+        // Asserts
+        JsonModel jsonModel = JsonModel.create(response);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.dataQualityResults[0].usagePointName")).isEqualTo(USAGEPOINT_NAME);
+        assertThat(jsonModel.<String>get("$.dataQualityResults[0].serviceCategory")).isEqualTo(SERVICE_KIND.getDefaultFormat());
+        assertThat(jsonModel.<Number>get("$.dataQualityResults[0].metrologyConfiguration.id")).isEqualTo(METROLOGY_CONFIGURATION_ID.intValue());
+        assertThat(jsonModel.<String>get("$.dataQualityResults[0].metrologyConfiguration.name")).isEqualTo(METROLOGY_CONFIGURATION_NAME);
+        assertThat(jsonModel.<Number>get("$.dataQualityResults[0].metrologyContract.id")).isEqualTo(METROLOGY_CONTRACT_ID.intValue());
+        assertThat(jsonModel.<String>get("$.dataQualityResults[0].metrologyContract.name")).isEqualTo(METROLOGY_PURPOSE_NAME);
+        assertThat(jsonModel.<Boolean>get("$.dataQualityResults[0].isEffectiveConfiguration")).isEqualTo(IS_EFFECTIVE);
+        assertThat(jsonModel.<Number>get("$.dataQualityResults[0].amountOfSuspects")).isEqualTo(TOTAL_SUSPECTS.intValue());
+        assertThat(jsonModel.<Number>get("$.dataQualityResults[0].amountOfConfirmed")).isEqualTo(AMOUNT_OF_CONFIRMED.intValue());
+        assertThat(jsonModel.<Number>get("$.dataQualityResults[0].amountOfEstimates")).isEqualTo(AMOUNT_OF_ESTIMATES.intValue());
+        assertThat(jsonModel.<Number>get("$.dataQualityResults[0].amountOfInformatives")).isEqualTo(AMOUNT_OF_INFORMATIVES.intValue());
+        assertThat(jsonModel.<Number>get("$.dataQualityResults[0].amountOfAdded")).isEqualTo(AMOUNT_OF_ADDED.intValue());
+        assertThat(jsonModel.<Number>get("$.dataQualityResults[0].amountOfEdited")).isEqualTo(AMOUNT_OF_EDITED.intValue());
+        assertThat(jsonModel.<Number>get("$.dataQualityResults[0].amountOfRemoved")).isEqualTo(AMOUNT_OF_REMOVED.intValue());
+        assertThat(jsonModel.<Number>get("$.dataQualityResults[0].amountOfTotalEdited"))
+                .isEqualTo(AMOUNT_OF_ADDED.intValue() + AMOUNT_OF_EDITED.intValue() + AMOUNT_OF_REMOVED.intValue());
+        assertThat(jsonModel.<Number>get("$.dataQualityResults[0].channelSuspects")).isEqualTo(CHANNEL_SUSPECTS.intValue());
+        assertThat(jsonModel.<Number>get("$.dataQualityResults[0].registerSuspects")).isEqualTo(REGISTER_SUSPECTS.intValue());
+        assertThat(jsonModel.<Number>get("$.dataQualityResults[0].lastSuspect")).isEqualTo(LAST_SUSPECT.toEpochMilli());
+        assertThat(jsonModel.<List<String>>get("$.dataQualityResults[0].suspectsPerValidator[*].name")).containsExactly("V1", "V2");
+        assertThat(jsonModel.<List<Number>>get("$.dataQualityResults[0].suspectsPerValidator[*].value"))
+                .containsExactly(SUSPECTS_BY_VALIDATOR_1.intValue(), SUSPECTS_BY_VALIDATOR_2.intValue());
+        assertThat(jsonModel.<List<String>>get("$.dataQualityResults[0].estimatesPerEstimator[*].name")).containsExactly("E1", "E2");
+        assertThat(jsonModel.<List<Number>>get("$.dataQualityResults[0].estimatesPerEstimator[*].value"))
+                .containsExactly(ESTIMATES_BY_ESTIMATOR_1.intValue(), ESTIMATES_BY_ESTIMATOR_2.intValue());
     }
 
     @Test

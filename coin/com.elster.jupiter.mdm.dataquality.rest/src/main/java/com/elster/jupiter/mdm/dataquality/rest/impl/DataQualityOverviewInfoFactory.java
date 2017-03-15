@@ -38,9 +38,12 @@ public class DataQualityOverviewInfoFactory {
         DataQualityOverviewInfo info = new DataQualityOverviewInfo();
         info.usagePointName = overview.getUsagePointName();
         info.serviceCategory = meteringService.getServiceCategory(overview.getServiceKind()).map(HasName::getName).orElse(null);
-        info.metrologyConfiguration = new IdWithNameInfo(overview.getMetrologyConfiguration());
-        metrologyConfigurationService.findMetrologyPurpose(overview.getMetrologyPurposeId())
-                .ifPresent(purpose -> info.metrologyPurpose = new IdWithNameInfo(purpose));
+
+        DataQualityOverview.UsagePointConfigurationOverview configuration = overview.getConfigurationOverview();
+        info.metrologyConfiguration = new IdWithNameInfo(configuration.getMetrologyConfigurationId(), configuration.getMetrologyConfigurationName());
+        metrologyConfigurationService.findMetrologyPurpose(configuration.getMetrologyPurposeId())
+                .ifPresent(purpose -> info.metrologyContract = new IdWithNameInfo(configuration.getMetrologyContractId(), purpose.getName()));
+        info.isEffectiveConfiguration = configuration.isEffective();
 
         DataQualityKpiResults results = overview.getDataQualityKpiResults();
 

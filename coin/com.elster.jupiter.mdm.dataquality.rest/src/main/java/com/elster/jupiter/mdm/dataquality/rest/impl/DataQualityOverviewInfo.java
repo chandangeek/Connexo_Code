@@ -14,7 +14,8 @@ public class DataQualityOverviewInfo {
     public String usagePointName;
     public String serviceCategory;
     public IdWithNameInfo metrologyConfiguration;
-    public IdWithNameInfo metrologyPurpose;
+    public IdWithNameInfo metrologyContract;
+    public boolean isEffectiveConfiguration;
 
     // Suspect readings
     public long channelSuspects;
