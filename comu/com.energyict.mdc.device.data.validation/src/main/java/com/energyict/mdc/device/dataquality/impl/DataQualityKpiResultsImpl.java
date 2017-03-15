@@ -21,7 +21,8 @@ class DataQualityKpiResultsImpl implements DataQualityKpiResults {
 
     static DataQualityKpiResultsImpl from(ResultSet resultSet, DataQualityOverviewSpecificationImpl specification) throws SQLException {
         DataQualityKpiResultsImpl result = new DataQualityKpiResultsImpl();
-        result.lastSuspect = Instant.ofEpochMilli(resultSet.getLong(DataQualityOverviewImpl.ResultSetColumn.LAST_SUSPECT.index()));
+        long lastSuspect = resultSet.getLong(DataQualityOverviewImpl.ResultSetColumn.LAST_SUSPECT.index());
+        result.lastSuspect = lastSuspect == 0 ? null : Instant.ofEpochMilli(lastSuspect);
         for (KpiType kpiType : specification.getAvailableKpiTypes()) {
             result.kpiTypes.put(kpiType, resultSet.getLong(kpiType.withClauseAliasName()));
         }
