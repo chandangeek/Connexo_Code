@@ -156,8 +156,8 @@ public enum TableSpecs {
     DTC_KEYACCTYPEUSRACTN {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<KeyAccessorTypeImpl.UserActionRecord> table = dataModel.addTable(name(), KeyAccessorTypeImpl.UserActionRecord.class).since(version(10, 3));
-            table.map(KeyAccessorTypeImpl.UserActionRecord.class);
+            Table<UserActionRecord> table = dataModel.addTable(name(), UserActionRecord.class).since(version(10, 3));
+            table.map(UserActionRecord.class);
             Column useraction = table.column("USERACTION").number().conversion(NUMBER2ENUM).notNull().map("userAction").add();
             Column keyAccessorType = table.column("KEYACCESSORTYPE").number().notNull().add();
             table.setJournalTableName("DTC_KEYACCTYPE_USRACTNJRNL");

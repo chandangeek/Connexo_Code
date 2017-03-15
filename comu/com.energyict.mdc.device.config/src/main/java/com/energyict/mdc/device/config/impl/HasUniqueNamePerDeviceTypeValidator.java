@@ -15,7 +15,7 @@ public class HasUniqueNamePerDeviceTypeValidator implements ConstraintValidator<
 
     @Override
     public boolean isValid(KeyAccessorTypeImpl keyAccessorType, ConstraintValidatorContext context) {
-        if (!keyAccessorType.nameIsUnique()) {
+        if (!nameIsUnique(keyAccessorType)) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
                     .addPropertyNode("name").addConstraintViolation();
@@ -25,4 +25,11 @@ public class HasUniqueNamePerDeviceTypeValidator implements ConstraintValidator<
             return true;
         }
     }
+
+    private boolean nameIsUnique(KeyAccessorTypeImpl keyAccessorType) {
+        return keyAccessorType.getDeviceType().getKeyAccessorTypes().stream()
+                .filter(kat -> kat.getName().equals(keyAccessorType.getName()))
+                .noneMatch(kat -> kat.getId()!=keyAccessorType.getId());
+    }
+
 }

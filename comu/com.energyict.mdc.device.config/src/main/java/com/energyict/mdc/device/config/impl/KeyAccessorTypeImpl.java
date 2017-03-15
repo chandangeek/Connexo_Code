@@ -6,7 +6,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
@@ -46,7 +45,7 @@ public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
     private String keyEncryptionMethod;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<KeyType> keyType = Reference.empty();
-    @IsPresent
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<DeviceType> deviceType = Reference.empty();
     private DataModel dataModel;
     private final ThreadPrincipalService threadPrincipalService;
@@ -121,7 +120,12 @@ public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
 
     @Override
     public void postLoad() {
-        userActions.addAll(userActionRecords.stream().map(userActionRecord -> userActionRecord.userAction).collect(toList()));
+        userActions.addAll(userActionRecords.stream().map(UserActionRecord::getUserAction).collect(toList()));
+    }
+
+    void preDelete() {
+        userActionRecords.clear();
+        this.save();
     }
 
     protected void save() {
@@ -145,8 +149,8 @@ public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
         this.duration = duration;
     }
 
-    public Optional<DeviceType> getDeviceType() {
-        return deviceType.getOptional();
+    public DeviceType getDeviceType() {
+        return deviceType.get();
     }
 
     public void setDeviceType(DeviceType deviceType) {
@@ -168,7 +172,7 @@ public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
         boolean changed = userActions.remove(userAction);
         if (changed) {
             for (Iterator<UserActionRecord> iterator = userActionRecords.iterator(); iterator.hasNext(); ) {
-                if (iterator.next().userAction.equals(userAction)) {
+                if (iterator.next().getUserAction().equals(userAction)) {
                     iterator.remove();
                     dataModel.touch(this);
                     break;
@@ -222,39 +226,6 @@ public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
     @Override
     public KeyAccessorTypeUpdater startUpdate() {
         return new KeyAccessorTypeUpdaterImpl();
-    }
-
-    protected boolean nameIsUnique() {
-        if(deviceType.isPresent()) {
-            return !deviceType.get().getKeyAccessorTypes().stream()
-                    .filter(keyAccessorType -> !keyAccessorType.equals(this))
-                    .filter(keyAccessorType -> keyAccessorType.getName().equals(this.getName()))
-                    .findAny()
-                    .isPresent();
-        }
-        return false;
-    }
-
-    static class UserActionRecord {
-        private DeviceSecurityUserAction userAction;
-        private Reference<KeyAccessorType> keyAccessorType = ValueReference.absent();
-        @SuppressWarnings("unused")
-        private String userName;
-        @SuppressWarnings("unused")
-        private long version;
-        @SuppressWarnings("unused")
-        private Instant createTime;
-        @SuppressWarnings("unused")
-        private Instant modTime;
-
-        UserActionRecord() {
-        }
-
-        UserActionRecord(KeyAccessorType keyAccessorType, DeviceSecurityUserAction userAction) {
-            this();
-            this.keyAccessorType.set(keyAccessorType);
-            this.userAction = userAction;
-        }
     }
 
     protected class KeyAccessorTypeUpdaterImpl implements KeyAccessorTypeUpdater {

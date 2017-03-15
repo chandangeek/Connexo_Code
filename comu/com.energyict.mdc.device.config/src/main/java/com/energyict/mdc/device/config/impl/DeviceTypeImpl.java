@@ -303,10 +303,13 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public void removeKeyAccessorType(KeyAccessorType keyAccessorType) {
-        Optional<KeyAccessorType> keyAccessorTypeOptional = getKeyAccessorTypes().stream()
+        getKeyAccessorTypes().stream()
                 .filter(kat -> kat.getId() == keyAccessorType.getId())
-                .findAny();
-        keyAccessorTypeOptional.ifPresent(this.keyAccessors::remove);
+                .findAny()
+                .ifPresent(kat->{
+                    ((KeyAccessorTypeImpl)kat).preDelete();
+                    this.keyAccessors.remove(kat);
+                });
     }
 
     @Override

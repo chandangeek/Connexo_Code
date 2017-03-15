@@ -275,7 +275,7 @@ public interface DeviceType extends HasId, HasName {
      */
     void removeKeyAccessorType(KeyAccessorType keyAccessorType);
 
-        interface DeviceTypeBuilder {
+    interface DeviceTypeBuilder {
         DeviceTypeBuilder withRegisterTypes(List<RegisterType> registerTypes);
 
         DeviceTypeBuilder withLoadProfileTypes(List<LoadProfileType> loadProfileTypes);

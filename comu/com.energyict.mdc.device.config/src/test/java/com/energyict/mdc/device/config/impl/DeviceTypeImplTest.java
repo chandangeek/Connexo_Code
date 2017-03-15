@@ -12,6 +12,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -1008,6 +1009,24 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(deviceType.getKeyAccessorTypes().get(0).getName()).isEqualTo("TLS");
         assertThat(deviceType.getKeyAccessorTypes().get(0).getKeyEncryptionMethod()).isNull();
         assertThat(deviceType.getKeyAccessorTypes().get(0).getKeyType().getName()).isEqualTo("Friends");
+    }
+
+    @Test
+    @Transactional
+    public void testRemoveKeyAccessorType() throws Exception {
+        inMemoryPersistence.getPkiService().newSymmetricKeyType("AES256", "AES", 256).add();
+
+        Optional<KeyType> aes128 = inMemoryPersistence.getPkiService().getKeyType("AES256");
+        KeyAccessorType keyAccessorType = this.deviceType.addKeyAccessorType("GUAK", aes128.get())
+                .description("general use AK")
+                .duration(TimeDuration.days(365))
+                .keyEncryptionMethod("DataVault")
+                .add();
+
+        // Test method
+        this.deviceType.removeKeyAccessorType(keyAccessorType);
+
+        assertThat(deviceType.getKeyAccessorTypes()).isEmpty();
     }
 
     private void setupLogBookTypesInExistingTransaction(String logBookTypeBaseName) {
