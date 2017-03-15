@@ -9,6 +9,8 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 
 public enum TranslationKeys implements TranslationKey {
 
+
+    LIFE_CYCLE_NAME("usage.point.life.cycle.standard.name", "Standard usage point life cycle"),
     TRANSITION_INSTALL_ACTIVE("usage.point.transition.install.active", "Install active"),
     TRANSITION_INSTALL_INACTIVE("usage.point.transition.install.inactive", "Install inactive"),
     TRANSITION_DEACTIVATE("usage.point.transition.deactivate", "Deactivate"),

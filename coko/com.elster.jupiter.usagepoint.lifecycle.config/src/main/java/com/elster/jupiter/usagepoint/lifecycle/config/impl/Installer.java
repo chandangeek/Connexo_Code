@@ -29,13 +29,15 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     private final UserService userService;
     private final EventService eventService;
     private final FiniteStateMachineService stateMachineService;
+    private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
 
     @Inject
-    public Installer(DataModel dataModel, UserService userService, EventService eventService, FiniteStateMachineService stateMachineService) {
+    public Installer(DataModel dataModel, UserService userService, EventService eventService, FiniteStateMachineService stateMachineService, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
         this.dataModel = dataModel;
         this.userService = userService;
         this.eventService = eventService;
         this.stateMachineService = stateMachineService;
+        this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
     }
 
     @Override
@@ -50,6 +52,11 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         doTry(
                 "Create stage set for " + getModuleName(),
                 this::installUsagePointStageSet,
+                logger
+        );
+        doTry(
+                "Create default usage point lifecycle",
+                this::createLifeCycle,
                 logger
         );
     }
@@ -82,5 +89,10 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         Stream.of(UsagePointStage.values())
                 .forEach(usagePointStage -> stageSetBuilder.stage(usagePointStage.getKey()));
         stageSetBuilder.add();
+    }
+
+    private void createLifeCycle() {
+        this.usagePointLifeCycleConfigurationService.newUsagePointLifeCycle(TranslationKeys.LIFE_CYCLE_NAME.getKey())
+                .markAsDefault();
     }
 }

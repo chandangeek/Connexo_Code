@@ -71,7 +71,7 @@ import static com.elster.jupiter.util.streams.Predicates.not;
         service = {UsagePointLifeCycleConfigurationService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         immediate = true)
 public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLifeCycleConfigurationService, MessageSeedProvider, TranslationKeyProvider {
-    private static final String FSM_NAME_PREFIX = UsagePointLifeCycleConfigurationService.COMPONENT_NAME + "_";
+
 
     private DataModel dataModel;
     private Thesaurus thesaurus;
@@ -171,7 +171,7 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
 
     @Override
     public List<Stage> getStages() {
-        return  this.getDefaultStageSet().getStages();
+        return this.getDefaultStageSet().getStages();
     }
 
     @Activate
@@ -311,7 +311,7 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
                 .collect(Collectors.toMap(State::getName, Function.identity()));
         source.getTransitions().forEach(sourceTransition -> target.newTransition(sourceTransition.getName(),
                 statesMap.get((sourceTransition.getFrom()).getName()),
-                statesMap.get(( sourceTransition.getTo()).getName()))
+                statesMap.get((sourceTransition.getTo()).getName()))
                 .withLevels(sourceTransition.getLevels())
                 .withChecks(sourceTransition.getChecks().stream().map(MicroCheck::getKey).collect(Collectors.toSet()))
                 .withActions(sourceTransition.getActions().stream().map(MicroAction::getKey).collect(Collectors.toSet()))
@@ -320,13 +320,16 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
     }
 
     @Override
-    public Finder<State> getUsagePointStates() {
-        return DefaultFinder.of(State.class, this.dataModel, State.class);
+    public List<State> getUsagePointStates() {
+        return this.getUsagePointLifeCycles().stream()
+                .map(UsagePointLifeCycle::getStates)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 
     @Override
     public Optional<State> findUsagePointState(long id) {
-        return this.dataModel.mapper(State.class).getOptional(id);
+        return this.stateMachineService.findFiniteStateById(id);
     }
 
     @Override

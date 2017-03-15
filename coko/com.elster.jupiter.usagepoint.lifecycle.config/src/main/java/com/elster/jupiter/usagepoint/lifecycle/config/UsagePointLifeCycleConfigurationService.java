@@ -19,6 +19,7 @@ import java.util.Set;
 public interface UsagePointLifeCycleConfigurationService {
     String COMPONENT_NAME = "UPL";
     String USAGE_POINT_STAGE_SET_NAME = "USAGE_POINT_STAGE_SET";
+    String FSM_NAME_PREFIX = UsagePointLifeCycleConfigurationService.COMPONENT_NAME + "_";
 
     Finder<UsagePointLifeCycle> getUsagePointLifeCycles();
 
@@ -36,7 +37,7 @@ public interface UsagePointLifeCycleConfigurationService {
 
     StageSet getDefaultStageSet();
 
-    Finder<State> getUsagePointStates();
+    List<State> getUsagePointStates();
 
     Optional<State> findUsagePointState(long id);
 
