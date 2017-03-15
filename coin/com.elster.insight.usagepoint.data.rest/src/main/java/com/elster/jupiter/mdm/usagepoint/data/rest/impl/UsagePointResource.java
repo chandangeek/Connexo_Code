@@ -25,6 +25,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
+import com.elster.jupiter.metering.UsagePointManagementException;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -412,8 +413,6 @@ public class UsagePointResource {
                 .notEmpty(info.name, "name");
         validationBuilder.validate();
 
-        checkMetrologyConfigActivationTime(info.activationTime, usagePoint.getInstallationTime(), validationBuilder);
-
         if (validate) {
             if (customPropertySetId > 0) {
                 RegisteredCustomPropertySet set = customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)
@@ -433,16 +432,24 @@ public class UsagePointResource {
 
         UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = resourceHelper.findAndLockActiveUsagePointMetrologyConfigurationOrThrowException(info.id, info.version);
         if (info.purposes != null) {
-            usagePoint.apply(usagePointMetrologyConfiguration, info.activationTime, usagePointMetrologyConfiguration.getContracts()
-                    .stream()
-                    .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
-                    .filter(metrologyContract -> info.purposes.stream()
-                            .anyMatch(purpose -> metrologyContract.getId() == purpose.id))
-                    .filter(metrologyContract -> !metrologyContract.isMandatory())
-                    .distinct()
-                    .collect(Collectors.toSet()));
+            try {
+                usagePoint.apply(usagePointMetrologyConfiguration, info.activationTime, usagePointMetrologyConfiguration.getContracts()
+                        .stream()
+                        .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
+                        .filter(metrologyContract -> info.purposes.stream()
+                                .anyMatch(purpose -> metrologyContract.getId() == purpose.id))
+                        .filter(metrologyContract -> !metrologyContract.isMandatory())
+                        .distinct()
+                        .collect(Collectors.toSet()));
+            } catch (UsagePointManagementException ex) {
+                failStartDateCheck(validationBuilder);
+            }
         } else {
-            usagePoint.apply(usagePointMetrologyConfiguration, info.activationTime);
+            try {
+                usagePoint.apply(usagePointMetrologyConfiguration, info.activationTime);
+            } catch (UsagePointManagementException ex) {
+                failStartDateCheck(validationBuilder);
+            }
         }
         for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
             UsagePointPropertySet propertySet = usagePoint.forCustomProperties()
@@ -995,12 +1002,15 @@ public class UsagePointResource {
         UsagePointMetrologyConfiguration usagePointMetrologyConfiguration;
         try (TransactionContext transaction = transactionService.getContext()) {
             if (info.metrologyConfiguration != null) {
-                checkMetrologyConfigActivationTime(info.metrologyConfiguration.activationTime, Instant.ofEpochMilli(info.installationTime), validationBuilder);
                 UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
                 info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
                 checkMeterRolesActivationTime(info.metrologyConfiguration.meterRoles, usagePoint.getCreateDate(), validationBuilder);
                 usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) resourceHelper.findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id);
-                usagePoint.apply(usagePointMetrologyConfiguration, info.metrologyConfiguration.activationTime);
+                try {
+                    usagePoint.apply(usagePointMetrologyConfiguration, info.metrologyConfiguration.activationTime);
+                } catch (UsagePointManagementException ex) {
+                    failStartDateCheck(validationBuilder);
+                }
                 resourceHelper.activateMeters(info, usagePoint);
             }
         }
@@ -1023,10 +1033,13 @@ public class UsagePointResource {
             usagePoint = usagePointBuilder.create();
             info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
             if (info.metrologyConfiguration != null) {
-                checkMetrologyConfigActivationTime(info.metrologyConfiguration.activationTime, usagePoint.getInstallationTime(), validationBuilder);
                 UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) resourceHelper
                         .findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id);
-                usagePoint.apply(usagePointMetrologyConfiguration, info.metrologyConfiguration.activationTime);
+                try {
+                    usagePoint.apply(usagePointMetrologyConfiguration, info.metrologyConfiguration.activationTime);
+                } catch (UsagePointManagementException ex) {
+                    failStartDateCheck(validationBuilder);
+                }
             }
 
             resourceHelper.activateMeters(info, usagePoint);
@@ -1037,10 +1050,8 @@ public class UsagePointResource {
         return usagePoint;
     }
 
-    private void checkMetrologyConfigActivationTime(Instant activationTime, Instant installationTime, RestValidationBuilder restValidationBuilder) {
-        if (activationTime.isBefore(installationTime)) {
-            restValidationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE, "activationTime")).
-                    validate();
-        }
+    private void failStartDateCheck(RestValidationBuilder validationBuilder) {
+        validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE, "activationTime"));
+        validationBuilder.validate();
     }
 }
