@@ -467,7 +467,7 @@ public class MasterDataSync {
         }
     }
 
-        private void syncOneDevice(Beacon3100MeterDetails beacon3100MeterDetails, long configurationId, String startTime, String endTime) throws ParseException, IOException {
+    private void syncOneDevice(Beacon3100MeterDetails beacon3100MeterDetails, long configurationId, String startTime, String endTime) throws ParseException, IOException {
         ArrayList deviceTypeAssignements = new ArrayList();
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
 

@@ -21,9 +21,9 @@ public class Beacon3100Schedulable {
     private long scheduleId;
     private int logicalDeviceId;
     private int clientTypeId;
-    private List<Object> profiles;
-    private List<Object> registers;
-    private List<Object> eventLogs;
+    private List<SchedulableItem> profiles;
+    private List<SchedulableItem> registers;
+    private List<SchedulableItem> eventLogs;
     boolean readOldObisCodes;
 
 
@@ -32,18 +32,11 @@ public class Beacon3100Schedulable {
      */
     private ComTaskEnablement comTaskEnablement;
 
-    public Beacon3100Schedulable(ComTaskEnablement comTaskEnablement, long scheduleId, int logicalDeviceId, int clientTypeId, List<Object> profiles, List<Object> registers, List<Object> eventLogs) {
-        this.comTaskEnablement = comTaskEnablement;
-        this.scheduleId = scheduleId;
-        this.logicalDeviceId = logicalDeviceId;
-        this.clientTypeId = clientTypeId;
-        this.profiles = profiles;
-        this.registers = registers;
-        this.eventLogs = eventLogs;
-        readOldObisCodes = true;
+    public Beacon3100Schedulable(ComTaskEnablement comTaskEnablement, long scheduleId, int logicalDeviceId, int clientTypeId, List<SchedulableItem> profiles, List<SchedulableItem> registers, List<SchedulableItem> eventLogs) {
+        this(comTaskEnablement, scheduleId, logicalDeviceId, clientTypeId, profiles, registers, eventLogs, true);
     }
 
-    public Beacon3100Schedulable(ComTaskEnablement comTaskEnablement, long scheduleId, int logicalDeviceId, int clientTypeId, List<Object> profiles, List<Object> registers, List<Object> eventLogs, boolean readOldObisCodes) {
+    public Beacon3100Schedulable(ComTaskEnablement comTaskEnablement, long scheduleId, int logicalDeviceId, int clientTypeId, List<SchedulableItem> profiles, List<SchedulableItem> registers, List<SchedulableItem> eventLogs, boolean readOldObisCodes) {
         this.comTaskEnablement = comTaskEnablement;
         this.scheduleId = scheduleId;
         this.logicalDeviceId = logicalDeviceId;
@@ -59,91 +52,51 @@ public class Beacon3100Schedulable {
     }
 
     public Structure toStructure() {
+        final Structure structure = initStructure();
+
+        addItemsToStructure(structure, profiles);
+        addItemsToStructure(structure, registers);
+        addItemsToStructure(structure, eventLogs);
+
+        return structure;
+    }
+
+    private Structure initStructure() {
         final Structure structure = new Structure();
         structure.addDataType(new Unsigned32(getScheduleId()));
         structure.addDataType(new Unsigned16(getLogicalDeviceId()));
         structure.addDataType(new Unsigned32(getClientTypeId()));
+        return structure;
+    }
 
+    private void addItemsToStructure(Structure structure, List<SchedulableItem> items) {
+        if (items == null)
+            return;
         final Array profileArray = new Array();
-        for (Object obisCode : getProfiles()) {
-            profileArray.addDataType(OctetString.fromObisCode((ObisCode) obisCode));
+        for (SchedulableItem item : items) {
+            profileArray.addDataType(OctetString.fromObisCode((ObisCode) item.getObisCode()));
         }
         structure.addDataType(profileArray);
-
-        final Array registerArray = new Array();
-        for (Object obisCode : getRegisters()) {
-            registerArray.addDataType(OctetString.fromObisCode((ObisCode)obisCode));
-        }
-        structure.addDataType(registerArray);
-
-        final Array eventLogArray = new Array();
-        for (Object obisCode : getEventLogs()) {
-            eventLogArray.addDataType(OctetString.fromObisCode((ObisCode)obisCode));
-        }
-        structure.addDataType(eventLogArray);
-
-        return structure;
     }
 
     public Structure toStructureForNewFirmware() {
-        final Structure structure = new Structure();
-        structure.addDataType(new Unsigned32(getScheduleId()));
-        structure.addDataType(new Unsigned16(getLogicalDeviceId()));
-        structure.addDataType(new Unsigned32(getClientTypeId()));
+        final Structure structure = initStructure();
 
-        final Array profileArray = new Array();
-        for (Object item : getProfiles()) {
-            LoadProfileItem loadProfileItem = null;
-            if( item instanceof LinkedHashMap) {
-                loadProfileItem = new LoadProfileItem(getObisCodeFromLinkedHashMap((LinkedHashMap) item));
-            }else if(item instanceof LoadProfileItem){
-                loadProfileItem = (LoadProfileItem)item;
-            }else if (item instanceof ObisCode){
-                loadProfileItem = new LoadProfileItem((ObisCode) item);
-            }
-            profileArray.addDataType((loadProfileItem).toStructure());
-        }
-        structure.addDataType(profileArray);
-
-        final Array registerArray = new Array();
-        for (Object item : getRegisters()) {
-            RegisterItem registerItem = null;
-            if(item instanceof LinkedHashMap) {
-                registerItem = new RegisterItem(getObisCodeFromLinkedHashMap((LinkedHashMap) item), new Unsigned16(1));
-            }else if (item instanceof RegisterItem){
-                registerItem = (RegisterItem)item;
-            }else if (item instanceof ObisCode){
-                registerItem = new RegisterItem((ObisCode) item, new Unsigned16(1));
-            }
-            registerArray.addDataType(registerItem.toStructure());
-        }
-        structure.addDataType(registerArray);
-
-        final Array eventLogArray = new Array();
-        for (Object item : getEventLogs()) {
-            EventLogItem eventLogItem = null;
-            if(item instanceof LinkedHashMap) {
-                eventLogItem = new EventLogItem(getObisCodeFromLinkedHashMap((LinkedHashMap) item));
-            }else if(item instanceof EventLogItem){
-                eventLogItem = (EventLogItem)item;
-            }else if(item instanceof ObisCode){
-                eventLogItem = new EventLogItem((ObisCode) item);
-            }
-            eventLogArray.addDataType(eventLogItem.toStructure());
-        }
-        structure.addDataType(eventLogArray);
+        addItemsToStructureForNewFirmware(structure, profiles);
+        addItemsToStructureForNewFirmware(structure, registers);
+        addItemsToStructureForNewFirmware(structure, eventLogs);
 
         return structure;
     }
 
-    private ObisCode getObisCodeFromLinkedHashMap(LinkedHashMap item) {
-        int a = ((Integer) (item).get("a")).intValue();
-        int b = ((Integer) (item).get("b")).intValue();
-        int c = ((Integer) (item).get("c")).intValue();
-        int d = ((Integer) (item).get("d")).intValue();
-        int e = ((Integer) (item).get("e")).intValue();
-        int f = ((Integer) (item).get("f")).intValue();
-        return new ObisCode(a,b,c,d,e,f);
+    private void addItemsToStructureForNewFirmware(Structure structure, List<SchedulableItem> items) {
+        if (items == null)
+            return;
+        final Array profileArray = new Array();
+        for (SchedulableItem item : items) {
+            profileArray.addDataType(item.toStructure());
+        }
+        structure.addDataType(profileArray);
     }
 
     public ComTaskEnablement getComTaskEnablement() {
@@ -166,86 +119,56 @@ public class Beacon3100Schedulable {
     }
 
     @XmlAttribute
-    public List<Object> getProfiles() {
+    public List<SchedulableItem> getProfiles() {
         return profiles;
     }
 
     @XmlAttribute
-    public List<Object> getRegisters() {
+    public List<SchedulableItem> getRegisters() {
         return registers;
     }
 
     @XmlAttribute
-    public List<Object> getEventLogs() {
+    public List<SchedulableItem> getEventLogs() {
         return eventLogs;
     }
 
     public boolean updateBufferSizeForRegister(ObisCode obisCode, Unsigned16 bufferSize) {
-        RegisterItem registerItem = (RegisterItem) Item.findObisCode(obisCode, registers);
-        if(registerItem != null){
-            registerItem.setBufferSize(bufferSize);
-            return true;
-        }
-        return false;
+        return updateBufferSize(obisCode, bufferSize, registers);
     }
 
     public void updateBufferSizeForAllRegisters(Unsigned16 bufferSize) {
-        int index = 0;
-        List<Object> registersCopy = registers;
-        for(Object register : registersCopy){
-            if(register instanceof ObisCode) {
-                register = new RegisterItem((ObisCode) register, bufferSize);
-                registers.set(index, register);
-                index++;
-            }else if (register instanceof RegisterItem){
-                ((RegisterItem)register).setBufferSize(bufferSize);
-            }
-        }
+        updateAllBufferSize(bufferSize, registers);
     }
 
     public boolean updateBufferSizeForLoadProfile(ObisCode obisCode, Unsigned32 bufferSize) {
-        LoadProfileItem loadProfileItem = (LoadProfileItem) Item.findObisCode(obisCode, profiles);
-        if(loadProfileItem != null){
-            loadProfileItem.setBufferSize(bufferSize);
-            return true;
-        }
-        return false;
+        return updateBufferSize(obisCode, bufferSize, profiles);
     }
 
     public void updateBufferSizeForAllLoadProfiles(Unsigned32 bufferSize) {
-        int index = 0;
-        List<Object> loadProfiles = profiles;
-        for(Object loadProfileItem : loadProfiles){
-            if(loadProfileItem instanceof ObisCode) {
-                loadProfileItem = new LoadProfileItem((ObisCode) loadProfileItem, bufferSize);
-                profiles.set(index, loadProfileItem);
-                index++;
-            }else if (loadProfileItem instanceof LoadProfileItem){
-                ((LoadProfileItem)loadProfileItem).setBufferSize(bufferSize);
-            }
-        }
+        updateAllBufferSize(bufferSize, profiles);
     }
 
     public boolean updateBufferSizeForEventLogs(ObisCode obisCode, Unsigned32 bufferSize) {
-        EventLogItem registerItem = (EventLogItem) Item.findObisCode(obisCode, eventLogs);
-        if(registerItem != null){
-            registerItem.setBufferSize(bufferSize);
-            return true;
-        }
-        return false;
+        return updateBufferSize(obisCode, bufferSize, eventLogs);
     }
 
     public void updateBufferSizeForAllEventLogs(Unsigned32 bufferSize) {
-        int index = 0;
-        List<Object> eventLogsCopy = eventLogs;
-        for(Object eventLogItem : eventLogsCopy){
-            if(eventLogItem instanceof ObisCode) {
-                eventLogItem = new EventLogItem((ObisCode) eventLogItem, bufferSize);
-                eventLogs.set(index, eventLogItem);
-                index++;
-            }else if (eventLogItem instanceof EventLogItem){
-                ((EventLogItem)eventLogItem).setBufferSize(bufferSize);
-            }
+        updateAllBufferSize(bufferSize, eventLogs);
+    }
+
+    private void updateAllBufferSize(AbstractDataType bufferSize, List<SchedulableItem> items) {
+        for (SchedulableItem item : items) {
+            item.setBufferSize(bufferSize);
         }
+    }
+
+    private boolean updateBufferSize(ObisCode obisCode, AbstractDataType bufferSize, List<SchedulableItem> items) {
+        SchedulableItem item = SchedulableItem.findObisCode(obisCode, items);
+        if (item != null) {
+            item.setBufferSize(bufferSize);
+            return true;
+        }
+        return false;
     }
 }
