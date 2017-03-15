@@ -88,7 +88,7 @@ Ext.define('Mdc.usagepointmanagement.view.Setup', {
                     {
                         xtype: 'metrology-configuration',
                         router: me.router,
-                        flex: 7
+                        flex: 5
                     },
                     {
                         xtype: 'usagePointAttributesFormMain',
