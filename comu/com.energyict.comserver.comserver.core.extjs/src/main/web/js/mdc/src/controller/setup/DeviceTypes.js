@@ -126,7 +126,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 Uni.I18n.translatePlural('devicetype.registers', deviceTypes[0].get('registerCount'), 'MDC', 'No register types', '{0} register type', '{0} register types')
             );
 
-            if (deviceTypes[0].get('deviceTypePurpose') === 'DATALOGGER_SLAVE' || deviceTypes[0].get('deviceTypePurpose') === 'SUBMETERING_ELEMENT') {
+            if (deviceTypes[0].get('deviceTypePurpose') === 'DATALOGGER_SLAVE' || deviceTypes[0].get('deviceTypePurpose') === 'MULTI_ELEMENT_SLAVE') {
                 logBookLink.hide();
             } else {
                 logBookLink.show();
@@ -194,7 +194,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                             'No register types', '{0} register type', '{0} register types')
                     );
 
-                    if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE' || deviceType.get('deviceTypePurpose') === 'SUBMETERING_ELEMENT') {
+                    if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE' || deviceType.get('deviceTypePurpose') === 'MULTI_ELEMENT_SLAVE') {
                         logBookLink.hide();
                     } else {
                         logBookLink.show();
@@ -492,7 +492,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             case 'DATALOGGER_SLAVE':
                 this.getProtocolCombo().hide();
                 break;
-            case 'SUBMETERING_ELEMENT':
+            case 'MULTI_ELEMENT_SLAVE':
                 this.getProtocolCombo().hide();
                 break;
         }

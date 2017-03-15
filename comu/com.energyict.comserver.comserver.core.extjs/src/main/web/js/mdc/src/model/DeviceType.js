@@ -45,8 +45,8 @@ Ext.define('Mdc.model.DeviceType', {
     isDataLoggerSlave: function() {
         return this.get('deviceTypePurpose') === 'DATALOGGER_SLAVE';
     },
-    isSubmeteringElement: function() {
-        return this.get('deviceTypePurpose') === 'SUBMETERING_ELEMENT';
+    isMultiElementSlave: function() {
+        return this.get('deviceTypePurpose') === 'MULTI_ELEMENT_SLAVE';
     }
 
 });

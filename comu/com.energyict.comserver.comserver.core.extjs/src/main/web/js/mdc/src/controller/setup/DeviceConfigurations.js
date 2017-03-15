@@ -256,7 +256,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                 success: function (deviceType) {
                     var logBookLink = me.getDeviceConfigurationLogBookLink();
                     if (logBookLink) {
-                        if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE') {
+                        if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE' || deviceType.get('deviceTypePurpose') === 'MULTI_ELEMENT_SLAVE' ) {
                             logBookLink.hide();
                         } else {
                             logBookLink.show();
@@ -302,7 +302,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                                 'No register configurations', '1 register configuration', '{0} register configurations')
                         );
 
-                        if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE') {
+                        if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE' || deviceType.get('deviceTypePurpose') === 'MULTI_ELEMENT_SLAVE') {
                             logBookLink.hide();
                         } else {
                             logBookLink.show();
@@ -508,8 +508,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             addressableMessage.down('container').setText(Uni.I18n.translate('deviceconfiguration.addressableMessage.dataLoggerSlaves', 'MDC', 'Data logger slaves are not directly addressable'));
             enabled = false;
         }
-        if (deviceType.isSubmeteringElement()) {
-            addressableMessage.down('container').setText(Uni.I18n.translate('deviceconfiguration.addressableMessage.submeteringElements', 'MDC', 'Submetering elements are not directly addressable'));
+        if (deviceType.isMultiElementSlave()) {
+            addressableMessage.down('container').setText(Uni.I18n.translate('deviceconfiguration.addressableMessage.multiElementSlaves', 'MDC', 'Multi-element slaves are not directly addressable'));
             enabled = false;
         }
         if (!enabled){
@@ -537,8 +537,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             gatewayMessage.down('container').setText(Uni.I18n.translate('deviceconfiguration.gatewayMessage.dataLoggerSlaves', 'MDC', 'Data logger slaves cannot act as gateways'));
             enabled = false;
         }
-        if (deviceType.isSubmeteringElement()) {
-            gatewayMessage.down('container').setText(Uni.I18n.translate('deviceconfiguration.gateway.submeteringElements', 'MDC', 'Submetering elements cannot act as gateways'));
+        if (deviceType.isMultiElementSlave()) {
+            gatewayMessage.down('container').setText(Uni.I18n.translate('deviceconfiguration.gateway.multiElementSlaves', 'MDC', 'Multi-element slaves cannot act as gateways'));
             enabled = false;
         }
         if (!enabled){
@@ -559,8 +559,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             dataLoggerMessage.down('container').setText(Uni.I18n.translate('deviceconfiguration.dataLoggerMessage.dataLoggerSlaves', 'MDC', 'Data logger slaves cannot have data logger functionality'));
             enabled = false;
         }
-        if (deviceType.isSubmeteringElement()) {
-            dataLoggerMessage.down('container').setText(Uni.I18n.translate('deviceconfiguration.dataLoggerMessage.submeteringElements', 'MDC', 'Submetering elements cannot have data logger functionality'));
+        if (deviceType.isMultiElementSlave()) {
+            dataLoggerMessage.down('container').setText(Uni.I18n.translate('deviceconfiguration.dataLoggerMessage.multiElementSlaves', 'MDC', 'Multi-element slaves cannot have data logger functionality'));
             enabled = false;
         }
         if (!enabled){
@@ -581,8 +581,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             multiElementMessage.down('container').setText(Uni.I18n.translate('deviceconfiguration.multiElementMessage.dataLoggerSlaves', 'MDC', 'Data logger slaves cannot have data multi-element functionality'));
             enabled = false
         }
-        if (deviceType.isSubmeteringElement()) {
-            multiElementMessage.down('container').setText(Uni.I18n.translate('deviceconfiguration.multiElementMessage.submeteringElements', 'MDC', 'Submetering elements cannot have multi-element functionality'));
+        if (deviceType.isMultiElementSlave()) {
+            multiElementMessage.down('container').setText(Uni.I18n.translate('deviceconfiguration.multiElementMessage.multiElementSlaves', 'MDC', 'Multi-element slaves cannot have multi-element functionality'));
             enabled = false
         }
         if (!enabled){
@@ -707,6 +707,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             addressableRadioGroup = me.getAddressableRadioGroup(),
             gatewayRadioGroup = this.getGatewayRadioGroup(),
             dataLoggerRadioGroup = this.getDataLoggerRadioGroup(),
+            multiElementRadioGroup = this.getMultiElementRadioGroup(),
             validateOnStoreRadioGroup = this.getValidateOnStoreRadioGroup(),
             record;
 
@@ -722,6 +723,9 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             }
             if (dataLoggerRadioGroup.isDisabled()) {
                 values.dataloggerEnabled = false;
+            }
+            if (multiElementRadioGroup.isDisabled()) {
+                values.multiElementEnabled = false;
             }
             if (validateOnStoreRadioGroup.isDisabled()) {
                 values.validateOnStore = false;
