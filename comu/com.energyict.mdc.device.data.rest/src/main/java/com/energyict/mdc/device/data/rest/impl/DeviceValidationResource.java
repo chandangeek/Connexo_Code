@@ -52,6 +52,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -71,7 +72,8 @@ public class DeviceValidationResource {
         this.validationInfoFactory = validationInfoFactory;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
             Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
@@ -100,7 +102,8 @@ public class DeviceValidationResource {
     }
 
     @Path("/{validationRuleSetId}/status")
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
             Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
@@ -125,7 +128,8 @@ public class DeviceValidationResource {
     }
 
     @Path("/validationstatus")
-    @GET @Transactional
+    @GET
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
             Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
@@ -136,20 +140,9 @@ public class DeviceValidationResource {
         return Response.status(Response.Status.OK).entity(deviceValidationStatusInfo).build();
     }
 
-    @Path("/validationstatusactivation")
-    @GET @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
-            Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
-            Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    public Response getValidationFeatureStatus2(@PathParam("name") String name) {
-        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        DeviceValidationStatusInfo deviceValidationStatusInfo = determineStatusForActivation(device);
-        return Response.status(Response.Status.OK).entity(deviceValidationStatusInfo).build();
-    }
-
     @Path("/validationmonitoring/configurationview")
-    @GET @Transactional
+    @GET
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
             Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
@@ -160,7 +153,7 @@ public class DeviceValidationResource {
         ValidationStatusInfo validationStatusInfo =
                 new ValidationStatusInfo(
                         deviceValidation.isValidationActive(),
-                        deviceValidation.getLastChecked(),
+                        deviceValidation.getLastChecked().orElse(null),
                         device.hasData());
         List<DataValidationStatus> lpStatuses = new ArrayList<>();
         if(filter.hasProperty("intervalRegisterStart")
@@ -197,7 +190,8 @@ public class DeviceValidationResource {
     }
 
     @Path("/validationmonitoring/dataview")
-    @GET @Transactional
+    @GET
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
@@ -209,7 +203,7 @@ public class DeviceValidationResource {
         ValidationStatusInfo validationStatusInfo =
                 new ValidationStatusInfo(
                         deviceValidation.isValidationActive(),
-                        deviceValidation.getLastChecked(),
+                        deviceValidation.getLastChecked().orElse(null),
                         device.hasData());
         Map<LoadProfile, List<DataValidationStatus>> loadProfileStatus = new HashMap<>();
         if (filter.hasProperty("intervalRegisterStart") && filter.hasProperty("intervalRegisterEnd")) {
@@ -251,7 +245,8 @@ public class DeviceValidationResource {
     }
 
     @Path("/validationmonitoring/register")
-    @GET @Transactional
+    @GET
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
             Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
@@ -263,47 +258,30 @@ public class DeviceValidationResource {
         ZonedDateTime intervalStart = end.minusYears(1);
         Range<Instant> interval = Range.openClosed(intervalStart.toInstant(), end.toInstant());
 
-        Map<NumericalRegister, Long> registerStatus = device.getRegisters().stream()
+        Map<NumericalRegister, Integer> registerStatus = device.getRegisters().stream()
                 .collect(Collectors.toMap(
-                        r -> r,
-                        reg -> (device.forValidation().getValidationStatus(reg, Collections.emptyList(), interval).stream())
-                                .collect(Collectors.counting())
-                )).entrySet().stream().filter(m -> m.getValue() > 0L)
-                .collect(Collectors.toMap(m -> (NumericalRegister) (m.getKey()), m -> (Long) (m.getValue())));
+                        Function.identity(),
+                        reg -> device.forValidation().getValidationStatus(reg, Collections.emptyList(), interval).size()
+                )).entrySet().stream().filter(m -> m.getValue() > 0)
+                .collect(Collectors.toMap(m -> (NumericalRegister) (m.getKey()), Map.Entry::getValue));
 
         return Response.status(Response.Status.OK).entity(registerStatus).build();
     }
 
     private DeviceValidationStatusInfo determineStatus(Device device) {
         DeviceValidation deviceValidation = device.forValidation();
-        Optional<Instant> lastChecked = Optional.empty();
-        if(deviceValidation.getLastValidationRun().isPresent()){
-            lastChecked = deviceValidation.getLastValidationRun().equals(Optional.of(device.getMeterActivationsMostRecentFirst().get(0).getStart())) ? Optional.empty() : deviceValidation.getLastValidationRun();
-        }
         DeviceValidationStatusInfo deviceValidationStatusInfo =
                 new DeviceValidationStatusInfo(
                         deviceValidation.isValidationActive(),
                         deviceValidation.isValidationOnStorage(),
-                        lastChecked,
-                        device.hasData(),
-                        device.getDeviceConfiguration().getValidateOnStore());
-
-        ZonedDateTime end = ZonedDateTime.ofInstant(clock.instant(), clock.getZone()).truncatedTo(ChronoUnit.DAYS).plusDays(1);
-
-        collectRegisterData(device, deviceValidationStatusInfo, end);
-        collectLoadProfileData(device, deviceValidationStatusInfo, end);
-        deviceValidationStatusInfo.device = DeviceInfo.from(device);
-
-        return deviceValidationStatusInfo;
-    }
-
-    private DeviceValidationStatusInfo determineStatusForActivation(Device device) {
-        DeviceValidation deviceValidation = device.forValidation();
-        DeviceValidationStatusInfo deviceValidationStatusInfo =
-                new DeviceValidationStatusInfo(
-                        deviceValidation.isValidationActive(),
-                        deviceValidation.isValidationOnStorage(),
-                        deviceValidation.getLastChecked(),
+                        deviceValidation.getLastChecked().orElse(null),
+                        deviceValidation.getLastValidationRun()
+                                .filter(lastRun -> device.getMeterActivationsMostRecentFirst().stream()
+                                        .findFirst()
+                                        .map(MeterActivation::getStart)
+                                        .map(start -> !start.equals(lastRun))
+                                        .orElse(false))
+                                .orElse(null),
                         device.hasData(),
                         device.getDeviceConfiguration().getValidateOnStore());
 
@@ -361,7 +339,8 @@ public class DeviceValidationResource {
     }
 
     @Path("/validationstatus")
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
             Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
@@ -374,10 +353,10 @@ public class DeviceValidationResource {
                 if (info.lastChecked == null) {
                     throw new LocalizedFieldValidationException(MessageSeeds.NULL_DATE, "lastChecked");
                 }
-                if(info.isStorage){
-                    device.forValidation().activateValidationOnStorage(Instant.ofEpochMilli(info.lastChecked));
-                } else{
-                    device.forValidation().activateValidation(Instant.ofEpochMilli(info.lastChecked));
+                if (info.isStorage) {
+                    device.forValidation().activateValidationOnStorage(info.lastChecked);
+                } else {
+                    device.forValidation().activateValidation(info.lastChecked);
                 }
             } else {
                 device.forValidation().deactivateValidation();
@@ -390,7 +369,8 @@ public class DeviceValidationResource {
     }
 
     @Path("/validate")
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.VALIDATE_MANUAL)
     @DeviceStatesRestricted({DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED})
