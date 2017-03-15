@@ -25,6 +25,7 @@ public class RestExceptionMapper implements ExceptionMapper<ExceptionFactory.Res
         ConstraintViolationInfo constraintViolationInfo = infoProvider.get();
         constraintViolationInfo.message = exception.getLocalizedMessage();
         constraintViolationInfo.error = exception.getMessageSeed().getKey();
+        constraintViolationInfo.errorCode = exception.getErrorCode();
 
         return Response.status(exception.getStatus()).entity(constraintViolationInfo).build();
     }

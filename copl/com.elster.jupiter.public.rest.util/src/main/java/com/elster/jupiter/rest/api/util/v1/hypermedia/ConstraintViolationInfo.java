@@ -48,6 +48,8 @@ public class ConstraintViolationInfo {
     public String message;
     @JsonProperty("error")
     public String error;
+    @JsonProperty("errorCode")
+    public String errorCode;
     @JsonProperty("errors")
     public List<FieldError> errors = new ArrayList<>();
 
@@ -108,13 +110,14 @@ public class ConstraintViolationInfo {
     public ConstraintViolationInfo from(LocalizedException exception) {
         this.message = exception.getLocalizedMessage();
         this.error = exception.getMessageSeed().getKey();
-
+        this.errorCode = exception.getErrorCode();
         return this;
     }
 
     public ConstraintViolationInfo from(OptimisticLockException exception) {
-        this.message = thesaurus.getFormat(MessageSeeds.OPTIMISTIC_LOCK_FAILED).format();
+        this.message = thesaurus.getSimpleFormat(MessageSeeds.OPTIMISTIC_LOCK_FAILED).format();
         this.error = exception.getMessageSeed().getKey();
+        this.errorCode = exception.getErrorCode();
         return this;
     }
 
