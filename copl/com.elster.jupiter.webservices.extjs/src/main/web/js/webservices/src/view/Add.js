@@ -7,7 +7,8 @@ Ext.define('Wss.view.Add', {
     alias: 'widget.endpoint-add',
     itemId: 'endpoint-add',
     requires: [
-
+        'Uni.util.FormErrorMessage',
+        'Uni.util.FormInfoMessage'
     ],
 
     initComponent: function(){
