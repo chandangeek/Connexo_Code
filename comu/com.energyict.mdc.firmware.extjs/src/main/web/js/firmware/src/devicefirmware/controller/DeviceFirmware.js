@@ -45,7 +45,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                         var firmwareType = menu.up('form').record.getAssociatedData().firmwareType.id;
                         this.getController('Uni.controller.history.Router')
                             .getRoute('devices/device/firmware/upload')
-                            .forward(null, {action: item.action ,firmwareType: firmwareType});
+                            .forward(null, {action: item.action, firmwareType: firmwareType});
                     }
                 }
             },
@@ -130,16 +130,17 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                             errorKeyArr.shift(); // remove first item, as it is not presented in property
                             errorsArr.push({id: errorKeyArr.join('.'), msg: error.msg});
                         });
-                        var errorsWithoutId = '';
+                        var errorsWithoutId = '',
+                            errorCode = '';
                         var foundMessagesWithoutId = false;
                         Ext.each(errorsArr, function (error) {
                             if (Ext.isEmpty(error['id']) && !Ext.isEmpty(error['msg'])) {
                                 foundMessagesWithoutId = true;
-                                errorsWithoutId = errorsWithoutId +  error['msg'] ;
+                                errorsWithoutId = errorsWithoutId + error['msg'];
                             }
                         });
                         if (foundMessagesWithoutId) {
-                            me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('deviceFirmware.upgrade.errors', 'FWC', 'Firmware upload failed!'), errorsWithoutId);
+                            me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('deviceFirmware.upgrade.errors', 'FWC', 'Firmware upload failed!'), errorsWithoutId, errorCode);
                         } else {
                             errorMsg.show();
                             propertyForm.markInvalid(errorsArr);
