@@ -65,6 +65,7 @@ class Installer implements FullInstaller {
         meteringCustomPropertySetsDemoInstaller.residentialPrepay();
         // TODO: 01.03.2017 install metrology configuration with correction factor
         /*meteringCustomPropertySetsDemoInstaller.correctionFactors();*/
+        meteringCustomPropertySetsDemoInstaller.residentialGasWithCorrection();
     }
 
     private void assign(String cps, Consumer<RegisteredCustomPropertySet> action) {

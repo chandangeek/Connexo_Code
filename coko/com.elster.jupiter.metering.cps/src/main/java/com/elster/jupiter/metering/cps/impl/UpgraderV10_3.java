@@ -29,17 +29,20 @@ class UpgraderV10_3 implements Upgrader {
 
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final MeteringService meteringService;
+    private final MeteringCustomPropertySetsDemoInstaller meteringCustomPropertySetsDemoInstaller;
 
     @Inject
-    UpgraderV10_3(MetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService) {
+    UpgraderV10_3(MetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService, MeteringCustomPropertySetsDemoInstaller meteringCustomPropertySetsDemoInstaller) {
         super();
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.meteringService = meteringService;
+        this.meteringCustomPropertySetsDemoInstaller = meteringCustomPropertySetsDemoInstaller;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         upgradeUnmeasuredAntennaInstallation();
+        meteringCustomPropertySetsDemoInstaller.residentialGasWithCorrection();
     }
 
     private void upgradeUnmeasuredAntennaInstallation(){

@@ -15,7 +15,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 
-public class UsagePointCorrectionFactorsDomExt extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<UsagePoint> {
+public class UsagePointElectricityCorrectionFactorsDomExt extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<UsagePoint> {
     public enum Fields {
         DOMAIN {
             @Override
@@ -42,7 +42,7 @@ public class UsagePointCorrectionFactorsDomExt extends AbstractVersionedPersiste
     @IsPresent(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
     private Reference<SyntheticLoadProfile> lossFactor = ValueReference.absent();
 
-    public UsagePointCorrectionFactorsDomExt() {
+    public UsagePointElectricityCorrectionFactorsDomExt() {
         super();
     }
 
