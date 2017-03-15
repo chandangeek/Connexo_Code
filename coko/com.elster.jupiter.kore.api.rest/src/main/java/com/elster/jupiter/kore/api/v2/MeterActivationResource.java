@@ -148,11 +148,6 @@ public class MeterActivationResource {
 
         Instant start = Instant.ofEpochMilli(meterActivationInfo.interval.start).truncatedTo(ChronoUnit.MINUTES);
 
-        if (!usagePoint.getMeterActivations().isEmpty() && start.isBefore(usagePoint.getMeterActivations()
-                .get(usagePoint.getMeterActivations().size() - 1)
-                .getStart())) {
-            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_START_TIME, "interval.start");
-        }
         if (meterActivationInfo.meter == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "meter");
         }
@@ -167,6 +162,12 @@ public class MeterActivationResource {
         if (validateOnly) {
             validateMeterActivationRequirements(usagePoint, meter, meterRole);
             return meterActivationInfo;
+        }
+
+        if (!usagePoint.getMeterActivations().isEmpty() && start.isBefore(usagePoint.getMeterActivations()
+                .get(usagePoint.getMeterActivations().size() - 1)
+                .getStart())) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_START_TIME, "interval.start");
         }
 
         UsagePointMeterActivator linker = usagePoint.linkMeters();

@@ -229,6 +229,11 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         meterActivationInfo.interval = new IntervalInfo();
         Instant now = clock.instant();
         meterActivationInfo.interval.start = now.toEpochMilli();
+        Meter mock = mock(Meter.class);
+        when(mock.getId()).thenReturn(123456789L);
+        when(meteringService.findMeterByMRID(METER_MRID)).thenReturn(Optional.of(mock));
+        meterActivationInfo.meter = METER_MRID;
+        meterActivationInfo.meterRole = "meterRole";
         Instant before = now.minus(5, ChronoUnit.MINUTES);
         Instant before2 = before.minus(5, ChronoUnit.MINUTES);
         Instant soon = now.plus(5, ChronoUnit.MINUTES);
