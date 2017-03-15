@@ -71,34 +71,41 @@ Ext.define('Uni.controller.Error', {
         var me = scope || this,
             title;
 
-        if(Ext.isObject(error) && Ext.isDefined(error.title)) {
+        if (Ext.isObject(error) && Ext.isDefined(error.title)) {
             title = error.title;
         } else {
             title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Request failed');
         }
-        if(Ext.isObject(error) && Ext.isDefined(error.msg)) {
+        if (Ext.isObject(error) && Ext.isDefined(error.msg)) {
             error = error.msg;
         }
+        if (Ext.isObject(error) && Ext.isDefined(error.errCode)) {
+            errCode = error.errCode;
+        }
 
-        me.showError(title, error);
+        me.showError(title, error, errCode);
     },
 
     handleRequestError: function (conn, response, options) {
         var me = this,
             title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Request failed'),
             message = response.responseText || response.statusText,
-            decoded = Ext.decode(message, true);
+            decoded = Ext.decode(message, true),
+            code;
 
         if (Ext.isDefined(decoded) && decoded !== null) {
             if (!Ext.isEmpty(decoded.message)) {
                 message = decoded.message;
+                code = decoded.errorCode;
             } else if (Ext.isDefined(decoded.errors) && Ext.isArray(decoded.errors)) {
                 if (1 === decoded.errors.length) {
                     message = decoded.errors[0].msg;
+                    code = decoded.errors[0].errCode
                 } else if (1 < decoded.errors.length) {
                     message = '<ul>';
                     for (var i = 0; i < decoded.errors.length; i++) {
                         message += '<li>' + decoded.errors[i].msg + '</li>';
+                        code += '<li>' + decoded.errors[i].errCode + '</li>';
                     }
                     message += '</ul>';
                 } else {
@@ -112,7 +119,7 @@ Ext.define('Uni.controller.Error', {
 
             //<debug>
             if (!Ext.isEmpty(decoded.error)) {
-                console.log('Error code: ' + decoded.error);
+                console.log('Error code: ' + decoded.errorCode);
             }
             //</debug>
         }
@@ -138,7 +145,7 @@ Ext.define('Uni.controller.Error', {
         switch (response.status) {
             case 0: // timeout.
                 if (!(options.notHandleTimeout || (options.operation && options.operation.notHandleTimeout))) {
-                    me.showError(title, message);
+                    me.showError(title, message, code);
                 }
                 break;
             case 400: // Bad request.
@@ -148,7 +155,7 @@ Ext.define('Uni.controller.Error', {
                         'UNI',
                         'Request failed'
                     );
-                    me.showError(title, decoded.message ? decoded.message : message);
+                    me.showError(title, decoded.message ? decoded.message : message, decoded.errorCode ? decoded.errorCode : code);
                 }
                 break;
             case 500: // Internal server error.
@@ -162,7 +169,7 @@ Ext.define('Uni.controller.Error', {
                     'UNI',
                     'Please contact your system administrator.'
                 );
-                me.showError(title, message);
+                me.showError(title, message, code);
                 break;
             case 404: // Not found.
                 title = Uni.I18n.translate(
@@ -175,7 +182,7 @@ Ext.define('Uni.controller.Error', {
                     'UNI',
                     'Please contact your system administrator.'
                 );
-                options.method !== 'HEAD' && me.showError(title, message);
+                options.method !== 'HEAD' && me.showError(title, message, code);
                 break;
             case 401: // Unauthorized.
                 me.getApplication().fireEvent('sessionexpired');
@@ -202,7 +209,7 @@ Ext.define('Uni.controller.Error', {
             case 418: // I'm a teapot.
             // Fallthrough.
             default:
-                me.showError(title, message);
+                me.showError(title, message, code);
                 break;
         }
     },
@@ -212,6 +219,7 @@ Ext.define('Uni.controller.Error', {
             router = me.getController('Uni.controller.history.Router'),
             title = Ext.htmlEncode(responseText.message),
             message = responseText.error,
+            errorCode = responseText.errorCode,
             buttons,
             repeatRequest = function () {
                 requestOptions.jsonData.version = responseText.version;
@@ -235,7 +243,7 @@ Ext.define('Uni.controller.Error', {
                     }
                 }
             ];
-            me.showError(title, message, undefined, buttons, 'concurrent-use-error-msg');
+            me.showError(title, message, errorCode, undefined, buttons, 'concurrent-use-error-msg');
         } else {
             if (requestOptions.method === 'PUT' || requestOptions.method === 'POST') {
                 buttons = [
@@ -267,7 +275,7 @@ Ext.define('Uni.controller.Error', {
                         }
                     }
                 ];
-                me.showError(title, message, undefined, buttons, 'concurrent-use-error-msg');
+                me.showError(title, message, errorCode, undefined, buttons, 'concurrent-use-error-msg');
             } else if (requestOptions.method === 'DELETE') {
                 if (!Ext.isEmpty(responseText.version)) {
                     buttons = [
@@ -292,7 +300,7 @@ Ext.define('Uni.controller.Error', {
                             }
                         }
                     ];
-                    me.showError(title, message, undefined, buttons, 'concurrent-use-error-msg');
+                    me.showError(title, message, errorCode, undefined, buttons, 'concurrent-use-error-msg');
                 } else {
                     if (requestOptions.operation && Ext.isFunction(requestOptions.operation.callback)) {
                         requestOptions.operation.callback.call();
@@ -316,11 +324,12 @@ Ext.define('Uni.controller.Error', {
      * @param {String} message Error message to show
      * @param {String} [config={}] Optional {@link Ext.window.MessageBox} configuration if tweaks are required
      */
-    showError: function (title, message, config, buttons, itemId) {
+    showError: function (title, message, errorCode, config, buttons, itemId) {
         config = config ? config : {};
         Ext.apply(config, {
             title: title,
-            msg: message,
+            msg: Ext.htmlDecode(Ext.htmlDecode((message + '<br/><b>' + "Error code: " + '</b>' + errorCode + '</br>'))),
+            errCode: errorCode,
             modal: false,
             ui: 'message-error',
             icon: 'icon-warning2',
