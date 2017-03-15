@@ -116,6 +116,7 @@ public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
         public static final String DEFAULT_PROTOCOL_DIALECT_NAME_KEY = "default.protocol.dialect.name";
         public Long id;
         public String name;
+        public String displayName;
 
         public ProtocolDialectConfigurationPropertiesInfo() {
         }
@@ -125,9 +126,11 @@ public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
             if (protocolDialectConfigurationProperties == null) {
                 protocolDialectConfigurationPropertiesInfo.id = DEFAULT_PROTOCOL_DIALECT_ID;
                 protocolDialectConfigurationPropertiesInfo.name = thesaurus.getString(DEFAULT_PROTOCOL_DIALECT_NAME_KEY, DEFAULT_PROTOCOL_DIALECT_NAME_KEY);
+                protocolDialectConfigurationPropertiesInfo.displayName = thesaurus.getString(DEFAULT_PROTOCOL_DIALECT_NAME_KEY, DEFAULT_PROTOCOL_DIALECT_NAME_KEY);
             } else {
                 protocolDialectConfigurationPropertiesInfo.id = protocolDialectConfigurationProperties.getId();
-                protocolDialectConfigurationPropertiesInfo.name = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
+                protocolDialectConfigurationPropertiesInfo.name = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDeviceProtocolDialectName();
+                protocolDialectConfigurationPropertiesInfo.displayName = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
             }
             return protocolDialectConfigurationPropertiesInfo;
         }
