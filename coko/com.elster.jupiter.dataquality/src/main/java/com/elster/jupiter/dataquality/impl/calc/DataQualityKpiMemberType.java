@@ -25,7 +25,7 @@ public interface DataQualityKpiMemberType {
         CONFIRMED;
 
         public String getName() {
-            return name();
+            return name().toUpperCase();
         }
     }
 
@@ -39,7 +39,7 @@ public interface DataQualityKpiMemberType {
 
         @Override
         public String getName() {
-            return name;
+            return name.toUpperCase();
         }
 
         @Override

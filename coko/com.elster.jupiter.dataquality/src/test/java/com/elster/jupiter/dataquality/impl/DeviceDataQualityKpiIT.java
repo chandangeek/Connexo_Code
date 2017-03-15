@@ -44,6 +44,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static com.elster.jupiter.dataquality.impl.DataQualityKpiMember.KPIMEMBERNAME_SEPARATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -203,7 +204,7 @@ public class DeviceDataQualityKpiIT extends BaseTestIT {
                         Stream.of(new DataQualityKpiMemberType.ValidatorKpiMemberType(validator),
                                 new DataQualityKpiMemberType.EstimatorKpiMemberType(estimator)))
                         .map(DataQualityKpiMemberType::getName)
-                        .map(member -> member.toUpperCase() + "_" + meter.getId())
+                        .map(member -> member + KPIMEMBERNAME_SEPARATOR + meter.getId())
                         .toArray(String[]::new);
         assertThat(kpiMemberNames).containsOnly(expectedKpiMemberNames);
     }
@@ -294,7 +295,7 @@ public class DeviceDataQualityKpiIT extends BaseTestIT {
         String[] expectedKpiMemberNames =
                 Stream.of(DataQualityKpiMemberType.PredefinedKpiMemberType.values())
                         .map(DataQualityKpiMemberType::getName)
-                        .map(member -> member.toUpperCase() + "_" + meter.getId())
+                        .map(member -> member + KPIMEMBERNAME_SEPARATOR + meter.getId())
                         .toArray(String[]::new);
         assertThat(kpiMemberNames).containsOnly(expectedKpiMemberNames);
 
@@ -316,7 +317,7 @@ public class DeviceDataQualityKpiIT extends BaseTestIT {
                         Stream.of(new DataQualityKpiMemberType.ValidatorKpiMemberType(validator),
                                 new DataQualityKpiMemberType.EstimatorKpiMemberType(estimator)))
                         .map(DataQualityKpiMemberType::getName)
-                        .map(member -> member.toUpperCase() + "_" + meter.getId())
+                        .map(member -> member + KPIMEMBERNAME_SEPARATOR + meter.getId())
                         .toArray(String[]::new);
         assertThat(kpiMemberNames).containsOnly(expectedKpiMemberNames);
     }

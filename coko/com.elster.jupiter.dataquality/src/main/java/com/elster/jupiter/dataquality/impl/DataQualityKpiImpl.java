@@ -11,10 +11,7 @@ import com.elster.jupiter.dataquality.impl.calc.DataQualityKpiMemberType;
 import com.elster.jupiter.dataquality.impl.calc.KpiType;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.kpi.Kpi;
-import com.elster.jupiter.kpi.KpiMember;
 import com.elster.jupiter.kpi.KpiService;
-import com.elster.jupiter.kpi.KpiUpdater;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
@@ -47,8 +44,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static com.elster.jupiter.util.streams.Predicates.not;
 
 public abstract class DataQualityKpiImpl implements HasId, DataQualityKpi, PersistenceAware {
 
@@ -274,26 +269,6 @@ public abstract class DataQualityKpiImpl implements HasId, DataQualityKpi, Persi
         Stream<DataQualityKpiMemberType> estimators = getEstimationService().getAvailableEstimators(getQualityCodeSystem())
                 .stream().map(DataQualityKpiMemberType.EstimatorKpiMemberType::new);
         return Stream.of(predefined, estimators, validators).flatMap(Function.identity());
-    }
-
-    /**
-     * Updates kpi members of existing kpi entity in case of actual kpi types contain new ones
-     * which is the case if new validators or estimators have been deployed
-     */
-    void updateKpiMemberIfNeeded(DataQualityKpiMember dataQualityKpiMember) {
-        Kpi kpi = dataQualityKpiMember.getChildKpi();
-        Set<String> existingKpiMemberNames = kpi.getMembers().stream().map(KpiMember::getName).collect(Collectors.toSet());
-        String identifier = dataQualityKpiMember.getTargetIdentifier();
-        List<String> membersToCreate = actualKpiMemberTypes()
-                .map(DataQualityKpiMemberType::getName)
-                .map(member -> member.toUpperCase() + "_" + identifier)
-                .filter(not(existingKpiMemberNames::contains))
-                .collect(Collectors.toList());
-        if (!membersToCreate.isEmpty()) {
-            KpiUpdater kpiUpdater = kpi.startUpdate();
-            membersToCreate.forEach(name -> kpiUpdater.member().named(name).add());
-            kpiUpdater.update();
-        }
     }
 
     Set<Long> intersection(Set<Long> first, Set<Long> second) {

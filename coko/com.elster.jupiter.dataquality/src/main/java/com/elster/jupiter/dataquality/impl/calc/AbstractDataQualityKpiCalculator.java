@@ -342,7 +342,7 @@ abstract class AbstractDataQualityKpiCalculator implements DataQualityKpiCalcula
         Map<KpiMember, Map<Instant, BigDecimal>> memberScores = new HashMap<>();
 
         prepareDataMap(channels).entrySet().forEach(entry -> {
-            String kpiMemberName = (entry.getKey().getName() + DataQualityKpiMember.KPIMEMBERNAME_SEPARATOR + kpiMemberNameSuffix).toUpperCase();
+            String kpiMemberName = entry.getKey().getName() + DataQualityKpiMember.KPIMEMBERNAME_SEPARATOR + kpiMemberNameSuffix;
             KpiMember entryMember = kpi
                     .getMembers()
                     .stream()
