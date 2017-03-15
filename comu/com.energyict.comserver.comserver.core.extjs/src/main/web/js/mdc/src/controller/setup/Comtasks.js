@@ -204,10 +204,10 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 failure: function (response) {
                     var json;
                     json = Ext.decode(response.responseText, true);
-                    if (json && json.message) {
+                    if (json && json.message && json.errorCode) {
                         me.getApplication().getController('Uni.controller.Error').showError(
                             Uni.I18n.translate('comtasks.removeErrorMsg', 'MDC', 'Error during removal of communication task'),
-                            json.message
+                            json.message, json.errorCode
                         );
                     }
                 },

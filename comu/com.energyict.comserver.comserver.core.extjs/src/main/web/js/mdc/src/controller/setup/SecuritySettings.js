@@ -136,14 +136,18 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 },
                 failure: function (response, request) {
                     var errorInfo = Uni.I18n.translate('devicesecuritysetting.removeErrorMsg', 'MDC', 'Error during removal of security setting'),
-                        errorText = Uni.I18n.translate('general.error.unknown', 'MDC', "Unknown error occurred");
+                        errorText = Uni.I18n.translate('general.error.unknown', 'MDC', "Unknown error occurred"),
+                        errorCode;
 
                     if (response.status == 400) {
                         var result = Ext.JSON.decode(response.responseText, true);
                         if (result && result.message) {
                             errorText = result.message;
                         }
-                        me.getApplication().getController('Uni.controller.Error').showError(errorInfo, errorText);
+                        if (result && result.errorCode) {
+                            errorCode = result.errorCode;
+                        }
+                            me.getApplication().getController('Uni.controller.Error').showError(errorInfo, errorText, errorCode);
                     }
                 }
             });
@@ -458,11 +462,13 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                     if (response.status == 400) {
                         var result = Ext.decode(response.responseText, true),
                             errorTitle = Uni.I18n.translate('general.failedToAdd', 'MDC', 'Failed to add'),
-                            errorText = Uni.I18n.translate('executionlevels.add.failure', 'MDC', 'Privileges could not be added. There was a problem accessing the database');
+                            errorText = Uni.I18n.translate('executionlevels.add.failure', 'MDC', 'Privileges could not be added. There was a problem accessing the database'),
+                            errorCode;
 
                         if (result !== null) {
                             errorTitle = result.error;
                             errorText = result.message;
+                            errorCode = result.errorCode;
                         }
 
                         self.getApplication().getController('Uni.controller.Error').showError(errorTitle, errorText);
@@ -514,14 +520,18 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 },
                 failure: function (response, request) {
                     var errorInfo = Uni.I18n.translate('executionLevel.removeErrorMsg', 'MDC', 'Error during removal of privilege'),
-                        errorText = Uni.I18n.translate('general.error.unknown', 'MDC', "Unknown error occurred")
+                        errorText = Uni.I18n.translate('general.error.unknown', 'MDC', "Unknown error occurred"),
+                        errorCode;
 
                     if (response.status == 400) {
                         var result = Ext.JSON.decode(response.responseText, true);
                         if (result && result.message) {
                             errorText = result.message;
                         }
-                        me.getApplication().getController('Uni.controller.Error').showError(errorInfo, errorText);
+                        if (result && result.errorCode) {
+                            errorCode = result.errorCode;
+                        }
+                        me.getApplication().getController('Uni.controller.Error').showError(errorInfo, errorText, errorCode);
                     }
                 }
             });

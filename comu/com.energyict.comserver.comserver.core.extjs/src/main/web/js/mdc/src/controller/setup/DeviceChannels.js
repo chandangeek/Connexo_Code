@@ -229,7 +229,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                         config = {
                             icon: Ext.MessageBox.WARNING
                         };
-                    me.getApplication().getController('Uni.controller.Error').showError(title, message, config);
+                    me.getApplication().getController('Uni.controller.Error').showError(title, message, undefined, config);
                 }
             }
         });

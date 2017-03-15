@@ -258,13 +258,15 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
                 }
                 var title = Uni.I18n.translate('comPortPoolComPorts.remove.failurex', 'MDC', "Failed to remove '{0}'",[record.get('name')]),
                     errorsArray = Ext.JSON.decode(response.responseText).errors,
-                    message = '';
+                    message = '',
+                    errorCode='';
 
                 Ext.Array.each(errorsArray, function (obj) {
-                    message += obj.msg + '.</br>'
+                    message += obj.msg + '.</br>';
+                    errorCode = obj.errorCode;
                 });
 
-                me.getApplication().getController('Uni.controller.Error').showError(title, message);
+                me.getApplication().getController('Uni.controller.Error').showError(title, message, errorCode);
             },
             callback: function () {
                 page.setLoading(false);

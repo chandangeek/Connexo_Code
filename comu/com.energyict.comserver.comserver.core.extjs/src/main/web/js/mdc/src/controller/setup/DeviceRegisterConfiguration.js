@@ -441,7 +441,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                         config = {
                             icon: Ext.MessageBox.WARNING
                         };
-                    me.getApplication().getController('Uni.controller.Error').showError(title, message, config);
+                    me.getApplication().getController('Uni.controller.Error').showError(title, message, undefined, config);
                 }
             }
         });

@@ -133,9 +133,11 @@ Ext.define('Mdc.controller.setup.ComServersView', {
 
                     record.reject();
                     if (json && json.errors) {
-                        var msg = '';
+                        var msg = '', code ='';
                         Ext.each(json.errors, function (error) {
-                            msg += error["id"] + ': ' + error["msg"];
+                            msg += error["msg"];
+                            code += error["id"];
+
                         });
                         var title;
                         switch (item.action) {
@@ -152,7 +154,7 @@ Ext.define('Mdc.controller.setup.ComServersView', {
                                 title = Uni.I18n.translate('comserver.changeState.deactivate.failed', 'MDC', 'Deactivation failed');
                                 break;
                         }
-                        me.getApplication().getController('Uni.controller.Error').showError(title, msg);
+                        me.getApplication().getController('Uni.controller.Error').showError(title, msg, code);
                     }
                 }
             });

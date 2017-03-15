@@ -376,22 +376,24 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 },
                 failure: function (response, request) {
                     if (response.status == 400) {
-                        var errorText = Uni.I18n.translate('general.error.unknown', 'MDC', 'Unknown error occurred');
+                        var errorText = Uni.I18n.translate('general.error.unknown', 'MDC', 'Unknown error occurred'),
+                            errorCode;
                         if (!Ext.isEmpty(response.statusText)) {
                             errorText = response.statusText;
                         }
                         if (!Ext.isEmpty(response.responseText)) {
                             var json = Ext.decode(response.responseText, true);
 
-                            if (json && json.error) {
+                            if (json && json.error && json.errorCode) {
                                 errorText = json.error;
+                                errorCode = json.errorCode;
                             }
                         }
 
                         var titleKey = ((suspended == true) ? 'communicationtasks.activate.operation.failed' : 'communicationtasks.deactivate.operation.failed'),
                             titleValue = ((suspended == true) ? 'Activate operation failed' : 'Deactivate operation failed');
 
-                        me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate(titleKey, 'MDC', titleValue), errorText);
+                        me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate(titleKey, 'MDC', titleValue), errorText, errorCode);
                     }
                 }
             });
@@ -458,7 +460,8 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 },
                 failure: function (record, operation) {
                     if (operation.response.status == 400) {
-                        var errorText = Uni.I18n.translate('general.error.unknown', 'MDC', 'Unknown error occurred');
+                        var errorText = Uni.I18n.translate('general.error.unknown', 'MDC', 'Unknown error occurred'),
+                            errorCode;
                         if (!Ext.isEmpty(operation.response.statusText)) {
                             errorText = operation.response.statusText;
                         }
@@ -474,14 +477,15 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                 });
                                 return;
                             }
-                            if (json && json.error) {
+                            if (json && json.error && json.errorCode) {
                                 errorText = json.error;
+                                errorCode = json.errorCode;
                             }
                         }
                         var titleKey = ((cfg.operation == 'add') ? 'communicationtasks.add.operation.failed' : 'general.edit.operation.failed'),
                             titleValue = ((cfg.operation == 'add') ? 'Add operation failed' : 'Update operation failed');
 
-                        me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate(titleKey, 'MDC', titleValue), errorText);
+                        me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate(titleKey, 'MDC', titleValue), errorText, errorCode);
                     }
                 },
                 callback: function () {

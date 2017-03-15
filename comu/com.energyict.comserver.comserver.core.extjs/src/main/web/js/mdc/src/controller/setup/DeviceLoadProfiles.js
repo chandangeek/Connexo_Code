@@ -193,10 +193,11 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 } else {
                     var title = Uni.I18n.translate('deviceloadprofiles.validateNow.error', 'MDC', 'Failed to validate data of load profile {0}', [record.get('name')]),
                         message = Uni.I18n.translate('deviceloadprofiles.noData', 'MDC', 'There is currently no data for this load profile'),
+                        errorCode='',
                         config = {
                             icon: Ext.MessageBox.WARNING
                         };
-                    me.getApplication().getController('Uni.controller.Error').showError(title, message, config);
+                    me.getApplication().getController('Uni.controller.Error').showError(title, message, errorCode, config);
                 }
             }
         });

@@ -216,8 +216,8 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
             },
             success: function () {
                 location.href = '#/administration/devicetypes/'
-                + me.deviceTypeId + '/deviceconfigurations/'
-                + me.deviceConfigId + '/validationrulesets';
+                    + me.deviceTypeId + '/deviceconfigurations/'
+                    + me.deviceConfigId + '/validationrulesets';
 
                 var message = Uni.I18n.translatePlural(
                     'validation.ruleSetAdded',
@@ -236,14 +236,16 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                         title = Uni.I18n.translate('general.failedToAdd', 'MDC', 'Failed to add'),
                         message = Uni.I18n.translate('validation.failedToAddRuleSets', 'MDC',
                             'Validation rule sets could not be added. There was a problem accessing the database.'
-                        );
+                        ),
+                        errorCode;
 
                     if (result !== null) {
                         title = result.error;
                         message = result.message;
+                        errorCode = result.errorCode;
                     }
 
-                    me.getApplication().getController('Uni.controller.Error').showError(title, message);
+                    me.getApplication().getController('Uni.controller.Error').showError(title, message, errorCode);
                 }
             },
             callback: function () {
@@ -352,7 +354,8 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                         var record = cfg.config.record,
                             result = Ext.decode(response.responseText, true),
                             title = Uni.I18n.translate('general.failedToRemove', 'MDC', 'Failed to remove {0}', [record.data.name]),
-                            message = Uni.I18n.translate('general.serverError', 'MDC', 'Server error');
+                            message = Uni.I18n.translate('general.serverError', 'MDC', 'Server error'),
+                            errorCode;
                         if (!Ext.isEmpty(response.statusText)) {
                             message = response.statusText;
                         }
@@ -360,8 +363,9 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                             message = result.message;
                         } else if (result && result.error) {
                             message = result.error;
+                            errorCode = result.errorCode;
                         }
-                        self.getApplication().getController('Uni.controller.Error').showError(title, message);
+                        self.getApplication().getController('Uni.controller.Error').showError(title, message, errorCode);
                     }
                 },
                 callback: function () {
