@@ -14,6 +14,7 @@ import com.google.common.collect.Range;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Set;
 
@@ -23,11 +24,13 @@ import static com.elster.jupiter.util.streams.Currying.perform;
 class DataQualityOverviewSqlBuilder {
 
     private final DataQualityOverviewSpecificationImpl specification;
+    private final Clock clock;
 
     private SqlBuilder sqlBuilder;
 
-    DataQualityOverviewSqlBuilder(DataQualityOverviewSpecificationImpl specification) {
+    DataQualityOverviewSqlBuilder(DataQualityOverviewSpecificationImpl specification, Clock clock) {
         this.specification = specification;
+        this.clock = clock;
     }
 
     PreparedStatement prepare(Connection connection) throws SQLException {
@@ -57,8 +60,19 @@ class DataQualityOverviewSqlBuilder {
         this.sqlBuilder.append("        up.servicekind as servicecategoryid,");
         this.sqlBuilder.append("        mc.id as metrologyConfigId,");
         this.sqlBuilder.append("        mc.name as metrologyConfigName,");
-        this.sqlBuilder.append("        purpose.id as metrologyPurposeId");
+        this.sqlBuilder.append("        purpose.id as metrologyPurposeId,");
+        this.sqlBuilder.append("        cont.id as metrologyContractId, ");
+        this.appendIsEffectiveCaseClause();
         this.specification.getAvailableKpiTypes().forEach(perform(KpiType::appendSelectTo).with(this.sqlBuilder));
+    }
+
+    private void appendIsEffectiveCaseClause() {
+        Instant now = clock.instant();
+        this.sqlBuilder.append(" case when efmc.starttime <=");
+        this.sqlBuilder.addLong(now.toEpochMilli());
+        this.sqlBuilder.append(" and efmc.endtime >");
+        this.sqlBuilder.addLong(now.toEpochMilli());
+        this.sqlBuilder.append(" then 'Y' else 'N' end");
     }
 
     private void appendFromClause() {
@@ -88,7 +102,7 @@ class DataQualityOverviewSqlBuilder {
     }
 
     private void appendGroupByClause() {
-        this.sqlBuilder.append(" group by up.name, up.servicekind, mc.id, mc.name, purpose.id, efmc.starttime");
+        this.sqlBuilder.append(" group by up.name, up.servicekind, mc.id, mc.name, purpose.id, cont.id, efmc.starttime, efmc.endtime");
     }
 
     private void appendHavingClause() {
@@ -105,7 +119,7 @@ class DataQualityOverviewSqlBuilder {
     }
 
     private void appendOrderByClause() {
-        this.sqlBuilder.append(" order by upper(up.name), upper(mc.name), efmc.starttime");
+        this.sqlBuilder.append(" order by upper(up.name), upper(mc.name), efmc.starttime desc, purpose.id");
     }
 
     private void appendKpiTypeWithClauses() {

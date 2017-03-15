@@ -22,6 +22,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Clock;
 
 @Component(
         name = "com.elsetr.jupiter.mdm.dataquality",
@@ -32,6 +33,7 @@ import java.sql.SQLException;
 public class UsagePointDataQualityServiceImpl implements UsagePointDataQualityService {
 
     private volatile OrmService ormService;
+    private volatile Clock clock;
     private volatile ValidationService validationService;
     private volatile EstimationService estimationService;
     private volatile DataModel dataModel;
@@ -42,9 +44,10 @@ public class UsagePointDataQualityServiceImpl implements UsagePointDataQualitySe
 
     // For Testing purposes
     @Inject
-    UsagePointDataQualityServiceImpl(OrmService ormService, ValidationService validationService, EstimationService estimationService) {
+    UsagePointDataQualityServiceImpl(OrmService ormService, ValidationService validationService, EstimationService estimationService, Clock clock) {
         this();
         this.setOrmService(ormService);
+        this.setClock(clock);
         this.setValidationService(validationService);
         this.setEstimationService(estimationService);
         this.activate();
@@ -53,6 +56,11 @@ public class UsagePointDataQualityServiceImpl implements UsagePointDataQualitySe
     @Reference
     public void setOrmService(OrmService ormService) {
         this.ormService = ormService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 
     @Reference
@@ -81,7 +89,7 @@ public class UsagePointDataQualityServiceImpl implements UsagePointDataQualitySe
     }
 
     DataQualityOverviews queryWith(DataQualityOverviewSpecificationImpl specification) {
-        DataQualityOverviewSqlBuilder sqlBuilder = new DataQualityOverviewSqlBuilder(specification);
+        DataQualityOverviewSqlBuilder sqlBuilder = new DataQualityOverviewSqlBuilder(specification, clock);
         try (Connection connection = this.dataModel.getConnection(false);
              PreparedStatement statement = sqlBuilder.prepare(connection)) {
             return this.execute(statement, specification);

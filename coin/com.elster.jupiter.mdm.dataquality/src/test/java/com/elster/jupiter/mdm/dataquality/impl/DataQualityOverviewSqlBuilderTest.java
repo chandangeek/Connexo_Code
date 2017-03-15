@@ -15,6 +15,7 @@ import com.google.common.collect.Range;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 
@@ -35,6 +36,8 @@ import static org.mockito.Mockito.when;
 public class DataQualityOverviewSqlBuilderTest {
 
     @Mock
+    private Clock clock;
+    @Mock
     private Connection connection;
     @Mock
     private ValidationService validationService;
@@ -52,10 +55,11 @@ public class DataQualityOverviewSqlBuilderTest {
     @Before
     public void setUp() {
         specification = new DataQualityOverviewSpecificationImpl(KpiType.predefinedKpiTypes);
+        when(clock.instant()).thenReturn(Instant.now());
     }
 
     private String prepareSql(DataQualityOverviewSpecificationImpl specification) throws SQLException {
-        DataQualityOverviewSqlBuilder sqlBuilder = new DataQualityOverviewSqlBuilder(specification);
+        DataQualityOverviewSqlBuilder sqlBuilder = new DataQualityOverviewSqlBuilder(specification, clock);
         PreparedStatement preparedStatement = mock(PreparedStatement.class);
         when(connection.prepareStatement(any())).thenReturn(preparedStatement);
 

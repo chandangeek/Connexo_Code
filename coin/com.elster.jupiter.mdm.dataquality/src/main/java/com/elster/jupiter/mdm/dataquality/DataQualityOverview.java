@@ -5,8 +5,6 @@
 package com.elster.jupiter.mdm.dataquality;
 
 import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.util.HasId;
-import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -17,10 +15,22 @@ public interface DataQualityOverview {
 
     ServiceKind getServiceKind();
 
-    <H extends HasName & HasId> H getMetrologyConfiguration();
-
-    long getMetrologyPurposeId();
+    UsagePointConfigurationOverview getConfigurationOverview();
 
     DataQualityKpiResults getDataQualityKpiResults();
 
+    @ProviderType
+    interface UsagePointConfigurationOverview {
+
+        long getMetrologyConfigurationId();
+
+        String getMetrologyConfigurationName();
+
+        boolean isEffective();
+
+        long getMetrologyPurposeId();
+
+        long getMetrologyContractId();
+
+    }
 }

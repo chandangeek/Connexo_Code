@@ -16,6 +16,7 @@ import com.elster.jupiter.validation.Validator;
 
 import com.google.common.collect.Range;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,6 +40,8 @@ public class DataQualityOverviewBuilderTest {
     @Mock
     private OrmService ormService;
     @Mock
+    private Clock clock;
+    @Mock
     private ValidationService validationService;
     @Mock
     private EstimationService estimationService;
@@ -58,7 +61,8 @@ public class DataQualityOverviewBuilderTest {
     @Before
     public void setUp() {
         when(ormService.getDataModel(any())).thenReturn(Optional.of(dataModel));
-        deviceDataQualityService = new UsagePointDataQualityServiceImpl(ormService, validationService, estimationService);
+        when(clock.instant()).thenReturn(Instant.now());
+        deviceDataQualityService = new UsagePointDataQualityServiceImpl(ormService, validationService, estimationService, clock);
     }
 
     @Test
