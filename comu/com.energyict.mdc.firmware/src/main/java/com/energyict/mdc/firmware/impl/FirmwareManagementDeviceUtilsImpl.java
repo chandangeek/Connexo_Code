@@ -1,6 +1,7 @@
 package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -14,6 +15,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
@@ -148,19 +150,32 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
 
     @Override
     public Optional<FirmwareVersion> getFirmwareVersionFromMessage(DeviceMessage message) {
-        Optional<DeviceMessageAttribute> firmwareVersionMessageAttr = message.getAttributes().stream()
-                .map(DeviceMessageAttribute.class::cast)        //Downcast to Connexo DeviceMessageAttribute
-                .filter(attr -> DeviceMessageConstants.firmwareUpdateFileAttributeName.equals(attr.getName()))
+
+        Optional<PropertySpec> firmwareVersionPropertySpec = message.getSpecification().getPropertySpecs()
+                .stream()
+                .filter(propertySpec -> propertySpec.getValueFactory().getValueType().equals(BaseFirmwareVersion.class))
                 .findFirst();
-        if (!firmwareVersionMessageAttr.isPresent() && DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(message.getDeviceMessageId())) {
-            Optional<DeviceMessage> uploadMessage = getUploadMessageForActivationMessage(message);
-            if (uploadMessage.isPresent()) {
-                return getFirmwareVersionFromMessage(uploadMessage.get());
+
+        if (firmwareVersionPropertySpec.isPresent()) {
+            String name = firmwareVersionPropertySpec.get().getName();
+
+            Optional<DeviceMessageAttribute> firmwareVersionMessageAttr = message.getAttributes().stream()
+                    .map(DeviceMessageAttribute.class::cast)        //Downcast to Connexo DeviceMessageAttribute
+                    .filter(attr -> name.equals(attr.getName()))
+                    .findFirst();
+
+            return firmwareVersionMessageAttr.isPresent() ?
+                    Optional.of((FirmwareVersion) firmwareVersionMessageAttr.get().getValue()) :
+                    Optional.empty();
+        } else {
+            if (DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(message.getDeviceMessageId())) {
+                Optional<DeviceMessage> uploadMessage = getUploadMessageForActivationMessage(message);
+                if (uploadMessage.isPresent()) {
+                    return getFirmwareVersionFromMessage(uploadMessage.get());
+                }
             }
         }
-        return firmwareVersionMessageAttr.isPresent() ?
-                Optional.of((FirmwareVersion) firmwareVersionMessageAttr.get().getValue()) :
-                Optional.empty();
+        return Optional.empty();
     }
 
     @Override
