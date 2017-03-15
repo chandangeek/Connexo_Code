@@ -330,13 +330,6 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
     @Test
     public void testEditRegisterDataWithoutEffectiveMC() throws Exception {
         when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.empty());
-        when(channelsContainer.getRange()).thenReturn(Range.atLeast(readingTimeStamp1));
-        when(channel.getRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3)))
-                .thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
-        when(channel.getCalculatedRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
-        when(channel.getPersistedRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Collections.emptyList());
-        when(channel.toList(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Arrays.asList(readingTimeStamp1, readingTimeStamp2, readingTimeStamp3));
-        when(effectiveMC.getAggregatedChannel(any(), any())).thenReturn(Optional.of(channel));
 
         NumericalOutputRegisterDataInfo info = new NumericalOutputRegisterDataInfo();
         info.value = BigDecimal.valueOf(101L);
@@ -386,13 +379,6 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
     @Test
     public void testConfirmRegisterDataWithoutEffectiveMC() throws Exception {
         when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.empty());
-        when(channelsContainer.getRange()).thenReturn(Range.atLeast(readingTimeStamp1));
-        when(channel.getRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3)))
-                .thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
-        when(channel.getCalculatedRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
-        when(channel.getPersistedRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Collections.emptyList());
-        when(channel.toList(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Arrays.asList(readingTimeStamp1, readingTimeStamp2, readingTimeStamp3));
-        when(effectiveMC.getAggregatedChannel(any(), any())).thenReturn(Optional.of(channel));
 
         NumericalOutputRegisterDataInfo info = new NumericalOutputRegisterDataInfo();
         info.isConfirmed = true;
