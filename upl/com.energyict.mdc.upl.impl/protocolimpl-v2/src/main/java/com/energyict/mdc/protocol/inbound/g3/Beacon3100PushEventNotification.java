@@ -63,7 +63,7 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
     private static final int PLC_G3_NODE_LINK_RECOVERED = 0xCC;
 
 
-    private enum TopologyAction {
+    public enum TopologyAction {
         REMOVE,
         ADD
     }
@@ -167,7 +167,7 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
         }
     }
 
-    private CollectedTopology extractNodeInformation(MeterProtocolEvent receivedEvent, TopologyAction action) {
+    public CollectedTopology extractNodeInformation(MeterProtocolEvent receivedEvent, TopologyAction action) {
         String macAddress = receivedEvent.getMessage();
         if (macAddress==null || macAddress.length()==0){
             return null;
