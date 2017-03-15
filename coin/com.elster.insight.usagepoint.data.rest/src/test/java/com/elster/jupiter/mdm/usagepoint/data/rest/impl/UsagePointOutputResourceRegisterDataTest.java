@@ -31,6 +31,7 @@ import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -327,6 +328,34 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
     }
 
     @Test
+    public void testEditRegisterDataWithoutEffectiveMC() throws Exception {
+        when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.empty());
+        when(channelsContainer.getRange()).thenReturn(Range.atLeast(readingTimeStamp1));
+        when(channel.getRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3)))
+                .thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
+        when(channel.getCalculatedRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
+        when(channel.getPersistedRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Collections.emptyList());
+        when(channel.toList(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Arrays.asList(readingTimeStamp1, readingTimeStamp2, readingTimeStamp3));
+        when(effectiveMC.getAggregatedChannel(any(), any())).thenReturn(Optional.of(channel));
+
+        NumericalOutputRegisterDataInfo info = new NumericalOutputRegisterDataInfo();
+        info.value = BigDecimal.valueOf(101L);
+        info.timeStamp = readingTimeStamp3;
+
+        // Business method
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/registerData/" + readingTimeStamp3.toEpochMilli())
+                .request().put(Entity.json(info));
+        JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(model.<Boolean>get("$.success")).isEqualTo(false);
+        assertThat(model.<List>get("$.errors")).hasSize(1);
+        assertThat(model.<String>get("$.errors[0].id")).isEqualTo("timeStamp");
+        assertThat(model.<String>get("$.errors[0].msg")).isEqualTo(MessageSeeds.NO_METROLOGYCONFIG_FOR_USAGEPOINT_IN_THIS_TIME.getDefaultFormat());
+    }
+
+    @Test
     public void testConfirmRegisterData() throws Exception {
         when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.of(effectiveMC));
         when(channelsContainer.getRange()).thenReturn(Range.atLeast(readingTimeStamp1));
@@ -351,6 +380,35 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         assertThat(readingsCaptor.getValue()).hasSize(1);
         assertThat(readingsCaptor.getValue().get(0).getValue()).isEqualTo(info.value);
         assertThat(readingsCaptor.getValue().get(0).getTimeStamp()).isEqualTo(readingTimeStamp3);
+    }
+
+
+    @Test
+    public void testConfirmRegisterDataWithoutEffectiveMC() throws Exception {
+        when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.empty());
+        when(channelsContainer.getRange()).thenReturn(Range.atLeast(readingTimeStamp1));
+        when(channel.getRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3)))
+                .thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
+        when(channel.getCalculatedRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
+        when(channel.getPersistedRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Collections.emptyList());
+        when(channel.toList(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Arrays.asList(readingTimeStamp1, readingTimeStamp2, readingTimeStamp3));
+        when(effectiveMC.getAggregatedChannel(any(), any())).thenReturn(Optional.of(channel));
+
+        NumericalOutputRegisterDataInfo info = new NumericalOutputRegisterDataInfo();
+        info.isConfirmed = true;
+        info.timeStamp = readingTimeStamp3;
+
+        // Business method
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/registerData/" + readingTimeStamp3.toEpochMilli())
+                .request().put(Entity.json(info));
+        JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(model.<Boolean>get("$.success")).isEqualTo(false);
+        assertThat(model.<List>get("$.errors")).hasSize(1);
+        assertThat(model.<String>get("$.errors[0].id")).isEqualTo("timeStamp");
+        assertThat(model.<String>get("$.errors[0].msg")).isEqualTo(MessageSeeds.NO_METROLOGYCONFIG_FOR_USAGEPOINT_IN_THIS_TIME.getDefaultFormat());
     }
 
     @Test
