@@ -3,7 +3,6 @@ package com.energyict.protocolimpl.messages.codetableparsing;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.TariffCalendar;
-
 import com.google.common.collect.Range;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -153,8 +152,8 @@ public class CodeTableXmlParsing {
             }
             if (range.hasUpperBound()) {
                 root.appendChild(createSingleElement(document, codeTableToYear, Integer.toString(range.upperEndpoint().getValue())));
-                root.appendChild(createSingleElement(document, codeTableToYear, "2050"));
             } else {
+                root.appendChild(createSingleElement(document, codeTableToYear, "2050"));
             }
             root.appendChild(createSingleElement(document, codeTableSeasonSetId, extractor.seasonSetId(calender).orElse("0")));
             root.appendChild(createSingleElement(document, rootPassiveCalendarActivationTime, String.valueOf(activationTime)));
