@@ -24,6 +24,8 @@ public interface TrustStore {
 
     String getDescription();
 
+    void setName(String name);
+
     void setDescription(String description);
 
     /**
@@ -61,4 +63,6 @@ public interface TrustStore {
      * @param keyStore The keystore to load {@link java.security.KeyStore.TrustedCertificateEntry} from.
      */
     void loadKeyStore(KeyStore keyStore);
+
+    public void save();
 }
