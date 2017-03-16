@@ -270,7 +270,7 @@ public class DataQualityOverviewFilterTest {
         DataQualityOverviewFilter.PERIOD.apply(jsonQueryFilter, overviewBuilder, resourceHelper);
 
         // Asserts
-        verify(overviewBuilder).in(Range.closed(from, to));
+        verify(overviewBuilder).in(Range.openClosed(from, to));
     }
 
     @Test
@@ -285,9 +285,8 @@ public class DataQualityOverviewFilterTest {
         DataQualityOverviewFilter.PERIOD.apply(jsonQueryFilter, overviewBuilder, resourceHelper);
 
         // Asserts
-        verify(overviewBuilder).in(Range.atLeast(from));
+        verify(overviewBuilder).in(Range.greaterThan(from));
     }
-
 
     @Test
     public void periodFilterOnlyToSpecified() throws Exception {
