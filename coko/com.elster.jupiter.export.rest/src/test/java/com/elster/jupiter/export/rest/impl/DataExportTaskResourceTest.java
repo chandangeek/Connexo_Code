@@ -56,6 +56,7 @@ import com.jayway.jsonpath.JsonModel;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -75,7 +76,6 @@ import org.mockito.Mock;
 import static com.elster.jupiter.export.rest.impl.DataExportTaskResource.X_CONNEXO_APPLICATION_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
@@ -126,6 +126,8 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
     private LogEntryFinder logEntryFinder;
     @Mock
     private QueryStream queryStream;
+    @Mock
+    private History<ExportTask> exportTaskHistory;
 
     private DataExportTaskBuilder builder;
 
@@ -637,35 +639,43 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         verify(selectorBuilder).fromEndDeviceGroup(endDeviceGroup);
     }
 
-    @Test
-    public void testGetAllDataExportTaskHistory() throws Exception {
-        DataExportTaskInfo dataExportTaskInfo = new DataExportTaskInfo();
-        dataExportTaskInfo.id = 123L;
-        DataExportTaskHistoryInfo dataExportTaskHistoryInfo = new DataExportTaskHistoryInfo();
-        dataExportTaskHistoryInfo.id = 13L;
-        dataExportTaskHistoryInfo.task  = dataExportTaskInfo;
 
-        when(dataExportService.findExportTasks()).thenReturn(exportTaskFinder);
+    @Test
+    public void testGetAllExportHistoryInfo() throws IOException {
         when(dataExportService.getDataExportOccurrenceFinder()).thenReturn(dataExportOccurrenceFinder);
-        when(exportTaskFinder.ofApplication(anyString())).thenReturn(exportTaskFinder);
+        when(dataExportService.findExportTasks()).thenReturn(exportTaskFinder);
+        when(exportTaskFinder.ofApplication("Insight")).thenReturn(exportTaskFinder);
         when(exportTaskFinder.stream()).thenReturn(queryStream);
-        when(exportTask.getId()).thenReturn(123L);
-        when(dataExportOccurrenceFinder.setLimit(anyInt())).thenReturn(dataExportOccurrenceFinder);
-        when(dataExportOccurrenceFinder.setStart(anyInt())).thenReturn(dataExportOccurrenceFinder);
-        when(dataExportOccurrenceFinder.stream()).thenReturn(queryStream);
-        when(dataExportOccurrenceFinder.withExportTask(anyList())).thenReturn(dataExportOccurrenceFinder);
-        when(queryStream.flatMap(any())).thenReturn(queryStream);
         when(queryStream.map(any())).thenReturn(queryStream);
-        when(queryStream.collect(any())).thenReturn(Collections.singletonList(dataExportTaskHistoryInfo));
+        when(queryStream.collect(any())).thenReturn(Collections.singletonList(1));
+
+        when(dataExportOccurrenceFinder.withExportTask(anyList())).thenReturn(dataExportOccurrenceFinder);
+        doReturn(Collections.singletonList(occurrence)).when(dataExportOccurrenceFinder).find();
+        when(occurrence.getTask()).thenReturn(exportTask);
+        when(occurrence.getId()).thenReturn(1L);
+        when(exportTask.getHistory()).thenReturn(exportTaskHistory);
+        when(occurrence.getStartDate()).thenReturn(Optional.of(Instant.now()));
+        when(occurrence.getEndDate()).thenReturn(Optional.of(Instant.now()));
+        when(occurrence.getDefaultSelectorOccurrence()).thenReturn(Optional.empty());
+        when(exportTaskHistory.getVersionAt(any(Instant.class))).thenReturn(Optional.of(exportTask));
+        when(exportTask.getStandardDataSelectorConfig(any(Instant.class))).thenReturn(Optional.empty());
+        when(exportTask.getScheduleExpression(any(Instant.class))).thenReturn(Optional.empty());
 
         Response response = target("/dataexporttask/history").request()
                 .header(X_CONNEXO_APPLICATION_NAME, "INS")
                 .header("start", 1)
                 .header("limit", 1).get();
 
-        JsonModel model = JsonModel.model((InputStream)response.getEntity());
+        JsonModel jsonModel = JsonModel.model((InputStream)response.getEntity());
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(model.<Integer>get("$.data[0].id")).isEqualTo(13);
+        assertThat(jsonModel.<Integer>get("$total")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$data[0].task.name")).isEqualTo("Name");
+        assertThat(jsonModel.<Boolean>get("$data[0].task.active")).isEqualTo(false);
+        assertThat(jsonModel.<Integer>get("$data[0].task.id")).isEqualTo(750);
+        assertThat(jsonModel.<Integer>get("$data[0].task.version")).isEqualTo(41);
+        assertThat(jsonModel.<String>get("$data[0].task.dataSelector.displayName")).isEqualTo("DataSelectorFactor");
+        assertThat(jsonModel.<String>get("$data[0].task.dataSelector.name")).isEqualTo("DataSelectorFactor");
+        assertThat(jsonModel.<String>get("$data[0].task.dataSelector.selectorType")).isEqualTo("CUSTOM");
     }
 
     @Test
