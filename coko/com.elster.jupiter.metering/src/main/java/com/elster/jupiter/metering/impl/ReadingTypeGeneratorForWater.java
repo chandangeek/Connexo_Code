@@ -12,7 +12,6 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.metering.MeteringService;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
@@ -81,7 +80,11 @@ class ReadingTypeGeneratorForWater extends AbstractReadingTypeGenerator {
         MONTHLY_WATER_VOLUME_M3("Water volume", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.MONTHLY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETER)),
         MONTHLY_WATER_VOLUME_LITRE("Water volume", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.MONTHLY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRE)),
         MONTHLY_WATER_VOLUME_BACKFLOW_M3("Water volume backflow", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.MONTHLY).flow(FlowDirection.REVERSE).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETERCOMPENSATED)),
-        MONTHLY_WATER_VOLUME_BACKFLOW_LITRE("Water volume backflow", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.MONTHLY).flow(FlowDirection.REVERSE).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRECOMPENSATED)),;
+        MONTHLY_WATER_VOLUME_BACKFLOW_LITRE("Water volume backflow", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.MONTHLY).flow(FlowDirection.REVERSE).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRECOMPENSATED)),
+        YEARLY_WATER_VOLUME_M3("Water volume", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.YEARLY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETER)),
+        YEARLY_WATER_VOLUME_LITRE("Water volume", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.YEARLY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRE)),
+        YEARLY_WATER_VOLUME_BACKFLOW_M3("Water volume backflow", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.YEARLY).flow(FlowDirection.REVERSE).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETERCOMPENSATED)),
+        YEARLY_WATER_VOLUME_BACKFLOW_LITRE("Water volume backflow", ReadingTypeCodeBuilder.of(Commodity.POTABLEWATER).period(MacroPeriod.YEARLY).flow(FlowDirection.REVERSE).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRECOMPENSATED));
 
         final String name;
         final ReadingTypeCodeBuilder readingTypeCodeBuilder;

@@ -14,11 +14,11 @@ import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EventType;
-import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterAlreadyLinkedToUsagePoint;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
@@ -85,10 +85,7 @@ public class MeterActivationImplTest extends EqualsContractTest {
     private Meter meter, otherMeter;
     @Mock
     private MeterRole meterRole;
-    private ChannelImpl channel1, channel2;
     private ReadingTypeImpl readingType1, readingType2, readingType3;
-    @Mock
-    private IntervalReadingRecord reading1, reading2;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DataModel dataModel;
     @Mock
@@ -100,6 +97,8 @@ public class MeterActivationImplTest extends EqualsContractTest {
     private IdsService idsService;
     @Mock
     private ServerMeteringService meteringService;
+    @Mock
+    private DataAggregationService aggregationService;
     @Mock
     private Vault vault;
     @Mock
@@ -134,7 +133,7 @@ public class MeterActivationImplTest extends EqualsContractTest {
         when(meter.getConfiguration(any())).thenReturn(Optional.empty());
         when(usagePoint.getConfiguration(any())).thenReturn(Optional.empty());
         when(dataModel.getInstance(ReadingTypeInChannel.class)).thenAnswer(invocation -> new ReadingTypeInChannel(dataModel, meteringService));
-        when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, channelBuilder));
+        when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, aggregationService, channelBuilder));
 
 
         meterActivation = getTestInstanceAndInitWithActivationTime();

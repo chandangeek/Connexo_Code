@@ -43,7 +43,8 @@ public enum ReadingTypeTemplateAttributeName {
                     MacroPeriod.NOTAPPLICABLE,
                     MacroPeriod.BILLINGPERIOD,
                     MacroPeriod.DAILY,
-                    MacroPeriod.MONTHLY
+                    MacroPeriod.MONTHLY,
+                    MacroPeriod.YEARLY
             );
         }
 

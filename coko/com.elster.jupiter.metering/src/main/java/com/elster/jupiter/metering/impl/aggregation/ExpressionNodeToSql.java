@@ -56,6 +56,11 @@ class ExpressionNodeToSql implements ServerExpressionNode.Visitor<SqlFragment> {
     }
 
     @Override
+    public SqlFragment visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
+        return this.visitProperty(slp);
+    }
+
+    @Override
     public SqlFragment visitSqlFragment(SqlFragmentNode variable) {
         return variable.getSqlFragment();
     }
