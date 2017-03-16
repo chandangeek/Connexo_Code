@@ -58,11 +58,10 @@ import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.usagepoint.calendar.UsagePointCalendarService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 
 import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
@@ -105,7 +104,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     @Mock
     EstimationService estimationService;
     @Mock
-    ValidationService validationService;
+    ValidationServiceImpl validationService;
     @Mock
     DataAggregationService dataAggregationService;
     @Mock
@@ -135,8 +134,6 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     @Mock
     PropertyValueInfoService propertyValueInfoService;
     @Mock
-    UsagePointCalendarService usagePointCalendarService;
-    @Mock
     CalendarOnUsagePointInfoFactory calendarOnUsagePointInfoFactory;
     @Mock
     CalendarService calendarService;
@@ -162,6 +159,10 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     UpgradeService upgradeService;
     @Mock
     OrmService ormService;
+    @Mock
+    ReadingType regularReadingType;
+    @Mock
+    ReadingType irregularReadingType;
 
     @Override
     protected Application getApplication() {
@@ -198,7 +199,6 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setThreadPrincipalService(threadPrincipalService);
         application.setLicenseService(licenseService);
         application.setPropertyValueInfoService(propertyValueInfoService);
-        application.setUsagePointCalendarService(usagePointCalendarService);
         application.setCalendarOnUsagePointInfoFactory(calendarOnUsagePointInfoFactory);
         application.setCalendarService(calendarService);
         application.setCalendarInfoFactory(calendarInfoFactory);
@@ -260,11 +260,11 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
 
         when(metrologyConfiguration.getContracts()).thenReturn(Arrays.asList(contract, contractOptional));
 
-        ReadingType regularReadingType = this.mockReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+        regularReadingType = this.mockReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
         when(regularReadingType.isRegular()).thenReturn(true);
         ReadingTypeDeliverable channelDeliverable = mockReadingTypeDeliverable(1L, "1 regular RT", metrologyConfiguration, regularReadingType);
 
-        ReadingType irregularReadingType = this.mockReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+        irregularReadingType = this.mockReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
         when(irregularReadingType.isRegular()).thenReturn(false);
         ReadingTypeDeliverable registerTypeDeliverable = mockReadingTypeDeliverable(2L, "2 irregular RT", metrologyConfiguration, irregularReadingType);
 

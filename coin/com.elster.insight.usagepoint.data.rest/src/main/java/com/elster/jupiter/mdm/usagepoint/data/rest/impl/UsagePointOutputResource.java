@@ -9,6 +9,7 @@ import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.Estimator;
+import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -24,6 +25,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.beans.BaseReadingImpl;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -54,6 +56,7 @@ import com.google.common.collect.TreeRangeSet;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -97,6 +100,8 @@ public class UsagePointOutputResource {
     private final MeteringService meteringService;
     private final DataValidationTaskInfoFactory dataValidationTaskInfoFactory;
     private final EstimationTaskInfoFactory estimationTaskInfoFactory;
+    private final EstimationRuleInfoFactory estimationRuleInfoFactory;
+    private final UsagePointConfigurationService usagePointConfigurationService;
 
     private static final String INTERVAL_START = "intervalStart";
     private static final String INTERVAL_END = "intervalEnd";
@@ -115,7 +120,8 @@ public class UsagePointOutputResource {
                              EstimationService estimationService,
                              MeteringService meteringService,
                              DataValidationTaskInfoFactory dataValidationTaskInfoFactory,
-                             EstimationTaskInfoFactory estimationTaskInfoFactory) {
+                             EstimationTaskInfoFactory estimationTaskInfoFactory,
+                             EstimationRuleInfoFactory estimationRuleInfoFactory, UsagePointConfigurationService usagePointConfigurationService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.estimationHelper = estimationHelper;
@@ -131,6 +137,8 @@ public class UsagePointOutputResource {
         this.meteringService = meteringService;
         this.dataValidationTaskInfoFactory = dataValidationTaskInfoFactory;
         this.estimationTaskInfoFactory = estimationTaskInfoFactory;
+        this.estimationRuleInfoFactory = estimationRuleInfoFactory;
+        this.usagePointConfigurationService = usagePointConfigurationService;
     }
 
     @GET
@@ -138,17 +146,15 @@ public class UsagePointOutputResource {
     @Transactional
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     public PagedInfoList getUsagePointPurposes(@PathParam("name") String name, @QueryParam("withValidationTasks") boolean withValidationTasks, @BeanParam JsonQueryParameters queryParameters) {
-        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-        Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration();
-        List<PurposeInfo> purposeInfoList;
-        if (effectiveMetrologyConfiguration.isPresent()) {
-            purposeInfoList = effectiveMetrologyConfiguration.get().getMetrologyConfiguration().getContracts().stream()
-                    .map(metrologyContract -> purposeInfoFactory.asInfo(effectiveMetrologyConfiguration.get(), metrologyContract, withValidationTasks))
-                    .sorted(Comparator.comparing(info -> info.name))
-                    .collect(Collectors.toList());
-        } else {
-            purposeInfoList = Collections.emptyList();
-        }
+        List<PurposeInfo> purposeInfoList = resourceHelper.findUsagePointByNameOrThrowException(name)
+                .getCurrentEffectiveMetrologyConfiguration()
+                .map(effectiveMetrologyConfigurationOnUsagePoint -> effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()
+                        .getContracts()
+                        .stream()
+                        .map(metrologyContract -> purposeInfoFactory.asInfo(effectiveMetrologyConfigurationOnUsagePoint, metrologyContract, withValidationTasks))
+                        .sorted(Comparator.comparing(info -> info.name))
+                        .collect(Collectors.toList()))
+                .orElseGet(Collections::emptyList);
         return PagedInfoList.fromCompleteList("purposes", purposeInfoList, queryParameters);
     }
 
@@ -222,9 +228,8 @@ public class UsagePointOutputResource {
         if (filter.hasProperty(INTERVAL_START) && filter.hasProperty(INTERVAL_END)) {
             Range<Instant> requestedInterval = getRequestedInterval(usagePoint, filter);
             if (requestedInterval != null) {
-                EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().get();
-                ChannelsContainer channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get();
-                AggregatedChannel channel = effectiveMetrologyConfiguration.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType()).get();
+                ChannelsContainer channelsContainer = effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract).get();
+                AggregatedChannel channel = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType()).get();
                 ValidationEvaluator evaluator = validationService.getEvaluator();
                 ReadingWithValidationStatusFactory readingWithValidationStatusFactory = new ReadingWithValidationStatusFactory(
                         clock, channel,
@@ -235,7 +240,7 @@ public class UsagePointOutputResource {
                         .collect(Collectors.toMap(Function.identity(), readingWithValidationStatusFactory::createChannelReading));
 
                 // add readings to pre filled channel data map
-                Map<Instant, IntervalReadingRecord> calculatedReadings = toMap(channel.getCalculatedIntervalReadings(requestedInterval));
+                List<IntervalReadingRecord> calculatedReadings = channel.getCalculatedIntervalReadings(requestedInterval);
                 Map<Instant, IntervalReadingRecord> persistedReadings = toMap(channel.getPersistedIntervalReadings(requestedInterval));
                 for (Map.Entry<Instant, ChannelReadingWithValidationStatus> entry : preFilledChannelDataMap.entrySet()) {
                     Instant readingTimestamp = entry.getKey();
@@ -244,19 +249,19 @@ public class UsagePointOutputResource {
                     if (persistedReading != null && persistedReading.getValue() != null) {
                         readingWithValidationStatus.setPersistedReadingRecord(persistedReading);
                     }
-                    IntervalReadingRecord calculatedReading = calculatedReadings.get(readingTimestamp);
-                    if (calculatedReading != null) {
-                        readingWithValidationStatus.setCalculatedReadingRecord(calculatedReading);
-                    }
+                    this.findRecordWithContainingRange(calculatedReadings, readingTimestamp)
+                            .ifPresent(readingWithValidationStatus::setCalculatedReadingRecord);
                 }
 
                 // add validation statuses to pre filled channel data map
-                List<DataValidationStatus> dataValidationStatuses = evaluator.getValidationStatus(
-                        EnumSet.of(QualityCodeSystem.MDM),
-                        channel,
-                        Stream.concat(persistedReadings.values().stream(), calculatedReadings.values().stream()).collect(Collectors.toList()),
-                        requestedInterval
-                );
+                List<DataValidationStatus> dataValidationStatuses =
+                        evaluator.getValidationStatus(
+                            EnumSet.of(QualityCodeSystem.MDM),
+                            channel,
+                            Stream
+                                .concat(persistedReadings.values().stream(), calculatedReadings.stream())
+                                .collect(Collectors.toList()),
+                            requestedInterval);
                 for (DataValidationStatus dataValidationStatus : dataValidationStatuses) {
                     ChannelReadingWithValidationStatus readingWithValidationStatus = preFilledChannelDataMap.get(dataValidationStatus.getReadingTimestamp());
                     if (readingWithValidationStatus != null) {
@@ -275,6 +280,14 @@ public class UsagePointOutputResource {
         return PagedInfoList.fromCompleteList("channelData", outputChannelDataInfoList, queryParameters);
     }
 
+    private Optional<IntervalReadingRecord> findRecordWithContainingRange(List<IntervalReadingRecord> records, Instant timestamp) {
+        return records
+                .stream()
+                .filter(record -> record.getTimePeriod().isPresent())
+                .filter(record -> record.getTimePeriod().get().contains(timestamp))
+                .findFirst();
+    }
+
     private boolean hasSuspects(ChannelReadingWithValidationStatus channelReadingWithValidationStatus) {
         return channelReadingWithValidationStatus.getValidationStatus()
                 .map(dataValidationStatus -> ValidationStatus.SUSPECT.equals(ValidationStatus.forResult(dataValidationStatus.getValidationResult())))
@@ -289,7 +302,7 @@ public class UsagePointOutputResource {
     @Transactional
     @Path("/{purposeId}/outputs/{outputId}/channelData")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.ESTIMATE_WITH_RULE, Privileges.Constants.EDIT_WITH_ESTIMATOR})
     public Response editChannelDataOfOutput(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
                                             @BeanParam JsonQueryParameters queryParameters, List<OutputChannelDataInfo> channelDataInfos) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
@@ -301,15 +314,22 @@ public class UsagePointOutputResource {
         }
 
         List<BaseReading> editedReadings = new ArrayList<>();
+        List<BaseReading> estimatedReadings = new ArrayList<>();
         List<BaseReading> confirmedReadings = new ArrayList<>();
         List<Instant> removeCandidates = new ArrayList<>();
 
         channelDataInfos.forEach((channelDataInfo) -> {
             if (!isToBeConfirmed(channelDataInfo) && channelDataInfo.value == null) {
                 removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
-            } else {
+            }  else {
                 if (channelDataInfo.value != null) {
-                    editedReadings.add(channelDataInfo.createNew());
+                    BaseReading baseReading = channelDataInfo.createNew();
+                    if (channelDataInfo.ruleId != 0) {
+                        ((BaseReadingImpl)baseReading).addQuality("3.8." + channelDataInfo.ruleId);
+                        estimatedReadings.add(baseReading);
+                    } else {
+                        editedReadings.add(baseReading);
+                    }
                 }
                 if (isToBeConfirmed(channelDataInfo)) {
                     confirmedReadings.add(channelDataInfo.createConfirm());
@@ -317,27 +337,16 @@ public class UsagePointOutputResource {
             }
         });
 
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().get();
-        ChannelsContainer channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get();
+        ChannelsContainer channelsContainer = effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract).get();
         Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
 
-        Optional<Instant> currentLastChecked = validationService.getLastChecked(channel);
+        channel.estimateReadings(QualityCodeSystem.MDM, estimatedReadings);
         channel.editReadings(QualityCodeSystem.MDM, editedReadings);
         channel.confirmReadings(QualityCodeSystem.MDM, confirmedReadings);
         channel.removeReadings(QualityCodeSystem.MDM, removeCandidates.stream()
                 .map(channel::getReading)
                 .flatMap(Functions.asStream())
                 .collect(Collectors.toList()));
-        if (!editedReadings.isEmpty() || !removeCandidates.isEmpty()) {
-            Instant lastChecked = Stream.concat(editedReadings.stream().map(BaseReading::getTimeStamp), removeCandidates
-                    .stream())
-                    .min(Instant::compareTo)
-                    .map(r -> r.minusSeconds(1L))
-                    .get();
-            if (currentLastChecked.filter(instant -> lastChecked.isBefore(instant.plus(channel.getIntervalLength().get()))).isPresent()) {
-                validationService.updateLastChecked(channel, lastChecked);
-            }
-        }
         return Response.status(Response.Status.OK).build();
     }
 
@@ -373,7 +382,7 @@ public class UsagePointOutputResource {
     @Transactional
     @Path("/{purposeId}/outputs/{outputId}/channelData/estimate")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.EDIT_WITH_ESTIMATOR})
     public List<OutputChannelDataInfo> previewEstimateChannelDataOfOutput(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
                                                                           EstimateChannelDataInfo estimateChannelDataInfo) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
@@ -384,11 +393,47 @@ public class UsagePointOutputResource {
             throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, outputId);
         }
 
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().get();
-        ChannelsContainer channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get();
+        ChannelsContainer channelsContainer = effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract).get();
         Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
 
         return previewEstimate(QualityCodeSystem.MDM, channelsContainer, channel, estimateChannelDataInfo);
+    }
+
+    @GET
+    @Path("/{purposeId}/outputs/{outputId}/channelData/estimateWithRule")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT, Privileges.Constants.ESTIMATE_WITH_RULE})
+    public PagedInfoList getEstimationRulesForChannel(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
+        ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
+        if (!readingTypeDeliverable.getReadingType().isRegular()) {
+            throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, outputId);
+        }
+        List<ReadingType> readingTypesFromContract = metrologyContract.getDeliverables()
+                .stream()
+                .map(ReadingTypeDeliverable::getReadingType)
+                .collect(Collectors.toList());
+
+        List<EstimationRuleInfo> estimationRuleInfos = getMatchingEstimationRules(readingTypesFromContract, metrologyContract);
+
+        return PagedInfoList.fromPagedList("rules", estimationRuleInfos, queryParameters);
+    }
+
+    private List<EstimationRuleInfo> getMatchingEstimationRules(List<ReadingType> readingTypesFromContract, MetrologyContract metrologyContract) {
+        return estimationService.getEstimationRuleSets()
+                .stream()
+                .filter(ruleSet -> usagePointConfigurationService.getEstimationRuleSets(metrologyContract).contains(ruleSet))
+                .flatMap(ruleSet -> ruleSet.getRules().stream())
+                .filter(estimationRule -> estimationRule.getRuleSet().getQualityCodeSystem().equals(QualityCodeSystem.MDM))
+                .filter(estimationRule -> estimationRule.getReadingTypes()
+                        .stream()
+                        .filter(readingTypesFromContract::contains)
+                        .findFirst().isPresent())
+                .map(estimationRuleInfoFactory::createEstimationRuleInfo)
+                .collect(Collectors.toList());
     }
 
     private List<OutputChannelDataInfo> previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Channel channel, EstimateChannelDataInfo estimateChannelDataInfo) {
@@ -547,7 +592,7 @@ public class UsagePointOutputResource {
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
         ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
-        ChannelsContainer channelsContainer = usagePoint.getCurrentEffectiveMetrologyConfiguration().get()
+        ChannelsContainer channelsContainer = effectiveMetrologyConfigurationOnUsagePoint
                 .getChannelsContainer(metrologyContract).get();
         Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
         if (registerDataInfo instanceof BillingOutputRegisterDataInfo && ((BillingOutputRegisterDataInfo) registerDataInfo).interval.start > ((BillingOutputRegisterDataInfo) registerDataInfo).interval.end) {
@@ -558,12 +603,7 @@ public class UsagePointOutputResource {
                 .cast(registerDataInfo).isConfirmed)) {
             channel.confirmReadings(QualityCodeSystem.MDM, Collections.singletonList(reading));
         } else {
-            Optional<Instant> currentLastChecked = validationService.getLastChecked(channel);
             channel.editReadings(QualityCodeSystem.MDM, Collections.singletonList(reading));
-            Instant lastChecked = reading.getTimeStamp().minusSeconds(1L);
-            if (currentLastChecked.filter(lastChecked::isBefore).isPresent()) {
-                validationService.updateLastChecked(channel, lastChecked);
-            }
         }
 
         return registerDataInfo;
@@ -580,18 +620,12 @@ public class UsagePointOutputResource {
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
         ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
-        ChannelsContainer channelsContainer = usagePoint.getCurrentEffectiveMetrologyConfiguration()
-                .get()
+        ChannelsContainer channelsContainer = effectiveMetrologyConfigurationOnUsagePoint
                 .getChannelsContainer(metrologyContract)
                 .get();
         Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
-        Optional<Instant> currentLastChecked = validationService.getLastChecked(channel);
         channel.getReading(Instant.ofEpochMilli(timeStamp))
                 .ifPresent(reading -> channel.removeReadings(QualityCodeSystem.MDM, Collections.singletonList(reading)));
-        Instant lastChecked = Instant.ofEpochMilli(timeStamp).minusSeconds(1L);
-        if (currentLastChecked.filter(lastChecked::isBefore).isPresent()) {
-            validationService.updateLastChecked(channel, lastChecked);
-        }
         return Response.status(Response.Status.OK).build();
     }
 

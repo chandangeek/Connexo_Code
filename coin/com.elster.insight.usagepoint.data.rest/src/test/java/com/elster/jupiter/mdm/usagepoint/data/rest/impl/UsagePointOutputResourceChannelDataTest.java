@@ -15,7 +15,6 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
@@ -23,6 +22,7 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
@@ -74,6 +74,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -105,6 +106,10 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     private ValidationEvaluator evaluator;
     @Mock
     private EstimationRuleInfoFactory estimationRuleInfoFactory;
+    @Mock
+    private EstimationRuleSet estimationRuleSet;
+    @Mock
+    private EstimationRule estimationRule;
 
     @Captor
     private ArgumentCaptor<List<IntervalReadingImpl>> intervalReadingsCaptor;
@@ -131,7 +136,6 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(usagePoint.getMeterActivations()).thenReturn(Collections.singletonList(meterActivation));
         when(meterActivation.getRange()).thenReturn(Range.atLeast(INTERVAL_1.lowerEndpoint()));
 
-        when(validationService.getLastChecked(any(Channel.class))).thenReturn(Optional.of(timeStamp));
         when(validationService.getEvaluator()).thenReturn(evaluator);
 
         Estimator estimator = mock(Estimator.class);
@@ -472,7 +476,6 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         List<BaseReadingRecord> record = Collections.singletonList(channel.getReading(INTERVAL_1.upperEndpoint()).get());
         verify(channel).removeReadings(eq(QualityCodeSystem.MDM), eq(record));
-        verify(validationService).updateLastChecked(eq(channel), eq(INTERVAL_1.upperEndpoint().minusSeconds(1L)));
     }
 
     @Test
@@ -572,6 +575,27 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         OutputChannelDataInfo info = factory.createChannelDataInfo(status);
         assertThat(info.dataValidated).isFalse();
         assertThat(info.validationResult).isEqualTo(ValidationStatus.NOT_VALIDATED);
+    }
+
+    @Test
+    public void testGetEstimationRulesForChannel() {
+        doReturn(Collections.singletonList(estimationRuleSet)).when(estimationService).getEstimationRuleSets();
+        doReturn(Collections.singletonList(estimationRule)).when(estimationRuleSet).getRules();
+        when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
+        when(estimationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
+        when(usagePointConfigurationService.getEstimationRuleSets(any(MetrologyContract.class))).thenReturn(Collections.singletonList(estimationRuleSet));
+        doReturn(Collections.singleton(regularReadingType)).when(estimationRule).getReadingTypes();
+        when(estimationRuleSet.getId()).thenReturn(15L);
+
+        Response response = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData/estimateWithRule").request().get();
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(estimationService).getEstimationRuleSets();
+        verify(estimationRuleSet).getRules();
+        verify(estimationRule, times(3)).getRuleSet();
+        verify(estimationRuleSet, times(2)).getQualityCodeSystem();
+        verify(estimationRule).getReadingTypes();
+        verify(estimationRuleSet).getId();
     }
 
     private void mockIntervalReadingsWithValidationResult(AggregatedChannel channel) {
