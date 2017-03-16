@@ -48,7 +48,7 @@ Ext.define('Imt.purpose.view.registers.MainAddEdit', {
     showErrors: function (errors) {
         Ext.suspendLayouts();
         this.down('#registerDataEditFormErrors').show();
-        this.down('#timeStampEditField #date-time-field-date').markInvalid(errors[0].msg);
+        this.down('#timeStampEditField #date-time-field-date').markInvalid('<div style="white-space: pre-wrap; width: 320px;">'+errors[0].msg+'</div>');
         Ext.resumeLayouts(true);
     },
 
