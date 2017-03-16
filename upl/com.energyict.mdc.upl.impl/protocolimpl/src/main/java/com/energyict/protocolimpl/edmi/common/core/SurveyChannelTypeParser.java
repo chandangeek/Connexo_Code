@@ -93,10 +93,10 @@ public class SurveyChannelTypeParser {
             constructChannelObisCode(baseObisC, phase, type);
         } else if (isInstantaneous) {
             Pair<Integer, Integer> pair = parseInstantaneousChannel(regValue, regFunction);   // scalingCode not used here, as for instantaneous channels the scaling factor should be read out separate (from D808-C)
-            constructChannelObisCode(pair.getFirst(), Phase.NOT_APPLICABLE, type, pair.getLast());
+            constructChannelObisCode(pair.getFirst(), type, pair.getLast());
         } else if (isTesting) {
             Pair<Integer, Integer> pair = parseTestChannel(regFunction, regValue, scalingCode);
-            constructChannelObisCode(pair.getFirst(), Phase.NOT_APPLICABLE, type, pair.getLast());
+            constructChannelObisCode(pair.getFirst(), type, pair.getLast());
         } else if (isPulse) {
             parsePulseChannel(regValue, scalingCode);
             constructPulseChannelObisCode(regValue, type);
@@ -351,13 +351,13 @@ public class SurveyChannelTypeParser {
                 case NEGATIVE:
                     return 10;
                 case POSITIVE_Q1:
-                    return 138;
+                    return 132;
                 case NEGATIVE_Q2:
-                    return 134;
+                    return 133;
                 case NEGATIVE_Q3:
-                    return 142;
+                    return 134;
                 case POSITIVE_Q4:
-                    return 146;
+                    return 135;
                 default:
                     throw new ProtocolException("Load survey channel definition contains invalid/unsupported energy register (function '" + regFunction + "'" + ", value '" + regValue + "')");
             }
@@ -367,6 +367,10 @@ public class SurveyChannelTypeParser {
 
     private void constructChannelObisCode(int baseObisC, Phase phase, Type type) {
         constructChannelObisCode(baseObisC, phase, type, 0);
+    }
+
+    private void constructChannelObisCode(int baseObisC, Type type, int eField) {
+        this.obisCode = ObisCode.fromString(Utils.format("1.1.{0}.{1}.{2}.255", new Object[]{baseObisC, type.getType(), eField}));
     }
 
     private void constructChannelObisCode(int baseObisC, Phase phase, Type type, int eField) {

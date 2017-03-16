@@ -502,7 +502,7 @@ public class Event {
             } else if (tamperEvent == 23) {
                 this.eventDescription += "Tamper event because VT phase order." + getTamperState(eventType);
             } else if (tamperEvent == 24 || tamperEvent == 25 || tamperEvent == 26) {
-                this.eventDescription += "Tamper event because CT" + mapPhase(tamperEvent, 24) + "." + getTamperState(eventType);
+                this.eventDescription += "Tamper event because CT lost" + mapPhase(tamperEvent, 24) + "." + getTamperState(eventType);
             } else if (tamperEvent == 27) {
                 this.eventDescription += "Tamper event because CT phase order." + getTamperState(eventType);
             } else if (tamperEvent == 28 || tamperEvent == 29 || tamperEvent == 30) {

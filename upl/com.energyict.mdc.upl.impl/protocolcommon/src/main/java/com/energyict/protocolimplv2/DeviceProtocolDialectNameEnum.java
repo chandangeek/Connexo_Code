@@ -30,7 +30,7 @@ public enum DeviceProtocolDialectNameEnum {
     ABNT_OPTICAL_DIALECT_NAME("AbntOpticalDialect"),
     EDMI_TCP_DIALECT_NAME("EdmiTcpDialect"),
     EDMI_UDP_DIALECT_NAME("EdmiUdpDialect"),
-    EDMI_OPTICAL_DIALECT_NAME("EdmiOpticalDialect"),
+    EDMI_MODEM_DIALECT_NAME("EdmiModemDialect"),
     NO_PARAMETERS_PROTOCOL_DIALECT_NAME("NoParamsDialect");
 
     DeviceProtocolDialectNameEnum(String uniqueName) {
