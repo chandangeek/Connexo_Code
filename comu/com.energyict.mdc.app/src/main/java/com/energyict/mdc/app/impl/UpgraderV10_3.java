@@ -26,11 +26,15 @@ public class UpgraderV10_3 implements Upgrader {
     }
 
     private String[] getNewMeterExpertPrivileges() {
-        return new String[] {com.elster.jupiter.fileimport.security.Privileges.Constants.IMPORT_FILE };
+        return new String[] {com.elster.jupiter.fileimport.security.Privileges.Constants.IMPORT_FILE,
+                com.energyict.mdc.device.data.security.Privileges.Constants.ESTIMATE_WITH_RULE,
+                com.energyict.mdc.device.data.security.Privileges.Constants.EDIT_WITH_ESTIMATOR};
     }
 
     private String[] getNewMeterOperatorPrivileges() {
-        return new String[] {com.elster.jupiter.fileimport.security.Privileges.Constants.IMPORT_FILE };
+        return new String[] {com.elster.jupiter.fileimport.security.Privileges.Constants.IMPORT_FILE,
+                com.energyict.mdc.device.data.security.Privileges.Constants.ESTIMATE_WITH_RULE,
+                com.energyict.mdc.device.data.security.Privileges.Constants.EDIT_WITH_ESTIMATOR};
     }
 
 }
