@@ -316,6 +316,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                 fieldLabel: Uni.I18n.translate('general.value', 'IMT', 'Value'),
                 name: 'value',
                 itemId: 'reading-value-field',
+                width: 400,
                 renderer: function (value) {
                     return me.setValueWithResult(value);
                 }
