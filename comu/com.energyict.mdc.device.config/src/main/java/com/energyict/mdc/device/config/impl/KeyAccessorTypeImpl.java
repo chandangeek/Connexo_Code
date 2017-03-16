@@ -119,6 +119,11 @@ public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
     }
 
     @Override
+    public long getVersion() {
+        return this.version;
+    }
+
+    @Override
     public void postLoad() {
         userActions.addAll(userActionRecords.stream().map(UserActionRecord::getUserAction).collect(toList()));
     }

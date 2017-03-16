@@ -256,6 +256,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
+    public Optional<KeyAccessorType> findAndLockKeyAccessorTypeByIdAndVersion(long id, long version) {
+        return this.getDataModel().mapper(KeyAccessorType.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Optional<DeviceType> findDeviceTypeByName(String name) {
         return this.getDataModel().mapper((DeviceType.class)).getUnique("name", name);
     }
