@@ -104,8 +104,8 @@ Ext.define('Uni.controller.Error', {
                 } else if (1 < decoded.errors.length) {
                     message = '<ul>';
                     for (var i = 0; i < decoded.errors.length; i++) {
-                        message += '<li>' + decoded.errors[i].msg + '</li>';
-                        code += '<li>' + decoded.errors[i].errCode + '</li>';
+                        message += '<li>' + decoded.errors[i].msg + '</li><br\>';
+                        code += '<li>' + decoded.errors[i].errCode + '</li><br\><br\>';
                     }
                     message += '</ul>';
                 } else {
@@ -328,7 +328,7 @@ Ext.define('Uni.controller.Error', {
         config = config ? config : {};
         Ext.apply(config, {
             title: title,
-            msg: Ext.htmlDecode(Ext.htmlDecode((message + '<br/><b>' + "Error code: " + '</b>' + errorCode + '</br>'))),
+            msg: message + '<br/><b>Error code: </b>' + errorCode,
             errCode: errorCode,
             modal: false,
             ui: 'message-error',
