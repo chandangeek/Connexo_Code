@@ -265,6 +265,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         assertThat(response.state.name).isEqualTo("State");
         assertThat(response.lifeCycle.id).isEqualTo(1L);
         assertThat(response.lifeCycle.name).isEqualTo("Life cycle");
+        assertThat(response.isReadyForLinkingMC).isEqualTo(false);
     }
 
     @Test

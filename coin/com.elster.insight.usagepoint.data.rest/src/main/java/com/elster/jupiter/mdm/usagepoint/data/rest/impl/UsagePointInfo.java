@@ -36,6 +36,7 @@ public class UsagePointInfo {
     public String name;
     public Boolean isSdp;
     public Boolean isVirtual;
+    public Boolean isReadyForLinkingMC;
     public String outageRegion;
     public String readRoute;
     public String serviceDeliveryRemark;
