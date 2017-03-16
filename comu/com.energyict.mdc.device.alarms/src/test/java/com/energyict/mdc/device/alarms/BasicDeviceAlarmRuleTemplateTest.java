@@ -5,18 +5,17 @@
 package com.energyict.mdc.device.alarms;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.issue.impl.records.HistoricalIssueImpl;
-import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.entity.CreationRule;
-import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.metering.Meter;
+import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import com.energyict.mdc.device.alarms.event.EndDeviceEventCreatedEvent;
 import com.energyict.mdc.device.alarms.impl.ModuleConstants;
+import com.energyict.mdc.device.alarms.impl.records.HistoricalDeviceAlarmImpl;
 import com.energyict.mdc.device.alarms.impl.records.OpenDeviceAlarmImpl;
 import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
 
@@ -86,19 +85,18 @@ public class BasicDeviceAlarmRuleTemplateTest extends BaseTest {
 
     @Test
     @Transactional
-    public void testCloseAlarmBaseIssue() {
+    public void testCloseAlarm() {
         ((IssueServiceImpl) getIssueService()).addIssueProvider((IssueProvider) getDeviceAlarmService());
 
         CreationRule rule = getCreationRule("testCloseAlarmBaseIssue", ModuleConstants.ALARM_REASON);
         Meter meter = createMeter("1", "Name");
         EndDeviceEventCreatedEvent event = getEndDeviceEventCreatedEvent(1L);
-        OpenDeviceAlarm alarm = getDeviceAlarmService().createAlarm(createBaseIssue(rule, meter), event);
-        Optional<? extends Issue> baseIssue = getIssueService().findIssue(alarm.getId());
-        assertThat(baseIssue.get() instanceof OpenIssueImpl).isTrue();
-        ((OpenIssue) baseIssue.get()).close(getIssueService().findStatus(IssueStatus.WONT_FIX).get());
-        baseIssue = getIssueService().findIssue(alarm.getId());
-        assertThat(baseIssue.get() instanceof HistoricalIssueImpl).isTrue();
-        assertThat(baseIssue.get().getStatus().getKey()).isEqualTo(IssueStatus.WONT_FIX);
+        DeviceAlarm alarm = getDeviceAlarmService().createAlarm(createBaseIssue(rule, meter), event);
+        assertThat(alarm instanceof OpenDeviceAlarmImpl).isTrue();
+        ((OpenIssue) alarm).close(getIssueService().findStatus(IssueStatus.WONT_FIX).get());
+        Optional<? extends DeviceAlarm> closedAlarm = getDeviceAlarmService().findAlarm(alarm.getId());
+        assertThat(closedAlarm.get() instanceof HistoricalDeviceAlarmImpl).isTrue();
+        assertThat(closedAlarm.get().getStatus().getKey()).isEqualTo(IssueStatus.WONT_FIX);
     }
 
 }
