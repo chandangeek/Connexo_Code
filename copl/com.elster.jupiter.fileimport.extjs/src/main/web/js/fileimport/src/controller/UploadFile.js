@@ -126,9 +126,7 @@ Ext.define('Fim.controller.UploadFile', {
             }
         } else {
             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('uploadFile.success', 'FIM', 'File uploaded'));
-            if (page.rendered) {
-                window.location.href = page.returnLink;
-            }
+            me.getController('Uni.controller.history.Router').getRoute().forward();
         }
     },
 
