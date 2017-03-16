@@ -34,7 +34,8 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
             }),
             remoteMeterRolesStore = Ext.getStore('Imt.usagepointmanagement.store.MeterRoles'),
             mcIsLinked = !!me.usagePoint.get('metrologyConfiguration'),
-            canModify = me.usagePoint.get('state').stage === 'PRE_OPERATIONAL';
+            stage = me.usagePoint.get('state').stage,
+            canModify = stage === 'PRE_OPERATIONAL' || stage === 'SUSPENDED';
 
         me.content = [
             {

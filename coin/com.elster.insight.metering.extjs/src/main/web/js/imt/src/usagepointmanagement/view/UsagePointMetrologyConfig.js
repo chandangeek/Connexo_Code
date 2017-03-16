@@ -17,7 +17,8 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
     initComponent: function () {
         var me = this,
             metrologyConfiguration = me.usagePoint.get('metrologyConfiguration'),
-            meterRolesStore = Ext.getStore('Imt.usagepointmanagement.store.MeterRoles');
+            meterRolesStore = Ext.getStore('Imt.usagepointmanagement.store.MeterRoles'),
+            stage = me.usagePoint.get('state').stage;
 
         me.items = [
             {
@@ -77,7 +78,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
             {
                 itemId: 'up-metrology-config-meters-empty',
                 fieldLabel: ' ',
-                privileges: me.usagePoint.get('state').stage === 'PRE_OPERATIONAL'
+                privileges: stage === 'PRE_OPERATIONAL' || stage === 'SUSPENDED'
                 && !Ext.isEmpty(metrologyConfiguration)
                 && !Ext.isEmpty(metrologyConfiguration.meterRoles)
                 && Imt.privileges.UsagePoint.canAdministrate(),
