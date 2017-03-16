@@ -16,7 +16,6 @@ import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.ST;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
@@ -58,6 +57,7 @@ public class EventPushNotificationParserTest extends TestCase {
     private static final byte[] BEACON_PLAIN_EVENT_METER_REGISTERED = ProtocolTools.getBytesFromHexString("0001000100010086C2004E2C000080000CFF03020509203031303534323530333730313030313632313334313537333030303236363435090C07DF0818010C260E310000001200001200C209414E6F6465205B303230303A303046463A464530303A303030305D205B3078303030315D206861732072656769737465726564206F6E20746865206E6574776F726B", "");
 
     private static final byte[] BEACON_ENCRYPTED_AUTHENTICATED_NOTIFICATION = ProtocolTools.getBytesFromHexString("00010001000100f2db08454c536309405a3081e6310000000eee5f15724bc711483cc8a0daba32b2dcb1d09018ae556db75e18bbf733ccaf9bec5cbf3b2b85bfc06c27b8b279caec842262d1345ee6f2fe7f4aff110515a117489b09041929e1d93e979fc105f96ec4bd31c4c6b38883fb8423abd5a86311cf3b7135fe0ac5cf2c97be8481f6bc5632f020dfd6b272707b48a144b365231ceb1614fd73c152e868187b5bd4fb8b51da38446ceff35421bd377e15e5cb99c4d46513683dca92999ac7fb0d1b841d4c9397b8dc0b94d3fb3890179ffb23311a233d64f409564b32de1cf78cf41fe24df66eedb7184276dcc075378ce3a6f899fe14", "");
+    private static final byte[] BEACON_ENCRYPTED_AUTHENTICATED_LOST_NOTIFICATION = ProtocolTools.getBytesFromHexString("000100010001006BDB08454C536309405A3060310000000D627E0E5EF96635DED38B42086E202C07DE31DD2A1145387142F16AB0A518DB82F898617878A200E7A401E2B7883BA8DBF1E20AC72EBF8C29BB78022A66ADD08763872770FC69712D22E16F82250D71F27FFFA11CD944D439C666F4", "");
 
     private static final String AK = "B6C52294F40A30B9BDF9FE4270B03685";
     private static final String EK = "EFD82FCB93E5826ED805E38A6B2EC9F1";
@@ -422,6 +422,36 @@ public class EventPushNotificationParserTest extends TestCase {
         DeviceIdentifier needle = new DialHomeIdDeviceIdentifier("02237EFFFEFDAF26");
         boolean found = false;
         for (DeviceIdentifier device : collectedTopology.getJoinedSlaveDeviceIdentifiers().keySet()){
+            if (device.getIdentifier().equals(needle.getIdentifier())){
+                found = true;
+            }
+        }
+        assertTrue(found);
+    }
+
+
+    @Test
+    public void testBeaconEncryptedLostNotification() throws IOException, SQLException, BusinessException, JSONException {
+        String ak = "000102030405060708090A0B0C0D0E0F";
+        String ek = "00112233445566778899AABBCCDDEEFF";
+        List<SecurityProperty> securityProperties = createSecurityProperties(3, ak, ek);
+        when(inboundDAO.getDeviceProtocolSecurityProperties(Matchers.<DeviceIdentifier>any(), Matchers.<InboundComPort>any())).thenReturn(securityProperties);
+        EventPushNotificationParser parser = spyParser(BEACON_ENCRYPTED_AUTHENTICATED_LOST_NOTIFICATION);
+        parser.readAndParseInboundFrame();
+        assertEquals(new DeviceIdentifierBySerialNumber("34157300028003"), parser.getDeviceIdentifier());
+        MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
+        assertEquals(1489576684000L, meterProtocolEvent.getTime().getTime());
+        assertEquals("02237EFFFEFDAF26", meterProtocolEvent.getMessage());
+        assertEquals(0, meterProtocolEvent.getEiCode());
+        assertEquals(203, meterProtocolEvent.getProtocolCode());
+
+
+        Beacon3100PushEventNotification beacon3100PushEventNotification = new Beacon3100PushEventNotification();
+        CollectedTopology collectedTopology = beacon3100PushEventNotification.extractNodeInformation(meterProtocolEvent, Beacon3100PushEventNotification.TopologyAction.REMOVE);
+
+        DeviceIdentifier needle = new DialHomeIdDeviceIdentifier("02237EFFFEFDAF26");
+        boolean found = false;
+        for (DeviceIdentifier device : collectedTopology.getLostSlaveDeviceIdentifiers()){
             if (device.getIdentifier().equals(needle.getIdentifier())){
                 found = true;
             }
