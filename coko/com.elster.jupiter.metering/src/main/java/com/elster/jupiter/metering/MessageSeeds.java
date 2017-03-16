@@ -40,6 +40,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_READING_FOUND(3005, Constants.NO_READING_FOUND, "No reading found"),
     METER_ROLE_NOT_IN_CONFIGURATION(3006, Constants.METER_ROLE_NOT_IN_CONFIGURATION, "Meter role {0} is not part of the metrology configuration that applies to the meter activation period"),
     DUPLICATE_USAGE_POINT_NAME(3007, Constants.DUPLICATE_USAGE_POINT_NAME, "Usage point name must be unique", Level.SEVERE),
+    METER_NOT_IN_OPERATIONAL_STAGE(3008, Constants.METER_NOT_IN_OPERATIONAL_STAGE, "Metrology configuration is active but meter is not in operational stage", Level.SEVERE),
+    METER_IN_POST_OPERATIONAL_STAGE(3009, Constants.METER_IN_POST_OPERATIONAL_STAGE, "Metrology configuration is not active but meter is in post operational stage", Level.SEVERE),
 
     REQUIRED(4001, Constants.REQUIRED, "This field is required"),
     FAIL_MANAGE_CPS_ON_ACTIVE_METROLOGY_CONFIGURATION(4002, Constants.FAIL_MANAGE_CPS_ON_ACTIVE_METROLOGY_CONFIGURATION, "You cannot manage custom attribute sets because metrology configuration is active."),
@@ -278,6 +280,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CAN_NOT_DELETE_ACTIVE_STATE = "can.not.delete.active.state";
         public static final String REQUIRED_CAS_MISSING = "required.cas.missing";
         public static final String METER_NOT_IN_OPERATIONAL_STAGE = "meter.not.in.operational.stage";
+        public static final String METER_IN_POST_OPERATIONAL_STAGE = "meter.in.post.operational.stage";
         public static final String DUPLICATE_SLP_NAME = "slp.name.already.exists";
     }
 

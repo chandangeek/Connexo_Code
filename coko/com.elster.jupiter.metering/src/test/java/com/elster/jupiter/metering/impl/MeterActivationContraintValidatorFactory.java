@@ -24,7 +24,7 @@ public class MeterActivationContraintValidatorFactory implements ConstraintValid
         if (aClass.equals(MeterRolePartOfMetrologyConfigurationIfAnyValidator.class)) {
             return (T) new MeterRolePartOfMetrologyConfigurationIfAnyValidator(thesaurus);
         } else if (aClass.equals(MeterInCorrectStageValidator.class)) {
-            return (T) new MeterInCorrectStageValidator();
+            return (T) new MeterInCorrectStageValidator(thesaurus);
         }
         return dataModel.getInstance(aClass);
     }
