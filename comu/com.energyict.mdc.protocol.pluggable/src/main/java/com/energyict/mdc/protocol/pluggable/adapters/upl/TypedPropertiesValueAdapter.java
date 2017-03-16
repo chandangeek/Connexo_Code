@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.adapters.upl;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 
@@ -29,6 +30,8 @@ public class TypedPropertiesValueAdapter {
     public static Object adaptToUPLValue(Object value) {
         if (value instanceof TimeDuration) {
             value = ((TimeDuration) value).asTemporalAmount();
+        } else if (value instanceof Calendar) {
+            value = new TariffCalendarAdapter(((Calendar) value));
         }
         //TODO complete
         return value;
