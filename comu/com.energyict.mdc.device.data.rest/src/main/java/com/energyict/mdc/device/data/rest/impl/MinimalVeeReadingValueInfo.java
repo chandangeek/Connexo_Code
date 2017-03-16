@@ -38,4 +38,7 @@ class MinimalVeeReadingValueInfo {
     @JsonProperty("isConfirmed")
     public Boolean isConfirmed;
 
+    @JsonProperty("ruleId")
+    public long ruleId;
+
 }
