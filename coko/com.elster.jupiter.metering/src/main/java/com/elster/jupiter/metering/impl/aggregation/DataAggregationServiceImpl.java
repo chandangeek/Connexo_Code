@@ -123,7 +123,8 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
                                 this.generateSql(
                                         this.sqlBuilderFactory.newClauseAwareSqlBuilder(),
                                         deliverablesPerMeterActivation,
-                                        virtualFactory), deliverablesPerMeterActivation));
+                                        virtualFactory),
+                                deliverablesPerMeterActivation));
             } catch (SQLException e) {
                 throw new UnderlyingSQLFailedException(e);
             }
