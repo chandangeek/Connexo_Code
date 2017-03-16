@@ -178,7 +178,12 @@ public interface PkiService {
     }
 
     public interface TrustStoreBuilder {
+        /**
+         * Clarify the purpose of this TrustStore by adding a human understandable description.
+         * This field is optional.
+         */
         TrustStoreBuilder description(String description);
+
         TrustStore add();
     }
 

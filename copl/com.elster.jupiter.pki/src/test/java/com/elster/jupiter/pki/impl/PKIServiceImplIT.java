@@ -44,6 +44,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
@@ -67,6 +68,7 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
+import static java.util.stream.Collectors.toList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -331,9 +333,45 @@ public class PKIServiceImplIT {
         assertThat(reloaded.get().getName()).isEqualTo("main");
         List<TrustedCertificate> certificates = reloaded.get().getCertificates();
         assertThat(certificates).hasSize(1);
+        assertThat(certificates.get(0).getAlias()).isEqualTo("myCert");
         assertThat(certificates.get(0).getCertificate()).isPresent();
         assertThat(certificates.get(0).getCertificate().get().getIssuerDN().getName()).isEqualTo("CN=MyRootCA, OU=SmartEnergy, O=Honeywell, L=Kortrijk, ST=Vlaanderen, C=BE");
         assertThat(certificates.get(0).getCertificate().get().getSubjectDN().getName()).isEqualTo("CN=MyRootCA, OU=SmartEnergy, O=Honeywell, L=Kortrijk, ST=Vlaanderen, C=BE");
+    }
+
+    @Test
+    @Transactional
+    public void testCreateTrustStoreFromKeyStore() throws Exception {
+        KeyStore keyStore = KeyStore.getInstance("JCEKS");
+        keyStore.load(this.getClass().getResourceAsStream("SM2016MDMCA-chain.jks"), "changeit".toCharArray());
+        TrustStore main = inMemoryPersistence.getPkiService()
+                .newTrustStore("imported")
+                .description("Imported from keystore")
+                .add();
+        main.loadKeyStore(keyStore);
+
+        Optional<TrustStore> loaded = inMemoryPersistence.getPkiService().findTrustStore("imported");
+        assertThat(loaded).isPresent();
+        assertThat(loaded.get().getCertificates()).hasSize(2);
+        assertThat(loaded.get().getCertificates().stream().map(CertificateWrapper::getAlias).collect(toList())).containsOnly("sm_2016_mdm_ca", "sm_2016_root_ca");
+    }
+
+    @Test
+    @Transactional
+    public void testCreateTrustStoreFromKeyStoreWithDuplicateAliases() throws Exception {
+        KeyStore keyStore = KeyStore.getInstance("JCEKS");
+        keyStore.load(this.getClass().getResourceAsStream("SM2016MDMCA-chain.jks"), "changeit".toCharArray());
+        TrustStore main = inMemoryPersistence.getPkiService()
+                .newTrustStore("duplicates")
+                .description("Imported from keystore")
+                .add();
+        main.loadKeyStore(keyStore);
+        main.loadKeyStore(keyStore); // <-- DUPLICATES
+
+        Optional<TrustStore> loaded = inMemoryPersistence.getPkiService().findTrustStore("duplicates");
+        assertThat(loaded).isPresent();
+        assertThat(loaded.get().getCertificates()).hasSize(2);
+        assertThat(loaded.get().getCertificates().stream().map(CertificateWrapper::getAlias).collect(toList())).containsOnly("sm_2016_mdm_ca", "sm_2016_root_ca");
     }
 
     @Test
@@ -603,6 +641,8 @@ public class PKIServiceImplIT {
         ts1.addCertificate("myCert3", certificate);
         ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper("myCert3", certificateAccessorType, privateKeyAccessorType);
     }
+
+
 
     private X509Certificate createSelfSignedCertificate(String myself) throws Exception {
         // generate a key pair

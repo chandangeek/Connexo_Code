@@ -6,9 +6,9 @@ package com.elster.jupiter.pki.impl;
 
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.impl.wrappers.certificate.TrustedCertificateImpl;
@@ -17,10 +17,15 @@ import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -28,7 +33,7 @@ import static java.util.stream.Collectors.toList;
 public class TrustStoreImpl implements TrustStore {
 
     private final DataModel dataModel;
-    private final PkiService pkiService;
+    private final Thesaurus thesaurus;
 
     public enum Fields {
         NAME("name"),
@@ -67,9 +72,9 @@ public class TrustStoreImpl implements TrustStore {
     private List<TrustedCertificate> trustedCertificates = new ArrayList<>();
 
     @Inject
-    public TrustStoreImpl(DataModel dataModel, PkiService pkiService) {
+    public TrustStoreImpl(DataModel dataModel, Thesaurus thesaurus) {
         this.dataModel = dataModel;
-        this.pkiService = pkiService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -121,8 +126,37 @@ public class TrustStoreImpl implements TrustStore {
     }
 
     @Override
+    public Optional<TrustedCertificate> findCertificate(String alias) {
+        return this.trustedCertificates.stream()
+                .filter(trustedCertificate -> trustedCertificate.getAlias().equals(alias))
+                .findAny();
+    }
+
+    @Override
     public long getVersion() {
         return version;
+    }
+
+    @Override
+    public void loadKeyStore(KeyStore keyStore) {
+        try {
+            Enumeration<String> aliases = keyStore.aliases();
+            while (aliases.hasMoreElements()) {
+                String alias = aliases.nextElement();
+                if (keyStore.entryInstanceOf(alias, KeyStore.TrustedCertificateEntry.class)) {
+                    Certificate entry = keyStore.getCertificate(alias);
+
+                    Optional<TrustedCertificate> certificate = this.findCertificate(alias);
+                    if (certificate.isPresent()) {
+                        certificate.get().setCertificate((X509Certificate) entry);
+                    } else {
+                        this.addCertificate(alias, (X509Certificate) entry);
+                    }
+                }
+            }
+        } catch (KeyStoreException e) {
+            throw new KeyStoreImportFailed(thesaurus, MessageSeeds.GENERAL_KEYSTORE_FAILURE, e);
+        }
     }
 
     public void save() {

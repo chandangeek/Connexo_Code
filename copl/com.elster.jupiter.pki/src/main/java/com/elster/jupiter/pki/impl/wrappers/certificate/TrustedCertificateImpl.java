@@ -37,6 +37,13 @@ public class TrustedCertificateImpl extends AbstractCertificateWrapperImpl imple
         this.thesaurus = thesaurus;
     }
 
+    public TrustedCertificateImpl init(TrustStore trustStore, String alias, X509Certificate x509Certificate) {
+        this.trustStoreReference.set(trustStore);
+        this.setAlias(alias);
+        this.setCertificate(x509Certificate);
+        return this;
+    }
+
     @Override
     public Optional<CRL> getCRL() {
         if (this.latestCrl==null || this.latestCrl.length==0) {
@@ -68,10 +75,4 @@ public class TrustedCertificateImpl extends AbstractCertificateWrapperImpl imple
         return trustStoreReference.get();
     }
 
-    public TrustedCertificateImpl init(TrustStore trustStore, String alias, X509Certificate x509Certificate) {
-        this.trustStoreReference.set(trustStore);
-        this.setAlias(alias);
-        this.setCertificate(x509Certificate);
-        return this;
-    }
 }
