@@ -4,7 +4,7 @@
 
 package com.elster.jupiter.issue.rest.transactions;
 
-import com.elster.jupiter.issue.rest.MessageSeeds;
+import com.elster.jupiter.issue.rest.TranslationKeys;
 import com.elster.jupiter.issue.rest.request.AssignSingleIssueRequest;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -39,14 +39,9 @@ public class AssignSingleIssueTransaction implements Transaction<ActionInfo> {
             issue.addComment(request.comment, performer);
             issue.update();
             if(request.assignee.userId == -1L && request.assignee.workGroupId == -1L){
-                response.addSuccess(issue.getId(),thesaurus.getFormat(MessageSeeds.ACTION_ISSUE_WAS_UNASSIGNED).format());
-            }else if(request.assignee.userId == -1L){
-                response.addSuccess(issue.getId(),thesaurus.getFormat(MessageSeeds.ACTION_ISSUE_WAS_ASSIGNED_WORKGROUP).format(issue.getAssignee().getWorkGroup().getName()));
-            }else if(request.assignee.workGroupId == -1L){
-                response.addSuccess(issue.getId(),thesaurus.getFormat(MessageSeeds.ACTION_ISSUE_WAS_ASSIGNED_USER).format(issue.getAssignee().getUser().getName()));
-            }else{
-                response.addSuccess(issue.getId(),thesaurus.getFormat(MessageSeeds.ACTION_ISSUE_WAS_ASSIGNED_USER_AND_WORKGROUP)
-                        .format(issue.getAssignee().getUser().getName(), issue.getAssignee().getWorkGroup().getName()));
+                response.addSuccess(issue.getId(), thesaurus.getFormat(TranslationKeys.ISSUE_ACTION_UNASSIGNED).format());
+            } else {
+                response.addSuccess(issue.getId(), thesaurus.getFormat(TranslationKeys.ISSUE_ACTION_ASSIGNED).format());
             }
         } else {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
