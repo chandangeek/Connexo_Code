@@ -7,6 +7,7 @@ Ext.define('Imt.purpose.view.registers.index.AddEdit', {
     alias: 'widget.add-index-register-reading',
     itemId: 'add-index-register-reading',
     requires: [
+        'Uni.util.FormErrorMessage'
     ],
     router: null,
     setEdit: function (edit, returnLink) {
@@ -50,16 +51,9 @@ Ext.define('Imt.purpose.view.registers.index.AddEdit', {
                 },
                 items: [
                     {
-                        name: 'errors',
-                        ui: 'form-error-framed',
                         itemId: 'registerDataEditFormErrors',
-                        layout: 'hbox',
-                        margin: '0 0 10 0',
-                        hidden: true,
-                        width: 530,
-                        defaults: {
-                            xtype: 'container'
-                        }
+                        xtype: 'uni-form-error-message',
+                        hidden: true
                     },
                     {
                         xtype: 'displayfield',

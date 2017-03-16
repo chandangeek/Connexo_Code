@@ -149,7 +149,11 @@ Ext.define('Imt.purpose.controller.RegisterData', {
         };
 
         if (timestamp) {
-            readingModel.getProxy().extraParams = {usagePointId: usagePointName, purposeId: purposeId, outputId: outputId};
+            readingModel.getProxy().extraParams = {
+                usagePointId: usagePointName,
+                purposeId: purposeId,
+                outputId: outputId
+            };
             readingModel.load(timestamp, {
                 success: function (record) {
                     reading = record;
@@ -202,7 +206,7 @@ Ext.define('Imt.purpose.controller.RegisterData', {
             router = me.getController('Uni.controller.history.Router');
 
         if (!addReadingView.isValid()) {
-            addReadingView.showErrors();
+            addReadingView.down('#registerDataEditFormErrors').show();
         } else {
             Ext.suspendLayouts();
             addReadingView.hideErrors();
@@ -227,8 +231,6 @@ Ext.define('Imt.purpose.controller.RegisterData', {
                             addReadingView.showErrors(responseText.errors);
                         }
                     }
-                },
-                callback: function () {
                 }
             });
         }
