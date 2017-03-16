@@ -21,6 +21,7 @@ import javax.ws.rs.core.Response;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.rest.MessageSeeds;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -37,11 +38,13 @@ public class TrustStoreResource {
 
     private final PkiService pkiService;
     private final ExceptionFactory exceptionFactory;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public TrustStoreResource(PkiService pkiService, ExceptionFactory exceptionFactory) {
+    public TrustStoreResource(PkiService pkiService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory) {
         this.pkiService = pkiService;
         this.exceptionFactory = exceptionFactory;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
@@ -79,22 +82,14 @@ public class TrustStoreResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 //    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
     public Response editTrustStore(@PathParam("id") long id, TrustStoreInfo info) {
-        Optional<TrustStore> trustStore = pkiService.findTrustStore(id);
-
-//        LogBookType logBookRef = resourceHelper.lockLogBookTypeOrThrowException(logbook);
-//        logBookRef.setName(logbook.name);
-//        logBookRef.setObisCode(logbook.obisCode);
-//        logBookRef.save();
-//        return Response.ok(LogBookTypeInfo.from(logBookRef)).build();
-
-//                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_TRUSTSTORE));
-
-//        info.id = id;
-//        DeviceLifeCycle deviceLifeCycle = resourceHelper.lockDeviceLifeCycleOrThrowException(info);
-//        DeviceLifeCycleUpdater deviceLifeCycleUpdater = deviceLifeCycle.startUpdate();
-//        deviceLifeCycleUpdater.setName(info.name).complete().save();
-//        return Response.ok(deviceLifeCycleFactory.from(deviceLifeCycle)).build();
-          return Response.ok(new TrustStoreInfo(trustStore.get())).build();
+        TrustStore trustStore = pkiService.findAndLockTrustStoreByIdAndVersion(id, info.version)
+            .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                    .withActualVersion(() -> getCurrentTrustStoreVersion(info.id))
+                    .supplier());
+        trustStore.setName(info.name);
+        trustStore.setDescription(info.description);
+        trustStore.save();
+        return Response.ok(new TrustStoreInfo(trustStore)).build();
     }
 
     @DELETE
@@ -114,4 +109,9 @@ public class TrustStoreResource {
             ? trustStores.stream().filter(Objects::nonNull).map(TrustStoreInfo::new).collect(Collectors.toList())
             : Collections.emptyList();
     }
+
+    public Long getCurrentTrustStoreVersion(long id) {
+        return pkiService.findTrustStore(id).map(TrustStore::getVersion).orElse(null);
+    }
+
 }
