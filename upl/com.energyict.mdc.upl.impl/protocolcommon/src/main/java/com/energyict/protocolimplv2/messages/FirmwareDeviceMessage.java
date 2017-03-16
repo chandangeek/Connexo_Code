@@ -129,6 +129,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpec(firmwareUpdateImageIdentifierAttributeName),
             PropertySpecFactory.notNullableBooleanPropertySpec(resumeFirmwareUpdateAttributeName, false)),
     VerifyAndActivateFirmwareAtGivenDate(29, PropertySpecFactory.dateTimePropertySpec(firmwareUpdateActivationDateAttributeName)),
+    FIRMWARE_IMAGE_ACTIVATION_WITH_DATA_PROTECTION_AND_ACTIVATION_DATE(30, PropertySpecFactory.dateTimePropertySpec(firmwareUpdateActivationDateAttributeName)),
     ;
     private static final DeviceMessageCategory firmwareCategory = DeviceMessageCategories.FIRMWARE;
 
