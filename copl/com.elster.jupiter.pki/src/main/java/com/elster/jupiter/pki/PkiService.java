@@ -35,6 +35,13 @@ public interface PkiService {
     Optional<TrustStore> findTrustStore(String name);
 
     /**
+     * Find trust store identified by id
+     * @param id The trust store's unique id
+     * @return TrustStore if found, if not: Optional.empty()
+     */
+    Optional<TrustStore> findTrustStore(long id);
+
+    /**
      * Returns a lost of all trust stores
      * @return List of trust stores
      */
