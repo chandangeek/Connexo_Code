@@ -4,10 +4,10 @@
 Ext.define('Pkj.model.TrustStore', {
     extend: 'Ext.data.Model',
     fields: [
+        'id',
         'name',
         'description'
     ],
-    idProperty: 'name',
     proxy: {
         type: 'rest',
         url: '/api/pir/truststores',

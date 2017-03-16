@@ -71,7 +71,7 @@ Ext.define('Pkj.controller.TrustStores', {
     navigateToEditTrustStore: function(record) {
         this.getController('Uni.controller.history.Router')
             .getRoute('administration/truststores/view/edit')
-            .forward({trustStoreName: encodeURIComponent(record.get('name'))});
+            .forward({trustStoreId: record.get('id')});
     },
 
     showAddTrustStore: function() {
@@ -148,10 +148,10 @@ Ext.define('Pkj.controller.TrustStores', {
         }
     },
 
-    showEditTrustStore: function(trustStoreName) {
+    showEditTrustStore: function(trustStoreId) {
         var me = this,
             model = Ext.ModelManager.getModel('Pkj.model.TrustStore');
-        model.load(trustStoreName, {
+        model.load(trustStoreId, {
             success: function (record) {
                 me.showEditTrustStorePage(record);
                 me.getApplication().fireEvent('trustStoreLoaded', record.get('name'));

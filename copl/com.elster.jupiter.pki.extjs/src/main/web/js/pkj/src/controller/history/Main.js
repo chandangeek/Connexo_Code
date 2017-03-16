@@ -28,7 +28,7 @@ Ext.define('Pkj.controller.history.Main', {
                             action: 'showAddTrustStore'
                         },
                         view: {
-                            route: '{trustStoreName}',
+                            route: '{trustStoreId}',
                             //privileges: Pkj.privileges.view,
                             title: Uni.I18n.translate('general.trustedCertificates', 'PKJ', 'Trusted certificates'),
                             controller: 'Pkj.controller.TrustStores',
