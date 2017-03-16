@@ -8,6 +8,7 @@ import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
 import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransition;
 import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.TariffCalendarAdapter;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
@@ -120,7 +121,11 @@ public class TariffCalendarExtractorImpl implements TariffCalendarExtractor {
     }
 
     private Range<Year> range(Calendar calender) {
-        return Range.closed(calender.getStartYear(), calender.getEndYear());
+        if (calender.getEndYear() == null || calender.getEndYear().getValue() == 0) {
+            return Range.atLeast(calender.getStartYear());
+        } else {
+            return Range.closed(calender.getStartYear(), calender.getEndYear());
+        }
     }
 
     @Override
@@ -386,7 +391,7 @@ public class TariffCalendarExtractorImpl implements TariffCalendarExtractor {
 
         @Override
         public int dayOfWeek() {
-            return this.transition.getOccurrence().getDayOfWeek().getValue();
+            return dayOfWeek.getValue();
         }
     }
 

@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.calendar.CalendarService;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.TariffCalendarAdapter;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.TariffCalendar;
