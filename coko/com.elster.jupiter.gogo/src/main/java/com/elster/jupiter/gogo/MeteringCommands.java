@@ -11,11 +11,15 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
@@ -48,6 +52,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.playground.metering.console", service = MeteringCommands.class,
         property = {"osgi.command.scope=metering",
@@ -57,6 +62,7 @@ import java.util.regex.Pattern;
                 "osgi.command.function=storeRegisterData",
                 "osgi.command.function=storeIntervalData",
                 "osgi.command.function=storeCumulativeIntervalData",
+                "osgi.command.function=storeFixedUsagePointIntervalData",
                 "osgi.command.function=listEndDeviceEventTypes",
                 "osgi.command.function=addDeviceEvent",
                 "osgi.command.function=listReadingQualityTypes",
@@ -270,6 +276,70 @@ public class MeteringCommands {
         }
     }
 
+    public void storeFixedUsagePointIntervalData() {
+        System.out.println("storeFixedUsagePointIntervalData <usagepoint name> <readingType> <startDateTime yyyyMMddHHmmss> <number of intervals> <value> [readingQualityCIMCodes e.g. 3.12.0]");
+    }
+
+    public void storeFixedUsagePointIntervalData(String usagePointName, String readingType, String startDateTime, int numberOfIntervals, double value, String... readingQualityCIMCodes) {
+        Optional<UsagePoint> usagePoint = meteringService.findUsagePointByName(usagePointName);
+        if (usagePoint.isPresent()) {
+            final ZonedDateTime[] startDate = {LocalDateTime.from(dateTimeFormat.parse(startDateTime)).atZone(ZoneId.systemDefault())};
+            Instant startFinalInstant = startDate[0].toInstant();
+            Optional<ReadingType> readingTypeOptional = meteringService.getReadingType(readingType);
+            if (readingTypeOptional.isPresent()) {
+                Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfiguration = usagePoint.get().getEffectiveMetrologyConfiguration(startFinalInstant);
+                try {
+                    executeTransaction(new VoidTransaction() {
+                        @Override
+                        protected void doPerform() {
+                            if (effectiveMetrologyConfiguration.isPresent()) {
+                                ReadingStorer readingStorer = meteringService.createOverrulingStorer();
+                                List<Channel> channels = effectiveMetrologyConfiguration.map(effective ->
+                                        effective.getChannelsContainer(effectiveMetrologyConfiguration.get()
+                                                .getMetrologyConfiguration()
+                                                .getContracts()
+                                                .get(0)))
+                                        .flatMap(cc -> cc.map(ccc -> ccc.getChannels().stream())).map(s -> s.collect(Collectors.toList())).orElse(Collections.emptyList());
+                                channels.stream()
+                                        .filter(channel -> channel.getMainReadingType().equals(readingTypeOptional.get()))
+                                        .filter(channel -> !channel.getLastDateTime().isAfter(startFinalInstant))
+                                        .forEach(channel -> {
+                                            CimChannel cimChannel = channel.getCimChannel(channel.getMainReadingType()).orElseThrow(IllegalArgumentException::new);
+                                            BigDecimal givenValue = BigDecimal.valueOf(value);
+                                            for (int i = 0; i < numberOfIntervals; i++) {
+                                                IntervalReadingImpl reading = IntervalReadingImpl.of(startDate[0].toInstant(), givenValue);
+                                                Arrays.stream(readingQualityCIMCodes)
+                                                        .filter(readingQualityCIMCode -> readingQualityCIMCode != null)
+                                                        .forEach(readingQualityCode -> cimChannel.createReadingQuality(new ReadingQualityType(readingQualityCode), reading));
+                                                readingStorer.addReading(cimChannel, reading);
+                                                startDate[0] = nextIntervalTime(startDate[0], readingTypeOptional.get());
+                                            }
+                                        });
+
+                                readingStorer.execute(QualityCodeSystem.MDM);
+                            } else {
+                                System.out.println("No effictive metrology configuration at given start time: " + startDateTime);
+                            }
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                System.out.println("Unknown reading type '" + readingType + "'. Skipping.");
+            }
+        } else {
+            System.out.println("No usage point with name " + usagePointName);
+        }
+    }
+
+    private ZonedDateTime calculateEndDate(ZonedDateTime startDate, ReadingType readingType, int numberOfIntervals) {
+        for (int i = 0; i < numberOfIntervals; i++) {
+            startDate = nextIntervalTime(startDate, readingType);
+        }
+        return startDate;
+    }
+
     private ZonedDateTime nextIntervalTime(ZonedDateTime time, ReadingType readingType) {
         MacroPeriod macroPeriod = readingType.getMacroPeriod();
         if (macroPeriod.getId() != 0) {
@@ -377,7 +447,7 @@ public class MeteringCommands {
                 ).contains(index.category()))
                 .map(index -> Pair.of(index.getTranslationKey().getDefaultFormat(), QualityCodeSystem.MDC.ordinal() + "." + index.category().ordinal() + "." + index.index()))
                 .filter(pair -> pattern.matcher(pair.getFirst()).matches() || pattern.matcher(pair.getLast()).matches())
-        .forEach(pair -> System.out.println("|\t" + String.format("%-80s", pair.getFirst()) + "\t|\t" + String.format("%-13s", pair.getLast())));
+                .forEach(pair -> System.out.println("|\t" + String.format("%-80s", pair.getFirst()) + "\t|\t" + String.format("%-13s", pair.getLast())));
     }
 
     public void addReadingQuality(String deviceName, String readingTypeMRID, String time, String readingQualityCode) {
@@ -410,7 +480,7 @@ public class MeteringCommands {
         //validate reading quality code
         ReadingQualityType readingQualityType = new ReadingQualityType(readingQualityCode);
         try {
-            if(!readingQualityType.system().isPresent() || !readingQualityType.category().isPresent() || !readingQualityType.qualityIndex().isPresent()) {
+            if (!readingQualityType.system().isPresent() || !readingQualityType.category().isPresent() || !readingQualityType.qualityIndex().isPresent()) {
                 System.out.println("Reading quality code is not valid: " + readingQualityCode);
                 return;
             }
