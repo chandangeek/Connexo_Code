@@ -1,19 +1,30 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.GrantPrivilege;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
+import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -21,11 +32,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.util.conditions.Where.where;
+import static com.elster.jupiter.util.streams.Currying.test;
+import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_GROUP_NAME + "}")
 final class GroupImpl implements Group {
@@ -52,11 +66,19 @@ final class GroupImpl implements Group {
 	private List<PrivilegeInGroup> privilegeInGroups = new ArrayList<>();
     private final QueryService queryService;
     private final DataModel dataModel;
+    private final UserServiceImpl userService;
+    private final ThreadPrincipalService threadPrincipalService;
+    private final Thesaurus thesaurus;
+    private final Publisher publisher;
 
     @Inject
-    GroupImpl(QueryService queryService, DataModel dataModel) {
+    GroupImpl(QueryService queryService, DataModel dataModel, UserService userService, ThreadPrincipalService threadPrincipalService, Thesaurus thesaurus, Publisher publisher) {
         this.queryService = queryService;
         this.dataModel = dataModel;
+        this.threadPrincipalService = threadPrincipalService;
+        this.thesaurus = thesaurus;
+        this.publisher = publisher;
+        this.userService = (UserServiceImpl) userService;
     }
 
 	GroupImpl init(String name, String description) {
@@ -122,17 +144,37 @@ final class GroupImpl implements Group {
 
 	@Override
     public boolean grant(String applicationName, Privilege privilege) {
+        checkGranting(privilege);
         if (hasPrivilege(applicationName, privilege)) {
             return false;
         }
 		PrivilegeInGroup privilegeInGroup = PrivilegeInGroup.from(dataModel, this, applicationName, privilege);
 		privilegeInGroup.persist();
 		getPrivilegeInGroups(applicationName).add(privilegeInGroup);
+        publisher.publish(this, privilege);
         return false;
 	}
 
+    private void checkGranting(Privilege privilege) {
+        Principal principal = threadPrincipalService.getPrincipal();
+        if (principal instanceof User) {
+            User user = (User) principal;
+            boolean hasGrantRightsFor = decorate(user.getGroups()
+                    .stream())
+                    .map(group -> group.getPrivileges().values().stream())
+                    .flatMap(Function.identity())
+                    .flatMap(List::stream)
+                    .filterSubType(GrantPrivilege.class)
+                    .anyMatch(test(GrantPrivilege::canGrant).with(privilege));
+            if (!hasGrantRightsFor) {
+                throw new ForbiddenException(thesaurus);
+            }
+        }
+    }
+
     @Override
     public boolean revoke(String applicationName, Privilege privilege) {
+        checkGranting(privilege);
     	Iterator<PrivilegeInGroup> it = getPrivilegeInGroups(applicationName).iterator();
     	while (it.hasNext()) {
     		PrivilegeInGroup each = it.next();

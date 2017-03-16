@@ -1,16 +1,24 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.users.GrantPrivilege;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.PrivilegeCategory;
 import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserPreference;
 import com.elster.jupiter.users.WorkGroup;
+
+import com.google.common.collect.ImmutableMap;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
@@ -34,13 +42,31 @@ public enum TableSpecs {
             table.unique("IDS_U_RESOURCE").on(nameColumn).add();
         }
     },
+    USR_PRIVILEGE_CATEGORY {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<PrivilegeCategory> table = dataModel.addTable(name(), PrivilegeCategory.class);
+            table.map(PrivilegeCategoryImpl.class);
+            table.since(version(10, 3));
+            table.cache();
+            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
+            table.primaryKey("USR_PK_USR_PRIVILEGE_CATEGORY")
+                    .on(nameColumn)
+                    .add();
+        }
+    },
     USR_PRIVILEGE {
         void addTo(DataModel dataModel) {
             Table<Privilege> table = dataModel.addTable(name(), Privilege.class);
-            table.map(PrivilegeImpl.class);
+            table.map(ImmutableMap.of(
+                    "P", PrivilegeImpl.class,
+                    "G", GrantPrivilegeImpl.class
+            ));
             table.cache();
             Column idColumn = table.column("NAME").varChar().notNull().map("name").add();
+            table.addDiscriminatorColumn("DISCRIMINATOR", "varchar(1)").since(version(10, 3));
             Column resourceColumn = table.column("RESOURCEID").type("number").notNull().add();
+            Column categoryColumn = table.column("CATEGORY").varChar(NAME_LENGTH).notNull().since(version(10, 3)).add();
             table.primaryKey("USR_PK_PRIVILEGES").on(idColumn).add();
             table
                 .foreignKey("USR_FK_PRIVILEGES_RESOURCE")
@@ -49,6 +75,43 @@ public enum TableSpecs {
                 .map("resource")
                 .on(resourceColumn)
                 .add();
+            table.foreignKey("USR_FK_PRIVILEGE_CATEGORY")
+                    .references(PrivilegeCategory.class)
+                    .map("category")
+                    .on(categoryColumn)
+                    .since(version(10, 3))
+                    .add();
+        }
+    },
+    USR_GRANTABLE_CATEGORY {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<GrantableCategory> table = dataModel.addTable(name(), GrantableCategory.class);
+            table.map(GrantableCategory.class);
+            table.since(version(10, 3));
+            Column grantPrivilegeColumn = table.column("GRANT_PRIVILIGE")
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .add();
+            Column categoryColumn = table.column("CATEGORY")
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .add();
+            table.primaryKey("USR_PK_CATEGORY_IN_GRANT")
+                    .on(grantPrivilegeColumn, categoryColumn)
+                    .add();
+            table.foreignKey("USR_FK_GRANT_GRANTCAT")
+                    .references(GrantPrivilege.class)
+                    .map(GrantableCategory.Fields.GRANT_PRIVILEGE.getFieldName())
+                    .composition()
+                    .reverseMap(GrantPrivilegeImpl.Fields.CATEGORIES.getFieldName())
+                    .on(grantPrivilegeColumn)
+                    .add();
+            table.foreignKey("UDR_FK_CAT_GRANTCAT")
+                    .references(PrivilegeCategory.class)
+                    .map(GrantableCategory.Fields.CATEGORY.getFieldName())
+                    .on(categoryColumn)
+                    .add();
         }
     },
     USR_GROUP {

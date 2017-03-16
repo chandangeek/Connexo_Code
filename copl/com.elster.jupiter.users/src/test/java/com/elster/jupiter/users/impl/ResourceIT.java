@@ -1,16 +1,22 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.Resource;
+
+import java.util.Collections;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Collections;
-
+import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -20,6 +26,8 @@ public class ResourceIT extends EqualsContractTest {
 
     @Mock
     private DataModel dataModel;
+    @Mock
+    private UserServiceImpl userService;
 
 
     private static final String TEST_COMPONENT_NAME = "componentName";
@@ -32,6 +40,7 @@ public class ResourceIT extends EqualsContractTest {
 
     @Before
     public void equalsContractSetUp() {
+        when(dataModel.getInstance(ResourceImpl.class)).thenAnswer(invocation -> new ResourceImpl(dataModel, userService));
         super.equalsContractSetUp();
     }
 
@@ -39,8 +48,6 @@ public class ResourceIT extends EqualsContractTest {
     @After
     public void tearDown() {
     }
-
-
 
     @Override
     protected Object getInstanceA() {

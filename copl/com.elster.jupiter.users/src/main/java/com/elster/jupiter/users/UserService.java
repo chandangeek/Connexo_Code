@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.users;
 
 import com.elster.jupiter.datavault.DataVaultService;
@@ -9,15 +13,21 @@ import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @ProviderType
 public interface UserService {
 
+    String DEFAULT_CATEGORY_NAME = "Default";
     String COMPONENTNAME = "USR";
 
-    String DEFAULT_ADMIN_ROLE = "Administrators";
-    String DEFAULT_ADMIN_ROLE_DESCRIPTION = "Administrative privileges";
-    String BATCH_EXECUTOR_ROLE = "Batch executors";
+    String SYSTEM_ADMIN_ROLE = "System administrator";
+    String SYSTEM_ADMIN_ROLE_DESCRIPTION = "System administrative privileges";
+    String DEFAULT_ADMIN_ROLE = "User administrator";
+    String DEFAULT_ADMIN_ROLE_DESCRIPTION = "User administrative privileges";
+    String DEFAULT_INSTALLER_ROLE = "Installer";
+    String DEFAULT_INSTALLER_ROLE_DESCRIPTION = "Installation privileges";
+    String BATCH_EXECUTOR_ROLE = "Batch executor";
     String BATCH_EXECUTOR_ROLE_DESCRIPTION = "Batch executors privileges";
 
     User createUser(String name, String description);
@@ -147,4 +157,14 @@ public interface UserService {
     List<User> getUsers();
 
     Optional<WorkGroup> findAndLockWorkGroupByIdAndVersion(long id, long version);
+
+    PrivilegeCategory createPrivilegeCategory(String name);
+
+    Optional<PrivilegeCategory> findPrivilegeCategory(String name);
+
+    PrivilegeCategory getDefaultPrivilegeCategory();
+
+    ResourceBuilder buildResource();
+
+    Set<User> findUsers(Group group);
 }

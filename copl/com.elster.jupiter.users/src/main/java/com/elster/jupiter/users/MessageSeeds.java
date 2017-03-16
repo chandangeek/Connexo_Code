@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.users;
 
 import com.elster.jupiter.nls.NlsMessageFormat;
@@ -27,7 +31,8 @@ public enum MessageSeeds implements MessageSeed {
     FIELD_SIZE_BETWEEN_1_AND_64(1017, Keys.FIELD_SIZE_BETWEEN_1_AND_64, "Field text length should be between 1 and 64 symbols"),
     FIELD_SIZE_BETWEEN_1_AND_65(1018, Keys.FIELD_SIZE_BETWEEN_1_AND_65, "Field text length should be between 1 and 65 symbols"),
     FIELD_SIZE_BETWEEN_1_AND_256(1019, Keys.FIELD_SIZE_BETWEEN_1_AND_256, "Field text length should be between 1 and 256 symbols"),
-    DUPLICATE_WORKGROUP_NAME(1020, Keys.DUPLICATE_WORKGROUP_NAME, "Duplicate name");
+    DUPLICATE_WORKGROUP_NAME(1020, Keys.DUPLICATE_WORKGROUP_NAME, "Duplicate name"),
+    INSUFFICIENT_PRIVILEGES(1021, "InsufficientPrivileges", "The user does not have the needed privileges to perform the requested action.");
 
     private final int number;
     private final String key;

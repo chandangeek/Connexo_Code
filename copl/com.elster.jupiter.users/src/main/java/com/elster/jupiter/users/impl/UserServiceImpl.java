@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.datavault.DataVaultService;
@@ -14,12 +18,13 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
 import com.elster.jupiter.users.ApplicationPrivilegesProvider;
+import com.elster.jupiter.users.GrantPrivilege;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.MessageSeeds;
@@ -27,8 +32,10 @@ import com.elster.jupiter.users.NoDefaultDomainException;
 import com.elster.jupiter.users.NoDomainFoundException;
 import com.elster.jupiter.users.NoDomainIdFoundException;
 import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.PrivilegeCategory;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.Resource;
+import com.elster.jupiter.users.ResourceBuilder;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
@@ -38,7 +45,6 @@ import com.elster.jupiter.users.WorkGroup;
 import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
-import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.common.collect.ImmutableMap;
@@ -63,6 +69,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -91,6 +98,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     private List<User> loggedInUsers = new CopyOnWriteArrayList<>();
     private volatile DataVaultService dataVaultService;
     private volatile UpgradeService upgradeService;
+    private volatile Publisher publisher;
     private volatile Clock clock;
 
     private static final String TRUSTSTORE_PATH = "com.elster.jupiter.users.truststore";
@@ -125,7 +133,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     private final Object privilegeProviderRegistrationLock = new Object();
 
     @Inject
-    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService, ThreadPrincipalService threadPrincipalService, DataVaultService dataVaultService, UpgradeService upgradeService, BundleContext bundleContext) {
+    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService, ThreadPrincipalService threadPrincipalService, DataVaultService dataVaultService, UpgradeService upgradeService, BundleContext bundleContext, Publisher publisher) {
         this();
         setTransactionService(transactionService);
         setQueryService(queryService);
@@ -134,6 +142,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         setDataVaultService(dataVaultService);
         setThreadPrincipalService(threadPrincipalService);
         setUpgradeService(upgradeService);
+        setPublisher(publisher);
         activate(bundleContext);
     }
 
@@ -153,15 +162,15 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
                 bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(UserService.class).toInstance(UserServiceImpl.this);
                 bind(BundleContext.class).toInstance(context);
+                bind(Publisher.class).toInstance(publisher);
             }
         });
         userPreferencesService = new UserPreferencesServiceImpl(dataModel);
         synchronized (privilegeProviderRegistrationLock) {
             upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
-                    version(10, 2), UpgraderV10_2.class, version(10, 3), V10_3SimpleUpgrader.class
+                    version(10, 2), UpgraderV10_2.class, version(10, 3), UpgraderV10_3.class
             ));
         }
-
     }
 
     public Optional<User> authenticate(String domain, String userName, String password, String ipAddr) {
@@ -421,6 +430,10 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         return privilegeFactory().getOptional(privilegeName);
     }
 
+    public Optional<GrantPrivilege> getGrantPrivilege(String privilegeName) {
+        return dataModel.mapper(GrantPrivilege.class).getOptional(privilegeName);
+    }
+
     public Optional<Resource> getResource(String resourceName) {
         return resourceFactory().getOptional(resourceName);
     }
@@ -635,6 +648,11 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         applicationPrivilegesProviders.add(applicationPrivilegesProvider);
     }
 
+    @Reference
+    public void setPublisher(Publisher publisher) {
+        this.publisher = publisher;
+    }
+
     @SuppressWarnings("unused")
     public void removeApplicationPrivileges(ApplicationPrivilegesProvider applicationPrivilegesProvider) {
         applicationPrivilegesProviders.remove(applicationPrivilegesProvider);
@@ -749,6 +767,40 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     @Override
     public Optional<WorkGroup> findAndLockWorkGroupByIdAndVersion(long id, long version) {
         return dataModel.mapper(WorkGroup.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public PrivilegeCategory createPrivilegeCategory(String name) {
+        PrivilegeCategoryImpl category = PrivilegeCategoryImpl.of(dataModel, name);
+        dataModel.mapper(PrivilegeCategory.class).persist(category);
+        return category;
+    }
+
+    @Override
+    public Optional<PrivilegeCategory> findPrivilegeCategory(String name) {
+        return dataModel.mapper(PrivilegeCategory.class).getOptional(name);
+    }
+
+    @Override
+    public PrivilegeCategory getDefaultPrivilegeCategory() {
+        return findPrivilegeCategory(DEFAULT_CATEGORY_NAME).orElseThrow(() -> new IllegalStateException("Cannot get default privilege category before installation"));
+    }
+
+    @Override
+    public ResourceBuilder buildResource() {
+        return new ResourceBuilderImpl(dataModel);
+    }
+
+    @Override
+    public Set<User> findUsers(Group group) {
+        return dataModel.stream(UserInGroup.class)
+                .filter(Operator.EQUAL.compare("groupId", group.getId()))
+                .map(UserInGroup::getUser)
+                .collect(Collectors.toSet());
+    }
+
+    void createDefaultPrivilegeCategory() {
+        createPrivilegeCategory(DEFAULT_CATEGORY_NAME);
     }
 
     private DataMapper<Privilege> privilegeFactory() {
@@ -880,9 +932,10 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         return found.get(0);
     }
 
-    private Resource createResource(String component, String name, String description) {
+    Resource createResource(String component, String name, String description) {
         ResourceImpl result = ResourceImpl.from(dataModel, component, name, description);
         result.persist();
         return result;
     }
+
 }

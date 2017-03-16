@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.Privilege;
@@ -63,10 +68,12 @@ public final class UserImpl implements User {
     private List<UserInGroup> memberships;
 
     private final DataModel dataModel;
+    private final Publisher publisher;
 
     @Inject
-    UserImpl(DataModel dataModel) {
+    UserImpl(DataModel dataModel, Publisher publisher) {
         this.dataModel = dataModel;
+        this.publisher = publisher;
     }
 
     static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName, boolean allowPwdChange, boolean status) {
@@ -145,6 +152,7 @@ public final class UserImpl implements User {
             memberships.add(membership);
         }
         membership.persist();
+        publisher.publish(this, group, true);
         return true;
     }
 
@@ -161,6 +169,7 @@ public final class UserImpl implements User {
                 if (memberships != null) {
                     memberships.remove(userInGroup);
                 }
+                publisher.publish(this, group, false);
                 return true;
             }
         }
