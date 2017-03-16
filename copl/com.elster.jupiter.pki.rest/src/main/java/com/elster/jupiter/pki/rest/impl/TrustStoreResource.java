@@ -51,10 +51,10 @@ public class TrustStoreResource {
     }
 
     @GET
-    @Path("/{name}")
+    @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public TrustStoreInfo getTrustStore(@PathParam("name") String name) {
-        Optional<TrustStore> trustStore = this.pkiService.findTrustStore(name);
+    public TrustStoreInfo getTrustStore(@PathParam("id") long id) {
+        Optional<TrustStore> trustStore = this.pkiService.findTrustStore(id);
         if (trustStore.isPresent()) {
             return new TrustStoreInfo(trustStore.get());
         }
@@ -75,11 +75,18 @@ public class TrustStoreResource {
 
     @PUT
     @Transactional
-    @Path("/{name}")
+    @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 //    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
-    public Response editTrustStore(@PathParam("name") String name, TrustStoreInfo info) {
-        Optional<TrustStore> trustStore = pkiService.findTrustStore(name);
+    public Response editTrustStore(@PathParam("id") long id, TrustStoreInfo info) {
+        Optional<TrustStore> trustStore = pkiService.findTrustStore(id);
+
+//        LogBookType logBookRef = resourceHelper.lockLogBookTypeOrThrowException(logbook);
+//        logBookRef.setName(logbook.name);
+//        logBookRef.setObisCode(logbook.obisCode);
+//        logBookRef.save();
+//        return Response.ok(LogBookTypeInfo.from(logBookRef)).build();
+
 //                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_TRUSTSTORE));
 
 //        info.id = id;
@@ -92,12 +99,12 @@ public class TrustStoreResource {
 
     @DELETE
     @Transactional
-    @Path("/{name}")
+    @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response deleteTrustStore(@PathParam("name") String name) {
-//        pkiService.findTrustStore(name)
+    public Response deleteTrustStore(@PathParam("id") long id) {
+//        pkiService.findTrustStore(id)
 //                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_TRUSTSTORE))
-//                .makeObsolete();
+//                .delete();
         return Response.status(Response.Status.OK).build();
     }
 
