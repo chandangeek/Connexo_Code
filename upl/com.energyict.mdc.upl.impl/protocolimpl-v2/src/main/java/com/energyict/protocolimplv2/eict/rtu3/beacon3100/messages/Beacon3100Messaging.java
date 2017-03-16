@@ -222,6 +222,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     public static final ObisCode CLIENT_MANAGER_NEW_OBISCODE = ObisCode.fromString("0.187.96.170.0.255");
     public static final ObisCode MODEM_WATCHDOG_NEW_OBISCODE = ObisCode.fromString("0.162.96.128.0.255");
     public static final ObisCode G3_NETWORK_MANAGEMENT_NEW_OBISCODE = ObisCode.fromString("0.168.96.128.0.255");
+    
+    /** New logical name of the concentrator setup object. */
+    public static final ObisCode CONCENTRATOR_SETUP_NEW_LOGICAL_NAME = ObisCode.fromString("0.187.96.128.0.255");
 
     private static final String SEPARATOR = ";";
     private static final String SEPARATOR2 = ",";
@@ -1518,7 +1521,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
         final byte[] mac = ParseUtils.hexStringToByteArray(macAddress);
 
-        final ConcentratorSetup concentratorSetup = this.getCosemObjectFactory().getConcentratorSetup();
+        final ConcentratorSetup concentratorSetup = this.firmareVersionLowerThan10 ? this.getCosemObjectFactory().getConcentratorSetup() : this.getCosemObjectFactory().getConcentratorSetup(CONCENTRATOR_SETUP_NEW_LOGICAL_NAME);
         concentratorSetup.triggerPreliminaryProtocol(mac, protocolName);
 
         if (getLogger().isLoggable(Level.INFO)) {
