@@ -1,13 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.http.whiteboard;
 
 import com.elster.jupiter.users.PrivilegeChecker;
 import com.elster.jupiter.users.User;
 
-/**
- * Copyrights EnergyICT
- * Date: 18/09/2014
- * Time: 9:46
- */
 public class App {
     private final String context;
     private final String key;

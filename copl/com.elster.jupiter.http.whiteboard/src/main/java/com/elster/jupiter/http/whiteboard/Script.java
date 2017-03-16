@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.http.whiteboard;
 
-/**
- * Copyrights EnergyICT
- * Date: 5/03/14
- * Time: 10:56
- */
 public class Script {
     private String name;
     private String path;
