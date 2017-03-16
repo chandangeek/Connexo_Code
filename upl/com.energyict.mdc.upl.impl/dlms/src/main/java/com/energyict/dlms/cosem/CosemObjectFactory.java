@@ -780,6 +780,17 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     	return new ConcentratorSetup(this.protocolLink, ConcentratorSetup.DEFAULT_OBIS_CODE);
     }
 
+    /**
+     * Returns the Beacon 3100 ConcentratorSetupIC object using the given logical name.
+     * 
+     * @param	logicalName		The logical name of the {@link ConcentratorSetup} object.
+     * 
+     * @return	The {@link ConcentratorSetup} object.
+     */
+    public final ConcentratorSetup getConcentratorSetup(final ObisCode logicalName) throws NotInObjectListException {
+    	return new ConcentratorSetup(this.protocolLink, this.getObjectReference(logicalName));
+    }
+
     public final GeneralLocalPortReadout getGeneralLocalPortReadout() throws NotInObjectListException {
         return new GeneralLocalPortReadout(this.protocolLink, this.getObjectReference(GeneralLocalPortReadout.getDefaultObisCode()));
     }
