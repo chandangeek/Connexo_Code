@@ -23,4 +23,5 @@ public class UsagePointLifeCycleStateInfo {
     public List<BusinessProcessInfo> onExit = new ArrayList<>();
     public VersionInfo<Long> parent;
     public String stage;
+    public String stageName;
 }

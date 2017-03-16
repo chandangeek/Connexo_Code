@@ -31,6 +31,7 @@ public class UsagePointLifeCycleStateInfoFactory {
         info.version = state.getVersion();
         info.isInitial = state.isInitial();
         info.stage = thesaurus.getString(state.getStage().get().getName(), state.getStage().get().getName());
+        info.stageName = state.getStage().get().getName();
         info.parent = new VersionInfo<>(lifeCycle.getId(), lifeCycle.getVersion());
         return info;
     }
