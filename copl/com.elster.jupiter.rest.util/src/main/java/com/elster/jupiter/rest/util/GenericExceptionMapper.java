@@ -14,8 +14,7 @@ import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
-public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
+public class GenericExceptionMapper<T extends Throwable> implements ExceptionMapper<T> {
 
     private static final Logger LOGGER = Logger.getLogger(GenericExceptionMapper.class.getName());
     private final Provider<GenericExceptionInfo> infoProvider;
