@@ -47,7 +47,10 @@ public class UsagePointImportHelper implements OutOfTheBoxCategoryForImport.Serv
         usagePointBuilder.withServicePriority(data.getServicePriority());
         usagePointBuilder.withServiceDeliveryRemark(data.getServiceDeliveryRemark());
         addCustomPropertySetsValues(usagePointBuilder, data);
-        return usagePointBuilder.create();
+        UsagePoint usagePoint = usagePointBuilder.create();
+        this.addCalendars(data, usagePoint);
+        this.applyMetrologyConfiguration(data, usagePoint);
+        return usagePoint;
     }
 
     public UsagePoint createUsagePointForMultiSense(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data) {
@@ -58,11 +61,15 @@ public class UsagePointImportHelper implements OutOfTheBoxCategoryForImport.Serv
         usagePoint.addDetail(usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, clock.instant()));
         usagePoint.update();
         this.addCalendars(data, usagePoint);
+        this.applyMetrologyConfiguration(data, usagePoint);
+        return usagePoint;
+    }
+
+    private void applyMetrologyConfiguration(UsagePointImportRecord data, UsagePoint usagePoint) {
         data.getMetrologyConfigurationName().ifPresent(metrologyConfigurationName -> {
             validateMetrologyConfiguration(metrologyConfigurationName, usagePoint, data);
             setMetrologyConfigurationForUsagePoint(data, usagePoint);
         });
-        return usagePoint;
     }
 
     private void addCalendars(UsagePointImportRecord data, UsagePoint usagePoint) {
@@ -154,7 +161,7 @@ public class UsagePointImportHelper implements OutOfTheBoxCategoryForImport.Serv
     }
 
 
-    public void setMetrologyConfigurationForUsagePoint(UsagePointImportRecord data, UsagePoint usagePoint) {
+    private void setMetrologyConfigurationForUsagePoint(UsagePointImportRecord data, UsagePoint usagePoint) {
         data.getMetrologyConfigurationName().ifPresent(metrologyConfigurationName ->
             context.getMetrologyConfigurationService()
                     .findMetrologyConfiguration(metrologyConfigurationName)

@@ -78,6 +78,7 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -393,7 +394,7 @@ public class UsagePointProcessorTest {
 
         importer.process(occurrence);
 
-        verify(metrologyConfigurationService, times(3)).findMetrologyConfiguration("SP10_DEMO_1");
+        verify(metrologyConfigurationService, atLeastOnce()).findMetrologyConfiguration("SP10_DEMO_1");
         verify(usagePoint, times(2)).linkMeters();
         verify(meteringService, times(2)).findMeterByName("meter");
         verify(metrologyConfigurationService, times(2)).findMeterRole("meter.role.default");

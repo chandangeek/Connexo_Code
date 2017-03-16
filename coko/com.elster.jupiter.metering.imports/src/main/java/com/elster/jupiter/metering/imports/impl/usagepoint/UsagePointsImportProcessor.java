@@ -71,7 +71,6 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
             } else {
                 createDetails(usagePoint, data).create();
             }
-            usagePointImportHelper.setMetrologyConfigurationForUsagePoint(data, usagePoint);
             activateMeters(data, usagePoint);
             performUsagePointTransition(data, usagePoint);
         } catch (ConstraintViolationException e) {
