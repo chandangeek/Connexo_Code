@@ -69,7 +69,7 @@ public enum DataQualityOverviewFilter {
         void apply(JsonQueryFilter filter, DataQualityOverviewBuilder overviewBuilder, ResourceHelper resourceHelper) {
             Instant from = filter.getInstant("from");
             Instant to = filter.getInstant("to");
-            overviewBuilder.in(Ranges.closed(from, to));
+            overviewBuilder.in(Ranges.openClosed(from, to));
         }
     },
     READING_QUALITY("readingQuality") {
