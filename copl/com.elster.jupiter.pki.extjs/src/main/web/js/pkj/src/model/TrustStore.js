@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 Ext.define('Pkj.model.TrustStore', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
     fields: [
         'id',
         'name',
