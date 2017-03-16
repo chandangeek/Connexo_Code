@@ -67,6 +67,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>systemadmin</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>dataquality</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
