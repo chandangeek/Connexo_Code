@@ -136,6 +136,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>kore.api.rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>kpi</artifactId>
         </dependency>
         <dependency>
@@ -177,7 +181,7 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>kore.api.rest</artifactId>
+            <artifactId>slp.importers</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
