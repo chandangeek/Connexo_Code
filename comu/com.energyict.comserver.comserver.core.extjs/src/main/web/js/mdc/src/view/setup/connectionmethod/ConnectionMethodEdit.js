@@ -96,7 +96,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 queryMode: 'local',
                                 displayField: 'name',
                                 valueField: 'id',
-                                emptyText: Uni.I18n.translate('communicationtasks.form.selectProtocolDialectConfigurationProperties', 'MDC', 'Select the protocol dialect...'),
+                                emptyText: Uni.I18n.translate('communicationtasks.form.selectProtocolDialectConfigurationProperties', 'MDC', 'Select a protocol dialect...'),
                                 forceSelection: true,
                                 editable: false,
                                 msgTarget: 'under',
