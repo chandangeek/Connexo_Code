@@ -11,6 +11,8 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UnsatisfiedReadingTypeRequirements;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -26,12 +28,14 @@ import com.elster.jupiter.util.Pair;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl implements UsagePointMetrologyConfiguration {
     public static final String TYPE_IDENTIFIER = "U";
@@ -212,4 +216,28 @@ class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl im
         getRequirementRoleUsage(readingTypeRequirement).ifPresent(requirementToRoleUsages::remove);
         super.removeReadingTypeRequirement(readingTypeRequirement);
     }
+
+    @Override
+    public boolean requiresCalendarOnUsagePoint() {
+        return this.mandatoryReadingTypes()
+                    .map(ReadingType::getTou)
+                    .mapToLong(Long::new)
+                    .distinct()
+                    .anyMatch(tou -> tou != 0);
+    }
+
+    private Stream<ReadingType> mandatoryReadingTypes() {
+        return this.mandatoryContracts()
+                .map(MetrologyContract::getDeliverables)
+                .flatMap(Collection::stream)
+                .map(ReadingTypeDeliverable::getReadingType);
+    }
+
+    private Stream<MetrologyContract> mandatoryContracts() {
+        return this
+                .getContracts()
+                .stream()
+                .filter(MetrologyContract::isMandatory);
+    }
+
 }
