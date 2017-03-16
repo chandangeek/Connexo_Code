@@ -7,14 +7,11 @@ import com.energyict.mdc.messages.LegacyMessageConverter;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.Messaging;
-import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
-import com.energyict.protocolimplv2.messages.SecurityMessage;
+import com.energyict.protocolimplv2.messages.*;
 import org.junit.Test;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static junit.framework.Assert.assertEquals;
@@ -24,6 +21,8 @@ import static junit.framework.Assert.assertEquals;
  * @since 13/08/2015 - 17:01
  */
 public class EK280MessageConverterTest extends AbstractMessageConverterTest {
+
+    private Date activationDate = new Date(1441101600000l);
 
     @Test
     public void testMessageConversion_ChangeCredentials() {
@@ -87,6 +86,7 @@ public class EK280MessageConverterTest extends AbstractMessageConverterTest {
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<DisableAutoAnswer AutoAnswerId=\"1\"> </DisableAutoAnswer>", messageEntry.getContent());
     }
+
     @Test
     public void testMessageConversion_ConfigureAutoConnect() {
         OfflineDeviceMessage offlineDeviceMessage = createMessage(NetworkConnectivityMessage.ConfigureAutoConnect);
@@ -102,10 +102,12 @@ public class EK280MessageConverterTest extends AbstractMessageConverterTest {
     }
 
     @Test
-    public void testMessageConversion_ActivityCalendarSend() {
+    public void testMessageConversion_ActivityCalendarSend() throws Exception {
         OfflineDeviceMessage offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_DEFAULT_TARIFF_CODE);
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<UploadPassiveTariff CodeTableId=\"base64_codeTable\" ActivationTime=\"2015-09-01 12:00:00\" DefaultTariff=\"3\"> </UploadPassiveTariff>", messageEntry.getContent());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String expectedDate = dateFormat.format(activationDate);
+        assertEquals("<UploadPassiveTariff CodeTableId=\"base64_codeTable\" ActivationTime=\"" + expectedDate + "\" DefaultTariff=\"3\"> </UploadPassiveTariff>", messageEntry.getContent());
     }
 
     @Override
@@ -182,7 +184,7 @@ public class EK280MessageConverterTest extends AbstractMessageConverterTest {
             case DeviceMessageConstants.activityCalendarCodeTableAttributeName:
                 return "base64_codeTable";
             case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
-                return new Date(1441101600000l);
+                return activationDate;
             case DeviceMessageConstants.defaultTariffCodeAttrributeName:
                 return "3";
             default:
