@@ -270,6 +270,11 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
     }
 
     @Override
+    public void estimateReadings(QualityCodeSystem system, List<? extends BaseReading> readings) {
+        persistedChannel.estimateReadings(system, readings);
+    }
+
+    @Override
     public void removeReadings(QualityCodeSystem system, List<? extends BaseReadingRecord> readings) {
         persistedChannel.removeReadings(system, readings);
     }
@@ -376,6 +381,19 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
     @Override
     public List<ReadingRecord> getCalculatedRegisterReadings(Range<Instant> interval) {
         return new ArrayList<>(getCalculatedRegisterReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record)).values());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o
+                || o != null
+                && getClass() == o.getClass()
+                && persistedChannel.equals(((AggregatedChannelImpl) o).persistedChannel);
+    }
+
+    @Override
+    public int hashCode() {
+        return persistedChannel.hashCode();
     }
 
     private static class CalculatedReadingRecordImpl implements IntervalReadingRecord, ReadingRecord {

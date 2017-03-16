@@ -186,7 +186,7 @@ class PartiallySpecifiedReadingTypeRequirementImpl extends ReadingTypeRequiremen
             ReadingTypeTemplateAttribute macroPeriodAttribute = getReadingTypeTemplate().getAttribute(ReadingTypeTemplateAttributeName.MACRO_PERIOD);
             if (macroPeriodAttribute.getCode().isPresent()) {
                 int value = macroPeriodAttribute.getCode().get();
-                if ((value != MacroPeriod.DAILY.getId()) && (value != MacroPeriod.MONTHLY.getId())) {
+                if ((value != MacroPeriod.DAILY.getId()) && (value != MacroPeriod.MONTHLY.getId())&& (value != MacroPeriod.YEARLY.getId())) {
                     return false;
                 }
             }
@@ -291,6 +291,8 @@ class PartiallySpecifiedReadingTypeRequirementImpl extends ReadingTypeRequiremen
                 return MacroPeriod.DAILY;
             } else if (macroPeriod == MacroPeriod.MONTHLY.getId()) {
                 return MacroPeriod.MONTHLY;
+            } else if (macroPeriod == MacroPeriod.YEARLY.getId()) {
+                return MacroPeriod.YEARLY;
             } else {
                 return MacroPeriod.NOTAPPLICABLE;
             }

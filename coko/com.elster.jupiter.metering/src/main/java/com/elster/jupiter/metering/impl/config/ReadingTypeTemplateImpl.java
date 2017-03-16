@@ -9,10 +9,10 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.DefaultReadingTypeTemplate;
+import com.elster.jupiter.metering.config.ReadingTypeRestriction;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
-import com.elster.jupiter.metering.config.ReadingTypeRestriction;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
@@ -27,6 +27,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -176,6 +177,18 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
     public void delete() {
         persistedAttributes.clear();
         this.dataModel.mapper(ReadingTypeTemplate.class).remove(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o
+                || o instanceof ReadingTypeTemplateImpl
+                && getId() == ((ReadingTypeTemplateImpl) o).getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
     private static class ReadingTypeTemplateAttributeSetterImpl implements ReadingTypeTemplateAttributeSetter {
