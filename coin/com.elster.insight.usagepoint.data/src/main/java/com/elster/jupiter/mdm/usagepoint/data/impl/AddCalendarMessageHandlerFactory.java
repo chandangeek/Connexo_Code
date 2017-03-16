@@ -11,7 +11,6 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.usagepoint.calendar.UsagePointCalendarService;
 import com.elster.jupiter.util.json.JsonService;
 
 import org.osgi.service.component.annotations.Component;
@@ -28,7 +27,6 @@ public class AddCalendarMessageHandlerFactory implements MessageHandlerFactory {
 
     private volatile JsonService jsonService;
     private volatile MeteringService meteringService;
-    private volatile UsagePointCalendarService usagePointCalendarService;
     private volatile CalendarService calendarService;
 
     @Override
@@ -39,11 +37,10 @@ public class AddCalendarMessageHandlerFactory implements MessageHandlerFactory {
             UsagePoint usagePoint = meteringService.findUsagePointById(addCalendarMessage.getUsagePointId()).get();
             Calendar calendar = calendarService.findCalendar(addCalendarMessage.getCalendarId()).get();
             Instant startTime = Instant.ofEpochMilli(addCalendarMessage.getStartTime());
-            if(addCalendarMessage.isImmediately()){
-                usagePointCalendarService.calendarsFor(usagePoint).addCalendar(calendar);
+            if (addCalendarMessage.isImmediately()) {
+                usagePoint.getUsedCalendars().addCalendar(calendar);
             } else {
-                usagePointCalendarService.calendarsFor(usagePoint)
-                        .addCalendar(startTime, calendar);
+                usagePoint.getUsedCalendars().addCalendar(startTime, calendar);
             }
 
         };
@@ -57,11 +54,6 @@ public class AddCalendarMessageHandlerFactory implements MessageHandlerFactory {
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
-    }
-
-    @Reference
-    public void setUsagePointCalendarService(UsagePointCalendarService usagePointCalendarService) {
-        this.usagePointCalendarService = usagePointCalendarService;
     }
 
     @Reference
