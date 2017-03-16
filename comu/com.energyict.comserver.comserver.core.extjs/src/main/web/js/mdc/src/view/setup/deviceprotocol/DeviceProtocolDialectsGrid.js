@@ -49,7 +49,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectsGrid', {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
                 params: [
-                    {deviceId: Uni.util.Common.decodeURIArguments(this.deviceId)}
+                    {deviceId: this.deviceId}
                 ],
                 dock: 'bottom',
                 itemsPerPageMsg: Uni.I18n.translate('protocolDialects.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Protocol dialects per page')
