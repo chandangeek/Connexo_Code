@@ -36,12 +36,12 @@ import java.util.stream.Collectors;
 public class TrustStoreResource {
 
     private final PkiService pkiService;
-//    private final ExceptionFactory exceptionFactory;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public TrustStoreResource(PkiService pkiService/*, ExceptionFactory exceptionFactory*/) {
+    public TrustStoreResource(PkiService pkiService, ExceptionFactory exceptionFactory) {
         this.pkiService = pkiService;
-//        this.exceptionFactory = exceptionFactory;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
@@ -103,7 +103,7 @@ public class TrustStoreResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response deleteTrustStore(@PathParam("id") long id) {
 //        pkiService.findTrustStore(id)
-//                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_TRUSTSTORE))
+//                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_TRUSTSTORE));
 //                .delete();
         return Response.status(Response.Status.OK).build();
     }

@@ -11,7 +11,7 @@ public class TrustStoreInfo {
     public long id;
     public String name;
     public String description;
-//    public long version;
+    public long version;
 
     public TrustStoreInfo() {
     }
@@ -20,6 +20,7 @@ public class TrustStoreInfo {
         this.id = trustStore.getId();
         this.name = trustStore.getName();
         this.description = trustStore.getDescription();
+        this.version = trustStore.getVersion();
     }
 
 }

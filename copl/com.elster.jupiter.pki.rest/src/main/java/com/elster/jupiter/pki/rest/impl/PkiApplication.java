@@ -7,6 +7,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.transaction.TransactionService;
 
 import com.google.common.collect.ImmutableSet;
@@ -42,6 +43,7 @@ public class PkiApplication extends Application {
                 bind(pkiService).to(PkiService.class);
                 bind(transactionService).to(TransactionService.class);
                 bind(thesaurus).to(Thesaurus.class);
+                bind(ExceptionFactory.class).to(ExceptionFactory.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);
