@@ -16,6 +16,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectSetup', {
 
     initComponent: function () {
         var me = this;
+        Ext.getStore('ProtocolDialectsOfDevice').getProxy().setUrl(me.device.get('name'));
         this.side = [
             {
                 xtype: 'panel',
@@ -43,7 +44,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectSetup', {
                         itemId: 'protocolDialectsGridContainer',
                         grid: {
                             xtype: 'deviceProtocolDialectsGrid',
-                            deviceId: encodeURIComponent(me.device.get('name'))
+                            deviceId: me.device.get('name')
                         },
                         emptyComponent: {
                             xtype: 'uni-form-empty-message',
