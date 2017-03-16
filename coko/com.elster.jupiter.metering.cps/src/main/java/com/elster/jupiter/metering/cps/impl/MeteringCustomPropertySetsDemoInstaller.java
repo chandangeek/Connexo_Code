@@ -237,24 +237,22 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
 
         CustomPropertySet antennaCPS = registeredAntennaCPS.getCustomPropertySet();
         List<PropertySpec> propertySpecs = antennaCPS.getPropertySpecs();
+        PropertySpec antennaPowerPropertySpec = propertySpecs.stream()
+                .filter(propertySpec -> "antennaPower".equals(propertySpec.getName())).findFirst()
+                .orElseThrow(() -> new NoSuchElementException("antennaPower property spec not found"));
+        PropertySpec antennaCountPropertySpec = propertySpecs.stream()
+                .filter(propertySpec -> "antennaCount".equals(propertySpec.getName())).findFirst()
+                .orElseThrow(() -> new NoSuchElementException("antennaCount property spec not found"));
 
         ReadingTypeDeliverableBuilder monthlyBuilder = config.newReadingTypeDeliverable("Monthly A+ kWh", readingTypeMonthlyAplusWh, Formula.Mode.AUTO);
-        FormulaBuilder monthlyAntennaPower = monthlyBuilder.property(antennaCPS, propertySpecs.stream()
-                .filter(propertySpec -> "antennaPower".equals(propertySpec.getName())).findFirst()
-                .orElseThrow(() -> new NoSuchElementException("antennaPower property spec not found")));
-        FormulaBuilder monthlyAntennaCount = monthlyBuilder.property(antennaCPS, propertySpecs.stream()
-                .filter(propertySpec -> "antennaCount".equals(propertySpec.getName())).findFirst()
-                .orElseThrow(() -> new NoSuchElementException("antennaCount property spec not found")));
+        FormulaBuilder monthlyAntennaPower = monthlyBuilder.property(antennaCPS, antennaPowerPropertySpec);
+        FormulaBuilder monthlyAntennaCount = monthlyBuilder.property(antennaCPS, antennaCountPropertySpec);
         FormulaBuilder monthlyCompositionCPS = monthlyBuilder.multiply(monthlyAntennaPower, monthlyAntennaCount);
         FormulaBuilder monthlyConstant = monthlyBuilder.multiply(monthlyBuilder.constant(24), monthlyBuilder.constant(30));
 
         ReadingTypeDeliverableBuilder yearlyBuilder = config.newReadingTypeDeliverable("Yearly A+ kWh", readingTypeYearlyAplusWh, Formula.Mode.AUTO);
-        FormulaBuilder yearlyAntennaPower = yearlyBuilder.property(antennaCPS, propertySpecs.stream()
-                .filter(propertySpec -> "antennaPower".equals(propertySpec.getName())).findFirst()
-                .orElseThrow(() -> new NoSuchElementException("antennaPower property spec not found")));
-        FormulaBuilder yearlyAntennaCount = yearlyBuilder.property(antennaCPS, propertySpecs.stream()
-                .filter(propertySpec -> "antennaCount".equals(propertySpec.getName())).findFirst()
-                .orElseThrow(() -> new NoSuchElementException("antennaCount property spec not found")));
+        FormulaBuilder yearlyAntennaPower = yearlyBuilder.property(antennaCPS, antennaPowerPropertySpec);
+        FormulaBuilder yearlyAntennaCount = yearlyBuilder.property(antennaCPS, antennaCountPropertySpec);
         FormulaBuilder yearlyCompositionCPS = yearlyBuilder.multiply(yearlyAntennaPower, yearlyAntennaCount);
         FormulaBuilder yearlyConstant = yearlyBuilder.multiply(yearlyBuilder.constant(24), yearlyBuilder.constant(365));
 
