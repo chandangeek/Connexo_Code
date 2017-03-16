@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.mdm.app.impl;
 
+import com.elster.jupiter.metering.security.Privileges;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,7 +22,8 @@ class MdmAppPrivileges {
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_ANY_USAGEPOINT,
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_OWN_USAGEPOINT,
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
-
+                com.elster.jupiter.metering.security.Privileges.Constants.ESTIMATE_WITH_RULE,
+                com.elster.jupiter.metering.security.Privileges.Constants.EDIT_WITH_ESTIMATOR,
                 //export
                 com.elster.jupiter.export.security.Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK,
                 com.elster.jupiter.export.security.Privileges.Constants.VIEW_DATA_EXPORT_TASK,
