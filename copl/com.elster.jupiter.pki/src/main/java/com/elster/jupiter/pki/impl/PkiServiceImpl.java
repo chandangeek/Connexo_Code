@@ -177,6 +177,11 @@ public class PkiServiceImpl implements PkiService {
     }
 
     @Override
+    public Optional<TrustStore> findTrustStore(long id) {
+        return getDataModel().mapper(TrustStore.class).getUnique("id", id);
+    }
+
+    @Override
     public Optional<TrustStore> findTrustStore(String name) {
         return getDataModel().mapper(TrustStore.class).getUnique("name", name);
     }
@@ -184,6 +189,11 @@ public class PkiServiceImpl implements PkiService {
     @Override
     public Optional<TrustStore> findAndLockTrustStoreByIdAndVersion(long id, long version) {
         return this.getDataModel().mapper(TrustStore.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public List<TrustStore> getAllTrustStores() {
+        return getDataModel().mapper(TrustStore.class).find();
     }
 
     @Override
