@@ -50,6 +50,7 @@ public enum TableSpecs {
                     .varChar()
                     .map(TrustStoreImpl.Fields.DESCRIPTION.fieldName())
                     .add();
+            table.addAuditColumns();
             table.primaryKey("PK_PKI_TRUSTSTORE").on(id).add();
         }
     },

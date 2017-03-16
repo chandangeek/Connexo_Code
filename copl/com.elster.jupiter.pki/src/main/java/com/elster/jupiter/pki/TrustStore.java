@@ -43,4 +43,6 @@ public interface TrustStore {
      * @param alias The alias of the certificate that is to be removed
      */
     public void removeCertificate(String alias);
+
+    long getVersion();
 }

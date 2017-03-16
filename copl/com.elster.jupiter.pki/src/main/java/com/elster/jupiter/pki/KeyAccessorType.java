@@ -59,6 +59,8 @@ public interface KeyAccessorType extends HasId, HasName {
      */
     String getKeyEncryptionMethod();
 
+    long getVersion();
+
     Updater startUpdate();
 
     interface Builder {

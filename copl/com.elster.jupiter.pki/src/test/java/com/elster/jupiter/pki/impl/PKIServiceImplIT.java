@@ -355,6 +355,34 @@ public class PKIServiceImplIT {
 
     @Test
     @Transactional
+    public void testFindAndLockTrustStore() throws Exception {
+        TrustStore main = inMemoryPersistence.getPkiService()
+                .newTrustStore("LOCK")
+                .description("Versioned trust store")
+                .add();
+
+        Optional<TrustStore> correct = inMemoryPersistence.getPkiService()
+                .findAndLockTrustStoreByIdAndVersion(main.getId(), main.getVersion());
+
+        assertThat(correct).isPresent();
+    }
+
+    @Test
+    @Transactional
+    public void testFindAndLockTrustStoreIncorrectVersion() throws Exception {
+        TrustStore main = inMemoryPersistence.getPkiService()
+                .newTrustStore("LOCK2")
+                .description("Versioned trust store")
+                .add();
+
+        Optional<TrustStore> incorrect = inMemoryPersistence.getPkiService()
+                .findAndLockTrustStoreByIdAndVersion(main.getId(), main.getVersion()+1);
+
+        assertThat(incorrect).isEmpty();
+    }
+
+    @Test
+    @Transactional
     public void testRemoveCertificateFromTrustStore() throws Exception {
         TrustStore main = inMemoryPersistence.getPkiService()
                 .newTrustStore("DEL")

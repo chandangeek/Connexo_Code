@@ -182,6 +182,11 @@ public class PkiServiceImpl implements PkiService {
     }
 
     @Override
+    public Optional<TrustStore> findAndLockTrustStoreByIdAndVersion(long id, long version) {
+        return this.getDataModel().mapper(TrustStore.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public KeyTypeBuilder newSymmetricKeyType(String name, String keyAlgorithmName, int keySize) {
         KeyTypeImpl keyType = dataModel.getInstance(KeyTypeImpl.class);
         keyType.setName(name);

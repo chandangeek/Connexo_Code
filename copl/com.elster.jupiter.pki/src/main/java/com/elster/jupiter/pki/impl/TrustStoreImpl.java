@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableList;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.security.cert.X509Certificate;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +53,16 @@ public class TrustStoreImpl implements TrustStore {
     private String name;
     @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String description;
+
+    @SuppressWarnings("unused")
+    private String userName;
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+
 
     private List<TrustedCertificate> trustedCertificates = new ArrayList<>();
 
@@ -107,6 +118,11 @@ public class TrustStoreImpl implements TrustStore {
                 .collect(toList());
         this.trustedCertificates.removeAll(toBeRemoved);
         toBeRemoved.stream().forEach(dataModel::remove);
+    }
+
+    @Override
+    public long getVersion() {
+        return version;
     }
 
     public void save() {

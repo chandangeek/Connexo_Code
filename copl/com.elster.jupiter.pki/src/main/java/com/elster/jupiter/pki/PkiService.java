@@ -34,6 +34,9 @@ public interface PkiService {
      */
     Optional<TrustStore> findTrustStore(String name);
 
+
+    Optional<TrustStore> findAndLockTrustStoreByIdAndVersion(long id, long version);
+
     /**
      * Get a list of names of all KeyEncryptionMethods that registered through whiteboard.
      * @return List of key encryption method names
