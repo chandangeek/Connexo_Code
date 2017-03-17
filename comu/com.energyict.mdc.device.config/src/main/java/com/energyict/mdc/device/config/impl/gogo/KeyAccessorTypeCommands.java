@@ -7,6 +7,7 @@ package com.energyict.mdc.device.config.impl.gogo;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -102,11 +103,11 @@ public class KeyAccessorTypeCommands {
     }
 
     public void createCertificateAccessorType() {
-        System.out.println("Usage: createCertificateAccessorTypes <name> <device type id> <key type name>");
+        System.out.println("Usage: createCertificateAccessorTypes <name> <device type id> <key type name> <trust store id>");
         System.out.println("Eg.  : createCertificateAccessorTypes TLS 153 TLSClient");
     }
 
-    public void createCertificateAccessorType(String name, long deviceTypeId, String keyTypeName) {
+    public void createCertificateAccessorType(String name, long deviceTypeId, String keyTypeName, long trustStoreId) {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
@@ -114,7 +115,10 @@ public class KeyAccessorTypeCommands {
                     .orElseThrow(() -> new RuntimeException("No such device type"));
             KeyType keyType = pkiService.getKeyType(keyTypeName)
                     .orElseThrow(() -> new RuntimeException("No such key type"));
+            TrustStore trustStore = pkiService.findTrustStore(trustStoreId)
+                    .orElseThrow(() -> new RuntimeException("No such trust store"));
             KeyAccessorType.Builder builder = deviceType.addKeyAccessorType(name, keyType)
+                    .trustStore(trustStore)
                     .description("Created by gogo command");
             builder.add();
             context.commit();
