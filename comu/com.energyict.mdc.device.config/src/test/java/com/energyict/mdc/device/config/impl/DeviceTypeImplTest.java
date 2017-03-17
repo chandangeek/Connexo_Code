@@ -14,6 +14,7 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.ObisCode;
@@ -997,18 +998,35 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    public void addCertificateAccessorType() throws Exception {
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.FIELD_IS_REQUIRED+"}", property = "trustStore")
+    public void addCertificateAccessorTypeMissingTrustStore() throws Exception {
         inMemoryPersistence.getPkiService().newCertificateType("Friends").add();
 
         Optional<KeyType> certs = inMemoryPersistence.getPkiService().getKeyType("Friends");
         assertThat(deviceType.getKeyAccessorTypes()).isEmpty();
         this.deviceType.addKeyAccessorType("TLS", certs.get()).description("just certificates").add();
+    }
+
+    @Test
+    @Transactional
+    public void addCertificateAccessorType() throws Exception {
+        inMemoryPersistence.getPkiService().newCertificateType("Friends").add();
+        TrustStore main = inMemoryPersistence.getPkiService().newTrustStore("MAIN").add();
+
+        Optional<KeyType> certs = inMemoryPersistence.getPkiService().getKeyType("Friends");
+        assertThat(deviceType.getKeyAccessorTypes()).isEmpty();
+        this.deviceType.addKeyAccessorType("TLS", certs.get())
+                .description("just certificates")
+                .trustStore(main)
+                .add();
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService()
                 .findDeviceType(this.deviceType.getId()).get();
         assertThat(deviceType.getKeyAccessorTypes()).hasSize(1);
         assertThat(deviceType.getKeyAccessorTypes().get(0).getName()).isEqualTo("TLS");
         assertThat(deviceType.getKeyAccessorTypes().get(0).getKeyEncryptionMethod()).isNull();
         assertThat(deviceType.getKeyAccessorTypes().get(0).getKeyType().getName()).isEqualTo("Friends");
+        assertThat(deviceType.getKeyAccessorTypes().get(0).getTrustStore()).isPresent();
+        assertThat(deviceType.getKeyAccessorTypes().get(0).getTrustStore().get().getName()).isEqualTo("MAIN");
     }
 
     @Test

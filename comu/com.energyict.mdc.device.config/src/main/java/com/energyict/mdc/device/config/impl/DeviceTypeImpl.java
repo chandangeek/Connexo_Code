@@ -19,6 +19,7 @@ import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.AllowedCalendar;
@@ -350,6 +351,12 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         @Override
         public KeyAccessorType.Builder description(String description) {
             underConstruction.setDescription(description);
+            return this;
+        }
+
+        @Override
+        public KeyAccessorType.Builder trustStore(TrustStore trustStore) {
+            underConstruction.setTrustStore(trustStore);
             return this;
         }
 

@@ -15,6 +15,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
@@ -138,6 +139,10 @@ public enum TableSpecs {
                     .notNull()
                     .since(Version.version(10, 3))
                     .add();
+            Column trustStoreId = table.column("TRUSTSTOREID")
+                    .number()
+                    .since(Version.version(10, 3))
+                    .add();
             table.foreignKey("FK_DTC_KEYACCESSOR_DEVTYPE")
                     .on(deviceType)
                     .references(DTC_DEVICETYPE.name())
@@ -149,6 +154,11 @@ public enum TableSpecs {
                     .on(keytypeid)
                     .references(KeyType.class)
                     .map(KeyAccessorTypeImpl.Fields.KEYTYPE.fieldName())
+                    .add();
+            table.foreignKey("FK_DTC_KEYACCCESSOR_TRUSTSTORE")
+                    .on(trustStoreId)
+                    .references(TrustStore.class)
+                    .map(KeyAccessorTypeImpl.Fields.TRUSTSTORE.fieldName())
                     .add();
             table.primaryKey("PK_DTC_KEYACCESSOR").on(id).add();
         }

@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
@@ -33,6 +34,7 @@ import static java.util.stream.Collectors.toList;
 @HasUniqueNamePerDeviceType(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_UNIQUE + "}")
 @KeyEncryptionMethodValid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
 @DurationPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
+@TrustStorePresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
 public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
     private long id;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -45,6 +47,7 @@ public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
     private String keyEncryptionMethod;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<KeyType> keyType = Reference.empty();
+    private Reference<TrustStore> trustStore = Reference.empty();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<DeviceType> deviceType = Reference.empty();
     private DataModel dataModel;
@@ -67,6 +70,7 @@ public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
         ENCRYPTIONMETHOD("keyEncryptionMethod"),
         DURATION("duration"),
         KEYTYPE("keyType"),
+        TRUSTSTORE("trustStore"),
         DEVICETYPE("deviceType");
 
         private final String javaFieldName;
@@ -121,6 +125,15 @@ public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
     @Override
     public long getVersion() {
         return this.version;
+    }
+
+    @Override
+    public Optional<TrustStore> getTrustStore() {
+        return trustStore.getOptional();
+    }
+
+    public void setTrustStore(TrustStore trustStore) {
+        this.trustStore.set(trustStore);
     }
 
     @Override
