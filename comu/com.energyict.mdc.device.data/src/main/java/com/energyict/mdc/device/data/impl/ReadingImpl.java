@@ -83,4 +83,14 @@ public abstract class ReadingImpl implements Reading {
         return this.validationStatus;
     }
 
+    @Override
+    public Instant getJournalTime() {
+        return actualReading.getJournalTime();
+    }
+
+    @Override
+    public String getUserName() {
+        return actualReading.getUserName();
+    }
+
 }

@@ -227,6 +227,14 @@ class DeviceValidationImpl implements DeviceValidation {
     }
 
     @Override
+    public List<DataValidationStatus> getHistoryValidationStatus(Register<?, ?> register, List<? extends BaseReading> readings, List<ReadingQualityRecord> readingQualities, Range<Instant> interval) {
+        return ((DeviceImpl) register.getDevice()).findKoreChannels(register).stream()
+                .filter(k -> does(k.getChannelsContainer().getRange()).overlap(interval))
+                .flatMap(k -> getEvaluator().getHistoryValidationStatus(ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM), k, readings, readingQualities, interval).stream())
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public void validateData() {
         List<ChannelsContainer> channelsContainers = device.getMeterActivations()
                 .stream()

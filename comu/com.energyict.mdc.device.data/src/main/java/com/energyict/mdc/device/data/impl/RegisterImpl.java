@@ -7,9 +7,11 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
 import com.elster.jupiter.util.time.Interval;
@@ -87,8 +89,8 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
         return this.getReadings(interval.toOpenClosedRange());
     }
 
-    public List<R> getHistoryReadings(Interval interval, Range<Instant> changed) {
-        return this.getHistoryReadings(interval.toOpenClosedRange(), changed);
+    public List<R> getHistoryReadings(Interval interval, boolean changedDataOnly) {
+        return this.getHistoryReadings(interval.toOpenClosedRange(), changedDataOnly);
     }
 
     private List<R> getReadings(Range<Instant> interval) {
@@ -97,9 +99,9 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
         return this.toReadings(koreReadings, validationStatuses);
     }
 
-    private List<R> getHistoryReadings(Range<Instant> interval, Range<Instant> changed) {
-        List<ReadingRecord> koreReadings = this.device.getHistoryReadingsFor(this, interval, changed);
-        List<Optional<DataValidationStatus>> validationStatuses = this.getValidationStatuses(koreReadings);
+    private List<R> getHistoryReadings(Range<Instant> interval, boolean changedDataOnly) {
+        List<ReadingRecord> koreReadings = this.device.getHistoryReadingsFor(this, interval, changedDataOnly);
+        List<Optional<DataValidationStatus>> validationStatuses = this.getHistoryValidationStatuses(this, interval, koreReadings);
         return this.toReadings(koreReadings, validationStatuses);
     }
 
@@ -122,6 +124,51 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
 
     private List<DataValidationStatus> getValidationStatus(List<? extends BaseReading> readings, Range<Instant> interval) {
         return this.device.forValidation().getValidationStatus(this, readings, interval);
+    }
+
+    private List<Optional<DataValidationStatus>> getHistoryValidationStatuses(Register<?, ?> register, Range<Instant> interval, List<ReadingRecord> readings) {
+        Map<ReadingRecord, List<ReadingQualityRecord>> historyReadingQualities = this.getHistoryReadingQualities(interval, readings, register);
+        return readings
+                .stream()
+                .map(reading -> getHistoryValidationStatus(reading, historyReadingQualities.get(reading)))
+                .collect(Collectors.toList());
+    }
+
+    private Map<ReadingRecord, List<ReadingQualityRecord>> getHistoryReadingQualities(Range<Instant> interval, List<ReadingRecord> readings, Register<?, ?> register) {
+        Map<ReadingRecord, List<ReadingQualityRecord>> mapReadingQualityRecord = new HashMap<>();
+        readings.stream().forEach(readingRecord -> mapReadingQualityRecord.put(readingRecord, new ArrayList<>()));
+
+        List<? extends ReadingQualityRecord> readingQualities = this.device.getMeter().get().getReadingQualities(interval);
+        List<JournalEntry<? extends ReadingQualityRecord>> readingQualitiesJournal = this.device.getMeter().get().getReadingQualitiesJournal(interval,
+                Collections.singletonList(register.getRegisterSpec().getRegisterType().getReadingType()),
+                readings.stream().map(r -> r.getChannel().getId()).distinct().collect(Collectors.toList()));
+        List<ReadingQualityRecord> allReadingQuality = readingQualities.stream().collect(Collectors.toList());
+        allReadingQuality.addAll(readingQualitiesJournal.stream().map(j -> j.get()).collect(Collectors.toList()));
+
+        allReadingQuality.stream().forEach(rqj -> {
+            Optional<ReadingRecord> journalReadingOptional = Optional.empty();
+            journalReadingOptional = (rqj.getTypeCode().compareTo("2.5.258") != 0) ?
+                    readings.stream().sorted((a, b) -> a.getReportedDateTime().compareTo(b.getReportedDateTime())).filter(x -> x.getReportedDateTime().compareTo(rqj.getTimestamp()) > 0).findFirst() :
+                    readings.stream().sorted((a, b) -> b.getReportedDateTime().compareTo(a.getReportedDateTime())).filter(x -> x.getReportedDateTime().compareTo(rqj.getTimestamp()) < 0).findFirst();
+
+            journalReadingOptional.ifPresent(journalReading -> {
+                mapReadingQualityRecord.get(journalReading).add(rqj);
+            });
+        });
+        return mapReadingQualityRecord;
+    }
+
+    private Optional<DataValidationStatus> getHistoryValidationStatus(ReadingRecord reading, List<ReadingQualityRecord> readingQualityRecords) {
+        List<DataValidationStatus> validationStatuses = this.getHistoryValidationStatus(Arrays.asList(reading), readingQualityRecords, Range.closed(reading.getTimeStamp(), reading.getTimeStamp()));
+        if (validationStatuses.isEmpty()) {
+            return Optional.empty();
+        } else {
+            return Optional.of(validationStatuses.get(0));
+        }
+    }
+
+    private List<DataValidationStatus> getHistoryValidationStatus(List<? extends BaseReading> readings, List<ReadingQualityRecord> readingQualityRecords, Range<Instant> interval) {
+        return this.device.forValidation().getHistoryValidationStatus(this, readings, readingQualityRecords, interval);
     }
 
     private List<R> toReadings(List<ReadingRecord> koreReadings, List<Optional<DataValidationStatus>> validationStatuses) {

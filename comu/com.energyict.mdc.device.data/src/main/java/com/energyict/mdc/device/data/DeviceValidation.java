@@ -76,6 +76,8 @@ public interface DeviceValidation {
 
     List<DataValidationStatus> getValidationStatus(Register<?, ?> register, List<? extends BaseReading> readings, Range<Instant> interval);
 
+    List<DataValidationStatus> getHistoryValidationStatus(Register<?, ?> register, List<? extends BaseReading> readings, List<ReadingQualityRecord> readingQualities, Range<Instant> interval);
+
     DataValidationStatus getValidationStatus(Channel channel, Instant instant, List<ReadingQualityRecord> readingQualities, Range<Instant> interval);
 
     void validateData();

@@ -323,8 +323,8 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
         }
 
         @Override
-        public List<LoadProfileJournalReading> getChannelWithHistoryData(Range<Instant> interval, Range<Instant> changed) {
-            return LoadProfileImpl.this.device.get().getChannelWithHistoryData(this, interval, changed);
+        public List<LoadProfileJournalReading> getChannelWithHistoryData(Range<Instant> interval, boolean changedDataOnly) {
+            return LoadProfileImpl.this.device.get().getChannelWithHistoryData(this, interval, changedDataOnly);
         }
 
         @Override

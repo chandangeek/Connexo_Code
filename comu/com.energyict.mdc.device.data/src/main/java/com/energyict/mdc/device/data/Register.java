@@ -11,7 +11,6 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 
 import aQute.bnd.annotation.ProviderType;
-import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -46,7 +45,7 @@ public interface Register<R extends Reading, RS extends RegisterSpec> extends Ba
      * @return The List of History Reading
      * @see Reading#getTimeStamp()
      */
-    List<R> getHistoryReadings(Interval interval, Range<Instant> changed);
+    List<R> getHistoryReadings(Interval interval, boolean changedDataOnly);
 
     /**
      * Gets the {@link Reading} with the specified timestamp.

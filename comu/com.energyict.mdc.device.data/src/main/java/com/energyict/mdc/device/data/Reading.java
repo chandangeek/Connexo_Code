@@ -37,4 +37,8 @@ public interface Reading {
 
     Optional<DataValidationStatus> getValidationStatus();
 
+    Instant getJournalTime();
+
+    String getUserName();
+
 }

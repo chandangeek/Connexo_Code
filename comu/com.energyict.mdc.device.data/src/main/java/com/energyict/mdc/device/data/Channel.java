@@ -87,7 +87,7 @@ public interface Channel extends BaseChannel {
      */
     List<LoadProfileReading> getChannelData(Range<Instant> interval);
 
-    List<LoadProfileJournalReading> getChannelWithHistoryData(Range<Instant> interval, Range<Instant> changed);
+    List<LoadProfileJournalReading> getChannelWithHistoryData(Range<Instant> interval, boolean changedDataOnly);
 
     Optional<Instant> getLastDateTime();
 
