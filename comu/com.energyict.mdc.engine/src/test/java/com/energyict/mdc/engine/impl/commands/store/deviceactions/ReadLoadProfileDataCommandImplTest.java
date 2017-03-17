@@ -1,7 +1,10 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierByMRID;
+import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierById;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ReadLoadProfileDataCommand;
@@ -16,26 +19,19 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifierType;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileReader;
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mock;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-
-import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.Mock;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,11 +48,12 @@ import static org.mockito.Mockito.when;
  */
 public class ReadLoadProfileDataCommandImplTest extends CommonCommandImplTests {
 
+    private static final String MRID = "MyMrid";
     @Mock
     private OfflineDevice offlineDevice;
 
     private static DeviceLoadProfile createDeviceCollectedLoadProfile() {
-        DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(new SimpleLoadProfileIdentifier());
+        DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(new LoadProfileIdentifierById(0L, ObisCode.fromString("0.0.99.98.0.255"), new DeviceIdentifierByMRID(MRID)));
         List<IntervalData> intervalDatas = new ArrayList<>();
         List<ChannelInfo> channelInfos = new ArrayList<>();
         channelInfos.add(new ChannelInfo(channelInfos.size(), "CHN1", Unit.get(BaseUnit.VOLT)));
@@ -80,7 +77,7 @@ public class ReadLoadProfileDataCommandImplTest extends CommonCommandImplTests {
         GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(offlineDevice, deviceProtocol);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         Device device = mock(Device.class);
-        when(device.getmRID()).thenReturn("MyMrid");
+        when(device.getmRID()).thenReturn(MRID);
         when(comTaskExecution.getDevice()).thenReturn(device);
         LoadProfileCommand loadProfileCommand = groupedDeviceCommand.getLoadProfileCommand(loadProfilesTask, groupedDeviceCommand, comTaskExecution);
         ReadLoadProfileDataCommand readLoadProfileDataCommand = groupedDeviceCommand.getReadLoadProfileDataCommand(loadProfileCommand, comTaskExecution);
@@ -93,37 +90,5 @@ public class ReadLoadProfileDataCommandImplTest extends CommonCommandImplTests {
         assertTrue("The collected data should be CollectedLoadProfile", loadProfileCommand.getCollectedData().get(0) instanceof CollectedLoadProfile);
         assertEquals("Should have 10 intervals", 10, ((CollectedLoadProfile) loadProfileCommand.getCollectedData().get(0)).getCollectedIntervalData().size());
         assertThat(journalMessage).startsWith(ComCommandDescriptionTitle.ReadLoadProfileDataCommandImpl.getDescription() + " {collectedProfiles: (0.0.99.98.0.255 - Supported - channels: CHN1, CHN2 - dataPeriod: [");
-    }
-
-    private static class SimpleLoadProfileIdentifier implements LoadProfileIdentifier {
-        @Override
-        public LoadProfile getLoadProfile() {
-            return null;
-        }
-
-        @Override
-        public LoadProfileIdentifierType getLoadProfileIdentifierType() {
-            return null;
-        }
-
-        @Override
-        public List<Object> getParts() {
-            return null;
-        }
-
-        @Override
-        public DeviceIdentifier getDeviceIdentifier() {
-            return null;
-        }
-
-        @Override
-        public String toString() {
-            return getProfileObisCode().toString();
-        }
-
-        @Override
-        public ObisCode getProfileObisCode() {
-            return ObisCode.fromString("0.0.99.98.0.255");
-        }
     }
 }

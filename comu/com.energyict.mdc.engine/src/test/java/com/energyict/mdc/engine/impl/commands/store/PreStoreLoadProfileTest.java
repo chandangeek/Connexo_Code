@@ -25,7 +25,6 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.obis.ObisCode;
@@ -270,10 +269,9 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
 
     public OfflineLoadProfile createMockedOfflineLoadProfile(Device device) {
-        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        when(deviceIdentifier.findDevice()).thenReturn(device);
-        when(deviceIdentifier.getDeviceIdentifierType()).thenReturn(DeviceIdentifierType.ActualDevice);
-        when(deviceIdentifier.getIdentifier()).thenReturn(String.valueOf(device.getId()));
+        DeviceIdentifier deviceIdentifier = new DeviceIdentifierForAlreadyKnownDeviceByMrID(device);
+        //TODO mock deviceService here so that the identifier can be resolved!
+
         when(this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device)).thenReturn(deviceIdentifier);
         LoadProfile loadProfile = device.getLoadProfiles().get(0);
         return new OfflineLoadProfileImpl(loadProfile, getTopologyService(), this.identificationService);
@@ -1132,7 +1130,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
     CollectedLoadProfile enhanceCollectedLoadProfile(LoadProfile loadProfile, CollectedLoadProfile collectedLoadProfile) {
         LoadProfileIdentifier loadProfileIdentifier = mock(LoadProfileIdentifier.class);
-        when(loadProfileIdentifier.getLoadProfile()).thenReturn(loadProfile);
+        //TODO mock profileService to resolve the LP identifier
         when(collectedLoadProfile.getLoadProfileIdentifier()).thenReturn(loadProfileIdentifier);
         when(loadProfileIdentifier.getDeviceIdentifier()).thenReturn(new DeviceIdentifierForAlreadyKnownDeviceByMrID(loadProfile.getDevice()));
         return collectedLoadProfile;

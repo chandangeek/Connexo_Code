@@ -15,7 +15,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
@@ -34,6 +33,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.obis.ObisCode;
@@ -45,7 +45,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -133,7 +132,7 @@ public abstract class AbstractComCommandExecuteTest {
                 .thenAnswer(invocation -> new SimpleNlsMessageFormat((MessageSeed) invocation.getArguments()[0]));
 
         when(nlsService.getThesaurus("CES", Layer.DOMAIN)).thenReturn(thesaurusCES);
-        when(thesaurusISU.join(thesaurusCES)).thenReturn(new CompositeThesaurus(threadPrincipalService),thesaurusISU, thesaurusCES );
+        when(thesaurusISU.join(thesaurusCES)).thenReturn(new CompositeThesaurus(threadPrincipalService), thesaurusISU, thesaurusCES);
 
         when(thesaurusJoined.getString(any(), any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
         when(thesaurusJoined.getString(any(), any(), any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
@@ -157,7 +156,7 @@ public abstract class AbstractComCommandExecuteTest {
         when(commandRootServiceProvider.deviceService()).thenReturn(deviceService);
         when(commandRootServiceProvider.thesaurus()).thenReturn(thesaurusCES);
         IdentificationService identificationService = mock(IdentificationService.class);
-        when(identificationService.createLoadProfileIdentifierByDatabaseId(Matchers.anyLong(), Matchers.<ObisCode>any())).thenReturn(mock(LoadProfileIdentifier.class));
+        when(identificationService.createLoadProfileIdentifierByDatabaseId(Matchers.anyLong(), Matchers.<ObisCode>any(), Matchers.<DeviceIdentifier>any())).thenReturn(mock(LoadProfileIdentifier.class));
         when(commandRootServiceProvider.identificationService()).thenReturn(identificationService);
     }
 

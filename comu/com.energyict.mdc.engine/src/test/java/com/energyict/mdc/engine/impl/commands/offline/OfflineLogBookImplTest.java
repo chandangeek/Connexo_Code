@@ -6,7 +6,6 @@ import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDeviceBySerialNumber;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -101,6 +100,6 @@ public class OfflineLogBookImplTest {
         //Business Methods
         OfflineLogBook offlineLogBook = new OfflineLogBookImpl(logBook, this.identificationService);
 
-        assertThat(offlineLogBook.getDeviceIdentifier().getDeviceIdentifierType()).isEqualTo(DeviceIdentifierType.SerialNumber);
+        assertThat(offlineLogBook.getDeviceIdentifier().forIntrospection().getTypeName()).isEqualTo("SerialNumber");
     }
 }

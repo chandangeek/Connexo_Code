@@ -10,7 +10,6 @@ import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlready
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import org.junit.Test;
@@ -136,7 +135,7 @@ public class OfflineRegisterImplTest {
 
         OfflineRegisterImpl offlineRegister = new OfflineRegisterImpl(register, identificationService);
 
-        assertThat(offlineRegister.getDeviceIdentifier().getDeviceIdentifierType()).isEqualTo(DeviceIdentifierType.SerialNumber);
+        assertThat(offlineRegister.getDeviceIdentifier().forIntrospection().getTypeName()).isEqualTo("SerialNumber");
     }
 
 }

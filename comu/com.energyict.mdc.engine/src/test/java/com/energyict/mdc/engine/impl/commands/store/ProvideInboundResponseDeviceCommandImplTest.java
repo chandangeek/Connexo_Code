@@ -35,6 +35,9 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Clock;
+import java.util.logging.Logger;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doThrow;
@@ -57,7 +60,6 @@ public class ProvideInboundResponseDeviceCommandImplTest {
     private static final long COM_TASK_EXECUTION_ID = DEVICE_ID + 1;
     private static final long PROTOCOL_DIALECT_CONFIG_PROPS_ID = 6516;
 
-    private final String deviceIdentifierString = "MyIdentifier";
     @Mock
     protected EventPublisherImpl eventPublisher;
     private ExecutionContext executionContext;
@@ -98,7 +100,6 @@ public class ProvideInboundResponseDeviceCommandImplTest {
         when(executionContextServiceProvider.eventPublisher()).thenReturn(this.eventPublisher);
 
         executionContext = newTestExecutionContext();
-        when(deviceIdentifier.getIdentifier()).thenReturn(deviceIdentifierString);
     }
 
     @Test
