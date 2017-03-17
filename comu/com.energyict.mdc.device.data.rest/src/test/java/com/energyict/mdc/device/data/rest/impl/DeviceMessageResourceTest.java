@@ -41,7 +41,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageCategories;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
@@ -759,6 +758,11 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         }
 
         @Override
+        public void init(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, ComChannel comChannel) {
+
+        }
+
+        @Override
         public void terminate() {
 
         }
@@ -879,7 +883,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         }
 
         @Override
-        public String prepareMessageContext(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
+        public Optional<String> prepareMessageContext(com.energyict.mdc.upl.meterdata.Device device, com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
             return null;
         }
 
@@ -889,7 +893,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         }
 
         @Override
-        public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
+        public void addDeviceProtocolDialectProperties(com.energyict.mdc.upl.properties.TypedProperties dialectProperties) {
 
         }
 

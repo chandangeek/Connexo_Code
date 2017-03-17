@@ -10,7 +10,6 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.ManufacturerInformation;
@@ -77,11 +76,6 @@ public class TestProtocolWithRequiredStringAndOptionalNumericDialectProperties i
         when(this.deviceProtocolDialect.getPropertySpecs()).thenReturn(Arrays.asList(stringPropertySpec, numericPropertySpec));
         when(this.deviceProtocolDialect.getPropertySpec(STRING_PROPERTY_NAME)).thenReturn(Optional.of(stringPropertySpec));
         when(this.deviceProtocolDialect.getPropertySpec(NUMERIC_PROPERTY_NAME)).thenReturn(Optional.of(numericPropertySpec));
-    }
-
-    @Override
-    public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-
     }
 
     @Override
@@ -210,7 +204,7 @@ public class TestProtocolWithRequiredStringAndOptionalNumericDialectProperties i
     }
 
     @Override
-    public String prepareMessageContext(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+    public Optional<String> prepareMessageContext(Device device, com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
         return null;
     }
 
@@ -220,7 +214,7 @@ public class TestProtocolWithRequiredStringAndOptionalNumericDialectProperties i
     }
 
     @Override
-    public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
+    public void addDeviceProtocolDialectProperties(com.energyict.mdc.upl.properties.TypedProperties dialectProperties) {
 
     }
 
@@ -257,6 +251,11 @@ public class TestProtocolWithRequiredStringAndOptionalNumericDialectProperties i
     @Override
     public String getVersion() {
         return null;
+    }
+
+    @Override
+    public void init(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, ComChannel comChannel) {
+
     }
 
     @Override
