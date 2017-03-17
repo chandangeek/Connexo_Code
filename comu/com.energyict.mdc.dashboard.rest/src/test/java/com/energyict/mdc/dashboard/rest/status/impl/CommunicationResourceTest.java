@@ -18,6 +18,7 @@ import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
@@ -36,6 +37,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
@@ -337,6 +339,12 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
     }
 
     private ScheduledConnectionTask mockConnectionTask() {
+        DeviceProtocolDialect dialect = mock(DeviceProtocolDialect.class);
+        when(dialect.getDeviceProtocolDialectName()).thenReturn("Device protocol dialect name");
+        when(dialect.getDisplayName()).thenReturn("Device protocol display name");
+        ProtocolDialectConfigurationProperties dialectProperties = mock(ProtocolDialectConfigurationProperties.class);
+        when(dialectProperties.getDeviceProtocolDialect()).thenReturn(dialect);
+        when(dialectProperties.getDeviceProtocolDialectName()).thenReturn("Device protocol display name");
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(connectionTaskService.findConnectionTasksByFilter(Matchers.<ConnectionTaskFilterSpecification>anyObject(), anyInt(), anyInt())).thenReturn(Arrays.<ConnectionTask>asList(connectionTask));
         when(connectionTask.getId()).thenReturn(1234L);
