@@ -59,6 +59,11 @@ public class OutputChannelDataInfoFactory {
                     .findFirst()
                     .orElse(null);
             outputChannelDataInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(status.getReadingQualities());
+            outputChannelDataInfo.isProjected = status.getReadingQualities()
+                    .stream()
+                    .filter(quality -> quality.getType().hasProjectedCategory())
+                    .findFirst()
+                    .isPresent();
             outputChannelDataInfo.isConfirmed = status.getReadingQualities()
                     .stream()
                     .filter(quality -> quality.getType().isConfirmed())
