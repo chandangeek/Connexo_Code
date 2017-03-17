@@ -1,10 +1,13 @@
 package com.energyict.mdc.common;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * User: gde
@@ -105,13 +108,13 @@ public class HexStringTest {
     @Test
     public void lengthTest(){
         HexString hexString1 = new HexString("0A7B");
-        assertEquals("hex 0A7B has length 4", 4, hexString1.lenght());
+        assertEquals("hex 0A7B has length 4", 4, hexString1.length());
 
         HexString hexString2 = new HexString();
-        assertEquals("hex with null string has length 0", 0, hexString2.lenght());
+        assertEquals("hex with null string has length 0", 0, hexString2.length());
 
         HexString hexString3 = new HexString("");
-        assertEquals("hex with empty string has length 0", 0, hexString3.lenght());
+        assertEquals("hex with empty string has length 0", 0, hexString3.length());
     }
 
 }
