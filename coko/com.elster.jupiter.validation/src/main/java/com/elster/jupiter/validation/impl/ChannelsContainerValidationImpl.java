@@ -43,6 +43,8 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
     private long id;
     private Reference<ChannelsContainer> channelsContainer = ValueReference.absent();
     private Reference<IValidationRuleSet> ruleSet = ValueReference.absent();
+    // CXO-6043 TODO: lastRun better should not be here but one per ChannelValidation,
+    // because it's possible to validate a separate channel / set of channels
     private Instant lastRun;
     private List<ChannelValidation> channelValidations = new ArrayList<>();
     private Instant obsoleteTime;
