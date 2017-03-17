@@ -232,7 +232,6 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     @Test
     public void testGetDetailedMetrologyConfiguration() {
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(13L, "Residential", ServiceKind.GAS, MetrologyConfigurationStatus.INACTIVE);
-        //UsagePoint usagePoint = mockUsagePoint(1234586L,"Suka", 2L,ServiceKind.ELECTRICITY);
         UsagePoint usagePoint = mock(UsagePoint.class);
         RegisteredCustomPropertySet cps = mock(RegisteredCustomPropertySet.class);
         CustomPropertySet set1 = mock(CustomPropertySet.class);
