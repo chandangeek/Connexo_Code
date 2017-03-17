@@ -9,7 +9,6 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.CompletionCodeInfo;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -76,7 +75,7 @@ public class DeviceComTaskInfoFactory {
     private void setFieldsForIndividualScheduleExecution(DeviceComTaskInfo deviceComTasksInfo, ComTaskExecution comTaskExecution, ComTaskEnablement comTaskEnablement) {
         deviceComTasksInfo.scheduleTypeKey = ScheduleTypeKey.INDIVIDUAL.name();
         deviceComTasksInfo.scheduleType = thesaurus.getFormat(DefaultTranslationKey.INDIVIDUAL_SCHEDULE).format();
-        deviceComTasksInfo.protocolDialect = comTaskExecution.getProtocolDialectConfigurationProperties().getDeviceProtocolDialect().getDisplayName();
+//        deviceComTasksInfo.protocolDialect = comTaskExecution.getProtocolDialectConfigurationProperties().getDeviceProtocolDialect().getDisplayName();
         if (comTaskExecution.getNextExecutionSpecs().isPresent()) {
             deviceComTasksInfo.temporalExpression = TemporalExpressionInfo.from(comTaskExecution.getNextExecutionSpecs().get().getTemporalExpression());
         }
@@ -134,7 +133,7 @@ public class DeviceComTaskInfoFactory {
         deviceComTasksInfo.scheduleTypeKey = ScheduleTypeKey.SHARED.name();
         deviceComTasksInfo.scheduleType = thesaurus.getFormat(DefaultTranslationKey.SHARED_SCHEDULE).format();
         deviceComTasksInfo.lastCommunicationStart = comTaskExecution.getLastExecutionStartTimestamp();
-        deviceComTasksInfo.protocolDialect = comTaskExecution.getProtocolDialectConfigurationProperties().getDeviceProtocolDialect().getDisplayName();
+//        deviceComTasksInfo.protocolDialect = comTaskExecution.getProtocolDialectConfigurationProperties().getDeviceProtocolDialect().getDisplayName();
         deviceComTasksInfo.latestResult =
                 comTaskExecution
                         .getLastSession()
@@ -231,11 +230,6 @@ public class DeviceComTaskInfoFactory {
         deviceComTasksInfo.urgency = comTaskEnablement.getPriority();
         deviceComTasksInfo.securitySettings = comTaskEnablement.getSecurityPropertySet().getName();
         deviceComTasksInfo.ignoreNextExecutionSpecsForInbound = comTaskEnablement.isIgnoreNextExecutionSpecsForInbound();
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = comTaskEnablement.getProtocolDialectConfigurationProperties();
-        if (protocolDialectConfigurationProperties.getDeviceProtocolDialect() != null) {
-            deviceComTasksInfo.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialect()
-                    .getDisplayName();
-        }
         return deviceComTasksInfo;
     }
 

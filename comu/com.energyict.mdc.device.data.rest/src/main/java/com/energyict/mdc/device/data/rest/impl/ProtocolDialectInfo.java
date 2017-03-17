@@ -21,6 +21,7 @@ public class ProtocolDialectInfo {
 
     public long id;
     public String name;
+    public String displayName;
     public boolean availableForUse;
     public List<PropertyInfo> properties;
     public DeviceInfo device;
@@ -31,7 +32,8 @@ public class ProtocolDialectInfo {
     public static ProtocolDialectInfo from(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, Optional<ProtocolDialectProperties> protocolDialectProperties, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils, Device device) {
         ProtocolDialectInfo protocolDialectInfo = new ProtocolDialectInfo();
         protocolDialectInfo.id = protocolDialectConfigurationProperties.getId();
-        protocolDialectInfo.name = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
+        protocolDialectInfo.name = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDeviceProtocolDialectName();
+        protocolDialectInfo.displayName = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
         protocolDialectInfo.availableForUse = true;
 
         List<PropertySpec> propertySpecs = protocolDialectConfigurationProperties.getPropertySpecs();
