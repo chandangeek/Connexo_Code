@@ -59,8 +59,6 @@ public interface Register<R extends Reading, RS extends RegisterSpec> extends Ba
 
     ReadingType getReadingType();
 
-    boolean hasData();
-
     RegisterDataUpdater startEditingData();
 
     /**
@@ -83,6 +81,29 @@ public interface Register<R extends Reading, RS extends RegisterSpec> extends Ba
      * @return the optional multiplier
      */
     Optional<BigDecimal> getMultiplier(Instant timeStamp);
+
+    boolean hasData();
+
+    /**
+     * Indicates whether this register has an eventDate related to its value
+     *
+     * @return true if this register has an eventDate
+     */
+    boolean hasEventDate();
+
+    /**
+     * Indicates whether this register is cumulative
+     *
+     * @return true if this register contains cumulative values
+     */
+    boolean isCumulative();
+
+    /**
+     * Indicats whether this register has a Billing ReadingType
+     *
+     * @return true if the readingtype of this register has a macroperiod billing
+     */
+    boolean isBilling();
 
     interface RegisterUpdater {
         RegisterUpdater setNumberOfFractionDigits(Integer overruledNbrOfFractionDigits);
