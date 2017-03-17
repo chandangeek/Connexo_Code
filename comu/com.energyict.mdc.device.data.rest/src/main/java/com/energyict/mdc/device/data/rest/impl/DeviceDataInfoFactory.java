@@ -266,9 +266,10 @@ public class DeviceDataInfoFactory {
     private void setCommonReadingInfo(Reading reading, ReadingInfo readingInfo, Register<?, ?> register) {
         readingInfo.id = "" + reading.getTimeStamp().toEpochMilli() + register.getRegisterSpecId();
         readingInfo.timeStamp = reading.getTimeStamp();
+        readingInfo.userName = reading.getUserName();
         readingInfo.reportedDateTime = reading.getReportedDateTime();
         readingInfo.readingQualities = createReadingQualitiesInfo(reading);
-        Pair<ReadingModificationFlag, QualityCodeSystem> modificationFlag = ReadingModificationFlag.getModificationFlag(reading.getActualReading());
+        Pair<ReadingModificationFlag, QualityCodeSystem> modificationFlag = ReadingModificationFlag.getModificationFlag(reading);
         if (modificationFlag != null) {
             readingInfo.modificationFlag = modificationFlag.getFirst();
             readingInfo.editedInApp = resourceHelper.getApplicationInfo(modificationFlag.getLast());
@@ -279,8 +280,9 @@ public class DeviceDataInfoFactory {
      * Returns the CIM code and full translation of all reading qualities on the given interval reading
      */
     private List<ReadingQualityInfo> createReadingQualitiesInfo(Reading reading) {
-        return reading.getActualReading().getReadingQualities().stream()
-                .filter(ReadingQualityRecord::isActual)
+        // return reading.getActualReading().getReadingQualities().stream()
+        return reading.getValidationStatus().get().getReadingQualities().stream()
+                //      .filter(ReadingQualityRecord::isActual)
                 .map(ReadingQuality::getType)
                 .distinct()
                 .filter(type -> type.system().isPresent())
@@ -462,4 +464,6 @@ public class DeviceDataInfoFactory {
         numericalRegisterInfo.useMultiplier = registerSpec.isUseMultiplier();
         return numericalRegisterInfo;
     }
+
+
 }

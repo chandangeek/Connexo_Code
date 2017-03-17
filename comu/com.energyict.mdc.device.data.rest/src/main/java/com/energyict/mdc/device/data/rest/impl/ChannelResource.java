@@ -65,7 +65,6 @@ import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -403,7 +402,7 @@ public class ChannelResource {
         boolean isValidationActive = deviceValidation.isValidationActive();
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
             Range<Instant> range = Ranges.closedOpen(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
-            Range<Instant> changed = Ranges.closedOpen(filter.getInstant("changedStart"), filter.getInstant("changedEnd"));
+            boolean changedDataOnly = filter.getString("changedDataOnly") != null && (filter.getString("changedDataOnly").compareToIgnoreCase("yes") == 0);
 
             // Always do it via the topologyService, if for some reason the performance is slow, check if you can optimize it for
             // devices which are not dataloggers
@@ -411,7 +410,8 @@ public class ChannelResource {
             List<ChannelHistoryDataInfo> infos = channelTimeLine.stream()
                     .flatMap(channelRangePair -> {
                         Channel channelWithData = channelRangePair.getFirst();
-                        List<LoadProfileJournalReading> loadProfileJournalReadings = channelWithData.getChannelWithHistoryData(Interval.of(channelRangePair.getLast()).toOpenClosedRange(), changed);
+                        List<LoadProfileJournalReading> loadProfileJournalReadings = channelWithData.getChannelWithHistoryData(Interval.of(channelRangePair.getLast())
+                                .toOpenClosedRange(), changedDataOnly);
                         return loadProfileJournalReadings.stream()
                                 .map(loadProfileJournalReading -> deviceDataInfoFactory.createChannelHistoryDataInfo(channelWithData, loadProfileJournalReading, isValidationActive, deviceValidation, channel
                                         .equals(channelWithData) ? null : channelWithData
@@ -486,7 +486,8 @@ public class ChannelResource {
             @PathParam("name") String name,
             @PathParam("channelid") long channelId,
             @PathParam("epochMillis") long epochMillis,
-            @PathParam("historyEpochMillis") long historyEpochMillis) {
+            @PathParam("historyEpochMillis") long historyEpochMillis,
+            @PathParam("changedDataOnly") boolean changedDataOnly) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
 
         Instant to = Instant.ofEpochMilli(epochMillis);
@@ -494,16 +495,12 @@ public class ChannelResource {
         Instant from = zonedDateTime.minus(channel.getInterval().asTemporalAmount()).toInstant();
         Range<Instant> range = Ranges.openClosed(from, to);
 
-        Instant changedTo = Instant.ofEpochMilli(historyEpochMillis);
-        ZonedDateTime changedZonedDateTime = ZonedDateTime.ofInstant(changedTo, channel.getDevice().getZone());
-        Instant changedFrom = changedTo.minus(1L, ChronoUnit.SECONDS);
-        Range<Instant> changedRange = Ranges.openClosed(changedFrom, changedTo);
-
         List<Pair<Channel, Range<Instant>>> channelTimeLine = topologyService.getDataLoggerChannelTimeLine(channel, range);
         Optional<VeeReadingInfo> veeReadingInfo = channelTimeLine.stream()
                 .map(channelRangePair -> {
                     Channel channelWithData = channelRangePair.getFirst();
-                    Optional<LoadProfileJournalReading> loadProfileJournalReading = channelWithData.getChannelWithHistoryData(range, changedRange).stream().findAny();
+                    Optional<LoadProfileJournalReading> loadProfileJournalReading = channelWithData.getChannelWithHistoryData(range, changedDataOnly).stream()
+                            .filter(r -> r.getJournalTime().toEpochMilli() == historyEpochMillis).findFirst();
                     if (loadProfileJournalReading.isPresent()) {
                         DeviceValidation deviceValidation = channelWithData.getDevice().forValidation();
                         boolean isValidationActive = deviceValidation.isValidationActive();
@@ -526,7 +523,6 @@ public class ChannelResource {
                             List<ReadingQualityRecord> readingQualities = loadProfileJournalReading.get().getReadingQualities().entrySet().stream()
                                     .map(channelListEntry -> channelListEntry.getValue())
                                     .flatMap(List::stream).collect(Collectors.toList());
-                            //  return validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, dataValidationStatus.get(), deviceValidation, channelReading, readingQualities, isValidationActive);
                             return validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, dataValidationStatus.get(), deviceValidation, channelReading, readingQualities, isValidationActive);
 
                         } else {
