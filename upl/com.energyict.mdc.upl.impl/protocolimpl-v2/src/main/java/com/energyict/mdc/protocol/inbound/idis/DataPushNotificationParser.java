@@ -74,6 +74,7 @@ public class DataPushNotificationParser {
     InboundDiscoveryContext context;
     private ComChannel comChannel;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
+    private TimeZone timeZone;
 
     public DataPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context) {
         this.comChannel = comChannel;
@@ -376,21 +377,24 @@ public class DataPushNotificationParser {
     }
 
     protected TimeZone getDeviceTimeZone() {
-        if (getDeviceIdentifier() == null){
-            return TimeZone.getTimeZone(DEFAULT_TIMEZONE);
-        }
+        if (timeZone == null) {
+            if (getDeviceIdentifier() == null) {
+                timeZone = TimeZone.getTimeZone(DEFAULT_TIMEZONE);
+            }
 
-        TypedProperties deviceProtocolProperties = getInboundDAO().getDeviceProtocolProperties(getDeviceIdentifier());
-        if (deviceProtocolProperties == null) {
-            return TimeZone.getTimeZone(DEFAULT_TIMEZONE);
-        }
+            TypedProperties deviceProtocolProperties = getInboundDAO().getDeviceProtocolProperties(getDeviceIdentifier());
+            if (deviceProtocolProperties == null) {
+                timeZone = TimeZone.getTimeZone(DEFAULT_TIMEZONE);
+            }
 
-        TimeZoneInUse timeZoneInUse = deviceProtocolProperties.getTypedProperty(TIMEZONE);
-        if (timeZoneInUse == null || timeZoneInUse.getTimeZone() == null) {
-            return TimeZone.getTimeZone(DEFAULT_TIMEZONE);
-        } else {
-            return timeZoneInUse.getTimeZone();
+            TimeZoneInUse timeZoneInUse = deviceProtocolProperties.getTypedProperty(TIMEZONE);
+            if (timeZoneInUse == null || timeZoneInUse.getTimeZone() == null) {
+                timeZone = TimeZone.getTimeZone(DEFAULT_TIMEZONE);
+            } else {
+                timeZone = timeZoneInUse.getTimeZone();
+            }
         }
+        return timeZone;
     }
 
     public CollectedRegisterList getCollectedRegisters() {

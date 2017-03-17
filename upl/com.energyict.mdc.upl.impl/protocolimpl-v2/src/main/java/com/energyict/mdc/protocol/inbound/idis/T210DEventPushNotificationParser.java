@@ -1,33 +1,57 @@
 package com.energyict.mdc.protocol.inbound.idis;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.NestedIOException;
-import com.energyict.cbo.Unit;
-import com.energyict.dlms.*;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.cosem.generalblocktransfer.GeneralBlockTransferFrame;
 import com.energyict.mdc.meterdata.CollectedDeviceInfo;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.NestedIOException;
+import com.energyict.cbo.Unit;
+import com.energyict.cbo.Utils;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.ParseUtils;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.cosem.generalblocktransfer.GeneralBlockTransferFrame;
 import com.energyict.mdw.core.DeviceOfflineFlags;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineLoadProfile;
 import com.energyict.mdw.offline.OfflineLoadProfileChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.IntervalValue;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocolEvent;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocol.exceptions.InboundFrameException;
 import com.energyict.protocolimpl.dlms.idis.events.PowerFailureEventLog;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.dlms.idis.am130.events.*;
+import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130CommunicationLog;
+import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130FraudDetectionLog;
+import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130MBusControlLog1;
+import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130MBusControlLog2;
+import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130MBusControlLog3;
+import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130MBusControlLog4;
+import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130PowerQualityEventLog;
 import com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.events.T210DDisconnectorControlLog;
 import com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.events.T210DMBusEventLog;
 import com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.events.T210DMeterAlarmParser;
@@ -38,9 +62,12 @@ import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDe
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Created by cisac on 7/13/2016.
@@ -92,9 +119,9 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         parseInboundFrame(inboundFrame, true);
     }
 
-    private void parseInboundFrame(ByteBuffer inboundFrame, boolean hasHeader){
+    private void parseInboundFrame(ByteBuffer inboundFrame, boolean hasHeader) {
         log("Received Notification = " + ProtocolTools.getHexStringFromBytes(inboundFrame.array()));
-        if(hasHeader) {
+        if (hasHeader) {
             byte[] header = new byte[8];
             inboundFrame.get(header);
             log("Received header = " + ProtocolTools.getHexStringFromBytes(header));
@@ -104,7 +131,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
             parseAPDU(inboundFrame);
         } else if (tag == DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING) {
             parseEncryptedFrame(inboundFrame);
-        } else if(tag == DLMSCOSEMGlobals.COSEM_GENERAL_BLOCK_TRANSFER) {
+        } else if (tag == DLMSCOSEMGlobals.COSEM_GENERAL_BLOCK_TRANSFER) {
             try {
                 byte[] gbt = new byte[inboundFrame.remaining()];
                 inboundFrame.get(gbt);
@@ -179,23 +206,23 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
 
         parsePushObjectList(structure.getNextDataType());
 
-        if(pushObjectList.get(1).getObisCode().equals(LOGICAL_NAME_OBIS)) {
+        if (pushObjectList.get(1).getObisCode().equals(LOGICAL_NAME_OBIS)) {
             parseLogicalDeviceName(structure.getNextDataType());
         }
 
         //TODO: make this parsing generic. That would be usefull if the push objects will change over time and not remain fixed
-        if(pushObjectListObisCode.equals(PUSH_ON_INSTALLATION_OBJECT_LIST_OBIS)) {
+        if (pushObjectListObisCode.equals(PUSH_ON_INSTALLATION_OBJECT_LIST_OBIS)) {
             //the structure will contain 7 elements in case of a Push on Installation Data Notification
             parsePushOnInstallatioEvent(structure);
-        } else if(pushObjectListObisCode.equals(PUSH_ON_CONNECTIVITY_OBJECT_LIST_OBIS)) {
+        } else if (pushObjectListObisCode.equals(PUSH_ON_CONNECTIVITY_OBJECT_LIST_OBIS)) {
             parsePushOnConnectivityEvent(structure);
-        } else if(pushObjectListObisCode.equals(PUSH_ON_INTERVAL_1_OBJECT_LIST_OBIS)) {
+        } else if (pushObjectListObisCode.equals(PUSH_ON_INTERVAL_1_OBJECT_LIST_OBIS)) {
             parsePushOnInterval1(structure);
-        } else if(pushObjectListObisCode.equals(PUSH_ON_INTERVAL_2_OBJECT_LIST_OBIS)) {
+        } else if (pushObjectListObisCode.equals(PUSH_ON_INTERVAL_2_OBJECT_LIST_OBIS)) {
             parsePushOnInterval2(structure);
-        } else if(pushObjectListObisCode.equals(PUSH_ON_INTERVAL_3_OBJECT_LIST_OBIS)) {
+        } else if (pushObjectListObisCode.equals(PUSH_ON_INTERVAL_3_OBJECT_LIST_OBIS)) {
             parsePushOnInterval3(structure);
-        } else if(pushObjectListObisCode.equals(PUSH_ON_ALARM_OBJECT_LIST_OBIS)) {
+        } else if (pushObjectListObisCode.equals(PUSH_ON_ALARM_OBJECT_LIST_OBIS)) {
             //the structure will contain 6 elements in case of a Push on Alarm Data Notification
             parsePushOnAlarm(structure);
         } else {
@@ -217,7 +244,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         parseAlarmRegister(structure.getNextDataType(), eventDate, 1);
         parseAlarmRegister(structure.getNextDataType(), eventDate, 2);
         parseAlarmRegister(structure.getNextDataType(), eventDate, 3);
-        if(getCollectedLogBook().getCollectedMeterEvents().size() > 0){
+        if (getCollectedLogBook().getCollectedMeterEvents().size() > 0) {
             getCollectedLogBooks().add(getCollectedLogBook());
         }
     }
@@ -226,21 +253,21 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         DeviceOfflineFlags offlineContext = new DeviceOfflineFlags(DeviceOfflineFlags.ALL_LOAD_PROFILES_FLAG);
         OfflineDevice offlineDevice = inboundDAO.goOfflineDevice(deviceIdentifier, offlineContext);
         List<OfflineLoadProfile> allOfflineLoadProfiles = offlineDevice.getAllOfflineLoadProfiles();
-        for(int i = getElementOffset(); i <= pushObjectList.size() - 1; i++){
+        for (int i = getElementOffset(); i <= pushObjectList.size() - 1; i++) {
             ObisCode obisCode = pushObjectList.get(i).getObisCode();
             getColectedLoadProfile(structure.getDataType(i), obisCode, getOfflineLoadProfile(allOfflineLoadProfiles, obisCode), false);
         }
     }
 
     private void parsePushOnInterval2(Structure structure) {
-        for(int i = getElementOffset(); i <= pushObjectList.size() - 1; i++){//we start from the getElementOffset() because we already readout some data from the structure and we should continue from there
-            if(pushObjectList.get(i).getClassId() == 7){
+        for (int i = getElementOffset(); i <= pushObjectList.size() - 1; i++) {//we start from the getElementOffset() because we already readout some data from the structure and we should continue from there
+            if (pushObjectList.get(i).getClassId() == 7) {
                 ObisCode obisCode = pushObjectList.get(i).getObisCode();
                 DataContainer dataContainer = new DataContainer();
                 dataContainer.parseObjectList(structure.getDataType(i).getBEREncodedByteArray(), getContext().getLogger());
                 List<MeterProtocolEvent> meterProtocolEventList = parseEvents(dataContainer, obisCode);
-                log("Received "+meterProtocolEventList.size()+" events for logbook with obiscode: "+obisCode);
-                if(meterProtocolEventList.size() > 0){
+                log("Received " + meterProtocolEventList.size() + " events for logbook with obiscode: " + obisCode);
+                if (meterProtocolEventList.size() > 0) {
                     CollectedLogBook collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, obisCode));
                     collectedLogBook.addCollectedMeterEvents(meterProtocolEventList);
                     getCollectedLogBooks().add(collectedLogBook);
@@ -253,19 +280,19 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         DeviceOfflineFlags offlineContext = new DeviceOfflineFlags(DeviceOfflineFlags.ALL_LOAD_PROFILES_FLAG);
         OfflineDevice offlineDevice = inboundDAO.goOfflineDevice(deviceIdentifier, offlineContext);
         List<OfflineLoadProfile> allOfflineLoadProfiles = offlineDevice.getAllOfflineLoadProfiles();
-        for(int i = dataObjectsOffset; i <= pushObjectList.size() - 1; i++){
+        for (int i = dataObjectsOffset; i <= pushObjectList.size() - 1; i++) {
             ObisCode obisCode = pushObjectList.get(i).getObisCode();
-            if(obisCode.equals(LOAD_PROFILE_1_OBIS) || obisCode.equals(LOAD_PROFILE_2_OBIS)){
+            if (obisCode.equals(LOAD_PROFILE_1_OBIS) || obisCode.equals(LOAD_PROFILE_2_OBIS)) {
                 getColectedLoadProfile(structure.getNextDataType(), obisCode, getOfflineLoadProfile(allOfflineLoadProfiles, obisCode), true);
-            } else if (obisCode.equalsIgnoreBChannel(MBUS_VALUE_CHANNEL_OBIS)){
+            } else if (obisCode.equalsIgnoreBChannel(MBUS_VALUE_CHANNEL_OBIS)) {
                 getCollectedMbusChannelValue(structure.getNextDataType(), obisCode);
             }
         }
     }
 
-    private OfflineLoadProfile getOfflineLoadProfile(List<OfflineLoadProfile> allOfflineLoadProfiles, ObisCode obisCode){
-        for(OfflineLoadProfile loadProfile: allOfflineLoadProfiles){
-            if (loadProfile.getObisCode().equals(obisCode)){
+    private OfflineLoadProfile getOfflineLoadProfile(List<OfflineLoadProfile> allOfflineLoadProfiles, ObisCode obisCode) {
+        for (OfflineLoadProfile loadProfile : allOfflineLoadProfiles) {
+            if (loadProfile.getObisCode().equals(obisCode)) {
                 return loadProfile;
             }
         }
@@ -273,7 +300,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     }
 
     private void parsePushOnInstallatioEvent(Structure structure) {
-        if(structure.nrOfDataTypes() == 7){
+        if (structure.nrOfDataTypes() == 7) {
             parseEquipementType(structure.getNextDataType());
         }
         parseMobileNetworkIMSI(structure.getNextDataType());
@@ -297,7 +324,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
 
     protected void addMeterEventsToCollectedLogBook(List<MeterEvent> meterEvents) {
         List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
-        for(MeterEvent meterEvent: meterEvents){
+        for (MeterEvent meterEvent : meterEvents) {
             meterProtocolEvents.add(MeterEvent.mapMeterEventToMeterProtocolEvent(meterEvent));
         }
         getCollectedLogBook().addCollectedMeterEvents(meterProtocolEvents);
@@ -309,14 +336,14 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
             throw DataParseException.ioException(new ProtocolException("The first element of the Data-notification body should be the of type Array"));
         }
         boolean isPushObjectListStructure = true;
-        for(AbstractDataType abstractDataType: dataType.getArray().getAllDataTypes()){
-            if(!(abstractDataType instanceof Structure)){
+        for (AbstractDataType abstractDataType : dataType.getArray().getAllDataTypes()) {
+            if (!(abstractDataType instanceof Structure)) {
                 throw DataParseException.ioException(new ProtocolException("All elements from the push_objects_list Array should be of type Structure"));
             }
             Structure struct = abstractDataType.getStructure();
             long classId = struct.getDataType(0).longValue();
             ObisCode obisCode = ObisCode.fromByteArray(struct.getDataType(1).getOctetString().getOctetStr());
-            if(isPushObjectListStructure){
+            if (isPushObjectListStructure) {
                 pushObjectListObisCode = obisCode;
                 isPushObjectListStructure = false;
             }
@@ -330,7 +357,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     private void parseLogicalDeviceName(AbstractDataType dataType) {
         incrementElementOffset();
         if (!(dataType instanceof OctetString)) {
-            throw DataParseException.ioException(new ProtocolException("Element "+getElementOffset()+" of the Data-notification body should be the of type OctetString"));
+            throw DataParseException.ioException(new ProtocolException("Element " + getElementOffset() + " of the Data-notification body should be the of type OctetString"));
         }
         String logicalDeviceName = dataType.getOctetString().stringValue();
         deviceIdentifier = getDeviceIdentifierBasedOnLogicalDeviceName(logicalDeviceName);
@@ -340,7 +367,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     private void parseEquipementType(AbstractDataType dataType) {
         incrementElementOffset();
         if (!(dataType instanceof TypeEnum)) {
-            throw DataParseException.ioException(new ProtocolException("Element "+getElementOffset()+" of the Data-notification body should be the of type TypeEnum"));
+            throw DataParseException.ioException(new ProtocolException("Element " + getElementOffset() + " of the Data-notification body should be the of type TypeEnum"));
         }
         int equipementType = dataType.getTypeEnum().getValue();
         log("equipementType = " + equipementType);
@@ -349,7 +376,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     private void parseMobileNetworkIMSI(AbstractDataType dataType) {
         incrementElementOffset();
         if (!(dataType instanceof OctetString)) {
-            throw DataParseException.ioException(new ProtocolException("Element "+getElementOffset()+" of the Data-notification body should be the of type OctetString"));
+            throw DataParseException.ioException(new ProtocolException("Element " + getElementOffset() + " of the Data-notification body should be the of type OctetString"));
         }
         String mobileNetworkIdentifierIMSI = dataType.getOctetString().stringValue();
         log("mobileNetworkIdentifierIMSI = " + mobileNetworkIdentifierIMSI);
@@ -358,7 +385,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     private void parseMobileNetworkMSISDN(AbstractDataType dataType) {
         incrementElementOffset();
         if (!(dataType instanceof OctetString)) {
-            throw DataParseException.ioException(new ProtocolException("Element "+getElementOffset()+" of the Data-notification body should be the of type OctetString"));
+            throw DataParseException.ioException(new ProtocolException("Element " + getElementOffset() + " of the Data-notification body should be the of type OctetString"));
         }
         String mobileNetworkIdentifierMSISDN = dataType.getOctetString().stringValue();
         log("mobileNetworkIdentifierMSISDN = " + mobileNetworkIdentifierMSISDN);
@@ -367,7 +394,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     private void parseIPAddress(AbstractDataType dataType) {
         incrementElementOffset();
         if (!(dataType instanceof Unsigned32)) {
-            throw DataParseException.ioException(new ProtocolException("Element "+getElementOffset()+" of the Data-notification body should be the of type Unsigned32"));
+            throw DataParseException.ioException(new ProtocolException("Element " + getElementOffset() + " of the Data-notification body should be the of type Unsigned32"));
         }
         String ipAddress = getIpAddress(dataType.getUnsigned32().longValue());
         createCollectedDeviceIpAddres(ipAddress);
@@ -377,7 +404,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     private Date parseClockTime(AbstractDataType dataType) {
         incrementElementOffset();
         if (!(dataType instanceof OctetString)) {
-            throw DataParseException.ioException(new ProtocolException("Element "+getElementOffset()+" of the Data-notification body should be of type OctetString"));
+            throw DataParseException.ioException(new ProtocolException("Element " + getElementOffset() + " of the Data-notification body should be of type OctetString"));
         }
         Date clockTime = parseDateTime(dataType.getOctetString());
         log("clockTime = " + clockTime.toString());
@@ -387,7 +414,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     private void parsePortNumber(AbstractDataType dataType) {
         incrementElementOffset();
         if (!(dataType instanceof Unsigned16)) {
-            throw DataParseException.ioException(new ProtocolException("Element "+getElementOffset()+" of the Data-notification body should be of type OctetString"));
+            throw DataParseException.ioException(new ProtocolException("Element " + getElementOffset() + " of the Data-notification body should be of type OctetString"));
         }
         Unsigned16 portNumber = dataType.getUnsigned16();
         log("portNumber = " + portNumber.getValue());
@@ -396,7 +423,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     private void getCollectedMbusChannelValue(AbstractDataType dataType, ObisCode obisCode) {
         int channel = obisCode.getB();
         if (!(dataType instanceof Unsigned32)) {
-            throw DataParseException.ioException(new ProtocolException("MBus Channel "+channel+" value 1 should be of type Unsigned32"));
+            throw DataParseException.ioException(new ProtocolException("MBus Channel " + channel + " value 1 should be of type Unsigned32"));
         }
         Unsigned32 mbusValueChannel = dataType.getUnsigned32();
         log("MBus Channel " + channel + " value 1 = " + mbusValueChannel.getValue());
@@ -416,7 +443,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         List<ChannelInfo> channelInfos = getDeviceChannelInfo(loadProfileObisCode, offlineLoadProfile);
         List<IntervalData> collectedIntervalData;
         log("reading load profile " + loadProfileObisCode.toString());
-        if(offlineLoadProfile != null){
+        if (offlineLoadProfile != null) {
             collectedIntervalData = getCollectedIntervalDataUserDefinedChannels((Array) dataType, offlineLoadProfile, hasStatusInformation);
         } else {
             collectedIntervalData = getCollectedIntervalDataForHardCodedChannels((Array) dataType, loadProfileObisCode);
@@ -430,16 +457,16 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         List<IntervalData> collectedIntervalData = new ArrayList<>();
         List<OfflineLoadProfileChannel> offlineChannels = offlineLoadProfile.getOfflineChannels();
         int channelOffset = hasStatusInformation ? 2 : 1;
-        for(AbstractDataType structure: dataType.getAllDataTypes()){
+        for (AbstractDataType structure : dataType.getAllDataTypes()) {
             Structure struct = structure.getStructure();
-            if(offlineChannels.size() > struct.nrOfDataTypes() - channelOffset){
+            if (offlineChannels.size() > struct.nrOfDataTypes() - channelOffset) {
                 throw DataParseException.ioException(new ProtocolException("Configuration mismatch: The number of channels configured in the device is not the same as the number of channels configured in HES"));
             }
             List<IntervalValue> intervalValues = new ArrayList<>();
             Date clockTime = parseDateTime(struct.getDataType(0).getOctetString());
             int status = hasStatusInformation ? struct.getDataType(1).getUnsigned8().intValue() : 0;
             int eiStatus = getEiServerStatus(status);
-            for(int i = channelOffset; i < struct.nrOfDataTypes(); i++){
+            for (int i = channelOffset; i < struct.nrOfDataTypes(); i++) {
                 intervalValues.add(new IntervalValue(struct.getDataType(i).getUnsigned32().intValue(), status, eiStatus));
                 log("Channel " + (i - 1) + "reading: clockTime = " + clockTime + " status = " + status + " eiStatus = " + eiStatus + " intervalValue = " + struct.getDataType(i).getUnsigned32().intValue());
             }
@@ -451,13 +478,13 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
 
     private List<IntervalData> getCollectedIntervalDataForHardCodedChannels(Array dataType, ObisCode loadProfileObisCode) {
         List<IntervalData> collectedIntervalData = new ArrayList<>();
-        for(AbstractDataType structure: dataType.getAllDataTypes()){
+        for (AbstractDataType structure : dataType.getAllDataTypes()) {
             Structure struct = structure.getStructure();
             Date clockTime = parseDateTime(struct.getDataType(0).getOctetString());
             int status = struct.getDataType(1).getUnsigned8().intValue();
             int activeEnergyImport = struct.getDataType(2).getUnsigned32().intValue();
             int activeEnergyExport = struct.getDataType(3).getUnsigned32().intValue();
-            if(loadProfileObisCode.equals(LOAD_PROFILE_2_OBIS)){
+            if (loadProfileObisCode.equals(LOAD_PROFILE_2_OBIS)) {
                 int reactiveEnergyImport = struct.getDataType(4).getUnsigned32().intValue();
                 int reactiveEnergyExport = struct.getDataType(5).getUnsigned32().intValue();
                 collectedIntervalData.add(getIntervalData(clockTime, status, activeEnergyImport, activeEnergyExport, reactiveEnergyImport, reactiveEnergyExport));
@@ -473,28 +500,29 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
 
     /**
      * NOTE: CapturedObjects must be added as parameters in the exact order as they are configured in the LoadProfile
+     *
      * @param date
      * @param status
      * @param capturedObjects
      * @return
      */
-    private IntervalData getIntervalData(Date date, int status, int ... capturedObjects) {
+    private IntervalData getIntervalData(Date date, int status, int... capturedObjects) {
         List<IntervalValue> intervalValues = new ArrayList<>();
         int eiStatus = getEiServerStatus(status);
-        for(int value: capturedObjects){
+        for (int value : capturedObjects) {
             intervalValues.add(new IntervalValue(value, status, eiStatus));
         }
         return new IntervalData(date, eiStatus, status, 0, intervalValues);
     }
 
     private List<ChannelInfo> getDeviceChannelInfo(ObisCode loadProfileObisCode, OfflineLoadProfile offlineLoadProfile) {
-        if(offlineLoadProfile != null){
+        if (offlineLoadProfile != null) {
             return getDeviceChannelInfoFromUserDefinedChannels(offlineLoadProfile.getOfflineChannels());
         }
 
         log("Hardcoded channels are used for load profile with obiscode: " + loadProfileObisCode);
         // if we did not found an offlineLoadProfile with loadProfileObisCode for our device then use the default hardcoded values
-        if(loadProfileObisCode.equals(LOAD_PROFILE_2_OBIS)){
+        if (loadProfileObisCode.equals(LOAD_PROFILE_2_OBIS)) {
             return getDeviceChannelInfoLP2();
         }
         return getDeviceChannelInfoLP1();
@@ -504,7 +532,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         List<ChannelInfo> channelInfos = new ArrayList<>();
 
         int id = 0;
-        for(OfflineLoadProfileChannel offlineLoadProfileChannel: offlineChannels){
+        for (OfflineLoadProfileChannel offlineLoadProfileChannel : offlineChannels) {
             ChannelInfo channelInfo = new ChannelInfo(id, offlineLoadProfileChannel.getObisCode().getValue(), offlineLoadProfileChannel.getUnit(), deviceIdentifier.getIdentifier());
             channelInfos.add(channelInfo);
             if (isCumulative(offlineLoadProfileChannel.getObisCode())) {
@@ -610,6 +638,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
 
     /**
      * It will initialize the deviceIdentifier object based on the system title then return the system title
+     *
      * @param inboundFrame
      * @return the system title
      */
@@ -622,9 +651,9 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     }
 
     /**
-     System title value is the same as LogicalDeviceName.
-     To get the serial number out of it the last 28 bits (big-endian encoding) must be converted to Integer
-
+     * System title value is the same as LogicalDeviceName.
+     * To get the serial number out of it the last 28 bits (big-endian encoding) must be converted to Integer
+     *
      * @param systemTitle the system title encoded to fit in 8 bytes
      * @return
      */
@@ -636,7 +665,8 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     }
 
     /**
-     To get the serial number out of it the last 28 bits (big-endian encoding) must be converted to Integer
+     * To get the serial number out of it the last 28 bits (big-endian encoding) must be converted to Integer
+     *
      * @return
      */
     protected DeviceIdentifier getDeviceIdentifierBasedOnLogicalDeviceName(String logicalDeviceName) {
@@ -645,6 +675,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
 
     /**
      * Converts a long to an IP value format
+     *
      * @param ip in long value format
      * @return the converted ip
      */
@@ -672,18 +703,18 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     }
 
     public CollectedLogBook getCollectedLogBook() {
-        if(this.collectedLogBook == null) {
+        if (this.collectedLogBook == null) {
             this.collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, logbookObisCode));
         }
         return this.collectedLogBook;
     }
 
-    public List<CollectedLogBook> getCollectedLogBooks(){
+    public List<CollectedLogBook> getCollectedLogBooks() {
         return collectedLogBooks;
     }
 
     public List<CollectedLoadProfile> getCollectedLoadProfile() {
-        if(this.collectedLoadProfileList == null) {
+        if (this.collectedLoadProfileList == null) {
             this.collectedLoadProfileList = new ArrayList<>();
         }
         return this.collectedLoadProfileList;
@@ -722,11 +753,10 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
 
         boolean isLastBlock = responseFrame.getBlockControl().isLastBlock();
         while (!isLastBlock) {
-            // Receive the next 'windowSize' number of blocks
             int availableBytes = getComChannel().available();
-            if(availableBytes > 0 || getStoredBlockDataFromPreviousResponse().length > 0){
+            if (availableBytes > 0 || getStoredBlockDataFromPreviousResponse().length > 0) {
                 byte[] buffer = new byte[0];
-                if(availableBytes > 0) {
+                if (availableBytes > 0) {
                     buffer = new byte[getComChannel().available()];
                     getComChannel().read(buffer);
                     log("Received next TCP data = " + ProtocolTools.getHexStringFromBytes(buffer, ""));
@@ -734,42 +764,50 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
 
                 GeneralBlockTransferFrame generalBlockTransferFrame = new GeneralBlockTransferFrame();
                 byte[] blockData = ProtocolTools.concatByteArrays(getStoredBlockDataFromPreviousResponse(), buffer);
+                try {
+                    int offset1 = generalBlockTransferFrame.parseFrameHeaders(blockData, 8);
+                    if ((blockData.length - offset1) < generalBlockTransferFrame.getLengthOfBlockData()) {
+                        // We don't have enough data for the full block data length, so don't try parsing, but instead add blockData to previous and start receiving addition data again.
+                        log("Received only " + blockData.length + " bytes of the GBT frame - continuing to read for more data");
+                        setStoredBlockDataFromPreviousResponse(blockData);
+                    } else {
+                        generalBlockTransferFrame.parseBlockData(blockData, offset1); // Should never fail, as we already have verified blockData contains enough bytes for the full block data length
+                        offset1 += generalBlockTransferFrame.getLengthOfBlockData();
 
-                try{
-                    int offset1 = generalBlockTransferFrame.parseFrame(blockData, 8);
+                        if (generalBlockTransferFrame.getLengthOfBlockData() == 0) {
+                            throw new ProtocolException("GeneralBlockTransferHandler, receiveNextBlocksFromDevice - Fetch of block " + generalBlockTransferFrame.getBlockNumber() + " failed, the block content was empty.");
+                        }
 
-                    if (generalBlockTransferFrame.getLengthOfBlockData() == 0) {
-                        throw new ProtocolException("GeneralBlockTransferHandler, receiveNextBlocksFromDevice - Fetch of block " + generalBlockTransferFrame.getBlockNumber() + " failed, the block content was empty.");
+                        setStoredBlockDataFromPreviousResponse(ProtocolTools.getSubArray(blockData, offset1));
+                        setAcknowledgedBlockNumber(generalBlockTransferFrame.getBlockNumber());
+                        setBlockNumber(generalBlockTransferFrame.getAcknowledgedBlockNumber());
+                        isLastBlock = generalBlockTransferFrame.getBlockControl().isLastBlock();
+                        // Add decrypted block data from the responseData byte array and update the block numbers
+                        log("generalBlockTransferFrame - getBlockNumber = " + generalBlockTransferFrame.getBlockNumber());
+                        log("generalBlockTransferFrame - getAcknowledgedBlockNumber = " + generalBlockTransferFrame.getAcknowledgedBlockNumber());
+                        log("generalBlockTransferFrame - getLengthOfBlockData = " + generalBlockTransferFrame.getLengthOfBlockData());
+                        log("generalBlockTransferFrame - getBlockData = " + ProtocolTools.getHexStringFromBytes(generalBlockTransferFrame.getBlockData(), ""));
+                        log("generalBlockTransferFrame - BlockControl = " + ProtocolTools.getHexStringFromBytes(generalBlockTransferFrame.getBlockControl().getBytes(), ""), Level.FINE);
+                        log("generalBlockTransferFrame - BlockControl.windowSize = " + generalBlockTransferFrame.getBlockControl().getWindowSize());
+                        log("generalBlockTransferFrame - BlockControl.isLastBlock = " + generalBlockTransferFrame.getBlockControl().isLastBlock());
+                        log("generalBlockTransferFrame - BlockControl.isStreamingMode = " + generalBlockTransferFrame.getBlockControl().isStreamingMode());
+                        addNextBlockDataToResponseData(generalBlockTransferFrame.getBlockData());
                     }
-
-                    setStoredBlockDataFromPreviousResponse(ProtocolTools.getSubArray(blockData, offset1));
-                    setAcknowledgedBlockNumber(generalBlockTransferFrame.getBlockNumber());
-                    setBlockNumber(generalBlockTransferFrame.getAcknowledgedBlockNumber());
-                    isLastBlock = generalBlockTransferFrame.getBlockControl().isLastBlock();
-                    // Add decrypted block data from the responseData byte array and update the block numbers
-                    log("generalBlockTransferFrame - getBlockNumber = " + generalBlockTransferFrame.getBlockNumber());
-                    log("generalBlockTransferFrame - getAcknowledgedBlockNumber = " + generalBlockTransferFrame.getAcknowledgedBlockNumber());
-                    log("generalBlockTransferFrame - getLengthOfBlockData = " + generalBlockTransferFrame.getLengthOfBlockData());
-                    log("generalBlockTransferFrame - getBlockData = " + ProtocolTools.getHexStringFromBytes(generalBlockTransferFrame.getBlockData(), ""));
-                    log("generalBlockTransferFrame - BlockControl = " + ProtocolTools.getHexStringFromBytes(generalBlockTransferFrame.getBlockControl().getBytes(), ""), Level.FINE);
-                    log("generalBlockTransferFrame - BlockControl.windowSize = " + generalBlockTransferFrame.getBlockControl().getWindowSize());
-                    log("generalBlockTransferFrame - BlockControl.isLastBlock = " + generalBlockTransferFrame.getBlockControl().isLastBlock());
-                    log("generalBlockTransferFrame - BlockControl.isStreamingMode = " + generalBlockTransferFrame.getBlockControl().isStreamingMode());
-                    addNextBlockDataToResponseData(generalBlockTransferFrame.getBlockData());
-//                    firstPartOfGBTBlockData = null; //reset the firstPartOfGBTBlockData
                 } catch (Exception e) {
                     log("Received incomplete GBT block! The missing content may come in a next TCP data push. Waiting for it!");
                     e.printStackTrace();
+                    delay(100);
                 }
+            } else {
+                delay(100);
             }
 
-            delay(1000);
             // do not wait more than timeout for the last block
             if (System.currentTimeMillis() - timeoutMoment > 0) {
                 if (getResponseData() == null || getResponseData().length == 0) {
-                    throw InboundFrameException.timeoutException(String.format("Timeout: didn't receive an inbound frame after %d ms.", timeout));
+                    throw InboundFrameException.timeoutException(String.format("Timeout: didn't receive an inbound frame (or received incomplete frame) after %d ms.", timeout));
                 } else {
-                    throw InboundFrameException.timeoutException(String.format("Timeout: didn't receive the next block after %d ms.", timeout));
+                    throw InboundFrameException.timeoutException(String.format("Timeout: didn't receive the next block (or received incomplete block) after %d ms.", timeout));
                 }
             }
         }
@@ -824,7 +862,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     }
 
     protected void log(String message) {
-        if(DEBUG){
+        if (DEBUG) {
             log(message, Level.INFO);
         }
     }
