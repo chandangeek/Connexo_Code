@@ -1,26 +1,24 @@
-package com.energyict.protocolimplv2.elster.garnet;
+package com.energyict.protocolimplv2.sdksample;
 
 import com.energyict.CustomPropertiesPersistenceTest;
+import org.junit.Test;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.energyict.protocols.mdc.protocoltasks.SerialDeviceProtocolDialectProperties;
-import org.junit.*;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests the {@link SerialDeviceProtocolDialectProperties} component.
+ * Tests the {@link SDKLoadProfileDialectProperties} component.
  */
-public class SerialDeviceProtocolDialectPropertiesTest extends CustomPropertiesPersistenceTest {
+public class SDKLoadProfileDialectPropertiesTest extends CustomPropertiesPersistenceTest {
 
     @Test
     public void javaNameIsNotNull() {
-        List<SerialDeviceProtocolDialectProperties.ActualFields> fieldsWithNullJavaName =
+        List<SDKLoadProfileDialectProperties.ActualFields> fieldsWithNullJavaName =
             Stream
-                .of(SerialDeviceProtocolDialectProperties.ActualFields.values())
+                .of(SDKLoadProfileDialectProperties.ActualFields.values())
                 .filter(field -> field.javaName() == null)
                 .collect(Collectors.toList());
 
@@ -30,9 +28,9 @@ public class SerialDeviceProtocolDialectPropertiesTest extends CustomPropertiesP
 
     @Test
     public void javaNameIsNotEmpty() {
-        List<SerialDeviceProtocolDialectProperties.ActualFields> fieldsWithNullJavaName =
+        List<SDKLoadProfileDialectProperties.ActualFields> fieldsWithNullJavaName =
             Stream
-                .of(SerialDeviceProtocolDialectProperties.ActualFields.values())
+                .of(SDKLoadProfileDialectProperties.ActualFields.values())
                 .filter(field -> field.javaName().isEmpty())
                 .collect(Collectors.toList());
 
@@ -42,9 +40,9 @@ public class SerialDeviceProtocolDialectPropertiesTest extends CustomPropertiesP
 
     @Test
     public void fieldsExist() {
-        List<SerialDeviceProtocolDialectProperties.ActualFields> fieldsWithNullJavaName =
+        List<SDKLoadProfileDialectProperties.ActualFields> fieldsWithNullJavaName =
             Stream
-                .of(SerialDeviceProtocolDialectProperties.ActualFields.values())
+                .of(SDKLoadProfileDialectProperties.ActualFields.values())
                 .filter(field -> this.fieldDoesNotExists(field.javaName()))
                 .collect(Collectors.toList());
 
@@ -53,19 +51,19 @@ public class SerialDeviceProtocolDialectPropertiesTest extends CustomPropertiesP
     }
 
     private boolean fieldDoesNotExists(String fieldName) {
-        return this.fieldDoesNotExists(SerialDeviceProtocolDialectProperties.class, fieldName);
+        return this.fieldDoesNotExists(SDKLoadProfileDialectProperties.class, fieldName);
     }
 
     @Test
     public void checkJavaxAnnotationsOnFields() {
-        this.checkJavaxAnnotationsOnFields(SerialDeviceProtocolDialectProperties.class);
+        this.checkJavaxAnnotationsOnFields(SDKLoadProfileDialectProperties.class);
     }
 
     @Test
     public void propertySpecNameIsNotNull() {
-        List<SerialDeviceProtocolDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
+        List<SDKLoadProfileDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
             Stream
-                .of(SerialDeviceProtocolDialectProperties.ActualFields.values())
+                .of(SDKLoadProfileDialectProperties.ActualFields.values())
                 .filter(field -> field.propertySpecName() == null)
                 .collect(Collectors.toList());
 
@@ -75,9 +73,9 @@ public class SerialDeviceProtocolDialectPropertiesTest extends CustomPropertiesP
 
     @Test
     public void propertySpecNameIsNotEmpty() {
-        List<SerialDeviceProtocolDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
+        List<SDKLoadProfileDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
             Stream
-                .of(SerialDeviceProtocolDialectProperties.ActualFields.values())
+                .of(SDKLoadProfileDialectProperties.ActualFields.values())
                 .filter(field -> field.propertySpecName().toString().isEmpty())
                 .collect(Collectors.toList());
 
@@ -87,9 +85,9 @@ public class SerialDeviceProtocolDialectPropertiesTest extends CustomPropertiesP
 
     @Test
     public void databaseNameIsNotNull() {
-        List<SerialDeviceProtocolDialectProperties.ActualFields> fieldsWithNullDatabaseName =
+        List<SDKLoadProfileDialectProperties.ActualFields> fieldsWithNullDatabaseName =
             Stream
-                .of(SerialDeviceProtocolDialectProperties.ActualFields.values())
+                .of(SDKLoadProfileDialectProperties.ActualFields.values())
                 .filter(field -> field.databaseName() == null)
                 .collect(Collectors.toList());
 
@@ -99,9 +97,9 @@ public class SerialDeviceProtocolDialectPropertiesTest extends CustomPropertiesP
 
     @Test
     public void databaseNameIsNotEmpty() {
-        List<SerialDeviceProtocolDialectProperties.ActualFields> fieldsWithNullDatabaseName =
+        List<SDKLoadProfileDialectProperties.ActualFields> fieldsWithNullDatabaseName =
             Stream
-                .of(SerialDeviceProtocolDialectProperties.ActualFields.values())
+                .of(SDKLoadProfileDialectProperties.ActualFields.values())
                 .filter(field -> field.databaseName().isEmpty())
                 .collect(Collectors.toList());
 
@@ -111,9 +109,9 @@ public class SerialDeviceProtocolDialectPropertiesTest extends CustomPropertiesP
 
     @Test
     public void maximumLengthOfColumnNames() {
-        List<SerialDeviceProtocolDialectProperties.ActualFields> fieldsWithTooLongDatabaseName =
+        List<SDKLoadProfileDialectProperties.ActualFields> fieldsWithTooLongDatabaseName =
             Stream
-                .of(SerialDeviceProtocolDialectProperties.ActualFields.values())
+                .of(SDKLoadProfileDialectProperties.ActualFields.values())
                 .filter(field -> field.databaseName().length() > MAX_COLUMN_NAME_LENGTH)
                 .collect(Collectors.toList());
 

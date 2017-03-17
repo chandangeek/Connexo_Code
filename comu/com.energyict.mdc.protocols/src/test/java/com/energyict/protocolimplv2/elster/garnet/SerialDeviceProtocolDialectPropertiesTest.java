@@ -1,25 +1,25 @@
-package com.energyict.protocolimplv2.sdksample;
+package com.energyict.protocolimplv2.elster.garnet;
 
 import com.energyict.CustomPropertiesPersistenceTest;
+import com.energyict.protocols.mdc.protocoltasks.SerialDeviceProtocolDialectProperties;
+import org.junit.Test;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.*;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests the {@link SDKTopologyTaskDialectProperties} component.
+ * Tests the {@link SerialDeviceProtocolDialectProperties} component.
  */
-public class SDKTopologyTaskDialectPropertiesTest extends CustomPropertiesPersistenceTest {
+public class SerialDeviceProtocolDialectPropertiesTest extends CustomPropertiesPersistenceTest {
 
     @Test
     public void javaNameIsNotNull() {
-        List<SDKTopologyTaskDialectProperties.ActualFields> fieldsWithNullJavaName =
+        List<SerialDeviceProtocolDialectProperties.ActualFields> fieldsWithNullJavaName =
             Stream
-                .of(SDKTopologyTaskDialectProperties.ActualFields.values())
+                .of(SerialDeviceProtocolDialectProperties.ActualFields.values())
                 .filter(field -> field.javaName() == null)
                 .collect(Collectors.toList());
 
@@ -29,9 +29,9 @@ public class SDKTopologyTaskDialectPropertiesTest extends CustomPropertiesPersis
 
     @Test
     public void javaNameIsNotEmpty() {
-        List<SDKTopologyTaskDialectProperties.ActualFields> fieldsWithNullJavaName =
+        List<SerialDeviceProtocolDialectProperties.ActualFields> fieldsWithNullJavaName =
             Stream
-                .of(SDKTopologyTaskDialectProperties.ActualFields.values())
+                .of(SerialDeviceProtocolDialectProperties.ActualFields.values())
                 .filter(field -> field.javaName().isEmpty())
                 .collect(Collectors.toList());
 
@@ -41,9 +41,9 @@ public class SDKTopologyTaskDialectPropertiesTest extends CustomPropertiesPersis
 
     @Test
     public void fieldsExist() {
-        List<SDKTopologyTaskDialectProperties.ActualFields> fieldsWithNullJavaName =
+        List<SerialDeviceProtocolDialectProperties.ActualFields> fieldsWithNullJavaName =
             Stream
-                .of(SDKTopologyTaskDialectProperties.ActualFields.values())
+                .of(SerialDeviceProtocolDialectProperties.ActualFields.values())
                 .filter(field -> this.fieldDoesNotExists(field.javaName()))
                 .collect(Collectors.toList());
 
@@ -52,19 +52,19 @@ public class SDKTopologyTaskDialectPropertiesTest extends CustomPropertiesPersis
     }
 
     private boolean fieldDoesNotExists(String fieldName) {
-        return this.fieldDoesNotExists(SDKTopologyTaskDialectProperties.class, fieldName);
+        return this.fieldDoesNotExists(SerialDeviceProtocolDialectProperties.class, fieldName);
     }
 
     @Test
     public void checkJavaxAnnotationsOnFields() {
-        this.checkJavaxAnnotationsOnFields(SDKTopologyTaskDialectProperties.class);
+        this.checkJavaxAnnotationsOnFields(SerialDeviceProtocolDialectProperties.class);
     }
 
     @Test
     public void propertySpecNameIsNotNull() {
-        List<SDKTopologyTaskDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
+        List<SerialDeviceProtocolDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
             Stream
-                .of(SDKTopologyTaskDialectProperties.ActualFields.values())
+                .of(SerialDeviceProtocolDialectProperties.ActualFields.values())
                 .filter(field -> field.propertySpecName() == null)
                 .collect(Collectors.toList());
 
@@ -74,9 +74,9 @@ public class SDKTopologyTaskDialectPropertiesTest extends CustomPropertiesPersis
 
     @Test
     public void propertySpecNameIsNotEmpty() {
-        List<SDKTopologyTaskDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
+        List<SerialDeviceProtocolDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
             Stream
-                .of(SDKTopologyTaskDialectProperties.ActualFields.values())
+                .of(SerialDeviceProtocolDialectProperties.ActualFields.values())
                 .filter(field -> field.propertySpecName().toString().isEmpty())
                 .collect(Collectors.toList());
 
@@ -86,9 +86,9 @@ public class SDKTopologyTaskDialectPropertiesTest extends CustomPropertiesPersis
 
     @Test
     public void databaseNameIsNotNull() {
-        List<SDKTopologyTaskDialectProperties.ActualFields> fieldsWithNullDatabaseName =
+        List<SerialDeviceProtocolDialectProperties.ActualFields> fieldsWithNullDatabaseName =
             Stream
-                .of(SDKTopologyTaskDialectProperties.ActualFields.values())
+                .of(SerialDeviceProtocolDialectProperties.ActualFields.values())
                 .filter(field -> field.databaseName() == null)
                 .collect(Collectors.toList());
 
@@ -98,9 +98,9 @@ public class SDKTopologyTaskDialectPropertiesTest extends CustomPropertiesPersis
 
     @Test
     public void databaseNameIsNotEmpty() {
-        List<SDKTopologyTaskDialectProperties.ActualFields> fieldsWithNullDatabaseName =
+        List<SerialDeviceProtocolDialectProperties.ActualFields> fieldsWithNullDatabaseName =
             Stream
-                .of(SDKTopologyTaskDialectProperties.ActualFields.values())
+                .of(SerialDeviceProtocolDialectProperties.ActualFields.values())
                 .filter(field -> field.databaseName().isEmpty())
                 .collect(Collectors.toList());
 
@@ -110,9 +110,9 @@ public class SDKTopologyTaskDialectPropertiesTest extends CustomPropertiesPersis
 
     @Test
     public void maximumLengthOfColumnNames() {
-        List<SDKTopologyTaskDialectProperties.ActualFields> fieldsWithTooLongDatabaseName =
+        List<SerialDeviceProtocolDialectProperties.ActualFields> fieldsWithTooLongDatabaseName =
             Stream
-                .of(SDKTopologyTaskDialectProperties.ActualFields.values())
+                .of(SerialDeviceProtocolDialectProperties.ActualFields.values())
                 .filter(field -> field.databaseName().length() > MAX_COLUMN_NAME_LENGTH)
                 .collect(Collectors.toList());
 

@@ -1,21 +1,17 @@
-package com.energyict.protocolimplv2.sdksample;
+package com.energyict.protocolimplv2.abnt.common.dialects;
 
 import com.energyict.CustomPropertiesPersistenceSupportTest;
-
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests the {@link SDKBreakerDialectPropertyPersistenceSupport} component.
- *
- * @author sva
- * @since 8/04/2016 - 15:12
+ * Tests the {@link AbntDeviceProtocolDialectPropertyPersistenceSupport} component.
  */
-public class SDKBreakerDialectPropertyPersistenceSupportTest extends CustomPropertiesPersistenceSupportTest {
+public class AbntDeviceProtocolDialectPropertyPersistenceSupportTest extends CustomPropertiesPersistenceSupportTest {
 
-    private SDKBreakerDialectPropertyPersistenceSupport getInstance() {
-        return new SDKBreakerDialectPropertyPersistenceSupport();
+    private AbntDeviceProtocolDialectPropertyPersistenceSupport getInstance() {
+        return new AbntDeviceProtocolDialectPropertyPersistenceSupport();
     }
 
     @Test
@@ -64,7 +60,7 @@ public class SDKBreakerDialectPropertyPersistenceSupportTest extends CustomPrope
     }
 
     @Test
-    public void allColumnsAreNullable() {
+    public void allColumnsAreNullable () {
         this.allColumnsAreNullable(this.getInstance());
     }
 

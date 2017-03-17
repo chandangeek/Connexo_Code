@@ -1,18 +1,17 @@
-package com.energyict.protocolimplv2.abnt.common.dialects;
+package com.energyict.protocolimplv2.elster.garnet;
 
 import com.energyict.CustomPropertiesPersistenceSupportTest;
-
-import org.junit.*;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests the {@link AbntDeviceProtocolDialectPropertyPersistenceSupport} component.
+ * Tests the {@link GarnetSecuritySupportPersistenceSupport} component.
  */
-public class AbntDeviceProtocolDialectPropertyPersistenceSupportTest extends CustomPropertiesPersistenceSupportTest {
+public class GarnetSecuritySupportPersistenceSupportTest extends CustomPropertiesPersistenceSupportTest {
 
-    private AbntDeviceProtocolDialectPropertyPersistenceSupport getInstance() {
-        return new AbntDeviceProtocolDialectPropertyPersistenceSupport();
+    private GarnetSecuritySupportPersistenceSupport getInstance() {
+        return new GarnetSecuritySupportPersistenceSupport();
     }
 
     @Test
@@ -58,6 +57,21 @@ public class AbntDeviceProtocolDialectPropertyPersistenceSupportTest extends Cus
     @Test
     public void domainForeignKeyNameSize() {
         assertThat(getInstance().domainForeignKeyName().length()).isLessThanOrEqualTo(MAX_FOREIGN_KEY_NAME_LENGTH);
+    }
+
+    @Test
+    public void propertySpecProviderForeignKeyNameIsNotNull() {
+        assertThat(getInstance().propertySpecProviderForeignKeyName()).isNotNull();
+    }
+
+    @Test
+    public void propertySpecProviderForeignKeyNameIsNotEmpty() {
+        assertThat(getInstance().propertySpecProviderForeignKeyName()).isNotEmpty();
+    }
+
+    @Test
+    public void propertySpecProviderForeignKeyNameSize() {
+        assertThat(getInstance().propertySpecProviderForeignKeyName().length()).isLessThanOrEqualTo(MAX_FOREIGN_KEY_NAME_LENGTH);
     }
 
     @Test

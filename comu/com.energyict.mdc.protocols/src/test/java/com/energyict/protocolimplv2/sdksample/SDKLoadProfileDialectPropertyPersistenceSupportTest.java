@@ -1,18 +1,17 @@
 package com.energyict.protocolimplv2.sdksample;
 
 import com.energyict.CustomPropertiesPersistenceSupportTest;
-
-import org.junit.*;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests the {@link SDKTimeDialectPropertyPersistenceSupport} component.
+ * Tests the {@link SDKLoadProfileDialectPropertyPersistenceSupport} component.
  */
-public class SDKTimeDialectPropertyPersistenceSupportTest extends CustomPropertiesPersistenceSupportTest {
+public class SDKLoadProfileDialectPropertyPersistenceSupportTest extends CustomPropertiesPersistenceSupportTest {
 
-    private SDKTimeDialectPropertyPersistenceSupport getInstance() {
-        return new SDKTimeDialectPropertyPersistenceSupport();
+    private SDKLoadProfileDialectPropertyPersistenceSupport getInstance() {
+        return new SDKLoadProfileDialectPropertyPersistenceSupport();
     }
 
     @Test

@@ -1,18 +1,20 @@
-package com.energyict.protocolimplv2.elster.garnet;
+package com.energyict.protocolimplv2.sdksample;
 
 import com.energyict.CustomPropertiesPersistenceSupportTest;
-
-import org.junit.*;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests the {@link GarnetSecuritySupportPersistenceSupport} component.
+ * Tests the {@link SDKBreakerDialectPropertyPersistenceSupport} component.
+ *
+ * @author sva
+ * @since 8/04/2016 - 15:12
  */
-public class GarnetSecuritySupportPersistenceSupportTest extends CustomPropertiesPersistenceSupportTest {
+public class SDKBreakerDialectPropertyPersistenceSupportTest extends CustomPropertiesPersistenceSupportTest {
 
-    private GarnetSecuritySupportPersistenceSupport getInstance() {
-        return new GarnetSecuritySupportPersistenceSupport();
+    private SDKBreakerDialectPropertyPersistenceSupport getInstance() {
+        return new SDKBreakerDialectPropertyPersistenceSupport();
     }
 
     @Test
@@ -61,22 +63,7 @@ public class GarnetSecuritySupportPersistenceSupportTest extends CustomPropertie
     }
 
     @Test
-    public void propertySpecProviderForeignKeyNameIsNotNull() {
-        assertThat(getInstance().propertySpecProviderForeignKeyName()).isNotNull();
-    }
-
-    @Test
-    public void propertySpecProviderForeignKeyNameIsNotEmpty() {
-        assertThat(getInstance().propertySpecProviderForeignKeyName()).isNotEmpty();
-    }
-
-    @Test
-    public void propertySpecProviderForeignKeyNameSize() {
-        assertThat(getInstance().propertySpecProviderForeignKeyName().length()).isLessThanOrEqualTo(MAX_FOREIGN_KEY_NAME_LENGTH);
-    }
-
-    @Test
-    public void allColumnsAreNullable () {
+    public void allColumnsAreNullable() {
         this.allColumnsAreNullable(this.getInstance());
     }
 

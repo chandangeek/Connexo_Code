@@ -1,25 +1,24 @@
-package com.energyict.protocolimplv2.sdksample;
+package com.energyict.protocolimplv2.ace4000;
 
 import com.energyict.CustomPropertiesPersistenceTest;
+import org.junit.Test;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.*;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests the {@link SDKStandardDialectProperties} component.
+ * Tests the {@link ACE4000DeviceProtocolDialectProperties} component.
  */
-public class SDKStandardDialectPropertiesTest extends CustomPropertiesPersistenceTest {
+public class ACE4000DeviceProtocolDialectPropertiesTest extends CustomPropertiesPersistenceTest {
 
     @Test
     public void javaNameIsNotNull() {
-        List<SDKStandardDialectProperties.ActualFields> fieldsWithNullJavaName =
+        List<ACE4000DeviceProtocolDialectProperties.ActualFields> fieldsWithNullJavaName =
             Stream
-                .of(SDKStandardDialectProperties.ActualFields.values())
+                .of(ACE4000DeviceProtocolDialectProperties.ActualFields.values())
                 .filter(field -> field.javaName() == null)
                 .collect(Collectors.toList());
 
@@ -29,9 +28,9 @@ public class SDKStandardDialectPropertiesTest extends CustomPropertiesPersistenc
 
     @Test
     public void javaNameIsNotEmpty() {
-        List<SDKStandardDialectProperties.ActualFields> fieldsWithNullJavaName =
+        List<ACE4000DeviceProtocolDialectProperties.ActualFields> fieldsWithNullJavaName =
             Stream
-                .of(SDKStandardDialectProperties.ActualFields.values())
+                .of(ACE4000DeviceProtocolDialectProperties.ActualFields.values())
                 .filter(field -> field.javaName().isEmpty())
                 .collect(Collectors.toList());
 
@@ -41,9 +40,9 @@ public class SDKStandardDialectPropertiesTest extends CustomPropertiesPersistenc
 
     @Test
     public void fieldsExist() {
-        List<SDKStandardDialectProperties.ActualFields> fieldsWithNullJavaName =
+        List<ACE4000DeviceProtocolDialectProperties.ActualFields> fieldsWithNullJavaName =
             Stream
-                .of(SDKStandardDialectProperties.ActualFields.values())
+                .of(ACE4000DeviceProtocolDialectProperties.ActualFields.values())
                 .filter(field -> this.fieldDoesNotExists(field.javaName()))
                 .collect(Collectors.toList());
 
@@ -52,19 +51,19 @@ public class SDKStandardDialectPropertiesTest extends CustomPropertiesPersistenc
     }
 
     private boolean fieldDoesNotExists(String fieldName) {
-        return this.fieldDoesNotExists(SDKStandardDialectProperties.class, fieldName);
+        return this.fieldDoesNotExists(ACE4000DeviceProtocolDialectProperties.class, fieldName);
     }
 
     @Test
     public void checkJavaxAnnotationsOnFields() {
-        this.checkJavaxAnnotationsOnFields(SDKStandardDialectProperties.class);
+        this.checkJavaxAnnotationsOnFields(ACE4000DeviceProtocolDialectProperties.class);
     }
 
     @Test
     public void propertySpecNameIsNotNull() {
-        List<SDKStandardDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
+        List<ACE4000DeviceProtocolDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
             Stream
-                .of(SDKStandardDialectProperties.ActualFields.values())
+                .of(ACE4000DeviceProtocolDialectProperties.ActualFields.values())
                 .filter(field -> field.propertySpecName() == null)
                 .collect(Collectors.toList());
 
@@ -74,9 +73,9 @@ public class SDKStandardDialectPropertiesTest extends CustomPropertiesPersistenc
 
     @Test
     public void propertySpecNameIsNotEmpty() {
-        List<SDKStandardDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
+        List<ACE4000DeviceProtocolDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
             Stream
-                .of(SDKStandardDialectProperties.ActualFields.values())
+                .of(ACE4000DeviceProtocolDialectProperties.ActualFields.values())
                 .filter(field -> field.propertySpecName().toString().isEmpty())
                 .collect(Collectors.toList());
 
@@ -86,9 +85,9 @@ public class SDKStandardDialectPropertiesTest extends CustomPropertiesPersistenc
 
     @Test
     public void databaseNameIsNotNull() {
-        List<SDKStandardDialectProperties.ActualFields> fieldsWithNullDatabaseName =
+        List<ACE4000DeviceProtocolDialectProperties.ActualFields> fieldsWithNullDatabaseName =
             Stream
-                .of(SDKStandardDialectProperties.ActualFields.values())
+                .of(ACE4000DeviceProtocolDialectProperties.ActualFields.values())
                 .filter(field -> field.databaseName() == null)
                 .collect(Collectors.toList());
 
@@ -98,9 +97,9 @@ public class SDKStandardDialectPropertiesTest extends CustomPropertiesPersistenc
 
     @Test
     public void databaseNameIsNotEmpty() {
-        List<SDKStandardDialectProperties.ActualFields> fieldsWithNullDatabaseName =
+        List<ACE4000DeviceProtocolDialectProperties.ActualFields> fieldsWithNullDatabaseName =
             Stream
-                .of(SDKStandardDialectProperties.ActualFields.values())
+                .of(ACE4000DeviceProtocolDialectProperties.ActualFields.values())
                 .filter(field -> field.databaseName().isEmpty())
                 .collect(Collectors.toList());
 
@@ -110,9 +109,9 @@ public class SDKStandardDialectPropertiesTest extends CustomPropertiesPersistenc
 
     @Test
     public void maximumLengthOfColumnNames() {
-        List<SDKStandardDialectProperties.ActualFields> fieldsWithTooLongDatabaseName =
+        List<ACE4000DeviceProtocolDialectProperties.ActualFields> fieldsWithTooLongDatabaseName =
             Stream
-                .of(SDKStandardDialectProperties.ActualFields.values())
+                .of(ACE4000DeviceProtocolDialectProperties.ActualFields.values())
                 .filter(field -> field.databaseName().length() > MAX_COLUMN_NAME_LENGTH)
                 .collect(Collectors.toList());
 

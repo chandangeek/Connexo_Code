@@ -1,25 +1,24 @@
 package com.energyict.protocolimplv2.sdksample;
 
 import com.energyict.CustomPropertiesPersistenceTest;
+import org.junit.Test;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.*;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests the {@link SDKLoadProfileDialectProperties} component.
+ * Tests the {@link SDKTopologyTaskDialectProperties} component.
  */
-public class SDKLoadProfileDialectPropertiesTest extends CustomPropertiesPersistenceTest {
+public class SDKTopologyTaskDialectPropertiesTest extends CustomPropertiesPersistenceTest {
 
     @Test
     public void javaNameIsNotNull() {
-        List<SDKLoadProfileDialectProperties.ActualFields> fieldsWithNullJavaName =
+        List<SDKTopologyTaskDialectProperties.ActualFields> fieldsWithNullJavaName =
             Stream
-                .of(SDKLoadProfileDialectProperties.ActualFields.values())
+                .of(SDKTopologyTaskDialectProperties.ActualFields.values())
                 .filter(field -> field.javaName() == null)
                 .collect(Collectors.toList());
 
@@ -29,9 +28,9 @@ public class SDKLoadProfileDialectPropertiesTest extends CustomPropertiesPersist
 
     @Test
     public void javaNameIsNotEmpty() {
-        List<SDKLoadProfileDialectProperties.ActualFields> fieldsWithNullJavaName =
+        List<SDKTopologyTaskDialectProperties.ActualFields> fieldsWithNullJavaName =
             Stream
-                .of(SDKLoadProfileDialectProperties.ActualFields.values())
+                .of(SDKTopologyTaskDialectProperties.ActualFields.values())
                 .filter(field -> field.javaName().isEmpty())
                 .collect(Collectors.toList());
 
@@ -41,9 +40,9 @@ public class SDKLoadProfileDialectPropertiesTest extends CustomPropertiesPersist
 
     @Test
     public void fieldsExist() {
-        List<SDKLoadProfileDialectProperties.ActualFields> fieldsWithNullJavaName =
+        List<SDKTopologyTaskDialectProperties.ActualFields> fieldsWithNullJavaName =
             Stream
-                .of(SDKLoadProfileDialectProperties.ActualFields.values())
+                .of(SDKTopologyTaskDialectProperties.ActualFields.values())
                 .filter(field -> this.fieldDoesNotExists(field.javaName()))
                 .collect(Collectors.toList());
 
@@ -52,19 +51,19 @@ public class SDKLoadProfileDialectPropertiesTest extends CustomPropertiesPersist
     }
 
     private boolean fieldDoesNotExists(String fieldName) {
-        return this.fieldDoesNotExists(SDKLoadProfileDialectProperties.class, fieldName);
+        return this.fieldDoesNotExists(SDKTopologyTaskDialectProperties.class, fieldName);
     }
 
     @Test
     public void checkJavaxAnnotationsOnFields() {
-        this.checkJavaxAnnotationsOnFields(SDKLoadProfileDialectProperties.class);
+        this.checkJavaxAnnotationsOnFields(SDKTopologyTaskDialectProperties.class);
     }
 
     @Test
     public void propertySpecNameIsNotNull() {
-        List<SDKLoadProfileDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
+        List<SDKTopologyTaskDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
             Stream
-                .of(SDKLoadProfileDialectProperties.ActualFields.values())
+                .of(SDKTopologyTaskDialectProperties.ActualFields.values())
                 .filter(field -> field.propertySpecName() == null)
                 .collect(Collectors.toList());
 
@@ -74,9 +73,9 @@ public class SDKLoadProfileDialectPropertiesTest extends CustomPropertiesPersist
 
     @Test
     public void propertySpecNameIsNotEmpty() {
-        List<SDKLoadProfileDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
+        List<SDKTopologyTaskDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
             Stream
-                .of(SDKLoadProfileDialectProperties.ActualFields.values())
+                .of(SDKTopologyTaskDialectProperties.ActualFields.values())
                 .filter(field -> field.propertySpecName().toString().isEmpty())
                 .collect(Collectors.toList());
 
@@ -86,9 +85,9 @@ public class SDKLoadProfileDialectPropertiesTest extends CustomPropertiesPersist
 
     @Test
     public void databaseNameIsNotNull() {
-        List<SDKLoadProfileDialectProperties.ActualFields> fieldsWithNullDatabaseName =
+        List<SDKTopologyTaskDialectProperties.ActualFields> fieldsWithNullDatabaseName =
             Stream
-                .of(SDKLoadProfileDialectProperties.ActualFields.values())
+                .of(SDKTopologyTaskDialectProperties.ActualFields.values())
                 .filter(field -> field.databaseName() == null)
                 .collect(Collectors.toList());
 
@@ -98,9 +97,9 @@ public class SDKLoadProfileDialectPropertiesTest extends CustomPropertiesPersist
 
     @Test
     public void databaseNameIsNotEmpty() {
-        List<SDKLoadProfileDialectProperties.ActualFields> fieldsWithNullDatabaseName =
+        List<SDKTopologyTaskDialectProperties.ActualFields> fieldsWithNullDatabaseName =
             Stream
-                .of(SDKLoadProfileDialectProperties.ActualFields.values())
+                .of(SDKTopologyTaskDialectProperties.ActualFields.values())
                 .filter(field -> field.databaseName().isEmpty())
                 .collect(Collectors.toList());
 
@@ -110,9 +109,9 @@ public class SDKLoadProfileDialectPropertiesTest extends CustomPropertiesPersist
 
     @Test
     public void maximumLengthOfColumnNames() {
-        List<SDKLoadProfileDialectProperties.ActualFields> fieldsWithTooLongDatabaseName =
+        List<SDKTopologyTaskDialectProperties.ActualFields> fieldsWithTooLongDatabaseName =
             Stream
-                .of(SDKLoadProfileDialectProperties.ActualFields.values())
+                .of(SDKTopologyTaskDialectProperties.ActualFields.values())
                 .filter(field -> field.databaseName().length() > MAX_COLUMN_NAME_LENGTH)
                 .collect(Collectors.toList());
 

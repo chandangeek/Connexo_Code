@@ -1,25 +1,24 @@
-package com.energyict.protocolimplv2.sdksample;
+package com.energyict.protocolimplv2.abnt.common.dialects;
 
 import com.energyict.CustomPropertiesPersistenceTest;
+import org.junit.Test;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.*;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests the {@link SDKFirmwareDialectProperties} component.
+ * Tests the {@link AbntDeviceProtocolDialectProperties} component.
  */
-public class SDKFirmwareDialectPropertiesTest extends CustomPropertiesPersistenceTest {
+public class AbntDeviceProtocolDialectPropertiesTest extends CustomPropertiesPersistenceTest {
 
     @Test
     public void javaNameIsNotNull() {
-        List<SDKFirmwareDialectProperties.ActualFields> fieldsWithNullJavaName =
+        List<AbntDeviceProtocolDialectProperties.ActualFields> fieldsWithNullJavaName =
             Stream
-                .of(SDKFirmwareDialectProperties.ActualFields.values())
+                .of(AbntDeviceProtocolDialectProperties.ActualFields.values())
                 .filter(field -> field.javaName() == null)
                 .collect(Collectors.toList());
 
@@ -29,9 +28,9 @@ public class SDKFirmwareDialectPropertiesTest extends CustomPropertiesPersistenc
 
     @Test
     public void javaNameIsNotEmpty() {
-        List<SDKFirmwareDialectProperties.ActualFields> fieldsWithNullJavaName =
+        List<AbntDeviceProtocolDialectProperties.ActualFields> fieldsWithNullJavaName =
             Stream
-                .of(SDKFirmwareDialectProperties.ActualFields.values())
+                .of(AbntDeviceProtocolDialectProperties.ActualFields.values())
                 .filter(field -> field.javaName().isEmpty())
                 .collect(Collectors.toList());
 
@@ -41,9 +40,9 @@ public class SDKFirmwareDialectPropertiesTest extends CustomPropertiesPersistenc
 
     @Test
     public void fieldsExist() {
-        List<SDKFirmwareDialectProperties.ActualFields> fieldsWithNullJavaName =
+        List<AbntDeviceProtocolDialectProperties.ActualFields> fieldsWithNullJavaName =
             Stream
-                .of(SDKFirmwareDialectProperties.ActualFields.values())
+                .of(AbntDeviceProtocolDialectProperties.ActualFields.values())
                 .filter(field -> this.fieldDoesNotExists(field.javaName()))
                 .collect(Collectors.toList());
 
@@ -52,19 +51,19 @@ public class SDKFirmwareDialectPropertiesTest extends CustomPropertiesPersistenc
     }
 
     private boolean fieldDoesNotExists(String fieldName) {
-        return this.fieldDoesNotExists(SDKFirmwareDialectProperties.class, fieldName);
+        return this.fieldDoesNotExists(AbntDeviceProtocolDialectProperties.class, fieldName);
     }
 
     @Test
     public void checkJavaxAnnotationsOnFields() {
-        this.checkJavaxAnnotationsOnFields(SDKFirmwareDialectProperties.class);
+        this.checkJavaxAnnotationsOnFields(AbntDeviceProtocolDialectProperties.class);
     }
 
     @Test
     public void propertySpecNameIsNotNull() {
-        List<SDKFirmwareDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
+        List<AbntDeviceProtocolDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
             Stream
-                .of(SDKFirmwareDialectProperties.ActualFields.values())
+                .of(AbntDeviceProtocolDialectProperties.ActualFields.values())
                 .filter(field -> field.propertySpecName() == null)
                 .collect(Collectors.toList());
 
@@ -74,9 +73,9 @@ public class SDKFirmwareDialectPropertiesTest extends CustomPropertiesPersistenc
 
     @Test
     public void propertySpecNameIsNotEmpty() {
-        List<SDKFirmwareDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
+        List<AbntDeviceProtocolDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
             Stream
-                .of(SDKFirmwareDialectProperties.ActualFields.values())
+                .of(AbntDeviceProtocolDialectProperties.ActualFields.values())
                 .filter(field -> field.propertySpecName().toString().isEmpty())
                 .collect(Collectors.toList());
 
@@ -86,9 +85,9 @@ public class SDKFirmwareDialectPropertiesTest extends CustomPropertiesPersistenc
 
     @Test
     public void databaseNameIsNotNull() {
-        List<SDKFirmwareDialectProperties.ActualFields> fieldsWithNullDatabaseName =
+        List<AbntDeviceProtocolDialectProperties.ActualFields> fieldsWithNullDatabaseName =
             Stream
-                .of(SDKFirmwareDialectProperties.ActualFields.values())
+                .of(AbntDeviceProtocolDialectProperties.ActualFields.values())
                 .filter(field -> field.databaseName() == null)
                 .collect(Collectors.toList());
 
@@ -98,9 +97,9 @@ public class SDKFirmwareDialectPropertiesTest extends CustomPropertiesPersistenc
 
     @Test
     public void databaseNameIsNotEmpty() {
-        List<SDKFirmwareDialectProperties.ActualFields> fieldsWithNullDatabaseName =
+        List<AbntDeviceProtocolDialectProperties.ActualFields> fieldsWithNullDatabaseName =
             Stream
-                .of(SDKFirmwareDialectProperties.ActualFields.values())
+                .of(AbntDeviceProtocolDialectProperties.ActualFields.values())
                 .filter(field -> field.databaseName().isEmpty())
                 .collect(Collectors.toList());
 
@@ -110,9 +109,9 @@ public class SDKFirmwareDialectPropertiesTest extends CustomPropertiesPersistenc
 
     @Test
     public void maximumLengthOfColumnNames() {
-        List<SDKFirmwareDialectProperties.ActualFields> fieldsWithTooLongDatabaseName =
+        List<AbntDeviceProtocolDialectProperties.ActualFields> fieldsWithTooLongDatabaseName =
             Stream
-                .of(SDKFirmwareDialectProperties.ActualFields.values())
+                .of(AbntDeviceProtocolDialectProperties.ActualFields.values())
                 .filter(field -> field.databaseName().length() > MAX_COLUMN_NAME_LENGTH)
                 .collect(Collectors.toList());
 

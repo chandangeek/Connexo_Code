@@ -1,25 +1,24 @@
-package com.energyict.protocolimplv2.ace4000;
+package com.energyict.protocolimplv2.sdksample;
 
 import com.energyict.CustomPropertiesPersistenceTest;
+import org.junit.Test;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.*;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests the {@link ACE4000DeviceProtocolDialectProperties} component.
+ * Tests the {@link SDKTimeDialectProperties} component.
  */
-public class ACE4000DeviceProtocolDialectPropertiesTest extends CustomPropertiesPersistenceTest {
+public class SDKTimeDialectPropertiesTest extends CustomPropertiesPersistenceTest {
 
     @Test
     public void javaNameIsNotNull() {
-        List<ACE4000DeviceProtocolDialectProperties.ActualFields> fieldsWithNullJavaName =
+        List<SDKTimeDialectProperties.ActualFields> fieldsWithNullJavaName =
             Stream
-                .of(ACE4000DeviceProtocolDialectProperties.ActualFields.values())
+                .of(SDKTimeDialectProperties.ActualFields.values())
                 .filter(field -> field.javaName() == null)
                 .collect(Collectors.toList());
 
@@ -29,9 +28,9 @@ public class ACE4000DeviceProtocolDialectPropertiesTest extends CustomProperties
 
     @Test
     public void javaNameIsNotEmpty() {
-        List<ACE4000DeviceProtocolDialectProperties.ActualFields> fieldsWithNullJavaName =
+        List<SDKTimeDialectProperties.ActualFields> fieldsWithNullJavaName =
             Stream
-                .of(ACE4000DeviceProtocolDialectProperties.ActualFields.values())
+                .of(SDKTimeDialectProperties.ActualFields.values())
                 .filter(field -> field.javaName().isEmpty())
                 .collect(Collectors.toList());
 
@@ -41,9 +40,9 @@ public class ACE4000DeviceProtocolDialectPropertiesTest extends CustomProperties
 
     @Test
     public void fieldsExist() {
-        List<ACE4000DeviceProtocolDialectProperties.ActualFields> fieldsWithNullJavaName =
+        List<SDKTimeDialectProperties.ActualFields> fieldsWithNullJavaName =
             Stream
-                .of(ACE4000DeviceProtocolDialectProperties.ActualFields.values())
+                .of(SDKTimeDialectProperties.ActualFields.values())
                 .filter(field -> this.fieldDoesNotExists(field.javaName()))
                 .collect(Collectors.toList());
 
@@ -52,19 +51,19 @@ public class ACE4000DeviceProtocolDialectPropertiesTest extends CustomProperties
     }
 
     private boolean fieldDoesNotExists(String fieldName) {
-        return this.fieldDoesNotExists(ACE4000DeviceProtocolDialectProperties.class, fieldName);
+        return this.fieldDoesNotExists(SDKTimeDialectProperties.class, fieldName);
     }
 
     @Test
     public void checkJavaxAnnotationsOnFields() {
-        this.checkJavaxAnnotationsOnFields(ACE4000DeviceProtocolDialectProperties.class);
+        this.checkJavaxAnnotationsOnFields(SDKTimeDialectProperties.class);
     }
 
     @Test
     public void propertySpecNameIsNotNull() {
-        List<ACE4000DeviceProtocolDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
+        List<SDKTimeDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
             Stream
-                .of(ACE4000DeviceProtocolDialectProperties.ActualFields.values())
+                .of(SDKTimeDialectProperties.ActualFields.values())
                 .filter(field -> field.propertySpecName() == null)
                 .collect(Collectors.toList());
 
@@ -74,9 +73,9 @@ public class ACE4000DeviceProtocolDialectPropertiesTest extends CustomProperties
 
     @Test
     public void propertySpecNameIsNotEmpty() {
-        List<ACE4000DeviceProtocolDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
+        List<SDKTimeDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
             Stream
-                .of(ACE4000DeviceProtocolDialectProperties.ActualFields.values())
+                .of(SDKTimeDialectProperties.ActualFields.values())
                 .filter(field -> field.propertySpecName().toString().isEmpty())
                 .collect(Collectors.toList());
 
@@ -86,9 +85,9 @@ public class ACE4000DeviceProtocolDialectPropertiesTest extends CustomProperties
 
     @Test
     public void databaseNameIsNotNull() {
-        List<ACE4000DeviceProtocolDialectProperties.ActualFields> fieldsWithNullDatabaseName =
+        List<SDKTimeDialectProperties.ActualFields> fieldsWithNullDatabaseName =
             Stream
-                .of(ACE4000DeviceProtocolDialectProperties.ActualFields.values())
+                .of(SDKTimeDialectProperties.ActualFields.values())
                 .filter(field -> field.databaseName() == null)
                 .collect(Collectors.toList());
 
@@ -98,9 +97,9 @@ public class ACE4000DeviceProtocolDialectPropertiesTest extends CustomProperties
 
     @Test
     public void databaseNameIsNotEmpty() {
-        List<ACE4000DeviceProtocolDialectProperties.ActualFields> fieldsWithNullDatabaseName =
+        List<SDKTimeDialectProperties.ActualFields> fieldsWithNullDatabaseName =
             Stream
-                .of(ACE4000DeviceProtocolDialectProperties.ActualFields.values())
+                .of(SDKTimeDialectProperties.ActualFields.values())
                 .filter(field -> field.databaseName().isEmpty())
                 .collect(Collectors.toList());
 
@@ -110,9 +109,9 @@ public class ACE4000DeviceProtocolDialectPropertiesTest extends CustomProperties
 
     @Test
     public void maximumLengthOfColumnNames() {
-        List<ACE4000DeviceProtocolDialectProperties.ActualFields> fieldsWithTooLongDatabaseName =
+        List<SDKTimeDialectProperties.ActualFields> fieldsWithTooLongDatabaseName =
             Stream
-                .of(ACE4000DeviceProtocolDialectProperties.ActualFields.values())
+                .of(SDKTimeDialectProperties.ActualFields.values())
                 .filter(field -> field.databaseName().length() > MAX_COLUMN_NAME_LENGTH)
                 .collect(Collectors.toList());
 

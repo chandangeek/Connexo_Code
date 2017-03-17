@@ -1,25 +1,24 @@
-package com.energyict.protocolimplv2.abnt.common.dialects;
+package com.energyict.protocolimplv2.sdksample;
 
 import com.energyict.CustomPropertiesPersistenceTest;
+import org.junit.Test;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.*;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests the {@link AbntDeviceProtocolDialectProperties} component.
+ * Tests the {@link SDKCalendarDialectProperties} component.
  */
-public class AbntDeviceProtocolDialectPropertiesTest extends CustomPropertiesPersistenceTest {
+public class SDKCalendarDialectPropertiesTest extends CustomPropertiesPersistenceTest {
 
     @Test
     public void javaNameIsNotNull() {
-        List<AbntDeviceProtocolDialectProperties.ActualFields> fieldsWithNullJavaName =
+        List<SDKCalendarDialectProperties.ActualFields> fieldsWithNullJavaName =
             Stream
-                .of(AbntDeviceProtocolDialectProperties.ActualFields.values())
+                .of(SDKCalendarDialectProperties.ActualFields.values())
                 .filter(field -> field.javaName() == null)
                 .collect(Collectors.toList());
 
@@ -29,9 +28,9 @@ public class AbntDeviceProtocolDialectPropertiesTest extends CustomPropertiesPer
 
     @Test
     public void javaNameIsNotEmpty() {
-        List<AbntDeviceProtocolDialectProperties.ActualFields> fieldsWithNullJavaName =
+        List<SDKCalendarDialectProperties.ActualFields> fieldsWithNullJavaName =
             Stream
-                .of(AbntDeviceProtocolDialectProperties.ActualFields.values())
+                .of(SDKCalendarDialectProperties.ActualFields.values())
                 .filter(field -> field.javaName().isEmpty())
                 .collect(Collectors.toList());
 
@@ -41,9 +40,9 @@ public class AbntDeviceProtocolDialectPropertiesTest extends CustomPropertiesPer
 
     @Test
     public void fieldsExist() {
-        List<AbntDeviceProtocolDialectProperties.ActualFields> fieldsWithNullJavaName =
+        List<SDKCalendarDialectProperties.ActualFields> fieldsWithNullJavaName =
             Stream
-                .of(AbntDeviceProtocolDialectProperties.ActualFields.values())
+                .of(SDKCalendarDialectProperties.ActualFields.values())
                 .filter(field -> this.fieldDoesNotExists(field.javaName()))
                 .collect(Collectors.toList());
 
@@ -52,19 +51,19 @@ public class AbntDeviceProtocolDialectPropertiesTest extends CustomPropertiesPer
     }
 
     private boolean fieldDoesNotExists(String fieldName) {
-        return this.fieldDoesNotExists(AbntDeviceProtocolDialectProperties.class, fieldName);
+        return this.fieldDoesNotExists(SDKCalendarDialectProperties.class, fieldName);
     }
 
     @Test
     public void checkJavaxAnnotationsOnFields() {
-        this.checkJavaxAnnotationsOnFields(AbntDeviceProtocolDialectProperties.class);
+        this.checkJavaxAnnotationsOnFields(SDKCalendarDialectProperties.class);
     }
 
     @Test
     public void propertySpecNameIsNotNull() {
-        List<AbntDeviceProtocolDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
+        List<SDKCalendarDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
             Stream
-                .of(AbntDeviceProtocolDialectProperties.ActualFields.values())
+                .of(SDKCalendarDialectProperties.ActualFields.values())
                 .filter(field -> field.propertySpecName() == null)
                 .collect(Collectors.toList());
 
@@ -74,9 +73,9 @@ public class AbntDeviceProtocolDialectPropertiesTest extends CustomPropertiesPer
 
     @Test
     public void propertySpecNameIsNotEmpty() {
-        List<AbntDeviceProtocolDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
+        List<SDKCalendarDialectProperties.ActualFields> fieldsWithNullPropertySpecName =
             Stream
-                .of(AbntDeviceProtocolDialectProperties.ActualFields.values())
+                .of(SDKCalendarDialectProperties.ActualFields.values())
                 .filter(field -> field.propertySpecName().toString().isEmpty())
                 .collect(Collectors.toList());
 
@@ -86,9 +85,9 @@ public class AbntDeviceProtocolDialectPropertiesTest extends CustomPropertiesPer
 
     @Test
     public void databaseNameIsNotNull() {
-        List<AbntDeviceProtocolDialectProperties.ActualFields> fieldsWithNullDatabaseName =
+        List<SDKCalendarDialectProperties.ActualFields> fieldsWithNullDatabaseName =
             Stream
-                .of(AbntDeviceProtocolDialectProperties.ActualFields.values())
+                .of(SDKCalendarDialectProperties.ActualFields.values())
                 .filter(field -> field.databaseName() == null)
                 .collect(Collectors.toList());
 
@@ -98,9 +97,9 @@ public class AbntDeviceProtocolDialectPropertiesTest extends CustomPropertiesPer
 
     @Test
     public void databaseNameIsNotEmpty() {
-        List<AbntDeviceProtocolDialectProperties.ActualFields> fieldsWithNullDatabaseName =
+        List<SDKCalendarDialectProperties.ActualFields> fieldsWithNullDatabaseName =
             Stream
-                .of(AbntDeviceProtocolDialectProperties.ActualFields.values())
+                .of(SDKCalendarDialectProperties.ActualFields.values())
                 .filter(field -> field.databaseName().isEmpty())
                 .collect(Collectors.toList());
 
@@ -110,9 +109,9 @@ public class AbntDeviceProtocolDialectPropertiesTest extends CustomPropertiesPer
 
     @Test
     public void maximumLengthOfColumnNames() {
-        List<AbntDeviceProtocolDialectProperties.ActualFields> fieldsWithTooLongDatabaseName =
+        List<SDKCalendarDialectProperties.ActualFields> fieldsWithTooLongDatabaseName =
             Stream
-                .of(AbntDeviceProtocolDialectProperties.ActualFields.values())
+                .of(SDKCalendarDialectProperties.ActualFields.values())
                 .filter(field -> field.databaseName().length() > MAX_COLUMN_NAME_LENGTH)
                 .collect(Collectors.toList());
 
