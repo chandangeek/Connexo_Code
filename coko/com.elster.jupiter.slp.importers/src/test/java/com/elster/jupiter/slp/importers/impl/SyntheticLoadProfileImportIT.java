@@ -32,6 +32,7 @@ import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.slp.importers.impl.properties.SupportedNumberFormat;
 import com.elster.jupiter.slp.importers.impl.syntheticloadprofile.SyntheticLoadProfileImporterFactory;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -116,6 +117,7 @@ public class SyntheticLoadProfileImportIT {
                     new InMemoryMessagingModule(),
                     new IdsModule(),
                     new DomainUtilModule(),
+                    new TaskModule(),
                     new OrmModule(),
                     new UtilModule(),
                     new ThreadSecurityModule(),
