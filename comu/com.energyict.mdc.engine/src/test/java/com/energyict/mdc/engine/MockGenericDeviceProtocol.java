@@ -13,7 +13,6 @@ import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.ManufacturerInformation;
@@ -53,11 +52,8 @@ import java.util.Optional;
  */
 public class MockGenericDeviceProtocol implements GenericDeviceProtocol {
 
-    private OfflineDevice offlineDevice;
-
     @Override
-    public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-        this.offlineDevice = offlineDevice;
+    public void init(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, ComChannel comChannel) {
     }
 
     @Override
@@ -76,7 +72,7 @@ public class MockGenericDeviceProtocol implements GenericDeviceProtocol {
     }
 
     @Override
-    public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
+    public void addDeviceProtocolDialectProperties(com.energyict.mdc.upl.properties.TypedProperties dialectProperties) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -211,7 +207,7 @@ public class MockGenericDeviceProtocol implements GenericDeviceProtocol {
     }
 
     @Override
-    public String prepareMessageContext(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+    public Optional<String> prepareMessageContext(Device device, com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
         return null;
     }
 
