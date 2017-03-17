@@ -277,7 +277,6 @@ Ext.define('Imt.purpose.controller.Purpose', {
             router = me.getController('Uni.controller.history.Router'),
             output = panel.output,
             readingsStore;
-
         switch (output.get('outputType')) {
             case 'channel':
                 readingsStore = me.getStore('Imt.purpose.store.Readings');
