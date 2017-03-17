@@ -18,10 +18,9 @@ import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
-import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
 import com.energyict.obis.ObisCode;
-
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -36,8 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
-
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doAnswer;
@@ -184,17 +181,12 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
         return (int) (start + new Random().nextDouble() * range);
     }
 
-    private TimeDuration getRandomTimeDuration() {
-        return LocalizedTimeDuration.intervals.get(getRandomInt(LocalizedTimeDuration.intervals.size() - 1)).getTimeDuration();
+    private TimeDuration getTimeDuration() {
+        return new TimeDuration(5, TimeDuration.TimeUnit.MINUTES);
     }
 
     private ObisCode mockObisCode(String code) {
-        return mockObisCode(code, null);
-    }
-
-    private ObisCode mockObisCode(String code, String description) {
         ObisCode obisCode = mock(ObisCode.class);
-        when(obisCode.getDescription()).thenReturn(description);
         when(obisCode.toString()).thenReturn(code);
         return obisCode;
     }
