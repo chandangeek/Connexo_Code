@@ -33,11 +33,14 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
@@ -86,6 +89,9 @@ public class InMemoryPersistence {
     private IssueService issueService;
     private PropertySpecService propertySpecService;
     private PluggableService pluggableService;
+    private IdentificationService identificationService;
+    private DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private CustomPropertySetInstantiatorService customPropertySetInstantiatorService;
     private CustomPropertySetService customPropertySetService;
     private DeviceCacheMarshallingService deviceCacheMarshallingService;
     private DataVaultService dataVaultService;
@@ -94,7 +100,7 @@ public class InMemoryPersistence {
     private ProtocolPluggableServiceImpl protocolPluggableService;
     private InMemoryBootstrapModule bootstrapModule;
 
-    public void initializeDatabase (String testName, DataModelInitializer... dataModelInitializers) {
+    public void initializeDatabase(String testName, DataModelInitializer... dataModelInitializers) {
         this.initializeMocks(testName);
         this.bootstrapModule = new InMemoryBootstrapModule();
         Injector injector = Guice.createInjector(
@@ -145,6 +151,9 @@ public class InMemoryPersistence {
         this.principal = mock(Principal.class);
         when(this.principal.getName()).thenReturn(testName);
         this.propertySpecService = mock(PropertySpecService.class);
+        this.identificationService = mock(IdentificationService.class);
+        this.customPropertySetInstantiatorService = mock(CustomPropertySetInstantiatorService.class);
+        this.deviceMessageSpecificationService = mock(DeviceMessageSpecificationService.class);
         this.pluggableService = mock(PluggableService.class);
         this.customPropertySetService = mock(CustomPropertySetService.class);
         this.deviceProtocolService = mock(DeviceProtocolService.class);
@@ -174,12 +183,15 @@ public class InMemoryPersistence {
                         this.meteringService,
                         this.propertySpecService,
                         this.pluggableService,
+                        this.identificationService,
+                        this.deviceMessageSpecificationService,
+                        this.customPropertySetInstantiatorService,
                         this.customPropertySetService,
                         this.licenseService,
                         this.dataVaultService,
                         this.transactionService,
                         UpgradeModule.FakeUpgradeService.getInstance()
-                        );
+                );
         this.protocolPluggableService.addInboundDeviceProtocolService(this.inboundDeviceProtocolService);
         this.protocolPluggableService.addConnectionTypeService(this.connectionTypeService);
         this.protocolPluggableService.addDeviceCacheMarshallingService(this.deviceCacheMarshallingService);
@@ -220,6 +232,18 @@ public class InMemoryPersistence {
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
+    }
+
+    public IdentificationService getIdentificationService() {
+        return identificationService;
+    }
+
+    public CustomPropertySetInstantiatorService getCustomPropertySetInstantiatorService() {
+        return customPropertySetInstantiatorService;
+    }
+
+    public DeviceMessageSpecificationService getDeviceMessageSpecificationService() {
+        return deviceMessageSpecificationService;
     }
 
     private class MockModule extends AbstractModule {

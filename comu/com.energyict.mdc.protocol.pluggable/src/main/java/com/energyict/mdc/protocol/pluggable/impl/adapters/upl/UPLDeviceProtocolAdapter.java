@@ -8,7 +8,6 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationException;
 import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
@@ -78,11 +77,6 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdap
     @Override
     public Class getActualClass() {
         return deviceProtocol.getClass();
-    }
-
-    @Override
-    public void init(OfflineDevice offlineDevice, com.energyict.mdc.protocol.ComChannel comChannel) {
-        this.deviceProtocol.init(offlineDevice, comChannel);
     }
 
     @Override

@@ -231,12 +231,6 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     }
 
     @Override
-    public void init(final OfflineDevice offlineDevice, com.energyict.mdc.protocol.ComChannel comChannel) {
-        this.offlineDevice = offlineDevice;
-        doInit(comChannel);
-    }
-
-    @Override
     public void init(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, com.energyict.mdc.protocol.ComChannel comChannel) {
         this.offlineDevice = new UPLOfflineDeviceAdapter(offlineDevice);
         doInit(comChannel);

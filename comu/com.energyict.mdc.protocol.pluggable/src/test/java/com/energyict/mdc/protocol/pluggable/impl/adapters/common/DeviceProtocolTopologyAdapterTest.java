@@ -45,23 +45,24 @@ public class DeviceProtocolTopologyAdapterTest {
     private DeviceIdentifier deviceIdentifier;
 
     @Before
-    public void initializeCollecteData () {
+    public void initializeCollecteData() {
         when(this.collectedDataFactory.createCollectedTopology(getDeviceIdentifier())).thenReturn(this.collectedTopology);
     }
 
     @Before
-    public void initializeDevice () {
-        when(this.device.getId()).thenReturn(DEVICE_ID);
-        when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
+    public void initializeDevice() {
+        //TODO introduce deviceService here
+        //when(this.device.getId()).thenReturn(DEVICE_ID);
+        //when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
     }
 
     @Before
-    public void initializeIssueService () {
+    public void initializeIssueService() {
         when(this.issueService.newProblem(anyString(), any(), anyVararg())).thenReturn(mock(Problem.class));
     }
 
     @Test
-    public void getUnsupportedCollectedTopology(){
+    public void getUnsupportedCollectedTopology() {
         DeviceProtocolTopologyAdapter deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter(issueService, collectedDataFactory);
         deviceProtocolTopologyAdapter.setDeviceIdentifier(getDeviceIdentifier());
 
@@ -73,7 +74,7 @@ public class DeviceProtocolTopologyAdapterTest {
         verify(this.issueService).newWarning(anyString(), any(), anyVararg());
     }
 
-    private DeviceIdentifier getDeviceIdentifier(){
+    private DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;
     }
 

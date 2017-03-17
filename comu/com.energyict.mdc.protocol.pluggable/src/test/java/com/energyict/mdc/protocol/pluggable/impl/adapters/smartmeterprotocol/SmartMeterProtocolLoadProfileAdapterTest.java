@@ -2,33 +2,32 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.DataParseException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks.MockCollectedLoadProfile;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks.MockCollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
-
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.ProfileData;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -50,9 +49,13 @@ public class SmartMeterProtocolLoadProfileAdapterTest {
     private IssueService issueService;
     @Mock
     private CollectedDataFactory collectedDataFactory;
+    @Mock
+    private IdentificationService identificationService;
+    @Mock
+    private OfflineDevice offlineDevice;
 
     @Before
-    public void initializeMocks () {
+    public void initializeMocks() {
         when(this.collectedDataFactory.createCollectedLoadProfile(any(LoadProfileIdentifier.class))).
                 thenAnswer(invocationOnMock -> {
                     LoadProfileIdentifier loadProfileIdentifier = (LoadProfileIdentifier) invocationOnMock.getArguments()[0];
@@ -60,11 +63,11 @@ public class SmartMeterProtocolLoadProfileAdapterTest {
                     collectedLoadProfile.setResultType(ResultType.Supported);
                     return collectedLoadProfile;
                 });
-        when(this.collectedDataFactory.createCollectedLoadProfileConfiguration(any(ObisCode.class), any(DeviceIdentifier.class))).
+        when(this.collectedDataFactory.createCollectedLoadProfileConfiguration(any(ObisCode.class), any(String.class))).
                 thenAnswer(invocationOnMock -> new MockCollectedLoadProfileConfiguration(
                         (ObisCode) invocationOnMock.getArguments()[0],
                         (String) invocationOnMock.getArguments()[1]));
-        when(this.collectedDataFactory.createCollectedLoadProfileConfiguration(any(ObisCode.class), any(DeviceIdentifier.class))).
+        when(this.collectedDataFactory.createCollectedLoadProfileConfiguration(any(ObisCode.class), any(String.class))).
                 thenAnswer(invocationOnMock -> new MockCollectedLoadProfileConfiguration(
                         (ObisCode) invocationOnMock.getArguments()[0],
                         (String) invocationOnMock.getArguments()[1]
@@ -74,7 +77,7 @@ public class SmartMeterProtocolLoadProfileAdapterTest {
     @Test
     public void fetchLoadProfileConfigurationEmptyTests() throws Exception {
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);
-        SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(smartMeterProtocol, issueService, collectedDataFactory, identificationService);
+        SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(smartMeterProtocol, issueService, collectedDataFactory, identificationService, offlineDevice);
         assertThat(smartMeterProtocolLoadProfileAdapter.fetchLoadProfileConfiguration(null)).isNotNull();
         assertThat(smartMeterProtocolLoadProfileAdapter.fetchLoadProfileConfiguration(null)).isEmpty();
         assertThat(smartMeterProtocolLoadProfileAdapter.fetchLoadProfileConfiguration(new ArrayList<>())).isNotNull();
@@ -84,7 +87,7 @@ public class SmartMeterProtocolLoadProfileAdapterTest {
     @Test
     public void getLoadProfileDataEmptyTest() {
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);
-        SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(smartMeterProtocol, issueService, collectedDataFactory, identificationService);
+        SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(smartMeterProtocol, issueService, collectedDataFactory, identificationService, offlineDevice);
         assertThat(smartMeterProtocolLoadProfileAdapter.getLoadProfileData(null)).isNotNull();
         assertThat(smartMeterProtocolLoadProfileAdapter.getLoadProfileData(null)).isEmpty();
         assertThat(smartMeterProtocolLoadProfileAdapter.getLoadProfileData(new ArrayList<>())).isNotNull();
@@ -100,7 +103,7 @@ public class SmartMeterProtocolLoadProfileAdapterTest {
 
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);
         when(smartMeterProtocol.fetchLoadProfileConfiguration(Matchers.<List<LoadProfileReader>>any())).thenReturn(Arrays.asList(loadProfileConfiguration));
-        SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(smartMeterProtocol, issueService, collectedDataFactory, identificationService);
+        SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(smartMeterProtocol, issueService, collectedDataFactory, identificationService, offlineDevice);
 
         List<CollectedLoadProfileConfiguration> loadProfileConfigurations = smartMeterProtocolLoadProfileAdapter.fetchLoadProfileConfiguration(Arrays.asList(loadProfileReader));
         assertThat(loadProfileConfigurations).isNotNull();
@@ -114,7 +117,7 @@ public class SmartMeterProtocolLoadProfileAdapterTest {
 
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);
         when(smartMeterProtocol.fetchLoadProfileConfiguration(Matchers.<List<LoadProfileReader>>any())).thenThrow(new IOException("Could not fetch the DeviceLoadProfileConfiguration"));
-        SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(smartMeterProtocol, issueService, collectedDataFactory, identificationService);
+        SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(smartMeterProtocol, issueService, collectedDataFactory, identificationService, offlineDevice);
 
         List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = smartMeterProtocolLoadProfileAdapter.fetchLoadProfileConfiguration(Arrays.asList(loadProfileReader));
 
@@ -129,7 +132,7 @@ public class SmartMeterProtocolLoadProfileAdapterTest {
         LoadProfileReader loadProfileReader = mock(LoadProfileReader.class);
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);
         when(smartMeterProtocol.fetchLoadProfileConfiguration(Matchers.<List<LoadProfileReader>>any())).thenThrow(new IndexOutOfBoundsException("Requested something out of my range"));
-        SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(smartMeterProtocol, issueService, collectedDataFactory, identificationService);
+        SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(smartMeterProtocol, issueService, collectedDataFactory, identificationService, offlineDevice);
         List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = smartMeterProtocolLoadProfileAdapter.fetchLoadProfileConfiguration(Arrays.asList(loadProfileReader));
 
         assertThat(collectedLoadProfileConfigurations).hasSize(1);
@@ -139,27 +142,27 @@ public class SmartMeterProtocolLoadProfileAdapterTest {
     }
 
     @Test
-    public void getProfileDataWithNullListTest(){
-        SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(null, issueService, collectedDataFactory, identificationService);
+    public void getProfileDataWithNullListTest() {
+        SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(null, issueService, collectedDataFactory, identificationService, offlineDevice);
         final ProfileData profileData = smartMeterProtocolLoadProfileAdapter.getProfileDataWithLoadProfileId(null, 1);
         assertThat(profileData).isEqualTo(SmartMeterProtocolLoadProfileAdapter.INVALID_PROFILE_DATA);
     }
 
     @Test
-    public void getProfileDataWithNotFoundTest(){
-        SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(null, issueService, collectedDataFactory, identificationService);
+    public void getProfileDataWithNotFoundTest() {
+        SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(null, issueService, collectedDataFactory, identificationService, offlineDevice);
         final ProfileData profileData = smartMeterProtocolLoadProfileAdapter.getProfileDataWithLoadProfileId(new ArrayList<>(), 1);
         assertThat(profileData).isEqualTo(SmartMeterProtocolLoadProfileAdapter.INVALID_PROFILE_DATA);
     }
 
     @Test
-    public void getProfileDataWithLoadProfileIdFoundTest(){
+    public void getProfileDataWithLoadProfileIdFoundTest() {
         ProfileData pd1 = new ProfileData(1);
         ProfileData pd2 = new ProfileData(32);
         ProfileData pd3 = new ProfileData(15);
         ProfileData pd4 = new ProfileData(54);
         List<ProfileData> profileDataList = Arrays.asList(pd1, pd2, pd3, pd4);
-        SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(null, issueService, collectedDataFactory, identificationService);
+        SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(null, issueService, collectedDataFactory, identificationService, offlineDevice);
         final ProfileData profileData = smartMeterProtocolLoadProfileAdapter.getProfileDataWithLoadProfileId(profileDataList, 15);
         assertThat(profileData).isEqualTo(pd3);
     }
@@ -172,7 +175,7 @@ public class SmartMeterProtocolLoadProfileAdapterTest {
         when(profileData.getLoadProfileId()).thenReturn(23);
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);
         when(smartMeterProtocol.getLoadProfileData(Matchers.<List<LoadProfileReader>>any())).thenReturn(Arrays.asList(profileData));
-        SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(smartMeterProtocol, issueService, collectedDataFactory, identificationService);
+        SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(smartMeterProtocol, issueService, collectedDataFactory, identificationService, offlineDevice);
         final List<CollectedLoadProfile> loadProfileData = smartMeterProtocolLoadProfileAdapter.getLoadProfileData(Arrays.asList(loadProfileReader));
         assertThat(loadProfileData).isNotNull();
         assertThat(loadProfileData.size()).isEqualTo(1);
@@ -198,27 +201,27 @@ public class SmartMeterProtocolLoadProfileAdapterTest {
         when(profileData2.getLoadProfileId()).thenReturn(loadProfileId3);
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);
         when(smartMeterProtocol.getLoadProfileData(Matchers.<List<LoadProfileReader>>any())).thenReturn(Arrays.asList(profileData1, profileData2));
-        SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(smartMeterProtocol, issueService, collectedDataFactory, identificationService);
+        SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(smartMeterProtocol, issueService, collectedDataFactory, identificationService, offlineDevice);
         final List<CollectedLoadProfile> loadProfileData = smartMeterProtocolLoadProfileAdapter.getLoadProfileData(Arrays.asList(loadProfileReader1, loadProfileReader2, loadProfileReader3));
         assertThat(loadProfileData.size()).isEqualTo(3);
         assertThat(loadProfileData.get(1).getResultType()).isEqualTo(ResultType.NotSupported);
     }
 
-    @Test (expected = LegacyProtocolException.class)
+    @Test(expected = LegacyProtocolException.class)
     public void getLoadProfilesExceptionTest() throws IOException {
         LoadProfileReader loadProfileReader = mock(LoadProfileReader.class);
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);
         when(smartMeterProtocol.getLoadProfileData(Matchers.<List<LoadProfileReader>>any())).thenThrow(new IOException("Some exception while reading the loadProfile"));
-        SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(smartMeterProtocol, issueService, collectedDataFactory, identificationService);
+        SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(smartMeterProtocol, issueService, collectedDataFactory, identificationService, offlineDevice);
         smartMeterProtocolLoadProfileAdapter.getLoadProfileData(Arrays.asList(loadProfileReader));
     }
 
-    @Test (expected = DataParseException.class)
+    @Test(expected = DataParseException.class)
     public void getLoadProfileIndexOutOfBoundsTest() throws IOException {
         LoadProfileReader loadProfileReader = mock(LoadProfileReader.class);
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);
         when(smartMeterProtocol.getLoadProfileData(Matchers.<List<LoadProfileReader>>any())).thenThrow(new IndexOutOfBoundsException("Requested something out of my range"));
-        SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(smartMeterProtocol, issueService, collectedDataFactory, identificationService);
+        SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(smartMeterProtocol, issueService, collectedDataFactory, identificationService, offlineDevice);
         smartMeterProtocolLoadProfileAdapter.getLoadProfileData(Arrays.asList(loadProfileReader));
     }
 }

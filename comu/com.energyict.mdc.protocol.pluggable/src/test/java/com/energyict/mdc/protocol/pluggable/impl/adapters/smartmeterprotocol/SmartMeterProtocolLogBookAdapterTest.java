@@ -102,9 +102,9 @@ public class SmartMeterProtocolLogBookAdapterTest {
         LogBookIdentifier logBookIdentifier1 = mock(LogBookIdentifier.class);
         LogBookIdentifier logBookIdentifier2 = mock(LogBookIdentifier.class);
         LogBookIdentifier logBookIdentifier3 = mock(LogBookIdentifier.class);
-        logBookReaders.add(new LogBookReader(LOGBOOK1_OBIS, Date.from(LAST_LOGBOOK1), logBookIdentifier1, serialNumberDeviceIdentifier, SERIAL_NUMBER));
-        logBookReaders.add(new LogBookReader(LOGBOOK_OBIS, Date.from(LAST_LOGBOOK2), logBookIdentifier2, serialNumberDeviceIdentifier, SERIAL_NUMBER));
-        logBookReaders.add(new LogBookReader(LOGBOOK_OBIS, Date.from(LAST_LOGBOOK3), logBookIdentifier3, serialNumberDeviceIdentifier, SERIAL_NUMBER));
+        logBookReaders.add(new LogBookReader(LOGBOOK1_OBIS, Date.from(LAST_LOGBOOK1), logBookIdentifier1, SERIAL_NUMBER));
+        logBookReaders.add(new LogBookReader(LOGBOOK_OBIS, Date.from(LAST_LOGBOOK2), logBookIdentifier2, SERIAL_NUMBER));
+        logBookReaders.add(new LogBookReader(LOGBOOK_OBIS, Date.from(LAST_LOGBOOK3), logBookIdentifier3, SERIAL_NUMBER));
 
         List<MeterEvent> meterEvents = new ArrayList<>(2);
         meterEvents.add(new MeterEvent(EVENT1_DATE, MeterEvent.BATTERY_VOLTAGE_LOW, PROTOCOL_CODE_EVENT1));
@@ -121,11 +121,8 @@ public class SmartMeterProtocolLogBookAdapterTest {
 
         // Asserts
         assertThat(logBookReaders.size()).isEqualTo(logBookData.size());
-        assertThat(logBookReaders.get(0).getDeviceIdentifier().getIdentifier()).isEqualTo(SERIAL_NUMBER);
         assertThat(logBookReaders.get(0).getMeterSerialNumber()).isEqualTo(SERIAL_NUMBER);
-        assertThat(logBookReaders.get(1).getDeviceIdentifier().getIdentifier()).isEqualTo(SERIAL_NUMBER);
         assertThat(logBookReaders.get(1).getMeterSerialNumber()).isEqualTo(SERIAL_NUMBER);
-        assertThat(logBookReaders.get(2).getDeviceIdentifier().getIdentifier()).isEqualTo(SERIAL_NUMBER);
         assertThat(logBookReaders.get(2).getMeterSerialNumber()).isEqualTo(SERIAL_NUMBER);
 
         assertThat(logBookData.get(0).getLogBookIdentifier()).isEqualTo(logBookIdentifier1);

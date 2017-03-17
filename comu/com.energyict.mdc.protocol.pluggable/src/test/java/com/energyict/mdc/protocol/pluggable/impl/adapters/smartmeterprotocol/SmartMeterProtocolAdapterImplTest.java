@@ -27,6 +27,7 @@ import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.PropertySpecMockSupport;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -103,6 +104,8 @@ public class SmartMeterProtocolAdapterImplTest {
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     @Mock
     private MeteringService meteringService;
+    @Mock
+    private IdentificationService identificationService;
     @Mock
     private Thesaurus thesaurus;
 
@@ -455,7 +458,8 @@ public class SmartMeterProtocolAdapterImplTest {
                         this.securitySupportAdapterMappingFactory,
                         this.capabilityAdapterMappingFactory,
                         this.messageAdapterMappingFactory,
-                        this.collectedDataFactory);
+                        this.collectedDataFactory,
+                        identificationService);
 
         // Business method
         List<PropertySpec> securityProperties = adapter.getSecurityPropertySpecs();
@@ -490,7 +494,8 @@ public class SmartMeterProtocolAdapterImplTest {
                         this.securitySupportAdapterMappingFactory,
                         this.capabilityAdapterMappingFactory,
                         this.messageAdapterMappingFactory,
-                        this.collectedDataFactory);
+                        this.collectedDataFactory,
+                        identificationService);
 
         // Business method
         Optional<com.energyict.mdc.upl.properties.PropertySpec> whatEverPropertySpec = adapter.getSecurityPropertySpec(PROPERTY_SPEC_NAME);
@@ -527,7 +532,8 @@ public class SmartMeterProtocolAdapterImplTest {
                         this.securitySupportAdapterMappingFactory,
                         this.capabilityAdapterMappingFactory,
                         this.messageAdapterMappingFactory,
-                        this.collectedDataFactory);
+                        this.collectedDataFactory,
+                        identificationService);
 
         // Business method
         List<AuthenticationDeviceAccessLevel> authenticationAccessLevels = adapter.getAuthenticationAccessLevels();
@@ -560,7 +566,8 @@ public class SmartMeterProtocolAdapterImplTest {
                         this.securitySupportAdapterMappingFactory,
                         this.capabilityAdapterMappingFactory,
                         this.messageAdapterMappingFactory,
-                        this.collectedDataFactory);
+                        this.collectedDataFactory,
+                        identificationService);
 
         // Business method
         List<EncryptionDeviceAccessLevel> encryptionAccessLevels = adapter.getEncryptionAccessLevels();
@@ -680,6 +687,7 @@ public class SmartMeterProtocolAdapterImplTest {
                 this.inMemoryPersistence.getIssueService(),
                 collectedDataFactory,
                 meteringService,
+                identificationService,
                 thesaurus,
                 deviceMessageSpecificationService
         );
@@ -690,8 +698,8 @@ public class SmartMeterProtocolAdapterImplTest {
 
     private class TestSmartMeterProtocolAdapter extends SmartMeterProtocolAdapterImpl {
 
-        private TestSmartMeterProtocolAdapter(SmartMeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService1, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, CollectedDataFactory collectedDataFactory) {
-            super(meterProtocol, propertySpecService, protocolPluggableService1, securitySupportAdapterMappingFactory, capabilityAdapterMappingFactory, messageAdapterMappingFactory, protocolPluggableService.getDataModel(), inMemoryPersistence.getIssueService(), collectedDataFactory, meteringService, thesaurus, deviceMessageSpecificationService);
+        private TestSmartMeterProtocolAdapter(SmartMeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService1, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, CollectedDataFactory collectedDataFactory, IdentificationService identificationService) {
+            super(meterProtocol, propertySpecService, protocolPluggableService1, securitySupportAdapterMappingFactory, capabilityAdapterMappingFactory, messageAdapterMappingFactory, protocolPluggableService.getDataModel(), inMemoryPersistence.getIssueService(), collectedDataFactory, meteringService, identificationService, thesaurus, deviceMessageSpecificationService);
         }
 
         @Override

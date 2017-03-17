@@ -4,6 +4,7 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -20,15 +21,9 @@ import com.energyict.mdc.upl.nls.NlsMessageFormat;
 import com.energyict.mdc.upl.nls.Thesaurus;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
-import java.util.stream.Stream;
-
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -36,6 +31,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyVararg;
@@ -56,6 +55,8 @@ public class UPLPropertySpecServiceImplTest {
 
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private NlsService nlsService;
 
     private UPLPropertySpecServiceImpl propertySpecService;
 
@@ -104,7 +105,7 @@ public class UPLPropertySpecServiceImplTest {
                                 injector.getInstance(PropertySpecService.class),
                                 dataVaultService,
                                 injector.getInstance(OrmService.class)),
-                        dataVaultService);
+                        nlsService);
     }
 
     @Test
@@ -134,7 +135,6 @@ public class UPLPropertySpecServiceImplTest {
                     .stringSpec()
                     .named(TranslationKeys.NAME)
                     .describedAs(TranslationKeys.DESCRIPTION)
-                    .fromThesaurus(this.thesaurus)
                     .finish();
 
         // Asserts
@@ -157,7 +157,6 @@ public class UPLPropertySpecServiceImplTest {
                     .stringSpec()
                     .named(expectedName, TranslationKeys.DISPLAYNAME)
                     .describedAs(TranslationKeys.DESCRIPTION)
-                    .fromThesaurus(this.thesaurus)
                     .finish();
 
         // Asserts

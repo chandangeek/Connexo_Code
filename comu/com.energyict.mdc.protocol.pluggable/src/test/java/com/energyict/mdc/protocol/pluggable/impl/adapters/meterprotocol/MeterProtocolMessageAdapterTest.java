@@ -18,16 +18,15 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleLegacyMes
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-
-import java.sql.SQLException;
-import java.util.Collections;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.sql.SQLException;
+import java.util.Collections;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -38,7 +37,7 @@ import static org.mockito.Mockito.withSettings;
 
 /**
  * Tests the {@link MeterProtocolMessageAdapter} component.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 11/03/13
  * Time: 12:05
@@ -57,7 +56,7 @@ public class MeterProtocolMessageAdapterTest {
     private PropertySpecService propertySpecService;
 
     @Before
-    public void initializeDatabaseAndMocks () {
+    public void initializeDatabaseAndMocks() {
         this.inMemoryPersistence = new InMemoryPersistence();
         this.inMemoryPersistence.initializeDatabase(
                 "MeterProtocolMessageAdapterTest.mdc.protocol.pluggable",
@@ -77,12 +76,12 @@ public class MeterProtocolMessageAdapterTest {
         this.inMemoryPersistence.cleanUpDataBase();
     }
 
-    private void initializeMocks () {
+    private void initializeMocks() {
         DeviceProtocolMessageService deviceProtocolMessageService = this.inMemoryPersistence.getDeviceProtocolMessageService();
         when(deviceProtocolMessageService.createDeviceProtocolMessagesFor(SimpleLegacyMessageConverter.class.getName())).
-            thenReturn(new SimpleLegacyMessageConverter(propertySpecService));
+                thenReturn(new SimpleLegacyMessageConverter(propertySpecService));
         doThrow(DeviceProtocolAdapterCodingExceptions.class).
-            when(deviceProtocolMessageService).createDeviceProtocolMessagesFor("com.energyict.comserver.adapters.meterprotocol.Certainly1NotKnown2ToThisClass3PathLegacyConverter");
+                when(deviceProtocolMessageService).createDeviceProtocolMessagesFor("com.energyict.comserver.adapters.meterprotocol.Certainly1NotKnown2ToThisClass3PathLegacyConverter");
     }
 
     private void initializeMessageAdapterMappingFactory(DataModel dataModel) {
@@ -135,7 +134,7 @@ public class MeterProtocolMessageAdapterTest {
 
         assertThat(protocolMessageAdapter.executePendingMessages(Collections.<OfflineDeviceMessage>emptyList())).isNotNull();
         assertThat(protocolMessageAdapter.updateSentMessages(Collections.<OfflineDeviceMessage>emptyList())).isNotNull();
-        assertThat(protocolMessageAdapter.format(null, null)).isEqualTo("");
+        assertThat(protocolMessageAdapter.format(null, null, null, null)).isEqualTo("");
 
         assertThat(protocolMessageAdapter.getSupportedMessages()).isEmpty();
     }

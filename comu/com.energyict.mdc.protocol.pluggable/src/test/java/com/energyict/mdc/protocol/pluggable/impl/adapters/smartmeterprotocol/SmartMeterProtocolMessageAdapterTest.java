@@ -2,7 +2,6 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
@@ -28,8 +27,13 @@ import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
-
 import org.fest.assertions.core.Condition;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -37,13 +41,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -147,7 +144,7 @@ public class SmartMeterProtocolMessageAdapterTest {
 
         assertThat(protocolMessageAdapter.executePendingMessages(Collections.<OfflineDeviceMessage>emptyList())).isInstanceOf(CollectedMessageList.class);
         assertThat(protocolMessageAdapter.updateSentMessages(Collections.<OfflineDeviceMessage>emptyList())).isInstanceOf(CollectedMessageList.class);
-        assertThat(protocolMessageAdapter.format(null, null)).isEqualTo("");
+        assertThat(protocolMessageAdapter.format(null, null, null, null)).isEqualTo("");
 
         assertThat(protocolMessageAdapter.getSupportedMessages()).isEmpty();
     }
@@ -168,13 +165,13 @@ public class SmartMeterProtocolMessageAdapterTest {
     public void formatTest() {
         SimpleTestSmartMeterProtocol simpleTestMeterProtocol = new SimpleTestSmartMeterProtocol();
         SmartMeterProtocolMessageAdapter messageAdapter = new SmartMeterProtocolMessageAdapter(simpleTestMeterProtocol, new MessageAdapterMappingFactoryImpl(this.dataModel), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory, this.deviceMessageSpecificationService);
-        PropertySpec mockPropertySpec = mock(PropertySpec.class);
+        com.energyict.mdc.upl.properties.PropertySpec mockPropertySpec = mock(com.energyict.mdc.upl.properties.PropertySpec.class);
         Calendar simpleCodeTable = mock(Calendar.class);
         Date simpleDate = new Date();
 
         // business method
-        final String codeFormat = messageAdapter.format(mockPropertySpec, simpleCodeTable);
-        final String dateFormat = messageAdapter.format(mockPropertySpec, simpleDate);
+        final String codeFormat = messageAdapter.format(null, null, mockPropertySpec, simpleCodeTable);
+        final String dateFormat = messageAdapter.format(null, null, mockPropertySpec, simpleDate);
 
         // asserts
         assertThat(codeFormat).isEqualTo(SimpleLegacyMessageConverter.calendarFormattingResult);

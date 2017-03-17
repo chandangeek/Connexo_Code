@@ -32,6 +32,7 @@ import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
@@ -46,6 +47,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation of a DeviceProtocol which 1 mandatory and 1 optional property
@@ -58,7 +60,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
     /**
      * The {@link OfflineDevice} that holds all <i>necessary</i> information to perform the relevant ComTasks for this <i>session</i>
      */
-    private OfflineDevice offlineDevice;
+    private com.energyict.mdc.upl.offline.OfflineDevice offlineDevice;
     /**
      * The ComChannel that will be used to read/write.
      * Actual reading/writing needs to be performed on this object as logging/communicationStatistics are calculated based on
@@ -78,13 +80,6 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
         super();
         this.propertySpecService = propertySpecService;
         this.collectedDataFactory = collectedDataFactory;
-    }
-
-    @Override
-    public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-        this.offlineDevice = offlineDevice;
-        this.comChannel = comChannel;
-        this.logger.log(Level.INFO, "Initializing DeviceProtocol for Device with serialNumber " + this.offlineDevice.getSerialNumber());
     }
 
     @Override
@@ -181,7 +176,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
         // by default all loadProfileReaders are supported, only if the corresponding ObisCodeProperty matches, we mark it as not supported
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
             this.logger.log(Level.INFO, "Fetching loadProfile configuration for loadProfile with ObisCode " + loadProfileReader.getProfileObisCode());
-            CollectedLoadProfileConfiguration loadProfileConfiguration = this.collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getDeviceIdentifier());
+            CollectedLoadProfileConfiguration loadProfileConfiguration = this.collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getMeterSerialNumber());
             if (!loadProfileReader.getProfileObisCode().equals(getIgnoredObisCode())) {
                 loadProfileConfiguration.setChannelInfos(loadProfileReader.getChannelInfos());
             } else {
@@ -260,7 +255,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
     }
 
     @Override
-    public String prepareMessageContext(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+    public Optional<String> prepareMessageContext(Device device, com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
         return null;
     }
 
@@ -274,7 +269,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
     }
 
     @Override
-    public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
+    public void addDeviceProtocolDialectProperties(com.energyict.mdc.upl.properties.TypedProperties dialectProperties) {
         this.logger.log(Level.INFO, "Adding the deviceProtocolDialect properties to the DeviceProtocol instance.");
         this.typedProperties.setAllProperties(dialectProperties);
     }
@@ -287,6 +282,11 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
     @Override
     public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
         return Optional.empty();
+    }
+
+    @Override
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
+        return Collections.singletonList(new ConnexoToUPLPropertSpecAdapter(clientMacAddressPropertySpec()));
     }
 
     @Override
@@ -327,6 +327,13 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
     @Override
     public String getVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+    }
+
+    @Override
+    public void init(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, ComChannel comChannel) {
+        this.offlineDevice = offlineDevice;
+        this.comChannel = comChannel;
+        this.logger.log(Level.INFO, "Initializing DeviceProtocol for Device with serialNumber " + this.offlineDevice.getSerialNumber());
     }
 
     @Override
@@ -382,6 +389,11 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
                 .describedAs(null)
                 .markRequired()
                 .finish();
+    }
+
+    @Override
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+
     }
 
     private enum AuthenticationAccessLevelIds {
@@ -462,5 +474,10 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
             return Collections.singletonList(new ConnexoToUPLPropertSpecAdapter(clientMacAddressPropertySpec()));
         }
 
+    }
+
+    @Override
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+        return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList());
     }
 }
