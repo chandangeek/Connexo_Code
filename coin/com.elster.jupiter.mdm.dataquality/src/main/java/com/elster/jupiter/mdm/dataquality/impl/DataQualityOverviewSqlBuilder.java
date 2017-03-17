@@ -134,7 +134,12 @@ class DataQualityOverviewSqlBuilder {
         this.sqlBuilder.append("                         regexp_replace(kpim.name, '([A-Z]+)_(\\d+):(\\d+)', '\\1') as kpitype,");
         this.sqlBuilder.append("               kpivalues.slot0 as value,");
         this.sqlBuilder.append("               kpivalues.utcstamp as timestamp,");
-        this.sqlBuilder.append("               case when kpivalues.recordtime = max(kpivalues.recordtime) over (partition by kpivalues.utcstamp) then 'Y' else 'N' end as latest");
+        this.sqlBuilder.append("               case when kpivalues.recordtime = max(kpivalues.recordtime)");
+        this.sqlBuilder.append("                            over (partition by kpivalues.utcstamp,");
+        this.sqlBuilder.append("                                               to_number(regexp_replace(kpim.name, '([A-Z]+)_(\\d+):(\\d+)', '\\2')),");
+        this.sqlBuilder.append("                                               to_number(regexp_replace(kpim.name, '([A-Z]+)_(\\d+):(\\d+)', '\\3')),");
+        this.sqlBuilder.append("                                               regexp_replace(kpim.name, '([A-Z]+)_(\\d+):(\\d+)', '\\1'))");
+        this.sqlBuilder.append("               then 'Y' else 'N' end as latest");
         this.sqlBuilder.append("        from DQK_DATAQUALITYKPI dqkpi");
         this.sqlBuilder.append("        join DQK_DATAQUALITYKPIMEMBER dqkpim on dqkpim.dataqualitykpi = dqkpi.id and dqkpi.discriminator = 'UPDQ'");
         this.sqlBuilder.append("        join KPI_KPIMEMBER kpim on kpim.kpi = dqkpim.childkpi");
