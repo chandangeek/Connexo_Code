@@ -121,7 +121,9 @@ class DataQualityOverviewSqlBuilder {
         this.sqlBuilder.append("               substr(kpim.name, 1, instr(kpim.name, '_') - 1) as kpitype,");
         this.sqlBuilder.append("               kpivalues.slot0 as value,");
         this.sqlBuilder.append("               kpivalues.utcstamp as timestamp,");
-        this.sqlBuilder.append("               case when kpivalues.recordtime = max(kpivalues.recordtime) over (partition by kpivalues.utcstamp) then 'Y' else 'N' end as latest");
+        this.sqlBuilder.append("               case when kpivalues.recordtime = max(kpivalues.recordtime)");
+        this.sqlBuilder.append("                            over (partition by kpivalues.utcstamp, to_number(substr(kpim.name, instr(kpim.name, '_') + 1)), substr(kpim.name, 1, instr(kpim.name, '_') - 1))");
+        this.sqlBuilder.append("               then 'Y' else 'N' end as latest");
         this.sqlBuilder.append("        from DQK_DATAQUALITYKPI dqkpi");
         this.sqlBuilder.append("        join DQK_DATAQUALITYKPIMEMBER dqkpim on dqkpim.dataqualitykpi = dqkpi.id and dqkpi.discriminator = 'EDDQ'");
         this.sqlBuilder.append("        join KPI_KPIMEMBER kpim on kpim.kpi = dqkpim.childkpi");
