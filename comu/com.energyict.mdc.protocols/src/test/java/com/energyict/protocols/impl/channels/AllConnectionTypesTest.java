@@ -13,6 +13,28 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.channels.EmptyConnectionType;
+import com.energyict.mdc.channels.inbound.EIWebConnectionType;
+import com.energyict.mdc.channels.inbound.EIWebPlusConnectionType;
+import com.energyict.mdc.channels.ip.CTRInboundDialHomeIdConnectionType;
+import com.energyict.mdc.channels.ip.InboundIpConnectionType;
+import com.energyict.mdc.channels.ip.datagrams.OutboundUdpConnectionType;
+import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.mdc.channels.ip.socket.TLSConnectionType;
+import com.energyict.mdc.channels.ip.socket.TcpIpPostDialConnectionType;
+import com.energyict.mdc.channels.ip.socket.WavenisGatewayConnectionType;
+import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
+import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
+import com.energyict.mdc.channels.serial.modem.rxtx.RxTxAtModemConnectionType;
+import com.energyict.mdc.channels.serial.modem.serialio.SioAtModemConnectionType;
+import com.energyict.mdc.channels.serial.modem.serialio.SioCaseModemConnectionType;
+import com.energyict.mdc.channels.serial.modem.serialio.SioPEMPModemConnectionType;
+import com.energyict.mdc.channels.serial.modem.serialio.SioPaknetModemConnectionType;
+import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
+import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.mdc.channels.serial.rf.WavenisSerialConnectionType;
+import com.energyict.mdc.channels.sms.InboundProximusSmsConnectionType;
+import com.energyict.mdc.channels.sms.OutboundProximusSmsConnectionType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
@@ -23,23 +45,6 @@ import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.protocols.impl.channels.inbound.CTRInboundDialHomeIdConnectionType;
-import com.energyict.protocols.impl.channels.inbound.EIWebPlusConnectionType;
-import com.energyict.protocols.impl.channels.ip.InboundIpConnectionType;
-import com.energyict.protocols.impl.channels.ip.datagrams.OutboundUdpConnectionType;
-import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.protocols.impl.channels.ip.socket.TcpIpPostDialConnectionType;
-import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxPlainSerialConnectionType;
-import com.energyict.protocols.impl.channels.serial.direct.serialio.SioPlainSerialConnectionType;
-import com.energyict.protocols.impl.channels.serial.modem.rxtx.RxTxAtModemConnectionType;
-import com.energyict.protocols.impl.channels.serial.modem.serialio.SioAtModemConnectionType;
-import com.energyict.protocols.impl.channels.serial.modem.serialio.SioCaseModemConnectionType;
-import com.energyict.protocols.impl.channels.serial.modem.serialio.SioPEMPModemConnectionType;
-import com.energyict.protocols.impl.channels.serial.modem.serialio.SioPaknetModemConnectionType;
-import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
-import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
-import com.energyict.protocols.impl.channels.sms.InboundProximusSmsConnectionType;
-import com.energyict.protocols.impl.channels.sms.OutboundProximusSmsConnectionType;
 import com.energyict.protocols.mdc.services.impl.ConnectionTypeServiceImpl;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.AbstractModule;
@@ -128,9 +133,7 @@ public class AllConnectionTypesTest {
     }
 
     private ConnectionTypeService getConnectionTypeService(Injector injector) {
-        return ConnectionTypeServiceImpl.withAllSerialComponentServices(
-                injector.getInstance(com.energyict.mdc.upl.properties.PropertySpecService.class),
-                injector.getInstance(NlsService.class));
+        return ConnectionTypeServiceImpl.withAllSerialComponentServices();
     }
 
     protected void initializeMocks() {
@@ -163,11 +166,6 @@ public class AllConnectionTypesTest {
     }
 
     @Test
-    public void createSioPlainSerialConnectionType() {
-        this.testCreateInstance(SioPlainSerialConnectionType.class);
-    }
-
-    @Test
     public void createSioOpticalConnectionType() {
         this.testCreateInstance(SioOpticalConnectionType.class);
     }
@@ -178,18 +176,23 @@ public class AllConnectionTypesTest {
     }
 
     @Test
+    public void createSioSerialConnectionType() {
+        this.testCreateInstance(SioSerialConnectionType.class);
+    }
+
+    @Test
     public void createRxTxOpticalConnectionType() {
         this.testCreateInstance(RxTxOpticalConnectionType.class);
     }
 
     @Test
-    public void createRxTxPlainSerialConnectionType() {
-        this.testCreateInstance(RxTxPlainSerialConnectionType.class);
+    public void createRxTxAtModemConnectionType() {
+        this.testCreateInstance(RxTxAtModemConnectionType.class);
     }
 
     @Test
-    public void createRxTxAtModemConnectionType() {
-        this.testCreateInstance(RxTxAtModemConnectionType.class);
+    public void createRxTxSerialConnectionType() {
+        this.testCreateInstance(RxTxSerialConnectionType.class);
     }
 
     @Test
@@ -213,8 +216,23 @@ public class AllConnectionTypesTest {
     }
 
     @Test
+    public void createWavenisGatewayConnectionType() {
+        this.testCreateInstance(WavenisGatewayConnectionType.class);
+    }
+
+    @Test
+    public void createTLSConnectionType() {
+        this.testCreateInstance(TLSConnectionType.class);
+    }
+
+    @Test
     public void createCTRInboundDialHomeIdConnectionType() {
         this.testCreateInstance(CTRInboundDialHomeIdConnectionType.class);
+    }
+
+    @Test
+    public void createWavenisSerialConnectionType() {
+        this.testCreateInstance(WavenisSerialConnectionType.class);
     }
 
     @Test
@@ -237,7 +255,12 @@ public class AllConnectionTypesTest {
         this.testCreateInstance(EIWebPlusConnectionType.class);
     }
 
-    private <T extends ConnectionType> void testCreateInstance(Class<T> connectionTypeClass) {
+    @Test
+    public void createEIWebConnectionType() {
+        this.testCreateInstance(EIWebConnectionType.class);
+    }
+
+    private <T extends com.energyict.mdc.upl.io.ConnectionType> void testCreateInstance(Class<T> connectionTypeClass) {
         // Business method
         ConnectionType connectionType = this.connectionTypeService.createConnectionType(connectionTypeClass.getName());
 

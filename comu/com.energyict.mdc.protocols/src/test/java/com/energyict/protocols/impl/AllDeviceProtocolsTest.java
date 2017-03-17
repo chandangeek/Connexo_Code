@@ -16,9 +16,7 @@ import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.license.LicensedProtocolRule;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.io.serial.SerialComponentService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
@@ -28,6 +26,7 @@ import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.upl.io.SerialComponentService;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.protocols.mdc.services.impl.InboundDeviceProtocolRule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
@@ -96,8 +95,6 @@ public class AllDeviceProtocolsTest {
     @Mock
     private PropertySpecService propertySpecService;
     @Mock
-    private TopologyService topologyService;
-    @Mock
     private SerialComponentService serialComponentService;
     @Mock
     private IssueService issueService;
@@ -115,8 +112,6 @@ public class AllDeviceProtocolsTest {
     private ProtocolPluggableService protocolPluggableService;
     @Mock
     private DeviceMessageFileService deviceMessageFileService;
-    @Mock
-    private LoadProfileFactory loadProfileFactory;
 
     private InMemoryBootstrapModule bootstrapModule;
     private DeviceProtocolService deviceProtocolService;
@@ -213,7 +208,6 @@ public class AllDeviceProtocolsTest {
             bind(OrmService.class).toInstance(ormService);
             bind(TransactionService.class).toInstance(transactionService);
             bind(PropertySpecService.class).toInstance(propertySpecService);
-            bind(TopologyService.class).toInstance(topologyService);
             bind(IssueService.class).toInstance(issueService);
             bind(MdcReadingTypeUtilService.class).toInstance(mdcReadingTypeUtilService);
             bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
@@ -223,7 +217,6 @@ public class AllDeviceProtocolsTest {
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             bind(SerialComponentService.class).toInstance(serialComponentService);
             bind(DeviceMessageFileService.class).toInstance(deviceMessageFileService);
-            bind(LoadProfileFactory.class).toInstance(loadProfileFactory);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }

@@ -10,24 +10,24 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.impl.ServerProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConverterImpl;
 import com.energyict.mdc.upl.nls.NlsMessageFormat;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.nls.Thesaurus;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -175,6 +175,6 @@ public class DeviceMessageSpecificationServiceImplTest {
     }
 
     private DeviceMessageSpecificationService newService() {
-        return new DeviceMessageSpecificationServiceImpl(this.nlsService, this.propertySpecService);
+        return new DeviceMessageSpecificationServiceImpl(new ConverterImpl(), this.nlsService, this.propertySpecService);
     }
 }
