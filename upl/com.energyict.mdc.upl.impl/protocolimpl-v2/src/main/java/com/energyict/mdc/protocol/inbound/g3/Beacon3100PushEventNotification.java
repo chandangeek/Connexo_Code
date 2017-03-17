@@ -90,7 +90,7 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
 
     @Override
     public String getVersion() {
-        return "$Date: 2017-03-14 18:03:36 +0100 (Tue, 15 Nov 2016)$";
+        return "$Date: 2017-03-17$";
     }
 
     @Override
@@ -133,21 +133,21 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
              * Generated when node is considered lost (i.e. does no longer respond without proper de-registration from the network)
              */
             case PLC_G3_NODE_LINK_LOST:
-                this.collectedTopology = extractNodeInformation(receivedEvent, TopologyAction.REMOVE);
+                this.collectedTopology = extractNodeInformation(receivedEvent.getMessage(), TopologyAction.REMOVE);
                 break;
 
             /**
              * Generated when a node recovered from the lost state (i.e. it is reachable again after being unreachable for prolonged period of time).
              */
             case PLC_G3_NODE_LINK_RECOVERED:
-                this.collectedTopology = extractNodeInformation(receivedEvent, TopologyAction.ADD);
+                this.collectedTopology = extractNodeInformation(receivedEvent.getMessage(), TopologyAction.ADD);
                 break;
 
             /**
              * Generated when node leaves the PAN.
              */
             case PLC_G3_UNREGISTER_NODE:
-                this.collectedTopology = extractNodeInformation(receivedEvent, TopologyAction.REMOVE);
+                this.collectedTopology = extractNodeInformation(receivedEvent.getMessage(), TopologyAction.REMOVE);
         }
 
         logWhatWeDiscovered();
@@ -167,9 +167,8 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
         }
     }
 
-    public CollectedTopology extractNodeInformation(MeterProtocolEvent receivedEvent, TopologyAction action) {
-        String macAddress = receivedEvent.getMessage();
-        if (macAddress==null || macAddress.length()==0){
+    public CollectedTopology extractNodeInformation(String macAddress, TopologyAction action) {
+        if (macAddress==null || macAddress.isEmpty()){
             return null;
         }
 
@@ -197,6 +196,29 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
     /**
      * Generates when node successfully joins the PAN.
      *
+     */
+    public CollectedTopology extractTopologyUpdateFromRegisterEvent(MeterProtocolEvent receivedEvent) throws JSONException {
+        String message = receivedEvent.getMessage();
+
+        if (message == null || message.isEmpty()){
+            return null;
+        }
+
+        CollectedTopology deviceTopology = null;
+
+        deviceTopology = extractRegisterEventBeacon10(receivedEvent.getMessage());
+        if (deviceTopology!=null){
+            return deviceTopology;
+        }
+
+        deviceTopology = extractRegisterEventBeacon11(receivedEvent.getMessage());
+
+        return deviceTopology;
+    }
+
+    /**
+     * Extract topology update from an register event sent by an beacon 1.11, in JSON format:
+     *
      * Received message contains JSON structure with EUI-64 of the meter, and list of possible service access points for that meter.
      * Included SAP list depends on the configuration.
      *
@@ -207,12 +229,24 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
      *      SAP_DLMS_MIR: DLMS data-concentrator mirrored logical device (if the meter is scheduled for readout)
      *      SAP_IPV6: Routable IPv6 address of the meter (if the border routing functionality is enabled)
      *      SAP_IPV4: Routable IPv4 address of the meter (if the border routing functionality is enabled)
+     *
+     * @param receivedEvent
+     * @return
      */
-    public CollectedTopology extractTopologyUpdateFromRegisterEvent(MeterProtocolEvent receivedEvent) throws JSONException {
-        JSONObject json = new JSONObject(receivedEvent.getMessage());
+    private CollectedTopology extractRegisterEventBeacon11(String message) throws JSONException {
+
+        JSONObject json;
+
+        try {
+            json = new JSONObject(message);
+        } catch (Exception e) {
+            getContext().getLogger().warning("- message is not a JSON: "+e.getMessage());
+            return null;
+        }
+
+
         DeviceIdentifier slaveDeviceIdentifier = null;
 
-        CollectedTopology deviceTopology;
 
         if (json.has(JSON_METER_IDENTIFIER)) {
             String meterIdentifier = json.get(JSON_METER_IDENTIFIER).toString();
@@ -226,7 +260,7 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
         }
 
         // we have a slave device, so create the topology object to be filled in
-        deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(getDeviceIdentifier());
+        CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(getDeviceIdentifier());
 
         BigDecimal lastSeenDate = getNow();
         LastSeenDateInfo lastSeenDateInfo = new LastSeenDateInfo(G3Properties.PROP_LASTSEENDATE, lastSeenDate);
@@ -298,6 +332,26 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
         );
 
         return deviceTopology;
+    }
+
+    /**
+     * Decode an event received from an Beacon 1.10, in the format:
+     *          Node [0223:7EFF:FEFD:A955] [0x0056] has registered on the network
+     *
+     * @param receivedEvent
+     * @return
+     */
+    private CollectedTopology extractRegisterEventBeacon10(String message) {
+        if (!message.startsWith("Node [")){
+            return null;
+        }
+
+        String[] parts = message.split("[\\[\\]]");
+        if (parts.length<2){
+            return null;
+        }
+        String macAddress = parts[1];
+        return extractNodeInformation(macAddress, TopologyAction.ADD);
     }
 
     private int getJsonInt(JSONObject json, String key) throws JSONException {
