@@ -46,6 +46,7 @@ import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequestImpl;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiImpl;
 import com.energyict.mdc.device.data.impl.pki.AbstractKeyAccessorImpl;
+import com.energyict.mdc.device.data.impl.pki.SymmetricKeyAccessorImpl;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionTriggerImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
@@ -965,8 +966,6 @@ public enum TableSpecs {
 
             Column actualCertificate = table.column("ACTUAL_CERT").number().add();
             Column tempCertificate = table.column("TEMP_CERT").number().add();
-//            Column actualSymmetricKey = table.column("ACTUAL_KEY").number().add();
-//            Column tempSymmetricKey = table.column("TEMP_KEY").number().add();
 
 
             table.primaryKey("PK_DCC_KEYACCESSOR").on(device, keyAccessorType).add();
@@ -992,16 +991,8 @@ public enum TableSpecs {
                     .references(CertificateWrapper.class)
                     .map(AbstractKeyAccessorImpl.Fields.CERTIFICATE_WRAPPER_TEMP.fieldName())
                     .add();
-//            table.foreignKey("FK_KA_ACT_SK")
-//                    .on(actualSymmetricKey)
-//                    .references(SymmetricKeyWrapper.class)
-//                    .map(AbstractKeyAccessorImpl.Fields.SYMM_KEY_WRAPPER_ACTUAL.fieldName())
-//                    .add();
-//            table.foreignKey("FK_KA_TEMP_SK")
-//                    .on(tempSymmetricKey)
-//                    .references(SymmetricKeyWrapper.class)
-//                    .map(AbstractKeyAccessorImpl.Fields.SYMM_KEY_WRAPPER_TEMP.fieldName())
-//                    .add();
+            table.addRefAnyColumns("ACTUALSYMKEY", false, SymmetricKeyAccessorImpl.Fields.SYMM_KEY_WRAPPER_ACTUAL.fieldName());
+            table.addRefAnyColumns("TEMPSYMKEY", false, SymmetricKeyAccessorImpl.Fields.SYMM_KEY_WRAPPER_TEMP.fieldName());
         }
     }
     ;

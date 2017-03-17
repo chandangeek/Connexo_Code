@@ -8,6 +8,8 @@ import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.PlaintextPrivateKeyWrapper;
+import com.elster.jupiter.pki.PlaintextSymmetricKey;
+import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -24,6 +26,7 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.crypto.spec.SecretKeySpec;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.InvalidKeyException;
@@ -54,7 +57,9 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=importCertificateWithKey",
                 "osgi.command.function=generateCSR",
                 "osgi.command.function=truststores",
-                "osgi.command.function=createTrustStore"
+                "osgi.command.function=createTrustStore",
+                "osgi.command.function=importSymmetricKey"
+
         },
         immediate = true)
 public class KeyAccessorCommands {
@@ -96,6 +101,7 @@ public class KeyAccessorCommands {
         System.out.println("       List all known key accessors for a certain device");
         System.out.println("e.g. : keyAccessors 123");
     }
+
     public void keyAccessors(long deviceId) throws InvalidKeyException {
         Device device = deviceService.findDeviceById(deviceId)
                 .orElseThrow(() -> new RuntimeException("No such device"));
@@ -133,8 +139,9 @@ public class KeyAccessorCommands {
         System.out.println("e.g. : importCertificateWithKey 1 \"TLS SUITE 2\" tls.pkcs12 foo123 mycert");
     }
 
-    public void importCertificateWithKey(long deviceId, String certKatName, String pkcs12Name, String pkcs12Password, String alias) throws
-            KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException {
+    public void importCertificateWithKey(long deviceId, String certKatName, String pkcs12Name, String pkcs12Password, String alias)
+            throws KeyStoreException, IOException, CertificateException,
+                        NoSuchAlgorithmException, UnrecoverableKeyException {
 
         threadPrincipalService.set(() -> "Console");
 
@@ -167,6 +174,44 @@ public class KeyAccessorCommands {
             KeyAccessor keyAccessor = device.getKeyAccessor(certKeyAccessorType)
                     .orElseGet(()->device.newKeyAccessor(certKeyAccessorType));
             keyAccessor.setActualValue(clientCertificateWrapper);
+            keyAccessor.save();
+            context.commit();
+        }
+    }
+
+    public void importSymmetricKey() {
+        System.out.println("Usage: importSymmetricKey <device id> <key accessor type name> <keystore file>  <key store password> <alias>");
+        System.out.println("e.g. : importSymmetricKey 1 MK aes128.jks foo123 mk");
+    }
+
+    public void importSymmetricKey(long deviceId, String keyAccessTypeName, String keyStoreName, String keyStorePassword, String alias)
+            throws KeyStoreException, IOException, CertificateException,
+                        NoSuchAlgorithmException, UnrecoverableKeyException {
+
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            Device device = deviceService.findDeviceById(deviceId)
+                    .orElseThrow(() -> new RuntimeException("No such device"));
+            KeyAccessorType keyAccessorType = device.getDeviceType()
+                    .getKeyAccessorTypes()
+                    .stream()
+                    .filter(kat -> kat.getName().equals(keyAccessTypeName))
+                    .findAny()
+                    .orElseThrow(() -> new RuntimeException("No such key accessor type on the device type: "+keyAccessTypeName));
+
+            KeyStore keyStore = KeyStore.getInstance("JCEKS");
+            keyStore.load(new FileInputStream(keyStoreName), keyStorePassword.toCharArray());
+            Key key = keyStore.getKey(alias, keyStorePassword.toCharArray());
+            if (key==null) {
+                throw new RuntimeException("The keystore does not contain a key with alias "+alias);
+            }
+            SymmetricKeyWrapper symmetricKeyWrapper = pkiService.newSymmetricKeyWrapper(keyAccessorType);
+            ((PlaintextSymmetricKey)symmetricKeyWrapper).setKey(new SecretKeySpec(key.getEncoded(), key.getAlgorithm()));
+
+            KeyAccessor keyAccessor = device.getKeyAccessor(keyAccessorType)
+                    .orElseGet(()->device.newKeyAccessor(keyAccessorType));
+            keyAccessor.setActualValue(symmetricKeyWrapper);
             keyAccessor.save();
             context.commit();
         }
