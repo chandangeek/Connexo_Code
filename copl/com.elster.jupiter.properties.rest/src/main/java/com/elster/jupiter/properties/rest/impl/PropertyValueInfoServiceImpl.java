@@ -161,7 +161,7 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
                 if (propertyType == SimplePropertyType.SELECTIONGRID || propertyType == SimplePropertyType.LISTREADINGQUALITY || propertyType == SimplePropertyType.DEVICECONFIGURATIONLIST ||
                         propertyType == SimplePropertyType.ENDDEVICEEVENTTYPE || propertyType == SimplePropertyType.LIFECYCLESTATUSINDEVICETYPE) {
                     possibleObjects[i] = possibleValues.getAllValues().get(i);
-                } else if (propertyType == SimplePropertyType.IDWITHNAME) {
+                } else if (propertyType == SimplePropertyType.IDWITHNAME  || propertyType == SimplePropertyType.BPM_PROCESS) {
                     Object idWithName = possibleValues.getAllValues().get(i);
                     possibleObjects[i] = idWithName instanceof HasIdAndName
                             ? asInfo(((HasIdAndName)idWithName).getId(), ((HasIdAndName)idWithName).getName())
