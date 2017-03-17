@@ -270,6 +270,11 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
     }
 
     @Override
+    public void estimateReadings(QualityCodeSystem system, List<? extends BaseReading> readings) {
+        persistedChannel.estimateReadings(system, readings);
+    }
+
+    @Override
     public void removeReadings(QualityCodeSystem system, List<? extends BaseReadingRecord> readings) {
         persistedChannel.removeReadings(system, readings);
     }

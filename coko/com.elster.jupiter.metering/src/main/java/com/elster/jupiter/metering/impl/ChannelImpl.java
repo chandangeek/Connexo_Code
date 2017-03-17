@@ -646,6 +646,11 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
+    public void estimateReadings(QualityCodeSystem system, List<? extends BaseReading> readings) {
+        getCimChannel(getMainReadingType()).ifPresent(cimChannel -> cimChannel.estimateReadings(system, readings));
+    }
+
+    @Override
     public void confirmReadings(QualityCodeSystem system, List<? extends BaseReading> readings) {
         getCimChannel(getMainReadingType()).ifPresent(cimChannel ->
                 cimChannel.confirmReadings(system, readings));
