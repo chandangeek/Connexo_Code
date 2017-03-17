@@ -10,10 +10,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
@@ -44,6 +41,8 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -56,8 +55,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -140,6 +138,35 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(validationRule.getRuleSetVersion()).thenReturn(validationRuleSetVersion);
         doReturn(Collections.singletonList(validationRule)).when(validationRuleSetVersion).getRules();
         return validationRuleSetVersion;
+    }
+
+    private UsagePoint mockUsagePoint(long id, String name, long version, ServiceKind serviceKind) {
+        UsagePoint usagePoint = mock(UsagePoint.class);
+        when(usagePoint.getId()).thenReturn(id);
+        when(usagePoint.getVersion()).thenReturn(version);
+        when(usagePoint.getName()).thenReturn(name);
+        when(usagePoint.getAliasName()).thenReturn("alias " + name);
+        when(usagePoint.getDescription()).thenReturn("usage point desc");
+        when(usagePoint.getOutageRegion()).thenReturn("outage region");
+        when(usagePoint.getReadRoute()).thenReturn("read route");
+        when(usagePoint.getServiceLocationString()).thenReturn("location");
+        ServiceCategory serviceCategory = mock(ServiceCategory.class);
+        when(serviceCategory.getKind()).thenReturn(serviceKind);
+        when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
+        //doReturn(Optional.ofNullable(detail)).when(usagePoint).getDetail(any(Instant.class));
+        //when(usagePoint.getMRID()).thenReturn(mockMRID(id));
+        when(usagePoint.getInstallationTime()).thenReturn(LocalDateTime.of(2016, 3, 20, 11, 0)
+                .toInstant(ZoneOffset.UTC));
+        when(usagePoint.getServiceDeliveryRemark()).thenReturn("remark");
+        when(usagePoint.getServicePriority()).thenReturn("service priority");
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
+
+        //when(usagePoint.forCustomProperties()).thenReturn(extension);
+        when(meteringService.findUsagePointById(id)).thenReturn(Optional.of(usagePoint));
+        /*when(meteringService.findAndLockUsagePointByIdAndVersion(eq(id), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional
+                .empty());*/
+        when(meteringService.findAndLockUsagePointByIdAndVersion(id, version)).thenReturn(Optional.of(usagePoint));
+        return usagePoint;
     }
 
     private UsagePointMetrologyConfiguration mockMetrologyConfiguration(long id, String name, ServiceKind serviceKind, MetrologyConfigurationStatus status) {
@@ -229,6 +256,54 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         assertThat(jsonModel.<String>get("$.metrologyContracts[0].name")).isEqualTo(DefaultMetrologyPurpose.BILLING.getName().getDefaultMessage());
         assertThat(jsonModel.<List<?>>get("$.metrologyContracts[0].readingTypeDeliverables")).isNotEmpty();
         assertThat(jsonModel.<Number>get("$.version")).isEqualTo(1);
+    }
+
+    @Test
+    public void testGetDetailedMetrologyConfiguration() {
+        UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(13L, "Residential", ServiceKind.GAS, MetrologyConfigurationStatus.INACTIVE);
+        //UsagePoint usagePoint = mockUsagePoint(1234586L,"Suka", 2L,ServiceKind.ELECTRICITY);
+        UsagePoint usagePoint = mock(UsagePoint.class);
+        RegisteredCustomPropertySet cps = mock(RegisteredCustomPropertySet.class);
+        CustomPropertySet set1 = mock(CustomPropertySet.class);
+        UsagePointCustomPropertySetExtension extension = mock(UsagePointCustomPropertySetExtension.class);
+        UsagePointPropertySet set2 = mock(UsagePointPropertySet.class);
+
+        when(metrologyConfigurationService.findMetrologyConfiguration(13L)).thenReturn(Optional.of(metrologyConfiguration));
+        when(metrologyConfiguration.getCustomPropertySets()).thenReturn(Collections.singletonList(cps));
+        when(cps.getCustomPropertySet()).thenReturn(set1);
+        when(set1.isVersioned()).thenReturn(true);
+        when(set1.getName()).thenReturn("Antenna");
+
+        when(meteringService.findUsagePointById(1022L)).thenReturn(Optional.of(usagePoint));
+        when(usagePoint.forCustomProperties()).thenReturn(extension);
+        when(extension.getAllPropertySets()).thenReturn(Collections.singletonList(set2));
+        when(set2.getCustomPropertySet()).thenReturn(set1);
+
+        //Business method
+        String json = target("metrologyconfigurations/13/usagepoint/1022").request().get(String.class);
+
+        //Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.id")).isEqualTo(13);
+        assertThat(jsonModel.<String>get("$.name")).isEqualTo("Residential");
+        assertThat(jsonModel.<String>get("$.description")).isEqualTo("some description");
+        assertThat(jsonModel.<String>get("$.status.id")).isEqualTo("inactive");
+        assertThat(jsonModel.<String>get("$.status.name")).isEqualTo("Inactive");
+        assertThat(jsonModel.<String>get("$.serviceCategory.id")).isEqualTo(ServiceKind.GAS.name());
+        assertThat(jsonModel.<String>get("$.serviceCategory.name")).isEqualTo(ServiceKind.GAS.getDefaultFormat());
+        assertThat(jsonModel.<List<?>>get("$.meterRoles").size()).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.meterRoles[0].id")).isEqualTo(DefaultMeterRole.DEFAULT.getKey());
+        assertThat(jsonModel.<String>get("$.meterRoles[0].name")).isEqualTo(DefaultMeterRole.DEFAULT.getDefaultFormat());
+        assertThat(jsonModel.<List<?>>get("$.purposes")).isNotEmpty();
+        assertThat(jsonModel.<List<?>>get("$.purposes").size()).isEqualTo(1);
+        assertThat(jsonModel.<Integer>get("$.purposes[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.purposes[0].name")).isEqualTo(DefaultMetrologyPurpose.BILLING.getName().getDefaultMessage());
+        assertThat(jsonModel.<List<?>>get("$.metrologyContracts")).isNotEmpty();
+        assertThat(jsonModel.<Integer>get("$.metrologyContracts[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.metrologyContracts[0].name")).isEqualTo(DefaultMetrologyPurpose.BILLING.getName().getDefaultMessage());
+        assertThat(jsonModel.<List<?>>get("$.metrologyContracts[0].readingTypeDeliverables")).isNotEmpty();
+        assertThat(jsonModel.<Number>get("$.version")).isEqualTo(1);
+        assertThat(jsonModel.<Number>get("$.haveSameCASesAsUP")).isEqualTo(true);
     }
 
     @Test

@@ -33,6 +33,7 @@ public class MetrologyConfigurationInfo {
     public List<SearchCriteriaVisualizationInfo> usagePointRequirements;
     public List<CustomPropertySetInfo> customPropertySets;
     public long version;
+    public Boolean haveSameCASesAsUP;
 
     public void updateCustomPropertySets(MetrologyConfiguration metrologyConfiguration, Function<String, RegisteredCustomPropertySet> rcpsProvider) {
         if (this.customPropertySets != null) {

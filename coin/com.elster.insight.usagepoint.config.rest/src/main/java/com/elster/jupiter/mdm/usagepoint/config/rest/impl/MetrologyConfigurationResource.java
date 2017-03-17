@@ -122,6 +122,33 @@ public class MetrologyConfigurationResource {
     }
 
     @GET
+    @Path("/{id}/usagepoint/{upId}")
+    @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public MetrologyConfigurationInfo getDetailedMetrologyConfiguration(@PathParam("id") long id, @PathParam("upId") long upId) {
+        UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.getMetrologyConfigOrThrowException(id);
+        MetrologyConfigurationInfo info = metrologyConfigurationInfoFactory.asDetailedInfo(metrologyConfiguration);
+        List <String> mCCustomAttributeSet=metrologyConfiguration.getCustomPropertySets()
+                .stream().filter(registeredCustomPropertySet -> registeredCustomPropertySet.getCustomPropertySet().isVersioned())
+                .map(registeredCustomPropertySet -> registeredCustomPropertySet.getCustomPropertySet())
+                .filter(customPropertySet -> customPropertySet.isVersioned())
+                .map(CustomPropertySet::getName).collect(Collectors.toList());
+
+        for (String str:mCCustomAttributeSet){
+            if (meteringService.findUsagePointById(upId).get().forCustomProperties().getAllPropertySets()
+                    .stream()
+                    .filter(usagePointPropertySet -> usagePointPropertySet.getCustomPropertySet().isVersioned())
+                    .map(usagePointPropertySet -> usagePointPropertySet.getCustomPropertySet().getName())
+                    .collect(Collectors.toList()).contains(str)){
+                info.haveSameCASesAsUP=true;
+            }
+            else
+                info.haveSameCASesAsUP=false;
+        }
+        return info;
+    }
+
+    @GET
     @Path("/{id}/deliverables")
     @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
