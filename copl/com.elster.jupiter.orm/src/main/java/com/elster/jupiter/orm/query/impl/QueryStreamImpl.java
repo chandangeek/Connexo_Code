@@ -279,14 +279,9 @@ public class QueryStreamImpl<T> implements QueryStream<T> {
 
 	@Override
 	public QueryStream<T> sorted(Order order, Order... extra) {
-		if (extra.length != 0) {
-			this.orders = new Order[extra.length];
-			System.arraycopy(extra, 0, orders, 0, extra.length);
-		} else {
-			this.orders = new Order[extra.length + 1];
-			this.orders[0] = order;
-			System.arraycopy(extra, 0, orders, 1, extra.length);
-		}
+		this.orders = new Order[extra.length + 1];
+		this.orders[0] = order;
+		System.arraycopy(extra, 0, orders, 1, extra.length);
 		return this;
 	}
 
