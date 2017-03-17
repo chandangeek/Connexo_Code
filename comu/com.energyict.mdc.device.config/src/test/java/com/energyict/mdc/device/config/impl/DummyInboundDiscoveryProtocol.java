@@ -6,6 +6,7 @@ import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,10 +19,6 @@ import java.util.List;
  */
 public class DummyInboundDiscoveryProtocol implements InboundDeviceProtocol {
 
-    @Override
-    public void initializeDiscoveryContext(InboundDiscoveryContext context) {
-
-    }
 
     @Override
     public InboundDiscoveryContext getContext() {
@@ -44,13 +41,28 @@ public class DummyInboundDiscoveryProtocol implements InboundDeviceProtocol {
     }
 
     @Override
+    public String getAdditionalInformation() {
+        return null;
+    }
+
+    @Override
     public List<CollectedData> getCollectedData() {
         return null;
     }
 
     @Override
+    public boolean hasSupportForRequestsOnInbound() {
+        return false;
+    }
+
+    @Override
     public String getVersion() {
         return null;
+    }
+
+    @Override
+    public void initializeDiscoveryContext(com.energyict.mdc.upl.InboundDiscoveryContext context) {
+
     }
 
     @Override
@@ -63,4 +75,13 @@ public class DummyInboundDiscoveryProtocol implements InboundDeviceProtocol {
         return Collections.emptyList();
     }
 
+    @Override
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+        return null;
+    }
+
+    @Override
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+
+    }
 }
