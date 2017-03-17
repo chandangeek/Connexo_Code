@@ -125,11 +125,11 @@ public class KeyAccessorCommands {
     }
 
     public void importCertificateWithKey() {
-        System.out.println("Usage: importCertificateWithKey <device id> <cert accessor type name> <private key accessor type name> <pkcs#12 file>  <password> <alias>");
-        System.out.println("e.g. : importCertificateWithKey 1 \"TLS\" \"RSA\" tls.pkcs12 foo123 mycert");
+        System.out.println("Usage: importCertificateWithKey <device id> <cert accessor type name> <pkcs#12 file>  <password> <alias>");
+        System.out.println("e.g. : importCertificateWithKey 1 \"TLS SUITE 2\" tls.pkcs12 foo123 mycert");
     }
 
-    public void importCertificateWithKey(long deviceId, String certKatName, String keyKatName, String pkcs12Name, String pkcs12Password, String alias) throws
+    public void importCertificateWithKey(long deviceId, String certKatName, String pkcs12Name, String pkcs12Password, String alias) throws
             KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException {
 
         threadPrincipalService.set(() -> "Console");
@@ -143,12 +143,6 @@ public class KeyAccessorCommands {
                     .filter(kat -> kat.getName().equals(certKatName))
                     .findAny()
                     .orElseThrow(() -> new RuntimeException("No such key accessor type on the device type: "+certKatName));
-            KeyAccessorType keyKeyAccessorType = device.getDeviceType()
-                    .getKeyAccessorTypes()
-                    .stream()
-                    .filter(kat -> kat.getName().equals(keyKatName))
-                    .findAny()
-                    .orElseThrow(() -> new RuntimeException("No such key accessor type on the device type: "+keyKatName));
 
             KeyStore pkcs12 = KeyStore.getInstance("pkcs12");
             pkcs12.load(new FileInputStream(pkcs12Name), pkcs12Password.toCharArray());
@@ -160,7 +154,7 @@ public class KeyAccessorCommands {
             if (key==null) {
                 throw new RuntimeException("The keystore does not contain a key with alias "+alias);
             }
-            ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(alias, certKeyAccessorType, keyKeyAccessorType);
+            ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(alias, certKeyAccessorType);
             clientCertificateWrapper.setCertificate((X509Certificate) certificate);
             PlaintextPrivateKeyWrapper privateKeyWrapper = (PlaintextPrivateKeyWrapper) clientCertificateWrapper.getPrivateKeyWrapper();
             privateKeyWrapper.setPrivateKey((PrivateKey) key);
@@ -175,8 +169,8 @@ public class KeyAccessorCommands {
     }
 
     public void generateCSR() {
-        System.out.println("Usage: generateCSR <device id> <cert accessor type name> <private key accessor type name> <alias> <CommonName>");
-        System.out.println("e.g. : generateCSR 1 \"TLS\" \"RSA\" comserver \"Comserver TLS\"");
+        System.out.println("Usage: generateCSR <device id> <cert accessor type name> <alias> <CommonName>");
+        System.out.println("e.g. : generateCSR 1 \"TLS SUITE 1\" comserver \"Comserver TLS\"");
     }
 
     public void generateCSR(long deviceId, String certKatName, String keyKatName, String alias, String cn) throws
@@ -192,20 +186,14 @@ public class KeyAccessorCommands {
                     .filter(kat -> kat.getName().equals(certKatName))
                     .findAny()
                     .orElseThrow(() -> new RuntimeException("No such key accessor type on the device type: " + certKatName));
-            KeyAccessorType keyKeyAccessorType = device.getDeviceType()
-                    .getKeyAccessorTypes()
-                    .stream()
-                    .filter(kat -> kat.getName().equals(keyKatName))
-                    .findAny()
-                    .orElseThrow(() -> new RuntimeException("No such key accessor type on the device type: " + keyKatName));
 
-            ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(alias, certKeyAccessorType, keyKeyAccessorType);
+            ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(alias, certKeyAccessorType);
             clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
 
             X500NameBuilder x500NameBuilder = new X500NameBuilder();
             x500NameBuilder.addRDN(BCStyle.CN, cn);
             PKCS10CertificationRequest pkcs10CertificationRequest = clientCertificateWrapper.getPrivateKeyWrapper()
-                    .generateCSR(x500NameBuilder.build(), certKeyAccessorType.getKeyType().getAlgorithm());
+                    .generateCSR(x500NameBuilder.build(), certKeyAccessorType.getKeyType().getKeyAlgorithm());
             clientCertificateWrapper.setCSR(pkcs10CertificationRequest);
             clientCertificateWrapper.save();
             context.commit();
