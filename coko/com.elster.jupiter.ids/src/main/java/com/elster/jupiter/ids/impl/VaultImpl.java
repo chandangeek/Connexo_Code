@@ -7,7 +7,6 @@ package com.elster.jupiter.ids.impl;
 import com.elster.jupiter.ids.FieldSpec;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeriesEntry;
-import com.elster.jupiter.ids.TimeSeriesJournalEntry;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -426,9 +425,9 @@ public final class VaultImpl implements IVault {
     }
 
     @Override
-    public List<TimeSeriesJournalEntry> getJournalEntries(TimeSeriesImpl timeSeries, Range<Instant> interval, Range<Instant> changed) {
+    public List<TimeSeriesEntry> getJournalEntries(TimeSeriesImpl timeSeries, Range<Instant> interval, boolean changedDataOnly) {
         try {
-            return doGetJournalEntries(timeSeries, interval, changed);
+            return doGetJournalEntries(timeSeries, interval, changedDataOnly);
         } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
@@ -473,8 +472,8 @@ public final class VaultImpl implements IVault {
         return builder;
     }
 
-    private SqlBuilder rangeJournalSql(TimeSeriesImpl timeSeries, Range<Instant> interval, Range<Instant> changed) {
-        SqlBuilder builder = selectJournalSql(timeSeries, interval, changed);
+    private SqlBuilder rangeJournalSql(TimeSeriesImpl timeSeries, Range<Instant> interval, boolean changedDataOnly) {
+        SqlBuilder builder = selectJournalSql(timeSeries, interval, changedDataOnly);
         return builder;
     }
 
@@ -506,18 +505,10 @@ public final class VaultImpl implements IVault {
         builder.addLong(interval.hasUpperBound() ? interval.upperEndpoint().toEpochMilli() : Long.MAX_VALUE);
     }
 
-    private void appendChanged(Range<Instant> changed, SqlBuilder builder) {
-        builder.append(" AND ((JOURNALTIME >");
-        if (changed.hasLowerBound() && changed.lowerBoundType() == BoundType.CLOSED) {
-            builder.append("=");
+    private void appendChanged(boolean changedDataOnly, SqlBuilder builder) {
+        if (changedDataOnly) {
+            builder.append(" AND (journaltime != 0) ");
         }
-        builder.addLong(changed.hasLowerBound() ? changed.lowerEndpoint().toEpochMilli() : Long.MIN_VALUE);
-        builder.append("AND JOURNALTIME <");
-        if (changed.hasUpperBound() && changed.upperBoundType() == BoundType.CLOSED) {
-            builder.append("=");
-        }
-        builder.addLong(changed.hasUpperBound() ? changed.upperEndpoint().toEpochMilli() : Long.MAX_VALUE);
-        builder.append(") OR JOURNALTIME IS NULL)");
     }
 
     private SqlBuilder entrySql(TimeSeriesImpl timeSeries, Instant when) {
@@ -548,13 +539,13 @@ public final class VaultImpl implements IVault {
         return result;
     }
 
-    private List<TimeSeriesJournalEntry> doGetJournalEntries(TimeSeriesImpl timeSeries, Range<Instant> interval, Range<Instant> changed) throws SQLException {
-        List<TimeSeriesJournalEntry> result = new ArrayList<>();
+    private List<TimeSeriesEntry> doGetJournalEntries(TimeSeriesImpl timeSeries, Range<Instant> interval, boolean changedDataOnly) throws SQLException {
+        List<TimeSeriesEntry> result = new ArrayList<>();
         try (Connection connection = getConnection(false)) {
-            try (PreparedStatement statement = rangeJournalSql(timeSeries, interval, changed).prepare(connection)) {
+            try (PreparedStatement statement = rangeJournalSql(timeSeries, interval, changedDataOnly).prepare(connection)) {
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
-                        result.add(new TimeSeriesJournalEntryImpl(timeSeries, rs));
+                        result.add(new TimeSeriesEntryImpl(timeSeries, rs, true));
                     }
                 }
             }
@@ -630,7 +621,7 @@ public final class VaultImpl implements IVault {
         return builder;
     }
 
-    SqlBuilder selectJournalSql(TimeSeriesImpl timeSeries, Range<Instant> interval, Range<Instant> changed) {
+    SqlBuilder selectJournalSql(TimeSeriesImpl timeSeries, Range<Instant> interval, boolean changedDataOnly) {
         String columnNames = "";
         for (String column : timeSeries.getRecordSpec().columnNames()) {
             columnNames += ", " + column;
@@ -670,7 +661,7 @@ public final class VaultImpl implements IVault {
         builder.append("    ) ");
         builder.append(" WHERE 1=1 ");
         this.appendRange(interval, builder);
-        this.appendChanged(changed, builder);
+        this.appendChanged(changedDataOnly, builder);
         builder.append(" order by UTCSTAMP DESC, VERSIONCOUNT desc");
         return builder;
     }

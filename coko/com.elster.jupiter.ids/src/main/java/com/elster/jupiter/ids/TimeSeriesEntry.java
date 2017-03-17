@@ -4,10 +4,13 @@
 
 package com.elster.jupiter.ids;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
 
+@ProviderType
 public interface TimeSeriesEntry {
 
     TimeSeries getTimeSeries();
@@ -31,4 +34,9 @@ public interface TimeSeriesEntry {
     Object[] getValues();
 
     Optional<TimeSeriesEntry> getVersion(Instant at);
+
+    Instant getJournalTime();
+
+    String getUserName();
+
 }
