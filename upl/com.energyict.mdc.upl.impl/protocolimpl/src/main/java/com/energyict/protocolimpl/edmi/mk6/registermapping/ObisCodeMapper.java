@@ -17,6 +17,7 @@ import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.edmi.common.CommandLineProtocol;
+import com.energyict.protocolimpl.edmi.common.command.ReadCommand;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -42,6 +43,7 @@ public class ObisCodeMapper {
 
     public RegisterValue getRegisterValue(ObisCode obisCode) throws NoSuchRegisterException {
         int billingPoint;
+        MK6InstantaneousRegisterInformation instantaneousRegisterInformation;
 
         // obis F code
         if ((obisCode.getF() >= -99) && (obisCode.getF() <= 99)) {
@@ -81,11 +83,18 @@ public class ObisCodeMapper {
             return new RegisterValue(obisCode, new Quantity(getProtocol().getCommandFactory().getReadCommand(MK6RegisterInformation.CT_DIVISOR).getRegister().getBigDecimal(), Unit.get("")));
         } else if ((obisCode.toString().contains("1.0.0.4.6.255")) || (obisCode.toString().contains("1.1.0.4.6.255"))) { // VT denominator
             return new RegisterValue(obisCode, new Quantity(getProtocol().getCommandFactory().getReadCommand(MK6RegisterInformation.VT_DIVISOR).getRegister().getBigDecimal(), Unit.get("")));
+        } else if ((instantaneousRegisterInformation = MK6InstantaneousRegisterInformation.fromObisCode(obisCode)) != null) {
+            return readInstantaneousRegister(instantaneousRegisterInformation);
         } else {
             // *********************************************************************************
             // electricity related registers
             return getObisCodeFactory().getRegisterValue(obisCode);
         }
+    }
+
+    private RegisterValue readInstantaneousRegister(MK6InstantaneousRegisterInformation instantaneousRegisterInformation) {
+        ReadCommand readCommand = getProtocol().getCommandFactory().getReadCommand(instantaneousRegisterInformation.getRegisterId());
+        return new RegisterValue(instantaneousRegisterInformation.getObisCode(), new Quantity(readCommand.getRegister().getBigDecimal(), readCommand.getUnit()));
     }
 
     public ObisCodeFactory getObisCodeFactory() {

@@ -273,7 +273,7 @@ public class MK6 implements DeviceProtocol, CommandLineProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "EDMI MK6 [Pull] CommandLine V2";
+        return "EDMI MK6 CommandLine V2";
     }
 
     @Override

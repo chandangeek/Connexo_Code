@@ -30,6 +30,9 @@ public class StandardEventLogParser implements EventLogParser {
             Date date = logSurveyData.getChannelValues(interval)[1].getDate();
             String message = logSurveyData.getChannelValues(interval)[2].getString();
             int eiCode = mapEventLogMessage2MeterEventEICode(message);
+            if (message.contains("Logon") || message.contains("Logoff")) {
+                continue;   //Don't create an event for these
+            }
             meterEvents.add(
                     new MeterProtocolEvent(
                             date,
@@ -50,6 +53,18 @@ public class StandardEventLogParser implements EventLogParser {
             return MeterEvent.POWERDOWN;
         } else if (message.contains("Power On")) {
             return MeterEvent.POWERUP;
+        } else if (message.contains("Recovered")) {
+            return MeterEvent.HARDWARE_ERROR;
+        } else if (message.contains("Initialised")) {
+            return MeterEvent.HARDWARE_ERROR;
+        } else if (message.contains("Recovering Extensions")) {
+            return MeterEvent.RAM_MEMORY_ERROR;
+        } else if (message.contains("Recovering Ext")) {
+            return MeterEvent.RAM_MEMORY_ERROR;
+        } else if (message.contains("EFA Conditions Cleared")) {
+            return MeterEvent.ALARM_REGISTER_CLEARED;
+        } else if (message.contains("EFA")) {
+            return MeterEvent.METER_ALARM;
         } else if (message.contains("Changing System Time")) {
             return MeterEvent.SETCLOCK_BEFORE;
         } else if (message.contains("System Time Changed")) {
@@ -60,6 +75,8 @@ public class StandardEventLogParser implements EventLogParser {
             return MeterEvent.BILLING_ACTION;
         } else if (message.contains("TOU Cleared")) {
             return MeterEvent.CONFIGURATIONCHANGE;
+        } else if (message.contains("Modem Port Overflow")) {
+            return MeterEvent.OTHER;
         } else if (message.contains("Buffer Limit Reached")) {
             return MeterEvent.MEASUREMENT_SYSTEM_ERROR;
         } else {
