@@ -16,7 +16,6 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectSetup', {
 
     initComponent: function () {
         var me = this;
-        Ext.getStore('ProtocolDialectsOfDevice').getProxy().setUrl(me.device.get('name'));
         this.side = [
             {
                 xtype: 'panel',
