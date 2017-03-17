@@ -58,7 +58,7 @@ Ext.define('Est.estimationrules.view.EditForm', {
                 queryMode: 'local',
                 forceSelection: true,
                 allowBlank: false,
-                emptyText: Uni.I18n.translate('general.placeholder.selectEstimationRule', 'EST', 'Select a estimation rule...'),
+                emptyText: Uni.I18n.translate('general.placeholder.selectEstimator', 'EST', 'Select an estimator...'),
                 disabled: me.edit,
                 listeners: {
                     change: {
