@@ -92,6 +92,47 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
         return result;
     }
 
+    @Override
+    public List<DataValidationStatus> getHistoryValidationStatus(Set<QualityCodeSystem> qualityCodeSystems, List<CimChannel> channels,
+                                                                 List<? extends BaseReading> readings, List<ReadingQualityRecord> readingQualities, Range<Instant> interval) {
+        List<DataValidationStatus> result = new ArrayList<>();
+        List<ChannelValidationContainer> channelValidations = channels.stream()
+                .map(channel -> getChannelValidationContainer(channel.getChannel()))
+                .collect(Collectors.toList());
+        // cannot validate only one cim channel from GUI in case there're related main & bulk channels,
+        // so we find out if they are validated by one (main) channel only
+        ChannelValidationContainer mainChannelValidations = channelValidations.get(0);
+        boolean configured = !mainChannelValidations.isEmpty();
+        int requestedQCSNumber = qualityCodeSystems == null ? 0 : qualityCodeSystems.size();
+        Multimap<QualityCodeSystem, ChannelValidation> mainChannelValidationsPerSystemMultimap
+                = indexValidationsBySystem(mainChannelValidations, requestedQCSNumber, qualityCodeSystems);
+
+        List<Multimap<String, IValidationRule>> validationRuleMaps = channelValidations.stream()
+                .map(this::getMapQualityToRule)
+                .collect(Collectors.toList());
+
+        List<ListMultimap<Instant, ReadingQualityRecord>> readingQualityMaps = new ArrayList<>(1);
+        ListMultimap<Instant, ReadingQualityRecord> readingQualitiesList = ArrayListMultimap.create();
+        readingQualities.stream().forEach(readingQualityRecord -> readingQualitiesList.put(interval.lowerEndpoint(), readingQualityRecord));
+        readingQualityMaps.add(readingQualitiesList);
+
+        Set<Instant> unprocessedQualityTimes = readingQualityMaps.stream()
+                .map(ListMultimap::keySet)
+                .flatMap(Set::stream)
+                .collect(Collectors.toSet());
+
+        readings.forEach(reading -> {
+            Instant timeStamp = reading.getTimeStamp();
+            unprocessedQualityTimes.remove(timeStamp);
+            result.add(getValidationStatusForTimeStamp(timeStamp, channels, configured,
+                    readingQualityMaps, validationRuleMaps, mainChannelValidationsPerSystemMultimap));
+        });
+
+        unprocessedQualityTimes.forEach(timeStamp -> result.add(getValidationStatusForTimeStamp(timeStamp, channels, configured,
+                readingQualityMaps, validationRuleMaps, mainChannelValidationsPerSystemMultimap)));
+        return result;
+    }
+
 
     @Override
     public DataValidationStatus getValidationStatus(Set<QualityCodeSystem> qualityCodeSystems, List<CimChannel> channels,

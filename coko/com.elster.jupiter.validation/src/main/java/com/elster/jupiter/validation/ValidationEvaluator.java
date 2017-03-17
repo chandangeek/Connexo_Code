@@ -96,6 +96,26 @@ public interface ValidationEvaluator {
     List<DataValidationStatus> getValidationStatus(Set<QualityCodeSystem> qualityCodeSystems, List<CimChannel> channels,
                                                    List<? extends BaseReading> readings, Range<Instant> interval);
 
+    /**
+     * Gets history validation status taking into account qualities of systems among {@code qualityCodeSystems}.
+     *
+     * @param qualityCodeSystems Only systems to take into account for computation of validation status; empty set means all systems.
+     * @param channel The channel to check.
+     * @param readings Provided list of readings.
+     * @param readingQualities Specific reading qualities
+     * @return List of {@link DataValidationStatus}.
+     */
+    default List<DataValidationStatus> getHistoryValidationStatus(Set<QualityCodeSystem> qualityCodeSystems, Channel channel,
+                                                                  List<? extends BaseReading> readings, List<ReadingQualityRecord> readingQualities, Range<Instant> interval) {
+        List<CimChannel> channels = new ArrayList<>(2);
+        channel.getCimChannel(channel.getMainReadingType()).ifPresent(channels::add);
+        channel.getBulkQuantityReadingType().ifPresent(bulkReadingType -> channel.getCimChannel(bulkReadingType).ifPresent(channels::add));
+        return getHistoryValidationStatus(qualityCodeSystems, channels, readings, readingQualities, interval);
+    }
+
+    List<DataValidationStatus> getHistoryValidationStatus(Set<QualityCodeSystem> qualityCodeSystems, List<CimChannel> channels,
+                                                          List<? extends BaseReading> readings, List<ReadingQualityRecord> readingQualities, Range<Instant> interval);
+
     default DataValidationStatus getValidationStatus(Set<QualityCodeSystem> qualityCodeSystems, Channel channel,
                                                      Instant timeStamp, List<ReadingQualityRecord> readingQualities) {
         List<CimChannel> channels = new ArrayList<>(2);
