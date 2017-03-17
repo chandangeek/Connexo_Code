@@ -762,11 +762,6 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
         public int length() {
             return value.length();
         }
-
-        @Override
-        public Number getValue() {
-            return Integer.valueOf(value);
-        }
     }
 
     private class UPLNlsService implements NlsService {

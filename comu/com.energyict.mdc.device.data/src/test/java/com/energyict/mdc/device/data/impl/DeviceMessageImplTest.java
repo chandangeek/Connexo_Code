@@ -25,7 +25,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.upl.DeviceFunction;
@@ -67,8 +66,8 @@ import java.util.stream.Collectors;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.TestCase.assertEquals;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -93,7 +92,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         deviceProtocolPluggableClass.save();
 
         if (principal == null) {
-            this.principal = (User) inMemoryPersistence.getThreadPrincipalService().getPrincipal();
+            principal = (User) inMemoryPersistence.getThreadPrincipalService().getPrincipal();
         }
         inMemoryPersistence.getThreadPrincipalService().set(principal);
         Group group = inMemoryPersistence.getUserService().createGroup("MyDefaultGroup", "just for testing");
@@ -115,7 +114,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("MyTestDeviceType", deviceProtocolPluggableClass);
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("ConfigForMessaging");
         deviceConfiguration = deviceConfigurationBuilder.add();
-        deviceMessageIds.forEach(deviceConfiguration::createDeviceMessageEnablement);
+        deviceMessageIds.stream().map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId).map(DeviceMessageId::havingId).forEach(deviceConfiguration::createDeviceMessageEnablement);
         deviceConfiguration.activate();
         resetClock();
     }
@@ -804,7 +803,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         }
 
         @Override
-        public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
+        public void init(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, ComChannel comChannel) {
 
         }
 
@@ -919,7 +918,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         }
 
         @Override
-        public String prepareMessageContext(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
+        public Optional<String> prepareMessageContext(com.energyict.mdc.upl.meterdata.Device device, com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
             return null;
         }
 
@@ -929,7 +928,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         }
 
         @Override
-        public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
+        public void addDeviceProtocolDialectProperties(com.energyict.mdc.upl.properties.TypedProperties dialectProperties) {
 
         }
 

@@ -77,9 +77,6 @@ public class EndDeviceCommandImplTest {
         }
     };
 
-    @Rule
-    public TestRule expectedRule = new ExpectedExceptionRule();
-
     private static final long DEVICE_ID = 13L;
     private static final long SERVICE_CALL_ID = 1;
     @Rule
@@ -168,7 +165,7 @@ public class EndDeviceCommandImplTest {
                 .setDefaultValue("Value2")
                 .finish();
         when(message.getPropertySpecs()).thenReturn(propertySpecs = Arrays.asList(string1, string2));
-        endDeviceCommand = new OpenRemoteSwitchCommand(endDevice, endDeviceControlType, deviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus);
+        endDeviceCommand = new OpenRemoteSwitchCommand(endDevice, endDeviceControlType, Arrays.asList(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE), deviceService, deviceMessageSpecificationService, thesaurus);
     }
 
     @Test

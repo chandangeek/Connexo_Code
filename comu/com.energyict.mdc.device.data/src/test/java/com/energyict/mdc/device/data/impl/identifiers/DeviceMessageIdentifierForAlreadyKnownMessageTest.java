@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -37,6 +36,6 @@ public class DeviceMessageIdentifierForAlreadyKnownMessageTest {
     public void serialNumberIdentifierShouldBeUsedTest() {
         DeviceMessageIdentifierForAlreadyKnownMessage deviceMessageIdentifierForAlreadyKnownMessage = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage);
 
-        assertThat(deviceMessageIdentifierForAlreadyKnownMessage.getDeviceIdentifier().getDeviceIdentifierType()).isEqualTo(DeviceIdentifierType.SerialNumber);
+        assertThat(deviceMessageIdentifierForAlreadyKnownMessage.forIntrospection().getTypeName()).isEqualTo("SerialNumber");
     }
 }

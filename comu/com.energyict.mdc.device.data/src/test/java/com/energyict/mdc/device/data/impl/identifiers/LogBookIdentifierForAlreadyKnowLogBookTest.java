@@ -2,7 +2,7 @@ package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -35,9 +36,10 @@ public class LogBookIdentifierForAlreadyKnowLogBookTest {
     @Ignore //TODO GOVANNI NEEDS TO FIX THEM
     @Test
     public void serialNumberDeviceIdentifierShouldBeUsedTest() {
-        LogBookIdentifierForAlreadyKnowLogBook logBookIdentifierForAlreadyKnowLogBook = new LogBookIdentifierForAlreadyKnowLogBook(logBook);
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
+        LogBookIdentifierForAlreadyKnowLogBook logBookIdentifierForAlreadyKnowLogBook = new LogBookIdentifierForAlreadyKnowLogBook(logBook, deviceIdentifier);
 
-        assertThat(logBookIdentifierForAlreadyKnowLogBook.getDeviceIdentifier().getDeviceIdentifierType()).isEqualTo(DeviceIdentifierType.SerialNumber);
+        assertThat(logBookIdentifierForAlreadyKnowLogBook.forIntrospection().getTypeName()).isEqualTo("SerialNumber");
     }
 
 }
