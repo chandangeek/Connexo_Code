@@ -13,7 +13,7 @@ import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.AbstractPlaintextPrivateKeyWrapperImpl;
-import com.elster.jupiter.pki.impl.wrappers.symmetric.PlaintextSymmetricKey;
+import com.elster.jupiter.pki.impl.wrappers.symmetric.PlaintextSymmetricKeyImpl;
 
 public enum TableSpecs {
     SSM_PLAINTEXTPK {
@@ -51,11 +51,11 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<SymmetricKeyWrapper> table = dataModel.addTable(this.name(), SymmetricKeyWrapper.class).since(Version.version(10, 3));
-            table.map(PlaintextSymmetricKey.class);
+            table.map(PlaintextSymmetricKeyImpl.class);
             Column id = table.addAutoIdColumn();
             table.column("KEY")
                     .varChar()
-                    .map(PlaintextSymmetricKey.Fields.ENCRYPTED_KEY.fieldName())
+                    .map(PlaintextSymmetricKeyImpl.Fields.ENCRYPTED_KEY.fieldName())
                     .add();
             Column keyTypeColumn = table.column("KEYTYPE")
                     .number()
@@ -65,11 +65,11 @@ public enum TableSpecs {
             table.column("EXPIRATION")
                     .number()
                     .conversion(ColumnConversion.NUMBER2INSTANT)
-                    .map(PlaintextSymmetricKey.Fields.EXPIRATION.fieldName())
+                    .map(PlaintextSymmetricKeyImpl.Fields.EXPIRATION.fieldName())
                     .add();
             table.foreignKey("SSM_FK_SYMKEY_KT").on(keyTypeColumn)
                     .references(KeyType.class)
-                    .map(PlaintextSymmetricKey.Fields.KEY_TYPE.fieldName())
+                    .map(PlaintextSymmetricKeyImpl.Fields.KEY_TYPE.fieldName())
                     .add();
             table.primaryKey("PK_SSM_PLAINTEXTSK").on(id).add();
         }

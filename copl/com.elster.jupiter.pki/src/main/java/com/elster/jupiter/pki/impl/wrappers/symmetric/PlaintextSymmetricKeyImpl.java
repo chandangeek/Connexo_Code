@@ -11,8 +11,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.pki.Renewable;
-import com.elster.jupiter.pki.SymmetricKeyWrapper;
+import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
@@ -38,7 +37,7 @@ import static java.util.stream.Collectors.toList;
  * in plaintext to the user (base64 encoded).
  * This type is NOT secure and is to be used for development or debugging purposes only.
  */
-public class PlaintextSymmetricKey implements SymmetricKeyWrapper, Renewable {
+public class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
 
     protected final DataVaultService dataVaultService;
     protected final PropertySpecService propertySpecService;
@@ -69,14 +68,14 @@ public class PlaintextSymmetricKey implements SymmetricKeyWrapper, Renewable {
     private Instant expirationTime;
 
     @Inject
-    PlaintextSymmetricKey(DataVaultService dataVaultService, PropertySpecService propertySpecService, DataModel dataModel, Thesaurus thesaurus) {
+    PlaintextSymmetricKeyImpl(DataVaultService dataVaultService, PropertySpecService propertySpecService, DataModel dataModel, Thesaurus thesaurus) {
         this.dataVaultService = dataVaultService;
         this.propertySpecService = propertySpecService;
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
     }
 
-    PlaintextSymmetricKey init(KeyType keyType) {
+    PlaintextSymmetricKeyImpl init(KeyType keyType) {
         this.keyTypeReference.set(keyType);
         return this;
     }
@@ -156,7 +155,7 @@ public class PlaintextSymmetricKey implements SymmetricKeyWrapper, Renewable {
             }
 
             @Override
-            void copyFromMap(Map<String, Object> properties, PlaintextSymmetricKey key) {
+            void copyFromMap(Map<String, Object> properties, PlaintextSymmetricKeyImpl key) {
                 if (properties.containsKey(getPropertyName())) {
                     byte[] decode = Base64.getDecoder().decode((String) properties.get(getPropertyName()));
                     key.encryptedKey = key.dataVaultService.encrypt(decode);
@@ -164,7 +163,7 @@ public class PlaintextSymmetricKey implements SymmetricKeyWrapper, Renewable {
             }
 
             @Override
-            void copyToMap(Map<String, Object> properties, PlaintextSymmetricKey key) {
+            void copyToMap(Map<String, Object> properties, PlaintextSymmetricKeyImpl key) {
                 byte[] decrypt = key.dataVaultService.decrypt(key.encryptedKey);
                 properties.put(getPropertyName(), Base64.getEncoder().encodeToString(decrypt));
             }
@@ -178,8 +177,8 @@ public class PlaintextSymmetricKey implements SymmetricKeyWrapper, Renewable {
         }
 
         abstract PropertySpec asPropertySpec(PropertySpecService propertySpecService);
-        abstract void copyFromMap(Map<String, Object> properties, PlaintextSymmetricKey key);
-        abstract void copyToMap(Map<String, Object> properties, PlaintextSymmetricKey key);
+        abstract void copyFromMap(Map<String, Object> properties, PlaintextSymmetricKeyImpl key);
+        abstract void copyToMap(Map<String, Object> properties, PlaintextSymmetricKeyImpl key);
 
         String getPropertyName() {
             return propertyName;

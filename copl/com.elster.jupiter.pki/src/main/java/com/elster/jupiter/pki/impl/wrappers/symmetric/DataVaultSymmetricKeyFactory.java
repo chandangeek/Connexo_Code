@@ -43,7 +43,7 @@ public class DataVaultSymmetricKeyFactory implements SymmetricKeyFactory {
 
     @Override
     public SymmetricKeyWrapper newSymmetricKey(KeyAccessorType keyAccessorType) {
-        PlaintextSymmetricKey symmetricKeyWrapper = dataModel.getInstance(PlaintextSymmetricKey.class)
+        PlaintextSymmetricKeyImpl symmetricKeyWrapper = dataModel.getInstance(PlaintextSymmetricKeyImpl.class)
                 .init(keyAccessorType.getKeyType());
         symmetricKeyWrapper.save();
         return symmetricKeyWrapper;

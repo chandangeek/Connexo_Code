@@ -13,12 +13,12 @@ import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.KeyUsage;
 import com.elster.jupiter.pki.PlaintextPrivateKeyWrapper;
+import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.DataVaultPrivateKeyFactory;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
-import com.elster.jupiter.pki.impl.wrappers.symmetric.PlaintextSymmetricKey;
 
 import certpathvalidator.CertPathValidatorTest;
 import org.bouncycastle.asn1.x500.X500Name;

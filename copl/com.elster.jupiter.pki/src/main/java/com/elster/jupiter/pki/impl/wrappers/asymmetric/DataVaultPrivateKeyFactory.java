@@ -48,7 +48,7 @@ public class DataVaultPrivateKeyFactory implements PrivateKeyFactory {
             case ECDSA: return newEcdsaPrivateKey(keyAccessorType);
             case RSA: return newRsaPrivateKey(keyAccessorType);
             case DSA: return newDsaPrivateKey(keyAccessorType);
-            default: return null;
+            default: return null; // TODO throw exception
         }
     }
 
