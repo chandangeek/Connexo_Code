@@ -174,7 +174,7 @@ sub read_config {
                 if ( "$val[0]" eq "FACTS_DB_HOST" )                 {$FACTS_DB_HOST=$val[1];}
                 if ( "$val[0]" eq "FACTS_DB_PORT" )                 {$FACTS_DB_PORT=$val[1];}
                 if ( "$val[0]" eq "FACTS_DB_NAME" )                 {$FACTS_DB_NAME=$val[1];}
-                if ( "$val[0]" eq "FACTS_DB_USE_SERVICE_NAME" )     {$FACTS_DB_FACTS_DB_USE_SERVICE_NAME=$val[1];}
+                if ( "$val[0]" eq "FACTS_DB_USE_SERVICE_NAME" )     {$FACTS_DB_USE_SERVICE_NAME=$val[1];}
                 if ( "$val[0]" eq "FACTS_DBUSER" )                  {$FACTS_DBUSER=$val[1];}
                 if ( "$val[0]" eq "FACTS_DBPASSWORD" )              {$FACTS_DBPASSWORD=$val[1];}
                 if ( "$val[0]" eq "FACTS_LICENSE" )                 {$FACTS_LICENSE=$val[1];}
@@ -230,7 +230,7 @@ sub read_config {
             print "Please enter the oracle database name for Facts: ";
             chomp($FACTS_DB_NAME=<STDIN>);
             print "Will the connection to the oracle database use service name instead of SID? (yes/no): ";
-            chomp($FACTS_DB_FACTS_DB_USE_SERVICE_NAME=<STDIN>);
+            chomp($FACTS_DB_USE_SERVICE_NAME=<STDIN>);
             print "Please enter the database user for Facts: ";
             chomp($FACTS_DBUSER=<STDIN>);
             print "Please enter the database password for Facts database user: ";
@@ -541,7 +541,7 @@ sub install_facts {
 		print $FH "option.db.hostname=$FACTS_DB_HOST\n";
 		print $FH "option.db.port=$FACTS_DB_PORT\n";
 		print $FH "option.db.dbname=$FACTS_DB_NAME\n";
-		if($FACTS_DB_FACTS_DB_USE_SERVICE_NAME eq "yes"){
+		if($FACTS_DB_USE_SERVICE_NAME eq "yes"){
 		    print $FH "option.db.oracleconnectionmode=service\n";
 		}
 		print $FH "option.db.username=$FACTS_DBUSER\n";
