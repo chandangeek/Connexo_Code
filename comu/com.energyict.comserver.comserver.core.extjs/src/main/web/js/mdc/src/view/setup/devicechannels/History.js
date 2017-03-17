@@ -8,6 +8,7 @@ Ext.define('Mdc.view.setup.devicechannels.History', {
         'Mdc.view.setup.property.HistoryGrid',
         'Mdc.view.setup.devicechannels.HistoryPreview',
         'Mdc.view.setup.devicechannels.HistoryFilter',
+        'Mdc.view.setup.devicechannels.HistoryIntervalFilter',
         'Mdc.store.HistoryChannels'
     ],
     alias: 'widget.device-channels-history',
@@ -69,7 +70,9 @@ Ext.define('Mdc.view.setup.devicechannels.History', {
             dockedItems: [
                 {
                     dock: 'top',
-                    xtype: 'device-channels-history-filter'
+                    xtype: me.showFilter ? 'device-channels-history-filter' : 'device-channels-history-interval-filter',
+                    filterDefault: me.filterDefault,
+                    hidden: !me.showFilter
                 }
             ]
         };

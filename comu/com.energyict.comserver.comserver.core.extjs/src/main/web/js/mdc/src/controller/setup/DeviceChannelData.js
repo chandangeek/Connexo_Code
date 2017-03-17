@@ -448,7 +448,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 break;
             case 'viewHistory':
                 route = 'devices/device/channels/channel/history';
-                filterParams = {endInterval: Number(menu.record.get('interval').end - 1) + '-' + Number(menu.record.get('interval').end)};
+                filterParams = {
+                    endInterval: Number(menu.record.get('interval').end - 1) + '-' + Number(menu.record.get('interval').end),
+                    isBulk: false
+                };
                 route && (route = router.getRoute(route));
                 route && route.forward(routeParams, filterParams);
                 break;
@@ -800,9 +803,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 break;
             case 'viewHistory':
                 route = 'devices/device/channels/channel/history';
-                var param = {};
-                me.getFilterPanel().down('#devicechannels-topfilter-duration').applyParamValue(param);
-                filterParams = {endInterval: param.intervalStart.toString() + '-' + param.intervalEnd.toString()};
+                filterParams = {
+                    interval: router.queryParams.interval,
+                    isBulk: true,
+                    changedDataOnly: 'yes'
+                };
                 break;
         }
 
@@ -1024,11 +1029,20 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 model.getProxy().setExtraParam('deviceId', deviceId);
                 model.load(channelId, {
                     success: function (channel) {
+                        var intervalStore = me.getStore('Uni.store.DataIntervalAndZoomLevels'),
+                            dataIntervalAndZoomLevels = intervalStore.getIntervalRecord(channel.get('interval')),
+                            durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations');
+
+                        durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
 
                         var widget = Ext.widget('device-channels-history', {
                             device: device,
                             router: router,
-                            channel: channel
+                            channel: channel,
+                            filterDefault: {
+                                durationStore: Ext.getStore('Mdc.store.LoadProfileDataDurations')
+                            },
+                            showFilter: router.queryParams.isBulk == "true"
                         });
                         var store = me.getStore('Mdc.store.HistoryChannels');
 

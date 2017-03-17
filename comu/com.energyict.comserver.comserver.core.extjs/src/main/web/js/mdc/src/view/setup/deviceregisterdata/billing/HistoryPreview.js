@@ -2,17 +2,13 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.view.setup.deviceregisterdata.numerical.HistoryPreview', {
+Ext.define('Mdc.view.setup.deviceregisterdata.billing.HistoryPreview', {
     extend: 'Mdc.view.setup.deviceregisterdata.MainPreview',
-    alias: 'widget.preview-device-registers-history-numerical',
+    alias: 'widget.preview-device-registers-history-billing',
     requires: [
         'Mdc.view.setup.deviceregisterdata.HistoryValidationPreview'
     ],
-
     title: '',
-    unitOfMeasureCollected: '',
-    unitOfMeasureCalculated: '',
-    multiplier: null,
 
     getGeneralItems: function () {
         var me = this;
@@ -42,9 +38,18 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.HistoryPreview', {
                                 renderer: me.renderDateTimeLong
                             },
                             {
-                                fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
-                                itemId: 'mdc-register-preview-numerical-multiplier',
-                                name: 'multiplier'
+                                fieldLabel: Uni.I18n.translate('general.interval', 'MDC', 'Interval'),
+                                labelWidth: 200,
+                                name: 'interval',
+                                renderer: function (value) {
+                                    if (!Ext.isEmpty(value)) {
+                                        var startDate = new Date(value.start),
+                                            endDate = new Date(value.end);
+                                        return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateLong(startDate), Uni.DateTime.formatTimeLong(startDate)])
+                                            + ' - '
+                                            + Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateLong(endDate), Uni.DateTime.formatTimeLong(endDate)])
+                                    }
+                                }
                             },
                             {
                                 fieldLabel: Uni.I18n.translate('device.registerData.changedOn', 'MDC', 'Changed on'),
@@ -71,7 +76,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.HistoryPreview', {
                         items: [
                             {
                                 xtype: 'fieldcontainer',
-                                fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
+                                fieldLabel: Uni.I18n.translate('device.registerData.value', 'MDC', 'Value'),
                                 layout: {
                                     type: 'hbox'
                                 },
@@ -80,46 +85,23 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.HistoryPreview', {
                                         xtype: 'displayfield',
                                         margin: '0 10 0 0',
                                         name: 'value',
-                                        renderer: function (value) {
-                                            var record = this.up('form').getRecord();
-                                            if (record && value) {
-                                                return Uni.Number.formatNumber(value, -1) + ' ' + me.unitOfMeasureCollected;
-                                            } else {
-                                                return '-'
+                                        renderer: function (v) {
+                                            var form = this.up('form'),
+                                                record = form.getRecord();
+                                            if (Ext.isEmpty(record)) {
+                                                return '-';
                                             }
+                                            var value = Ext.isEmpty(record.get('value')) ? record.get('calculatedValue') : record.get('value');
+                                            if (Ext.isEmpty(value)) {
+                                                return '-';
+                                            }
+                                            var unit = Ext.isEmpty(record.get('unit')) ? record.get('calculatedUnit') : record.get('unit');
+                                            return value + ' ' + unit;
                                         }
                                     },
                                     {
                                         xtype: 'edited-displayfield',
                                         name: 'modificationState'
-                                    }
-                                ]
-                            },
-                            {
-                                xtype: 'fieldcontainer',
-                                itemId: 'mdc-calculated-value-field',
-                                fieldLabel: Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value'),
-                                layout: {
-                                    type: 'hbox'
-                                },
-                                items: [
-                                    {
-                                        xtype: 'displayfield',
-                                        margin: '0 10 0 0',
-                                        name: 'calculatedValue',
-                                        renderer: function (value) {
-                                            var record = this.up('form').getRecord();
-                                            if (record && value) {
-                                                var unit = record.get('calculatedUnit');
-                                                return Uni.Number.formatNumber(value, -1) + ' ' + (unit ? unit : '');
-                                            } else {
-                                                return '-'
-                                            }
-                                        }
-                                    },
-                                    {
-                                        xtype: 'edited-displayfield',
-                                        name: 'calculatedModificationState'
                                     }
                                 ]
                             }

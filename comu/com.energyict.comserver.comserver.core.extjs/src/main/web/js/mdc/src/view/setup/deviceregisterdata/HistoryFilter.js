@@ -15,15 +15,20 @@ Ext.define('Mdc.view.setup.deviceregisterdata.HistoryFilter', {
             dataIndexFrom: 'intervalStart',
             dataIndexTo: 'intervalEnd',
             text: Uni.I18n.translate('deviceregisterdata.history.filter.endOfIntervalBetween.emptytext', 'MDC', 'End of interval between'),
-            itemId: 'end-interval--between-filter'
+            itemId: 'end-interval-between-filter'
         },
         {
-            type: 'interval',
-            dataIndex: 'changedInterval',
-            dataIndexFrom: 'changedStart',
-            dataIndexTo: 'changedEnd',
-            text: Uni.I18n.translate('deviceregisterdata.history.filter.changedBetween.emptytext', 'MDC', 'Changed between'),
-            itemId: 'changed-between-filter'
+            type: 'checkbox',
+            dataIndex: 'changedDataOnly',
+            layout: 'hbox',
+            defaults: {margin: '0 10 0 0'},
+            options: [
+                {
+                    display: Uni.I18n.translate('deviceregisterdata.history.filter.changedData', 'MDC', 'Changed data'),
+                    value: 'yes',
+                    itemId: 'changedData-filter'
+                }
+            ]
         }
     ]
 });

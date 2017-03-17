@@ -5,8 +5,7 @@
 Ext.define('Mdc.store.RegisterHistoryData', {
     extend: 'Ext.data.Store',
     requires: [
-        'Mdc.model.RegisterHistoryData',
-        //  'Mdc.store.RegisterDataDurations'
+        'Mdc.model.RegisterHistoryData'
     ],
 
     model: 'Mdc.model.RegisterHistoryData',

@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ActionMenu', {
             {
                 itemId: 'viewHistory',
                 text: Uni.I18n.translate('general.viewHistory', 'MDC', 'View history'),
-                action: 'viewhistory',
+                action: 'viewHistory',
                 section: this.SECTION_VIEW
             },
             {

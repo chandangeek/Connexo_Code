@@ -79,7 +79,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
                     xtype: 'form',
                     itemId: 'mdc-register-general-form',
                     frame: true,
-                    layout: 'vbox',
+                    align: 'stretch',
                     defaults: {
                         xtype: 'displayfield',
                         labelWidth: 200

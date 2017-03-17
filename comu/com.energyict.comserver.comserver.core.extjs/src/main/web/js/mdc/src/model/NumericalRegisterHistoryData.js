@@ -3,11 +3,8 @@
  */
 
 Ext.define('Mdc.model.NumericalRegisterHistoryData', {
-    extend: 'Mdc.model.RegisterData',
+    extend: 'Mdc.model.NumericalRegisterData',
     fields: [
-        {name: 'rawValue', type: 'auto', useNull: true, defaultValue: null},
-        {name: 'calculatedValue', type: 'string'},
-        {name: 'calculatedUnit', type: 'string'},
-        {name: 'multiplier', type: 'auto'}
+        {name: 'userName', type: 'string'}
     ]
 });

@@ -5,10 +5,8 @@
 Ext.define('Mdc.view.setup.deviceregisterdata.numerical.HistoryGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.device-registers-history-numerical',
-    itemId: 'deviceregisterreportgrid',
     store: 'Mdc.store.NumericalRegisterHistoryData',
     requires: [
-        'Uni.grid.column.Edited',
         'Uni.grid.column.ValidationFlag'
     ],
     maxHeight: 450,
@@ -21,12 +19,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.HistoryGrid', {
                 header: Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
                 dataIndex: 'timeStamp',
                 renderer: me.renderMeasurementTime,
-                flex: 1,
-                renderer1: function (value, metaData, record, rowIndex, colIndex, store) {
-                    if (rowIndex >= 1 && store.getAt(rowIndex - 1).get('timeStamp') == store.getAt(rowIndex).get('timeStamp')) {
-                        return;
-                    }
-                }
+                flex: 1
             },
             {
                 header: Uni.I18n.translate('device.registerData.changedOn', 'MDC', 'Changed on'),
@@ -52,9 +45,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.HistoryGrid', {
                         } else if (status === 'suspect') {
                             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;" data-qtip="'
                                 + Uni.I18n.translate('general.suspect', 'MDC', 'Suspect') + '"></span>';
-                        } else if (status === 'notValidated') {
-                            icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
-                                + Uni.I18n.translate('general.notValidated', 'MDC', 'Not validated') + '"></span>';
                         }
                         return Uni.Number.formatNumber(data, -1) + icon;
                     }
@@ -97,19 +87,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.HistoryGrid', {
                 emptyText: ' '
             },
             {
-                xtype: 'validation-flag-column',
-                dataIndex: 'deltaValue',
-                align: 'right',
-                minWidth: 150,
-                hidden: true,
-                flex: 1,
-                renderer: function (data) {
-                    if (!Ext.isEmpty(data)) {
-                        return Uni.Number.formatNumber(data, -1);
-                    }
-                }
-            },
-            {
                 header: Uni.I18n.translate('historyGrid.changedBy', 'MDC', 'Changed by'),
                 dataIndex: 'userName',
                 flex: 1
@@ -117,5 +94,38 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.HistoryGrid', {
         ];
 
         me.callParent(arguments);
+    },
+
+    renderMeasurementTime: function (value, metaData, record, rowIndex, colIndex, store) {
+        if (Ext.isEmpty(value)) {
+            return '-';
+        }
+        var date = new Date(value),
+            showDeviceQualityIcon = false,
+            tooltipContent = '',
+            icon = '';
+
+        if (rowIndex >= 1 && store.getAt(rowIndex - 1).get('timeStamp') == value) {
+            return;
+        }
+
+        if (!Ext.isEmpty(record.get('readingQualities'))) {
+            Ext.Array.forEach(record.get('readingQualities'), function (readingQualityObject) {
+                if (readingQualityObject.cimCode.startsWith('1.')) {
+                    showDeviceQualityIcon |= true;
+                    tooltipContent += readingQualityObject.indexName + '<br>';
+                }
+            });
+            if (tooltipContent.length > 0) {
+                tooltipContent += '<br>';
+                tooltipContent += Uni.I18n.translate('general.deviceQuality.tooltip.moreMessage', 'MDC', 'View reading quality details for more information.');
+            }
+            if (showDeviceQualityIcon) {
+                icon = '<span class="icon-price-tags" style="margin-left:10px; position:absolute;" data-qtitle="'
+                    + Uni.I18n.translate('general.deviceQuality', 'MDC', 'Device quality') + '" data-qtip="'
+                    + tooltipContent + '"></span>';
+            }
+        }
+        return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)]) + icon;
     }
 });

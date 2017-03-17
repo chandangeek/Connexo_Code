@@ -199,6 +199,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
     chooseAction: function (menu, item) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
+            routeParams = router.arguments,
             grid = me.getPage().down('grid'),
             record = grid.getView().getSelectionModel().getLastSelected();
 
@@ -220,7 +221,9 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                 break;
             case 'viewHistory':
                 route = 'devices/device/registers/register/history';
-                filterParams = {endInterval: Number(menu.record.get('interval').end - 1) + '-' + Number(menu.record.get('interval').end)};
+                filterParams = {
+                    endInterval: Number(menu.record.get('timeStamp') - 1) + '-' + Number(menu.record.get('timeStamp'))
+                };
                 route && (route = router.getRoute(route));
                 route && route.forward(routeParams, filterParams);
                 break;
@@ -248,7 +251,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                 route = 'devices/device/registers/register/history';
                 var param = {};
                 me.getFilterPanel().down('#deviceregister-topfilter-interval').applyParamValue(param);
-                filterParams = {endInterval: param.intervalStart.toString() + '-' + param.intervalEnd.toString()};
+                filterParams = {
+                    endInterval: param.intervalStart.toString() + '-' + param.intervalEnd.toString(),
+                    changedDataOnly: 'yes'
+                };
                 break;
         }
 

@@ -2,9 +2,9 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.view.setup.devicechannels.HistoryFilter', {
+Ext.define('Mdc.view.setup.devicechannels.HistoryIntervalFilter', {
     extend: 'Uni.grid.FilterPanelTop',
-    xtype: 'device-channels-history-filter',
+    xtype: 'device-channels-history-interval-filter',
 
     requires: [
         'Mdc.store.HistoryChannels'
@@ -15,14 +15,12 @@ Ext.define('Mdc.view.setup.devicechannels.HistoryFilter', {
         var me = this;
         me.filters = [
             {
-                type: 'duration',
-                dataIndex: 'interval',
+                type: 'interval',
+                dataIndex: 'endInterval',
                 dataIndexFrom: 'intervalStart',
                 dataIndexTo: 'intervalEnd',
-                text: Uni.I18n.translate('general.startDate', 'MDC', 'Start date'),
-                durationStore: me.filterDefault.durationStore,
-                loadStore: false,
-                itemId: 'devicechannels-topfilter-duration'
+                text: Uni.I18n.translate('deviceregisterdata.history.filter.endOfIntervalBetween.emptytext', 'MDC', 'End of interval between'),
+                itemId: 'end-interval-between-filter'
             },
             {
                 type: 'checkbox',

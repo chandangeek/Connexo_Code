@@ -6,13 +6,20 @@ Ext.define('Mdc.view.setup.deviceregisterdata.HistorySetup', {
     extend: 'Uni.view.container.ContentContainer',
     requires: [
         'Mdc.view.setup.deviceregisterdata.HistoryFilter',
+        'Mdc.view.setup.deviceregisterdata.billing.HistoryGrid',
+        'Mdc.view.setup.deviceregisterdata.flags.HistoryGrid',
         'Mdc.view.setup.deviceregisterdata.numerical.HistoryGrid',
-        'Mdc.view.setup.deviceregisterdata.numerical.HistoryPreview'
+        'Mdc.view.setup.deviceregisterdata.text.HistoryGrid',
+        'Mdc.view.setup.deviceregisterdata.billing.HistoryPreview',
+        'Mdc.view.setup.deviceregisterdata.flags.HistoryPreview',
+        'Mdc.view.setup.deviceregisterdata.numerical.HistoryPreview',
+        'Mdc.view.setup.deviceregisterdata.text.HistoryPreview'
     ],
     alias: 'widget.device-register-history',
     device: null,
     register: null,
     type: null,
+    showFilter: true,
 
     initComponent: function () {
         var me = this;
@@ -39,7 +46,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.HistorySetup', {
             items: [
                 {
                     xtype: 'preview-container',
-                    itemId: 'device-registers-container',
+                    itemId: 'device-registers-history-container',
                     grid: {
                         xtype: 'device-registers-history-' + me.type,
                         itemId: 'device-registers-history',
@@ -58,7 +65,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.HistorySetup', {
                     },
                     previewComponent: {
                         xtype: 'preview-device-registers-history-' + me.type,
-                        itemId: 'preview-device-registers-history-' + me.type,
+                        itemId: 'preview-device-registers-history',
                         channelRecord: me.channel,
                         router: me.router,
                         device: me.device
@@ -69,7 +76,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.HistorySetup', {
                 {
                     dock: 'top',
                     xtype: 'device-register-history-filter',
-                    itemId: 'device-register-history-filter'
+                    itemId: 'device-register-history-filter',
+                    hidden: !me.showFilter
                 }
             ]
         };
