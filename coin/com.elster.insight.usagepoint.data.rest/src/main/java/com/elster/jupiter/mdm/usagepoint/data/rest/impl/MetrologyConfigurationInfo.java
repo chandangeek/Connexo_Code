@@ -42,6 +42,7 @@ public class MetrologyConfigurationInfo {
     public IdWithNameInfo status;
     public List<MeterRoleInfo> meterRoles;
     public List<PurposeInfo> purposes;
+    public boolean requiresCalendar;
 
     @JsonIgnore
     public Thesaurus thesaurus;
@@ -68,6 +69,7 @@ public class MetrologyConfigurationInfo {
                 .sorted(Comparator.comparing(info -> info.name))
                 .collect(Collectors.toList());
         this.status = statusInfo();
+        this.requiresCalendar = metrologyConfiguration.requiresCalendarOnUsagePoint();
     }
 
     private IdWithNameInfo statusInfo() {
@@ -207,6 +209,7 @@ public class MetrologyConfigurationInfo {
         this.name = usagePointMetrologyConfiguration.getName();
         this.version = usagePointMetrologyConfiguration.getVersion();
         this.customPropertySets = customPropertySets;
+        this.requiresCalendar = usagePointMetrologyConfiguration.requiresCalendarOnUsagePoint();
     }
 
     public MetrologyConfigurationInfo(UsagePointMetrologyConfiguration usagePointMetrologyConfiguration) {

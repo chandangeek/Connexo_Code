@@ -4,6 +4,9 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -171,6 +174,7 @@ public class UsagePointResource {
     private final UsagePointLifeCycleService usagePointLifeCycleService;
     private final PropertyValueInfoService propertyValueInfoService;
     private final ValidationService validationService;
+    private final CalendarService calendarService;
 
     @Inject
     public UsagePointResource(RestQueryService queryService,
@@ -200,7 +204,8 @@ public class UsagePointResource {
                               TransactionService transactionService,
                               UsagePointLifeCycleService usagePointLifeCycleService,
                               PropertyValueInfoService propertyValueInfoService,
-                              ValidationService validationService) {
+                              ValidationService validationService,
+                              CalendarService calendarService) {
         this.queryService = queryService;
         this.timeService = timeService;
         this.meteringService = meteringService;
@@ -229,6 +234,7 @@ public class UsagePointResource {
         this.usagePointLifeCycleService = usagePointLifeCycleService;
         this.propertyValueInfoService = propertyValueInfoService;
         this.validationService = validationService;
+        this.calendarService = calendarService;
     }
 
     @GET
@@ -1023,8 +1029,21 @@ public class UsagePointResource {
                 usagePoint.apply((UsagePointMetrologyConfiguration)resourceHelper
                         .findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id));
             }
-
             resourceHelper.activateMeters(info, usagePoint);
+            info.calendars.forEach(calendarInfo -> {
+                Calendar calendar = calendarService.findCalendar(calendarInfo.calendar.id).orElse(null);
+                Instant start = Instant.ofEpochMilli(calendarInfo.fromTime);
+                UsagePoint.CalendarUsage calendarUsage;
+                if(calendarInfo.immediately){
+                    calendarUsage = usagePoint.getUsedCalendars().addCalendar(calendar);
+                } else {
+                    calendarUsage = usagePoint.getUsedCalendars().addCalendar(calendar, start);
+                }
+            });
+
+
+
+
             performLifeCycleTransition(info.transitionToPerform, usagePoint, validationBuilder);
             transaction.commit();
         }
