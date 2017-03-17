@@ -4,13 +4,12 @@
 
 package com.elster.jupiter.issue.share;
 
-import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.xml.bind.annotation.XmlTransient;
-import java.math.BigDecimal;
 import java.util.Arrays;
 
 public final class Priority implements Comparable<Priority>, Cloneable {
+
     @Valid
     private int urgency;
     @Valid
@@ -18,7 +17,7 @@ public final class Priority implements Comparable<Priority>, Cloneable {
 
     private Rank rank;
 
-    public static final Priority DEFAULT = new Priority(25,5);
+    public static final Priority DEFAULT = new Priority(25, 5);
 
     enum Rank {
         VERY_HIGH("Very High"),
@@ -92,24 +91,27 @@ public final class Priority implements Comparable<Priority>, Cloneable {
     }
 
     public boolean isHighest() {
-        return urgency > 50 || impact > 50;
+        return urgency >= 50 || impact >= 50;
     }
 
     public boolean isLowest() {
-        return urgency < 1 || impact < 1;
+        return urgency <= 1 || impact <= 1;
     }
 
-    public void increaseUrgency() {
-        ++this.urgency;
-        if (isHighest()) {
-            throw new IllegalStateException();
+    public int increaseUrgency() {
+
+        if (!isHighest()) {
+           return ++this.urgency;
+        } else {
+            return 50;
         }
     }
 
-    public void lowerUrgency() {
-        --this.urgency;
-        if (isLowest()) {
-            throw new IllegalStateException();
+    public int lowerUrgency() {
+        if (!isLowest()) {
+            return --this.urgency;
+        } else {
+            return 1;
         }
     }
 
@@ -158,13 +160,11 @@ public final class Priority implements Comparable<Priority>, Cloneable {
             throw new IllegalArgumentException("Incorrectly formatted priority.Please check format and range.");
         }
 
-        if (Arrays.asList(parts)
-                .stream()
+        if (Arrays.stream(parts)
                 .anyMatch(element -> element.split(",").length > 2
                         || element.split(".").length > 2)) {
             throw new IllegalArgumentException("Incorrectly formatted priority.Please check format and range.");
         }
-
 
         int urgency = Integer.valueOf(parts[0].contains(",") ? String.valueOf(parts[0].replace(",", ".")) : parts[0]);
         int impact = Integer.valueOf(parts[1].contains(",") ? String.valueOf(parts[1].replace(",", ".")) : parts[1]);
