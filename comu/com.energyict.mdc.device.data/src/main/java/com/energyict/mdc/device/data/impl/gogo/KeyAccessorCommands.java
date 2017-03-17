@@ -41,6 +41,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.stream.Collectors.toList;
+
 /**
  * Created by bvn on 1/31/17.
  */
@@ -50,7 +52,9 @@ import java.util.Optional;
                 "osgi.command.scope=ka",
                 "osgi.command.function=keyAccessors",
                 "osgi.command.function=importCertificateWithKey",
-                "osgi.command.function=generateCSR"
+                "osgi.command.function=generateCSR",
+                "osgi.command.function=truststores",
+                "osgi.command.function=createTrustStore"
         },
         immediate = true)
 public class KeyAccessorCommands {
@@ -199,6 +203,26 @@ public class KeyAccessorCommands {
             context.commit();
         } catch (Exception e) {
             System.err.println("Failed to create CSR: "+e.getMessage());
+        }
+    }
+
+    public void trustStores() {
+        List<List<?>> lists = pkiService.getAllTrustStores()
+                .stream()
+                .map(ts -> Arrays.asList(ts.getName(), ts.getCertificates().size()))
+                .collect(toList());
+        MYSQL_PRINT.printTableWithHeader(Arrays.asList("Name", "# Certificates"), lists);
+    }
+
+    public void createTrustStore() {
+        System.out.println("Usage: createTrustStore <name>");
+        System.out.println("E.g. : createTrustStore \"DLMS main\"");
+    }
+
+    public void createTrustStore(String name) {
+        try (TransactionContext context = transactionService.getContext()) {
+            pkiService.newTrustStore(name).description("Created by GoGo command").add();
+            context.commit();
         }
     }
 }
