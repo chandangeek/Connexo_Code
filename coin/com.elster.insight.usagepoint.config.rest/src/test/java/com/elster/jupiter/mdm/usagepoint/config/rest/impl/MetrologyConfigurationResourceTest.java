@@ -140,35 +140,6 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         return validationRuleSetVersion;
     }
 
-    private UsagePoint mockUsagePoint(long id, String name, long version, ServiceKind serviceKind) {
-        UsagePoint usagePoint = mock(UsagePoint.class);
-        when(usagePoint.getId()).thenReturn(id);
-        when(usagePoint.getVersion()).thenReturn(version);
-        when(usagePoint.getName()).thenReturn(name);
-        when(usagePoint.getAliasName()).thenReturn("alias " + name);
-        when(usagePoint.getDescription()).thenReturn("usage point desc");
-        when(usagePoint.getOutageRegion()).thenReturn("outage region");
-        when(usagePoint.getReadRoute()).thenReturn("read route");
-        when(usagePoint.getServiceLocationString()).thenReturn("location");
-        ServiceCategory serviceCategory = mock(ServiceCategory.class);
-        when(serviceCategory.getKind()).thenReturn(serviceKind);
-        when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
-        //doReturn(Optional.ofNullable(detail)).when(usagePoint).getDetail(any(Instant.class));
-        //when(usagePoint.getMRID()).thenReturn(mockMRID(id));
-        when(usagePoint.getInstallationTime()).thenReturn(LocalDateTime.of(2016, 3, 20, 11, 0)
-                .toInstant(ZoneOffset.UTC));
-        when(usagePoint.getServiceDeliveryRemark()).thenReturn("remark");
-        when(usagePoint.getServicePriority()).thenReturn("service priority");
-        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
-
-        //when(usagePoint.forCustomProperties()).thenReturn(extension);
-        when(meteringService.findUsagePointById(id)).thenReturn(Optional.of(usagePoint));
-        /*when(meteringService.findAndLockUsagePointByIdAndVersion(eq(id), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional
-                .empty());*/
-        when(meteringService.findAndLockUsagePointByIdAndVersion(id, version)).thenReturn(Optional.of(usagePoint));
-        return usagePoint;
-    }
-
     private UsagePointMetrologyConfiguration mockMetrologyConfiguration(long id, String name, ServiceKind serviceKind, MetrologyConfigurationStatus status) {
         UsagePointMetrologyConfiguration mock = mock(UsagePointMetrologyConfiguration.class);
         when(mock.getId()).thenReturn(id);
