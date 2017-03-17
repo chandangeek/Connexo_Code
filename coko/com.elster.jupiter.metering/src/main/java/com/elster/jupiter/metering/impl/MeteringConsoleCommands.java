@@ -858,7 +858,7 @@ public class MeteringConsoleCommands {
             Instant endDate = LocalDateTime.from(dateTimeFormat.parse(timestamp)).atZone(ZoneId.systemDefault()).toInstant();
             EffectiveMetrologyConfigurationOnUsagePoint configurationOnUsagePoint = usagePoint.getCurrentEffectiveMetrologyConfiguration()
                     .orElseThrow(() -> new IllegalArgumentException("Usage point "+usagePointName + " does not have open metrology configuration"));
-            configurationOnUsagePoint.close(endDate);
+            usagePoint.getCurrentEffectiveMetrologyConfiguration().get().close(endDate);
             context.commit();
         }
     }
