@@ -88,7 +88,7 @@ public class PlaintextSymmetricKey implements SymmetricKeyWrapper, Renewable {
 
     public SecretKey getKey() {
         byte[] decrypt = dataVaultService.decrypt(this.encryptedKey);
-        return new SecretKeySpec(decrypt, getKeyType().getAlgorithm());
+        return new SecretKeySpec(decrypt, getKeyType().getKeyAlgorithm());
     }
 
     private KeyType getKeyType() {
@@ -118,7 +118,7 @@ public class PlaintextSymmetricKey implements SymmetricKeyWrapper, Renewable {
     }
 
     private void doRenewValue() throws NoSuchAlgorithmException {
-        KeyGenerator keyGenerator = KeyGenerator.getInstance(getKeyType().getAlgorithm());
+        KeyGenerator keyGenerator = KeyGenerator.getInstance(getKeyType().getKeyAlgorithm());
         keyGenerator.init(getKeyType().getKeySize());
         setKey(keyGenerator.generateKey());
         this.save();

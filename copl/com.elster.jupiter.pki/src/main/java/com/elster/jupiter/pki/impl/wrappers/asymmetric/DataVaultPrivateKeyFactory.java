@@ -44,7 +44,7 @@ public class DataVaultPrivateKeyFactory implements PrivateKeyFactory {
 
     @Override
     public PrivateKeyWrapper newPrivateKeyWrapper(KeyAccessorType keyAccessorType) {
-        switch (PkiService.AsymmetricKeyAlgorithms.valueOf(keyAccessorType.getKeyType().getAlgorithm())) {
+        switch (PkiService.AsymmetricKeyAlgorithms.valueOf(keyAccessorType.getKeyType().getKeyAlgorithm())) {
             case ECDSA: return newEcdsaPrivateKey(keyAccessorType);
             case RSA: return newRsaPrivateKey(keyAccessorType);
             case DSA: return newDsaPrivateKey(keyAccessorType);

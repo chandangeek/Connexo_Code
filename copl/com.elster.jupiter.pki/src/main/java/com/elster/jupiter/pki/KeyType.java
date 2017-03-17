@@ -38,7 +38,7 @@ public interface KeyType extends HasName, HasId {
     /**
      * The cryptographic type identifies the actual stored value. This can be a X509Certificate with or without private
      * key, or a symmetric key.
-     * @return
+     * @return The {@link CryptographicType}
      */
     CryptographicType getCryptographicType();
 
@@ -46,10 +46,16 @@ public interface KeyType extends HasName, HasId {
      * Identifier of the algorithm to generate a new value or reconstruct current value
      * for an async keypair: "EC", "DSA", "RSA"
      * for a sym key: "AES", "Blowfish", ...
-     * for certificates: Signing Algorithm, e.g. SHA256withRSA
-     * @return
+     * @return The key algorithm, if applicable.
      */
-    String getAlgorithm();
+    String getKeyAlgorithm();
+
+    /**
+     * Identifier of the signing algorithm on certificates
+     * e.g. SHA256withRSA
+     * @return The signing algorithm if applciable, non-client certificate types will return null;
+     */
+    String getSignatureAlgorithm();
 
     /**
      * Returns the bit length in case of a symmetric key

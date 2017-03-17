@@ -25,7 +25,8 @@ public enum TableSpecs {
             table.map(KeyTypeImpl.class);
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar().notNull().map(KeyTypeImpl.Fields.NAME.fieldName()).add();
-            table.column("ALGORITHM").varChar().map(KeyTypeImpl.Fields.ALGORITHM.fieldName()).add();
+            table.column("ALGORITHM").varChar().map(KeyTypeImpl.Fields.KEY_ALGORITHM.fieldName()).add();
+            table.column("SIGNATURE").varChar().map(KeyTypeImpl.Fields.SIGNATURE_ALGORITHM.fieldName()).add();
             table.column("DESCRIPTION").varChar().map(KeyTypeImpl.Fields.DESCRIPTION.fieldName()).add();
             table.column("CURVE").varChar().map(KeyTypeImpl.Fields.CURVE.fieldName()).add();
             table.column("KEYSIZE").number().conversion(NUMBER2INT).map(KeyTypeImpl.Fields.KEY_SIZE.fieldName()).add();

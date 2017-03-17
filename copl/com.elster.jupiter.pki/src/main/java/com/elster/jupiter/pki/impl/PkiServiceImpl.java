@@ -200,17 +200,10 @@ public class PkiServiceImpl implements PkiService {
     public KeyTypeBuilder newSymmetricKeyType(String name, String keyAlgorithmName, int keySize) {
         KeyTypeImpl keyType = dataModel.getInstance(KeyTypeImpl.class);
         keyType.setName(name);
-        keyType.setAlgorithm(keyAlgorithmName);
+        keyType.setKeyAlgorithm(keyAlgorithmName);
         keyType.setCryptographicType(CryptographicType.SymmetricKey);
         keyType.setKeySize(keySize);
         return new KeyTypeBuilderImpl(keyType);
-    }
-
-    @Override
-    public AsyncKeyTypeBuilder newAsymmetricKeyType(String name) {
-        KeyTypeImpl instance = dataModel.getInstance(KeyTypeImpl.class);
-        instance.setCryptographicType(CryptographicType.AsymmetricKey);
-        return new AsyncKeyTypeBuilderImpl(name, instance);
     }
 
     @Override
@@ -218,7 +211,7 @@ public class PkiServiceImpl implements PkiService {
         KeyTypeImpl keyType = dataModel.getInstance(KeyTypeImpl.class);
         keyType.setCryptographicType(CryptographicType.ClientCertificate);
         keyType.setName(name);
-        keyType.setAlgorithm(signingAlgorithm);
+        keyType.setSignatureAlgorithm(signingAlgorithm);
         return new ClientCertificateTypeBuilderImpl(keyType);
     }
 
@@ -278,10 +271,10 @@ public class PkiServiceImpl implements PkiService {
     }
 
     @Override
-    public ClientCertificateWrapper newClientCertificateWrapper(String alias, KeyAccessorType certAccessorType, KeyAccessorType privateKeyAccessorType) {
-        AbstractPlaintextPrivateKeyWrapperImpl privateKeyWrapper = (AbstractPlaintextPrivateKeyWrapperImpl) this.newPrivateKeyWrapper(privateKeyAccessorType);
+    public ClientCertificateWrapper newClientCertificateWrapper(String alias, KeyAccessorType clientCertificateAccessorType) {
+        AbstractPlaintextPrivateKeyWrapperImpl privateKeyWrapper = (AbstractPlaintextPrivateKeyWrapperImpl) this.newPrivateKeyWrapper(clientCertificateAccessorType);
         ClientCertificateWrapperImpl clientCertificate = getDataModel().getInstance(ClientCertificateWrapperImpl.class)
-                .init(alias, privateKeyWrapper, certAccessorType.getKeyType());
+                .init(alias, privateKeyWrapper, clientCertificateAccessorType.getKeyType());
         clientCertificate.save();
         return clientCertificate;
     }
@@ -316,57 +309,21 @@ public class PkiServiceImpl implements PkiService {
             super.description(description);
             return this;
         }
-    }
-
-    private class CertificateTypeBuilderImpl implements CertificateTypeBuilder {
-        private final KeyTypeImpl underConstruction;
-
-        private CertificateTypeBuilderImpl(KeyTypeImpl underConstruction) {
-            this.underConstruction = underConstruction;
-        }
-
-        @Override
-        public CertificateTypeBuilder description(String description) {
-            this.underConstruction.setDescription(description);
-            return this;
-        }
-
-        @Override
-        public KeyType add() {
-            underConstruction.save();
-            return underConstruction;
-        }
-    }
-
-    private class AsyncKeyTypeBuilderImpl implements AsyncKeyTypeBuilder {
-
-        private final KeyTypeImpl underConstruction;
-        AsyncKeyTypeBuilderImpl(String name, KeyTypeImpl instance) {
-            this.underConstruction = instance;
-            this.underConstruction.setName(name);
-        }
-
-        @Override
-        public AsyncKeyTypeBuilder description(String description) {
-            this.underConstruction.setDescription(description);
-            return this;
-        }
-
         @Override
         public AsyncKeySizeBuilder RSA() {
-            this.underConstruction.setAlgorithm(AsymmetricKeyAlgorithms.RSA.name());
+            this.underConstruction.setKeyAlgorithm(AsymmetricKeyAlgorithms.RSA.name());
             return new AsyncKeySizeBuilderImpl();
         }
 
         @Override
         public AsyncKeySizeBuilder DSA() {
-            this.underConstruction.setAlgorithm(AsymmetricKeyAlgorithms.DSA.name());
+            this.underConstruction.setKeyAlgorithm(AsymmetricKeyAlgorithms.DSA.name());
             return new AsyncKeySizeBuilderImpl();
         }
 
         @Override
         public AsyncCurveBuilder ECDSA() {
-            this.underConstruction.setAlgorithm(AsymmetricKeyAlgorithms.ECDSA.name());
+            this.underConstruction.setKeyAlgorithm(AsymmetricKeyAlgorithms.ECDSA.name());
             return new AsyncCurveBuilderImpl();
         }
 
@@ -399,6 +356,21 @@ public class PkiServiceImpl implements PkiService {
                 return underConstruction;
             }
 
+        }
+
+    }
+
+    private class CertificateTypeBuilderImpl implements CertificateTypeBuilder {
+        private final KeyTypeImpl underConstruction;
+
+        private CertificateTypeBuilderImpl(KeyTypeImpl underConstruction) {
+            this.underConstruction = underConstruction;
+        }
+
+        @Override
+        public CertificateTypeBuilder description(String description) {
+            this.underConstruction.setDescription(description);
+            return this;
         }
     }
 

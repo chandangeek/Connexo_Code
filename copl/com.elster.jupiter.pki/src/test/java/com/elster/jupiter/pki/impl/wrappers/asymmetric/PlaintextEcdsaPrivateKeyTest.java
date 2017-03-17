@@ -70,7 +70,7 @@ public class PlaintextEcdsaPrivateKeyTest {
         KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
         keyType = mock(KeyType.class);
         when(keyAccessorType.getKeyType()).thenReturn(keyType);
-        when(keyType.getAlgorithm()).thenReturn("ECDSA");
+        when(keyType.getKeyAlgorithm()).thenReturn("ECDSA");
         when(keyType.getCurve()).thenReturn("secp256r1");
         privateKeyWrapper = new PlaintextEcdsaPrivateKey(datavaultService, propertySpecService, dataModel, thesaurus);
         privateKeyWrapper.init(keyAccessorType);

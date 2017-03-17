@@ -26,7 +26,9 @@ public class KeyTypeImpl implements KeyType {
     private String description;
     private CryptographicType cryptographicType;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String algorithm;
+    private String keyAlgorithm;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String signatureAlgorithm;
     private Integer keySize;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String curve;
@@ -37,7 +39,8 @@ public class KeyTypeImpl implements KeyType {
     enum Fields {
         NAME("name"),
         CRYPTOGRAPHIC_TYPE("cryptographicType"),
-        ALGORITHM("algorithm"),
+        KEY_ALGORITHM("keyAlgorithm"),
+        SIGNATURE_ALGORITHM("signatureAlgorithm"),
         KEY_SIZE("keySize"),
         DESCRIPTION("description"),
         CURVE("curve"),
@@ -96,12 +99,21 @@ public class KeyTypeImpl implements KeyType {
     }
 
     @Override
-    public String getAlgorithm() {
-        return algorithm;
+    public String getKeyAlgorithm() {
+        return keyAlgorithm;
     }
 
-    public void setAlgorithm(String algorithm) {
-        this.algorithm = algorithm;
+    public void setKeyAlgorithm(String algorithm) {
+        this.keyAlgorithm = algorithm;
+    }
+
+    @Override
+    public String getSignatureAlgorithm() {
+        return signatureAlgorithm;
+    }
+
+    public void setSignatureAlgorithm(String signatureAlgorithm) {
+        this.signatureAlgorithm = signatureAlgorithm;
     }
 
     @Override

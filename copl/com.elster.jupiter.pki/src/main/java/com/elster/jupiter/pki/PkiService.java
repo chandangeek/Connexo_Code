@@ -73,19 +73,12 @@ public interface PkiService {
     KeyTypeBuilder newSymmetricKeyType(String name, String keyAlgorithmName, int keySize);
 
     /**
-     * Creates a new KeyType describing an asymmetric key.
+     * Creates a KeyType for a certificate that will be used to proof identity towards other party. Allows specifying key
+     * usages and extended key usages, so that CSR can be generated for certificate renewal.
+     * Also creates describtion off an asymmetric key.
      * Required parameters are algorithm (currently only RSA, DSA and EC are supported) and depending on the algorithm: curve or key size
      * @param name The name given to this key type. The name will be a unique identifier.
      * @return A builder guiding you through the creation of an asymmetric key definition
-     */
-    AsyncKeyTypeBuilder newAsymmetricKeyType(String name);
-
-    /**
-     * Creates a KeyType for a certificate that will be used to proof identity towards other party. Allows specifying key
-     * usages and extended key usages, so that CSR can be generated for certificate renewal.
-     * @param name The type's name
-     * @param signingAlgorithm the algorithm to be used to generate a signature on CSR, e.g. SHA256withRSA
-     * @return a certificate type builder, allowing you to set key usages and extended key usages
      */
     ClientCertificateTypeBuilder newClientCertificateType(String name, String signingAlgorithm);
 
@@ -140,32 +133,25 @@ public interface PkiService {
      * Creates a new Client certificate wrapper.
      *
      * @param alias The alias by which this CertificateHolder will be known
-     * @param certAccessorType The Key AccessorType describing the certificate
-     * @param privateKeyAccessorType The key accessor type describing the private key
+     * @param clientCertificateAccessorType The Key AccessorType describing the certificate and the private key
      * @return Persisted, empty ClientCertificateWrapper
      */
-    ClientCertificateWrapper newClientCertificateWrapper(String alias, KeyAccessorType certAccessorType, KeyAccessorType privateKeyAccessorType);
+    ClientCertificateWrapper newClientCertificateWrapper(String alias, KeyAccessorType clientCertificateAccessorType);
 
     Optional<ClientCertificateWrapper> findClientCertificateWrapper(String alias);
 
     public interface CertificateTypeBuilder {
         CertificateTypeBuilder description(String description);
-        KeyType add();
     }
 
     public interface ClientCertificateTypeBuilder extends CertificateTypeBuilder {
         ClientCertificateTypeBuilder description(String description);
         ClientCertificateTypeBuilder setKeyUsages(EnumSet<KeyUsage> keyUsages);
         ClientCertificateTypeBuilder setExtendedKeyUsages(EnumSet<ExtendedKeyUsage> keyUsages);
-        KeyType add();
-    }
-
-    public interface AsyncKeyTypeBuilder {
-        AsyncKeyTypeBuilder description(String description);
         AsyncKeySizeBuilder RSA();
         AsyncKeySizeBuilder DSA();
         AsyncCurveBuilder ECDSA();
-    };
+    }
 
     public interface AsyncKeySizeBuilder {
         AsyncKeySizeBuilder keySize(int keySize);

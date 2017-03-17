@@ -50,36 +50,39 @@ public enum ProtocolKeyTypes {
             return pkiService.newSymmetricKeyType(getName(), "DES", 64).description("Created by test class").add();
         }
     },
-    SECP256R1 {
-        public String getName() {
-            return "NIST P-256";
-        }
-        public KeyType createKeyType(PkiService pkiService) {
-            return pkiService.newAsymmetricKeyType(getName()).ECDSA().curve("secp256r1").add();
-        }
-
-    },
-    SECP384R1 {
-        public String getName() {
-            return "NIST P-384";
-        }
-        public KeyType createKeyType(PkiService pkiService) {
-            return pkiService.newAsymmetricKeyType(getName()).ECDSA().curve("secp384r1").add();
-        }
-    },
-    TLS_CLIENT {
+    TLS_CLIENT_SUITE_1 {
         @Override
         public String getName() {
-            return "TLS Client";
+            return "DLMS TLS Client suite 1";
         }
 
         @Override
         public KeyType createKeyType(PkiService pkiService) {
             return pkiService
                     .newClientCertificateType(getName(), "SHA256withECDSA")
-                    .description("TLS client certificate")
+                    .description("DLMS TLS SUITE 1")
                     .setKeyUsages(EnumSet.of(KeyUsage.keyAgreement, KeyUsage.keyCertSign))
                     .setExtendedKeyUsages(EnumSet.of(ExtendedKeyUsage.tlsWebClientAuthentication, ExtendedKeyUsage.tlsWebServerAuthentication))
+                    .ECDSA()
+                    .curve("secp256r1")
+                    .add();
+        }
+    },
+    TLS_CLIENT_SUITE_2 {
+        @Override
+        public String getName() {
+            return "DLMS TLS Client suite 2";
+        }
+
+        @Override
+        public KeyType createKeyType(PkiService pkiService) {
+            return pkiService
+                    .newClientCertificateType(getName(), "SHA256withECDSA")
+                    .description("DLMS TLS SUITE 2")
+                    .setKeyUsages(EnumSet.of(KeyUsage.keyAgreement, KeyUsage.keyCertSign))
+                    .setExtendedKeyUsages(EnumSet.of(ExtendedKeyUsage.tlsWebClientAuthentication, ExtendedKeyUsage.tlsWebServerAuthentication))
+                    .ECDSA()
+                    .curve("secp384r1")
                     .add();
         }
     }
