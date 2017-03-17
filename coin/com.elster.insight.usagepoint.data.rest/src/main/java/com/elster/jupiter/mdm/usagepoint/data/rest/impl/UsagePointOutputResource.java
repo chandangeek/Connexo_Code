@@ -55,6 +55,7 @@ import com.google.common.collect.TreeRangeSet;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.swing.text.html.Option;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -77,6 +78,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -305,6 +307,7 @@ public class UsagePointOutputResource {
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.ESTIMATE_WITH_RULE, Privileges.Constants.EDIT_WITH_ESTIMATOR})
     public Response editChannelDataOfOutput(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
                                             @BeanParam JsonQueryParameters queryParameters, List<OutputChannelDataInfo> channelDataInfos) {
+
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
@@ -489,18 +492,28 @@ public class UsagePointOutputResource {
                         Stream.concat(persistedReadings.keySet().stream(), calculatedReadings.keySet().stream())
                                 .distinct()
                                 .collect(Collectors.toMap(Function.identity(), readingWithValidationStatusFactory::createRegisterReading, (a, b) -> a));
-
-                for (Map.Entry<Instant, RegisterReadingWithValidationStatus> entry : preFilledRegisterDataMap.entrySet()) {
+                TreeMap<Instant, RegisterReadingWithValidationStatus> sortedPreFilledRegisterDataMap = new TreeMap<>();
+                sortedPreFilledRegisterDataMap.putAll(preFilledRegisterDataMap);
+                ReadingRecord previousReadingRecord = null;
+                for (Map.Entry<Instant, RegisterReadingWithValidationStatus> entry : sortedPreFilledRegisterDataMap.entrySet()) {
                     Instant readingTimestamp = entry.getKey();
                     RegisterReadingWithValidationStatus readingWithValidationStatus = entry.getValue();
                     ReadingRecord persistedReading = persistedReadings.get(readingTimestamp);
+//                    ReadingRecord tempPreviousReadingRecord = null;
+                    readingWithValidationStatus.setPreviousReadingRecord(previousReadingRecord);
                     if (persistedReading != null && (persistedReading.getValue() != null || persistedReading.getText() != null)) {
                         readingWithValidationStatus.setPersistedReadingRecord(persistedReading);
+                       // readingWithValidationStatus.setPreviousReadingRecord(previousReadingRecord);
+                        previousReadingRecord = persistedReading;
+                    } else {
+                        ReadingRecord calculatedReading = calculatedReadings.get(readingTimestamp);
+                        if (calculatedReading != null) {
+                            readingWithValidationStatus.setCalculatedReadingRecord(calculatedReading);
+                            // readingWithValidationStatus.setPreviousReadingRecord(previousReadingRecord);
+                            previousReadingRecord = calculatedReading;
+                        }
                     }
-                    ReadingRecord calculatedReading = calculatedReadings.get(readingTimestamp);
-                    if (calculatedReading != null) {
-                        readingWithValidationStatus.setCalculatedReadingRecord(calculatedReading);
-                    }
+//                    previousReadingRecord = tempPreviousReadingRecord;
                 }
 
                 // add validation statuses to pre filled register data map
@@ -510,13 +523,13 @@ public class UsagePointOutputResource {
                         Stream.concat(persistedReadings.values().stream(), calculatedReadings.values().stream()).collect(Collectors.toList()),
                         effectiveInterval);
                 for (DataValidationStatus dataValidationStatus : dataValidationStatuses) {
-                    ReadingWithValidationStatus<ReadingRecord> readingWithValidationStatus = preFilledRegisterDataMap.get(dataValidationStatus.getReadingTimestamp());
+                    ReadingWithValidationStatus<ReadingRecord> readingWithValidationStatus = sortedPreFilledRegisterDataMap.get(dataValidationStatus.getReadingTimestamp());
                     if (readingWithValidationStatus != null) {
                         readingWithValidationStatus.setValidationStatus(dataValidationStatus);
                     }
                 }
 
-                outputRegisterData = preFilledRegisterDataMap.entrySet().stream()
+                outputRegisterData = sortedPreFilledRegisterDataMap.entrySet().stream()
                         .sorted(Collections.reverseOrder(Comparator.comparing(Map.Entry::getKey)))
                         .map(Map.Entry::getValue)
                         .filter(getSuspectsFilter(filter, this::hasSuspects))
@@ -564,7 +577,7 @@ public class UsagePointOutputResource {
 
         if (persistedReading.isPresent() && persistedReading.get().getValue() != null) {
             readingWithValidationStatus.setPersistedReadingRecord(persistedReading.get());
-            readingWithValidationStatus.setCalculatedReadingRecord(calculatedReading.get());
+            calculatedReading.ifPresent(readingWithValidationStatus::setCalculatedReadingRecord);
         } else if (calculatedReading.isPresent()) {
             readingWithValidationStatus.setCalculatedReadingRecord(calculatedReading.get());
         } else {
@@ -595,7 +608,10 @@ public class UsagePointOutputResource {
         ChannelsContainer channelsContainer = effectiveMetrologyConfigurationOnUsagePoint
                 .getChannelsContainer(metrologyContract).get();
         Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
-        if (registerDataInfo instanceof BillingOutputRegisterDataInfo && ((BillingOutputRegisterDataInfo) registerDataInfo).interval.start > ((BillingOutputRegisterDataInfo) registerDataInfo).interval.end) {
+        if (registerDataInfo instanceof BillingOutputRegisterDataInfo && ((BillingOutputRegisterDataInfo) registerDataInfo).interval!=null && ((BillingOutputRegisterDataInfo) registerDataInfo).interval.start > ((BillingOutputRegisterDataInfo) registerDataInfo).interval.end) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INTERVAL_END_BEFORE_START, "interval.end");
+        }
+        if (registerDataInfo instanceof NumericalOutputRegisterDataInfo && ((NumericalOutputRegisterDataInfo) registerDataInfo).interval!= null &&((NumericalOutputRegisterDataInfo) registerDataInfo).interval.start > ((NumericalOutputRegisterDataInfo) registerDataInfo).interval.end) {
             throw new LocalizedFieldValidationException(MessageSeeds.INTERVAL_END_BEFORE_START, "interval.end");
         }
         BaseReading reading = registerDataInfo.createNew(readingTypeDeliverable.getReadingType());

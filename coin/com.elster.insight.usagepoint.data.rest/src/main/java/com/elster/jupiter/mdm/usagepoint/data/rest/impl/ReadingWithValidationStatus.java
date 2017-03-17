@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.DataValidationStatus;
 
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -31,6 +32,7 @@ public abstract class ReadingWithValidationStatus<T extends BaseReadingRecord> {
 
     private T persistedReadingRecord;
     private T calculatedReadingRecord;
+    private T previousReadingRecord;
     private DataValidationStatus validationStatus;
 
     public ReadingWithValidationStatus(ZonedDateTime readingTimeStamp, ChannelGeneralValidation channelGeneralValidation) {
@@ -54,6 +56,10 @@ public abstract class ReadingWithValidationStatus<T extends BaseReadingRecord> {
         this.calculatedReadingRecord = readingRecord;
     }
 
+    public void setPreviousReadingRecord(T previousReadingRecord) {
+        this.previousReadingRecord = previousReadingRecord;
+    }
+
     public Instant getTimeStamp() {
         return this.readingTimeStamp.toInstant();
     }
@@ -66,7 +72,20 @@ public abstract class ReadingWithValidationStatus<T extends BaseReadingRecord> {
         return getReading().map(BaseReading::getValue).orElse(null);
     }
 
-    private Optional<T> getReading() {
+    public BigDecimal getPreviousValue(){
+        return getPreviousReading().map(BaseReading::getValue).orElse(null);
+    }
+
+    public BigDecimal getDeltaValue(){
+        BigDecimal value = getValue();
+        BigDecimal previousValue = getPreviousValue();
+        if(value != null && previousValue != null) {
+            return value.subtract(previousValue);
+        }
+        return null;
+    }
+
+    public Optional<T> getReading() {
         if (this.persistedReadingRecord != null) {
             return Optional.of(this.persistedReadingRecord);
         }
@@ -76,10 +95,17 @@ public abstract class ReadingWithValidationStatus<T extends BaseReadingRecord> {
         return Optional.empty();
     }
 
+    public Optional<T> getPreviousReading() {
+            return Optional.ofNullable(this.previousReadingRecord);
+    }
+
     public Optional<BigDecimal> getCalculatedValue() {
         return Optional.ofNullable(this.calculatedReadingRecord).map(T::getValue);
     }
 
+    public Optional<Instant> getEventDate() {
+        return Optional.of(this.getTimeStamp());
+    }
     public boolean isChannelValidationActive() {
         return this.channelGeneralValidation.isValidationActive;
     }
