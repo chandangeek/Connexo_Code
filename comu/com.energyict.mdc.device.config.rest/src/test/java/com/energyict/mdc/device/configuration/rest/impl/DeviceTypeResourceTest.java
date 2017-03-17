@@ -52,6 +52,7 @@ import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.configuration.rest.RegisterConfigInfo;
 import com.energyict.mdc.device.data.Device;
@@ -1298,7 +1299,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         List<Map<String, Object>> connectionMethods = (List<Map<String, Object>>) response.get("data");
         assertThat(connectionMethods).hasSize(1);
         Map<String, Object> connectionMethod = connectionMethods.get(0);
-        assertThat(connectionMethod).hasSize(15)
+        assertThat(connectionMethod).hasSize(16)
                 .containsKey("id")
                 .containsKey("name")
                 .containsKey("direction")
@@ -1308,10 +1309,11 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
                 .containsKey("isDefault")
                 .containsKey("numberOfSimultaneousConnections")
                 .containsKey("rescheduleRetryDelay")
-                .containsKey("connectionStrategy")
+                .containsKey("connectionStrategyInfo")
                 .containsKey("properties")
                 .containsKey("temporalExpression")
                 .containsKey("version")
+                .containsKey("protocolDialectConfigurationProperties")
                 .containsKey("parent");
         List<Map<String, Object>> propertyInfos = (List<Map<String, Object>>) connectionMethod.get("properties");
         assertThat(propertyInfos).isNotNull().hasSize(1);
@@ -1378,6 +1380,11 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         ConnectionTypePluggableClass connectionTypePluggableClass = mock(ConnectionTypePluggableClass.class);
         when(protocolPluggableService.findConnectionTypePluggableClassByName("ConnType")).thenReturn(Optional.of(connectionTypePluggableClass));
 
+        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
+        when(protocolDialectConfigurationProperties.getId()).thenReturn(1234L);
+        when(protocolDialectConfigurationProperties.getDeviceProtocolDialectName()).thenReturn("Dialectje");
+        when(deviceConfigurationService.getProtocolDialectConfigurationProperties(1234L)).thenReturn(Optional.of(protocolDialectConfigurationProperties));
+
         ScheduledConnectionMethodInfo connectionMethodInfo = new ScheduledConnectionMethodInfo();
         connectionMethodInfo.name = "connection method";
         connectionMethodInfo.id = connectionMethodId;
@@ -1388,6 +1395,9 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         connectionMethodInfo.connectionTypePluggableClass = "ConnType";
         connectionMethodInfo.version = OK_VERSION;
         connectionMethodInfo.parent = new VersionInfo<>(deviceConfig_id, OK_VERSION);
+        connectionMethodInfo.protocolDialectConfigurationProperties = new ConnectionMethodInfo.ProtocolDialectConfigurationPropertiesInfo();
+        connectionMethodInfo.protocolDialectConfigurationProperties.id = 1234L;
+        connectionMethodInfo.protocolDialectConfigurationProperties.name = "Dialectje";
 
         Entity<ScheduledConnectionMethodInfo> json = Entity.json(connectionMethodInfo);
         PropertyInfo propertyInfo = new PropertyInfo("key", "key", new PropertyValueInfo<>("value", null, null, true), new PropertyTypeInfo(), false);
