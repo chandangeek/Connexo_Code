@@ -455,8 +455,10 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 var executeAfterStoreLoad = function () {
                     Ext.Array.each(actionRecord.get('parameters'), function (parameter) {
                         if (parameter.name === 'loadprofiletypeids') {
-                            Ext.Array.each(parameter.value, function (value) {
-                                loadProfileTypes += Ext.String.htmlEncode(loadProfileTypesStore.findRecord('id', value.value).get('name'));
+                            Ext.Array.each(parameter.value, function(value) {
+                                var indexInStore = loadProfileTypesStore.findExact('id', value.value);
+                                var storeRecord = indexInStore === -1 ? null : loadProfileTypesStore.getAt(indexInStore);
+                                loadProfileTypes += Ext.String.htmlEncode(storeRecord.get('name'));
                                 loadProfileTypes += '\n'
                             });
                             if (Ext.isEmpty(loadProfileTypes)) {
@@ -506,24 +508,26 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 break;
 
             case 'logbooks':
-                var executeAfterStoreLoad = function () {
-                    Ext.Array.each(actionRecord.get('parameters'), function (parameter) {
-                        if (parameter.name === 'logbooktypeids') {
-                            Ext.Array.each(parameter.value, function (value) {
-                                logbookTypes += Ext.String.htmlEncode(logbookTypesStore.findRecord('id', value.value).get('name'));
-                                logbookTypes += '\n'
-                            });
-                            if (Ext.isEmpty(logbookTypes)) {
-                                logbookTypes = '-';
+                var executeAfterStoreLoad = function() {
+                        Ext.Array.each(actionRecord.get('parameters'), function (parameter) {
+                            if (parameter.name === 'logbooktypeids') {
+                                Ext.Array.each(parameter.value, function(value) {
+                                    var indexInStore = logbookTypesStore.findExact('id', value.value);
+                                    var storeRecord = indexInStore === -1 ? null : logbookTypesStore.getAt(indexInStore);
+                                    logbookTypes += Ext.String.htmlEncode(storeRecord.get('name'));
+                                    logbookTypes += '\n'
+                                });
+                                if (Ext.isEmpty(logbookTypes)) {
+                                    logbookTypes = '-';
+                                }
+                                previewForm.addAttribute(
+                                    Uni.I18n.translate('general.logbookTypes', 'MDC', 'Logbook types'),
+                                    logbookTypes
+                                );
+                                return false;
                             }
-                            previewForm.addAttribute(
-                                Uni.I18n.translate('general.logbookTypes', 'MDC', 'Logbook types'),
-                                logbookTypes
-                            );
-                            return false;
-                        }
-                    });
-                };
+                        });
+                    };
 
                 logbookTypesStore.getProxy().pageParam = false;
                 logbookTypesStore.getProxy().startParam = false;
@@ -532,24 +536,26 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 break;
 
             case 'registers':
-                var executeAfterStoreLoad = function () {
-                    Ext.Array.each(actionRecord.get('parameters'), function (parameter) {
-                        if (parameter.name === 'registergroupids') {
-                            Ext.Array.each(parameter.value, function (value) {
-                                registerGroups += Ext.String.htmlEncode(registerGroupsStore.findRecord('id', value.value).get('name'));
-                                registerGroups += '\n'
-                            });
-                            if (Ext.isEmpty(registerGroups)) {
-                                registerGroups = '-';
+                var executeAfterStoreLoad = function() {
+                        Ext.Array.each(actionRecord.get('parameters'), function (parameter) {
+                            if (parameter.name === 'registergroupids') {
+                                Ext.Array.each(parameter.value, function(value) {
+                                    var indexInStore = registerGroupsStore.findExact('id', value.value);
+                                    var storeRecord = indexInStore === -1 ? null : registerGroupsStore.getAt(indexInStore);
+                                    registerGroups += Ext.String.htmlEncode(storeRecord.get('name'));
+                                    registerGroups += '\n'
+                                });
+                                if (Ext.isEmpty(registerGroups)) {
+                                    registerGroups = '-';
+                                }
+                                previewForm.addAttribute(
+                                    Uni.I18n.translate('comtask.register.groups', 'MDC', 'Register groups'),
+                                    registerGroups
+                                );
+                                return false;
                             }
-                            previewForm.addAttribute(
-                                Uni.I18n.translate('comtask.register.groups', 'MDC', 'Register groups'),
-                                registerGroups
-                            );
-                            return false;
-                        }
-                    });
-                };
+                        });
+                    };
 
                 registerGroupsStore.getProxy().pageParam = false;
                 registerGroupsStore.getProxy().startParam = false;

@@ -14,6 +14,9 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsTopFilter
     store: 'Mdc.store.RegisterReadings',
     deviceId: null,
     containsBillingRegisters: false,
+    containsCumulativeRegisters: false,
+    containsEventRegisters: false,
+    containsMultiplierRegisters: false,
 
     initComponent: function () {
         var me = this,
@@ -25,8 +28,12 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsTopFilter
         registerStore.on('load', function (store, records) {
             Ext.Array.forEach(records, function (record) {
                 me.containsBillingRegisters = me.containsBillingRegisters || record.get('isBilling');
+                me.containsCumulativeRegisters = me.containsCumulativeRegisters || record.get('isCumulative');
+                me.containsEventRegisters = me.containsEventRegisters || record.get('hasEvent');
+                me.containsMultiplierRegisters = me.containsMultiplierRegisters || record.get('useMultiplier');
             });
             me.showOrHideToTimeFilter(me.containsBillingRegisters);
+            me.customizeGrid(me.containsBillingRegisters,me.containsCumulativeRegisters,me.containsEventRegisters,me.containsMultiplierRegisters)
         }, me, {single: true});
 
         me.filters = [
@@ -95,8 +102,14 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsTopFilter
         registerStore.load(function () {
             registerCombo.select(registerCombo.getValue()); // restore previous selection(s)
             me.containsBillingRegisters = false;
+            me.containsCumulativeRegisters = false;
+            me.containsEventRegisters = false;
+            me.containsMultiplierRegisters = false;
             registerStore.each(function (record) {
                 me.containsBillingRegisters = me.containsBillingRegisters || record.get('isBilling');
+                me.containsCumulativeRegisters = me.containsCumulativeRegisters || record.get('isCumulative');
+                me.containsEventRegisters = me.containsEventRegisters || record.get('hasEvent');
+                me.containsMultiplierRegisters = me.containsMultiplierRegisters || record.get('useMultiplier');
             });
             me.showOrHideToTimeFilter(me.containsBillingRegisters);
         });
@@ -133,11 +146,13 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsTopFilter
         } else {
             toTimeFilter.hide();
         }
+    },
 
+    customizeGrid: function(billing,cumulative,event,multiplier){
         // Also show/hide the corresponding columns in the grid
         var correspondinGrid = this.up('deviceRegisterReadingsView').down('deviceRegisterReadingsGrid');
         if (correspondinGrid) {
-            correspondinGrid.showOrHideBillingColumns(showIt);
+            correspondinGrid.customizeColumns(billing,cumulative,event,multiplier);
         }
     }
 });
