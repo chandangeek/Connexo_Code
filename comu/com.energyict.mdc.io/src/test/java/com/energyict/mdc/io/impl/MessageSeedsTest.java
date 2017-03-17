@@ -1,11 +1,10 @@
 package com.energyict.mdc.io.impl;
 
-import com.energyict.mdc.io.serial.SerialComponentService;
+import com.energyict.mdc.upl.io.SerialComponentService;
+import org.junit.Test;
 
 import java.util.HashSet;
 import java.util.Set;
-
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
