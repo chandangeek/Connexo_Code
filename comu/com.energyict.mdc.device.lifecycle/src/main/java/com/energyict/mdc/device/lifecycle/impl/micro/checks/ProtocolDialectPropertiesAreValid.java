@@ -7,7 +7,7 @@ package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
@@ -34,13 +34,13 @@ public class ProtocolDialectPropertiesAreValid extends ConsolidatedServerMicroCh
 
     @Override
     public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp, State state) {
-        Set<PropertySpec> requiredPropertySpecs = device.getDeviceConfiguration().getComTaskEnablements().stream().map(ComTaskEnablement::getProtocolDialectConfigurationProperties)
+        Set<PropertySpec> requiredPropertySpecs = device.getDeviceConfiguration().getPartialConnectionTasks().stream().map(PartialConnectionTask::getProtocolDialectConfigurationProperties)
                 .flatMap(protocolDialectConfigurationProperties -> protocolDialectConfigurationProperties.getPropertySpecs().stream())
                 .filter(PropertySpec::isRequired)
                 .collect(Collectors.toSet());
 
-        requiredPropertySpecs.addAll(device.getComTaskExecutions().stream()
-                .flatMap(comTaskExecution -> comTaskExecution.getProtocolDialectConfigurationProperties().getPropertySpecs().stream())
+        requiredPropertySpecs.addAll(device.getConnectionTasks().stream()
+                .flatMap(connectionTask -> connectionTask.getProtocolDialectConfigurationProperties().getPropertySpecs().stream())
                 .filter(PropertySpec::isRequired)
                 .collect(Collectors.toSet()));
 
