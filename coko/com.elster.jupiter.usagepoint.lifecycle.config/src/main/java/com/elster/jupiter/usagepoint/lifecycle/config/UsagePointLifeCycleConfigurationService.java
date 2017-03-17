@@ -20,6 +20,7 @@ public interface UsagePointLifeCycleConfigurationService {
     String COMPONENT_NAME = "UPL";
     String USAGE_POINT_STAGE_SET_NAME = "USAGE_POINT_STAGE_SET";
     String FSM_NAME_PREFIX = UsagePointLifeCycleConfigurationService.COMPONENT_NAME + "_";
+    String LIFE_CYCLE_KEY = "usage.point.life.cycle.standard.name";
 
     Finder<UsagePointLifeCycle> getUsagePointLifeCycles();
 
