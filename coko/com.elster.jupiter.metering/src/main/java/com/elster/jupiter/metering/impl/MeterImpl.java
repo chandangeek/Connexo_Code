@@ -27,22 +27,17 @@ import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationServi
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Finder;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.sql.SqlBuilder;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -50,7 +45,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -178,8 +172,8 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
     }
 
     @Override
-    public List<? extends BaseReadingRecord> getJournalReadings(Range<Instant> range, Range<Instant> changed, ReadingType readingType) {
-        return MeterActivationsImpl.from(meterActivations, range).getJournalReadings(range, changed, readingType);
+    public List<? extends BaseReadingRecord> getJournalReadings(Range<Instant> range, boolean changedDataOnly, ReadingType readingType) {
+        return MeterActivationsImpl.from(meterActivations, range).getJournalReadings(range, changedDataOnly, readingType);
     }
 
     @Override
@@ -228,67 +222,25 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
     }
 
     @Override
-    public List<JournalEntry<? extends ReadingQualityRecord>> getReadingQualitiesJournal(ReadingQualityRecord readingQualityRecord, Range<Instant> range) {
-
-        Finder.JournalFinder j = new Finder.JournalFinder() {
-            @Override
-            public List<JournalEntry> find(Map valueMap) {
-
-                return null;
-            }
-        };
+    public List<JournalEntry<? extends ReadingQualityRecord>> getReadingQualitiesJournal(Range<Instant> range, List<ReadingType> readingTypes, List<Long> channelIds) {
         List<JournalEntry<? extends ReadingQualityRecord>> result = new ArrayList<>();
+        List<Comparison> comparisons = new ArrayList<>();
 
-        List<? extends ReadingQualityRecord> readingQualities = getReadingQualities(range);
-        for (ReadingQualityRecord readingQuality : readingQualities) {
-            SqlBuilder builder = new SqlBuilder(" SELECT ID, MODTIME FROM MTR_READINGQUALITYJRNL");
-            builder.append(" WHERE channelid = ");
-            builder.addLong(readingQuality.getChannel().getId());
-            builder.append(" AND readingtimestamp = ");
-            builder.addLong(readingQuality.getReadingTimestamp().toEpochMilli());
-            try (Connection connection = getDataModel().getConnection(false)) {
-                try (PreparedStatement statement = builder.prepare(connection)) {
-                    try (ResultSet resultSet = statement.executeQuery()) {
-                        while (resultSet.next()) {
-                            List<JournalEntry<ReadingQualityRecord>> journalEntries = getDataModel().mapper(ReadingQualityRecord.class)
-                                    .at(Instant.ofEpochMilli(resultSet.getLong("MODTIME")))
-                                    .find(ImmutableMap.of("id", resultSet.getLong("ID")));
-                            result.addAll(journalEntries);
-                        }
-                    }
-                }
-            } catch (SQLException ex) {
-            }
-
+        comparisons.add(Operator.GREATERTHAN.compare("readingtimestamp", range.lowerEndpoint().toEpochMilli()));
+        comparisons.add(Operator.LESSTHANOREQUAL.compare("readingtimestamp", range.upperEndpoint().toEpochMilli()));
+        if (readingTypes.size() > 0) {
+            comparisons.add(Operator.IN.compare("readingtype", readingTypes.stream().map(r -> r.getMRID()).collect(Collectors.toList()).toArray()));
         }
 
+        if (channelIds.size() > 0) {
+            comparisons.add(Operator.IN.compare("channelid", channelIds.toArray()));
+        }
+
+        List<JournalEntry<ReadingQualityRecord>> journalEntries = getDataModel().mapper(ReadingQualityRecord.class)
+                .at(Instant.EPOCH)
+                .find(comparisons);
+        result.addAll(journalEntries);
         return result;
-
-        /*
-        List<JournalEntry<? extends ReadingQualityRecord>> result = new ArrayList<>();
-        SqlBuilder builder = new SqlBuilder();
-        try (Connection connection = getDataModel().getConnection(false)) {
-            try (PreparedStatement statement = builder.prepare(connection)) {
-                try (ResultSet resultSet = statement.executeQuery()) {
-                    while (resultSet.next()) {
-                        Instant journalTime = Instant.ofEpochMilli(resultSet.getLong(1));
-                        ReadingQualityRecordImpl qualityRecord = getDataModel().getInstance(ReadingQualityRecordImpl.class);
-                        qualityRecord.init(new ReadingQualityType(""), readingQualityRecord.getCimChannel(), Instant.now());
-                        result.add(new JournalEntry<ReadingQualityRecord>(journalTime, qualityRecord));
-                    }
-                }
-            }
-        }
-        catch (SQLException ex){
-        }
-
-        List<? extends ReadingQualityRecord> readingQualities = getReadingQualities(range);
-        for (ReadingQualityRecord readingQuality : readingQualities) {
-            List<JournalEntry<ReadingQualityRecord>> journalEntries = getDataModel().mapper(ReadingQualityRecord.class)
-                    .at(readingQuality.getTimestamp()).find(ImmutableMap.of("channelid", readingQuality.getChannel().getId()));
-            result.addAll(journalEntries);
-        }
-        return result;*/
     }
 
     @Override

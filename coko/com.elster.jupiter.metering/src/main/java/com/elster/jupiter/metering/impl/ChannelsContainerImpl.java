@@ -132,7 +132,7 @@ public abstract class ChannelsContainerImpl implements ChannelsContainer {
     }
 
     @Override
-    public List<? extends BaseReadingRecord> getJournalReadings(Range<Instant> range, Range<Instant> changed, ReadingType readingType) {
+    public List<? extends BaseReadingRecord> getJournalReadings(Range<Instant> range, boolean changedDataOnly, ReadingType readingType) {
         if (!getRange().isConnected(range)) {
             return Collections.emptyList();
         }
@@ -140,7 +140,7 @@ public abstract class ChannelsContainerImpl implements ChannelsContainer {
                 .map(channel -> {
                     Function<Interval, Range<Instant>> toRange = channel.isRegular() ? Interval::toOpenClosedRange : Interval::toClosedRange;
                     Range<Instant> active = range.intersection(toRange.apply(getInterval()));
-                    return readingType.isRegular() ? channel.getIntervalJournalReadings(readingType, active, changed) : channel.getRegisterReadings(readingType, active);
+                    return readingType.isRegular() ? channel.getIntervalJournalReadings(readingType, active, changedDataOnly) : channel.getRegisterJournalReadings(readingType, active, changedDataOnly);
                 })
                 .orElse(Collections.emptyList());
     }

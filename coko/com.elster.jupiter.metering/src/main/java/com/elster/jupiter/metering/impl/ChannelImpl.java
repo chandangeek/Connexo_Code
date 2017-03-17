@@ -19,7 +19,6 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.EventType;
-import com.elster.jupiter.metering.IntervalReadingJournalRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterConfiguration;
@@ -479,12 +478,12 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public List<IntervalReadingJournalRecord> getIntervalJournalReadings(ReadingType readingType, Range<Instant> interval, Range<Instant> changed) {
+    public List<IntervalReadingRecord> getIntervalJournalReadings(ReadingType readingType, Range<Instant> interval, boolean changedDataOnly) {
         if (!isRegular()) {
             return Collections.emptyList();
         }
-        return getTimeSeries().getJournalEntries(interval, changed).stream()
-                .map(entry -> new IntervalReadingJournalRecordImpl(this, entry))
+        return getTimeSeries().getJournalEntries(interval, changedDataOnly).stream()
+                .map(entry -> new IntervalReadingRecordImpl(this, entry))
                 .map(reading -> reading.filter(readingType))
                 .collect(ExtraCollectors.toImmutableList());
     }
@@ -495,6 +494,17 @@ public final class ChannelImpl implements ChannelContract {
             return Collections.emptyList();
         }
         return getTimeSeries().getEntries(interval).stream()
+                .map(entry -> new ReadingRecordImpl(this, entry))
+                .map(reading -> reading.filter(readingType))
+                .collect(ExtraCollectors.toImmutableList());
+    }
+
+    @Override
+    public List<ReadingRecord> getRegisterJournalReadings(ReadingType readingType, Range<Instant> interval, boolean changedDataOnly) {
+        if (isRegular()) {
+            return Collections.emptyList();
+        }
+        return getTimeSeries().getJournalEntries(interval, changedDataOnly).stream()
                 .map(entry -> new ReadingRecordImpl(this, entry))
                 .map(reading -> reading.filter(readingType))
                 .collect(ExtraCollectors.toImmutableList());
