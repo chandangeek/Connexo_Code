@@ -140,7 +140,8 @@ Ext.define('Imt.purpose.view.ReadingsList', {
         var status = record.get('validationResult') ? record.get('validationResult').split('.')[1] : '',
             value = Ext.isEmpty(v) ? '-' : v,
             estimatedByRule = record.get('estimatedByRule'),
-            icon = '';
+            icon = '',
+            leftMargin;
 
         if (status === 'notValidated') {
             icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
@@ -161,6 +162,10 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                     Uni.DateTime.formatDateLong(new Date(estimatedByRule.when)),
                     Uni.DateTime.formatTimeLong(new Date(estimatedByRule.when))
                 ], false) + '"></span>';
+            if(record.get('isProjected') === true) {
+                icon += '<span style="margin-left:27px; position:absolute; font-weight:bold; cursor: default" data-qtip="'
+                    + Uni.I18n.translate('reading.estimated.projected', 'IMT', 'Projected') + '">P</span>';
+            }
         } else if (record.get('isConfirmed') && !record.isModified('value')) {
             icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.validationResult.confirmed', 'IMT', 'Confirmed') + '"></span>';

@@ -63,7 +63,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
             switch (validationResult.split('.')[1]) {
                 case 'notValidated':
                     if (!Ext.isEmpty(estimatedByRule)) {
-                        validationResultText = '(' + Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') + ')' + me.getEstimationFlagWithTooltip(estimatedByRule);
+                        validationResultText = '(' + Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') + ')' + me.getEstimationFlagWithTooltip(estimatedByRule, record);
                     } else {
                         validationResultText = '(' + Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') + ')' +
                             '<span class="icon-flag6" style="margin-left:10px; display:inline-block; vertical-align:top;"></span>';
@@ -78,7 +78,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                     if (record.get('action') == 'WARN_ONLY') {
                         validationResultText += '<span class="icon-flag5" style="margin-left:10px; color:#dedc49;"></span>';
                     } else if (!Ext.isEmpty(estimatedByRule)) {
-                        validationResultText += me.getEstimationFlagWithTooltip(estimatedByRule);
+                        validationResultText += me.getEstimationFlagWithTooltip(estimatedByRule, record);
                     }
                     break;
             }
@@ -110,7 +110,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
         switch (validationResult.split('.')[1]) {
             case 'notValidated':
                 if (!Ext.isEmpty(estimatedByRule)) {
-                    validationResultText = Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') + me.getEstimationFlagWithTooltip(estimatedByRule);
+                    validationResultText = Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') + me.getEstimationFlagWithTooltip(estimatedByRule, record);
                 } else {
                     validationResultText = Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') +
                         '<span class="icon-flag6" style="margin-left:10px; display:inline-block; vertical-align:top;"></span>';
@@ -127,7 +127,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                 } else if (record.get('action') == 'WARN_ONLY') {
                     validationResultText += '<span class="icon-flag5" style="margin-left:10px; color:#dedc49;"></span>';
                 } else if (!Ext.isEmpty(estimatedByRule)) {
-                    validationResultText += me.getEstimationFlagWithTooltip(estimatedByRule);
+                    validationResultText += me.getEstimationFlagWithTooltip(estimatedByRule, record);
                 }
                 break;
         }
@@ -135,13 +135,21 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
         return validationResultText;
     },
 
-    getEstimationFlagWithTooltip: function(estimatedByRule) {
-        return '<span class="icon-flag5" style="margin-left:10px; color:#33CC33;" data-qtip="'
+    getEstimationFlagWithTooltip: function(estimatedByRule, record) {
+        var icon;
+
+        icon = '<span class="icon-flag5" style="margin-left:10px; color:#33CC33;" data-qtip="'
             + Uni.I18n.translate('reading.estimated', 'IMT', 'Estimated in {0} on {1} at {2}',[
                 estimatedByRule.application.name,
                 Uni.DateTime.formatDateLong(new Date(estimatedByRule.when)),
                 Uni.DateTime.formatTimeLong(new Date(estimatedByRule.when))
             ], false) + '"></span>';
+        if(record.get('isProjected') === true) {
+            icon += '<span style="margin-left:3px; font-weight:bold; cursor: default" data-qtip="'
+                + Uni.I18n.translate('reading.estimated.projected', 'IMT', 'Projected') + '">P</span>';
+        }
+
+        return icon;
     },
 
     setDataQualityFields: function(deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities) {

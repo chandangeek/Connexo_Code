@@ -268,7 +268,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                     + '</div>');
                 break;
             case 'VIEW':
-                if ((dataObj.key == 'statisticsValid' || dataObj.key == 'statisticsEdited') && hasDetails) {
+                if ((dataObj.key == 'statisticsValid' || dataObj.key == 'statisticsEdited' || dataObj.key == 'statisticsEstimated') && hasDetails) {
                     tooltip = Ext.htmlEncode(getTooltip());
                 }
                 break;
