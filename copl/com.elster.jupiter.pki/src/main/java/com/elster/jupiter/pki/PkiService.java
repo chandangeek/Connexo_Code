@@ -142,9 +142,10 @@ public interface PkiService {
 
     public interface CertificateTypeBuilder {
         CertificateTypeBuilder description(String description);
+        KeyType add();
     }
 
-    public interface ClientCertificateTypeBuilder extends CertificateTypeBuilder {
+    public interface ClientCertificateTypeBuilder {
         ClientCertificateTypeBuilder description(String description);
         ClientCertificateTypeBuilder setKeyUsages(EnumSet<KeyUsage> keyUsages);
         ClientCertificateTypeBuilder setExtendedKeyUsages(EnumSet<ExtendedKeyUsage> keyUsages);

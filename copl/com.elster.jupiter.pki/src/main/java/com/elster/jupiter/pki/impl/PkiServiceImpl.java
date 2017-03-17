@@ -284,11 +284,10 @@ public class PkiServiceImpl implements PkiService {
         return getDataModel().mapper(ClientCertificateWrapper.class).getUnique(ClientCertificateWrapperImpl.Fields.ALIAS.fieldName(), alias);
     }
 
-    private class ClientCertificateTypeBuilderImpl extends CertificateTypeBuilderImpl implements ClientCertificateTypeBuilder {
+    private class ClientCertificateTypeBuilderImpl implements ClientCertificateTypeBuilder {
         private final KeyTypeImpl underConstruction;
 
         private ClientCertificateTypeBuilderImpl(KeyTypeImpl underConstruction) {
-            super(underConstruction);
             this.underConstruction = underConstruction;
         }
 
@@ -306,9 +305,10 @@ public class PkiServiceImpl implements PkiService {
 
         @Override
         public ClientCertificateTypeBuilder description(String description) {
-            super.description(description);
+            underConstruction.setDescription(description);
             return this;
         }
+
         @Override
         public AsyncKeySizeBuilder RSA() {
             this.underConstruction.setKeyAlgorithm(AsymmetricKeyAlgorithms.RSA.name());
@@ -372,6 +372,13 @@ public class PkiServiceImpl implements PkiService {
             this.underConstruction.setDescription(description);
             return this;
         }
+
+        @Override
+        public KeyType add() {
+            underConstruction.save();
+            return underConstruction;
+        }
+
     }
 
     class KeyTypeBuilderImpl implements KeyTypeBuilder {

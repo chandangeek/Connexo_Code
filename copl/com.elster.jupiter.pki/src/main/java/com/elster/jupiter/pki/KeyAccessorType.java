@@ -61,6 +61,14 @@ public interface KeyAccessorType extends HasId, HasName {
 
     long getVersion();
 
+    /**
+     * If a KeyAcccessorType with a KeyType of CryptographicType Certificate (sor subset) is being created, a
+     * TrustStore needs to be linked to the KeyAccessorType. This allows the users of the certificate contained in
+     * the value of this KeyAccessorType to be validated against a specific TrustStore.
+     * @return TrustStore in case the KeyType of this accessorType represents a certificate
+     */
+    Optional<TrustStore> getTrustStore();
+
     Updater startUpdate();
 
     interface Builder {
@@ -76,6 +84,14 @@ public interface KeyAccessorType extends HasId, HasName {
          * @param keyEncryptionMethod @see PkiService::getKeyEncryptionMethods()
          */
         Builder keyEncryptionMethod(String keyEncryptionMethod);
+
+        /**
+         * If a KeyAcccessorType with a KeyType of CryptographicType Certificate (sor subset) is being created, a
+         * TrustStore needs to be linked to the KeyAccessorType. This allows the users of the certificate contained in
+         * the value of this KeyAccessorType to be validated against a specific TrustStore.
+         * @param trustStore The trust by which a chain of trust for certificates for this KeyAccessor will be validated
+         */
+        Builder trustStore(TrustStore trustStore);
 
         /**
          * Symmetric keys require a durarion to be provided.
