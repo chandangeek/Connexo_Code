@@ -105,7 +105,7 @@ public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
 
     @Override
     public Optional<TimeDuration> getDuration() {
-        return duration == null ? Optional.empty() : Optional.of(duration);
+        return duration == null || duration.getTimeUnitCode() == 0 ? Optional.empty() : Optional.of(duration);
     }
 
     @Override
