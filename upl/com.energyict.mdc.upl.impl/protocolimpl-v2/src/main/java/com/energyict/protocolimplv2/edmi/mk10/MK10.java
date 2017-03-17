@@ -3,6 +3,8 @@ package com.energyict.protocolimplv2.edmi.mk10;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.datagrams.OutboundUdpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.mdc.channels.serial.modem.rxtx.RxTxAtModemConnectionType;
+import com.energyict.mdc.channels.serial.modem.serialio.SioAtModemConnectionType;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
@@ -38,7 +40,7 @@ import com.energyict.protocolimpl.edmi.mk10.registermapping.MK10RegisterInformat
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
 import com.energyict.protocolimplv2.comchannels.ComChannelOutputStreamAdapter;
-import com.energyict.protocolimplv2.edmi.dialects.OpticalHeadDeviceProtocolDialect;
+import com.energyict.protocolimplv2.edmi.dialects.ModemDeviceProtocolDialect;
 import com.energyict.protocolimplv2.edmi.dialects.TcpDeviceProtocolDialect;
 import com.energyict.protocolimplv2.edmi.dialects.UdpDeviceProtocolDialect;
 import com.energyict.protocolimplv2.edmi.mk10.events.MK10LogBookFactory;
@@ -114,6 +116,8 @@ public class MK10 implements DeviceProtocol, CommandLineProtocol {
         result.add(new OutboundUdpConnectionType());
         result.add(new OutboundTcpIpConnectionType());
         result.add(new InboundIpConnectionType());
+        result.add(new SioAtModemConnectionType ());
+        result.add(new RxTxAtModemConnectionType());
         return result;
     }
 
@@ -122,7 +126,7 @@ public class MK10 implements DeviceProtocol, CommandLineProtocol {
         List<DeviceProtocolDialect> result = new ArrayList<>();
         result.add(new TcpDeviceProtocolDialect());
         result.add(new UdpDeviceProtocolDialect());
-        result.add(new OpticalHeadDeviceProtocolDialect());
+        result.add(new ModemDeviceProtocolDialect());
         return result;
     }
 
@@ -194,8 +198,8 @@ public class MK10 implements DeviceProtocol, CommandLineProtocol {
         if (commandLineConnection == null) {
             if (getProperties().getConnectionMode().equals(MK10ConfigurationSupport.ConnectionMode.MINI_E_COMMAND_LINE)) {
                 commandLineConnection = new MiniECommandLineConnection(
-                        new ComChannelInputStreamAdapter(comChannel),
-                        new ComChannelOutputStreamAdapter(comChannel),
+                        new ComChannelInputStreamAdapter(getComChannel()),
+                        new ComChannelOutputStreamAdapter(getComChannel()),
                         getProperties().getTimeout(),
                         getProperties().getMaxRetries(),
                         getProperties().getforcedDelay(),
@@ -205,9 +209,8 @@ public class MK10 implements DeviceProtocol, CommandLineProtocol {
                 );
             } else {
                 commandLineConnection = new ExtendedCommandLineConnection(
-                        getComChannel(),
-                        new ComChannelInputStreamAdapter(comChannel),
-                        new ComChannelOutputStreamAdapter(comChannel),
+                        new ComChannelInputStreamAdapter(getComChannel()),
+                        new ComChannelOutputStreamAdapter(getComChannel()),
                         getProperties().getTimeout(),
                         getProperties().getMaxRetries(),
                         getProperties().getforcedDelay(),

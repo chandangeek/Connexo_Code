@@ -45,8 +45,12 @@ public class DataProtectionFactory {
         return new Structure(restrictionType.getTypeEnum(), restrictionValue);
     }
 
-    public static NullData createNoRestrictionElement() {
-        return new NullData();
+    /**
+     * The restriction_type element holds (0) none and the restriction_value element holds null-data. This choice shall be taken also if relative selective access is to be used.
+     * @return
+     */
+    public static Structure createNoRestrictionElement() {
+        return new Structure(RestrictionType.NONE.getTypeEnum(), new NullData());
     }
 
     /*

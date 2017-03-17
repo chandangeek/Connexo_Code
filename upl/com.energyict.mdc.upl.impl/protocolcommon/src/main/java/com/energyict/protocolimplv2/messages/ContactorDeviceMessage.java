@@ -61,8 +61,12 @@ public enum ContactorDeviceMessage implements DeviceMessageSpec {
     CONTACTOR_CLOSE_WITH_DATA_PROTECTION(15),
     CONTACTOR_ACTION_WITH_ACTIVATION(16,
             PropertySpecFactory.dateTimePropertySpec(contactorActivationDateAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(scriptNumber)
-    );
+            PropertySpecFactory.bigDecimalPropertySpec(scriptNumber)),
+    REMOTE_DISCONNECT_WITH_DATA_PROTECTION_AND_ACTIVATION(17,
+            PropertySpecFactory.dateTimePropertySpec(contactorActivationDateAttributeName)),
+    REMOTE_CONNECT_WITH_DATA_PROTECTION_AND_ACTIVATION(18,
+            PropertySpecFactory.dateTimePropertySpec(contactorActivationDateAttributeName)),
+    ;
 
     private static final DeviceMessageCategory contactorCategory = DeviceMessageCategories.CONTACTOR;
 
@@ -121,5 +125,10 @@ public enum ContactorDeviceMessage implements DeviceMessageSpec {
     @Override
     public int getMessageId() {
         return id;
+    }
+
+    public enum DisconnectorAction{
+        CONNECT(),
+        DISCONNECT(),
     }
 }

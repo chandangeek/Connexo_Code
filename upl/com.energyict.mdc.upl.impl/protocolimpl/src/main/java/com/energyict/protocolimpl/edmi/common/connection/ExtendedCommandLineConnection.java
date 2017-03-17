@@ -1,13 +1,12 @@
 package com.energyict.protocolimpl.edmi.common.connection;
 
-import com.energyict.mdc.protocol.ComChannel;
-
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
@@ -33,7 +32,6 @@ public class ExtendedCommandLineConnection extends Connection implements Protoco
     private long destinationId = -1;
     protected int sequenceNr = 0x7FFF; // initial sequence number
     private long forcedDelay;
-    private ComChannel comChannel;
 
     public ExtendedCommandLineConnection(InputStream inputStream,
                                          OutputStream outputStream,
@@ -52,26 +50,7 @@ public class ExtendedCommandLineConnection extends Connection implements Protoco
         }
     }
 
-    public ExtendedCommandLineConnection(ComChannel comChannel,
-                                         InputStream inputStream,
-                                             OutputStream outputStream,
-                                             int timeout,
-                                             int maxRetries,
-                                             long forcedDelay,
-                                             int echoCancelling,
-                                             HalfDuplexController halfDuplexController,
-                                             String serialNumber) {
-        super(inputStream, outputStream, forcedDelay, echoCancelling, halfDuplexController);
-        this.timeout = timeout;
-        this.maxRetries = maxRetries;
-        this.forcedDelay = forcedDelay;
-        if ((serialNumber != null) && ("".compareTo(serialNumber) != 0)) {
-            destinationId = Long.parseLong(serialNumber);
-        }
-        this.comChannel = comChannel;
-    }
-
-    public com.energyict.protocol.meteridentification.MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException {
+    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException {
         sourceId = Long.parseLong(nodeId);
         return null;
     }

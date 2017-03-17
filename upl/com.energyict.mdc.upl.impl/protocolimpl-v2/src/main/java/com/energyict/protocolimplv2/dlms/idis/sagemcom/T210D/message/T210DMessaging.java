@@ -46,6 +46,7 @@ public class T210DMessaging extends AM540Messaging {
         supportedMessages.add(FirmwareDeviceMessage.VerifyAndActivateFirmware);
         supportedMessages.add(FirmwareDeviceMessage.VerifyAndActivateFirmwareAtGivenDate);
         supportedMessages.add(FirmwareDeviceMessage.FIRMWARE_IMAGE_ACTIVATION_WITH_DATA_PROTECTION);
+        supportedMessages.add(FirmwareDeviceMessage.FIRMWARE_IMAGE_ACTIVATION_WITH_DATA_PROTECTION_AND_ACTIVATION_DATE);
         //Alarms
         supportedMessages.add(AlarmConfigurationMessage.RESET_ALL_ERROR_BITS);
         supportedMessages.add(AlarmConfigurationMessage.RESET_DESCRIPTOR_FOR_ALARM_REGISTER);
@@ -68,6 +69,8 @@ public class T210DMessaging extends AM540Messaging {
         supportedMessages.add(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE);
         supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_DATA_PROTECTION);
         supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_DATA_PROTECTION);
+        supportedMessages.add(ContactorDeviceMessage.REMOTE_DISCONNECT_WITH_DATA_PROTECTION_AND_ACTIVATION);
+        supportedMessages.add(ContactorDeviceMessage.REMOTE_CONNECT_WITH_DATA_PROTECTION_AND_ACTIVATION);
 
         supportedMessages.add(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME);
         supportedMessages.add(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND);

@@ -52,6 +52,8 @@ public class T210DMessageExecutor extends AM540MessageExecutor {
     private static final ObisCode WIRELESS_MBUS_SEARCH_RESULT = ObisCode.fromString("0.1.96.70.0.255");
     private static final ObisCode WIRED_MBUS_PORT_REFERENCE = ObisCode.fromString("0.0.24.6.0.255");
     private static final ObisCode WIRELESS_MBUS_PORT_REFERENCE = ObisCode.fromString("0.1.24.6.0.255");
+    private static final ObisCode DISCONNECT_CONTROL_SCHEDULTER_1_OBISCODE = ObisCode.fromString("0.0.15.0.1.255");
+    private static final ObisCode DISCONNECT_CONTROL_SCHEDULTER_2_OBISCODE = ObisCode.fromString("0.0.15.0.3.255");
     private static final long SUPERVISION_MAXIMUM_THRESHOLD_VALUE = 0x80000000l;
     private final String undefined_hour = "FF"; //not defined
     private final String undefined_minute = "FF"; //not defined
@@ -125,6 +127,12 @@ public class T210DMessageExecutor extends AM540MessageExecutor {
             timedAction(pendingMessage, 4);
         } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_ACTION_WITH_ACTIVATION)) {
             timedAction(pendingMessage, Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.scriptNumber).getDeviceMessageAttributeValue()));
+        } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.REMOTE_DISCONNECT_WITH_DATA_PROTECTION_AND_ACTIVATION)) {
+            remoteDisconnectWithDataProtectionAndActivationDate();
+        } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.REMOTE_CONNECT_WITH_DATA_PROTECTION_AND_ACTIVATION)) {
+            remoteConnectWithDataProtectionAndActivationDate();
+        } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.FIRMWARE_IMAGE_ACTIVATION_WITH_DATA_PROTECTION_AND_ACTIVATION_DATE)) {
+            firmwareImageActivationWithDataProtectionAndActivationDate();
         } else {
             collectedMessage = super.executeMessage(pendingMessage, collectedMessage);
         }
@@ -667,6 +675,30 @@ public class T210DMessageExecutor extends AM540MessageExecutor {
         invokeProtectedMethod(logicalName, classId, methodIndex, new Integer8(0));
     }
 
+    private void remoteDisconnectWithDataProtectionAndActivationDate() throws IOException {
+        String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, contactorActivationDateAttributeName).getDeviceMessageAttributeValue();
+        writeSchedulerExecutionTimesWithDataProtection(activationDate, DISCONNECT_CONTROL_SCHEDULTER_1_OBISCODE);
+    }
+
+    private void remoteConnectWithDataProtectionAndActivationDate() throws IOException {
+        String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, contactorActivationDateAttributeName).getDeviceMessageAttributeValue();
+        writeSchedulerExecutionTimesWithDataProtection(activationDate, DISCONNECT_CONTROL_SCHEDULTER_2_OBISCODE);
+    }
+
+    private void firmwareImageActivationWithDataProtectionAndActivationDate() throws IOException {
+        String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateActivationDateAttributeName).getDeviceMessageAttributeValue();
+        writeSchedulerExecutionTimesWithDataProtection(activationDate, getMeterConfig().getImageActivationSchedule().getObisCode());
+    }
+
+    private void writeSchedulerExecutionTimesWithDataProtection(String activationDate, ObisCode schedulerObis) throws IOException {
+        Unsigned16 classId = new Unsigned16(DLMSClassId.SINGLE_ACTION_SCHEDULE.getClassId());
+        OctetString logicalName = OctetString.fromObisCode(schedulerObis);
+        Integer8 methodIndex = new Integer8(4);
+
+        Array executionTimes = convertLongDateToDlmsArray(Long.valueOf(activationDate));
+        setProtectedAttributes(logicalName, classId, methodIndex, executionTimes);
+    }
+
     private void invokeProtectedMethod(OctetString logicalName, Unsigned16 classId, Integer8 methodIndex, AbstractDataType methodParameter) throws IOException {
         //NOTE: this property will not be used if requiredProtection will be set to Digital signature(and that will be the case for T210D)
         int generalCipheringKeyTypeId = 0;
@@ -681,6 +713,27 @@ public class T210DMessageExecutor extends AM540MessageExecutor {
             getDataProtection().invokeProtectedMethod(DataProtectionFactory.createInvokeProtectedMethodRequest(objectMethodDefinition, protectionParameters, protectedMethodInvocationParameters));
         } catch (IOException e) {
             String errorMessage = "Unable to invoke protected method for object with classId = " + classId.intValue() + " obisCode = " + ObisCode.fromByteArray(logicalName.toByteArray()) + " methodIndex = " + methodIndex.intValue();
+            setIncompatibleFailedMessage(collectedMessage, pendingMessage, errorMessage);
+            throw e;
+        }
+
+    }
+
+    private void setProtectedAttributes(OctetString logicalName, Unsigned16 classId, Integer8 attributeIndex, AbstractDataType attributeValue) throws IOException {
+        //NOTE: this property will not be used if requiredProtection will be set to Digital signature(and that will be the case for T210D)
+        int generalCipheringKeyTypeId = 0;
+        Unsigned16 dataIndex = new Unsigned16(0); // 0 means all elements
+
+        try {
+            Structure objectDefinition = DataProtectionFactory.createObjectDefinition(classId, logicalName, attributeIndex, dataIndex, DataProtectionFactory.createNoRestrictionElement());
+            Array objectList = new Array(objectDefinition);
+            List<ProtectionType> protectionLayers = getRequestProtectionTypeLayers();
+            SecurityContext securityContext = getSecurityContext();
+            OctetString protectedAttributeValue = new OctetString(getEncryptedMethodInvocationParameters(protectionLayers, securityContext, attributeValue));
+            Array protectionParameters = DataProtectionFactory.createProtectionParametersArray(securityContext, protectionLayers, GeneralCipheringKeyType.fromId(generalCipheringKeyTypeId));
+            getDataProtection().setProtectedAttributes(DataProtectionFactory.createProtectedAttributesSetRequest(objectList, protectionParameters, protectedAttributeValue));
+        } catch (IOException e) {
+            String errorMessage = "Unable to set protected attributes for object with classId = " + classId.intValue() + " obisCode = " + ObisCode.fromByteArray(logicalName.toByteArray()) + " attributeIndex = " + attributeIndex.intValue();
             setIncompatibleFailedMessage(collectedMessage, pendingMessage, errorMessage);
             throw e;
         }

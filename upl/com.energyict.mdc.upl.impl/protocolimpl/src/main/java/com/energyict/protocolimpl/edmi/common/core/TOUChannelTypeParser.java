@@ -242,49 +242,33 @@ public class TOUChannelTypeParser {
 				obisc = 130;
 			}
 			if (name.contains("q1")) {
-				obisc = 138;
+				obisc = 132;
 			}
 			if (name.contains("q2")) {
-				obisc = 134;
+				obisc = 133;
 			}
 			if (name.contains("q3")) {
-				obisc = 142;
+				obisc = 134;
 			}
 			if (name.contains("q4")) {
-				obisc = 146;
+				obisc = 135;
 			}
 		}
 
 		// Obis code not found !!!!!
 		if (obisc == 0) {return -1;}
 
-		if (name.contains("apparent q")) {
-			if (name.contains("l1")) {
-				obisc += 0;
-			}
-			if (name.contains("l2")) {
-				obisc += 1;
-			}
-			if (name.contains("l3")) {
-				obisc += 2;
-			}
-			if (name.contains("total")) {
-				obisc += 3;
-			}
+		if (name.contains("l1")) {
+			obisc += 20;
 		}
-		else {
-			if (name.contains("l1")) {
-				obisc += 20;
-			}
-			if (name.contains("l2")) {
-				obisc += 40;
-			}
-			if (name.contains("l3")) {
-				obisc += 60;
-			}
-			if (name.contains("total")) {
-				obisc += 0;
-			}
+		if (name.contains("l2")) {
+			obisc += 40;
+		}
+		if (name.contains("l3")) {
+			obisc += 60;
+		}
+		if (name.contains("total")) {
+			obisc += 0;
 		}
 		return obisc;
 	}

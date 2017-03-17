@@ -16,7 +16,7 @@ import java.util.List;
  * @author sva
  * @since 22/02/2017 - 16:31
  */
-public class OpticalHeadDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
+public class ModemDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
     public static final BigDecimal DEFAULT_RETRIES = new BigDecimal(3);
     public static final TimeDuration DEFAULT_TIMEOUT = new TimeDuration(10, TimeDuration.SECONDS);
@@ -24,12 +24,12 @@ public class OpticalHeadDeviceProtocolDialect extends AbstractDeviceProtocolDial
 
     @Override
     public String getDeviceProtocolDialectName() {
-        return DeviceProtocolDialectNameEnum.EDMI_OPTICAL_DIALECT_NAME.getName();
+        return DeviceProtocolDialectNameEnum.EDMI_MODEM_DIALECT_NAME.getName();
     }
 
     @Override
     public String getDisplayName() {
-        return "Optical";
+        return "Modem";
     }
 
     @Override
