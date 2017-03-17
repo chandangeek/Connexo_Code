@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
+import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.Fetcher;
@@ -610,6 +611,18 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	            throw new UnderlyingSQLFailedException(e);
 	        }
 		}
+
+		@Override
+		public List<JournalEntry<T>> find(List<Comparison> comparisons) {
+			try {
+				Stream<JournalEntry<T>> old = reader.findJournals(comparisons).stream();
+				return old.collect(Collectors.toList());
+			} catch (SQLException e) {
+				throw new UnderlyingSQLFailedException(e);
+			}
+		}
+
+
 
 	}
 
