@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectSetup', {
                         itemId: 'protocolDialectsGridContainer',
                         grid: {
                             xtype: 'deviceProtocolDialectsGrid',
-                            deviceId: encodeURIComponent(me.device.get('name'))
+                            deviceId: me.device.get('name')
                         },
                         emptyComponent: {
                             xtype: 'uni-form-empty-message',
