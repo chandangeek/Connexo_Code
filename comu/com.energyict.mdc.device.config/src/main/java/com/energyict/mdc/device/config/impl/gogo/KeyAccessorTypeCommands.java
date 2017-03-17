@@ -103,11 +103,11 @@ public class KeyAccessorTypeCommands {
     }
 
     public void createCertificateAccessorType() {
-        System.out.println("Usage: createCertificateAccessorTypes <name> <device type id> <key type name> <trust store id>");
-        System.out.println("Eg.  : createCertificateAccessorTypes TLS 153 TLSClient");
+        System.out.println("Usage: createCertificateAccessorTypes <name> <device type id> <key type name> <trust store id> <key encryption method>");
+        System.out.println("Eg.  : createCertificateAccessorTypes TLS 153 TLSClient DataVault");
     }
 
-    public void createCertificateAccessorType(String name, long deviceTypeId, String keyTypeName, long trustStoreId) {
+    public void createCertificateAccessorType(String name, long deviceTypeId, String keyTypeName, long trustStoreId, String keyEncryptionMethod) {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
@@ -119,6 +119,7 @@ public class KeyAccessorTypeCommands {
                     .orElseThrow(() -> new RuntimeException("No such trust store"));
             KeyAccessorType.Builder builder = deviceType.addKeyAccessorType(name, keyType)
                     .trustStore(trustStore)
+                    .keyEncryptionMethod(keyEncryptionMethod)
                     .description("Created by gogo command");
             builder.add();
             context.commit();
