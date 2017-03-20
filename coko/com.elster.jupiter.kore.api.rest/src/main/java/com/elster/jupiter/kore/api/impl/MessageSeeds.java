@@ -87,7 +87,12 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_LOCATION(75, "NoSuchLocation", "No such location with id {0}"),
     NO_SUCH_METER_ROLE(76, "NoSuchMeterRole", "No such meter role with key {0}"),
     UNSATISFIED_READING_TYPE_REQUIREMENTS(77, "UnsatisfiedReadingTypeRequirements", "Meter {0} could not be linked because it does not provide reading types for purposes {1} of the metrology configuration on usage point {2}"),
-
+    NO_SUCH_ISSUE(78, "NoSuchIssue", "No such issue with id {0}"),
+    NO_SUCH_USER(79, "NoSuchUser", "No such User with id {0}"),
+    NO_SUCH_STATUS(80, "NoSuchStatus", "No such Status with key {0}"),
+    ISSUE_LOCK_ATTEMPT_FAILED(81, "IssueLockAttemptFailed", "Could not obtain a lock on issue with id {0}"),
+    BAD_FIELD_VALUE(82, "BadFieldValue", "Bad field value for {0}"),
+    ISSUE_ALREADY_CLOSED(83, "IssueAlreadyClosed", "Issue with id {0} already closed")
     ;
 
     private final int number;
