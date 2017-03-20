@@ -9,11 +9,9 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
@@ -28,12 +26,14 @@ class Installer implements FullInstaller {
     private final DataModel dataModel;
     private final DataVaultService dataVaultService;
     private final BasicAuthentication basicAuthentication;
+    private volatile UserService userService;
 
     @Inject
-    public Installer(DataModel dataModel, DataVaultService dataVaultService, BasicAuthentication basicAuthentication) {
+    public Installer(DataModel dataModel, DataVaultService dataVaultService, BasicAuthentication basicAuthentication, UserService userService) {
         this.dataModel = dataModel;
         this.dataVaultService = dataVaultService;
         this.basicAuthentication = basicAuthentication;
+        this.userService = userService;
     }
 
     @Override
@@ -72,14 +72,7 @@ class Installer implements FullInstaller {
     }
 
     private void dumpToFile(Path conf) {
-        try (OutputStreamWriter writer = new FileWriter(conf.toFile())) {
-            writer.write(new String(dataVaultService.decrypt(basicAuthentication.getKeyPair()
-                    .get()
-                    .getPublicKey())));
-            writer.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        basicAuthentication.saveKeyToFile(conf);
     }
 
 }

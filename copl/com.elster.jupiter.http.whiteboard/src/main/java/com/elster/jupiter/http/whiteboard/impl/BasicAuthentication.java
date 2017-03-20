@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
@@ -167,20 +168,25 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private void tryCreateNewTokenKey(String fileName) throws NoSuchAlgorithmException, IOException {
         getKeyPair().ifPresent(KeyStoreImpl::delete);
         dataModel.getInstance(KeyStoreImpl.class).init(dataVaultService);
-        try (OutputStreamWriter writer = new OutputStreamWriter(Files.newOutputStream(FileSystems.getDefault()
-                .getPath(fileName)))) {
+
+        initSecurityTokenImpl();
+        saveKeyToFile(FileSystems.getDefault().getPath(fileName));
+    }
+
+    protected void saveKeyToFile(Path filePath) {
+        try (OutputStreamWriter writer = new OutputStreamWriter(Files.newOutputStream(filePath))) {
             Optional<User> foundUser = userService.findUser("process executor");
-            if(foundUser.isPresent()) {
+            if (foundUser.isPresent()) {
                 writer.write("\ncom.elster.jupiter.token=");
                 writer.write(securityToken.createPermanentToken(foundUser.get()));
             }
             writer.write("\ncom.elster.jupiter.sso.public.key=");
             writer.write(new String(dataVaultService.decrypt(getKeyPair().get().getPublicKey())));
             writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        initSecurityTokenImpl();
     }
-
 
     private void initSecurityTokenImpl() {
         Optional<KeyStoreImpl> keyStore = getKeyPair();
