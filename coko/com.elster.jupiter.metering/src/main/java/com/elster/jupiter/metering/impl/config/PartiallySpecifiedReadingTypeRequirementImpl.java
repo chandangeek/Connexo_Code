@@ -321,10 +321,17 @@ class PartiallySpecifiedReadingTypeRequirementImpl extends ReadingTypeRequiremen
 
     @Override
     public int getTou() {
-        return getReadingTypeTemplate()
-                    .getAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE)
-                    .getCode()
-                    .orElse(0);
+        Optional<Integer> templateValue = getReadingTypeTemplate().getAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE).getCode();
+        if (!templateValue.isPresent() || templateValue.get() == 0) {
+            return this.overriddenAttributes
+                            .stream()
+                            .filter(a -> a.getName().equals(ReadingTypeTemplateAttributeName.TIME_OF_USE))
+                            .mapToInt(PartiallySpecifiedReadingTypeAttributeValueImpl::getCode)
+                            .findAny()
+                            .orElse(0);
+        } else {
+            return 0;
+        }
     }
 
     @Override

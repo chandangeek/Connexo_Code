@@ -99,6 +99,7 @@ public class DeliverableTimeOfUseBucketsBackedByEventSetValidator implements Con
     private boolean allRequirementsUseTheSameTimeOfUseBucket(ReadingTypeDeliverable deliverable) {
         Set<Integer> deliverableBucket = new HashSet<>(Collections.singletonList(deliverable.getReadingType().getTou()));
         Set<Integer> allTimeOfUseBuckets = this.timeOfUseBucketsFromRequirements(deliverable);
+        allTimeOfUseBuckets.remove(0);
         return allTimeOfUseBuckets.equals(deliverableBucket);
     }
 
