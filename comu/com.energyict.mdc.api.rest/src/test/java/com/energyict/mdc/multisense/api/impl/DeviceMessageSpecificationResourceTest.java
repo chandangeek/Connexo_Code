@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
@@ -60,7 +61,7 @@ public class DeviceMessageSpecificationResourceTest extends MultisensePublicApiJ
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         assertThat(model.<Integer>get("$.id")).isEqualTo(15001);
         assertThat(model.<String>get("$.name")).isEqualTo("Set clock");
-        assertThat(model.get("$.link")).isNull();
+        assertTrue(model.get("$.link") == null);
         assertThat(model.<String>get("$.category")).isNull();
         assertThat(model.<String>get("$.deviceMessageId")).isNull();
         assertThat(model.<List>get("$.propertySpecs")).isNull();

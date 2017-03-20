@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -101,7 +102,7 @@ public class DeviceSecurityPropertySetResourceTest extends MultisensePublicApiJe
         assertThat(model.<Integer>get("$.version")).isEqualTo(1003);
         assertThat(model.<String>get("$.complete")).isNull();
         assertThat(model.<String>get("$.link")).isNull();
-        assertThat(model.get("$.configuredSecurityPropertySet")).isNull();
+        assertTrue(model.get("$.configuredSecurityPropertySet") == null);
     }
 
     @Test
