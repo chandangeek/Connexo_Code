@@ -45,21 +45,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.actionWhenOverThresholdAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.actionWhenUnderThresholdAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileActivationDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileDurationAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileGroupIdListAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileIdAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyThresholdAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.monitorInstanceAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.monitoredValueAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newWrappedEncryptionKeyAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.normalThresholdAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.thresholdInAmpereAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.underThresholdDurationAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
  * @author sva
@@ -74,6 +60,7 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
     private static final ObisCode LOAD_PROFILE_DISPLAY_CONTROL_SCRIPT_TABLE = ObisCode.fromString("0.0.10.0.113.255");
     private static final ObisCode MEASUREMENT_PERIOD_3_FOR_INSTANTANEOUS_VALUES_OBIS = ObisCode.fromString("1.0.0.8.2.255");
     private static final ObisCode BILLING_SCRIPT_TABLE_OBIS_CODE = ObisCode.fromString("0.0.10.0.1.255");
+    private static final ObisCode ADHOC_END_OF_BILLING = ObisCode.fromString("0.0.15.1.0.255");
 
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor;
 
@@ -117,6 +104,8 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
                 collectedMessage = billingReset(collectedMessage, pendingMessage);
             } else if (pendingMessage.getSpecification().equals(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS_ATTRIBUTES_4TO9)) {
                 collectedMessage = configureLoadLimitParametersEVN_Attributes_4to9(collectedMessage, pendingMessage);
+            }else if (pendingMessage.getSpecification().equals(DeviceActionMessage.BillingResetWithActivationDate)) {
+                collectedMessage = billingResetWithActivationDate(collectedMessage, pendingMessage);
             } else {
                 collectedMessage = super.executeMessage(pendingMessage, collectedMessage);
             }
@@ -172,6 +161,26 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
         } catch (IOException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             String errorMsg = "Failed to perform billing reset: " + e.getMessage();
+            collectedMessage.setDeviceProtocolInformation(errorMsg);
+            collectedMessage.setFailureInformation(ResultType.Other, createMessageFailedIssue(pendingMessage, errorMsg));
+        }
+        return collectedMessage;
+    }
+
+
+    private CollectedMessage billingResetWithActivationDate(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) {
+        try {
+            String activationEpochString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, adHocEndOfBillingActivationDatedAttributeName).getDeviceMessageAttributeValue();
+            SingleActionSchedule adHocEndOfBilling = getCosemObjectFactory().getSingleActionSchedule(ADHOC_END_OF_BILLING);
+
+            Array executionTime = convertEpochToDateTimeArray(activationEpochString);
+
+            adHocEndOfBilling.writeExecutionTime(executionTime);
+
+            collectedMessage.setDeviceProtocolInformation("Added a new ad-hoc end-of-billing reset to "+activationEpochString);
+        } catch (IOException e) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            String errorMsg = "Failed to add an ad-hoc billing reset: " + e.getMessage();
             collectedMessage.setDeviceProtocolInformation(errorMsg);
             collectedMessage.setFailureInformation(ResultType.Other, createMessageFailedIssue(pendingMessage, errorMsg));
         }

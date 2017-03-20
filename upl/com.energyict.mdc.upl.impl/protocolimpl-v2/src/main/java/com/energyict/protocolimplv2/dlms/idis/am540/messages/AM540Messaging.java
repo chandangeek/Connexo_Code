@@ -71,6 +71,7 @@ public class AM540Messaging extends AM130Messaging {
         supportedMessages.add(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT);
         supportedMessages.add(DeviceActionMessage.BILLING_RESET);
         supportedMessages.add(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS_ATTRIBUTES_4TO9);
+        supportedMessages.add(DeviceActionMessage.BillingResetWithActivationDate);
     }
 
     @Override

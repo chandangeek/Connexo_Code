@@ -113,7 +113,9 @@ public enum DeviceActionMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.bufferSize)),
     SetBufferForSpecificRegister(57,
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.obisCode),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.bufferSize));
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.bufferSize)),
+    BillingResetWithActivationDate(58,
+            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.adHocEndOfBillingActivationDatedAttributeName));
     private static final DeviceMessageCategory category = DeviceMessageCategories.DEVICE_ACTIONS;
     private final int id;
     private final List<PropertySpec> deviceMessagePropertySpecs;

@@ -119,6 +119,8 @@ public class IDISMessaging extends AbstractDlmsMessaging implements DeviceMessag
             return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
         } else if (propertySpec.getName().equals(TIME_OUT_NOT_ADDRESSEDAttributeName)) {
             return String.valueOf(((TimeDuration) messageAttribute).getSeconds() / 60);  //Minutes
+        } else if (propertySpec.getName().equals(adHocEndOfBillingActivationDatedAttributeName)){
+            return (((Date)messageAttribute)).getTime()+"";
         }
         return messageAttribute.toString();
     }
