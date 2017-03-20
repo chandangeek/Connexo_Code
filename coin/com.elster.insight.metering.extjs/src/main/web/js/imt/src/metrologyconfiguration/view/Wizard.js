@@ -21,6 +21,7 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
     router: null,
     returnLink: null,
     isPossibleAdd: true,
+    createTime: null,
 
     initComponent: function () {
         var me = this;
@@ -87,6 +88,25 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                         + '</span>'
                     },
                     {
+                        xtype: 'fieldcontainer',
+                        itemId: 'start-date',
+                        hidden: true,
+                        required: true,
+                        fieldLabel: Uni.I18n.translate('metrologyConfiguration.wizard.startDate', 'IMT', 'Start date'),
+                        defaults: {
+                            width: '100%'
+                        },
+                        items: [
+                            {
+                                xtype: 'date-time',
+                                itemId: 'start-date-field',
+                                value: me.createTime || new Date(),
+                                layout: 'hbox',
+                                valueInMilliseconds: true
+                            }
+                        ]
+                    },
+                    {
                         xtype: 'purposes-field',
                         itemId: 'purposes-field'
                     }
@@ -136,13 +156,13 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
     updateRecord: function (record) {
         var me = this,
             step = me.getLayout().getActiveItem();
-
         switch (step.navigationIndex) {
             case 1:
                 var combo = step.down('#metrology-configuration-combo');
                 me.getRecord().set('id',combo.getValue());
                 me.getRecord().set('name',combo.getRawValue());
                 me.getRecord().set('purposes', step.down('#purposes-field').getValue());
+                me.getRecord().set('activationTime', step.down('#start-date-field').getValue());
                 record && me.getRecord().set('version', record.get('version'));
                 me.callParent(arguments);
                 break;

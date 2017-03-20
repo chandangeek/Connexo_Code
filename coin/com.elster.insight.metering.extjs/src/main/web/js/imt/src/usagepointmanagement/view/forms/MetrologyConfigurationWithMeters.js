@@ -38,6 +38,26 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
                 labelWidth: 260,
                 fieldLabel: Uni.I18n.translate('general.label.metrologyConfiguration', 'IMT', 'Metrology configuration'),
                 layout: 'hbox'
+            },
+            {
+                xtype: 'fieldcontainer',
+                itemId: 'start-date',
+                hidden: true,
+                required: true,
+                labelWidth: 260,
+                fieldLabel: Uni.I18n.translate('metrologyConfiguration.wizard.startDate', 'IMT', 'Start date'),
+                defaults: {
+                    width: '100%'
+                },
+                items: [
+                    {
+                        xtype: 'date-time',
+                        itemId: 'start-date-field',
+                        name: 'activationTime',
+                        layout: 'hbox',
+                        valueInMilliseconds: true
+                    }
+                ]
             }
         ];
 
@@ -123,6 +143,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
     getRecord: function () {
         var me = this,
             metrologyConfigurationCombo = me.down('#metrology-configuration-combo'),
+            metrologyConfigurationActivation = me.down('#start-date-field'),
             meterActivationsField = me.down('#meter-activations-field'),
             purposesField = me.down('#purposes-field'),
             metrologyConfiguration = metrologyConfigurationCombo ? metrologyConfigurationCombo.getValue() : null,
@@ -130,9 +151,10 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
 
         if (metrologyConfiguration) {
             metrologyConfiguration.purposes = purposesField.getValue();
+            metrologyConfiguration.activationTime = metrologyConfigurationActivation.getValue();
             meterActivations = meterActivationsField.getValue();
             metrologyConfiguration.meterRoles = _.map(Ext.clone(meterActivations), function (meterActivation) {
-                return Ext.merge(meterActivation.meterRole, _.pick(meterActivation, 'meter', 'activationTime'));
+                return Ext.merge(meterActivation.meterRole, _.pick(meterActivations, 'meter', 'activationTime'));
             });
             meterActivations = _.map(Ext.clone(meterActivations), function (meterActivation) {
                 return Ext.merge(_.pick(meterActivation, 'meterRole'), {
