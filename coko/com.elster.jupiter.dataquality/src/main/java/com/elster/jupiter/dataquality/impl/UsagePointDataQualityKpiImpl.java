@@ -38,7 +38,6 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -179,15 +178,11 @@ public final class UsagePointDataQualityKpiImpl extends DataQualityKpiImpl imple
     }
 
     private Set<String> actualKpiMemberNames(UsagePoint usagePoint, Range<Instant> interval) {
+        Set<String> actualKpiMemberTypes = actualKpiMemberTypes().map(DataQualityKpiMemberType::getName).collect(Collectors.toSet());
         Set<ChannelsContainer> channelContainers = getChannelsContainersForPurpose(usagePoint, getMetrologyPurpose(), interval);
-        if (channelContainers.isEmpty()) {
-            return Collections.emptySet();
-        }
-        return actualKpiMemberTypes()
-                .map(DataQualityKpiMemberType::getName)
-                .flatMap(member -> channelContainers.stream()
-                        .map(channelContainer -> kpiMemberNameSuffix(usagePoint, channelContainer))
-                        .map(suffix -> member + DataQualityKpiMember.KPIMEMBERNAME_SEPARATOR + suffix))
+        return channelContainers.stream()
+                .map(channelsContainer -> kpiMemberNameSuffix(usagePoint, channelsContainer))
+                .flatMap(suffix -> actualKpiMemberTypes.stream().map(member -> member + DataQualityKpiMember.KPIMEMBERNAME_SEPARATOR + suffix))
                 .collect(Collectors.toSet());
     }
 
@@ -204,7 +199,7 @@ public final class UsagePointDataQualityKpiImpl extends DataQualityKpiImpl imple
         String targetIdentifier = kpiMember.getTargetIdentifier();
         String[] parts = targetIdentifier.split(KPIMEMBERNAME_SUFFIX_SEPARATOR);
         if (parts.length != 2) {
-            throw new IllegalStateException("Usage point kpi member identifier invalid," +
+            throw new IllegalStateException("Usage point kpi member identifier is invalid," +
                     " expected <usage point id>" + KPIMEMBERNAME_SUFFIX_SEPARATOR + "<channels container id>");
         }
         return Long.parseLong(parts[0]);
