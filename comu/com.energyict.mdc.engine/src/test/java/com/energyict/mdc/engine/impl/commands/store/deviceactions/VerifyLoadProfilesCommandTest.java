@@ -52,7 +52,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
     private static final ObisCode LoadProfileObisCode = ObisCode.fromString("1.0.99.1.0.255");
     private static final ObisCode ChannelInfoObisCode1 = ObisCode.fromString("1.0.1.8.0.255");
     private static final ObisCode ChannelInfoObisCode2 = ObisCode.fromString("1.0.2.8.0.255");
-    private static final String MeterSerialNumber = "MeterSerialNumber";
+    private static final String METER_SERIAL_NUMBER = "MeterSerialNumber";
     private static final int ProfileIntervalInSeconds = 900;
     private static final boolean FailIfConfigurationMisMatch = true;
 
@@ -160,7 +160,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         when(loadProfileReader.getProfileObisCode()).thenReturn(ObisCode.fromString("0.0.0.0.0.0"));
         LoadProfileReader loadProfileReader2 = mock(LoadProfileReader.class);
         when(loadProfileReader2.getProfileObisCode()).thenReturn(LoadProfileObisCode);
-//        when(loadProfileReader2.getDeviceIdentifier()).thenReturn(new TestSerialNumberDeviceIdentifier(MeterSerialNumber));
+        when(loadProfileReader2.getMeterSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
 
         LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
         when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
@@ -169,7 +169,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
 
         DeviceLoadProfileConfiguration loadProfileConfiguration = mock(DeviceLoadProfileConfiguration.class);
         when(loadProfileConfiguration.getObisCode()).thenReturn(LoadProfileObisCode);
-        when(loadProfileConfiguration.getDeviceIdentifier()).thenReturn(new TestSerialNumberDeviceIdentifier(MeterSerialNumber));
+        when(loadProfileConfiguration.getMeterSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
 
         //asserts
         assertNotNull(verifyLoadProfilesCommand.getLoadProfileReaderForGivenLoadProfileConfiguration(loadProfileConfiguration));
@@ -189,7 +189,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
 
         DeviceLoadProfileConfiguration loadProfileConfiguration = mock(DeviceLoadProfileConfiguration.class);
         when(loadProfileConfiguration.getObisCode()).thenReturn(LoadProfileObisCode);
-        when(loadProfileConfiguration.getDeviceIdentifier()).thenReturn(new TestSerialNumberDeviceIdentifier(MeterSerialNumber));
+        when(loadProfileConfiguration.getDeviceIdentifier()).thenReturn(new TestSerialNumberDeviceIdentifier(METER_SERIAL_NUMBER));
         when(loadProfileConfiguration.getProfileInterval()).thenReturn(ProfileIntervalInSeconds);
 
         List<Issue> issues = verifyLoadProfilesCommand.verifyProfileInterval(loadProfileReader, loadProfileConfiguration);
@@ -215,7 +215,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
 
         DeviceLoadProfileConfiguration loadProfileConfiguration = mock(DeviceLoadProfileConfiguration.class);
         when(loadProfileConfiguration.getObisCode()).thenReturn(LoadProfileObisCode);
-        when(loadProfileConfiguration.getDeviceIdentifier()).thenReturn(new TestSerialNumberDeviceIdentifier(MeterSerialNumber));
+        when(loadProfileConfiguration.getDeviceIdentifier()).thenReturn(new TestSerialNumberDeviceIdentifier(METER_SERIAL_NUMBER));
         when(loadProfileConfiguration.getProfileInterval()).thenReturn(ProfileIntervalInSeconds);
 
         List<Issue> issues = verifyLoadProfilesCommand.verifyProfileInterval(loadProfileReader, loadProfileConfiguration);
@@ -375,7 +375,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
     public void executeWithoutViolations() {
         List<ChannelInfo> listOfChannelInfos = createSimpleChannelInfoList();
 
-        DeviceLoadProfileConfiguration loadProfileConfiguration = new DeviceLoadProfileConfiguration(LoadProfileObisCode, new TestSerialNumberDeviceIdentifier(MeterSerialNumber), MeterSerialNumber, true);
+        DeviceLoadProfileConfiguration loadProfileConfiguration = new DeviceLoadProfileConfiguration(LoadProfileObisCode, new TestSerialNumberDeviceIdentifier(METER_SERIAL_NUMBER), METER_SERIAL_NUMBER, true);
         loadProfileConfiguration.setChannelInfos(listOfChannelInfos);
 
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
@@ -406,7 +406,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
     @Test
     public void executeNotSupportedByTheMeter() {
 
-        DeviceLoadProfileConfiguration loadProfileConfiguration = new DeviceLoadProfileConfiguration(LoadProfileObisCode, new TestSerialNumberDeviceIdentifier(MeterSerialNumber), MeterSerialNumber, false);
+        DeviceLoadProfileConfiguration loadProfileConfiguration = new DeviceLoadProfileConfiguration(LoadProfileObisCode, new TestSerialNumberDeviceIdentifier(METER_SERIAL_NUMBER), METER_SERIAL_NUMBER, false);
 
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.fetchLoadProfileConfiguration(Matchers.<List<LoadProfileReader>>any())).thenReturn(Collections.<CollectedLoadProfileConfiguration>singletonList(loadProfileConfiguration));
@@ -440,7 +440,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         secondListOfChannelInfos.add(new ChannelInfo(0, ChannelInfoObisCode1.toString(), Unit.get("kvar")));    // we replaced the Wh channelInfo with a kvar channelInfo
         secondListOfChannelInfos.add(new ChannelInfo(1, ChannelInfoObisCode2.toString(), Unit.get("kvar")));    // we replaced the Wh channelInfo with a kvar channelInfo
 
-        DeviceLoadProfileConfiguration loadProfileConfiguration = new DeviceLoadProfileConfiguration(LoadProfileObisCode, new TestSerialNumberDeviceIdentifier(MeterSerialNumber), MeterSerialNumber, true);
+        DeviceLoadProfileConfiguration loadProfileConfiguration = new DeviceLoadProfileConfiguration(LoadProfileObisCode, new TestSerialNumberDeviceIdentifier(METER_SERIAL_NUMBER), METER_SERIAL_NUMBER, true);
         loadProfileConfiguration.setProfileInterval(300);
         loadProfileConfiguration.setChannelInfos(secondListOfChannelInfos);
 
@@ -488,7 +488,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
     private LoadProfileReader createSimpleLoadProfileReader() {
         LoadProfileReader loadProfileReader = mock(LoadProfileReader.class);
         when(loadProfileReader.getProfileObisCode()).thenReturn(LoadProfileObisCode);
-//        when(loadProfileReader.getDeviceIdentifier()).thenReturn(new TestSerialNumberDeviceIdentifier(MeterSerialNumber));
+        when(loadProfileReader.getMeterSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
         return loadProfileReader;
     }
 

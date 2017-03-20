@@ -73,18 +73,11 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.mdc.upl.io.SerialComponentService;
+import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpService;
@@ -95,6 +88,16 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Date;
 import java.util.TimeZone;
+
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -157,7 +160,6 @@ public abstract class AbstractCollectedDataIntegrationTest {
 
                         "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0",
                         "0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"
-
                 ),
                 new MeteringGroupsModule(),
                 new SearchModule(),
@@ -174,6 +176,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new EngineModelModule(),
                 new EngineModule(),
                 new ProtocolApiModule(),
+                new ProtocolsModule(),
                 new PluggableModule(),
                 new KpiModule(),
                 new ValidationModule(),

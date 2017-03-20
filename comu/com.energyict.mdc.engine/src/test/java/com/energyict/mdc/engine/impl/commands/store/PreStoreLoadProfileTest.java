@@ -6,7 +6,6 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -27,6 +26,8 @@ import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
+
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -34,11 +35,6 @@ import com.energyict.protocol.IntervalValue;
 import com.google.common.collect.Range;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -49,7 +45,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -103,6 +106,8 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
     private User comServerUser;
     @Mock
     private IssueService issueService;
+    @Mock
+    private DeviceService deviceService;
 
     protected ComServerDAOImpl.ServiceProvider getComServerDAOServiceProvider() {
         return serviceProvider;
@@ -135,6 +140,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         );
         when(this.serviceProvider.topologyService()).thenReturn(getTopologyService());
         when(this.serviceProvider.identificationService()).thenReturn(this.identificationService);
+        when(this.serviceProvider.deviceService()).thenReturn(this.deviceService);
     }
 
     private LoadProfileType createLoadProfileType() {
@@ -151,8 +157,9 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
     @Test
     @Transactional
     public void simplePreStoreWithDataInFutureTest() {
-
         Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("simplePreStoreWithDataInFutureTest").loadProfileTypes(this.loadProfileType).create(Instant.ofEpochMilli(fromClock.getTime()));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(device))).thenReturn(Optional.of(device));
+
         LoadProfile loadProfile = device.getLoadProfiles().get(0);
         CollectedLoadProfile collectedLoadProfile =
                 enhanceCollectedLoadProfile(loadProfile, createMockLoadProfileWithTwoChannelsAndDataInFuture(loadProfile.getInterval()));
@@ -179,6 +186,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
     @Transactional
     public void preStoreWithMultiplierTest() {
         Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("preStoreWithMultiplierTest").loadProfileTypes(this.loadProfileType).create(Instant.ofEpochMilli(fromClock.getTime()));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(device))).thenReturn(Optional.of(device));
         LoadProfile loadProfile = device.getLoadProfiles().get(0);
         BigDecimal multiplier = BigDecimal.valueOf(50L);
         CollectedLoadProfile collectedLoadProfile =
@@ -209,6 +217,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
     @Transactional
     public void preStoreWithPositiveUnitConversionTest() {
         Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("preStoreWithPositiveUnitConversionTest").loadProfileTypes(this.loadProfileType).create(Instant.ofEpochMilli(fromClock.getTime()));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(device))).thenReturn(Optional.of(device));
         LoadProfile loadProfile = device.getLoadProfiles().get(0);
         CollectedLoadProfile collectedLoadProfile =
                 enhanceCollectedLoadProfile(loadProfile, createMockLoadProfileWithPositiveScaler(loadProfile.getInterval()));
@@ -246,6 +255,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
         OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
         final ComServerDAO comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(device))).thenReturn(Optional.of(device));
 
         freezeClock(currentTimeStamp);
 
@@ -284,6 +294,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
                 .mRDI("preStoreWithNegativeScalingAndOverflowExceededTest")
                 .loadProfileTypes(this.loadProfileType)
                 .create(Instant.ofEpochMilli(fromClock.getTime()));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(device))).thenReturn(Optional.of(device));
         LoadProfile loadProfile = device.getLoadProfiles().get(0);
         device.getLoadProfileUpdaterFor(loadProfile).setLastReading(intervalEndTime1.toInstant()).update();
         CollectedLoadProfile collectedLoadProfile =
@@ -309,6 +320,8 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
                 .mRDI("preStoreWithNegativeScalingAndOverflowExceededTest")
                 .loadProfileTypes(this.loadProfileType)
                 .create(Instant.ofEpochMilli(fromClock.getTime()));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(device))).thenReturn(Optional.of(device));
+
         LoadProfile loadProfile = device.getLoadProfiles().get(0);
         device.getLoadProfileUpdaterFor(loadProfile).setLastReading(intervalEndTime1.toInstant()).update();
         CollectedLoadProfile collectedLoadProfile =
@@ -334,6 +347,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
                 .mRDI("preStoreWithNegativeScalingAndOverflowExceededTest")
                 .loadProfileTypes(this.loadProfileType)
                 .create(Instant.ofEpochMilli(fromClock.getTime()));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(device))).thenReturn(Optional.of(device));
         LoadProfile loadProfile = device.getLoadProfiles().get(0);
         device.getLoadProfileUpdaterFor(loadProfile).setLastReading(intervalEndTime1.toInstant()).update();
         CollectedLoadProfile collectedLoadProfile =
@@ -362,6 +376,8 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
                 .deviceConfigName(DeviceCreator.DATA_LOGGER_DEVICE_CONFIGURATION_NAME)
                 .dataLoggerEnabled(true)
                 .create(Instant.ofEpochMilli(fromClock.getTime()));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(dataLogger))).thenReturn(Optional.of(dataLogger));
+
         LoadProfile loadProfile = dataLogger.getLoadProfiles().get(0);
         CollectedLoadProfile collectedLoadProfile =
                 enhanceCollectedLoadProfile(loadProfile, createMockLoadProfileWithTwoChannelsAndDataInFuture(loadProfile.getInterval()));
@@ -406,14 +422,16 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
                 .deviceConfigName(DeviceCreator.DATA_LOGGER_DEVICE_CONFIGURATION_NAME)
                 .dataLoggerEnabled(true)
                 .create(Instant.ofEpochMilli(fromClock.getTime()));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(dataLogger))).thenReturn(Optional.of(dataLogger));
 
         Device slave = this.slaveDeviceCreator
                 .name("slave")
                 .mRDI("simplePreStoreWithDataInFutureTest")
                 .loadProfileTypes(this.loadProfileType)
                 .create(Instant.ofEpochMilli(fromClock.getTime()));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(slave))).thenReturn(Optional.of(slave));
 
-        HashMap<Channel, Channel> channelMap = new HashMap<>();
+        Map<Channel, Channel> channelMap = new HashMap<>();
         // Linking the slave
         LoadProfile dataLoggerLoadProfile = dataLogger.getLoadProfiles().get(0);
         LoadProfile slaveLoggerLoadProfile = slave.getLoadProfiles().get(0);
@@ -470,14 +488,16 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
                 .deviceConfigName(DeviceCreator.DATA_LOGGER_DEVICE_CONFIGURATION_NAME)
                 .dataLoggerEnabled(true)
                 .create(Instant.ofEpochMilli(fromClock.getTime()));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(dataLogger))).thenReturn(Optional.of(dataLogger));
 
         Device slave = this.slaveDeviceCreator
                 .name("slave")
                 .mRDI("simplePreStoreWithDataInFutureTest")
                 .loadProfileTypes(this.loadProfileType)
                 .create(Instant.ofEpochMilli(fromClock.getTime()));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(slave))).thenReturn(Optional.of(slave));
 
-        HashMap<Channel, Channel> channelMap = new HashMap<>();
+        Map<Channel, Channel> channelMap = new HashMap<>();
         // Linking the slave
         LoadProfile dataLoggerLoadProfile = dataLogger.getLoadProfiles().get(0);
         LoadProfile slaveLoadProfile = slave.getLoadProfiles().get(0);
@@ -544,14 +564,16 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
                 .deviceConfigName(DeviceCreator.DATA_LOGGER_DEVICE_CONFIGURATION_NAME)
                 .dataLoggerEnabled(true)
                 .create(Instant.ofEpochMilli(fromClock.getTime()));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(dataLogger))).thenReturn(Optional.of(dataLogger));
 
         Device slave = this.slaveDeviceCreator
                 .name("slave")
                 .mRDI("simplePreStoreWithDataInFutureTest")
                 .loadProfileTypes(this.loadProfileType)
                 .create(Instant.ofEpochMilli(fromClock.getTime()));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(slave))).thenReturn(Optional.of(slave));
 
-        HashMap<Channel, Channel> channelMap = new HashMap<>();
+        Map<Channel, Channel> channelMap = new HashMap<>();
         // Linking the slave
         LoadProfile dataLoggerLoadProfile = dataLogger.getLoadProfiles().get(0);
         LoadProfile slaveLoadProfile = slave.getLoadProfiles().get(0);
@@ -621,16 +643,28 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
                 .deviceConfigName(DeviceCreator.DATA_LOGGER_DEVICE_CONFIGURATION_NAME)
                 .dataLoggerEnabled(true)
                 .create(Instant.ofEpochMilli(fromClock.getTime()));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(dataLogger))).thenReturn(Optional.of(dataLogger));
 
-        RegisterType slave1RegisterType = getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeMridFrom(obisCodeActiveImport, kiloWattHours))
-                .get()).get();
-        RegisterType slave2RegisterType = getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeMridFrom(obisCodeActiveExport, kiloWattHours))
-                .get()).get();
-        LoadProfileType loadProfileTypeSlave1 = getInjector().getInstance(MasterDataService.class)
-                .newLoadProfileType("loadProfileTypeSlave1", ObisCode.fromString("1.0.99.1.0.255"), loadProfileInterval, Collections.singletonList(slave1RegisterType));
+
+        RegisterType slave1RegisterType = getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeMridFrom(obisCodeActiveImport, kiloWattHours)).get()).get();
+        RegisterType slave2RegisterType = getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeMridFrom(obisCodeActiveExport, kiloWattHours)).get()).get();
+        LoadProfileType loadProfileTypeSlave1 =
+                getInjector()
+                        .getInstance(MasterDataService.class)
+                        .newLoadProfileType(
+                                "loadProfileTypeSlave1",
+                                ObisCode.fromString("1.0.99.1.0.255"),
+                                loadProfileInterval,
+                                Collections.singletonList(slave1RegisterType));
         loadProfileTypeSlave1.save();
-        LoadProfileType loadProfileTypeSlave2 = getInjector().getInstance(MasterDataService.class)
-                .newLoadProfileType("loadProfileTypeSlave2", ObisCode.fromString("1.0.99.1.0.255"), loadProfileInterval, Collections.singletonList(slave2RegisterType));
+        LoadProfileType loadProfileTypeSlave2 =
+                getInjector()
+                        .getInstance(MasterDataService.class)
+                        .newLoadProfileType(
+                                "loadProfileTypeSlave2",
+                                ObisCode.fromString("1.0.99.1.0.255"),
+                                loadProfileInterval,
+                                Collections.singletonList(slave2RegisterType));
         loadProfileTypeSlave2.save();
 
         Device slave1 = this.slaveDeviceCreator
@@ -639,6 +673,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
                 .deviceTypeName("slave1Type")
                 .loadProfileTypes(loadProfileTypeSlave1)
                 .create(Instant.ofEpochMilli(fromClock.getTime()));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(slave1))).thenReturn(Optional.of(slave1));
 
         DeviceCreator slaveDeviceCreator2 = (DeviceCreator) new DeviceCreator(
                 getInjector().getInstance(DeviceConfigurationService.class),
@@ -649,14 +684,15 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
                 .deviceTypeName("slave2Type")
                 .loadProfileTypes(loadProfileTypeSlave2)
                 .create(Instant.ofEpochMilli(fromClock.getTime()));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(slave2))).thenReturn(Optional.of(slave2));
 
         // Linking the slave
         LoadProfile dataLoggerLoadProfile = dataLogger.getLoadProfiles().get(0);
         LoadProfile slaveLoadProfile1 = slave1.getLoadProfiles().get(0);
         LoadProfile slaveLoadProfile2 = slave2.getLoadProfiles().get(0);
-        HashMap<Channel, Channel> channelMap1 = new HashMap<>();
+        Map<Channel, Channel> channelMap1 = new HashMap<>();
         channelMap1.put(slaveLoadProfile1.getChannels().get(0), dataLoggerLoadProfile.getChannels().get(0));
-        HashMap<Channel, Channel> channelMap2 = new HashMap<>();
+        Map<Channel, Channel> channelMap2 = new HashMap<>();
         channelMap2.put(slaveLoadProfile2.getChannels().get(0), dataLoggerLoadProfile.getChannels().get(1));
 
         getTopologyService().setDataLogger(slave1, dataLogger, fromClock.toInstant(), channelMap1, new HashMap<>());
@@ -710,16 +746,27 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
                 .deviceConfigName(DeviceCreator.DATA_LOGGER_DEVICE_CONFIGURATION_NAME)
                 .dataLoggerEnabled(true)
                 .create(Instant.ofEpochMilli(fromClock.getTime()));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(dataLogger))).thenReturn(Optional.of(dataLogger));
 
-        RegisterType slave1RegisterType = getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeMridFrom(obisCodeActiveImport, kiloWattHours))
-                .get()).get();
-        RegisterType slave2RegisterType = getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeMridFrom(obisCodeActiveExport, kiloWattHours))
-                .get()).get();
-        LoadProfileType loadProfileTypeSlave1 = getInjector().getInstance(MasterDataService.class)
-                .newLoadProfileType("loadProfileTypeSlave1", ObisCode.fromString("1.0.99.1.0.255"), loadProfileInterval, Collections.singletonList(slave1RegisterType));
+        RegisterType slave1RegisterType = getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeMridFrom(obisCodeActiveImport, kiloWattHours)).get()).get();
+        RegisterType slave2RegisterType = getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeMridFrom(obisCodeActiveExport, kiloWattHours)).get()).get();
+        LoadProfileType loadProfileTypeSlave1 =
+                getInjector()
+                        .getInstance(MasterDataService.class)
+                        .newLoadProfileType(
+                                "loadProfileTypeSlave1",
+                                ObisCode.fromString("1.0.99.1.0.255"),
+                                loadProfileInterval,
+                                Collections.singletonList(slave1RegisterType));
         loadProfileTypeSlave1.save();
-        LoadProfileType loadProfileTypeSlave2 = getInjector().getInstance(MasterDataService.class)
-                .newLoadProfileType("loadProfileTypeSlave2", ObisCode.fromString("1.0.99.1.0.255"), loadProfileInterval, Collections.singletonList(slave2RegisterType));
+        LoadProfileType loadProfileTypeSlave2 =
+                getInjector()
+                        .getInstance(MasterDataService.class)
+                        .newLoadProfileType(
+                                "loadProfileTypeSlave2",
+                                ObisCode.fromString("1.0.99.1.0.255"),
+                                loadProfileInterval,
+                                Collections.singletonList(slave2RegisterType));
         loadProfileTypeSlave2.save();
 
         Device slave1 = this.slaveDeviceCreator
@@ -728,6 +775,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
                 .deviceTypeName("slave1Type")
                 .loadProfileTypes(loadProfileTypeSlave1)
                 .create(Instant.ofEpochMilli(fromClock.getTime()));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(slave1))).thenReturn(Optional.of(slave1));
 
         DeviceCreator slaveDeviceCreator2 = (DeviceCreator) new DeviceCreator(
                 getInjector().getInstance(DeviceConfigurationService.class),
@@ -738,14 +786,15 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
                 .deviceTypeName("slave2Type")
                 .loadProfileTypes(loadProfileTypeSlave2)
                 .create(Instant.ofEpochMilli(fromClock.getTime()));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(slave2))).thenReturn(Optional.of(slave2));
 
         // Linking the slave
         LoadProfile dataLoggerLoadProfile = dataLogger.getLoadProfiles().get(0);
         LoadProfile slaveLoadProfile1 = slave1.getLoadProfiles().get(0);
         LoadProfile slaveLoadProfile2 = slave2.getLoadProfiles().get(0);
-        HashMap<Channel, Channel> channelMap1 = new HashMap<>();
+        Map<Channel, Channel> channelMap1 = new HashMap<>();
         channelMap1.put(slaveLoadProfile1.getChannels().get(0), dataLoggerLoadProfile.getChannels().get(0));
-        HashMap<Channel, Channel> channelMap2 = new HashMap<>();
+        Map<Channel, Channel> channelMap2 = new HashMap<>();
         channelMap2.put(slaveLoadProfile2.getChannels().get(0), dataLoggerLoadProfile.getChannels().get(1));
 
         getTopologyService().setDataLogger(slave1, dataLogger, fromClock.toInstant(), channelMap1, new HashMap<>());
@@ -808,16 +857,27 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
                 .deviceConfigName(DeviceCreator.DATA_LOGGER_DEVICE_CONFIGURATION_NAME)
                 .dataLoggerEnabled(true)
                 .create(Instant.ofEpochMilli(fromClock.getTime()));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(dataLogger))).thenReturn(Optional.of(dataLogger));
 
-        RegisterType slave1RegisterType = getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeMridFrom(obisCodeActiveImport, kiloWattHours))
-                .get()).get();
-        RegisterType slave2RegisterType = getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeMridFrom(obisCodeActiveExport, kiloWattHours))
-                .get()).get();
-        LoadProfileType loadProfileTypeSlave1 = getInjector().getInstance(MasterDataService.class)
-                .newLoadProfileType("loadProfileTypeSlave1", ObisCode.fromString("1.0.99.1.0.255"), loadProfileInterval, Collections.singletonList(slave1RegisterType));
+        RegisterType slave1RegisterType = getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeMridFrom(obisCodeActiveImport, kiloWattHours)).get()).get();
+        RegisterType slave2RegisterType = getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeMridFrom(obisCodeActiveExport, kiloWattHours)).get()).get();
+        LoadProfileType loadProfileTypeSlave1 =
+                getInjector()
+                        .getInstance(MasterDataService.class)
+                        .newLoadProfileType(
+                                "loadProfileTypeSlave1",
+                                ObisCode.fromString("1.0.99.1.0.255"),
+                                loadProfileInterval,
+                                Collections.singletonList(slave1RegisterType));
         loadProfileTypeSlave1.save();
-        LoadProfileType loadProfileTypeSlave2 = getInjector().getInstance(MasterDataService.class)
-                .newLoadProfileType("loadProfileTypeSlave2", ObisCode.fromString("1.0.99.1.0.255"), loadProfileInterval, Collections.singletonList(slave2RegisterType));
+        LoadProfileType loadProfileTypeSlave2 =
+                getInjector()
+                        .getInstance(MasterDataService.class)
+                        .newLoadProfileType(
+                                "loadProfileTypeSlave2",
+                                ObisCode.fromString("1.0.99.1.0.255"),
+                                loadProfileInterval,
+                                Collections.singletonList(slave2RegisterType));
         loadProfileTypeSlave2.save();
 
         Device slave1 = this.slaveDeviceCreator
@@ -826,6 +886,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
                 .deviceTypeName("slave1Type")
                 .loadProfileTypes(loadProfileTypeSlave1)
                 .create(Instant.ofEpochMilli(fromClock.getTime()));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(slave1))).thenReturn(Optional.of(slave1));
 
         DeviceCreator slaveDeviceCreator2 = (DeviceCreator) new DeviceCreator(
                 getInjector().getInstance(DeviceConfigurationService.class),
@@ -836,14 +897,15 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
                 .deviceTypeName("slave2Type")
                 .loadProfileTypes(loadProfileTypeSlave2)
                 .create(Instant.ofEpochMilli(fromClock.getTime()));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(slave2))).thenReturn(Optional.of(slave2));
 
         // Linking the slave
         LoadProfile dataLoggerLoadProfile = dataLogger.getLoadProfiles().get(0);
         LoadProfile slaveLoadProfile1 = slave1.getLoadProfiles().get(0);
         LoadProfile slaveLoadProfile2 = slave2.getLoadProfiles().get(0);
-        HashMap<Channel, Channel> channelMap1 = new HashMap<>();
+        Map<Channel, Channel> channelMap1 = new HashMap<>();
         channelMap1.put(slaveLoadProfile1.getChannels().get(0), dataLoggerLoadProfile.getChannels().get(0));
-        HashMap<Channel, Channel> channelMap2 = new HashMap<>();
+        Map<Channel, Channel> channelMap2 = new HashMap<>();
         channelMap2.put(slaveLoadProfile2.getChannels().get(0), dataLoggerLoadProfile.getChannels().get(1));
 
         getTopologyService().setDataLogger(slave1, dataLogger, intervalEndTime3.toInstant(), channelMap1, new HashMap<>());

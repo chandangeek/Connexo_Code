@@ -10,6 +10,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLoadProfileChannel;
+
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -57,7 +58,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
     /**
      * The ID of the {@link com.energyict.mdc.upl.meterdata.Device} which owns this {@link LoadProfile}
      */
-    private int deviceId;
+    private long deviceId;
 
     /**
      * The {@link ObisCode} of the {@link LoadProfile}
@@ -228,11 +229,11 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
      * @return the ID of the {@link com.energyict.mdc.upl.meterdata.Device}.
      */
     @Override
-    public int getDeviceId() {
+    public long getDeviceId() {
         return this.deviceId;
     }
 
-    private void setDeviceId(final int deviceId) {
+    private void setDeviceId(long deviceId) {
         this.deviceId = deviceId;
     }
 
