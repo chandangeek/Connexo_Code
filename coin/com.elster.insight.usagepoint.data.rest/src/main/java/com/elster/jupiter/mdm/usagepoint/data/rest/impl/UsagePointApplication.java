@@ -49,7 +49,6 @@ import com.elster.jupiter.time.spi.RelativePeriodCategoryTranslationProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
-import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.rest.BusinessProcessInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.MicroActionAndCheckInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfoFactory;
@@ -430,6 +429,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(EstimationTaskInfoFactory.class).to(EstimationTaskInfoFactory.class);
             bind(UsagePointTransitionInfoFactory.class).to(UsagePointTransitionInfoFactory.class);
             bind(propertySpecService).to(PropertySpecService.class);
+            bind(MetrologyConfigurationHistoryInfoFactory.class).to(MetrologyConfigurationHistoryInfoFactory.class);
         }
     }
 }

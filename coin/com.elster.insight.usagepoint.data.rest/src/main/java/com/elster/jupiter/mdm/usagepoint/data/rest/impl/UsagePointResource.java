@@ -172,6 +172,7 @@ public class UsagePointResource {
     private final UsagePointLifeCycleService usagePointLifeCycleService;
     private final PropertyValueInfoService propertyValueInfoService;
     private final ValidationService validationService;
+    private final MetrologyConfigurationHistoryInfoFactory metrologyConfigurationHistoryInfoFactory;
 
     @Inject
     public UsagePointResource(RestQueryService queryService,
@@ -201,7 +202,8 @@ public class UsagePointResource {
                               TransactionService transactionService,
                               UsagePointLifeCycleService usagePointLifeCycleService,
                               PropertyValueInfoService propertyValueInfoService,
-                              ValidationService validationService) {
+                              ValidationService validationService,
+                              MetrologyConfigurationHistoryInfoFactory metrologyConfigurationHistoryInfoFactory) {
         this.queryService = queryService;
         this.timeService = timeService;
         this.meteringService = meteringService;
@@ -230,6 +232,7 @@ public class UsagePointResource {
         this.usagePointLifeCycleService = usagePointLifeCycleService;
         this.propertyValueInfoService = propertyValueInfoService;
         this.validationService = validationService;
+        this.metrologyConfigurationHistoryInfoFactory = metrologyConfigurationHistoryInfoFactory;
     }
 
     @GET
@@ -404,10 +407,6 @@ public class UsagePointResource {
                                                 MetrologyConfigurationInfo info) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, upVersion);
 
-        if (usagePoint.getEffectiveMetrologyConfiguration(info.activationTime).isPresent()) {
-            throw resourceHelper.usagePointAlreadyLinkedException(name);
-        }
-
         RestValidationBuilder validationBuilder = new RestValidationBuilder()
                 .notEmpty(info.id, "id")
                 .notEmpty(info.name, "name");
@@ -432,24 +431,16 @@ public class UsagePointResource {
 
         UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = resourceHelper.findAndLockActiveUsagePointMetrologyConfigurationOrThrowException(info.id, info.version);
         if (info.purposes != null) {
-            try {
-                usagePoint.apply(usagePointMetrologyConfiguration, info.activationTime, usagePointMetrologyConfiguration.getContracts()
-                        .stream()
-                        .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
-                        .filter(metrologyContract -> info.purposes.stream()
-                                .anyMatch(purpose -> metrologyContract.getId() == purpose.id))
-                        .filter(metrologyContract -> !metrologyContract.isMandatory())
-                        .distinct()
-                        .collect(Collectors.toSet()));
-            } catch (UsagePointManagementException ex) {
-                failStartDateCheck(validationBuilder);
-            }
+            usagePoint.apply(usagePointMetrologyConfiguration, info.activationTime, usagePointMetrologyConfiguration.getContracts()
+                    .stream()
+                    .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
+                    .filter(metrologyContract -> info.purposes.stream()
+                            .anyMatch(purpose -> metrologyContract.getId() == purpose.id))
+                    .filter(metrologyContract -> !metrologyContract.isMandatory())
+                    .distinct()
+                    .collect(Collectors.toSet()));
         } else {
-            try {
-                usagePoint.apply(usagePointMetrologyConfiguration, info.activationTime);
-            } catch (UsagePointManagementException ex) {
-                failStartDateCheck(validationBuilder);
-            }
+            usagePoint.apply(usagePointMetrologyConfiguration, info.activationTime);
         }
         for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
             UsagePointPropertySet propertySet = usagePoint.forCustomProperties()
@@ -576,6 +567,18 @@ public class UsagePointResource {
         return Response.status(Response.Status.CREATED)
                 .build();
 
+    }
+
+    @GET
+    @Path("{name}/history/metrologyConfigurations")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.VIEW_ANY_USAGEPOINT})
+    public List<MetrologyConfigurationHistoryInfo> getMetrologyConfigurationsHistory(@PathParam("name") String name, @HeaderParam("Authorization") String auth) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        return usagePoint.getEffectiveMetrologyConfigurations()
+                .stream()
+                .map(metrologyConfiguration -> metrologyConfigurationHistoryInfoFactory.from(metrologyConfiguration, usagePoint, auth))
+                .collect(Collectors.toList());
     }
 
     private void validateServiceKind(String serviceKindString) {

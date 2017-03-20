@@ -5,7 +5,18 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.bpm.ProcessInstanceInfos;
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.cbo.RationalNumber;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
@@ -22,6 +33,7 @@ import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
@@ -35,6 +47,8 @@ import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
@@ -61,12 +75,14 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
 
@@ -769,6 +785,60 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         verify(usagePointLifeCycleService).scheduleTransition(any(), any(), any(), any(),any());
     }
 
+    @Test
+    public void testGetMetrologyConfigurationsHistory() throws IOException {
+        Instant effectiveTime = Instant.now();
+        Instant closedTime = Instant.ofEpochMilli(effectiveTime.toEpochMilli() / 2);
+        ReadingType readingType = mockReadingType();
+
+        MetrologyContract metrologyContract = mock(MetrologyContract.class);
+        MetrologyPurpose metrologyPurpose = mock(MetrologyPurpose.class);
+        ReadingTypeDeliverable deliverable = mock(ReadingTypeDeliverable.class);
+        when(metrologyContract.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
+        when(metrologyContract.getMetrologyPurpose()).thenReturn(metrologyPurpose);
+        when(metrologyPurpose.getName()).thenReturn("Billing");
+        when(deliverable.getName()).thenReturn("Secondary Sum A+ (Wh)");
+        when(deliverable.getReadingType()).thenReturn(readingType);
+
+        UsagePointMetrologyConfiguration currentMetrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
+        UsagePointMetrologyConfiguration closedMetrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
+        EffectiveMetrologyConfigurationOnUsagePoint currentEffective = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        EffectiveMetrologyConfigurationOnUsagePoint closedEffective = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+
+        when(currentEffective.getStart()).thenReturn(effectiveTime);
+        when(currentEffective.getId()).thenReturn(555L);
+        when(currentEffective.getMetrologyConfiguration()).thenReturn(currentMetrologyConfiguration);
+        when(currentMetrologyConfiguration.getName()).thenReturn("Current effective");
+        when(currentEffective.isEffectiveAt(any(Instant.class))).thenReturn(true);
+        when(currentMetrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
+
+        when(closedEffective.getStart()).thenReturn(closedTime);
+        when(closedEffective.getId()).thenReturn(666L);
+        when(closedEffective.getMetrologyConfiguration()).thenReturn(closedMetrologyConfiguration);
+        when(closedEffective.isEffectiveAt(any(Instant.class))).thenReturn(false);
+        when(closedMetrologyConfiguration.getName()).thenReturn("Closed effective");
+        when(closedMetrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
+
+        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Arrays.asList(currentEffective, closedEffective));
+        when(bpmService.getRunningProcesses(anyString(), anyString())).thenReturn(new ProcessInstanceInfos());
+
+        Response response = target("/usagepoints/" + USAGE_POINT_NAME + "/history/metrologyConfigurations").request().get();
+        JsonModel jsonModel = JsonModel.model((InputStream)response.getEntity());
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(jsonModel.<Boolean>get("$.[0]current")).isEqualTo(true);
+        assertThat(jsonModel.<Long>get("$.[0].start")).isEqualTo(effectiveTime.toEpochMilli());
+        assertThat(jsonModel.<String>get("$.[0].purposesWithReadingTypes.Billing[0].name")).isEqualTo("readingTypeName");
+        assertThat(jsonModel.<String>get("$.[0].metrologyConfiguration.name")).isEqualTo("Current effective");
+        assertThat(jsonModel.<Integer>get("$.[0].metrologyConfiguration.id")).isEqualTo(555);
+
+        assertThat(jsonModel.<Boolean>get("$.[1]current")).isEqualTo(false);
+        assertThat(jsonModel.<Long>get("$.[1].start")).isEqualTo(closedTime.toEpochMilli());
+        assertThat(jsonModel.<String>get("$.[1].purposesWithReadingTypes.Billing[0].name")).isEqualTo("readingTypeName");
+        assertThat(jsonModel.<String>get("$.[1].metrologyConfiguration.name")).isEqualTo("Closed effective");
+        assertThat(jsonModel.<Integer>get("$.[1].metrologyConfiguration.id")).isEqualTo(666);
+    }
+
     private UsagePointInfo getInfoWithMetrologyConfigurationAndMeters() {
         UsagePointInfo usagePointInfo = getBasicUsagePointInfo();
         CustomPropertySetInfo casInfo = new CustomPropertySetInfo();
@@ -805,6 +875,32 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         return usagePointInfo;
     }
+
+    private ReadingType mockReadingType() {
+        ReadingType readingType = mock(ReadingType.class);
+
+        when(readingType.getMRID()).thenReturn("readingTypeMRID");
+        when(readingType.getAliasName()).thenReturn("readingTypeAliasName");
+        when(readingType.getName()).thenReturn("readingTypeName");
+        when(readingType.isActive()).thenReturn(true);
+        when(readingType.isCumulative()).thenReturn(true);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.BILLINGPERIOD);
+        when(readingType.getAccumulation()).thenReturn(Accumulation.CUMULATIVE);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.FIXEDBLOCK5MIN);
+        when(readingType.getFlowDirection()).thenReturn(FlowDirection.FORWARD);
+        when(readingType.getCommodity()).thenReturn(Commodity.AIR);
+        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ACVOLTAGEPEAK);
+        when(readingType.getInterharmonic()).thenReturn(RationalNumber.NOTAPPLICABLE);
+        when(readingType.getArgument()).thenReturn(RationalNumber.NOTAPPLICABLE);
+        when(readingType.getPhases()).thenReturn(Phase.NOTAPPLICABLE);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.CENTI);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.ACRE);
+        when(readingType.getAggregate()).thenReturn(Aggregate.AVERAGE);
+        when(readingType.getCurrency()).thenReturn(Currency.getInstance("USD"));
+
+        return readingType;
+    }
+
     private UsagePointInfo getBasicUsagePointInfo() {
         UsagePointInfo info = new UsagePointInfo();
         info.name = "test";
