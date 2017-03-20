@@ -18,6 +18,7 @@ Ext.define('Fim.privileges.DataImport', {
     viewHistory: ['privilege.view.import.history',
         'privilege.view.importServices'],
     admin: ['privilege.administrate.importServices'],
+    upload: ['privilege.import.file'],
 
     all: function () {
         return Ext.Array.merge(Fim.privileges.DataImport.view);
@@ -27,6 +28,9 @@ Ext.define('Fim.privileges.DataImport', {
     },
     canViewHistory: function () {
         return Uni.Auth.checkPrivileges(Fim.privileges.DataImport.viewHistory);
+    },
+    canUploadFile: function () {
+        return Uni.Auth.checkPrivileges(Fim.privileges.DataImport.upload);
     },
     getAdmin: function () {
         return typeof(MdcApp) != 'undefined' ? false : typeof(MdmApp) != 'undefined' ? false : typeof(SystemApp) != 'undefined' ? Uni.Auth.checkPrivileges(Fim.privileges.DataImport.admin) : false;
