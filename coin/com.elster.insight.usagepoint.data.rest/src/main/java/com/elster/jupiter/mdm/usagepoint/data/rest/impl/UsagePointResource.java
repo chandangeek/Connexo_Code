@@ -7,6 +7,10 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.EventSet;
+import com.elster.jupiter.calendar.Category;
+import com.elster.jupiter.calendar.Event;
+import com.elster.jupiter.calendar.EventSet;
+import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -106,7 +110,11 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalTime;
+import java.time.Month;
+import java.time.MonthDay;
 import java.time.Period;
+import java.time.Year;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
@@ -177,35 +185,36 @@ public class UsagePointResource {
     private final CalendarService calendarService;
 
     @Inject
-    public UsagePointResource(RestQueryService queryService,
-                              MeteringService meteringService,
-                              TimeService timeService,
-                              Clock clock,
-                              ServiceCallService serviceCallService,
-                              ServiceCallInfoFactory serviceCallInfoFactory,
-                              Provider<UsagePointCustomPropertySetResource> usagePointCustomPropertySetResourceProvider,
-                              CustomPropertySetService customPropertySetService,
-                              Provider<UsagePointCalendarResource> usagePointCalendarResourceProvider,
-                              UsagePointInfoFactory usagePointInfoFactory,
-                              CustomPropertySetInfoFactory customPropertySetInfoFactory,
-                              Provider<UsagePointCalendarHistoryResource> usagePointCalendarHistoryResourceProvider,
-                              Provider<BulkScheduleResource> bulkScheduleResourceProvider,
-                              ExceptionFactory exceptionFactory,
-                              LocationInfoFactory locationInfoFactory,
-                              ChannelDataValidationSummaryInfoFactory validationSummaryInfoFactory,
-                              Thesaurus thesaurus,
-                              ResourceHelper resourceHelper,
-                              MetrologyConfigurationService metrologyConfigurationService,
-                              UsagePointDataCompletionService usagePointDataCompletionService,
-                              Provider<GoingOnResource> goingOnResourceProvider,
-                              Provider<UsagePointOutputResource> usagePointOutputResourceProvider,
-                              ReadingTypeDeliverableFactory readingTypeDeliverableFactory,
-                              DataValidationTaskInfoFactory dataValidationTaskInfoFactory,
-                              TransactionService transactionService,
-                              UsagePointLifeCycleService usagePointLifeCycleService,
-                              PropertyValueInfoService propertyValueInfoService,
-                              ValidationService validationService,
-                              CalendarService calendarService) {
+    public UsagePointResource(
+                RestQueryService queryService,
+                MeteringService meteringService,
+                TimeService timeService,
+                Clock clock,
+                ServiceCallService serviceCallService,
+                ServiceCallInfoFactory serviceCallInfoFactory,
+                Provider<UsagePointCustomPropertySetResource> usagePointCustomPropertySetResourceProvider,
+                CustomPropertySetService customPropertySetService,
+                Provider<UsagePointCalendarResource> usagePointCalendarResourceProvider,
+                UsagePointInfoFactory usagePointInfoFactory,
+                CustomPropertySetInfoFactory customPropertySetInfoFactory,
+                Provider<UsagePointCalendarHistoryResource> usagePointCalendarHistoryResourceProvider,
+                Provider<BulkScheduleResource> bulkScheduleResourceProvider,
+                ExceptionFactory exceptionFactory,
+                LocationInfoFactory locationInfoFactory,
+                ChannelDataValidationSummaryInfoFactory validationSummaryInfoFactory,
+                Thesaurus thesaurus,
+                ResourceHelper resourceHelper,
+                MetrologyConfigurationService metrologyConfigurationService,
+                UsagePointDataCompletionService usagePointDataCompletionService,
+                Provider<GoingOnResource> goingOnResourceProvider,
+                Provider<UsagePointOutputResource> usagePointOutputResourceProvider,
+                ReadingTypeDeliverableFactory readingTypeDeliverableFactory,
+                DataValidationTaskInfoFactory dataValidationTaskInfoFactory,
+                TransactionService transactionService,
+                UsagePointLifeCycleService usagePointLifeCycleService,
+                PropertyValueInfoService propertyValueInfoService,
+                ValidationService validationService,
+                CalendarService calendarService) {
         this.queryService = queryService;
         this.timeService = timeService;
         this.meteringService = meteringService;
@@ -996,17 +1005,62 @@ public class UsagePointResource {
     }
 
     private void validateMetrologyConfiguration(UsagePointInfo info, RestValidationBuilder validationBuilder) {
-        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration;
         try (TransactionContext transaction = transactionService.getContext()) {
             if (info.metrologyConfiguration != null) {
                 UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
                 info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
                 checkMeterRolesActivationTime(info.metrologyConfiguration.meterRoles, usagePoint.getInstallationTime(), validationBuilder);
-                usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) resourceHelper.findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id);
+                UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) resourceHelper.findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id);
+                if (usagePointMetrologyConfiguration.requiresCalendarOnUsagePoint()) {
+                    this.addFakeCalendar(usagePoint, usagePointMetrologyConfiguration.getEventSets());
+                }
                 usagePoint.apply(usagePointMetrologyConfiguration);
                 resourceHelper.activateMeters(info, usagePoint);
             }
         }
+    }
+
+    private void addFakeCalendar(UsagePoint usagePoint, List<EventSet> eventSets) {
+        eventSets
+                .stream()
+                .map(EventSet::getEvents)
+                .flatMap(Collection::stream)
+                .mapToLong(Event::getCode)
+                .findAny()
+                .ifPresent(randomEventCode -> this.addFakeCalendar(usagePoint, eventSets, randomEventCode));
+    }
+
+    private void addFakeCalendar(UsagePoint usagePoint, List<EventSet> eventSets, long randomEventCode) {
+        String fakeDayTypeName = "always";
+        String fakePeriodName = "allyear";
+        usagePoint
+                .getUsedCalendars()
+                .addCalendar(this.calendarService
+                        .newCalendar("Fake", Year.now(this.clock), this.createFakeEventSet(eventSets))
+                        .category(this.getTimeOfUseCategory())
+                        .description("Generated to satisfy the metrology configuration as part of validating one step of the wizzard that creates a usage point")
+                        .newDayType(fakeDayTypeName).eventWithCode(randomEventCode).startsFrom(LocalTime.MIDNIGHT).add()
+                        .addPeriod(fakePeriodName, fakeDayTypeName, fakeDayTypeName, fakeDayTypeName, fakeDayTypeName, fakeDayTypeName, fakeDayTypeName, fakeDayTypeName)
+                        .on(MonthDay.of(Month.JANUARY, 1)).transitionTo(fakePeriodName)
+                        .add());
+    }
+
+    private EventSet createFakeEventSet(List<EventSet> eventSets) {
+        CalendarService.EventSetBuilder eventSetBuilder = this.calendarService.newEventSet("Fake");
+        eventSets
+                .stream()
+                .map(EventSet::getEvents)
+                .flatMap(Collection::stream)
+                .map(Event::getCode)
+                .distinct()
+                .forEach(code -> eventSetBuilder.addEvent("fake" + code).withCode(code).add());
+        return eventSetBuilder.add();
+    }
+
+    private Category getTimeOfUseCategory() {
+        return this.calendarService
+                .findCategoryByName(OutOfTheBoxCategory.TOU.name())
+                .orElseThrow(() -> new IllegalStateException("Calendar service installer failure, time of use category is missing"));
     }
 
     private UsagePoint createUsagePointAndActivateMeters(UsagePointInfo info, RestValidationBuilder validationBuilder) {
