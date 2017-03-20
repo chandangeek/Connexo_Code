@@ -135,8 +135,7 @@ class DataQualityOverviewSqlBuilder {
             this.appendIds(this.specification.getDeviceGroups());
             this.sqlBuilder.append(")");
         }
-        this.sqlBuilder.append("            and kpivalues.slot0 > 0");
-        this.sqlBuilder.append("    ) where latest = 'Y'");
+        this.sqlBuilder.append("    ) where latest = 'Y' and value > 0");
         this.sqlBuilder.append("    group by device, kpitype");
         this.sqlBuilder.append(")");
     }
