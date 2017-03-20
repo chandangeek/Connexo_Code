@@ -95,7 +95,6 @@ import java.util.Map;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2ENUM;
-import static com.elster.jupiter.orm.ColumnConversion.CHAR2UNIT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUMPLUSONE;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
@@ -1969,7 +1968,7 @@ public enum TableSpecs {
                     .add();
         }
     },
-    COU_EVENTSET_ON_METROCONFIG {
+    MTR_EVENTSET_ON_METROCONFIG {
         @Override
         void addTo(DataModel dataModel) {
             Table<EventSetOnMetrologyConfiguration> table = dataModel.addTable(this.name(), EventSetOnMetrologyConfiguration.class).since(version(10, 3));

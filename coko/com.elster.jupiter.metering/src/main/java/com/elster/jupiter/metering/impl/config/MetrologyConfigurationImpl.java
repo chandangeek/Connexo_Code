@@ -258,14 +258,15 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     public void addCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet) {
         checkCanManageCps();
         if (this.customPropertySets.stream()
-                .noneMatch(cpsUsage -> cpsUsage.getRegisteredCustomPropertySet()
-                        .getId() == registeredCustomPropertySet.getId())) {
+                .noneMatch(cpsUsage -> cpsUsage.getRegisteredCustomPropertySet().getId() == registeredCustomPropertySet.getId())) {
             MetrologyConfigurationCustomPropertySetUsageImpl newCpsUsage =
                     this.metrologyConfigurationService.getDataModel()
                             .getInstance(MetrologyConfigurationCustomPropertySetUsageImpl.class)
                             .init(this, registeredCustomPropertySet);
             customPropertySets.add(newCpsUsage);
-            touch();
+            if (this.id > 0) {
+                touch();
+            }
         }
     }
 

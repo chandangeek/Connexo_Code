@@ -144,16 +144,16 @@ class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl im
 
     @Override
     public UsagePointRequirement addUsagePointRequirement(SearchablePropertyValue.ValueBean valueBean) {
-        Optional<UsagePointRequirementImpl> existedUsagePointRequirement = getUsagePointRequirements()
+        Optional<UsagePointRequirementImpl> existingRequirement = getUsagePointRequirements()
                 .stream()
                 .filter(requirement -> requirement.getSearchableProperty().getName().equals(valueBean.getPropertyName()))
                 .findAny()
                 .map(UsagePointRequirementImpl.class::cast);
-        UsagePointRequirementImpl usagePointRequirement = existedUsagePointRequirement
+        UsagePointRequirementImpl usagePointRequirement = existingRequirement
                 .orElseGet(() -> getMetrologyConfigurationService().getDataModel().getInstance(UsagePointRequirementImpl.class))
                 .init(this, valueBean);
         Save.CREATE.validate(getMetrologyConfigurationService().getDataModel(), usagePointRequirement);
-        if (!existedUsagePointRequirement.isPresent()) {
+        if (!existingRequirement.isPresent()) {
             this.usagePointRequirements.add(usagePointRequirement);
         } else {
             getMetrologyConfigurationService().getDataModel().update(usagePointRequirement);
