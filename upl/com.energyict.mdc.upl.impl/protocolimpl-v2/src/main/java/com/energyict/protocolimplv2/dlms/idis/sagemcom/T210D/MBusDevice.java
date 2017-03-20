@@ -20,12 +20,12 @@ public class MBusDevice extends AbstractDlmsSlaveProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "T210D DLMS (IDIS P2) MBus slave";
+        return "Sagemcom T/S210-D DLMS (IDIS P2) MBus slave";
     }
 
     @Override
     public String getVersion() {
-        return "$Date: 2017-03-20 16:05:37 +0200 (Mon, 20 Mar 2017)$";
+        return "$Date: 2017-03-20 16:29:40 +0200 (Mon, 20 Mar 2017)$";
     }
 
     protected DeviceProtocolSecurityCapabilities getSecurityCapabilities() {
