@@ -72,8 +72,14 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_METER_ACTIVATION(59, "NoSuchMeterActivation", "No such meter activation on the usage point"),
     EMPTY_REQUEST(60, "NoData", "No data found in your request"),
     NO_SUCH_METER(61, "NoSuchMeter", "No such meter"),
-    NO_SUCH_METER_ROLE(62, "NoSuchMeterRole", "No such meter role"),
-    CANNOT_FIND_APPROPRIATE_DEVICE_CONFIGURATION(63, "CannotFindAppropriateDeviceConfiguration", "Can''t find appropriate device configuration")
+    NO_SUCH_ALARM(62, "NoSuchAlarm", "No such alarm with id {0}"),
+    ALARM_ALREADY_CLOSED(63, "AlarmAlreadyClosed", "Alarm with id {0} already closed"),
+    ALARM_LOCK_ATTEMPT_FAILED(64, "AlarmLockAttemptFailed", "Could not obtain a lock on alarm with id {0}"),
+    NO_SUCH_METER_ROLE(65, "NoSuchMeterRole", "No such meter role"),
+    CANNOT_FIND_APPROPRIATE_DEVICE_CONFIGURATION(66, "CannotFindAppropriateDeviceConfiguration", "Can''t find appropriate device configuration"),
+    NO_SUCH_STATUS(67, "NoSuchStatus", "No such Status with key {0}"),
+    BAD_FIELD_VALUE(80, "BadFieldValue", "Bad field value for {0}"),
+    NO_SUCH_USER(81, "NoSuchUser", "No such user with name {0}"),
     ;
 
     private final int number;
