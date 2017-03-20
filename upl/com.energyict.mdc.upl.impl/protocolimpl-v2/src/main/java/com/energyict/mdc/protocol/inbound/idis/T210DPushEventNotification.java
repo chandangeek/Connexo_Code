@@ -68,4 +68,9 @@ public class T210DPushEventNotification extends DataPushNotification {
     public DeviceIdentifier getDeviceIdentifier() {
         return getEventPushNotificationParser() != null ? getEventPushNotificationParser().getDeviceIdentifier() : null;
     }
+
+    @Override
+    public String getVersion() {
+        return "$Date: 2017-03-20 16:05:37 +0200 (Mon, 20 Mar 2017)$";
+    }
 }
