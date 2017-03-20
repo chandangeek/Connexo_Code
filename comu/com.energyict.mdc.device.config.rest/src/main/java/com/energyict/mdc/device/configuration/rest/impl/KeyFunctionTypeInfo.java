@@ -19,6 +19,7 @@ public class KeyFunctionTypeInfo {
     public String description;
     public KeyTypeInfo keyType;
     public String storageMethod;
+    public long trustStoreId;
     public TimeDurationInfo validityPeriod;
     public VersionInfo<String> parent;
     public List<ExecutionLevelInfo> editLevels = new ArrayList<>();

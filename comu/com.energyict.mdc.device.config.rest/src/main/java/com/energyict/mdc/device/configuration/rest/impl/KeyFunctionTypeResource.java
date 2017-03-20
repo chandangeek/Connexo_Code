@@ -5,10 +5,12 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyAccessorType.Builder;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -103,10 +105,19 @@ public class KeyFunctionTypeResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public KeyFunctionTypeInfo addKeyFunctionTypeOnDeviceType(@PathParam("deviceTypeId") long id, KeyFunctionTypeInfo keyFunctionTypeInfo) {
         DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(id, keyFunctionTypeInfo.parent.version, keyFunctionTypeInfo.parent.id);
-        KeyType keyType = keyFunctionTypeInfo.keyType != null && keyFunctionTypeInfo.keyType.name != null ? pkiService.getKeyType(keyFunctionTypeInfo.keyType.name).orElse(null) : null;
+        if (keyFunctionTypeInfo.keyType == null || keyFunctionTypeInfo.keyType.name == null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "keyType");
+        }
+        KeyType keyType = pkiService.getKeyType(keyFunctionTypeInfo.keyType.name)
+            .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_KEY_TYPE_FOUND_NAME, keyFunctionTypeInfo.keyType.name));
         Builder keyFunctionTypeBuilder = deviceType.addKeyAccessorType(keyFunctionTypeInfo.name, keyType)
                 .keyEncryptionMethod(keyFunctionTypeInfo.storageMethod)
                 .description(keyFunctionTypeInfo.description);
+        if (keyType.getCryptographicType()!=null && !keyType.getCryptographicType().isKey()) {
+            TrustStore trustStore = pkiService.findTrustStore(keyFunctionTypeInfo.trustStoreId)
+                    .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_TRUST_STORE_FOUND, keyFunctionTypeInfo.trustStoreId));
+            keyFunctionTypeBuilder.trustStore(trustStore);
+        }
         if(keyFunctionTypeInfo.validityPeriod != null && keyType.getCryptographicType().requiresDuration()) {
             checkValidDurationOrThrowException(keyFunctionTypeInfo.validityPeriod);
             keyFunctionTypeBuilder.duration(keyFunctionTypeInfo.validityPeriod.asTimeDuration());

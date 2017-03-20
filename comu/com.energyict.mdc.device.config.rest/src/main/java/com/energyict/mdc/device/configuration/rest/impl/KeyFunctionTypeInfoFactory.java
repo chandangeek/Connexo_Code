@@ -32,6 +32,7 @@ public class KeyFunctionTypeInfoFactory {
         info.description = keyFunctionType.getDescription();
         info.keyType = new KeyTypeInfo(keyFunctionType.getKeyType());
         info.storageMethod = info.keyType.isKey ? keyFunctionType.getKeyEncryptionMethod() : null;
+        info.trustStoreId = !info.keyType.isKey && keyFunctionType.getTrustStore().isPresent() ? keyFunctionType.getTrustStore().get().getId() : 0;
         if (keyFunctionType.getKeyType().getCryptographicType().requiresDuration() && keyFunctionType.getDuration().isPresent()) {
             info.validityPeriod = new TimeDurationInfo(keyFunctionType.getDuration().get());
         }
