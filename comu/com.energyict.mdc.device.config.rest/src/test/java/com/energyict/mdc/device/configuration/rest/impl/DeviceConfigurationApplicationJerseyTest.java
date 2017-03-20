@@ -35,6 +35,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.common.services.ObisCodeDescriptor;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -46,16 +47,14 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.TaskService;
-
 import com.google.common.collect.Sets;
+import org.junit.Before;
+import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
 import java.util.Arrays;
 import java.util.Currency;
 import java.util.Optional;
-
-import org.junit.Before;
-import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyVararg;
@@ -102,6 +101,8 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
     CalendarService calendarService;
     @Mock
     PropertyValueInfoService propertyValueInfoService;
+    @Mock
+    ObisCodeDescriptor obisCodeDescriptor;
 
     ReadingTypeInfoFactory readingTypeInfoFactory;
     RegisterConfigInfoFactory registerConfigInfoFactory;
@@ -112,7 +113,7 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
     @Before
     public void setup() {
         readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
-        registerConfigInfoFactory = new RegisterConfigInfoFactory(readingTypeInfoFactory);
+        registerConfigInfoFactory = new RegisterConfigInfoFactory(readingTypeInfoFactory, obisCodeDescriptor);
         registerTypeInfoFactory = new RegisterTypeInfoFactory(readingTypeInfoFactory);
         registerGroupInfoFactory = new RegisterGroupInfoFactory(registerTypeInfoFactory);
         loadProfileTypeOnDeviceTypeInfoFactory = new LoadProfileTypeOnDeviceTypeInfoFactory(registerTypeInfoFactory);

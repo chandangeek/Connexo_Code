@@ -30,10 +30,9 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.common.ComWindow;
-import com.energyict.obis.ObisCode;
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -56,13 +55,17 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
-
+import com.energyict.mdc.upl.DeviceFunction;
+import com.energyict.obis.ObisCode;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -81,13 +84,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.TimeZone;
 import java.util.stream.LongStream;
-
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -569,7 +566,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         RegisterType registerType101 = mock(RegisterType.class);
         when(registerType101.getId()).thenReturn(RM_ID_1);
         when(deviceType.getRegisterTypes()).thenReturn(Arrays.asList(registerType101));
-        Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
+        Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
         when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(deviceProtocolPluggableClassFinder);
         when(masterDataService.findRegisterType(101L)).thenReturn(Optional.empty());
         when(masterDataService.findAndLockRegisterTypeByIdAndVersion(101L, OK_VERSION)).thenReturn(Optional.empty());
@@ -605,7 +602,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         RegisterType registerType102 = mock(RegisterType.class);
         when(registerType102.getId()).thenReturn(RM_ID_2);
         when(deviceType.getRegisterTypes()).thenReturn(Arrays.asList(registerType101, registerType102));
-        Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
+        Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
         when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(deviceProtocolPluggableClassFinder);
 
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
@@ -640,7 +637,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceType.getRegisterTypes()).thenReturn(Arrays.asList(measurementType101));
         when(masterDataService.findRegisterType(RM_ID_1)).thenReturn(Optional.of(measurementType101));
         when(masterDataService.findRegisterType(RM_ID_2)).thenReturn(Optional.of(measurementType102));
-        Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
+        Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
         when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(deviceProtocolPluggableClassFinder);
 
         DeviceTypeInfo info = new DeviceTypeInfo();
@@ -857,7 +854,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceType.getRegisterTypes()).thenReturn(Arrays.asList(registerType101));
         when(masterDataService.findRegisterType(RM_ID_1)).thenReturn(Optional.of(registerType101));
         when(masterDataService.findRegisterType(RM_ID_2)).thenReturn(Optional.empty());
-        Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
+        Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
         when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(deviceProtocolPluggableClassFinder);
 
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
@@ -885,7 +882,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         RegisterType registerType102 = mock(RegisterType.class);
         when(registerType102.getId()).thenReturn(RM_ID_2);
         when(deviceType.getRegisterTypes()).thenReturn(Arrays.asList(registerType101, registerType102));
-        Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
+        Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
         when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(deviceProtocolPluggableClassFinder);
         when(masterDataService.findRegisterType(RM_ID_1)).thenReturn(Optional.of(registerType101));
         when(masterDataService.findRegisterType(RM_ID_2)).thenReturn(Optional.of(registerType102));
@@ -1709,7 +1706,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
     private ConnectionTask<?, ?> mockConnectionTask(long partialConnectionTaskId) {
         ConnectionTask<?, ?> mock = mock(ConnectionTask.class);
         PartialInboundConnectionTask partialInboundConnectionTask = mockPartialConnectionTask(partialConnectionTaskId);
-        Mockito.<PartialConnectionTask>when(mock.getPartialConnectionTask()).thenReturn(partialInboundConnectionTask);
+        Mockito.when(mock.getPartialConnectionTask()).thenReturn(partialInboundConnectionTask);
         return mock;
     }
 
@@ -1745,7 +1742,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
     private ObisCode mockObisCode() {
         ObisCode obisCode = mock(ObisCode.class);
-        when(obisCode.getDescription()).thenReturn("desc");
         when(obisCode.toString()).thenReturn("1.1.1.1.1.1");
         return obisCode;
     }
