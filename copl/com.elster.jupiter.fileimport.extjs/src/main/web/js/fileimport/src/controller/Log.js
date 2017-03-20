@@ -83,7 +83,7 @@ Ext.define('Fim.controller.Log', {
                 );
 
                 if (!fromWorkSpace) {
-                    view.down('#mnu-histoty-log #import-service-log-view-link').setText(occurrenceTask.get('importServiceName'));
+                    view.down('#mnu-histoty-log').setHeader(occurrenceTask.get('importServiceName'));
                     me.getHistoryLogViewMenu().setTitle(showImportService ? Uni.I18n.translate('general.importHistory', 'FIM', 'Import history') : Uni.I18n.translate('general.importServices', 'FIM', 'Import services'));
 
                 } else {

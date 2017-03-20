@@ -6,6 +6,8 @@ Ext.define('Fim.view.log.Menu', {
     extend: 'Uni.view.menu.SideMenu',
     alias: 'widget.fim-log-menu',
     router: null,
+    title: Uni.I18n.translate('general.importService', 'FIM', 'Import service'),
+    objectType: Uni.I18n.translate('general.importService', 'FIM', 'Import service'),
 
     initComponent: function () {
         var me = this;
