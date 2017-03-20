@@ -25,8 +25,7 @@ public interface ChannelDataFactory<I extends AbstractUsagePointChannelInfo, C e
      * @param metrologyConfiguration {@link UsagePointMetrologyConfiguration} related to channel
      * @return corresponding info object
      */
-    I from(Channel channel, UsagePoint usagePoint, UsagePointMetrologyConfiguration
-            metrologyConfiguration);
+    I from(Channel channel, UsagePoint usagePoint, UsagePointMetrologyConfiguration metrologyConfiguration);
 
     /**
      * Provide channel type

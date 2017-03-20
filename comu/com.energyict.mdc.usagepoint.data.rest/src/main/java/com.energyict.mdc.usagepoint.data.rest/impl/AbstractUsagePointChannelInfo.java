@@ -6,11 +6,13 @@ package com.energyict.mdc.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 
+import java.time.Instant;
+
 /**
  * Abstract class for usage point channel info data
  */
 public abstract class AbstractUsagePointChannelInfo {
     public long id;
-    public Long dataUntil;
+    public Instant dataUntil;
     public ReadingTypeInfo readingType;
 }

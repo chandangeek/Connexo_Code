@@ -18,23 +18,18 @@ import java.time.Instant;
  */
 public class RegisterDataInfo {
 
-    @JsonProperty("measurementTime")
-    public Long measurementTime;
+    public Instant measurementTime;
 
-    @JsonProperty("readingTime")
     public Instant readingTime;
 
-    @JsonProperty("value")
     @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
     public BigDecimal value;
 
-    @JsonProperty("dataValidated")
     public Boolean dataValidated;
 
     @XmlJavaTypeAdapter(ValidationStatusAdapter.class)
     ValidationStatus validationResult;
 
-    @JsonProperty("validationAction")
     ValidationAction validationAction;
 
 }

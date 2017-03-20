@@ -48,7 +48,7 @@ public class UsagePointChannelInfoFactory extends AbstractUsagePointChannelInfoF
 
         info.id = channel.getId();
         Instant lastDateTime = channel.getLastDateTime();
-        info.dataUntil = lastDateTime != null ? lastDateTime.toEpochMilli() : null;
+        info.dataUntil = lastDateTime != null ? lastDateTime : null;
         info.readingType = readingTypeInfoFactory.from(readingType);
         info.flowUnit = ReadingTypeUnitConversion.isFlowUnit(readingType.getUnit()) ? "flow" : "volume";
 

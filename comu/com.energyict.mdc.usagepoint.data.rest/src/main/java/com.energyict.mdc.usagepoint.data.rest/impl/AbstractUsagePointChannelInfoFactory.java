@@ -24,7 +24,7 @@ import java.util.List;
  */
 public abstract class AbstractUsagePointChannelInfoFactory {
 
-    protected abstract DeviceService getDeviceService();
+    abstract DeviceService getDeviceService();
 
     void fillDevicePartList(List<UsagePointDeviceChannelInfo> list, ReadingType readingType,
                             UsagePointMetrologyConfiguration metrologyConfiguration, UsagePoint usagePoint) {
@@ -43,8 +43,7 @@ public abstract class AbstractUsagePointChannelInfoFactory {
                     && meterActivation.getMeter().equals(meterActivationOld.getMeter())
                     && !list.isEmpty()
                     && meterActivationOld.getStart().equals(meterActivation.getEnd())) {
-                list.get(list.size() - 1).from = meterActivation.getStart()
-                        .toEpochMilli();
+                list.get(list.size() - 1).from = meterActivation.getStart().toEpochMilli();
             } else {
                 UsagePointDeviceChannelInfo deviceChannelInfo = new UsagePointDeviceChannelInfo();
                 meterActivation.getMeter()

@@ -23,10 +23,10 @@ public class RegisterDataInfoFactory {
      * @param lastCheckedMap {@link RangeMap} map of last checked {@link Instant} entries
      * @return {@link RegisterDataInfo} info object
      */
-    public RegisterDataInfo asInfo(RegisterReadingWithValidationStatus readingRecord, RangeMap<Instant, Instant>
-            lastCheckedMap) {
+    public RegisterDataInfo asInfo(RegisterReadingWithValidationStatus readingRecord,
+                                   RangeMap<Instant, Instant> lastCheckedMap) {
         RegisterDataInfo registerDataInfo = new RegisterDataInfo();
-        registerDataInfo.measurementTime = readingRecord.getTimeStamp().toEpochMilli();
+        registerDataInfo.measurementTime = readingRecord.getTimeStamp();
         registerDataInfo.value = readingRecord.getValue();
         Optional<Instant> lastChecked = Optional.ofNullable(lastCheckedMap.get(readingRecord.getTimeStamp()));
         lastChecked.ifPresent(instant -> registerDataInfo.readingTime = readingRecord.getTimeStamp());

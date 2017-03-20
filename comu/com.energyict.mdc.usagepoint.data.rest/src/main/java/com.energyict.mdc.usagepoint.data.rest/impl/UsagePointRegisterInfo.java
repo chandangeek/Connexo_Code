@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.usagepoint.data.rest.impl;
 
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -14,6 +15,6 @@ public class UsagePointRegisterInfo extends AbstractUsagePointChannelInfo {
     /**
      * Date of last data from latest meter activation.
      */
-    public Long measurementTime;
+    public Instant measurementTime;
     public List<UsagePointDeviceChannelInfo> deviceRegisters;
 }
