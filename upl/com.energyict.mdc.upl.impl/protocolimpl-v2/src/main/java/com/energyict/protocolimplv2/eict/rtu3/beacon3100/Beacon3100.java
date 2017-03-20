@@ -4,6 +4,7 @@ import com.energyict.cbo.ObservationTimestampPropertyImpl;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.GeneralCipheringKeyType;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.cosem.FrameCounterProvider;
 import com.energyict.dlms.cosem.SAPAssignmentItem;
@@ -27,6 +28,7 @@ import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.crypto.KeyStoreService;
 import com.energyict.mdc.upl.crypto.X509Service;
 import com.energyict.mdc.upl.io.ConnectionType;
+import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -34,8 +36,8 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.CertificateAliasFinder;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
@@ -43,18 +45,13 @@ import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.Device;
-import com.energyict.mdc.upl.migration.MigratePropertiesFromPreviousSecuritySet;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.upl.security.RequestSecurityLevel;
-import com.energyict.mdc.upl.security.ResponseSecurityLevel;
-import com.energyict.mdc.upl.security.SecuritySuite;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -72,8 +69,6 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers.RegisterFacto
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
-import com.energyict.protocolimplv2.security.DlmsSecuritySuite1And2Support;
-import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -90,7 +85,7 @@ import java.util.logging.Level;
  * @author khe
  * @since 18/06/2015 - 15:07
  */
-public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertiesFromPreviousSecuritySet, AdvancedDeviceProtocolSecurityCapabilities {
+public class Beacon3100 extends AbstractDlmsProtocol { //implements MigratePropertiesFromPreviousSecuritySet, AdvancedDeviceProtocolSecurityCapabilities {
 
     // https://confluence.eict.vpdc/display/G3IntBeacon3100/DLMS+management
     // https://jira.eict.vpdc/browse/COMMUNICATION-1552
@@ -107,14 +102,13 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     private final X509Service x509Service;
     private final KeyStoreService keyStoreService;
     private final CertificateWrapperExtractor certificateWrapperExtractor;
-    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
     private final CertificateAliasFinder certificateAliasFinder;
     private final DeviceExtractor deviceExtractor;
     private Beacon3100Messaging beacon3100Messaging;
     private RegisterFactory registerFactory;
     private Beacon3100LogBookFactory logBookFactory;
 
-    public Beacon3100(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, DeviceMasterDataExtractor extractor, DeviceGroupExtractor deviceGroupExtractor, X509Service x509Service, KeyStoreService keyStoreService, CertificateWrapperExtractor certificateWrapperExtractor, DeviceMessageFileExtractor deviceMessageFileExtractor, DeviceExtractor deviceExtractor, CertificateAliasFinder certificateAliasFinder) {
+    public Beacon3100(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, DeviceMasterDataExtractor extractor, DeviceGroupExtractor deviceGroupExtractor, X509Service x509Service, KeyStoreService keyStoreService, CertificateWrapperExtractor certificateWrapperExtractor, DeviceExtractor deviceExtractor, CertificateAliasFinder certificateAliasFinder) {
         super(propertySpecService, collectedDataFactory, issueFactory);
         this.nlsService = nlsService;
         this.converter = converter;
@@ -124,7 +118,6 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         this.x509Service = x509Service;
         this.keyStoreService = keyStoreService;
         this.certificateWrapperExtractor = certificateWrapperExtractor;
-        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
         this.deviceExtractor = deviceExtractor;
         this.certificateAliasFinder = certificateAliasFinder;
     }
@@ -158,13 +151,14 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
         return client.getFrameCounterOBIS();
     }
-
+/*
     protected AdvancedDeviceProtocolSecurityCapabilities getSecuritySupport() {
         if (dlmsSecuritySupport == null) {
             dlmsSecuritySupport = new DlmsSecuritySuite1And2Support(this.getPropertySpecService());
         }
         return (AdvancedDeviceProtocolSecurityCapabilities) dlmsSecuritySupport;
-    }
+    }*/
+/*
 
     @Override
     public List<SecuritySuite> getSecuritySuites() {
@@ -180,6 +174,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     public List<ResponseSecurityLevel> getResponseSecurityLevels() {
         return getSecuritySupport().getResponseSecurityLevels();
     }
+*/
 
     /**
      * First read out the frame counter for the management client, using the public client. It has a pre-established association.
@@ -332,7 +327,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     private Beacon3100Messaging getBeacon3100Messaging() {
         if (beacon3100Messaging == null) {
-            beacon3100Messaging = new Beacon3100Messaging(this, this.getCollectedDataFactory(), this.getIssueFactory(), objectMapperService, this.getPropertySpecService(), this.nlsService, this.converter, this.extractor, this.deviceGroupExtractor, deviceMessageFileExtractor, deviceExtractor, certificateAliasFinder, certificateWrapperExtractor);
+            beacon3100Messaging = new Beacon3100Messaging(this, this.getCollectedDataFactory(), this.getIssueFactory(), objectMapperService, this.getPropertySpecService(), this.nlsService, this.converter, this.extractor, this.deviceGroupExtractor, deviceExtractor, certificateAliasFinder, certificateWrapperExtractor);
         }
         return beacon3100Messaging;
     }
@@ -553,11 +548,10 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
      * This is used by the ProtocolSecurityRelationTypeUpgrader to migrate old, existing security properties that were created for
      * the previous security relation to the new security relation.
      */
-    @Override
+/*    @Override
     public DeviceProtocolSecurityCapabilities getPreviousSecuritySupport() {
         return new DsmrSecuritySupport(this.getPropertySpecService());
-    }
-
+    }*/
     @Override
     public ManufacturerInformation getManufacturerInformation() {
         return null;
@@ -645,6 +639,25 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         private ObisCode getFrameCounterOBIS() {
             return frameCounterOBIS;
         }
+    }
+
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        CollectedFirmwareVersion result = this.getCollectedDataFactory().createFirmwareVersionsCollectedData(new DeviceIdentifierById(this.offlineDevice.getId()));
+
+        ObisCode activeMetrologyFirmwareVersionObisCode = ObisCode.fromString("0.0.0.2.1.255");
+        try {
+            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getData(activeMetrologyFirmwareVersionObisCode).getValueAttr();
+            String fwVersion = valueAttr.isOctetString() ? valueAttr.getOctetString().stringValue() : valueAttr.toBigDecimal().toString();
+            result.setActiveMeterFirmwareVersion(fwVersion);
+        } catch (IOException e) {
+            if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
+                Issue problem = this.getIssueFactory().createProblem(activeMetrologyFirmwareVersionObisCode, "issue.protocol.readingOfFirmwareFailed", e.toString());
+                result.setFailureInformation(ResultType.InCompatible, problem);
+            }   //Else a communication exception is thrown
+        }
+
+        return result;
     }
 
 }
