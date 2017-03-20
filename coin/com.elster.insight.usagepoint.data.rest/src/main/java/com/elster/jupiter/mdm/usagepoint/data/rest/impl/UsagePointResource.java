@@ -391,10 +391,11 @@ public class UsagePointResource {
     @Path("/{name}/activatemeters")
     public Response activateMeters(@PathParam("name") String name, UsagePointInfo info) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, info.version);
-        resourceHelper.performMeterActivations(info, usagePoint);
+        UsagePointStage.Key usagePointStage = usagePoint.getState().getStage().getKey();
         if(usagePointStage != UsagePointStage.Key.PRE_OPERATIONAL){
             throw UsagePointMeterActivationException.usagePointIncorrectStage(thesaurus);
         }
+        resourceHelper.performMeterActivations(info, usagePoint);
         return Response.ok().entity(usagePointInfoFactory.fullInfoFrom(usagePoint)).build();
     }
 
