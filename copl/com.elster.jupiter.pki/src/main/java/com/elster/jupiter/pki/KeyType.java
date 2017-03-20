@@ -44,8 +44,8 @@ public interface KeyType extends HasName, HasId {
 
     /**
      * Identifier of the algorithm to generate a new value or reconstruct current value
-     * for an async keypair: "EC", "DSA", "RSA"
-     * for a sym key: "AES", "Blowfish", ...
+     * for an asymmetric key pair: "EC", "DSA", "RSA"
+     * for a symmetric key: "AES", "Blowfish", ...
      * @return The key algorithm, if applicable.
      */
     String getKeyAlgorithm();
@@ -53,7 +53,7 @@ public interface KeyType extends HasName, HasId {
     /**
      * Identifier of the signing algorithm on certificates
      * e.g. SHA256withRSA
-     * @return The signing algorithm if applciable, non-client certificate types will return null;
+     * @return The signing algorithm if applicable, non-client certificate types will return null;
      */
     String getSignatureAlgorithm();
 
