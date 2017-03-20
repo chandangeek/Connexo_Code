@@ -86,7 +86,7 @@ public class MK10Properties {
         if (timeZoneInUse == null || timeZoneInUse.getTimeZone() == null) {
             return TimeZone.getTimeZone(DEFAULT_TIMEZONE);
         } else {
-            return ProtocolUtils.getWinterTimeZone(timeZoneInUse.getTimeZone());    // Convert to winter timezone, as all dates are transmitted in winter timezone
+            return timeZoneInUse.getTimeZone();
         }
     }
 }

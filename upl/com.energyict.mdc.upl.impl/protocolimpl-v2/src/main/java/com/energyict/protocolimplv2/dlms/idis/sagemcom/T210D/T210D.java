@@ -104,11 +104,11 @@ public class T210D extends AM130 {
 
     @Override
     public String getProtocolDescription() {
-        return "Sagemcom T210-D DLMS (IDIS P2) GPRS";
+        return "Sagemcom T/S210-D DLMS (IDIS P2) GPRS";
     }
 
     @Override
     public String getVersion() {
-        return "$Date: 2017-02-23 16:53:05 +0200 (Thu, 23 Feb 2017)$";
+        return "$Date: 2017-03-20 16:29:41 +0200 (Mon, 20 Mar 2017)$";
     }
 }
