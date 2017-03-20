@@ -167,7 +167,8 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             if (stepView.xtype === 'cps-info-form') {
                 validationParams.customPropertySetId = stepView.getRecord().getId();
             }
-            if(stepView.stepName === 'calendarTransitionInfo' && !stepView.down('combobox[required=true]').getValue()){
+            debugger;
+            if(stepView.stepName === 'calendarTransitionInfo' && stepView.down('combobox[required=true]') && !stepView.down('combobox[required=true]').getValue()){
                 stepView.down('combobox[required=true]').markInvalid(Uni.I18n.translate('usagepoint.add.required', 'IMT', 'This field is required'));
             } else {
                 me.doRequest({
