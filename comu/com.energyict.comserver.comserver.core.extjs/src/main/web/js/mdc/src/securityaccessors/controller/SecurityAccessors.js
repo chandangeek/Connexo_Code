@@ -13,6 +13,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
 
     stores: [
         'Mdc.securityaccessors.store.SecurityAccessors',
+        'Mdc.securityaccessors.store.TrustStores',
         'Mdc.store.TimeUnitsYearsSeconds'
     ],
 
@@ -159,7 +160,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             keyTypesStore = me.getStore('Mdc.securityaccessors.store.KeyTypes');
 
         keyTypesStore.getProxy().setUrl(deviceTypeId);
-
         keyTypesStore.load();
         me.deviceTypeId = deviceTypeId;
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
@@ -188,8 +188,12 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             viewport = Ext.ComponentQuery.query('viewport')[0],
             record;
 
-        viewport.setLoading();
         errorMessage.hide();
+        if (!form.isValid()) {
+            errorMessage.show();
+            return;
+        }
+        viewport.setLoading();
         form.updateRecord();
         record = form.getRecord();
         record.getProxy().setUrl(me.deviceTypeId);
@@ -222,8 +226,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         record.save({
             callback: function (record, operation, success) {
                 var responseText = Ext.decode(operation.response.responseText, true);
+                viewport.setLoading(false);
                 if (success) {
-                    viewport.setLoading(false);
                     me.getApplication().fireEvent('acknowledge', operation.action === 'update'
                         ? Uni.I18n.translate('securityaccessors.saveSecurityAccessorSuccess', 'MDC', 'Security accessor saved')
                         : Uni.I18n.translate('securityaccessors.addSecurityAccessorSuccess', 'MDC', 'Security accessor added'));
