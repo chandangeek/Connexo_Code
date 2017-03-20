@@ -7,12 +7,18 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointManagementException;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
@@ -38,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class UsagePointImplIT {
 
+    private static final Instant JUNE_1ST_2016 = Instant.ofEpochMilli(1464777755000L);
     private static final Instant JULY_1ST_2016 = Instant.ofEpochMilli(1467324000000L);
     private static final Instant JULY_15TH_2016 = Instant.ofEpochMilli(1468533600000L);
     private static final Instant AUG_1ST_2016 = Instant.ofEpochMilli(1470002400000L);
@@ -179,7 +186,7 @@ public class UsagePointImplIT {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint =
                 serviceCategory
-                        .newUsagePoint("twoEffectiveMetrologyConfigurationsOverlapsWithPeriodAtTheirBoundary", AUG_1ST_2016)
+                        .newUsagePoint("twoEffectiveMetrologyConfigurationsOverlapsWithPeriodAtTheirBoundary", JUNE_1ST_2016)
                         .create();
         UsagePointMetrologyConfiguration configuration1 =
                 inMemoryBootstrapModule
@@ -194,6 +201,7 @@ public class UsagePointImplIT {
                         .create();
         configuration2.activate();
         usagePoint.apply(configuration1, JULY_1ST_2016);
+        usagePoint.getEffectiveMetrologyConfiguration(JULY_1ST_2016).get().close(AUG_1ST_2016);
         usagePoint.apply(configuration2, AUG_1ST_2016);
         Range<Instant> period = Range.closedOpen(JULY_15TH_2016, SEPT_1ST_2016);
 
@@ -202,6 +210,92 @@ public class UsagePointImplIT {
 
         // Asserts
         assertThat(metrologyConfigurations).hasSize(2);
+    }
+
+    @Test(expected = UsagePointManagementException.class)
+    @Transactional
+    public void testCannotLinkMetrologyConfigWhenAnotherMetrConfigIsAlreadyLinked() {
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+        UsagePoint usagePoint =
+                serviceCategory
+                        .newUsagePoint("usagePoint", JUNE_1ST_2016)
+                        .create();
+        UsagePointMetrologyConfiguration configuration1 =
+                inMemoryBootstrapModule
+                        .getMetrologyConfigurationService()
+                        .newUsagePointMetrologyConfiguration("metrologyConfiguration1", serviceCategory)
+                        .create();
+        configuration1.activate();
+        UsagePointMetrologyConfiguration configuration2 =
+                inMemoryBootstrapModule
+                        .getMetrologyConfigurationService()
+                        .newUsagePointMetrologyConfiguration("metrologyConfiguration2", serviceCategory)
+                        .create();
+        configuration2.activate();
+        usagePoint.apply(configuration1, JULY_1ST_2016);
+        usagePoint.apply(configuration2, AUG_1ST_2016);
+    }
+
+    @Test(expected = UsagePointManagementException.class)
+    @Transactional
+    public void testCannotActivateMetrologyConfigWithInvalidStartDate() {
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+        UsagePoint usagePoint =
+                serviceCategory
+                        .newUsagePoint("usagePoint", SEPT_1ST_2016)
+                        .create();
+        UsagePointMetrologyConfiguration configuration1 =
+                inMemoryBootstrapModule
+                        .getMetrologyConfigurationService()
+                        .newUsagePointMetrologyConfiguration("metrologyConfiguration1", serviceCategory)
+                        .create();
+        configuration1.activate();
+        usagePoint.apply(configuration1, JUNE_1ST_2016);
+    }
+
+    @Test(expected = UsagePointManagementException.class)
+    @Transactional
+    public void testCannotActivateMetrologyConfigWithInvalidMeterActivationsDate() {
+        ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        Meter meter = system.newMeter("Meter", "meterName").create();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("UsagePoint", JUNE_1ST_2016).create();
+        MeterRole meterRole = inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
+        usagePoint.linkMeters().activate(meter, meterRole).complete();
+
+        UsagePointMetrologyConfiguration configuration1 =
+                inMemoryBootstrapModule
+                        .getMetrologyConfigurationService()
+                        .newUsagePointMetrologyConfiguration("metrologyConfiguration1", serviceCategory)
+                        .create();
+        configuration1.activate();
+        usagePoint.apply(configuration1, AUG_15TH_2016);
+    }
+
+    @Test(expected = UsagePointManagementException.class)
+    @Transactional
+    public void testCannotActivateMetrologyConfigWithIncompatibleMeterRequirements() {
+        ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        Meter meter = system.newMeter("Meter", "meterName").create();
+        ReadingType bulkReadingType = inMemoryBootstrapModule.getMeteringService().getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
+        meter.activate(AUG_15TH_2016).getChannelsContainer().createChannel(bulkReadingType);
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("UsagePoint", JUNE_1ST_2016).create();
+        MeterRole meterRole = inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
+        usagePoint.linkMeters().activate(AUG_15TH_2016, meter, meterRole).complete();
+
+        UsagePointMetrologyConfiguration configuration =
+                inMemoryBootstrapModule
+                        .getMetrologyConfigurationService()
+                        .newUsagePointMetrologyConfiguration("metrologyConfiguration1", serviceCategory)
+                        .create();
+        configuration.addMandatoryMetrologyContract(inMemoryBootstrapModule.getMetrologyConfigurationService().findMetrologyPurpose(3).get());
+        configuration.activate();
+        usagePoint.apply(configuration, AUG_1ST_2016);
     }
 
     @Test

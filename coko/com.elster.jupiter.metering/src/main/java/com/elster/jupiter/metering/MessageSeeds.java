@@ -132,7 +132,13 @@ public enum MessageSeeds implements MessageSeed {
     CONNECTION_STATE_CHANGE_BEFORE_LATEST_CHANGE(10002, "connection.state.change.before.latest.change", "Connection state change should be after the latest connection state change on usage point"),
     INVALID_COORDINATES(10003, "invalidCoordinates", "All coordinates fields must contain valid values"),
 
-    DUPLICATE_SLP_NAME(11001, Constants.DUPLICATE_SLP_NAME, "Synthetic load profile name must be unique", Level.SEVERE);
+    DUPLICATE_SLP_NAME(11001, Constants.DUPLICATE_SLP_NAME, "Synthetic load profile name must be unique", Level.SEVERE),
+
+    METER_ACTIVATION_INVALID_DATE(12001, Constants.METER_ACTIVATION_INVALID_DATE, "The metrology configuration's start date must be greater than, or equal to, the meters' activation date {0}"),
+    METROLOGY_CONFIGURATION_INVALID_START_DATE(12002, Constants.METROLOGY_CONFIGURATION_INVALID_START_DATE, "Metrology configuration {0} could not be linked to usage point {1} at {2} because another metrology configuration is active at that point in time"),
+    METER_ACTIVATION_INVALID_REQUIREMENTS(12203, Constants.METER_ACTIVATION_INVALID_REQUIREMENTS, "The meters of the usage point do not provide the necessary reading types for purposes {0}  of the new metrology configuration")
+    ;
+
 
     private final int number;
     private final String key;
@@ -278,6 +284,9 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CAN_NOT_DELETE_ACTIVE_STATE = "can.not.delete.active.state";
         public static final String REQUIRED_CAS_MISSING = "required.cas.missing";
         public static final String DUPLICATE_SLP_NAME = "slp.name.already.exists";
+        public static final String METER_ACTIVATION_INVALID_DATE = "meter.activation.invalid.date";
+        public static final String METROLOGY_CONFIGURATION_INVALID_START_DATE = "metrology.configuration.invalid.start.date";
+        public static final String METER_ACTIVATION_INVALID_REQUIREMENTS = "meter.activation.invalid.requirements";
     }
 
 }

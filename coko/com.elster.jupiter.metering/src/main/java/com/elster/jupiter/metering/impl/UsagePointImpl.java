@@ -44,6 +44,7 @@ import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.OverlapsOnMetrologyConfigurationVersionEnd;
 import com.elster.jupiter.metering.config.OverlapsOnMetrologyConfigurationVersionStart;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -68,11 +69,14 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
+import com.elster.jupiter.users.PreferenceType;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
@@ -90,7 +94,9 @@ import javax.validation.constraints.Size;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -179,6 +185,8 @@ public class UsagePointImpl implements ServerUsagePoint {
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
     private final ServerDataAggregationService dataAggregationService;
     private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
+    private final ThreadPrincipalService threadPrincipalService;
+    private final UserService userService;
     private transient UsagePointCustomPropertySetExtensionImpl customPropertySetExtension;
 
     @Inject
@@ -189,7 +197,9 @@ public class UsagePointImpl implements ServerUsagePoint {
             CustomPropertySetService customPropertySetService,
             ServerMetrologyConfigurationService metrologyConfigurationService,
             ServerDataAggregationService dataAggregationService,
-            UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
+            UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
+            UserService userService,
+            ThreadPrincipalService threadPrincipalService) {
         this.clock = clock;
         this.dataModel = dataModel;
         this.eventService = eventService;
@@ -200,6 +210,8 @@ public class UsagePointImpl implements ServerUsagePoint {
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.dataAggregationService = dataAggregationService;
         this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
+        this.userService = userService;
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     UsagePointImpl init(String name, ServiceCategory serviceCategory) {
@@ -546,14 +558,11 @@ public class UsagePointImpl implements ServerUsagePoint {
     }
 
     private void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Set<MetrologyContract> optionalContractsToActivate, Instant start, Instant end) {
-        if (this.getInstallationTime().isAfter(start)) {
-            throw UsagePointManagementException.incorrectApplyTime(thesaurus);
-        }
-
-        UsagePointStage.Key usagePointStage = this.getState().getStage().getKey();
-        if (usagePointStage != UsagePointStage.Key.PRE_OPERATIONAL) {
-            throw UsagePointManagementException.incorrectStage(thesaurus);
-        }
+        validateApplyTimeAndCreateDate(start);
+        validateUsagePointStage(start);
+        validateMeterActivations(this.getMeterActivations(), start);
+        validateActiveMetrologyConfigs(metrologyConfiguration.getName(), start);
+        validateMeters(this.getMeterActivations(), metrologyConfiguration.getContracts());
         validateEffectiveMetrologyConfigurationInterval(start, end);
         validateAndClosePreviousMetrologyConfigurationIfExists(start);
         Range<Instant> effectiveInterval = end != null ? Range.closedOpen(start, end) : Range.atLeast(start);
@@ -600,6 +609,57 @@ public class UsagePointImpl implements ServerUsagePoint {
         }
         if (latestEndDate != null && nextStartDate.isBefore(latestEndDate)) {
             throw new UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd(thesaurus);
+        }
+    }
+
+    private void validateApplyTimeAndCreateDate(Instant mcStart) {
+        if (this.getInstallationTime().isAfter(mcStart)) {
+            throw UsagePointManagementException.incorrectApplyTime(thesaurus);
+        }
+    }
+
+    private void validateUsagePointStage(Instant when) {
+        UsagePointStage.Key usagePointStage = this.getState(when).getStage().getKey();
+        if (!usagePointStage.equals(UsagePointStage.Key.PRE_OPERATIONAL)) {
+            throw UsagePointManagementException.incorrectStage(thesaurus);
+        }
+    }
+
+    private void validateMeterActivations(List<MeterActivation> meterActivations, Instant mcStart) {
+        if (meterActivations.size() != 0) {
+            DateTimeFormatter dateTimeFormatter = userService.getUserPreferencesService().getDateTimeFormatter(threadPrincipalService.getPrincipal(), PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
+            meterActivations.stream().filter(meterActivation -> meterActivation.getStart().isAfter(mcStart) || meterActivation.getStart().equals(mcStart)).findAny()
+                    .orElseThrow(() -> UsagePointManagementException.incorrectMeterActivationTime(thesaurus, dateTimeFormatter.format(LocalDateTime.ofInstant(mcStart, ZoneId.systemDefault()))));
+        }
+    }
+
+    private void validateActiveMetrologyConfigs(String metrologyConfigurationName, Instant mcStart) {
+        if (this.getEffectiveMetrologyConfigurations().stream().filter(mc -> mc.isEffectiveAt(mcStart)).findFirst().isPresent()) {
+            DateTimeFormatter dateTimeFormatter = userService.getUserPreferencesService().getDateTimeFormatter(threadPrincipalService.getPrincipal(), PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
+            throw UsagePointManagementException.incorrectMetrologyConfigStartDate(thesaurus, metrologyConfigurationName, this.getName(), dateTimeFormatter.format(LocalDateTime.ofInstant(mcStart, ZoneId.systemDefault())));
+        }
+    }
+
+    private void validateMeters(List<MeterActivation> meterActivations, List<MetrologyContract> metrologyContracts) {
+        List<ReadingType> meterActivationReadingTypes = meterActivations.stream()
+                .flatMap(meterActivation -> meterActivation.getReadingTypes().stream())
+                .collect(Collectors.toList());
+
+        if (!meterActivationReadingTypes.isEmpty()) {
+            List<String> metrologyPurposes = metrologyContracts.stream()
+                    .filter(contract -> !contract.getRequirements()
+                            .stream()
+                            .filter(requirement -> meterActivationReadingTypes.stream()
+                                    .filter(requirement::matches).findAny().isPresent())
+                            .findAny()
+                            .isPresent())
+                    .map(MetrologyContract::getMetrologyPurpose)
+                    .map(MetrologyPurpose::getName)
+                    .collect(Collectors.toList());
+
+            if (!metrologyPurposes.isEmpty()) {
+                throw UsagePointManagementException.incorrectMeterActivationRequirements(thesaurus, metrologyPurposes);
+            }
         }
     }
 
