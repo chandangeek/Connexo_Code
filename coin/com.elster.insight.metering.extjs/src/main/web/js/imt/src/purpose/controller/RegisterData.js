@@ -217,6 +217,7 @@ Ext.define('Imt.purpose.controller.RegisterData', {
             if (me.output.get('deliverableType') == 'billing') {
                 reading.set("interval", {start: reading.get('interval.start'), end: reading.get('interval.end')});
             }
+            addReadingView.setLoading(true);
             reading.getProxy().setParams(router.arguments.usagePointId, router.arguments.purposeId, router.arguments.outputId);
             reading.save({
                 success: function () {
@@ -231,6 +232,9 @@ Ext.define('Imt.purpose.controller.RegisterData', {
                             addReadingView.showErrors(responseText.errors);
                         }
                     }
+                },
+                callback: function () {
+                    addReadingView.setLoading(false);
                 }
             });
         }
