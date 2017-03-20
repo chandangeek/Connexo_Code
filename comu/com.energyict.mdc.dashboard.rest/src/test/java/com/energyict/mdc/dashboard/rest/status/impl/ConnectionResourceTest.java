@@ -61,6 +61,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -675,7 +676,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<Long>get("$.communications[0].stopTime")).isEqualTo(endDate.toEpochMilli());
         assertThat(jsonModel.<Long>get("$.communications[0].nextCommunication")).isEqualTo(plannedNext.toEpochMilli());
         assertThat(jsonModel.<Boolean>get("$.communications[0].alwaysExecuteOnInbound")).isEqualTo(false);
-        assertThat(jsonModel.get("$.communications[0].connectionTask")).isNull();
+        assertNull(jsonModel.get("$.communications[0].connectionTask"));
     }
 
     @Test
