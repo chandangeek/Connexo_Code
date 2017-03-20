@@ -6,6 +6,7 @@ import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierById;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 
 import com.energyict.cim.EndDeviceEventTypeMapping;
@@ -58,7 +59,7 @@ public class CollectedLogBookDeviceCommandTest {
 
     @Test
     public void testToJournalMessageDescriptionWhenLogBookHasNoMeterEvents() throws Exception {
-        final LogBookIdentifier logBookIdentifier = new LogBookIdentifierById(LOGBOOK_ID, OBIS_CODE);
+        final LogBookIdentifier logBookIdentifier = new LogBookIdentifierById(LOGBOOK_ID, OBIS_CODE, mock(DeviceIdentifier.class));
         final DeviceLogBook deviceLogBook = new DeviceLogBook(logBookIdentifier);
         NoDeviceCommandServices serviceProvider = new NoDeviceCommandServices();
         CollectedLogBookDeviceCommand command = new CollectedLogBookDeviceCommand(deviceLogBook, null, new MeterDataStoreCommandImpl(null, serviceProvider));
@@ -73,7 +74,7 @@ public class CollectedLogBookDeviceCommandTest {
     @Test
     public void testToJournalMessageDescriptionWhenLogBookHasMeterEvents() throws Exception {
         initializeMeteringService();
-        final LogBookIdentifier logBookIdentifier = new LogBookIdentifierById(LOGBOOK_ID, OBIS_CODE);
+        final LogBookIdentifier logBookIdentifier = new LogBookIdentifierById(LOGBOOK_ID, OBIS_CODE, mock(DeviceIdentifier.class));
         final DeviceLogBook deviceLogBook = new DeviceLogBook(logBookIdentifier);
         List<MeterProtocolEvent> meterEvents = new ArrayList<>(2);
         meterEvents.add(

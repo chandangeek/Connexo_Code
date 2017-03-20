@@ -65,7 +65,7 @@ public class CollectedLoadProfileEventTest {
 
         LoadProfileService loadProfileService = mock(LoadProfileService.class);
 
-        LoadProfileIdentifierById loadProfileId = new LoadProfileIdentifierById(123L, ObisCode.fromString("1.1.1.1.1.1"));
+        LoadProfileIdentifierById loadProfileId = new LoadProfileIdentifierById(123L, ObisCode.fromString("1.1.1.1.1.1"), deviceIdentifier);
 
         CollectedLoadProfile loadProfile = mock(CollectedLoadProfile.class);
         when(loadProfile.getLoadProfileIdentifier()).thenReturn(loadProfileId);

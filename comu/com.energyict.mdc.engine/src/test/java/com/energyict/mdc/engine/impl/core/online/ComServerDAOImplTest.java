@@ -7,6 +7,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
@@ -38,13 +39,8 @@ import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+
 import com.google.common.collect.Range;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.time.Clock;
@@ -52,6 +48,13 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -111,9 +114,11 @@ public class ComServerDAOImplTest {
     @Mock
     private FirmwareService firmwareService;
     @Mock
-    private DeviceService deviceDataModelService;
+    private DeviceService deviceService;
     @Mock
     private User comServerUser;
+    @Mock
+    private DeviceMessageService deviceMessageService;
 
     private ComServerDAO comServerDAO;
 
@@ -128,7 +133,8 @@ public class ComServerDAOImplTest {
         when(this.serviceProvider.communicationTaskService()).thenReturn(this.communicationTaskService);
         when(this.serviceProvider.topologyService()).thenReturn(this.topologyService);
         when(this.serviceProvider.firmwareService()).thenReturn(this.firmwareService);
-        when(this.serviceProvider.deviceService()).thenReturn(this.deviceDataModelService);
+        when(this.serviceProvider.deviceService()).thenReturn(this.deviceService);
+        when(this.serviceProvider.deviceMessageService()).thenReturn(this.deviceMessageService);
         when(this.serviceProvider.clock()).thenReturn(Clock.systemDefaultZone());
         when(this.engineConfigurationService.findComServerBySystemName()).thenReturn(Optional.<ComServer>of(this.comServer));
         when(this.engineConfigurationService.findComServer(COMSERVER_ID)).thenReturn(Optional.<ComServer>of(this.comServer));
@@ -254,8 +260,8 @@ public class ComServerDAOImplTest {
 
     @Test
     public void testUpdateGateway_GatewayRemoved() throws Exception {
-        when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
-        when(this.gatewayDeviceIdentifier.findDevice()).thenReturn(null);
+        when(this.deviceService.findDeviceByIdentifier(this.deviceIdentifier)).thenReturn(Optional.of(this.device));
+        when(this.deviceService.findDeviceByIdentifier(this.gatewayDeviceIdentifier)).thenReturn(Optional.empty());
 
         // Business method
         this.comServerDAO.updateGateway(this.deviceIdentifier, this.gatewayDeviceIdentifier);
@@ -266,9 +272,9 @@ public class ComServerDAOImplTest {
 
     @Test
     public void testUpdateGateway_DifferentGateway() throws Exception {
-        when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
+        when(this.deviceService.findDeviceByIdentifier(this.deviceIdentifier)).thenReturn(Optional.of(this.device));
         Device gateway = mock(Device.class);
-        when(this.gatewayDeviceIdentifier.findDevice()).thenReturn(gateway);
+        when(this.deviceService.findDeviceByIdentifier(this.gatewayDeviceIdentifier)).thenReturn(Optional.of(gateway));
 
         // Business method
         this.comServerDAO.updateGateway(this.deviceIdentifier, this.gatewayDeviceIdentifier);
@@ -346,7 +352,7 @@ public class ComServerDAOImplTest {
 
     @Test
     public void updateFirmwareVersionsTest() {
-        when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
+        when(this.deviceService.findDeviceByIdentifier(this.deviceIdentifier)).thenReturn(Optional.of(this.device));
         when(this.firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.METER)).thenReturn(Optional.empty());
         when(this.firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.COMMUNICATION)).thenReturn(Optional.empty());
 
@@ -359,7 +365,7 @@ public class ComServerDAOImplTest {
     @Test
     public void updateWithCreationOfGhostMeterFirmwareVersionTest() {
         // setup
-        when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
+        when(this.deviceService.findDeviceByIdentifier(this.deviceIdentifier)).thenReturn(Optional.of(this.device));
         when(this.firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.METER)).thenReturn(Optional.empty());
         when(this.firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.COMMUNICATION)).thenReturn(Optional.empty());
         String newActiveMeterFirmwareVersion = "MyActiveMeterFirmwareVersion";
@@ -388,7 +394,7 @@ public class ComServerDAOImplTest {
         // setup
         ActivatedFirmwareVersion communicationVersion = mock(ActivatedFirmwareVersion.class);
         Optional<ActivatedFirmwareVersion> communicationVersionWithSameVersion = Optional.of(communicationVersion);
-        when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
+        when(this.deviceService.findDeviceByIdentifier(this.deviceIdentifier)).thenReturn(Optional.of(this.device));
         when(this.firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.METER)).thenReturn(Optional.empty());
         when(this.firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.COMMUNICATION)).thenReturn(communicationVersionWithSameVersion);
         String newActiveMeterFirmwareVersion = "SameVersion";
@@ -418,7 +424,7 @@ public class ComServerDAOImplTest {
     @Test
     public void updateWithCreationOfGhostCommunicationFirmwareVersionTest() {
         // setup
-        when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
+        when(this.deviceService.findDeviceByIdentifier(this.deviceIdentifier)).thenReturn(Optional.of(this.device));
         when(this.firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.METER)).thenReturn(Optional.empty());
         when(this.firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.COMMUNICATION)).thenReturn(Optional.empty());
         String myActiveCommunicationFirmwareVersion = "MyActiveCommunicationFirmwareVersion";
@@ -447,7 +453,7 @@ public class ComServerDAOImplTest {
         // setup
         ActivatedFirmwareVersion meterVersion = mock(ActivatedFirmwareVersion.class);
         Optional<ActivatedFirmwareVersion> meterVersionWithSameVersion = Optional.of(meterVersion);
-        when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
+        when(this.deviceService.findDeviceByIdentifier(this.deviceIdentifier)).thenReturn(Optional.of(this.device));
         when(this.firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.METER)).thenReturn(meterVersionWithSameVersion);
         when(this.firmwareService.getActiveFirmwareVersion(this.device, FirmwareType.COMMUNICATION)).thenReturn(Optional.empty());
         String myActiveCommunicationFirmwareVersion = "SameVersion";
@@ -478,7 +484,7 @@ public class ComServerDAOImplTest {
     public void updateLastCheckedForExistingMeterFirmwareVersionTest() {
         // setup
         String myActiveFirmwareVersion = "MyActiveMeterFirmwareVersion";
-        when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
+        when(this.deviceService.findDeviceByIdentifier(this.deviceIdentifier)).thenReturn(Optional.of(this.device));
 
         ActivatedFirmwareVersion activatedFirmwareVersion = mock(ActivatedFirmwareVersion.class);
         FirmwareVersion firmwareVersion = mock(FirmwareVersion.class);
@@ -504,7 +510,7 @@ public class ComServerDAOImplTest {
     public void updateLastCheckedForExistingCommunicationFirmwareVersionTest() {
         // setup
         String myActiveCommunicationFirmwareVersion = "MyActiveCommunicationFirmwareVersionTest";
-        when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
+        when(this.deviceService.findDeviceByIdentifier(this.deviceIdentifier)).thenReturn(Optional.of(this.device));
 
         ActivatedFirmwareVersion activatedFirmwareVersion = mock(ActivatedFirmwareVersion.class);
         FirmwareVersion firmwareVersion = mock(FirmwareVersion.class);
@@ -528,36 +534,36 @@ public class ComServerDAOImplTest {
 
     @Test
     public void updateBreakerStatusHavingEmptyBreakerStatusTest() {
-        when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
-        when(this.deviceDataModelService.getActiveBreakerStatus(this.device)).thenReturn(Optional.empty());
+        when(this.deviceService.findDeviceByIdentifier(this.deviceIdentifier)).thenReturn(Optional.of(this.device));
+        when(this.deviceService.getActiveBreakerStatus(this.device)).thenReturn(Optional.empty());
 
         // Business methods
         CollectedBreakerStatus collectedBreakerStatus = new DeviceBreakerStatus(deviceIdentifier);
         this.comServerDAO.updateBreakerStatus(collectedBreakerStatus);
 
         // Asserts
-        verify(this.deviceDataModelService, never()).getActiveBreakerStatus(any(Device.class));
-        verify(this.deviceDataModelService, never()).newActivatedBreakerStatusFrom(any(Device.class), any(BreakerStatus.class), any(Interval.class));
+        verify(this.deviceService, never()).getActiveBreakerStatus(any(Device.class));
+        verify(this.deviceService, never()).newActivatedBreakerStatusFrom(any(Device.class), any(BreakerStatus.class), any(Interval.class));
     }
 
     @Test
     public void updateBreakerStatusTest() {
-        when(this.deviceIdentifier.findDevice()).thenReturn(device);
-        when(this.deviceDataModelService.getActiveBreakerStatus(device)).thenReturn(Optional.empty());
+        when(this.deviceService.findDeviceByIdentifier(this.deviceIdentifier)).thenReturn(Optional.of(this.device));
+        when(this.deviceService.getActiveBreakerStatus(device)).thenReturn(Optional.empty());
         CollectedBreakerStatus collectedBreakerStatus = new DeviceBreakerStatus(deviceIdentifier);
         collectedBreakerStatus.setBreakerStatus(BreakerStatus.ARMED);
-        when(this.deviceDataModelService.getActiveBreakerStatus(device)).thenReturn(Optional.empty());
+        when(this.deviceService.getActiveBreakerStatus(device)).thenReturn(Optional.empty());
 
         ArgumentCaptor<Device> deviceCaptor = ArgumentCaptor.forClass(Device.class);
         ArgumentCaptor<BreakerStatus> breakerStatusCaptor = ArgumentCaptor.forClass(BreakerStatus.class);
         ArgumentCaptor<Interval> intervalCaptor = ArgumentCaptor.forClass(Interval.class);
-        when(this.deviceDataModelService.newActivatedBreakerStatusFrom(deviceCaptor.capture(), breakerStatusCaptor.capture(), intervalCaptor.capture())).thenReturn(mock(ActivatedBreakerStatus.class));
+        when(this.deviceService.newActivatedBreakerStatusFrom(deviceCaptor.capture(), breakerStatusCaptor.capture(), intervalCaptor.capture())).thenReturn(mock(ActivatedBreakerStatus.class));
 
         // Business methods
         this.comServerDAO.updateBreakerStatus(collectedBreakerStatus);
 
         // asserts
-        verify(this.deviceDataModelService, times(1)).newActivatedBreakerStatusFrom(any(Device.class), any(BreakerStatus.class), any(Interval.class));
+        verify(this.deviceService, times(1)).newActivatedBreakerStatusFrom(any(Device.class), any(BreakerStatus.class), any(Interval.class));
 
         assertThat(deviceCaptor.getValue()).isEqualTo(this.device);
         assertThat(breakerStatusCaptor.getValue()).isEqualTo(BreakerStatus.ARMED);
@@ -570,10 +576,10 @@ public class ComServerDAOImplTest {
 
     @Test
     public void updateBreakerStatusWhenDifferentActivatedBreakerStatusAlreadyExistsTest() {
-        when(this.deviceIdentifier.findDevice()).thenReturn(device);
+        when(this.deviceService.findDeviceByIdentifier(this.deviceIdentifier)).thenReturn(Optional.of(this.device));
         ActivatedBreakerStatus activatedBreakerStatus = mock(ActivatedBreakerStatus.class);
         when(activatedBreakerStatus.getBreakerStatus()).thenReturn(BreakerStatus.DISCONNECTED);
-        when(this.deviceDataModelService.getActiveBreakerStatus(device)).thenReturn(Optional.of(activatedBreakerStatus));
+        when(this.deviceService.getActiveBreakerStatus(device)).thenReturn(Optional.of(activatedBreakerStatus));
 
         CollectedBreakerStatus collectedBreakerStatus = new DeviceBreakerStatus(deviceIdentifier);
         collectedBreakerStatus.setBreakerStatus(BreakerStatus.ARMED);
@@ -581,13 +587,13 @@ public class ComServerDAOImplTest {
         ArgumentCaptor<Device> deviceCaptor = ArgumentCaptor.forClass(Device.class);
         ArgumentCaptor<BreakerStatus> breakerStatusCaptor = ArgumentCaptor.forClass(BreakerStatus.class);
         ArgumentCaptor<Interval> intervalCaptor = ArgumentCaptor.forClass(Interval.class);
-        when(this.deviceDataModelService.newActivatedBreakerStatusFrom(deviceCaptor.capture(), breakerStatusCaptor.capture(), intervalCaptor.capture())).thenReturn(mock(ActivatedBreakerStatus.class));
+        when(this.deviceService.newActivatedBreakerStatusFrom(deviceCaptor.capture(), breakerStatusCaptor.capture(), intervalCaptor.capture())).thenReturn(mock(ActivatedBreakerStatus.class));
 
         // Business methods
         this.comServerDAO.updateBreakerStatus(collectedBreakerStatus);
 
         // asserts
-        verify(this.deviceDataModelService, times(1)).newActivatedBreakerStatusFrom(any(Device.class), any(BreakerStatus.class), any(Interval.class));
+        verify(this.deviceService, times(1)).newActivatedBreakerStatusFrom(any(Device.class), any(BreakerStatus.class), any(Interval.class));
 
         assertThat(deviceCaptor.getValue()).isEqualTo(device);
         assertThat(breakerStatusCaptor.getValue()).isEqualTo(BreakerStatus.ARMED);
@@ -600,10 +606,10 @@ public class ComServerDAOImplTest {
 
     @Test
     public void updateLastCheckedForExistingBreakerStatusTest() {
-        when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
+        when(this.deviceService.findDeviceByIdentifier(this.deviceIdentifier)).thenReturn(Optional.of(this.device));
         ActivatedBreakerStatus activatedBreakerStatus = mock(ActivatedBreakerStatus.class);
         when(activatedBreakerStatus.getBreakerStatus()).thenReturn(BreakerStatus.DISCONNECTED);
-        when(this.deviceDataModelService.getActiveBreakerStatus(device)).thenReturn(Optional.of(activatedBreakerStatus));
+        when(this.deviceService.getActiveBreakerStatus(device)).thenReturn(Optional.of(activatedBreakerStatus));
 
         CollectedBreakerStatus collectedBreakerStatus = new DeviceBreakerStatus(deviceIdentifier);
         collectedBreakerStatus.setBreakerStatus(BreakerStatus.DISCONNECTED);
@@ -613,7 +619,7 @@ public class ComServerDAOImplTest {
 
         // asserts
         verify(activatedBreakerStatus).setLastChecked(any(Instant.class));
-        verify(this.deviceDataModelService, never()).newActivatedBreakerStatusFrom(any(Device.class), any(BreakerStatus.class), any(Interval.class));
+        verify(this.deviceService, never()).newActivatedBreakerStatusFrom(any(Device.class), any(BreakerStatus.class), any(Interval.class));
     }
 
     @Test
@@ -623,7 +629,7 @@ public class ComServerDAOImplTest {
         when(collectedCalendar.getActiveCalendar()).thenReturn(Optional.of(ACTIVE_CALENDAR_NAME));
         when(collectedCalendar.getPassiveCalendar()).thenReturn(Optional.of(PASSIVE_CALENDAR_NAME));
         when(collectedCalendar.getDeviceIdentifier()).thenReturn(this.deviceIdentifier);
-        when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
+        when(this.deviceService.findDeviceByIdentifier(this.deviceIdentifier)).thenReturn(Optional.of(this.device));
 
         // Business method
         this.comServerDAO.updateCalendars(collectedCalendar);
@@ -637,7 +643,7 @@ public class ComServerDAOImplTest {
     public void updateDeviceMessageInformationTest() {
         MessageIdentifier messageIdentifier = mock(MessageIdentifier.class);
         DeviceMessage deviceMessage = mock(DeviceMessage.class);
-        when(messageIdentifier.getDeviceMessage()).thenReturn(deviceMessage);
+        when(this.deviceMessageService.findDeviceMessageByIdentifier(messageIdentifier)).thenReturn(Optional.of(deviceMessage));
 
         DeviceMessageStatus deviceMessageStatus = DeviceMessageStatus.CONFIRMED;
         Instant sentDate = Instant.now();
@@ -651,4 +657,5 @@ public class ComServerDAOImplTest {
         verify(deviceMessage).setProtocolInformation(protocolInfo);
         verify(deviceMessage).updateDeviceMessageStatus(deviceMessageStatus);
     }
+
 }

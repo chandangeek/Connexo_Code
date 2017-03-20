@@ -16,16 +16,17 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.util.Optional;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -109,7 +110,6 @@ public class CollectedDeviceCacheCommandTest {
     private DeviceIdentifier getMockedDeviceIdentifier() {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(this.device.getId()).thenReturn(DEVICE_ID);
-        when(deviceIdentifier.findDevice()).thenReturn(this.device);
         return deviceIdentifier;
     }
 

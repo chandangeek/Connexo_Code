@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceMessageIdentifierForAlreadyKnownMessage;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -10,16 +11,18 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -51,6 +54,8 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
     private MeterDataStoreCommandImpl meterDataStoreCommand;
     @Mock
     private DeviceCommand.ServiceProvider serviceProvider;
+    @Mock
+    private DeviceMessageService deviceMessageService;
 
     @Before
     public void initialize(){
@@ -70,8 +75,8 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
         collectedMessage1.setSentDate(getClock().instant());
         collectedMessage1.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
 
-        DeviceProtocolMessageList deviceProtocolMessageList = new DeviceProtocolMessageList(Arrays.asList(offlineDeviceMessage));
-        deviceProtocolMessageList.addCollectedMessages(collectedMessage1);
+        DeviceProtocolMessageList deviceProtocolMessageList = new DeviceProtocolMessageList(Collections.singletonList(offlineDeviceMessage), this.deviceMessageService);
+        deviceProtocolMessageList.addCollectedMessage(collectedMessage1);
         DeviceCommand command = deviceProtocolMessageList.toDeviceCommand(meterDataStoreCommand, serviceProvider);
         command.logExecutionWith(this.executionLogger);
 
@@ -100,9 +105,9 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
         OfflineDeviceMessage offlineDeviceMessage1 = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessage offlineDeviceMessage2 = mock(OfflineDeviceMessage.class);
 
-        DeviceProtocolMessageList deviceProtocolMessageList = new DeviceProtocolMessageList(Arrays.asList(offlineDeviceMessage1, offlineDeviceMessage2));
-        deviceProtocolMessageList.addCollectedMessages(collectedMessage1);
-        deviceProtocolMessageList.addCollectedMessages(collectedMessage2);
+        DeviceProtocolMessageList deviceProtocolMessageList = new DeviceProtocolMessageList(Arrays.asList(offlineDeviceMessage1, offlineDeviceMessage2), this.deviceMessageService);
+        deviceProtocolMessageList.addCollectedMessage(collectedMessage1);
+        deviceProtocolMessageList.addCollectedMessage(collectedMessage2);
         DeviceCommand command = deviceProtocolMessageList.toDeviceCommand(meterDataStoreCommand, serviceProvider);
 
 
@@ -127,9 +132,9 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
         OfflineDeviceMessage offlineDeviceMessage1 = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessage offlineDeviceMessage2 = mock(OfflineDeviceMessage.class);
 
-        DeviceProtocolMessageList deviceProtocolMessageList = new DeviceProtocolMessageList(Arrays.asList(offlineDeviceMessage1, offlineDeviceMessage2));
-        deviceProtocolMessageList.addCollectedMessages(collectedMessage1);
-        deviceProtocolMessageList.addCollectedMessages(collectedMessage2);
+        DeviceProtocolMessageList deviceProtocolMessageList = new DeviceProtocolMessageList(Arrays.asList(offlineDeviceMessage1, offlineDeviceMessage2), this.deviceMessageService);
+        deviceProtocolMessageList.addCollectedMessage(collectedMessage1);
+        deviceProtocolMessageList.addCollectedMessage(collectedMessage2);
         DeviceCommand command = deviceProtocolMessageList.toDeviceCommand(meterDataStoreCommand, serviceProvider);
 
 
@@ -159,8 +164,8 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
         when(offlineDeviceMessage2.getIdentifier()).thenReturn(deviceMessageIdentifier2);
         when(offlineDeviceMessage2.getDeviceMessageStatus()).thenReturn(DeviceMessageStatus.SENT);
 
-        DeviceProtocolMessageList deviceProtocolMessageList = new DeviceProtocolMessageList(Arrays.asList(offlineDeviceMessage1, offlineDeviceMessage2));
-        deviceProtocolMessageList.addCollectedMessages(collectedMessage1);
+        DeviceProtocolMessageList deviceProtocolMessageList = new DeviceProtocolMessageList(Arrays.asList(offlineDeviceMessage1, offlineDeviceMessage2), this.deviceMessageService);
+        deviceProtocolMessageList.addCollectedMessage(collectedMessage1);
         // only adding the CollectedResult for DeviceMessage 1
 
         DeviceCommand command = deviceProtocolMessageList.toDeviceCommand(meterDataStoreCommand, serviceProvider);
@@ -172,4 +177,5 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
         verify(comServerDAO).updateDeviceMessageInformation(new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage1), DeviceMessageStatus.CONFIRMED, Instant.now(getClock()), null);
         verify(comServerDAO).updateDeviceMessageInformation(new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage2), DeviceMessageStatus.SENT, null, CollectedMessageList.REASON_FOR_PENDING_STATE);
     }
+
 }

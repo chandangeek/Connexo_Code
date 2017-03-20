@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.core.events;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
@@ -52,6 +53,8 @@ public class ComPortOperationsLogHandlerTest {
     private ComPort comPort;
     @Mock
     private DeviceService deviceService;
+    @Mock
+    private DeviceMessageService deviceMessageService;
     @Mock
     private OnlineComServer comServer;
     @Mock
@@ -140,6 +143,11 @@ public class ComPortOperationsLogHandlerTest {
         @Override
         public DeviceService deviceService() {
             return deviceService;
+        }
+
+        @Override
+        public DeviceMessageService deviceMessageService() {
+            return deviceMessageService;
         }
 
         @Override

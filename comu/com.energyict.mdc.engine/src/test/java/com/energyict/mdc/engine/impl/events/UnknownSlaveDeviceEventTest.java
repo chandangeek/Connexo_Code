@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.events;
 
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import org.junit.Before;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -9,7 +9,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link UnknownSlaveDeviceEvent} component.
@@ -27,20 +26,14 @@ public class UnknownSlaveDeviceEventTest {
     @Mock
     private DeviceIdentifier deviceIdentifier;
 
-    @Before
-    public void initializeMocks () {
-        when(this.masterDeviceIdentifier.getIdentifier()).thenReturn(MASTER_DEVICE_IDENTIFIER);
-        when(this.deviceIdentifier.getIdentifier()).thenReturn(DEVICE_IDENTIFIER);
-    }
-
     @Test
     public void testConstructorExtractsInformation () {
         // Business method
         new UnknownSlaveDeviceEvent(this.masterDeviceIdentifier, this.deviceIdentifier);
 
         // Asserts
-        verify(this.masterDeviceIdentifier).getIdentifier();
-        verify(this.deviceIdentifier).getIdentifier();
+        verify(this.masterDeviceIdentifier).toString();
+        verify(this.deviceIdentifier).toString();
     }
 
     @Test

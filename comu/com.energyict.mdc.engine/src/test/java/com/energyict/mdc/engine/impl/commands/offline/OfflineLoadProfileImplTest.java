@@ -9,17 +9,18 @@ import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlready
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
+
 import com.energyict.obis.ObisCode;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.Date;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Optional;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -136,8 +137,7 @@ public class OfflineLoadProfileImplTest {
 
         OfflineLoadProfileImpl offlineLoadProfile = new OfflineLoadProfileImpl(loadProfile, topologyService, identificationService);
 
-        assertThat(offlineLoadProfile.getDeviceIdentifier().getDeviceIdentifierType()).isEqualTo(DeviceIdentifierType.SerialNumber);
+        assertThat(offlineLoadProfile.getDeviceIdentifier().forIntrospection().getTypeName()).isEqualTo("SerialNumber");
     }
-
 
 }

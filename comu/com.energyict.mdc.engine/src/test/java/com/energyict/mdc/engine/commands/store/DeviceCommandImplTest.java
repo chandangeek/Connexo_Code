@@ -49,7 +49,6 @@ import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
-import com.energyict.mdc.upl.meterdata.LogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
@@ -58,17 +57,19 @@ import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.tasks.TopologyAction;
+
 import com.energyict.obis.ObisCode;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.isA;
@@ -174,13 +175,11 @@ public class DeviceCommandImplTest {
 
     @Test
     public void ExecutingCollectedLogBookDeviceCommandPublishesEvent() {
-        LogBook logbook = mock(LogBook.class);
         LogBookIdentifier logBookIdentifier = mock(LogBookIdentifier.class);
         OfflineLogBook offlineLogBook = mock(OfflineLogBook.class);
 
         DeviceLogBook deviceLogBook = mock(DeviceLogBook.class);
         when(deviceLogBook.getLogBookIdentifier()).thenReturn(logBookIdentifier);
-        when(logBookIdentifier.getLogBook()).thenReturn(logbook);
 
         MeterDataStoreCommand meterDataStoreCommand = mock(MeterDataStoreCommand.class);
         when(meterDataStoreCommand.getServiceProvider()).thenReturn(serviceProvider);

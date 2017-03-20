@@ -23,11 +23,11 @@ import com.energyict.mdc.engine.impl.core.SingleThreadedComPortListener;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactoryImpl;
-import com.energyict.mdc.io.SocketService;
-import com.energyict.mdc.io.serial.SerialComponentService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.upl.io.SerialComponentService;
+import com.energyict.mdc.upl.io.SocketService;
 
 import java.io.IOException;
 import java.net.ServerSocket;

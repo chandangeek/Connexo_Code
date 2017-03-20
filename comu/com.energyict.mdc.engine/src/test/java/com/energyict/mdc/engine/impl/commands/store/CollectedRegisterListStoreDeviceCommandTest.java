@@ -10,8 +10,6 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Ranges;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
@@ -31,18 +29,22 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -114,7 +116,6 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         when(register.getDevice()).thenReturn(device);
 
         RegisterIdentifier registerIdentifier = mock(RegisterIdentifier.class);
-        when(registerIdentifier.findRegister()).thenReturn(register);
         when(registerIdentifier.getDeviceIdentifier()).thenReturn(deviceIdentifier);
         when(registerIdentifier.getRegisterObisCode()).thenReturn(ObisCode.fromString(registerObisCode1));
 
@@ -172,7 +173,6 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         when(topologyService.getSlaveRegister(register, registerEventTime1)).thenReturn(Optional.empty());
 
         RegisterIdentifier registerIdentifier = mock(RegisterIdentifier.class);
-        when(registerIdentifier.findRegister()).thenReturn(register);
         when(registerIdentifier.getDeviceIdentifier()).thenReturn(deviceIdentifier);
         when(registerIdentifier.getRegisterObisCode()).thenReturn(ObisCode.fromString(registerObisCode1));
 
@@ -252,7 +252,6 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
 
 
         RegisterIdentifier registerIdentifier = mock(RegisterIdentifier.class);
-        when(registerIdentifier.findRegister()).thenReturn(dataLoggerRegister);
         when(registerIdentifier.getDeviceIdentifier()).thenReturn(dataLoggerIdentifier);
         when(registerIdentifier.getRegisterObisCode()).thenReturn(ObisCode.fromString(registerObisCode1));
 
@@ -315,14 +314,13 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
     }
 
     private CollectedRegister createCollectedRegister(RegisterIdentifier registerIdentifier) {
-        CollectedRegister collectedRegister = new DefaultDeviceRegister(registerIdentifier, getMdcReadingTypeUtilService().getReadingTypeFrom(registerIdentifier.getRegisterObisCode(), kiloWattHours).getMRID());
+        CollectedRegister collectedRegister = new DefaultDeviceRegister(registerIdentifier);
         collectedRegister.setReadTime(Date.from(registerEventTime1));
         collectedRegister.setCollectedData(register1Quantity);
         return collectedRegister;
     }
 
     private Register createMockedRegister(final ObisCode obisCode) {
-        final String serialNumber = "MeterSerialNumber";
         RegisterSpec registerSpec = mock(RegisterSpec.class, withSettings().extraInterfaces(NumericalRegisterSpec.class));
         when(((NumericalRegisterSpec) registerSpec).getOverflowValue()).thenReturn(Optional.empty());
         RegisterGroup registerGroup = mock(RegisterGroup.class);

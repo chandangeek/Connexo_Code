@@ -4,8 +4,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.Reading;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
@@ -20,8 +18,18 @@ import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
+
+import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Date;
+import java.util.Optional;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,12 +38,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.math.BigDecimal;
-import java.time.Clock;
-import java.time.Instant;
-import java.util.Date;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -85,7 +87,6 @@ public class CollectedRegisterListDeviceCommandTest {
         when(offlineRegister.getObisCode()).thenReturn(REGISTER_OBIS);
         when(offlineRegister.getOverFlowValue()).thenReturn(new BigDecimal(DeviceCreator.CHANNEL_OVERFLOW_VALUE));
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        when(deviceIdentifier.findDevice()).thenReturn(device);
         when(offlineRegister.getDeviceIdentifier()).thenReturn(deviceIdentifier);
 
         when(this.collectedRegister.getCollectedQuantity()).thenReturn(new Quantity("2", Unit.getUndefined()));
@@ -124,9 +125,9 @@ public class CollectedRegisterListDeviceCommandTest {
         Assert.assertEquals("Expecting only 1 registerValue", 1, readingData.getReadings().size());
         Reading registerValue = readingData.getReadings().get(0);
         Assert.assertEquals(collectedRegister.getCollectedQuantity().getAmount(), registerValue.getValue());
-        Assert.assertEquals(collectedRegister.getEventTime(), registerValue.getTimeStamp());
-        Assert.assertEquals(collectedRegister.getFromTime(), registerValue.getTimePeriod().filter(Range::hasLowerBound).map(Range::lowerEndpoint).orElse(null));
-        Assert.assertEquals(collectedRegister.getToTime(), registerValue.getTimePeriod().filter(Range::hasUpperBound).map(Range::upperEndpoint).orElse(null));
+        Assert.assertEquals(collectedRegister.getEventTime(), Date.from(registerValue.getTimeStamp()));
+        Assert.assertEquals(collectedRegister.getFromTime(), Date.from(registerValue.getTimePeriod().filter(Range::hasLowerBound).map(Range::lowerEndpoint).orElse(null)));
+        Assert.assertEquals(collectedRegister.getToTime(), Date.from(registerValue.getTimePeriod().filter(Range::hasUpperBound).map(Range::upperEndpoint).orElse(null)));
     }
 //
 //    @Test

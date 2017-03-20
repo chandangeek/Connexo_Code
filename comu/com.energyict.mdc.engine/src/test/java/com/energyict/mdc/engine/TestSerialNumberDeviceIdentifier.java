@@ -1,8 +1,11 @@
 package com.energyict.mdc.engine;
 
-import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
+import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Copyrights EnergyICT
@@ -18,17 +21,29 @@ public class TestSerialNumberDeviceIdentifier implements DeviceIdentifier {
     }
 
     @Override
-    public String getIdentifier() {
-        return serialNumber;
+    public Introspector forIntrospection() {
+        return new TestIntrospector();
     }
 
-    @Override
-    public DeviceIdentifierType getDeviceIdentifierType() {
-        return DeviceIdentifierType.SerialNumber;
+    private class TestIntrospector implements Introspector {
+        @Override
+        public String getTypeName() {
+            return "SerialNumber";
+        }
+
+        @Override
+        public Set<String> getRoles() {
+            return new HashSet<>(Collections.singletonList("serialNumber"));
+        }
+
+        @Override
+        public Object getValue(String role) {
+            if ("serialNumber".equals(role)) {
+                return serialNumber;
+            } else {
+                throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+            }
+        }
     }
 
-    @Override
-    public Device findDevice() {
-        return null;
-    }
 }

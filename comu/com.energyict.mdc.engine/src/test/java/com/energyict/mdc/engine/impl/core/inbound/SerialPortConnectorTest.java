@@ -11,22 +11,16 @@ import com.energyict.mdc.channel.serial.ServerSerialPort;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
-import com.energyict.mdc.io.ModemException;
-import com.energyict.mdc.io.impl.MessageSeeds;
 import com.energyict.mdc.io.impl.SerialIOAtModemComponentServiceImpl;
-import com.energyict.mdc.io.serial.SerialComponentService;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.api.impl.HexServiceImpl;
 import com.energyict.mdc.protocol.api.services.HexService;
+import com.energyict.mdc.upl.io.ModemException;
+import com.energyict.mdc.upl.io.SerialComponentService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
 import org.joda.time.DateTimeConstants;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +32,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -211,7 +212,7 @@ public class SerialPortConnectorTest {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
         SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock, this.deviceMessageService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
-        when(comPort.getGlobalModemInitStrings()).thenReturn(Arrays.asList("GLOBAL INIT"));
+        when(comPort.getGlobalModemInitStrings()).thenReturn(Collections.singletonList("GLOBAL INIT"));
         when(comPort.getModemInitStrings()).thenReturn(Arrays.asList("FIRST INIT", "2TH INIT"));
 
         serialComChannel.setResponses(Arrays.asList(
@@ -389,7 +390,7 @@ public class SerialPortConnectorTest {
         try {
             portConnector.accept();
         } catch (ModemException e) {
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.MODEM_COULD_NOT_HANG_UP);
+            assertThat(e.getType()).isEqualTo(ModemException.Type.MODEM_COULD_NOT_HANG_UP);
             long timeAfterConnect = System.currentTimeMillis();
             long connectTime = timeAfterConnect - timeBeforeConnect;
             long secs = connectTime / DateTimeConstants.MILLIS_PER_SECOND;

@@ -334,6 +334,11 @@
             <artifactId>usagepoint.lifecycle.config</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.protocols</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

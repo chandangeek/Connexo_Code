@@ -16,15 +16,15 @@ import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
+
+import java.util.Arrays;
+import java.util.Optional;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.Optional;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -749,13 +749,11 @@ public class RequestParserTest {
     }
 
     private void mockDevice(long deviceId) {
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(deviceId);
         when(this.deviceService.findDeviceById(deviceId)).thenReturn(Optional.of(device));
-        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        when(deviceIdentifier.findDevice()).thenReturn(device);
-        when(deviceIdentifier.getDeviceIdentifierType()).thenReturn(DeviceIdentifierType.ActualDevice);
-        when(deviceIdentifier.getIdentifier()).thenReturn(String.valueOf(deviceId));
+        when(this.deviceService.findDeviceByIdentifier(deviceIdentifier)).thenReturn(Optional.of(device));
         when(this.identificationService.createDeviceIdentifierByDatabaseId(deviceId)).thenReturn(deviceIdentifier);
         when(this.identificationService.createDeviceIdentifierByMRID("MRID_"+deviceId)).thenReturn(deviceIdentifier);
     }

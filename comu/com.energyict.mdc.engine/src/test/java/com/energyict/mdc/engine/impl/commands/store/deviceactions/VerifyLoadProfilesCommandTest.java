@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.engine.TestSerialNumberDeviceIdentifier;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfilesTaskOptions;
@@ -14,20 +13,23 @@ import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.issue.Warning;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.LoadProfileReader;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -158,7 +160,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         when(loadProfileReader.getProfileObisCode()).thenReturn(ObisCode.fromString("0.0.0.0.0.0"));
         LoadProfileReader loadProfileReader2 = mock(LoadProfileReader.class);
         when(loadProfileReader2.getProfileObisCode()).thenReturn(LoadProfileObisCode);
-        when(loadProfileReader2.getDeviceIdentifier()).thenReturn(new TestSerialNumberDeviceIdentifier(MeterSerialNumber));
+//        when(loadProfileReader2.getDeviceIdentifier()).thenReturn(new TestSerialNumberDeviceIdentifier(MeterSerialNumber));
 
         LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
         when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
@@ -228,7 +230,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
 
     @Test(expected = GeneralParseException.class)
     public void verifyChannelInfoTestIOException() {
-        List<ChannelInfo> listOfChannelInfos = new ArrayList<ChannelInfo>();
+        List<ChannelInfo> listOfChannelInfos = new ArrayList<>();
         ChannelInfo channelInfoMock1 = new ChannelInfo(0, "NoObisCodeValue", Unit.getUndefined());
         listOfChannelInfos.add(channelInfoMock1);
         ChannelInfo channelInfoMock2 = new ChannelInfo(1, "NoObisCodeValue", Unit.getUndefined());
@@ -285,7 +287,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         LoadProfileReader loadProfileReader = createSimpleLoadProfileReader();
         when(loadProfileReader.getChannelInfos()).thenReturn(listOfChannelInfos);
 
-        List<ChannelInfo> secondListOfChannelInfos = new ArrayList<ChannelInfo>();
+        List<ChannelInfo> secondListOfChannelInfos = new ArrayList<>();
         secondListOfChannelInfos.add(new ChannelInfo(0, ChannelInfoObisCode1.toString(), Unit.get("Wh")));
         ChannelInfo channelInfoMock3 = new ChannelInfo(1, ChannelInfoObisCode2.toString(), Unit.get("kWh"));    // we replaced the Wh channelInfo with a kWh channelInfo
         secondListOfChannelInfos.add(channelInfoMock3);
@@ -315,7 +317,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         LoadProfileReader loadProfileReader = createSimpleLoadProfileReader();
         when(loadProfileReader.getChannelInfos()).thenReturn(listOfChannelInfos);
 
-        List<ChannelInfo> secondListOfChannelInfos = new ArrayList<ChannelInfo>();
+        List<ChannelInfo> secondListOfChannelInfos = new ArrayList<>();
         secondListOfChannelInfos.add(new ChannelInfo(0, ChannelInfoObisCode1.toString(), Unit.get("Wh")));
         secondListOfChannelInfos.add(new ChannelInfo(1, ChannelInfoObisCode2.toString(), Unit.get("kvar")));    // we replaced the Wh channelInfo with a kvar channelInfo
         DeviceLoadProfileConfiguration loadProfileConfiguration = mock(DeviceLoadProfileConfiguration.class);
@@ -345,7 +347,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         LoadProfileReader loadProfileReader = createSimpleLoadProfileReader();
         when(loadProfileReader.getChannelInfos()).thenReturn(listOfChannelInfos);
 
-        List<ChannelInfo> secondListOfChannelInfos = new ArrayList<ChannelInfo>();
+        List<ChannelInfo> secondListOfChannelInfos = new ArrayList<>();
         secondListOfChannelInfos.add(new ChannelInfo(0, ChannelInfoObisCode1.toString(), Unit.get("kvar")));      // we replaced the Wh channelInfo with a kvar channelInfo
         ChannelInfo channelInfoMock3 = new ChannelInfo(1, ChannelInfoObisCode2.toString(), Unit.get("kvar"));    // we replaced the Wh channelInfo with a kvar channelInfo
         secondListOfChannelInfos.add(channelInfoMock3);
@@ -377,7 +379,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         loadProfileConfiguration.setChannelInfos(listOfChannelInfos);
 
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocol.fetchLoadProfileConfiguration(Matchers.<List<LoadProfileReader>>any())).thenReturn(Arrays.<CollectedLoadProfileConfiguration>asList(loadProfileConfiguration));
+        when(deviceProtocol.fetchLoadProfileConfiguration(Matchers.<List<LoadProfileReader>>any())).thenReturn(Collections.<CollectedLoadProfileConfiguration>singletonList(loadProfileConfiguration));
 
         LoadProfilesTask loadProfilesTask = createSimpleLoadProfilesTask();
         LoadProfileReader loadProfileReader = createSimpleLoadProfileReader();
@@ -386,7 +388,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
         LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
         when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
-        when(loadProfileCommand.getLoadProfileReaders()).thenReturn(Arrays.asList(loadProfileReader));
+        when(loadProfileCommand.getLoadProfileReaders()).thenReturn(Collections.singletonList(loadProfileReader));
 
         VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = spy(new VerifyLoadProfilesCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), loadProfileCommand));
         verifyLoadProfilesCommand.execute(deviceProtocol, newTestExecutionContext());
@@ -407,7 +409,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         DeviceLoadProfileConfiguration loadProfileConfiguration = new DeviceLoadProfileConfiguration(LoadProfileObisCode, new TestSerialNumberDeviceIdentifier(MeterSerialNumber), MeterSerialNumber, false);
 
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocol.fetchLoadProfileConfiguration(Matchers.<List<LoadProfileReader>>any())).thenReturn(Arrays.<CollectedLoadProfileConfiguration>asList(loadProfileConfiguration));
+        when(deviceProtocol.fetchLoadProfileConfiguration(Matchers.<List<LoadProfileReader>>any())).thenReturn(Collections.<CollectedLoadProfileConfiguration>singletonList(loadProfileConfiguration));
 
         LoadProfilesTask loadProfilesTask = createSimpleLoadProfilesTask();
         LoadProfileReader loadProfileReader = createSimpleLoadProfileReader();
@@ -415,7 +417,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
         LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
         when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
-        when(loadProfileCommand.getLoadProfileReaders()).thenReturn(Arrays.asList(loadProfileReader));
+        when(loadProfileCommand.getLoadProfileReaders()).thenReturn(Collections.singletonList(loadProfileReader));
 
         VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = spy(new VerifyLoadProfilesCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), loadProfileCommand));
         verifyLoadProfilesCommand.execute(deviceProtocol, newTestExecutionContext());
@@ -434,7 +436,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
     public void executeWithMultipleIssues() {
         List<ChannelInfo> listOfChannelInfos = createSimpleChannelInfoList();
 
-        List<ChannelInfo> secondListOfChannelInfos = new ArrayList<ChannelInfo>();
+        List<ChannelInfo> secondListOfChannelInfos = new ArrayList<>();
         secondListOfChannelInfos.add(new ChannelInfo(0, ChannelInfoObisCode1.toString(), Unit.get("kvar")));    // we replaced the Wh channelInfo with a kvar channelInfo
         secondListOfChannelInfos.add(new ChannelInfo(1, ChannelInfoObisCode2.toString(), Unit.get("kvar")));    // we replaced the Wh channelInfo with a kvar channelInfo
 
@@ -443,7 +445,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         loadProfileConfiguration.setChannelInfos(secondListOfChannelInfos);
 
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocol.fetchLoadProfileConfiguration(Matchers.<List<LoadProfileReader>>any())).thenReturn(Arrays.<CollectedLoadProfileConfiguration>asList(loadProfileConfiguration));
+        when(deviceProtocol.fetchLoadProfileConfiguration(Matchers.<List<LoadProfileReader>>any())).thenReturn(Collections.<CollectedLoadProfileConfiguration>singletonList(loadProfileConfiguration));
 
         LoadProfilesTask loadProfilesTask = createSimpleLoadProfilesTask();
         LoadProfileReader loadProfileReader = createSimpleLoadProfileReader();
@@ -452,7 +454,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
         LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
         when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
-        when(loadProfileCommand.getLoadProfileReaders()).thenReturn(Arrays.asList(loadProfileReader));
+        when(loadProfileCommand.getLoadProfileReaders()).thenReturn(Collections.singletonList(loadProfileReader));
         when(loadProfileCommand.findLoadProfileIntervalForLoadProfileReader(loadProfileReader)).thenReturn(900);
 
         VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = spy(new VerifyLoadProfilesCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), loadProfileCommand));
@@ -486,7 +488,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
     private LoadProfileReader createSimpleLoadProfileReader() {
         LoadProfileReader loadProfileReader = mock(LoadProfileReader.class);
         when(loadProfileReader.getProfileObisCode()).thenReturn(LoadProfileObisCode);
-        when(loadProfileReader.getDeviceIdentifier()).thenReturn(new TestSerialNumberDeviceIdentifier(MeterSerialNumber));
+//        when(loadProfileReader.getDeviceIdentifier()).thenReturn(new TestSerialNumberDeviceIdentifier(MeterSerialNumber));
         return loadProfileReader;
     }
 

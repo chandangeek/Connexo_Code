@@ -2,21 +2,15 @@ package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.io.InboundCommunicationException;
-import com.energyict.mdc.io.InboundUdpSession;
-import com.energyict.mdc.io.SocketService;
-import com.energyict.mdc.io.impl.MessageSeeds;
 import com.energyict.mdc.io.impl.SocketServiceImpl;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.services.HexService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import com.energyict.mdc.upl.io.InboundUdpSession;
+import com.energyict.mdc.upl.io.SocketService;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -28,6 +22,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;

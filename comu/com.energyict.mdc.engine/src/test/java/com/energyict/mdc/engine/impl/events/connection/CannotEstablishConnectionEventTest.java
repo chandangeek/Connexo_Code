@@ -8,19 +8,23 @@ import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
+import com.energyict.mdc.upl.nls.MessageSeed;
+
 import com.energyict.protocol.exceptions.ConnectionException;
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Calendar;
+import java.util.logging.Level;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -38,7 +42,7 @@ public class CannotEstablishConnectionEventTest {
     private static final long DEVICE_ID = 1;
     private static final long COMPORT_ID = DEVICE_ID + 1;
     private static final long CONNECTION_TASK_ID = COMPORT_ID + 1;
-    private static final String ERROR_MESSAGE = "For testing purposes only";
+    private static final String THESAURUS_ID = "ForTestingPurposesOnly";
 
     @Mock
     public Clock clock;
@@ -53,7 +57,14 @@ public class CannotEstablishConnectionEventTest {
 
     @Test
     public void testCategory () {
-        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(this.serviceProvider, null, null, new ConnectionException(new ForTestingPurposesOnly("testCategory")));
+        CannotEstablishConnectionEvent event =
+                new CannotEstablishConnectionEvent(
+                        this.serviceProvider,
+                        null, null,
+                        new ConnectionException(
+                                THESAURUS_ID,
+                                TestMessageSeeds.TEST,
+                                new ForTestingPurposesOnly("testCategory")));
 
         // Business method
         Category category = event.getCategory();
@@ -70,7 +81,7 @@ public class CannotEstablishConnectionEventTest {
 
         ComPort comPort = mock(ComPort.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
-        CannotEstablishConnectionEvent event = this.newEvent(comPort, connectionTask);
+        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(this.serviceProvider, comPort, connectionTask, new ConnectionException(THESAURUS_ID, TestMessageSeeds.TEST, new Exception()));
 
         // Business method
         Instant timestamp = event.getOccurrenceTimestamp();
@@ -83,16 +94,23 @@ public class CannotEstablishConnectionEventTest {
     public void testIsFailure () {
         ComPort comPort = mock(ComPort.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
-        CannotEstablishConnectionEvent event = this.newEvent(comPort, connectionTask);
+        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(this.serviceProvider, comPort, connectionTask, new ConnectionException(THESAURUS_ID, TestMessageSeeds.TEST, new Exception()));
 
         // Business method & asserts
         assertThat(event.isFailure()).isTrue();
-        assertThat(event.getFailureMessage()).startsWith(ERROR_MESSAGE);
+        assertThat(event.getFailureMessage()).startsWith(THESAURUS_ID);
     }
 
     @Test
     public void testIsNotEstablishing () {
-        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(this.serviceProvider, null, null, new ForTestingPurposesOnly("testIsNotEstablishing"));
+        CannotEstablishConnectionEvent event =
+                new CannotEstablishConnectionEvent(
+                        this.serviceProvider,
+                        null, null,
+                        new ConnectionException(
+                                THESAURUS_ID,
+                                TestMessageSeeds.TEST,
+                                new ForTestingPurposesOnly("testIsNotEstablishing")));
 
         // Business method & asserts
         assertThat(event.isEstablishing()).isFalse();
@@ -100,7 +118,14 @@ public class CannotEstablishConnectionEventTest {
 
     @Test
     public void testIsNotClosed () {
-        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(this.serviceProvider, null, null, new ForTestingPurposesOnly("testIsNotClosed"));
+        CannotEstablishConnectionEvent event =
+                new CannotEstablishConnectionEvent(
+                        this.serviceProvider,
+                        null, null,
+                        new ConnectionException(
+                                THESAURUS_ID,
+                                TestMessageSeeds.TEST,
+                                new ForTestingPurposesOnly("testIsNotClosed")));
 
         // Business method & asserts
         assertThat(event.isClosed()).isFalse();
@@ -108,7 +133,14 @@ public class CannotEstablishConnectionEventTest {
 
     @Test
     public void testIsNotLoggingRelated () {
-        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(this.serviceProvider, null, null, new ForTestingPurposesOnly("testIsNotEstablishing"));
+        CannotEstablishConnectionEvent event =
+                new CannotEstablishConnectionEvent(
+                        this.serviceProvider,
+                        null, null,
+                        new ConnectionException(
+                                THESAURUS_ID,
+                                TestMessageSeeds.TEST,
+                                new ForTestingPurposesOnly("testIsNotEstablishing")));
 
         // Business method & asserts
         assertThat(event.isLoggingRelated()).isFalse();
@@ -116,7 +148,14 @@ public class CannotEstablishConnectionEventTest {
 
     @Test
     public void testIsNotComTaskRelated () {
-        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(this.serviceProvider, null, null, new ForTestingPurposesOnly("testIsNotComTaskRelated"));
+        CannotEstablishConnectionEvent event =
+                new CannotEstablishConnectionEvent(
+                        this.serviceProvider,
+                        null, null,
+                        new ConnectionException(
+                                THESAURUS_ID,
+                                TestMessageSeeds.TEST,
+                                new ForTestingPurposesOnly("testIsNotComTaskRelated")));
 
         // Business method & asserts
         assertThat(event.isComTaskExecutionRelated()).isFalse();
@@ -124,7 +163,14 @@ public class CannotEstablishConnectionEventTest {
 
     @Test
     public void testIsNotComPortRelated () {
-        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(this.serviceProvider, null, null, new ForTestingPurposesOnly("testIsNotComPortRelated"));
+        CannotEstablishConnectionEvent event =
+                new CannotEstablishConnectionEvent(
+                        this.serviceProvider,
+                        null, null,
+                        new ConnectionException(
+                                THESAURUS_ID,
+                                TestMessageSeeds.TEST,
+                                new ForTestingPurposesOnly("testIsNotComPortRelated")));
 
         // Business method & asserts
         assertThat(event.isComPortRelated()).isFalse();
@@ -132,7 +178,14 @@ public class CannotEstablishConnectionEventTest {
 
     @Test
     public void testIsNotComPortPoolRelated () {
-        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(this.serviceProvider, null, null, new ForTestingPurposesOnly("testIsNotComPortPoolRelated"));
+        CannotEstablishConnectionEvent event =
+                new CannotEstablishConnectionEvent(
+                        this.serviceProvider,
+                        null, null,
+                        new ConnectionException(
+                                THESAURUS_ID,
+                                TestMessageSeeds.TEST,
+                                new ForTestingPurposesOnly("testIsNotComPortPoolRelated")));
 
         // Business method & asserts
         assertThat(event.isComPortPoolRelated()).isFalse();
@@ -140,7 +193,14 @@ public class CannotEstablishConnectionEventTest {
 
     @Test
     public void testIsNotConnectionTaskRelated () {
-        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(this.serviceProvider, null, null, new ForTestingPurposesOnly("testIsNotConnectionTaskRelated"));
+        CannotEstablishConnectionEvent event =
+                new CannotEstablishConnectionEvent(
+                        this.serviceProvider,
+                        null, null,
+                        new ConnectionException(
+                                THESAURUS_ID,
+                                TestMessageSeeds.TEST,
+                                new ForTestingPurposesOnly("testIsNotConnectionTaskRelated")));
 
         // Business method & asserts
         assertThat(event.isConnectionTaskRelated()).isFalse();
@@ -148,7 +208,14 @@ public class CannotEstablishConnectionEventTest {
 
     @Test
     public void testIsNotDeviceRelated () {
-        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(this.serviceProvider, null, null, new ForTestingPurposesOnly("testIsNotDeviceRelated"));
+        CannotEstablishConnectionEvent event =
+                new CannotEstablishConnectionEvent(
+                        this.serviceProvider,
+                        null, null,
+                        new ConnectionException(
+                                THESAURUS_ID,
+                                TestMessageSeeds.TEST,
+                                new ForTestingPurposesOnly("testIsNotDeviceRelated")));
 
         // Business method & asserts
         assertThat(event.isDeviceRelated()).isFalse();
@@ -158,7 +225,7 @@ public class CannotEstablishConnectionEventTest {
     public void testIsComPortRelated () {
         ComPort comPort = mock(ComPort.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
-        CannotEstablishConnectionEvent event = this.newEvent(comPort, connectionTask);
+        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(this.serviceProvider, comPort, connectionTask, new ConnectionException(THESAURUS_ID, TestMessageSeeds.TEST, new Exception()));
 
         // Business method & asserts
         assertThat(event.isComPortRelated()).isTrue();
@@ -169,7 +236,7 @@ public class CannotEstablishConnectionEventTest {
     public void testIsNotComPortPoolRelatedForOutboundComPorts () {
         OutboundComPort comPort = mock(OutboundComPort.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
-        CannotEstablishConnectionEvent event = this.newEvent(comPort, connectionTask);
+        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(this.serviceProvider, comPort, connectionTask, new ConnectionException(THESAURUS_ID, TestMessageSeeds.TEST, new Exception()));
 
         // Business method & asserts
         assertThat(event.isComPortPoolRelated()).isFalse();
@@ -182,7 +249,7 @@ public class CannotEstablishConnectionEventTest {
         when(comPort.isInbound()).thenReturn(true);
         when(comPort.getComPortPool()).thenReturn(comPortPool);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
-        CannotEstablishConnectionEvent event = this.newEvent(comPort, connectionTask);
+        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(this.serviceProvider, comPort, connectionTask, new ConnectionException(THESAURUS_ID, TestMessageSeeds.TEST, new Exception()));
 
         // Business method & asserts
         assertThat(event.isComPortPoolRelated()).isTrue();
@@ -193,7 +260,7 @@ public class CannotEstablishConnectionEventTest {
     public void testIsConnectionTaskRelated () {
         ComPort comPort = mock(ComPort.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
-        CannotEstablishConnectionEvent event = this.newEvent(comPort, connectionTask);
+        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(this.serviceProvider, comPort, connectionTask, new ConnectionException(THESAURUS_ID, TestMessageSeeds.TEST, new Exception()));
 
         // Business method & asserts
         assertThat(event.isConnectionTaskRelated()).isTrue();
@@ -206,7 +273,7 @@ public class CannotEstablishConnectionEventTest {
         ComPort comPort = mock(ComPort.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
         when(connectionTask.getDevice()).thenReturn(device);
-        CannotEstablishConnectionEvent event = this.newEvent(comPort, connectionTask);
+        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(this.serviceProvider, comPort, connectionTask, new ConnectionException(THESAURUS_ID, TestMessageSeeds.TEST, new Exception()));
 
         // Business method & asserts
         assertThat(event.isDeviceRelated()).isTrue();
@@ -222,7 +289,7 @@ public class CannotEstablishConnectionEventTest {
         ConnectionTask connectionTask = mock(ConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         when(connectionTask.getDevice()).thenReturn(device);
-        CannotEstablishConnectionEvent event = this.newEvent(comPort, connectionTask);
+        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(this.serviceProvider, comPort, connectionTask, new ConnectionException(THESAURUS_ID, TestMessageSeeds.TEST, new Exception()));
 
         // Business method
         String eventString = event.toString();
@@ -231,14 +298,33 @@ public class CannotEstablishConnectionEventTest {
         assertThat(eventString).matches("\\{.*\\}");
     }
 
-    private CannotEstablishConnectionEvent newEvent (ComPort comPort, ConnectionTask connectionTask) {
-        return new CannotEstablishConnectionEvent(this.serviceProvider, comPort, connectionTask, new ConnectionException(ERROR_MESSAGE, new Exception()));
-    }
-
-    private class ForTestingPurposesOnly extends ConnectionException {
+    private class ForTestingPurposesOnly extends Exception {
         private ForTestingPurposesOnly(String testCategory) {
             super("For testing purposes only: " + testCategory, new Exception());
         }
     }
 
+    private enum TestMessageSeeds implements MessageSeed {
+        TEST;
+
+        @Override
+        public String getKey() {
+            return "TEST";
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return "For testing purposes only";
+        }
+
+        @Override
+        public int getId() {
+            return ordinal();
+        }
+
+        @Override
+        public Level getLevel() {
+            return Level.SEVERE;
+        }
+    }
 }

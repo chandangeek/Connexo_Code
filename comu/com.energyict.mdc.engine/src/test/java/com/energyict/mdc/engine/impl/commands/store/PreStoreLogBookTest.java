@@ -6,11 +6,11 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.util.Pair;
-import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.engine.DeviceCreator;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineLogBookImpl;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
@@ -21,20 +21,23 @@ import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
+
+import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -57,6 +60,8 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
     DeviceCreator deviceCreator;
     @Mock
     private IdentificationService identificationService;
+    @Mock
+    private LogBookService logBookService;
 
     @Before
     public void setUp() {
@@ -214,7 +219,8 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
 
     CollectedLogBook enhanceCollectedLogBook(LogBook logBook, CollectedLogBook collectedLogBook) {
         LogBookIdentifier logBookIdentifier = mock(LogBookIdentifier.class);
-        when(logBookIdentifier.getLogBook()).thenReturn(logBook);
+        // Todo: figure out where the logBookService needs to be injected into
+        when(this.logBookService.findByIdentifier(logBookIdentifier)).thenReturn(Optional.of(logBook));
         when(collectedLogBook.getLogBookIdentifier()).thenReturn(logBookIdentifier);
         return collectedLogBook;
     }

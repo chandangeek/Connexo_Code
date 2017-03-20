@@ -191,8 +191,9 @@ public abstract class AbstractRescheduleBehaviorTest {
         ClockTask clockTask = mock(ClockTask.class);
         when(clockTask.getClockTaskType()).thenReturn(ClockTaskType.SETCLOCK);
         ClockCommandImpl clockCommand = spy(new ClockCommandImpl(groupedDeviceCommand, clockTask, comTaskExecution));
-        doThrow(new ConnectionCommunicationException(1)).when(clockCommand)
-                .doExecute(any(DeviceProtocol.class), any(ExecutionContext.class));
+        doThrow(ConnectionCommunicationException.allowedAttemptsExceeded(new Exception(), 1))
+            .when(clockCommand)
+            .doExecute(any(DeviceProtocol.class), any(ExecutionContext.class));
         groupedDeviceCommand.addCommand(clockCommand, comTaskExecution);
     }
 

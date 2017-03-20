@@ -14,14 +14,9 @@ import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactor
 import com.energyict.mdc.engine.impl.core.inbound.InboundComPortConnector;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
-import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.services.HexService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import com.energyict.mdc.upl.io.SocketService;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -31,6 +26,12 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadFactory;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;

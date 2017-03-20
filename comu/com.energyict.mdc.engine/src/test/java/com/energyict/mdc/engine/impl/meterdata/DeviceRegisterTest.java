@@ -1,18 +1,18 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-import org.junit.Test;
+
+import com.energyict.cbo.Quantity;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 
+import org.junit.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for the {@link DeviceRegister} implementations
@@ -23,10 +23,7 @@ import static org.mockito.Mockito.when;
 public class DeviceRegisterTest {
 
     private static RegisterIdentifier getMockedRegisterIdentifier() {
-        Register register = mock(Register.class);
-        RegisterIdentifier registerIdentifier = mock(RegisterIdentifier.class);
-        when(registerIdentifier.findRegister()).thenReturn(register);
-        return registerIdentifier;
+        return mock(RegisterIdentifier.class);
     }
 
     @Test

@@ -1,9 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
@@ -32,20 +29,27 @@ import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -101,15 +105,17 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
         when(readingType.getMRID()).thenReturn(MRID);
         ObisCode obisCode = ObisCode.fromString("1.1.1.1.1.1");
         RegisterIdentifier registerIdentifier = mock(RegisterIdentifier.class);
-        when(registerIdentifier.getDeviceRegisterObisCode()).thenReturn(obisCode);
+        Introspector registerIdentifierIntrospector = mock(Introspector.class);
+        when(registerIdentifierIntrospector.getValue("deviceObisCode")).thenReturn(obisCode);
+        when(registerIdentifier.forIntrospection()).thenReturn(registerIdentifierIntrospector);
         when(collectedRegister.getRegisterIdentifier()).thenReturn(registerIdentifier);
-        when(deviceProtocol.readRegisters(Matchers.<List<OfflineRegister>>any())).thenReturn(Arrays.asList(collectedRegister));
+        when(deviceProtocol.readRegisters(Matchers.<List<OfflineRegister>>any())).thenReturn(Collections.singletonList(collectedRegister));
 
         OfflineRegister offlineRegister = mock(OfflineRegister.class);
         when(offlineRegister.getReadingTypeMRID()).thenReturn(MRID);
         when(offlineRegister.getObisCode()).thenReturn(obisCode);
         when(offlineRegister.getReadingTypeMRID()).thenReturn(readingType.getMRID());
-        readRegistersCommand.addRegisters(Arrays.asList(offlineRegister));
+        readRegistersCommand.addRegisters(Collections.singletonList(offlineRegister));
         readRegistersCommand.execute(deviceProtocol, executionContext);
         String journalMessage = readRegistersCommand.toJournalMessageDescription(LogLevel.DEBUG);
 
@@ -196,13 +202,13 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
         CollectedRegister collectedRegister = mock(CollectedRegister.class);
         when(collectedRegister.getResultType()).thenReturn(ResultType.Supported);
         when(collectedRegister.getText()).thenReturn(collectedText);
-        when(deviceProtocol.readRegisters(Matchers.<List<OfflineRegister>>any())).thenReturn(Arrays.asList(collectedRegister));
+        when(deviceProtocol.readRegisters(Matchers.<List<OfflineRegister>>any())).thenReturn(Collections.singletonList(collectedRegister));
 
         final ObisCode regObisCode1 = ObisCode.fromString("1.0.1.8.1.255");
         Register reg1 = createMockTextRegister(regObisCode1, readingType);
         OfflineRegister register1 = new OfflineRegisterImpl(reg1, identificationService);
 
-        readRegistersCommand.addRegisters(Arrays.asList(register1));
+        readRegistersCommand.addRegisters(Collections.singletonList(register1));
         groupedDeviceCommand.execute(executionContext);
 
         // asserts
@@ -225,13 +231,13 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
         CollectedRegister collectedRegister = mock(CollectedRegister.class);
         when(collectedRegister.getResultType()).thenReturn(ResultType.Supported);
         when(collectedRegister.getCollectedQuantity()).thenReturn(quantity);
-        when(deviceProtocol.readRegisters(Matchers.<List<OfflineRegister>>any())).thenReturn(Arrays.asList(collectedRegister));
+        when(deviceProtocol.readRegisters(Matchers.<List<OfflineRegister>>any())).thenReturn(Collections.singletonList(collectedRegister));
 
         final ObisCode regObisCode1 = ObisCode.fromString("1.0.1.8.1.255");
         Register reg1 = createMockTextRegister(regObisCode1, readingType);
         OfflineRegister register1 = new OfflineRegisterImpl(reg1, identificationService);
 
-        readRegistersCommand.addRegisters(Arrays.asList(register1));
+        readRegistersCommand.addRegisters(Collections.singletonList(register1));
         groupedDeviceCommand.execute(executionContext);
 
         // asserts
@@ -260,10 +266,13 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
 
     private CollectedRegister createCollectedRegister(final ObisCode obisCode) {
         RegisterIdentifier registerIdentifier = mock(RegisterIdentifier.class);
-        when(registerIdentifier.getObisCode()).thenReturn(obisCode);
-        when(registerIdentifier.getDeviceRegisterObisCode()).thenReturn(obisCode);
+        Introspector registerIdentifierIntrospector = mock(Introspector.class);
+        when(registerIdentifierIntrospector.getValue("obisCode")).thenReturn(obisCode);
+        when(registerIdentifierIntrospector.getValue("deviceObisCode")).thenReturn(obisCode);
+        when(registerIdentifier.forIntrospection()).thenReturn(registerIdentifierIntrospector);
         CollectedRegister deviceRegister = new DefaultDeviceRegister(registerIdentifier);
         deviceRegister.setCollectedData(new Quantity(1.2, Unit.get(BaseUnit.WATTHOUR)));
         return deviceRegister;
     }
+
 }

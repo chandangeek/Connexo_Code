@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -14,16 +13,24 @@ import com.energyict.mdc.engine.impl.commands.store.core.ComCommandDescriptionTi
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.upl.issue.Problem;
+import com.energyict.mdc.upl.messages.DeviceMessageCategory;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.ResultType;
+
 import org.json.JSONException;
+
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,12 +38,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -57,11 +58,13 @@ public class MessagesCommandImplTest extends AbstractComCommandExecuteTest {
 
     private static final int DEVICE_MESSAGE_CATEGORY_ID = 1;
     private static final long DEVICE_ID = 100;
-    private static DataVaultService dataVaultService;
+
     @Mock
     MessagesTask messageTask;
     @Mock
-    DeviceMessageCategory deviceMessageCategory;
+    DeviceMessageCategory uplDeviceMessageCategory;
+    @Mock
+    com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory deviceMessageCategory;
     @Mock
     Device device;
     @Mock
@@ -75,10 +78,9 @@ public class MessagesCommandImplTest extends AbstractComCommandExecuteTest {
 
     @Before
     public void setUp() throws Exception {
-        when(deviceMessageCategory.getId()).thenReturn(DEVICE_MESSAGE_CATEGORY_ID);
+        when(uplDeviceMessageCategory.getId()).thenReturn(DEVICE_MESSAGE_CATEGORY_ID);
         when(device.getId()).thenReturn(DEVICE_ID);
         when(comTaskExecution.getDevice()).thenReturn(device);
-        dataVaultService = mock(DataVaultService.class);
     }
 
     @Test
@@ -147,9 +149,9 @@ public class MessagesCommandImplTest extends AbstractComCommandExecuteTest {
 
         when(message.getDeviceId()).thenReturn(DEVICE_ID);
         when(message.getSpecification()).thenReturn(messageSpec);
-        when(messageSpec.getCategory()).thenReturn(deviceMessageCategory);
+        when(messageSpec.getCategory()).thenReturn(uplDeviceMessageCategory);
 
-        when(message.getReleaseDate()).thenReturn(releaseDate);
+        when(message.getReleaseDate()).thenReturn(Date.from(releaseDate));
         return message;
     }
 
@@ -269,7 +271,7 @@ public class MessagesCommandImplTest extends AbstractComCommandExecuteTest {
     private MessagesTask createMockedMessagesTaskWithCategories() {
         MessagesTask messagesTask = mock(MessagesTask.class);
         when(messagesTask.getDeviceMessageCategories()).thenReturn(
-                Arrays.<DeviceMessageCategory>asList(
+                Arrays.<com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory>asList(
                         DeviceMessageTestCategories.FIRST_TEST_CATEGORY,
                         DeviceMessageTestCategories.THIRD_TEST_CATEGORY));
         return messagesTask;
@@ -278,7 +280,7 @@ public class MessagesCommandImplTest extends AbstractComCommandExecuteTest {
     private MessagesTask createMockedMessagesTaskWithOtherCategories() {
         MessagesTask messagesTask = mock(MessagesTask.class);
         when(messagesTask.getDeviceMessageCategories()).thenReturn(
-                Arrays.<DeviceMessageCategory>asList(
+                Arrays.<com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory>asList(
                         DeviceMessageTestCategories.FIRST_TEST_CATEGORY,
                         DeviceMessageTestCategories.SECOND_TEST_CATEGORY));
         return messagesTask;
@@ -288,47 +290,48 @@ public class MessagesCommandImplTest extends AbstractComCommandExecuteTest {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
 
         OfflineDeviceMessage offlineDeviceMessage1 = mock(OfflineDeviceMessage.class);
-        DeviceMessageTestSpec spec1 = DeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS;
-        DeviceMessageId id1 = spec1.getId();
+        UPLDeviceMessageTestSpec spec1 = UPLDeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS;
+        long id1 = spec1.getId();
         when(offlineDeviceMessage1.getSpecification()).thenReturn(spec1);
         when(offlineDeviceMessage1.getDeviceMessageId()).thenReturn(id1);
-        when(offlineDeviceMessage1.getReleaseDate()).thenReturn(Instant.now());
+        when(offlineDeviceMessage1.getReleaseDate()).thenReturn(Date.from(Instant.now()));
         when(offlineDeviceMessage1.getDeviceId()).thenReturn(DEVICE_ID);
 
         OfflineDeviceMessage offlineDeviceMessage2 = mock(OfflineDeviceMessage.class);
-        AnotherDeviceMessageTestSpec spec2 = AnotherDeviceMessageTestSpec.TEST_SPEC_WITH_SIMPLE_SPECS;
-        DeviceMessageId id2 = spec2.getId();
+        AnotherUPLDeviceMessageTestSpec spec2 = AnotherUPLDeviceMessageTestSpec.TEST_SPEC_WITH_SIMPLE_SPECS;
+        long id2 = spec2.getId();
         when(offlineDeviceMessage2.getSpecification()).thenReturn(spec2);
         when(offlineDeviceMessage2.getDeviceMessageId()).thenReturn(id2);
-        when(offlineDeviceMessage2.getReleaseDate()).thenReturn(Instant.now());
+        when(offlineDeviceMessage2.getReleaseDate()).thenReturn(Date.from(Instant.now()));
         when(offlineDeviceMessage2.getDeviceId()).thenReturn(DEVICE_ID);
 
         OfflineDeviceMessage offlineDeviceMessage3 = mock(OfflineDeviceMessage.class);
-        DeviceMessageTestSpec spec3 = DeviceMessageTestSpec.TEST_SPEC_WITH_SIMPLE_SPECS;
-        DeviceMessageId id3 = spec3.getId();
+        UPLDeviceMessageTestSpec spec3 = UPLDeviceMessageTestSpec.TEST_SPEC_WITH_SIMPLE_SPECS;
+        long id3 = spec3.getId();
         when(offlineDeviceMessage3.getSpecification()).thenReturn(spec3);
         when(offlineDeviceMessage3.getDeviceMessageId()).thenReturn(id3);
-        when(offlineDeviceMessage3.getReleaseDate()).thenReturn(Instant.now());
+        when(offlineDeviceMessage3.getReleaseDate()).thenReturn(Date.from(Instant.now()));
         when(offlineDeviceMessage3.getDeviceId()).thenReturn(DEVICE_ID);
 
         OfflineDeviceMessage offlineDeviceMessage4 = mock(OfflineDeviceMessage.class);
-        AnotherDeviceMessageTestSpec spec4 = AnotherDeviceMessageTestSpec.TEST_SPEC_WITHOUT_SPECS;
-        DeviceMessageId id4 = spec4.getId();
+        AnotherUPLDeviceMessageTestSpec spec4 = AnotherUPLDeviceMessageTestSpec.TEST_SPEC_WITHOUT_SPECS;
+        long id4 = spec4.getId();
         when(offlineDeviceMessage4.getSpecification()).thenReturn(spec4);
         when(offlineDeviceMessage4.getDeviceMessageId()).thenReturn(id4);
-        when(offlineDeviceMessage4.getReleaseDate()).thenReturn(Instant.now());
+        when(offlineDeviceMessage4.getReleaseDate()).thenReturn(Date.from(Instant.now()));
         when(offlineDeviceMessage4.getDeviceId()).thenReturn(DEVICE_ID);
 
         OfflineDeviceMessage offlineDeviceMessage5 = mock(OfflineDeviceMessage.class);
-        DeviceMessageTestSpec spec5 = DeviceMessageTestSpec.TEST_SPEC_WITHOUT_SPECS;
-        DeviceMessageId id5 = spec5.getId();
+        UPLDeviceMessageTestSpec spec5 = UPLDeviceMessageTestSpec.TEST_SPEC_WITHOUT_SPECS;
+        long id5 = spec5.getId();
         when(offlineDeviceMessage5.getSpecification()).thenReturn(spec5);
         when(offlineDeviceMessage5.getDeviceMessageId()).thenReturn(id5);
-        when(offlineDeviceMessage5.getReleaseDate()).thenReturn(Instant.now());
+        when(offlineDeviceMessage5.getReleaseDate()).thenReturn(Date.from(Instant.now()));
         when(offlineDeviceMessage5.getDeviceId()).thenReturn(DEVICE_ID);
 
         when(offlineDevice.getAllPendingDeviceMessages()).thenReturn(Arrays.asList(offlineDeviceMessage1, offlineDeviceMessage2, offlineDeviceMessage5));
         when(offlineDevice.getAllSentDeviceMessages()).thenReturn(Arrays.asList(offlineDeviceMessage3, offlineDeviceMessage4));
         return offlineDevice;
     }
+
 }

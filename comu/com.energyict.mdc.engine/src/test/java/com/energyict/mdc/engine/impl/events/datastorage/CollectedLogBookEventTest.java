@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.events.datastorage;
 
-import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierById;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
@@ -63,9 +62,7 @@ public class CollectedLogBookEventTest {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.toString()).thenReturn("My Device identifier");
 
-        LogBookService logBookService = mock(LogBookService.class);
-
-        LogBookIdentifierById logBookId = new LogBookIdentifierById(625L, ObisCode.fromString("1.1.1.1.1.1"));
+        LogBookIdentifierById logBookId = new LogBookIdentifierById(625L, ObisCode.fromString("1.1.1.1.1.1"), deviceIdentifier);
 
         CollectedLogBook logBook = mock(CollectedLogBook.class);
         when(logBook.getLogBookIdentifier()).thenReturn(logBookId);
@@ -86,9 +83,7 @@ public class CollectedLogBookEventTest {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.toString()).thenReturn("My Device identifier");
 
-        LogBookService logBookService = mock(LogBookService.class);
-
-        LogBookIdentifierById logBookId = new LogBookIdentifierById(625L, ObisCode.fromString("1.1.1.1.1.1"));
+        LogBookIdentifierById logBookId = new LogBookIdentifierById(625L, ObisCode.fromString("1.1.1.1.1.1"), deviceIdentifier);
 
         CollectedLogBook logBook = mock(CollectedLogBook.class);
         when(logBook.getLogBookIdentifier()).thenReturn(logBookId);

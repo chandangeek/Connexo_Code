@@ -4,6 +4,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,7 +48,6 @@ public class UnknownInboundDeviceEventTest {
         when(this.comPort.getId()).thenReturn(COMPORT_ID);
         when(this.comPort.getName()).thenReturn(COMPORT_NAME);
         when(this.comPort.getComServer()).thenReturn(this.comServer);
-        when(this.deviceIdentifier.getIdentifier()).thenReturn(DEVICE_IDENTIFIER);
         when(this.discoveryProtocolPluggableClass.getId()).thenReturn(DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID);
     }
 
@@ -59,7 +59,7 @@ public class UnknownInboundDeviceEventTest {
         // Asserts
         verify(this.comPort).getName();
         verify(this.comServer).getName();
-        verify(this.deviceIdentifier).getIdentifier();
+        verify(this.deviceIdentifier).toString();
         verify(this.discoveryProtocolPluggableClass).getId();
     }
 

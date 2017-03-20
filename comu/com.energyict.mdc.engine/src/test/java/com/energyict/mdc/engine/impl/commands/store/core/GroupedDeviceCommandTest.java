@@ -44,19 +44,19 @@ import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.RegistersTask;
+import com.energyict.mdc.upl.io.ConnectionCommunicationException;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
@@ -186,27 +186,27 @@ public class GroupedDeviceCommandTest extends CommonCommandImplTests {
         LoadProfileCommand loadProfileCommand = getLoadProfileCommand(groupedDeviceCommand, comTaskExecution);
         groupedDeviceCommand.addCommand(loadProfileCommand, comTaskExecution);
         ServerCollectedData loadProfileCollectedData = mock(ServerCollectedData.class);
-        when(loadProfileCommand.getCollectedData()).thenReturn(Arrays.<CollectedData>asList(loadProfileCollectedData));
+        when(loadProfileCommand.getCollectedData()).thenReturn(Collections.<CollectedData>singletonList(loadProfileCollectedData));
 
         ClockCommand clockCommand = mockClockCommand();
         groupedDeviceCommand.addCommand(clockCommand, comTaskExecution);
         ServerCollectedData clockCollectedData = mock(ServerCollectedData.class);
-        when(clockCommand.getCollectedData()).thenReturn(Arrays.<CollectedData>asList(clockCollectedData));
+        when(clockCommand.getCollectedData()).thenReturn(Collections.<CollectedData>singletonList(clockCollectedData));
 
         MessagesCommand messagesCommand = mockMessageCommand();
         groupedDeviceCommand.addCommand(messagesCommand, comTaskExecution);
         ServerCollectedData messagesCollectedData = mock(ServerCollectedData.class);
-        when(messagesCommand.getCollectedData()).thenReturn(Arrays.<CollectedData>asList(messagesCollectedData));
+        when(messagesCommand.getCollectedData()).thenReturn(Collections.<CollectedData>singletonList(messagesCollectedData));
 
         RegisterCommand registerCommand = mockRegisterCommand();
         groupedDeviceCommand.addCommand(registerCommand, comTaskExecution);
         ServerCollectedData registerCollectedData = mock(ServerCollectedData.class);
-        when(registerCommand.getCollectedData()).thenReturn(Arrays.<CollectedData>asList(registerCollectedData));
+        when(registerCommand.getCollectedData()).thenReturn(Collections.<CollectedData>singletonList(registerCollectedData));
 
         LogBooksCommand logBooksCommand = mockLogBooksCommand();
         groupedDeviceCommand.addCommand(logBooksCommand, comTaskExecution);
         ServerCollectedData logBooksCollectedData = mock(ServerCollectedData.class);
-        when(logBooksCommand.getCollectedData()).thenReturn(Arrays.<CollectedData>asList(logBooksCollectedData));
+        when(logBooksCommand.getCollectedData()).thenReturn(Collections.<CollectedData>singletonList(logBooksCollectedData));
 
         // Business method
         List<CollectedData> collectedData = groupedDeviceCommand.getCollectedData();
@@ -309,7 +309,7 @@ public class GroupedDeviceCommandTest extends CommonCommandImplTests {
 
     private ComCommand mockConnectionErrorFailureComCommand(GroupedDeviceCommand groupedDeviceCommand) {
         AddPropertiesCommand addPropertiesCommand = spy(new AddPropertiesCommand(groupedDeviceCommand, TypedProperties.empty(), TypedProperties.empty(), null));
-        doThrow(new ConnectionCommunicationException(1)).when(addPropertiesCommand)
+        doThrow(ConnectionCommunicationException.allowedAttemptsExceeded(new Exception(), 1)).when(addPropertiesCommand)
                 .doExecute(any(DeviceProtocol.class), any(ExecutionContext.class));
         return addPropertiesCommand;
     }
@@ -333,13 +333,6 @@ public class GroupedDeviceCommandTest extends CommonCommandImplTests {
         when(forceClockCommand.getCommandType()).thenReturn(ComCommandTypes.FORCE_CLOCK_COMMAND);
         when(forceClockCommand.getCompletionCode()).thenReturn(CompletionCode.Ok);
         return forceClockCommand;
-    }
-
-    private AddPropertiesCommand mockAddPropertiesCommand() {
-        AddPropertiesCommand addPropertiesCommand = mock(AddPropertiesCommand.class);
-        when(addPropertiesCommand.getCommandType()).thenReturn(ComCommandTypes.ADD_PROPERTIES_COMMAND);
-        when(addPropertiesCommand.getCompletionCode()).thenReturn(CompletionCode.Ok);
-        return addPropertiesCommand;
     }
 
     @Test
@@ -474,12 +467,9 @@ public class GroupedDeviceCommandTest extends CommonCommandImplTests {
         final ExecutionContext executionContext = groupedDeviceCommand.getCommandRoot().getExecutionContext();
 
         final BasicCheckCommandImpl basicCheckCommand = getBasicCheckCommand(groupedDeviceCommand, comTaskExecution);
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                basicCheckCommand.setCompletionCode(CompletionCode.TimeError);
-                return null;
-            }
+        doAnswer(invocationOnMock -> {
+            basicCheckCommand.setCompletionCode(CompletionCode.TimeError);
+            return null;
         }).when(basicCheckCommand).doExecute(deviceProtocol, executionContext);
         ForceClockCommandImpl forceClockCommand = mockForceClockCommand();
         ReadRegistersCommandImpl readRegistersCommand = mockReadRegistersCommand();
@@ -510,12 +500,9 @@ public class GroupedDeviceCommandTest extends CommonCommandImplTests {
         final ExecutionContext executionContext = groupedDeviceCommand.getCommandRoot().getExecutionContext();
 
         final BasicCheckCommandImpl basicCheckCommand = getBasicCheckCommand(groupedDeviceCommand, comTaskExecution);
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                basicCheckCommand.setCompletionCode(CompletionCode.TimeError);
-                return null;
-            }
+        doAnswer(invocationOnMock -> {
+            basicCheckCommand.setCompletionCode(CompletionCode.TimeError);
+            return null;
         }).when(basicCheckCommand).doExecute(deviceProtocol, executionContext);
         ForceClockCommandImpl forceClockCommand = mockForceClockCommand();
         ReadRegistersCommandImpl readRegistersCommand = mockReadRegistersCommand();
@@ -546,12 +533,9 @@ public class GroupedDeviceCommandTest extends CommonCommandImplTests {
         GroupedDeviceCommand groupedDeviceCommand2 = createGroupedDeviceCommand(commandRoot, offlineDevice2, deviceProtocol2, null);
 
         final BasicCheckCommandImpl basicCheckCommand1 = getBasicCheckCommand(groupedDeviceCommand1, comTaskExecution1);
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                basicCheckCommand1.setCompletionCode(CompletionCode.TimeError);
-                return null;
-            }
+        doAnswer(invocationOnMock -> {
+            basicCheckCommand1.setCompletionCode(CompletionCode.TimeError);
+            return null;
         }).when(basicCheckCommand1).doExecute(deviceProtocol1, executionContext);
         ForceClockCommandImpl forceClockCommand = mockForceClockCommand();
         ReadRegistersCommandImpl readRegistersCommand1 = mockReadRegistersCommand();

@@ -1,16 +1,15 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for the abstract {@link CollectedData}
@@ -21,10 +20,7 @@ import static org.mockito.Mockito.when;
 public class CollectedDeviceDataTest {
 
     private static RegisterIdentifier getMockedRegisterIdentifier() {
-        Register register = mock(Register.class);
-        RegisterIdentifier registerIdentifier = mock(RegisterIdentifier.class);
-        when(registerIdentifier.findRegister()).thenReturn(register);
-        return registerIdentifier;
+        return mock(RegisterIdentifier.class);
     }
 
     private static CollectedData getSimpleCollectedData(){

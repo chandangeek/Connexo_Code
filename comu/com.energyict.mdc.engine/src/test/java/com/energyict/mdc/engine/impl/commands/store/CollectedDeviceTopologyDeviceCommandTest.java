@@ -17,6 +17,14 @@ import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 import com.energyict.mdc.upl.tasks.TopologyAction;
+
+import java.time.Clock;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,20 +32,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Stream;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -79,14 +79,11 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
     @Before
     public void setUp() {
-        when(slave1Identifier.getIdentifier()).thenReturn(SLAVE_1_SERIAL_NUMBER);
-        when(slave2Identifier.getIdentifier()).thenReturn(SLAVE_2_SERIAL_NUMBER);
         when(serviceProvider.issueService()).thenReturn(issueService);
         when(serviceProvider.clock()).thenReturn(Clock.systemDefaultZone());
         when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.empty());
         when(comServerDAO.findOfflineDevice(eq(deviceIdentifier), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineDevice));
         when(comServerDAO.findOfflineDevice(deviceIdentifier)).thenReturn(Optional.of(offlineDevice));
-        when(deviceIdentifier.findDevice()).thenReturn(device);
         when(comServerDAO.findOfflineDevice(eq(slave1Identifier), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineSlave_1));
         when(comServerDAO.findOfflineDevice(eq(slave2Identifier), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineSlave_2));
 
@@ -135,13 +132,6 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         verify(comServerDAO, times(1)).updateGateway(slave1Identifier, deviceIdentifier);
         verify(comServerDAO, times(1)).signalEvent(eq(EventType.UNKNOWN_SLAVE_DEVICE.topic()), any());
         verify(mockedExecutionLogger).addIssue(eq(CompletionCode.ConfigurationWarning), any(Issue.class), eq(comTaskExecution));
-    }
-
-    private Map<DeviceIdentifier, LastSeenDateInfo> createSlaveIdentifiers(DeviceIdentifier... identifier) {
-        LastSeenDateInfo lastSeenDateInfo = new LastSeenDateInfo("LastSeenDate", Instant.now());
-        Map<DeviceIdentifier, LastSeenDateInfo> slaveDeviceIdentifiers = new HashMap<>();
-        Stream.of(identifier).forEach(deviceIdentifier1 -> slaveDeviceIdentifiers.put(deviceIdentifier1, lastSeenDateInfo));
-        return slaveDeviceIdentifiers;
     }
 
     /**
@@ -251,7 +241,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         List<OfflineDevice> slaveDevices = new ArrayList<>();
         slaveDevices.add(offlineSlave_1);
         slaveDevices.add(offlineSlave_2);
-        when(offlineDevice.getAllSlaveDevices()).thenReturn(slaveDevices);
+        doReturn(slaveDevices).when(offlineDevice.getAllSlaveDevices());
 
         Map<DeviceIdentifier, CollectedTopology.ObservationTimestampProperty> slaveDeviceIdentifiers = new HashMap<>();
         slaveDeviceIdentifiers.put(slave2Identifier, mock(CollectedTopology.ObservationTimestampProperty.class));
@@ -289,7 +279,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         List<OfflineDevice> slaveDevices = new ArrayList<>();
         slaveDevices.add(offlineSlave_1);
         slaveDevices.add(offlineSlave_2);
-        when(offlineDevice.getAllSlaveDevices()).thenReturn(slaveDevices);
+        doReturn(slaveDevices).when(offlineDevice.getAllSlaveDevices());
 
         Map<DeviceIdentifier, CollectedTopology.ObservationTimestampProperty> slaveDeviceIdentifiers = new HashMap<>();
         slaveDeviceIdentifiers.put(slave2Identifier, mock(CollectedTopology.ObservationTimestampProperty.class));
@@ -312,7 +302,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         List<OfflineDevice> slaveDevices = new ArrayList<>();
         slaveDevices.add(this.offlineSlave_1);
         slaveDevices.add(this.offlineSlave_2);
-        when(this.offlineDevice.getAllSlaveDevices()).thenReturn(slaveDevices);
+        doReturn(slaveDevices).when(this.offlineDevice.getAllSlaveDevices());
 
         Map<DeviceIdentifier, CollectedTopology.ObservationTimestampProperty> slaveDeviceIdentifiers = new HashMap<>();
         slaveDeviceIdentifiers.put(slave2Identifier, mock(CollectedTopology.ObservationTimestampProperty.class));

@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.TestSerialNumberDeviceIdentifier;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LogBooksCommand;
@@ -19,20 +18,22 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterProtocolEvent;
+
+import java.sql.Date;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.sql.Date;
-import java.time.Clock;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -51,8 +52,6 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
     @Mock
     private ComTaskExecution comTaskExecution;
 
-    private Clock clock = Clock.systemUTC();
-
     @Test
     public void commandTypeTest() {
         ReadLogBooksCommand readLogBooksCommand = new ReadLogBooksCommandImpl(getGroupedDeviceCommand(), mock(LogBooksCommand.class));
@@ -66,7 +65,6 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
         Device device = mock(Device.class);
         when(device.getmRID()).thenReturn("MyMrid");
         when(comTaskExecution.getDevice()).thenReturn(device);
-        OfflineDevice offlineDevice = mock(OfflineDevice.class);
         LogBooksTask logBooksTask = mock(LogBooksTask.class);
         ExecutionContext executionContext = newTestExecutionContext();
         GroupedDeviceCommand groupedDeviceCommand = getGroupedDeviceCommand();
@@ -74,7 +72,7 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
         ReadLogBooksCommand readLogBooksCommand = groupedDeviceCommand.getReadLogBooksCommand(logBooksCommand, comTaskExecution);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         CollectedLogBook collectedLogBook = mock(CollectedLogBook.class);
-        when(deviceProtocol.getLogBookData(Matchers.<List<LogBookReader>>any())).thenReturn(Arrays.asList(collectedLogBook));
+        when(deviceProtocol.getLogBookData(Matchers.<List<LogBookReader>>any())).thenReturn(Collections.singletonList(collectedLogBook));
 
         readLogBooksCommand.execute(deviceProtocol, executionContext);
         String journalMessage = readLogBooksCommand.toJournalMessageDescription(LogLevel.DEBUG);
@@ -103,23 +101,20 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
 
         LogBookIdentifier logBookIdentifier1 = mock(LogBookIdentifier.class);
         LogBook logBook1 = mock(LogBook.class);
-        when((logBookIdentifier1).getLogBook()).thenReturn(logBook1);
         when((logBookIdentifier1).getLogBookObisCode()).thenReturn(logBookObisCode1);
         when(logBook1.getId()).thenReturn(10L);
         LogBookIdentifier logBookIdentifier2 = mock(LogBookIdentifier.class);
         LogBook logBook2 = mock(LogBook.class);
-        when((logBookIdentifier2).getLogBook()).thenReturn(logBook2);
         when((logBookIdentifier2).getLogBookObisCode()).thenReturn(logBookObisCode2);
         when(logBook2.getId()).thenReturn(20L);
         LogBookIdentifier logBookIdentifier3 = mock(LogBookIdentifier.class);
         LogBook logBook3 = mock(LogBook.class);
-        when((logBookIdentifier3).getLogBook()).thenReturn(logBook3);
         when((logBookIdentifier3).getLogBookObisCode()).thenReturn(logBookObisCode3);
         when(logBook3.getId()).thenReturn(30L);
 
-        LogBookReader logBookReader1 = new LogBookReader(logBookObisCode1, Date.from(lastLogBookDate1), logBookIdentifier1, new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER), SERIAL_NUMBER);
-        LogBookReader logBookReader2 = new LogBookReader(logBookObisCode2, Date.from(lastLogBookDate2), logBookIdentifier2, new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER), SERIAL_NUMBER);
-        LogBookReader logBookReader3 = new LogBookReader(logBookObisCode3, Date.from(lastLogBookDate3), logBookIdentifier3, new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER), SERIAL_NUMBER);
+        LogBookReader logBookReader1 = new LogBookReader(logBookObisCode1, Date.from(lastLogBookDate1), logBookIdentifier1, SERIAL_NUMBER);
+        LogBookReader logBookReader2 = new LogBookReader(logBookObisCode2, Date.from(lastLogBookDate2), logBookIdentifier2, SERIAL_NUMBER);
+        LogBookReader logBookReader3 = new LogBookReader(logBookObisCode3, Date.from(lastLogBookDate3), logBookIdentifier3, SERIAL_NUMBER);
 
         OfflineDevice device = mock(OfflineDevice.class);
         CommandRoot commandRoot = createCommandRoot();
@@ -131,7 +126,7 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
 
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         CollectedLogBook collectedLogBook1 = new DeviceLogBook(logBookIdentifier1);
-        collectedLogBook1.setCollectedMeterEvents(Arrays.asList(mock(MeterProtocolEvent.class)));
+        collectedLogBook1.setCollectedMeterEvents(Collections.singletonList(mock(MeterProtocolEvent.class)));
         CollectedLogBook collectedLogBook2 = new DeviceLogBook(logBookIdentifier2);
         CollectedLogBook collectedLogBook3 = new DeviceLogBook(logBookIdentifier3);
         when(deviceProtocol.getLogBookData(Matchers.<List<LogBookReader>>any())).thenReturn(Arrays.asList(collectedLogBook1, collectedLogBook2, collectedLogBook3));

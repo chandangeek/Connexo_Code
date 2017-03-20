@@ -17,18 +17,18 @@ import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.EventReceiver;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
+
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -166,10 +166,7 @@ public class RequestApplyToTest {
         when(device.getId()).thenReturn(DEVICE1_ID);
         when(this.deviceService.findDeviceById(DEVICE1_ID)).thenReturn(Optional.of(device));
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        when(deviceIdentifier.findDevice()).thenReturn(device);
-        when(deviceIdentifier.getDeviceIdentifierType()).thenReturn(DeviceIdentifierType.ActualDevice);
-        when(deviceIdentifier.getIdentifier()).thenReturn(String.valueOf(DEVICE1_ID));
-        when(this.identificationService.createDeviceIdentifierByDatabaseId(DEVICE1_ID)).thenReturn(deviceIdentifier);
+        when(this.deviceService.findDeviceByIdentifier(deviceIdentifier)).thenReturn(Optional.of(device));
         return device;
     }
 
