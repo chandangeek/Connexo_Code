@@ -100,6 +100,9 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             },
             '#add-usage-point life-cycle-transition-info-form': {
                 beforeshow: me.loadAvailableTransitions
+            },
+            '#add-usage-point calendar-info-form': {
+                beforeshow: me.loadCalendars
             }
         });
     },
@@ -158,15 +161,20 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         }
 
         wizard.clearInvalid();
+
         if (direction > 0) {
             validationParams.step = stepView.stepName;
             if (stepView.xtype === 'cps-info-form') {
                 validationParams.customPropertySetId = stepView.getRecord().getId();
             }
-            me.doRequest({
-                params: validationParams,
-                success: changeStep
-            });
+            if(stepView.stepName === 'calendarTransitionInfo' && !stepView.down('combobox[required=true]').getValue()){
+                stepView.down('combobox[required=true]').markInvalid(Uni.I18n.translate('usagepoint.add.required', 'IMT', 'This field is required'));
+            } else {
+                me.doRequest({
+                    params: validationParams,
+                    success: changeStep
+                });
+            }
         } else {
             changeStep();
         }
@@ -189,7 +197,6 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             wizard = me.getWizard(),
             record,
             modelProxy;
-
         wizard.clearInvalid();
         wizard.updateRecord();
         wizard.setLoading();
@@ -271,12 +278,12 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         notAllMetersSpecifiedMessage.hide();
         step.down('#reset-metrology-configuration').setDisabled(!newValue);
         if (!Ext.isEmpty(newValue)) {
+            me.metrologyConfigurationRequiresCalendar = newValue.requiresCalendar;
             metrologyConfigurationInfo.show();
             metrologyConfigurationInfo.setLoading();
             me.getModel('Imt.metrologyconfiguration.model.MetrologyConfigurationWithCAS').load(newValue.id, {
                 success: function (record) {
                     var meterRoles = record.get('meterRoles');
-
                     Ext.suspendLayouts();
                     me.updateMetrologyConfigurationCustomAttributeSetsSteps(record);
                     notAllMetersSpecifiedMessage.setVisible(!Ext.isEmpty(meterRoles));
@@ -289,6 +296,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                 }
             });
         } else {
+            me.metrologyConfigurationRequiresCalendar = false;
             metrologyConfigurationInfo.hide();
             me.updateMetrologyConfigurationCustomAttributeSetsSteps();
         }
@@ -308,18 +316,19 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
 
         Ext.suspendLayouts();
         // remove steps depending on metrology configuration
-        for (var i = currentStepNumber; i < currentSteps.length - 1; i++) {
+        for (var i = currentStepNumber; i < currentSteps.length - 2; i++) {
             wizard.remove(currentSteps[i], true);
         }
         // remove menu items after current step
-        for (var j = currentStepNumber; j < currentMenuItems.length; j++) {
+        for (var j = currentStepNumber; j < currentMenuItems.length-1; j++) {
             navigation.remove(currentMenuItems[j], true);
         }
 
         if (metrologyConfiguration) {
             me.addCustomPropertySetsSteps(metrologyConfiguration, stepsToAdd, navigationItemsToAdd, currentStepNumber);
         }
-        me.modifyLifeCycleTransitionStep(wizard, navigationItemsToAdd, currentStepNumber + stepsToAdd.length + 1);
+        me.modifyCalendarStep(wizard, navigationItemsToAdd, currentStepNumber + stepsToAdd.length + 1);
+        me.modifyLifeCycleTransitionStep(wizard, navigationItemsToAdd, currentStepNumber + stepsToAdd.length + 2);
         navigation.insert(currentStepNumber, navigationItemsToAdd);
         wizard.insert(currentStepNumber, stepsToAdd);
         Ext.resumeLayouts(true);
@@ -336,7 +345,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
 
         Ext.suspendLayouts();
         // remove steps depending on service category
-        for (var i = 1; i < currentSteps.length - 1; i++) {
+        for (var i = 1; i < currentSteps.length - 2; i++) {
             wizard.remove(currentSteps[i], true);
         }
         // remove all menu items except first two
@@ -345,7 +354,8 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         }
         me.addCustomPropertySetsSteps(serviceCategory, stepsToAdd, navigationItemsToAdd, stepsToAdd.length + 1);
         me.addLinkMetrologyConfigurationStep(stepsToAdd, navigationItemsToAdd);
-        me.modifyLifeCycleTransitionStep(wizard, navigationItemsToAdd, stepsToAdd.length + 2);
+        me.modifyCalendarStep(wizard, navigationItemsToAdd, stepsToAdd.length + 2);
+        me.modifyLifeCycleTransitionStep(wizard, navigationItemsToAdd, stepsToAdd.length + 3);
         navigation.add(navigationItemsToAdd);
         wizard.insert(1, stepsToAdd);
         Ext.resumeLayouts(true);
@@ -390,6 +400,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         });
     },
 
+
     loadAvailableMetrologyConfigurations: function (step) {
         var me = this,
             wizard = me.getWizard(),
@@ -417,7 +428,22 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         });
     },
 
+
+    modifyCalendarStep: function(wizard, navigationItemsToAdd, stepNumber){
+        var calendarTransitionStep = wizard.down('calendar-info-form'),
+            title = Uni.I18n.translate('general.calendars', 'IMT', 'Calendars');
+
+        calendarTransitionStep.setTitle(Uni.I18n.translate('usagepoint.wizard.cpsStepTitle', 'IMT', 'Step {0}: {1}', [stepNumber, title]));
+        calendarTransitionStep.navigationIndex = stepNumber;
+
+        navigationItemsToAdd.push({
+            itemId: 'navigation-calendar-transition-info',
+            text: title
+        });
+    },
+
     modifyLifeCycleTransitionStep: function (wizard, navigationItemsToAdd, stepNumber) {
+
         var lifeCycleTransitionStep = wizard.down('life-cycle-transition-info-form'),
             title = Uni.I18n.translate('general.lifeCycleTransition', 'IMT', 'Life cycle transition');
 
@@ -451,5 +477,137 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                 wizard.setLoading(false)
             }
         });
+    },
+
+    loadCalendars: function(step){
+        var me = this,
+            wizard = me.getWizard(),
+            usagePoint = wizard.getRecord(),
+            calendarCategoriesStore = me.getStore('Imt.usagepointmanagement.store.CalendarCategories');
+        if(me.getWizard().down('calendar-info-form').query('combobox').length === 0){
+            calendarCategoriesStore.load(function(response){
+                calendarCategoriesStore.each(function(category){
+                    var calendarStore = Ext.create('Imt.usagepointmanagement.store.CalendarsForCategory');
+                    calendarStore.filter([
+                        {
+                            property: 'status',
+                            value: 'ACTIVE'
+                        },
+                        {
+                            property: 'category',
+                            value: category.get('name')
+                        }
+                    ]);
+                    me.getWizard().down('calendar-info-form').add(
+                        {
+                            xtype: 'combobox',
+                            calendarType: category.get('name'),
+                            fieldLabel: category.get('displayName'),
+                            store: calendarStore,
+                            displayField: 'name',
+                            valueField: 'id',
+                            queryMode: 'local',
+                            required: category.get('name') === 'TOU' && me.metrologyConfigurationRequiresCalendar,
+                            forceSelection: true,
+                            emptyText: Uni.I18n.translate('usagepoint.add.emptyText.calendar', 'IMT', 'Select a calendar...'),
+                            listeners: {
+                                change: {
+                                    fn: function (field, newValue) {
+                                        field.clearInvalid();
+                                        if (Ext.isEmpty(newValue)) {
+                                            me.getWizard().down('#activate-calendar-'+ category.get('name')).hide();
+                                            field.reset();
+                                        } else {
+                                            me.getWizard().down('#activate-calendar-'+ category.get('name')).show();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    )
+                    me.getWizard().down('calendar-info-form').add(
+                        {
+                            xtype: 'fieldcontainer',
+                            fieldLabel: Uni.I18n.translate('general.activateCalendar', 'IMT', 'Activate calendar'),
+                            itemId: 'activate-calendar-'+ category.get('name'),
+                            required: true,
+                            layout: 'hbox',
+                            hidden: true,
+                            items: [
+                                {
+                                    // itemId: 'activate-calendar',
+                                    xtype: 'radiogroup',
+                                    name: 'activateCalendar'+ category.get('name'),
+                                    columns: 1,
+                                    vertical: true,
+                                    width: 100,
+                                    defaults: {
+                                        name: 'activateCalendar'+ category.get('name'),
+                                        style: {
+                                            overflowX: 'visible',
+                                            whiteSpace: 'nowrap'
+                                        }
+                                    },
+                                    listeners: {
+                                        change: function (field, newValue, oldValue) {
+                                            this.up().down('fieldcontainer[name=activationDateValues]').setDisabled(newValue['activateCalendar' + category.get('name')] !== 'on-date-activation');
+                                        }
+                                    },
+                                    items: [
+                                        {
+                                            //    itemId: 'immediate-activation-date',
+                                            boxLabel: Uni.I18n.translate('general.immediately', 'IMT', 'Immediately'),
+                                            inputValue: 'immediate-activation',
+                                            checked: true
+                                        },
+                                        {
+                                            //    itemId: 'on-activation-date',
+                                            boxLabel: Uni.I18n.translate('general.on', 'IMT', 'On'),
+                                            margin: '7 0 0 0',
+                                            inputValue: 'on-date-activation'
+                                        }
+                                    ]
+                                },
+                                {
+                                    // itemId: 'activation-date-values',
+                                    xtype: 'fieldcontainer',
+                                    name: 'activationDateValues',
+                                    itemId: 'activationDateValues-'+ category.get('name'),
+                                    required: true,
+                                    margin: '30 0 10 -40',
+                                    disabled: true,
+                                    layout: 'hbox',
+                                    items: [
+                                        {
+                                            xtype: 'date-time',
+                                            itemId: 'activation-on',
+                                            layout: 'hbox',
+                                            name: 'activationOn',
+                                            //    disabled: true,
+                                            dateConfig: {
+                                                allowBlank: true,
+                                                value: new Date(),
+                                                minValue: new Date(),
+                                                editable: true,
+                                                format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
+                                            },
+                                            hoursConfig: {
+                                                width: 55,
+                                                value: new Date().getHours()
+                                            },
+                                            minutesConfig: {
+                                                width: 55,
+                                                value: new Date().getMinutes()
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    )
+
+                })
+            });
+        }
     }
 });

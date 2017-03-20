@@ -18,6 +18,12 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'lastTransitionTime', type: 'int', defaultValue: null, useNull: true},
         {name: 'state', persist: false},
         {
+            name: 'calendars',
+            type: 'auto',
+            defaultValue: null,
+            useNull: true
+        },
+        {
             name: 'extendedGeoCoordinates',
             type: 'auto'
         },
