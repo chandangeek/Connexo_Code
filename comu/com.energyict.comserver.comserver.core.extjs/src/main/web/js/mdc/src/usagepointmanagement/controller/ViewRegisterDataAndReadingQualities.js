@@ -2,30 +2,30 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualities', {
+Ext.define('Mdc.usagepointmanagement.controller.ViewRegisterDataAndReadingQualities', {
     extend: 'Ext.app.Controller',
 
     models: [
         'Mdc.usagepointmanagement.model.UsagePoint',
-        'Mdc.usagepointmanagement.model.Channel',
-        'Mdc.usagepointmanagement.model.ChannelReading'
+        'Mdc.usagepointmanagement.model.Register',
+        'Mdc.usagepointmanagement.model.RegisterReading'
     ],
 
     stores: [
-        'Mdc.usagepointmanagement.store.Channels',
-        'Mdc.usagepointmanagement.store.ChannelData',
+        'Mdc.usagepointmanagement.store.Registers',
+        'Mdc.usagepointmanagement.store.RegisterData',
         'Mdc.store.LoadProfileDataDurations',
         'Uni.store.DataIntervalAndZoomLevels'
     ],
 
     views: [
-        'Mdc.usagepointmanagement.view.ViewChannelDataAndReadingQualities'
+        'Mdc.usagepointmanagement.view.ViewRegisterDataAndReadingQualities'
     ],
 
     refs: [
         {
             ref: 'preview',
-            selector: '#view-channel-data-and-reading-qualities #channel-data-preview'
+            selector: '#view-register-data-and-reading-qualities #register-data-preview'
         }
     ],
 
@@ -33,21 +33,21 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualiti
         var me = this;
 
         me.control({
-            '#view-channel-data-and-reading-qualities #channel-data-grid': {
+            '#view-register-data-and-reading-qualities #register-data-grid': {
                 select: me.showPreview
             }
         });
     },
 
-    showOverview: function (usagePointId, channelId) {
+    showOverview: function (usagePointId, registerId) {
         var me = this,
             app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-            channelModel = me.getModel('Mdc.usagepointmanagement.model.Channel'),
-            ChannelReading = me.getModel('Mdc.usagepointmanagement.model.ChannelReading'),
-            channelsStore = me.getStore('Mdc.usagepointmanagement.store.Channels'),
-            channelDataStore = me.getStore('Mdc.usagepointmanagement.store.ChannelData'),
+            registerModel = me.getModel('Mdc.usagepointmanagement.model.Register'),
+            RegisterReading = me.getModel('Mdc.usagepointmanagement.model.RegisterReading'),
+            registersStore = me.getStore('Mdc.usagepointmanagement.store.Registers'),
+            registerDataStore = me.getStore('Mdc.usagepointmanagement.store.RegisterData'),
             dependenciesCounter = 3,
             onDependencyLoad = function () {
                 dependenciesCounter--;
@@ -55,29 +55,29 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualiti
                     pageMainContent.setLoading(false);
                     Ext.suspendLayouts();
                     app.fireEvent('usagePointLoaded', usagePoint);
-                    app.fireEvent('usagePointChannelLoaded', channel);
-                    channelDataStore.getProxy().setParams(usagePointId, channelId);
-                    app.fireEvent('changecontentevent', Ext.widget('view-channel-data-and-reading-qualities', {
-                        itemId: 'view-channel-data-and-reading-qualities',
+                    app.fireEvent('usagePointRegisterLoaded', register);
+                    registerDataStore.getProxy().setParams(usagePointId, registerId);
+                    app.fireEvent('changecontentevent', Ext.widget('view-register-data-and-reading-qualities', {
+                        itemId: 'view-register-data-and-reading-qualities',
                         router: router,
-                        channel: channel,
+                        register: register,
                         usagePointId: usagePointId,
                         filter: filter
                     }));
-                    channelDataStore.load();
+                    registerDataStore.load();
                     Ext.resumeLayouts(true);
                 }
             },
             usagePoint,
-            channel,
+            register,
             filter;
 
         pageMainContent.setLoading();
 
-        channelsStore.getProxy().setExtraParam('usagePointId', usagePointId);
-        channelsStore.suspendEvent('beforeload');
-        channelsStore.load(function () {
-            channelsStore.resumeEvent('beforeload');
+        registersStore.getProxy().setExtraParam('usagePointId', usagePointId);
+        registersStore.suspendEvent('beforeload');
+        registersStore.load(function () {
+            registersStore.resumeEvent('beforeload');
             onDependencyLoad();
         });
 
@@ -88,17 +88,17 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualiti
             }
         });
 
-        channelModel.getProxy().setExtraParam('usagePointId', usagePointId);
-        channelModel.load(channelId, {
+        registerModel.getProxy().setExtraParam('usagePointId', usagePointId);
+        registerModel.load(registerId, {
             success: function (record) {
-                channel = record;
-                filter = me.setDataFilter(channel);
+                register = record;
+                filter = me.setDataFilter(register);
                 onDependencyLoad();
             }
         });
 
-        ChannelReading.getProxy().setExtraParam('usagePointId', usagePointId);
-        ChannelReading.getProxy().setExtraParam('channelId', channelId);
+        RegisterReading.getProxy().setExtraParam('usagePointId', usagePointId);
+        RegisterReading.getProxy().setExtraParam('registerId', registerId);
     },
 
     showPreview: function (selectionModel, record) {
@@ -108,9 +108,10 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualiti
         preview.loadRecord(record);
     },
 
-    setDataFilter: function (channel) {
+    setDataFilter: function (register) {
+        console.log(register);
         var me = this,
-            dataIntervalAndZoomLevels = me.getStore('Uni.store.DataIntervalAndZoomLevels').getIntervalRecord(channel.get('interval')),
+            dataIntervalAndZoomLevels = me.getStore('Uni.store.DataIntervalAndZoomLevels'),
             all = dataIntervalAndZoomLevels.get('all'),
             filter = {};
         console.log(dataIntervalAndZoomLevels);

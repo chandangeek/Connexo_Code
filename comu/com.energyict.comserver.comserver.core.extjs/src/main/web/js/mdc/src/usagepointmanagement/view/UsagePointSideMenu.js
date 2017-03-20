@@ -27,9 +27,21 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointSideMenu', {
                         href: me.router.getRoute('usagepoints/usagepoint/history').buildUrl()
                     },
                     {
-                        text: Uni.I18n.translate('general.channels', 'MDC', 'Channels'),
-                        itemId: 'usage-point-channels-link',
-                        href: me.router.getRoute('usagepoints/usagepoint/channels').buildUrl()
+                        title: Uni.I18n.translate('device.dataSources', 'MDC', 'Data sources'),
+                        xtype: 'menu',
+                        expanded: true,
+                        items: [
+                            {
+                                text: Uni.I18n.translate('general.channels', 'MDC', 'Channels'),
+                                itemId: 'usage-point-channels-link',
+                                href: me.router.getRoute('usagepoints/usagepoint/channels').buildUrl()
+                            },
+                            {
+                                text: Uni.I18n.translate('general.registers', 'MDC', 'Registers'),
+                                itemId: 'registersLink',
+                                href: me.router.getRoute('usagepoints/usagepoint/registers').buildUrl()
+                            }
+                        ]
                     }
                 ]
             }
