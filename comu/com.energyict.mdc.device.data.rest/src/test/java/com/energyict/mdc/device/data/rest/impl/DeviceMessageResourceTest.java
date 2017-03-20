@@ -39,7 +39,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
@@ -104,9 +103,9 @@ import static org.mockito.Mockito.when;
  */
 public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTest {
 
-    private DeviceMessageCategoryImpl deviceMessageCategoryDeviceActions;
-    private DeviceMessageCategoryImpl deviceMessageCategoryActivityCalendar;
-    private DeviceMessageCategoryImpl deviceMessageCategoryClock;
+    private DeviceMessageCategory deviceMessageCategoryDeviceActions;
+    private DeviceMessageCategory deviceMessageCategoryActivityCalendar;
+    private DeviceMessageCategory deviceMessageCategoryClock;
 
     @Override
     protected void setupTranslations() {
@@ -124,14 +123,14 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
 
     @Before
     public void initDependenciesOnPropertySpecService() {
-        when(deviceMessageSpecificationService.filteredCategoriesForUserSelection()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class).stream().map(deviceMessageCategory -> new DeviceMessageCategoryImpl(deviceMessageCategory, thesaurus, propertySpecService)).collect(Collectors.toList()));
-        when(deviceMessageSpecificationService.filteredCategoriesForComTaskDefinition()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class)
-                .stream()
-                .map(deviceMessageCategory -> new DeviceMessageCategoryImpl(deviceMessageCategory, thesaurus, propertySpecService))
-                .collect(Collectors.toList()));
-        deviceMessageCategoryDeviceActions = new DeviceMessageCategoryImpl(DeviceMessageCategories.DEVICE_ACTIONS, thesaurus, propertySpecService);
-        deviceMessageCategoryActivityCalendar = new DeviceMessageCategoryImpl(DeviceMessageCategories.ACTIVITY_CALENDAR, thesaurus, propertySpecService);
-        deviceMessageCategoryClock = new DeviceMessageCategoryImpl(DeviceMessageCategories.CLOCK, thesaurus, propertySpecService);
+        deviceMessageCategoryDeviceActions = DeviceMessageTestCategories.FIRST_TEST_CATEGORY;
+        deviceMessageCategoryActivityCalendar = DeviceMessageTestCategories.SECOND_TEST_CATEGORY;
+        deviceMessageCategoryClock = DeviceMessageTestCategories.THIRD_TEST_CATEGORY;
+
+        List<DeviceMessageCategory> allCategories = Arrays.asList(deviceMessageCategoryDeviceActions, deviceMessageCategoryActivityCalendar, deviceMessageCategoryClock);
+
+        when(deviceMessageSpecificationService.filteredCategoriesForUserSelection()).thenReturn(allCategories);
+        when(deviceMessageSpecificationService.filteredCategoriesForComTaskDefinition()).thenReturn(allCategories);
     }
 
     @Test
@@ -401,7 +400,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
 
         ComTaskEnablement comTaskEnablement1 = mockComTaskEnablement(categoryId);
-        DeviceMessageCategory contactorCategory = this.deviceMessageSpecificationService.filteredCategoriesForUserSelection().stream().filter(each -> each.getId() == DeviceMessageCategories.CONTACTOR.ordinal()).findFirst().get();
+        DeviceMessageCategory contactorCategory = this.deviceMessageSpecificationService.filteredCategoriesForUserSelection().stream().filter(each -> each.getId() == DeviceMessageTestCategories.CONTACTOR.ordinal()).findFirst().get();
 
         DeviceMessageSpec deviceMessageSpec1 = contactorCategory.getMessageSpecifications().stream().filter(each -> each.getId().equals(DeviceMessageId.CONTACTOR_OPEN)).findFirst().get();
         DeviceMessageSpec deviceMessageSpec2 = contactorCategory.getMessageSpecifications().stream().filter(each -> each.getId().equals(DeviceMessageId.CONTACTOR_CLOSE)).findFirst().get();
@@ -453,7 +452,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
 
         ComTaskEnablement comTaskEnablement1 = mockComTaskEnablement(categoryId);
 
-        DeviceMessageCategory contactorCategory = this.deviceMessageSpecificationService.filteredCategoriesForUserSelection().stream().filter(each -> each.getId() == DeviceMessageCategories.CONTACTOR.ordinal()).findFirst().get();
+        DeviceMessageCategory contactorCategory = this.deviceMessageSpecificationService.filteredCategoriesForUserSelection().stream().filter(each -> each.getId() == DeviceMessageTestCategories.CONTACTOR.ordinal()).findFirst().get();
         DeviceMessageSpec deviceMessageSpec1 = contactorCategory.getMessageSpecifications().stream().filter(each -> each.getId().equals(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT)).findFirst().get();
         DeviceMessageSpec deviceMessageSpec2 = contactorCategory.getMessageSpecifications().stream().filter(each -> each.getId().equals(DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT)).findFirst().get();
 
@@ -560,7 +559,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
 
         DeviceMessageInfo deviceMessageInfo = new DeviceMessageInfo();
         deviceMessageInfo.status = new DeviceMessageInfo.StatusInfo();
-        deviceMessageInfo.status.value = DeviceMessageStatusTranslationKeys.CANCELED.getDeviceMessageStatus().name();
+        deviceMessageInfo.status.value = DeviceMessageStatusTranslationKeys.REVOKED.getDeviceMessageStatus().name();
         deviceMessageInfo.version = 1L;
         deviceMessageInfo.parent = new VersionInfo<>("ZABF010000080004", 1L);
         deviceMessageInfo.messageSpecification = new DeviceMessageSpecInfo();
@@ -750,11 +749,6 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Collections.emptyList();
-        }
-
-        @Override
-        public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-
         }
 
         @Override

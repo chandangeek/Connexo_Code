@@ -27,7 +27,6 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.ConnectionType.ConnectionTypeDirection;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.jayway.jsonpath.JsonModel;
@@ -89,7 +88,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
 
         JsonModel jsonModel = JsonModel.model(response);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<List<?>> get("$.connectionMethods")).hasSize(1);
+        assertThat(jsonModel.<List<?>>get("$.connectionMethods")).hasSize(1);
         assertThat(jsonModel.<Integer>get("$.connectionMethods[0].id")).isEqualTo(9);
         assertThat(jsonModel.<Integer>get("$.connectionMethods[0].comWindowStart")).isEqualTo(60);
         assertThat(jsonModel.<Integer>get("$.connectionMethods[0].comWindowEnd")).isEqualTo(120);
@@ -110,9 +109,9 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         info.name = "AS1440";
         info.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
         info.nextExecutionSpecs = new TemporalExpressionInfo();
-        info.nextExecutionSpecs.every= new TimeDurationInfo();
-        info.nextExecutionSpecs.every.count= 15;
-        info.nextExecutionSpecs.every.timeUnit= "minutes";
+        info.nextExecutionSpecs.every = new TimeDurationInfo();
+        info.nextExecutionSpecs.every.count = 15;
+        info.nextExecutionSpecs.every.timeUnit = "minutes";
         info.version = connectionTask.getVersion();
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
 
@@ -130,9 +129,9 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         info.name = "AS1440";
         info.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
         info.nextExecutionSpecs = new TemporalExpressionInfo();
-        info.nextExecutionSpecs.every= new TimeDurationInfo();
-        info.nextExecutionSpecs.every.count= 15;
-        info.nextExecutionSpecs.every.timeUnit= ""; // ILLEGAL
+        info.nextExecutionSpecs.every = new TimeDurationInfo();
+        info.nextExecutionSpecs.every.count = 15;
+        info.nextExecutionSpecs.every.timeUnit = ""; // ILLEGAL
         info.version = connectionTask.getVersion();
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
 
@@ -148,12 +147,12 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         info.name = "AS1440";
         info.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
         info.nextExecutionSpecs = new TemporalExpressionInfo();
-        info.nextExecutionSpecs.every= new TimeDurationInfo();
-        info.nextExecutionSpecs.every.count= 15;
-        info.nextExecutionSpecs.every.timeUnit= "minutes";
-        info.nextExecutionSpecs.offset= new TimeDurationInfo();
-        info.nextExecutionSpecs.offset.count= 13;
-        info.nextExecutionSpecs.offset.timeUnit= "illegal"; // ILLEGAL
+        info.nextExecutionSpecs.every = new TimeDurationInfo();
+        info.nextExecutionSpecs.every.count = 15;
+        info.nextExecutionSpecs.every.timeUnit = "minutes";
+        info.nextExecutionSpecs.offset = new TimeDurationInfo();
+        info.nextExecutionSpecs.offset.count = 13;
+        info.nextExecutionSpecs.offset.timeUnit = "illegal"; // ILLEGAL
         info.version = connectionTask.getVersion();
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
 
@@ -272,7 +271,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         when(connectionTask.getSuccessIndicator()).thenReturn(SuccessIndicator.FAILURE);
         ConnectionType connectionType = mock(ConnectionType.class);
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
-        when(connectionType.getDirection()).thenReturn(ConnectionTypeDirection.OUTBOUND);
+        when(connectionType.getDirection()).thenReturn(com.energyict.mdc.upl.io.ConnectionType.ConnectionTypeDirection.OUTBOUND);
         ConnectionTypePluggableClass pluggableClass = mockPluggableClass();
         when(connectionTask.getPluggableClass()).thenReturn(pluggableClass);
         doReturn(mockPartialScheduledConnectionTask()).when(connectionTask).getPartialConnectionTask();
@@ -297,7 +296,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         when(connectionTask.getName()).thenReturn(name);
         ConnectionType connectionType = mock(ConnectionType.class);
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
-        when(connectionType.getDirection()).thenReturn(ConnectionTypeDirection.OUTBOUND);
+        when(connectionType.getDirection()).thenReturn(com.energyict.mdc.upl.io.ConnectionType.ConnectionTypeDirection.OUTBOUND);
         ConnectionTypePluggableClass pluggableClass = mockPluggableClass();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn("connectionTimeout");

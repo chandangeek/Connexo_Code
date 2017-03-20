@@ -3,9 +3,10 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
-import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,11 +22,6 @@ import static org.mockito.Mockito.mock;
 public class SimpleDiscoveryProtocol implements InboundDeviceProtocol {
 
     private InboundDiscoveryContext inboundDiscoveryContext;
-
-    @Override
-    public void initializeDiscoveryContext(InboundDiscoveryContext context) {
-        this.inboundDiscoveryContext = context;
-    }
 
     @Override
     public InboundDiscoveryContext getContext() {
@@ -47,13 +43,28 @@ public class SimpleDiscoveryProtocol implements InboundDeviceProtocol {
     }
 
     @Override
+    public String getAdditionalInformation() {
+        return null;
+    }
+
+    @Override
     public List<CollectedData> getCollectedData() {
         return Collections.emptyList();
     }
 
     @Override
+    public boolean hasSupportForRequestsOnInbound() {
+        return false;
+    }
+
+    @Override
     public String getVersion() {
         return "For testing purposes only";
+    }
+
+    @Override
+    public void initializeDiscoveryContext(com.energyict.mdc.upl.InboundDiscoveryContext context) {
+        this.inboundDiscoveryContext = context;
     }
 
     @Override
@@ -65,4 +76,13 @@ public class SimpleDiscoveryProtocol implements InboundDeviceProtocol {
         return Collections.emptyList();
     }
 
+    @Override
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+
+    }
+
+    @Override
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+        return Collections.emptyList();
+    }
 }
