@@ -21,9 +21,15 @@ import com.energyict.mdc.upl.nls.NlsMessageFormat;
 import com.energyict.mdc.upl.nls.Thesaurus;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.util.stream.Stream;
+
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -31,10 +37,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyVararg;
@@ -57,6 +59,8 @@ public class UPLPropertySpecServiceImplTest {
     private Thesaurus thesaurus;
     @Mock
     private NlsService nlsService;
+    @Mock
+    private ServerProtocolPluggableService protocolPluggableService;
 
     private UPLPropertySpecServiceImpl propertySpecService;
 
@@ -105,7 +109,7 @@ public class UPLPropertySpecServiceImplTest {
                                 injector.getInstance(PropertySpecService.class),
                                 dataVaultService,
                                 injector.getInstance(OrmService.class)),
-                        nlsService);
+                        this.protocolPluggableService);
     }
 
     @Test
