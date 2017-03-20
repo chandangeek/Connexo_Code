@@ -13,11 +13,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.tasks.ComTask;
 
@@ -154,21 +150,6 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     protected void doDelete() {
         this.getDataModel().remove(this);
     }
-
-//    @Override
-//    public ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties() {
-//        /* Since this is a required property,
-//         * we could actually use get() but we
-//         * want the javax.validation components
-//         * to validate that this property is not null
-//         * so we are using orElse(null) instead. */
-//        return this.protocolDialectConfigurationProperties.orElse(null);
-//    }
-//
-//    @Override
-//    public void setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties) {
-//        this.protocolDialectConfigurationProperties.set(properties);
-//    }
 
     @Override
     public long getVersion() {
@@ -553,15 +534,6 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         }
         return correspondingPartialConnectionTask;
     }
-
-//    private ProtocolDialectConfigurationProperties getCorrespondingProtocolDialectConfigPropertiesFromOtherDeviceConfig(DeviceConfiguration deviceConfiguration) {
-//        ProtocolDialectConfigurationProperties correspondingDialectConfigProperties = null;
-//        if (getProtocolDialectConfigurationProperties() != null) {
-//            correspondingDialectConfigProperties = deviceConfiguration.getProtocolDialectConfigurationPropertiesList().stream().filter(pdcp ->
-//            pdcp.getDeviceProtocolDialectName().equals(getProtocolDialectConfigurationProperties().getDeviceProtocolDialectName())).findFirst().orElse(null);
-//        }
-//        return correspondingDialectConfigProperties;
-//    }
 
     private SecurityPropertySet getCorrespondingSecuritySetFromOtherDeviceConfig(DeviceConfiguration deviceConfiguration) {
         SecurityPropertySet correspondingSecurityPropertySet = null;
