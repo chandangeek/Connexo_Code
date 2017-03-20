@@ -787,4 +787,5 @@ public class DeviceMessageConstants {
     public static final String scriptNumber = "ContactorDeviceMessage.scriptNumber";
     public static final String executionTimeDateArray = "ConfigurationChangeDeviceMessage.executionTimeDateArray";
 
+    public static final String adHocEndOfBillingActivationDatedAttributeName = "AdHocEndOfBilling.activationDateTime";
 }
