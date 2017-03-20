@@ -221,6 +221,25 @@ public class ResourceHelper {
     }
 
     public void activateMeters(UsagePointInfo info, UsagePoint usagePoint) {
+        if (info.metrologyConfiguration != null && info.metrologyConfiguration.meterRoles != null &&  !info.metrologyConfiguration.meterRoles.isEmpty()) {
+            UsagePointMeterActivator linker = usagePoint.linkMeters();
+
+            info.metrologyConfiguration.meterRoles
+                    .stream()
+                    .filter(meterRoleInfo -> !Checks.is(meterRoleInfo.id).emptyOrOnlyWhiteSpace() && !Checks.is(meterRoleInfo.meter).emptyOrOnlyWhiteSpace())
+                    .forEach(meterRoleInfo -> {
+                        MeterRole meterRole = findMeterRoleOrThrowException(meterRoleInfo.id);
+                        linker.clear(meterRole);
+                        if(meterRoleInfo.meter != null && !Checks.is(meterRoleInfo.name).emptyOrOnlyWhiteSpace()) {
+                            Meter meter = findMeterByNameOrThrowException(meterRoleInfo.meter);
+                            linker.activate(meterRoleInfo.activationTime, meter, meterRole);
+                        }
+                    });
+            linker.complete();
+        }
+    }
+
+    public void performMeterActivations(UsagePointInfo info, UsagePoint usagePoint) {
         if (info.meterActivations != null && !info.meterActivations.isEmpty()) {
             UsagePointMeterActivator linker = usagePoint.linkMeters();
             info.meterActivations
@@ -237,7 +256,6 @@ public class ResourceHelper {
             linker.complete();
         }
     }
-
     public List<UsagePointTransition> getAvailableTransitions(UsagePoint usagePoint) {
         return usagePointLifeCycleService.getAvailableTransitions(usagePoint.getState(), "INS");
     }

@@ -47,10 +47,8 @@ import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.spi.RelativePeriodCategoryTranslationProvider;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.usagepoint.calendar.UsagePointCalendarService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
-import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.rest.BusinessProcessInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.MicroActionAndCheckInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfoFactory;
@@ -113,7 +111,6 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile LicenseService licenseService;
     private volatile PropertyValueInfoService propertyValueInfoService;
     private volatile CalendarOnUsagePointInfoFactory calendarOnUsagePointInfoFactory;
-    private volatile UsagePointCalendarService usagePointCalendarService;
     private volatile CalendarService calendarService;
     private volatile CalendarInfoFactory calendarInfoFactory;
     private volatile AppService appService;
@@ -315,11 +312,6 @@ public class UsagePointApplication extends Application implements TranslationKey
     }
 
     @Reference
-    public void setUsagePointCalendarService(UsagePointCalendarService usagePointCalendarService) {
-        this.usagePointCalendarService = usagePointCalendarService;
-    }
-
-    @Reference
     public void setCalendarInfoFactory(CalendarInfoFactory calendarInfoFactory) {
         this.calendarInfoFactory = calendarInfoFactory;
     }
@@ -417,7 +409,6 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(ValidationStatusFactory.class).to(ValidationStatusFactory.class);
             bind(DataValidationTaskInfoFactory.class).to(DataValidationTaskInfoFactory.class);
             bind(calendarOnUsagePointInfoFactory).to(CalendarOnUsagePointInfoFactory.class);
-            bind(usagePointCalendarService).to(UsagePointCalendarService.class);
             bind(calendarService).to(CalendarService.class);
             bind(appService).to(AppService.class);
             bind(AppServerHelper.class).to(AppServerHelper.class);
