@@ -56,6 +56,7 @@ public enum MessageSeeds implements MessageSeed {
     PROTOCOL_IO_PARSE_ERROR(139, "protocol.io.parse.error", "Protocol parse error: {0}"),
     GENERAL_PARSE_EXCEPTION(140, "general.parse.exception", "A general parsing error occurred: {0}"),
     INVALID_PROPERTY_VALUE(141, "invalid.property.value", "The property {0} has an invalid value {1}"),
+    COULD_NOT_PARSE_OBIS_CODE(142, "issue.couldNotParseObisCode", "Not a valid obiscode: {0}"),
 //TODO complete this list with the entries of 9.1, will happen when the 9.1 codebase is used
     ;
 

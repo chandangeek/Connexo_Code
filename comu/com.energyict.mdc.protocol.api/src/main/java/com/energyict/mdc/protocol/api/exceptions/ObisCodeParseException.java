@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.api.exceptions;
 
-import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 
 /**
  * Models the exceptional situation that occurs when
@@ -11,8 +11,8 @@ import com.elster.jupiter.util.exception.MessageSeed;
  */
 public class ObisCodeParseException extends GeneralParseException {
 
-    public ObisCodeParseException(MessageSeed messageSeed, Exception cause) {
-        super(messageSeed, cause);
+    public ObisCodeParseException(IllegalArgumentException cause) {
+        super(MessageSeeds.COULD_NOT_PARSE_OBIS_CODE, cause);
     }
 
 }
