@@ -46,6 +46,7 @@ import com.elster.jupiter.metering.cps.impl.metrology.UsagePointTechInstEGCustom
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointTechInstEGDomExt;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointTechInstElectrCPS;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointTechInstElectrDE;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -57,7 +58,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
-import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -210,11 +210,24 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
         }
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                 .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.ELECTRICITY));
-        UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Unmeasured antenna installation", serviceCategory)
-                .withDescription("Unmeasured installations which use attributes-based calculations").create();
-
-        config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY.name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_NON_SDP.name()));
+        RegisteredCustomPropertySet registeredAntennaCPS = customPropertySetService.findActiveCustomPropertySet("com.elster.jupiter.metering.cps.impl.metrology.UsagePointAntennaDomExt")
+                .orElseThrow(() -> new NoSuchElementException("Antenna custom property set not found"));
+        UsagePointMetrologyConfiguration config =
+                metrologyConfigurationService
+                        .newUsagePointMetrologyConfiguration("Unmeasured antenna installation", serviceCategory)
+                        .withDescription("Unmeasured installations which use attributes-based calculations")
+                        .withCustomPropertySet(registeredAntennaCPS)
+                        .withUsagePointRequirement(
+                                getUsagePointRequirement(
+                                        "SERVICEKIND",
+                                        SearchablePropertyOperator.EQUAL,
+                                        ServiceKind.ELECTRICITY.name()))
+                        .withUsagePointRequirement(
+                                getUsagePointRequirement(
+                                        "type",
+                                        SearchablePropertyOperator.EQUAL,
+                                        UsagePointTypeInfo.UsagePointType.MEASURED_NON_SDP.name()))
+                        .create();
 
         ReadingType readingTypeMonthlyAplusWh = meteringService.getReadingType("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0")
                 .orElseGet(() -> meteringService.createReadingType("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
@@ -222,10 +235,6 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
         MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
                 .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
         MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
-
-        RegisteredCustomPropertySet registeredAntennaCPS = customPropertySetService.findActiveCustomPropertySet("com.elster.jupiter.metering.cps.impl.metrology.UsagePointAntennaDomExt")
-                .orElseThrow(() -> new NoSuchElementException("Antenna custom property set not found"));
-        config.addCustomPropertySet(registeredAntennaCPS);
 
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Monthly A+ kWh", readingTypeMonthlyAplusWh, Formula.Mode.AUTO);
         CustomPropertySet antennaCPS = registeredAntennaCPS.getCustomPropertySet();
@@ -248,23 +257,39 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
         }
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                 .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.ELECTRICITY));
-        UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential prepay", serviceCategory)
-                .withDescription("Residential consumer with budget/prepayment meter").create();
-
         RegisteredCustomPropertySet registeredPrepayCPS = customPropertySetService.findActiveCustomPropertySet("com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension")
                 .orElseThrow(() -> new NoSuchElementException("Prepay custom property set not found"));
-        config.addCustomPropertySet(registeredPrepayCPS);
-
-        config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY.name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("detail.phaseCode", SearchablePropertyOperator.EQUAL,
-                PhaseCode.S1N.name(),
-                PhaseCode.S2N.name(),
-                PhaseCode.S12N.name(),
-                PhaseCode.S1.name(),
-                PhaseCode.S2.name(),
-                PhaseCode.S12.name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension.prepay", SearchablePropertyOperator.EQUAL, "1"));
+        UsagePointMetrologyConfiguration config =
+                metrologyConfigurationService
+                        .newUsagePointMetrologyConfiguration("Residential prepay", serviceCategory)
+                        .withDescription("Residential consumer with budget/prepayment meter")
+                        .withCustomPropertySet(registeredPrepayCPS)
+                        .withUsagePointRequirement(
+                                getUsagePointRequirement(
+                                        "SERVICEKIND",
+                                        SearchablePropertyOperator.EQUAL,
+                                        ServiceKind.ELECTRICITY.name()))
+                        .withUsagePointRequirement(
+                                getUsagePointRequirement(
+                                        "detail.phaseCode",
+                                        SearchablePropertyOperator.EQUAL,
+                                        PhaseCode.S1N.name(),
+                                        PhaseCode.S2N.name(),
+                                        PhaseCode.S12N.name(),
+                                        PhaseCode.S1.name(),
+                                        PhaseCode.S2.name(),
+                                        PhaseCode.S12.name()))
+                        .withUsagePointRequirement(
+                                getUsagePointRequirement(
+                                        "type",
+                                        SearchablePropertyOperator.EQUAL,
+                                        UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()))
+                        .withUsagePointRequirement(
+                                getUsagePointRequirement(
+                                        "com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension.prepay",
+                                        SearchablePropertyOperator.EQUAL,
+                                        "1"))
+                        .create();
 
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
                 .orElseThrow(() -> new NoSuchElementException("Default meter role not found"));
@@ -290,11 +315,25 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
         }
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                 .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.ELECTRICITY));
-        UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential consumer with correction", serviceCategory)
-                .withDescription("Residential consumer with correction based on loss factor").create();
+        RegisteredCustomPropertySet registeredCorrectionFactorCPS = customPropertySetService.findActiveCustomPropertySet("com.elster.jupiter.metering.cps.impl.metrology.UsagePointCorrectionFactorsDomExt")
+                .orElseThrow(() -> new NoSuchElementException("Correction factors custom property set not found"));
+        UsagePointMetrologyConfiguration configuration =
+                metrologyConfigurationService
+                        .newUsagePointMetrologyConfiguration("Residential consumer with correction", serviceCategory)
+                        .withDescription("Residential consumer with correction based on loss factor")
+                        .withCustomPropertySet(registeredCorrectionFactorCPS)
+                        .withUsagePointRequirement(
+                                getUsagePointRequirement(
+                                        "SERVICEKIND",
+                                        SearchablePropertyOperator.EQUAL,
+                                        ServiceKind.ELECTRICITY.name()))
+                        .withUsagePointRequirement(
+                                getUsagePointRequirement(
+                                        "type",
+                                        SearchablePropertyOperator.EQUAL,
+                                        UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()))
+                        .create();
 
-        config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY.name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()));
 
         ReadingType readingTypeDailyApluskWh = meteringService.getReadingType("11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0")
                 .orElseGet(() -> meteringService.createReadingType("11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
@@ -304,24 +343,20 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
 
         MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
                 .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
-        MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
+        MetrologyContract contractBilling = configuration.addMandatoryMetrologyContract(purposeBilling);
 
         MetrologyPurpose purposeInformation = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
                 .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
-        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
-
-        RegisteredCustomPropertySet registeredCorrectionFactorCPS = customPropertySetService.findActiveCustomPropertySet("com.elster.jupiter.metering.cps.impl.metrology.UsagePointCorrectionFactorsDomExt")
-                .orElseThrow(() -> new NoSuchElementException("Correction factors custom property set not found"));
-        config.addCustomPropertySet(registeredCorrectionFactorCPS);
+        MetrologyContract contractInformation = configuration.addMandatoryMetrologyContract(purposeInformation);
 
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
                 .orElseThrow(() -> new NoSuchElementException("Default meter role not found"));
-        config.addMeterRole(meterRole);
+        configuration.addMeterRole(meterRole);
 
-        ReadingTypeRequirement requirementAplus = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation().getDefaultFormat(), meterRole)
+        ReadingTypeRequirement requirementAplus = configuration.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation().getDefaultFormat(), meterRole)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS));
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Corrected Daily A+ kWh", readingTypeDailyApluskWh, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = configuration.newReadingTypeDeliverable("Corrected Daily A+ kWh", readingTypeDailyApluskWh, Formula.Mode.AUTO);
         CustomPropertySet correctionFactorCPS = registeredCorrectionFactorCPS.getCustomPropertySet();
         List<PropertySpec> propertySpecs = correctionFactorCPS.getPropertySpecs();
         FormulaBuilder lossFactor = builder.property(correctionFactorCPS, propertySpecs.stream()
@@ -330,7 +365,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
 
 
         contractBilling.addDeliverable(builder.build(builder.multiply(builder.requirement(requirementAplus), lossFactor)));
-        contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingTypeDailyAplusWh, requirementAplus, "Daily A+ Wh"));
+        contractInformation.addDeliverable(buildFormulaSingleRequirement(configuration, readingTypeDailyAplusWh, requirementAplus, "Daily A+ Wh"));
     }
 
     private SearchablePropertyValue.ValueBean getUsagePointRequirement(String property, SearchablePropertyOperator operator, String... values) {
