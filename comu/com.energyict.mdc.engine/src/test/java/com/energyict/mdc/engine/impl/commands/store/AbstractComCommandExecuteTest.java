@@ -21,6 +21,8 @@ import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
+import com.energyict.mdc.engine.impl.commands.offline.ServerOfflineDevice;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
@@ -36,18 +38,20 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.energyict.obis.ObisCode;
+
+import java.time.Clock;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.logging.Logger;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.time.Clock;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.logging.Logger;
 
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.any;
@@ -74,6 +78,8 @@ public abstract class AbstractComCommandExecuteTest {
     private static OutboundConnectionTask connectionTask;
     @Mock
     protected ThreadPrincipalService threadPrincipalService;
+    @Mock
+    protected OfflineDeviceImpl.ServiceProvider offlineDeviceServiceProvider;
     @Mock
     protected ExecutionContext.ServiceProvider executionContextServiceProvider;
     @Mock
@@ -220,7 +226,7 @@ public abstract class AbstractComCommandExecuteTest {
     }
 
     protected GroupedDeviceCommand getGroupedDeviceCommand() {
-        OfflineDevice offlineDevice = mock(OfflineDevice.class);
+        ServerOfflineDevice offlineDevice = mock(ServerOfflineDevice.class);
         CommandRoot commandRoot = new CommandRootImpl(newTestExecutionContext(), commandRootServiceProvider);
         return new GroupedDeviceCommand(commandRoot, offlineDevice, deviceProtocol, null);
     }

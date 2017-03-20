@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
  * @author gna
  * @since 12/04/12 - 13:58
  */
-public class OfflineDeviceImpl implements OfflineDevice {
+public class OfflineDeviceImpl implements ServerOfflineDevice {
 
     /**
      * The Device which is going offline
@@ -419,16 +419,13 @@ public class OfflineDeviceImpl implements OfflineDevice {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Get a list of {@link OfflineRegister}s which are configured on this {@link OfflineDevice}
-     * <b>AND</b> are included in one of the given RegisterGroup that are specified by ID.
-     *
-     * @param deviceRegisterGroupIds the list ID of RegisterGroup
-     * @param mrid                   the mrid of the device
-     * @return a list of {@link OfflineRegister}s filtered according to the given RegisterGroup
-     */
-    public List<OfflineRegister> getRegistersForRegisterGroupAndMRID(final List<Long> deviceRegisterGroupIds, String mrid) {
-        return getAllOfflineRegisters().stream().filter(register -> register.inAtLeastOneGroup(deviceRegisterGroupIds) && register.getDeviceMRID().equals(mrid)).collect(Collectors.toList());
+    @Override
+    public List<OfflineRegister> getRegistersForRegisterGroupAndMRID(List<Long> deviceRegisterGroupIds, String mRID) {
+        return getAllOfflineRegisters()
+                .stream()
+                .filter(register -> register.getDeviceMRID().equals(mRID))
+                .filter(register -> register.inAtLeastOneGroup(deviceRegisterGroupIds))
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.upl.Services;
@@ -8,6 +9,7 @@ import com.energyict.mdc.upl.properties.DeviceMessageFile;
 
 import java.util.Collections;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.junit.After;
 import org.junit.Test;
@@ -76,28 +78,38 @@ public class DeviceMessageFileFinderImplTest {
     @Test
     public void nonExistingCalendar() {
         DeviceMessageFileFinderImpl finder = this.getInstance();
+        DeviceType deviceType = mock(DeviceType.class);
+        Finder<DeviceType> deviceTypeFinder = mock(Finder.class);
+        when(deviceTypeFinder.stream()).thenReturn(Collections.singletonList(deviceType).stream());
+        when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(deviceTypeFinder);
 
         // Business method
         Optional<DeviceMessageFile> messageFile = finder.from("101");
 
         // Asserts
         assertThat(messageFile).isEmpty();
-        verify(this.deviceConfigurationService.findAllDeviceTypes());
+        verify(this.deviceConfigurationService).findAllDeviceTypes();
+        assertThat(messageFile).isEmpty();
     }
 
     @Test
     public void existingCalendar() {
         DeviceMessageFileFinderImpl finder = this.getInstance();
         DeviceType deviceType = mock(DeviceType.class);
+        when(this.messageFile.getId()).thenReturn(MESSAGE_ID);
         when(deviceType.getDeviceMessageFiles()).thenReturn(Collections.singletonList(this.messageFile));
+        Finder<DeviceType> deviceTypeFinder = mock(Finder.class);
+        Stream<DeviceType> deviceTypeStream = Collections.singletonList(deviceType).stream();
+        when(deviceTypeFinder.stream()).thenReturn(deviceTypeStream);
+        when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(deviceTypeFinder);
 
         // Business method
         Optional<DeviceMessageFile> messageFile = finder.from(Long.toString(MESSAGE_ID));
 
         // Asserts
-        verify(this.deviceConfigurationService.findAllDeviceTypes());
-        verify(deviceType.getDeviceMessageFiles());
-        assertThat(messageFile).isEqualTo(this.messageFile);
+        verify(this.deviceConfigurationService).findAllDeviceTypes();
+        verify(deviceType).getDeviceMessageFiles();
+        assertThat(messageFile).contains(this.messageFile);
     }
 
     private DeviceMessageFileFinderImpl getInstance() {

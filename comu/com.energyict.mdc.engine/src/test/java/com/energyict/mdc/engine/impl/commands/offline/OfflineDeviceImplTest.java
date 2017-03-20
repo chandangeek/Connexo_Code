@@ -26,8 +26,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterGroup;
@@ -49,12 +47,8 @@ import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+
 import com.energyict.obis.ObisCode;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -63,6 +57,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
@@ -73,7 +73,6 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
@@ -230,7 +229,6 @@ public class OfflineDeviceImplTest {
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
         when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
         when(this.nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(this.thesaurus);
-        PropertySpecService propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(), dataVaultService, ormService);
     }
 
     @Test
@@ -269,7 +267,7 @@ public class OfflineDeviceImplTest {
         when(slave1.getDeviceType()).thenReturn(slaveRtuType);
         Device slaveFromSlave1 = createMockDevice(789, "slaveFromSlave1");
         when(slaveFromSlave1.getDeviceType()).thenReturn(slaveRtuType);
-        when(this.topologyService.findPhysicalConnectedDevices(slave1)).thenReturn(Arrays.asList(slaveFromSlave1));
+        when(this.topologyService.findPhysicalConnectedDevices(slave1)).thenReturn(Collections.singletonList(slaveFromSlave1));
 
         Device slave2 = createMockDevice(456, "slave2");
         when(slave2.getDeviceType()).thenReturn(slaveRtuType);
@@ -296,7 +294,7 @@ public class OfflineDeviceImplTest {
         when(slaveFromSlave1.getDeviceType()).thenReturn(slaveRtuType);
         OfflineDevice offlineSlaveFromSlave1 = new OfflineDeviceImpl(slaveFromSlave1, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
         OfflineDevice offlineSlave1 = new OfflineDeviceImpl(slave1, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
-        when(this.topologyService.findPhysicalConnectedDevices(slave1)).thenReturn(Arrays.asList(slaveFromSlave1));
+        when(this.topologyService.findPhysicalConnectedDevices(slave1)).thenReturn(Collections.singletonList(slaveFromSlave1));
 
         Device slave2 = createMockDevice(456, "slave2");
         when(slave2.getDeviceType()).thenReturn(slaveRtuType);
@@ -346,9 +344,6 @@ public class OfflineDeviceImplTest {
 
     @Test
     public void getAllRegistersIncludingSlavesTest() {
-
-        OfflineDevice mockOfflineDevice = mock(OfflineDevice.class);
-
         Device device = createMockDevice();
         RegisterType registerType = mock(RegisterType.class);
         Register register1 = createMockedRegister(createMockedRegisterSpec(registerType), device);
@@ -360,12 +355,12 @@ public class OfflineDeviceImplTest {
         Device slaveWithNeedProxy = createMockDevice(132, "654654");
         when(slaveWithNeedProxy.getDeviceType()).thenReturn(slaveRtuType);
         Register registerSlave1 = createMockedRegister(createMockedRegisterSpec(registerType), device);
-        when(slaveWithNeedProxy.getRegisters()).thenReturn(Arrays.asList(registerSlave1));
+        when(slaveWithNeedProxy.getRegisters()).thenReturn(Collections.singletonList(registerSlave1));
         Device slaveWithoutNeedProxy = createMockDevice(133, "65465415");
         DeviceType notASlaveRtuType = mock(DeviceType.class);
         Register registerSlave2 = createMockedRegister(createMockedRegisterSpec(registerType), device);
         when(slaveWithoutNeedProxy.getDeviceType()).thenReturn(notASlaveRtuType);
-        when(slaveWithoutNeedProxy.getRegisters()).thenReturn(Arrays.asList(registerSlave2));
+        when(slaveWithoutNeedProxy.getRegisters()).thenReturn(Collections.singletonList(registerSlave2));
         when(this.topologyService.findPhysicalConnectedDevices(device)).thenReturn(Arrays.asList(slaveWithNeedProxy, slaveWithoutNeedProxy));
 
         OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
@@ -382,24 +377,24 @@ public class OfflineDeviceImplTest {
         when(rtuRegisterGroup.getId()).thenReturn(rtuRegisterGroupId);
         Device device = createMockDevice();
         RegisterType registerType = mock(RegisterType.class);
-        when(registerType.getRegisterGroups()).thenReturn(Arrays.asList(rtuRegisterGroup));
+        when(registerType.getRegisterGroups()).thenReturn(Collections.singletonList(rtuRegisterGroup));
         RegisterSpec registerSpec = createMockedRegisterSpec(registerType);
         Register register1 = createMockedRegister(registerSpec, device);
-        when(register1.getRegisterSpec().getRegisterType().getRegisterGroups()).thenReturn(Arrays.asList(rtuRegisterGroup));
+        when(register1.getRegisterSpec().getRegisterType().getRegisterGroups()).thenReturn(Collections.singletonList(rtuRegisterGroup));
         OfflineRegister offlineRegister1 = mock(OfflineRegister.class);
         when(offlineRegister1.inGroup(rtuRegisterGroupId)).thenReturn(true);
-        when(offlineRegister1.inAtLeastOneGroup(Arrays.asList(rtuRegisterGroupId))).thenReturn(true);
+        when(offlineRegister1.inAtLeastOneGroup(Collections.singletonList(rtuRegisterGroupId))).thenReturn(true);
         when(offlineRegister1.getDeviceMRID()).thenReturn("getRegistersForRegisterGroup");
         Register register2 = createMockedRegister(registerSpec, device);
         when(device.getRegisters()).thenReturn(Arrays.asList(register1, register2));
         OfflineRegister offlineRegister2 = mock(OfflineRegister.class);
         when(offlineRegister2.getDeviceMRID()).thenReturn("getRegistersForRegisterGroup");
 
-        OfflineDeviceImpl offlineRtu = spy(new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider));
+        OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
         when(offlineRtu.getAllOfflineRegisters()).thenReturn(Arrays.asList(offlineRegister1, offlineRegister2));
 
         // asserts
-        assertEquals("Should have gotten 1 registers", 1, offlineRtu.getRegistersForRegisterGroupAndMRID(Arrays.asList(rtuRegisterGroupId), "getRegistersForRegisterGroup").size());
+        assertEquals("Should have gotten 1 registers", 1, offlineRtu.getRegistersForRegisterGroupAndMRID(Collections.singletonList(rtuRegisterGroupId), "getRegistersForRegisterGroup").size());
     }
 
     private RegisterSpec createMockedRegisterSpec(RegisterType registerType) {

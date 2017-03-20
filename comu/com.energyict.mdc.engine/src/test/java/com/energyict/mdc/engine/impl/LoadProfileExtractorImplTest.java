@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.metering.ReadingType;
+import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -124,7 +125,10 @@ public class LoadProfileExtractorImplTest {
     @Test
     public void oneChannel() {
         LoadProfileExtractor extractor = this.getInstance();
+        ChannelSpec channelSpec = mock(ChannelSpec.class);
+        when(channelSpec.getDeviceObisCode()).thenReturn(ObisCode.fromString(DEVICE_OBIS_CODE));
         Channel channel = mock(Channel.class);
+        when(channel.getChannelSpec()).thenReturn(channelSpec);
         when(this.loadProfile.getChannels()).thenReturn(Collections.singletonList(channel));
 
         // Business method
@@ -135,7 +139,7 @@ public class LoadProfileExtractorImplTest {
         LoadProfileExtractor.Channel extractedChannel = channels.get(0);
         assertThat(extractedChannel.deviceSerialNumber()).isEqualTo(DEVICE_SERIAL_NUMBER);
         assertThat(extractedChannel.obisCode()).isEqualTo(DEVICE_OBIS_CODE);
-        assertThat(extractedChannel.unit()).isEqualTo(Unit.get("kWh"));
+        assertThat(extractedChannel.unit()).isEqualTo("kWh");
     }
 
     @Test
@@ -153,7 +157,10 @@ public class LoadProfileExtractorImplTest {
     @Test
     public void oneRegister() {
         LoadProfileExtractor extractor = this.getInstance();
+        ChannelSpec channelSpec = mock(ChannelSpec.class);
+        when(channelSpec.getDeviceObisCode()).thenReturn(ObisCode.fromString(DEVICE_OBIS_CODE));
         Channel channel = mock(Channel.class);
+        when(channel.getChannelSpec()).thenReturn(channelSpec);
         when(this.loadProfile.getChannels()).thenReturn(Collections.singletonList(channel));
 
         // Business method

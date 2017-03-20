@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
@@ -9,22 +8,26 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
 import com.energyict.mdc.engine.impl.commands.collect.RegisterCommand;
-import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
+import com.energyict.mdc.engine.impl.commands.offline.ServerOfflineDevice;
 import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.meterdata.DefaultDeviceRegister;
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+
 import com.energyict.obis.ObisCode;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,11 +35,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -66,10 +64,6 @@ public class RegisterCommandImplTest extends AbstractComCommandExecuteTest {
     @Mock
     private Device device;
 
-    private Clock clock = Clock.systemDefaultZone();
-    private IssueService issueService = new IssueServiceImpl();
-    private DeviceService deviceService = mock(DeviceService.class);
-
     @Before
     public void initializeMocks() {
         when(this.comTaskExecution.getDevice()).thenReturn(this.device);
@@ -78,22 +72,21 @@ public class RegisterCommandImplTest extends AbstractComCommandExecuteTest {
 
     @Test(expected = CodingException.class)
     public void commandRootNullTest() {
-        OfflineDevice device = mock(OfflineDevice.class);
-        RegisterCommand registerCommand = new RegisterCommandImpl(null, mock(RegistersTask.class), null);
+        new RegisterCommandImpl(null, mock(RegistersTask.class), null);
         // should have gotten an exception
     }
 
     @Test(expected = CodingException.class)
     public void registersTaskNullTest() {
         GroupedDeviceCommand groupedDeviceCommand = getGroupedDeviceCommand();
-        RegisterCommand registerCommand = new RegisterCommandImpl(groupedDeviceCommand, null, null);
+        new RegisterCommandImpl(groupedDeviceCommand, null, null);
         // should have gotten an exception
     }
 
     @Test(expected = CodingException.class)
     public void deviceNullTest() {
         GroupedDeviceCommand groupedDeviceCommand = getGroupedDeviceCommand();
-        RegisterCommand registerCommand = new RegisterCommandImpl(groupedDeviceCommand, mock(RegistersTask.class), null);
+        new RegisterCommandImpl(groupedDeviceCommand, mock(RegistersTask.class), null);
         // should have gotten an exception
     }
 
@@ -114,7 +107,7 @@ public class RegisterCommandImplTest extends AbstractComCommandExecuteTest {
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getDevice()).thenReturn(device);
 
-        OfflineDevice offlineDevice = mock(OfflineDevice.class);
+        ServerOfflineDevice offlineDevice = mock(ServerOfflineDevice.class);
         OfflineRegister offlineRegister_A = mock(OfflineRegister.class);
         OfflineRegister offlineRegister_B = mock(OfflineRegister.class);
         OfflineRegister offlineRegister_C = mock(OfflineRegister.class);
@@ -126,18 +119,18 @@ public class RegisterCommandImplTest extends AbstractComCommandExecuteTest {
         RegistersTask registersTask_A = mock(RegistersTask.class);
         RegisterGroup registerGroupA = mock(RegisterGroup.class);
         when(registerGroupA.getId()).thenReturn(1L);
-        List<RegisterGroup> registerGroups_A = Arrays.asList(registerGroupA); // just a dummy arrayList, content isn't important (as long as it is not an empty list)
+        List<RegisterGroup> registerGroups_A = Collections.singletonList(registerGroupA); // just a dummy List, content isn't important (as long as it is not an empty list)
         when(registersTask_A.getRegisterGroups()).thenReturn(registerGroups_A);
 
         RegistersTask registersTask_B = mock(RegistersTask.class);
         RegisterGroup registerGroupB = mock(RegisterGroup.class);
         when(registerGroupB.getId()).thenReturn(2L);
-        List<RegisterGroup> registerGroups_B = Arrays.asList(registerGroupB);
+        List<RegisterGroup> registerGroups_B = Collections.singletonList(registerGroupB);
         when(registersTask_B.getRegisterGroups()).thenReturn(registerGroups_B);
 
         when(offlineDevice.getAllOfflineRegisters()).thenReturn(Arrays.asList(offlineRegister_A, offlineRegister_B, offlineRegister_C));
-        when(((OfflineDeviceImpl) offlineDevice).getRegistersForRegisterGroupAndMRID(Arrays.asList(1L), MR_ID)).thenReturn(Arrays.asList(offlineRegister_A, offlineRegister_C));
-        when(((OfflineDeviceImpl) offlineDevice).getRegistersForRegisterGroupAndMRID(Arrays.asList(2L), MR_ID)).thenReturn(Arrays.asList(offlineRegister_A, offlineRegister_B));
+        when(offlineDevice.getRegistersForRegisterGroupAndMRID(Collections.singletonList(1L), MR_ID)).thenReturn(Arrays.asList(offlineRegister_A, offlineRegister_C));
+        when(offlineDevice.getRegistersForRegisterGroupAndMRID(Collections.singletonList(2L), MR_ID)).thenReturn(Arrays.asList(offlineRegister_A, offlineRegister_B));
 
         GroupedDeviceCommand groupedDeviceCommand = spy(getGroupedDeviceCommand());
         when(groupedDeviceCommand.getOfflineDevice()).thenReturn(offlineDevice);
@@ -163,7 +156,7 @@ public class RegisterCommandImplTest extends AbstractComCommandExecuteTest {
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getDevice()).thenReturn(device);
 
-        OfflineDevice offlineDevice = mock(OfflineDevice.class);
+        ServerOfflineDevice offlineDevice = mock(ServerOfflineDevice.class);
         OfflineRegister offlineRegister_A = mockOfflineRegister(DEVICE_ID, DEVICE_SERIALNUMBER, 1L, ObisCode.fromString("1.0.1.8.0.255"));
         OfflineRegister offlineRegister_B = mockOfflineRegister(DEVICE_ID, DEVICE_SERIALNUMBER, 2L, ObisCode.fromString("1.0.2.8.0.255"));
         OfflineRegister offlineRegister_C = mockOfflineRegister(DEVICE_ID, DEVICE_SERIALNUMBER, 3L, ObisCode.fromString("1.0.3.8.0.255"));
@@ -171,7 +164,7 @@ public class RegisterCommandImplTest extends AbstractComCommandExecuteTest {
         RegistersTask registersTask_A = mock(RegistersTask.class);
         RegisterGroup registerGroupA = mock(RegisterGroup.class);
         when(registerGroupA.getId()).thenReturn(1L);
-        List<RegisterGroup> registerGroups_A = Arrays.asList(registerGroupA); // just a dummy arrayList, content isn't important
+        List<RegisterGroup> registerGroups_A = Collections.singletonList(registerGroupA); // just a dummy List, content isn't important
         when(registersTask_A.getRegisterGroups()).thenReturn(registerGroups_A);
 
         RegistersTask registersTask_B = mock(RegistersTask.class);
@@ -179,14 +172,14 @@ public class RegisterCommandImplTest extends AbstractComCommandExecuteTest {
         when(registersTask_B.getRegisterGroups()).thenReturn(registerGroups_B);
 
         when(offlineDevice.getAllOfflineRegisters()).thenReturn(Arrays.asList(offlineRegister_A, offlineRegister_B, offlineRegister_C));
-        when(((OfflineDeviceImpl) offlineDevice).getRegistersForRegisterGroupAndMRID(Arrays.asList(1L), MR_ID)).thenReturn(Arrays.asList(offlineRegister_A, offlineRegister_C));
-        when(((OfflineDeviceImpl) offlineDevice).getRegistersForRegisterGroupAndMRID(new ArrayList<>(), MR_ID)).thenReturn(Arrays.asList(offlineRegister_B));
+        when(offlineDevice.getRegistersForRegisterGroupAndMRID(Collections.singletonList(1L), MR_ID)).thenReturn(Arrays.asList(offlineRegister_A, offlineRegister_C));
+        when(offlineDevice.getRegistersForRegisterGroupAndMRID(new ArrayList<>(), MR_ID)).thenReturn(Collections.singletonList(offlineRegister_B));
 
         GroupedDeviceCommand groupedDeviceCommand = spy(getGroupedDeviceCommand());
         when(groupedDeviceCommand.getOfflineDevice()).thenReturn(offlineDevice);
         ReadRegistersCommand readRegistersCommand = mock(ReadRegistersCommand.class);
         doReturn(readRegistersCommand).when(groupedDeviceCommand).getReadRegistersCommand(Matchers.<CompositeComCommand>any(), any(ComTaskExecution.class));
-        RegisterCommand registerCommand = spy(new RegisterCommandImpl(groupedDeviceCommand, registersTask_A, comTaskExecution));
+        RegisterCommand registerCommand = new RegisterCommandImpl(groupedDeviceCommand, registersTask_A, comTaskExecution);
 
         // asserts
         assertEquals(ComCommandTypes.REGISTERS_COMMAND, registerCommand.getCommandType());
@@ -211,7 +204,7 @@ public class RegisterCommandImplTest extends AbstractComCommandExecuteTest {
 
     @Test
     public void addListOfCollectedDataItemsTest() {
-        OfflineDevice device = mock(OfflineDevice.class);
+        ServerOfflineDevice device = mock(ServerOfflineDevice.class);
         GroupedDeviceCommand groupedDeviceCommand = spy(getGroupedDeviceCommand());
         when(groupedDeviceCommand.getOfflineDevice()).thenReturn(device);
         ReadRegistersCommand readRegistersCommand = mock(ReadRegistersCommand.class);
