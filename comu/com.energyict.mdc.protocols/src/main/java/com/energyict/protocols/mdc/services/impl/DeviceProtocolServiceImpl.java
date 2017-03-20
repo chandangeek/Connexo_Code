@@ -10,21 +10,17 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.UnableToCreateProtocolInstance;
 import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
-import com.energyict.mdc.upl.ObjectMapperService;
 import com.energyict.mdc.upl.RuntimeEnvironment;
 import com.energyict.mdc.upl.crypto.KeyStoreService;
 import com.energyict.mdc.upl.crypto.X509Service;
 import com.energyict.mdc.upl.io.UPLSocketService;
 import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.legacy.CertificateAliasFinder;
-import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Formatter;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
-import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
 import com.energyict.mdc.upl.messages.legacy.RegisterExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
@@ -33,18 +29,13 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.SecurityService;
-import com.energyict.protocolimplv2.abnt.AbntTranslationKeys;
-import com.energyict.protocolimplv2.ace4000.ACE4000Properties;
-import com.energyict.protocolimplv2.common.CommonV2TranslationKeys;
-import com.energyict.protocolimplv2.elster.garnet.GarnetTranslationKeys;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
-import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
+import com.energyict.protocolimplv2.securitysupport.CustomPropertySetTranslationKeys;
 import com.energyict.protocols.impl.channels.ip.IpMessageSeeds;
-import com.energyict.protocols.mdc.protocoltasks.CTRTranslationKeys;
-import com.energyict.protocols.mdc.protocoltasks.EiWebPlusDialectProperties;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -77,9 +68,12 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
     public void setRuntimeEnvironment(RuntimeEnvironment runtimeEnvironment) {
     }
 
+    //TODO refactor the ObjectMapperService away, not needed as a service
+/*
     @Reference
     public void setObjectMapperService(ObjectMapperService objectMapperService) {
     }
+*/
 
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
@@ -126,10 +120,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
     }
 
     @Reference
-    public void setNumberLookupFinder(NumberLookupFinder numberLookupFinder) {
-    }
-
-    @Reference
     public void setDeviceMessageFileExtractor(DeviceMessageFileExtractor deviceMessageFileExtractor) {
     }
 
@@ -165,13 +155,19 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
     public void setKeyStoreService(KeyStoreService keyStoreService) {
     }
 
+    //TODO uncomment, these 3 services are needed in some of the constructors of the protocols! (but they do not yet exist in CXO)
+    /*
+    @Reference
+    public void setNumberLookupFinder(NumberLookupFinder numberLookupFinder) {
+    }
+
     @Reference
     public void setCertificateWrapperExtractor(CertificateWrapperExtractor certificateWrapperExtractor) {
     }
 
     @Reference
     public void setCertificateAliasFinder(CertificateAliasFinder certificateAliasFinder) {
-    }
+    }*/
 
     @Override
     public Object createProtocol(String className) {
@@ -205,17 +201,14 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
 
     @Override
     public List<TranslationKey> getKeys() {
+        List<TranslationKey> allKeys = new ArrayList<>(getProtocolPropertyKeys());
+        allKeys.addAll(Arrays.asList(com.energyict.protocols.mdc.services.impl.TranslationKeys.values()));
+        allKeys.addAll(Arrays.asList(CustomPropertySetTranslationKeys.values()));
+        return allKeys;
+    }
+
+    private List<TranslationKey> getProtocolPropertyKeys() {
         return Stream.of(
-                Stream.of(EiWebPlusDialectProperties.TranslationKeys.values()),
-                Stream.of(SecurityPropertySpecName.values()).map(ConnexoTranslationKeyAdapter::new),
-                Stream.of(CustomPropertySetTranslationKeys.values()),
-                Stream.of(AbntTranslationKeys.values()),
-                Stream.of(CTRTranslationKeys.values()),
-                Stream.of(GarnetTranslationKeys.values()),
-                Stream.of(CommonV2TranslationKeys.values()),
-                Stream.of(ACE4000Properties.TranslationKeys.values()),
-                Stream.of(TranslationKeys.values()),
-                Stream.of(com.energyict.protocols.mdc.services.impl.TranslationKeys.values()),
                 Stream.of(com.energyict.mdc.channels.nls.PropertyTranslationKeys.values()),
                 Stream.of(com.energyict.nls.PropertyTranslationKeys.values()),
                 Stream.of(com.elster.protocolimpl.nls.PropertyTranslationKeys.values()),
@@ -223,6 +216,8 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
                 Stream.of(com.energyict.protocolimpl.nls.PropertyTranslationKeys.values()),
                 Stream.of(com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys.values()))
                 .flatMap(Function.identity())
+                .map(com.energyict.mdc.upl.nls.TranslationKey.class::cast)
+                .map(ConnexoTranslationKeyAdapter::new)
                 .collect(Collectors.toList());
     }
 
