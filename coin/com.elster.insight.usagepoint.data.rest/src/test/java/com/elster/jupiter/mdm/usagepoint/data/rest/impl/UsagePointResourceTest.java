@@ -5,6 +5,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.bpm.ProcessInstanceInfos;
+import com.elster.jupiter.calendar.rest.CalendarInfo;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -156,6 +157,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePointBuilder.validate()).thenReturn(usagePoint);
 
         when(usagePoint.newElectricityDetailBuilder(any(Instant.class))).thenReturn(electricityDetailBuilder);
+        when(usagePoint.getUsedCalendars()).thenReturn(mock(UsagePoint.UsedCalendars.class));
         when(electricityDetailBuilder.withCollar(any())).thenReturn(electricityDetailBuilder);
         when(electricityDetailBuilder.withEstimatedLoad(any(Quantity.class))).thenReturn(electricityDetailBuilder);
         when(electricityDetailBuilder.withGrounded(any(YesNoAnswer.class))).thenReturn(electricityDetailBuilder);
@@ -321,6 +323,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
     @Test
     public void testUsagePointCreating() {
+        when(calendarService.findCalendar(anyLong())).thenReturn(Optional.of(mockCalendar()));
         Response response = target("usagepoints").request().post(Entity.json(getBasicUsagePointInfo()));
         assertThat(response.getStatus()).isEqualTo(201);
     }
@@ -735,10 +738,10 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
     @Test
     public void testUsagePointCreationWithMetrologyConfigurationAndMeters() throws Exception {
+        when(calendarService.findCalendar(anyLong())).thenReturn(Optional.of(mockCalendar()));
         UsagePointInfo usagePointInfo = getInfoWithMetrologyConfigurationAndMeters();
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
         when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
-
         Response response = target("usagepoints").request().post(Entity.json(usagePointInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         verify(usagePointBuilder).create();
@@ -760,6 +763,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
         when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
         when(usagePointLifeCycleConfigurationService.findUsagePointTransition(any(Long.class))).thenReturn(Optional.of(transition));
+        when(calendarService.findCalendar(anyLong())).thenReturn(Optional.of(mockCalendar()));
 
         Response response = target("usagepoints").request().post(Entity.json(usagePointInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
@@ -803,6 +807,13 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         configurationInfo.meterRoles = Collections.singletonList(new MeterRoleInfo());
         usagePointInfo.metrologyConfiguration = configurationInfo;
 
+        CalendarOnUsagePointInfo calendarOnUsagePointInfo = new CalendarOnUsagePointInfo();
+        calendarOnUsagePointInfo.calendar = new CalendarInfo();
+        //calendarOnUsagePointInfo.next = calendarOnUsagePointInfo;
+        calendarOnUsagePointInfo.immediately = true;
+        calendarOnUsagePointInfo.usagePointId = 1L;
+        usagePointInfo.calendars = Collections.singletonList(calendarOnUsagePointInfo);
+
         return usagePointInfo;
     }
     private UsagePointInfo getBasicUsagePointInfo() {
@@ -816,7 +827,12 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         info.location = "";
         info.extendedGeoCoordinates = new CoordinatesInfo();
         info.extendedLocation = new LocationInfo();
-
+        CalendarOnUsagePointInfo calendarOnUsagePointInfo = new CalendarOnUsagePointInfo();
+        calendarOnUsagePointInfo.calendar = new CalendarInfo();
+        //calendarOnUsagePointInfo.next = calendarOnUsagePointInfo;
+        calendarOnUsagePointInfo.immediately = true;
+        calendarOnUsagePointInfo.usagePointId = 1L;
+        info.calendars = Collections.singletonList(calendarOnUsagePointInfo);
         return info;
     }
 }

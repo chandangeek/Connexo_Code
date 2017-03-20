@@ -9,7 +9,6 @@ import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.Event;
-import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -563,6 +562,8 @@ public class UsagePointResource {
                 }
             } else if (step.equals("metrologyConfigurationWithMetersInfo")) {
                 validateMetrologyConfiguration(info, validationBuilder);
+            } else if (step.equals("calendarTransitionInfo")) {
+                validateCalendarConfiguration(info, validationBuilder);
             } else if (customPropertySetId > 0) {
                 RegisteredCustomPropertySet set = customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)
                         .stream()
@@ -1020,6 +1021,33 @@ public class UsagePointResource {
         }
     }
 
+    private void validateCalendarConfiguration(UsagePointInfo info, RestValidationBuilder validationBuilder){
+        try (TransactionContext transaction = transactionService.getContext()) {
+            if (info.metrologyConfiguration != null) {
+                UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
+                info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
+                checkMeterRolesActivationTime(info.metrologyConfiguration.meterRoles, usagePoint.getInstallationTime(), validationBuilder);
+                UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) resourceHelper.findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id);
+                addCalendars(info, usagePoint);
+                usagePoint.apply(usagePointMetrologyConfiguration);
+                resourceHelper.activateMeters(info, usagePoint);
+            }
+        }
+    }
+
+    private void addCalendars(UsagePointInfo info, UsagePoint usagePoint) {
+        info.calendars.forEach(calendarInfo -> {
+            Calendar calendar = calendarService.findCalendar(calendarInfo.calendar.id).orElse(null);
+            Instant start = Instant.ofEpochMilli(calendarInfo.fromTime);
+            UsagePoint.CalendarUsage calendarUsage;
+            if(calendarInfo.immediately){
+                calendarUsage = usagePoint.getUsedCalendars().addCalendar(calendar);
+            } else {
+                calendarUsage = usagePoint.getUsedCalendars().addCalendar(calendar, start);
+            }
+        });
+    }
+
     private void addFakeCalendar(UsagePoint usagePoint, List<EventSet> eventSets) {
         eventSets
                 .stream()
@@ -1084,18 +1112,7 @@ public class UsagePointResource {
                         .findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id));
             }
             resourceHelper.activateMeters(info, usagePoint);
-            info.calendars.forEach(calendarInfo -> {
-                Calendar calendar = calendarService.findCalendar(calendarInfo.calendar.id).orElse(null);
-                Instant start = Instant.ofEpochMilli(calendarInfo.fromTime);
-                UsagePoint.CalendarUsage calendarUsage;
-                if(calendarInfo.immediately){
-                    calendarUsage = usagePoint.getUsedCalendars().addCalendar(calendar);
-                } else {
-                    calendarUsage = usagePoint.getUsedCalendars().addCalendar(calendar, start);
-                }
-            });
-
-
+            addCalendars(info, usagePoint);
 
 
             performLifeCycleTransition(info.transitionToPerform, usagePoint, validationBuilder);
