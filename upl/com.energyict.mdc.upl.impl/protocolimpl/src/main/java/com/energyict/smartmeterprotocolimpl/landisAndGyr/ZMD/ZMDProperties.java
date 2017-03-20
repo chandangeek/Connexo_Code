@@ -1,8 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
+import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.ConnectionMode;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocolimpl.base.ProtocolProperty;
@@ -24,6 +26,8 @@ public class ZMDProperties extends DlmsProtocolProperties {
     private static String DEFAULT_CLIENT_MAC_ADDRESS = "32";
 
     private SecurityProvider securityProvider;
+    private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
+    TypedProperties properties = TypedProperties.empty();
 
     public List<String> getOptionalKeys() {
         List result = new ArrayList();
@@ -38,9 +42,9 @@ public class ZMDProperties extends DlmsProtocolProperties {
         result.add(CIPHERING_TYPE);
         result.add(INVOKE_ID_AND_PRIORITY);
         result.add(MAX_REC_PDU_SIZE);
-
         result.add("RequestTimeZone");
         result.add("EventIdIndex");
+        result.add("Password");
         return result;
     }
 
@@ -114,5 +118,18 @@ public class ZMDProperties extends DlmsProtocolProperties {
     @Override
     public ConnectionMode getConnectionMode() {
         return ConnectionMode.HDLC;
+    }
+
+    public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+        getProperties().setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
+        this.deviceProtocolSecurityPropertySet = deviceProtocolSecurityPropertySet;
+    }
+
+    public TypedProperties getProperties() {
+        return properties;
+    }
+
+    public DeviceProtocolSecurityPropertySet getDeviceProtocolSecurityPropertySet() {
+        return deviceProtocolSecurityPropertySet;
     }
 }

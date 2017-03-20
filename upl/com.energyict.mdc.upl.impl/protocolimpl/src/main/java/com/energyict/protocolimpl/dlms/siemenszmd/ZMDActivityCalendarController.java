@@ -302,6 +302,24 @@ public class ZMDActivityCalendarController implements ActivityCalendarController
     }
 
     /**
+     * Write the complete ActivityCalendar to the device
+     */
+    public void write12LinesCalendar(int linePosition) throws IOException {
+        ActivityCalendar ac = getActivityCalendar();
+        switch (linePosition){
+            case 0:
+                ac.writeSeasonProfilePassive(getSeasonArray());
+                break;
+            case 1:
+                ac.writeWeekProfileTablePassive(getWeekArray());
+                break;
+            case 2:
+                ac.writeDayProfileTablePassive(getDayArray());
+                break;
+        }
+    }
+
+    /**
      * Write the SpecialDays table to the device
      */
     public void writeSpecialDaysTable() {

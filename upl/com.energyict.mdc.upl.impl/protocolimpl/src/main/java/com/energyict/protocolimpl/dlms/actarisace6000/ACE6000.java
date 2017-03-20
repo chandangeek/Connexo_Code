@@ -22,28 +22,40 @@ import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.cosem.*;
+import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.tasks.support.DeviceSecuritySupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.CapturedObjects;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
+import com.energyict.protocolimpl.dlms.actarisace6000.messaging.ACE6000Messages;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
+import com.energyict.protocolimplv2.security.SimplePasswordSecuritySupport;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, SerialNumberSupport {
+public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySupport, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, SerialNumberSupport, MessageProtocol, DemandResetProtocol {
 
     private static final byte DEBUG = 0;  // KV 16012004 changed all DEBUG values
 
     private static final byte[] profileLN = {0, 0, 99, 1, 0, (byte) 255};
     private static final int iNROfIntervals = 50000;
+    private final ACE6000Messages messageProtocol;
 
     private int iInterval = 0;
     private ScalerUnit[] demandScalerUnits = null;
@@ -117,15 +129,106 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
     private int extendedLogging;
     int addressingMode;
     int connectionMode;
+    private DeviceProtocolSecurityCapabilities securitySupport;
+
+    // Added for MeterProtocol interface implementation
+    private ACE6000Properties properties = null;
 
     /**
      * Creates a new instance of ACE6000, empty constructor
      */
     public ACE6000() {
+        this.messageProtocol = new ACE6000Messages(this);
     }
 
     public DLMSConnection getDLMSConnection() {
         return dlmsConnection;
+    }
+
+    /**
+     * this implementation calls <code> validateProperties </code>
+     * and assigns the argument to the properties field
+     *
+     * @param properties <br>
+     * @throws MissingPropertyException <br>
+     * @throws InvalidPropertyException <br>
+     */
+    public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+        validateProperties(properties);
+        //this.properties = properties;
+    }
+
+    /**
+     * <p>validates the properties.</p><p>
+     * The default implementation checks that all required parameters are present.
+     * </p>
+     *
+     * @param properties <br>
+     * @throws MissingPropertyException <br>
+     * @throws InvalidPropertyException <br>
+     */
+    protected void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+        try {
+            Iterator iterator = getRequiredKeys().iterator();
+            while (iterator.hasNext()) {
+                String key = (String) iterator.next();
+                if (properties.getProperty(key) == null) {
+                    throw new MissingPropertyException(key + " key missing");
+                }
+            }
+            strID = properties.getProperty(MeterProtocol.ADDRESS);
+            if ((strID != null) && (strID.length() > 16)) {
+                throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
+            }
+            strPassword = properties.getProperty(MeterProtocol.PASSWORD);
+            //if (strPassword.length()!=8) throw new InvalidPropertyException("Password must be exact 8 characters.");
+            iHDLCTimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "10000").trim());
+            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
+            //iDelayAfterFailProperty=Integer.parseInt(properties.getProperty("DelayAfterfail","3000").trim());
+            iSecurityLevelProperty = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
+            iRequestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0").trim());
+            iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
+
+            iClientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "1").trim());
+            iServerUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "17").trim());
+            iServerLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "17").trim());
+            firmwareVersion = properties.getProperty("FirmwareVersion", "ANY");
+            nodeId = properties.getProperty(MeterProtocol.NODEID, "");
+            // KV 19012004 get the serialNumber
+            serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
+            extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
+            addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "-1"));
+            connectionMode = Integer.parseInt(properties.getProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP
+            alarmStatusFlagChannel = Integer.parseInt(properties.getProperty("StatusFlagChannel", "0"));
+        } catch (NumberFormatException e) {
+            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, " + e.getMessage());
+        }
+
+
+    }
+
+    public List<String> getOptionalKeys() {
+        List result = new ArrayList();
+        result.add("Timeout");
+        result.add("Retries");
+        result.add("DelayAfterFail");
+        result.add("RequestTimeZone");
+        result.add("FirmwareVersion");
+        result.add("SecurityLevel");
+        result.add("ClientMacAddress");
+        result.add("ServerUpperMacAddress");
+        result.add("ServerLowerMacAddress");
+        result.add("ExtendedLogging");
+        result.add("AddressingMode");
+        result.add("AlarmStatusFlagChannel");
+        result.add("Password");
+        return result;
+    }
+
+
+    public List<String> getRequiredKeys() {
+        List result = new ArrayList(0);
+        return result;
     }
 
     /**
@@ -149,8 +252,8 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         serialnr = null;
 
         try {
-            cosemObjectFactory = new CosemObjectFactory(this);
-            storedValuesImpl = new StoredValuesImpl(cosemObjectFactory);
+        cosemObjectFactory = new CosemObjectFactory(this);
+        storedValuesImpl = new StoredValuesImpl(cosemObjectFactory);
             if (connectionMode == 0) {
                 dlmsConnection = new HDLCConnection(inputStream, outputStream, iHDLCTimeoutProperty, 100, iProtocolRetriesProperty, iClientMacAddress, iServerLowerMacAddress, iServerUpperMacAddress, addressingMode);
             } else {
@@ -221,6 +324,9 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
     private byte[] buildaarq(byte[] aarq1, byte[] aarq2) {
         byte[] aarq = null;
         int i, t = 0;
+        if(strPassword == null){
+            strPassword = "";
+        }
         // prepare aarq buffer
         aarq = new byte[3 + aarq1.length + 1 + strPassword.length() + aarq2.length];
         // copy aarq1 to aarq buffer
@@ -565,6 +671,14 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
     public ApplicationServiceObject getAso() {
         return null;      //Not used, AARQ is manually built here
     }
+
+    protected DlmsProtocolProperties getProperties() {
+        if (properties == null) {
+            properties = new ACE6000Properties();
+        }
+        return properties;
+    }
+
 
     private ProfileData doGetDemandValues(Calendar fromCalendar, byte bNROfChannels, boolean includeEvents) throws IOException {
         int channelCount = getNumberOfChannels();
@@ -1037,6 +1151,25 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
 
     } // private void doSetTime(Calendar calendar)
 
+    public void applyMessages(List messageEntries) throws IOException {
+        this.messageProtocol.applyMessages(messageEntries);
+    }
+
+    public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
+        return this.messageProtocol.queryMessage(messageEntry);
+    }
+
+    public String writeMessage(Message msg) {
+        return this.messageProtocol.writeMessage(msg);
+    }
+
+    public String writeTag(MessageTag tag) {
+        return this.messageProtocol.writeTag(tag);
+    }
+
+    public String writeValue(MessageValue value) {
+        return this.messageProtocol.writeValue(value);
+    }
     public Date getTime() throws IOException {
         Clock clock = getCosemObjectFactory().getClock();
         Date date = clock.getDateTime();
@@ -1088,7 +1221,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
             getDLMSConnection().connectMAC();
         } catch (DLMSConnectionException e) {
             throw new IOException(e.getMessage());
-        }
+    }
         try {
             requestApplAssoc(iSecurityLevelProperty);
 
@@ -1278,6 +1411,58 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         }
     } // public void disconnect() throws IOException
 
+    @Override
+    public String getVersion() {
+        return "$Date: 2017-03-10 10:23:42 +0200 (Fr, 10 Mar 2017)$";
+    }
+
+    public String getMeterSerialNumber() throws ConnectionException {
+        try {
+            return getCosemObjectFactory().getGenericRead(0xFD00, DLMSUtils.attrLN2SN(2)).getString();
+        } catch (IOException e) {
+            getLogger().log(Level.FINEST, e.getMessage());
+            throw new ConnectionException("Could not retrieve the Serial number object." + e);
+        }
+    }
+
+    @Override
+    public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+        deviceProtocolSecurityPropertySet.getSecurityProperties();
+    }
+
+    @Override
+    public List<PropertySpec> getSecurityProperties() {
+        return getSecuritySupport().getSecurityProperties();
+    }
+
+    @Override
+    public String getSecurityRelationTypeName() {
+        return getSecuritySupport().getSecurityRelationTypeName();
+    }
+
+    @Override
+    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
+        return getSecuritySupport().getAuthenticationAccessLevels();
+    }
+
+    @Override
+    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
+        return getSecuritySupport().getEncryptionAccessLevels();
+    }
+
+    @Override
+    public PropertySpec getSecurityPropertySpec(String name) {
+        return getSecuritySupport().getSecurityPropertySpec(name);
+    }
+
+    public DeviceProtocolSecurityCapabilities getSecuritySupport() {
+        if (this.securitySupport == null) {
+            this.securitySupport = new SimplePasswordSecuritySupport();
+        }
+        return this.securitySupport;
+    }
+
+
     class InitiateResponse {
 
         protected byte bNegotiatedQualityOfService;
@@ -1329,12 +1514,11 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
      * Protocol Version *
      */
     public String getProtocolVersion() {
-        return "$Date: 2015-11-26 15:25:58 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: 2017-03-10 10:23:42 +0200 (Fr, 10 Mar 2017)$";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         if (version == null) {
-            StringBuffer strbuff = new StringBuffer();
             try {
                 UniversalObject uo = meterConfig.getVersionObject();
                 DataContainer dataContainer = getCosemObjectFactory().getGenericRead(uo).getDataContainer();
@@ -1346,73 +1530,12 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
                 strbuff.append(String.valueOf(dataContainer.getRoot().getInteger(1)));
                 version=strbuff.toString();*/
             } catch (IOException e) {
-                throw new IOException("DLMSLNSL7000, getFirmwareVersion, Error, " + e.getMessage());
+                throw new IOException("ACE6000, getFirmwareVersion, Error, " + e.getMessage());
             }
         }
         return version;
     }
 
-    /**
-     * this implementation calls <code> validateProperties </code>
-     * and assigns the argument to the properties field
-     *
-     * @param properties <br>
-     * @throws MissingPropertyException <br>
-     * @throws InvalidPropertyException <br>
-     */
-    public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        validateProperties(properties);
-        //this.properties = properties;
-    }
-
-    /**
-     * <p>validates the properties.</p><p>
-     * The default implementation checks that all required parameters are present.
-     * </p>
-     *
-     * @param properties <br>
-     * @throws MissingPropertyException <br>
-     * @throws InvalidPropertyException <br>
-     */
-    protected void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        try {
-            Iterator iterator = getRequiredKeys().iterator();
-            while (iterator.hasNext()) {
-                String key = (String) iterator.next();
-                if (properties.getProperty(key) == null) {
-                    throw new MissingPropertyException(key + " key missing");
-                }
-            }
-            strID = properties.getProperty(MeterProtocol.ADDRESS);
-            if ((strID != null) && (strID.length() > 16)) {
-                throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
-            }
-            strPassword = properties.getProperty(MeterProtocol.PASSWORD);
-            //if (strPassword.length()!=8) throw new InvalidPropertyException("Password must be exact 8 characters.");
-            iHDLCTimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "10000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
-            //iDelayAfterFailProperty=Integer.parseInt(properties.getProperty("DelayAfterfail","3000").trim());
-            iSecurityLevelProperty = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
-            iRequestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
-
-            iClientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "1").trim());
-            iServerUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "17").trim());
-            iServerLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "17").trim());
-            firmwareVersion = properties.getProperty("FirmwareVersion", "ANY");
-            nodeId = properties.getProperty(MeterProtocol.NODEID, "");
-            // KV 19012004 get the serialNumber
-            serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
-            extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
-            addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "-1"));
-            connectionMode = Integer.parseInt(properties.getProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP
-            alarmStatusFlagChannel = Integer.parseInt(properties.getProperty("StatusFlagChannel", "0"));
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, " + e.getMessage());
-        }
-
-
-    }
 
     /**
      * this implementation throws UnsupportedException. Subclasses may override
@@ -1454,8 +1577,37 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
      * @throws NoSuchRegisterException <br>
      * @throws UnsupportedException    <br>
      */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
-        throw new UnsupportedException();
+    public void setRegister(String name, String value) throws IOException {
+        boolean classSpecified = false;
+        if (name.indexOf(':') >= 0) {
+            classSpecified = true;
+        }
+        final DLMSObis ln = new DLMSObis(name);
+        if ((ln.isLogicalName()) && (classSpecified)) {
+            getCosemObjectFactory().getGenericWrite(ObisCode.fromByteArray(ln.getLN()), ln.getOffset(), ln.getDLMSClass()).write(convert(value));
+        } else {
+            throw new NoSuchRegisterException("GenericGetSet, setRegister, register " + name + " does not exist.");
+        }
+    }
+
+    /**
+     * Converts the given string.
+     *
+     * @param s The string.
+     * @return
+     */
+    private final byte[] convert(final String s) {
+        if ((s.length() % 2) != 0) {
+            throw new IllegalArgumentException("String length is not a modulo 2 hex representation!");
+        } else {
+            final byte[] data = new byte[s.length() / 2];
+
+            for (int i = 0; i < (s.length() / 2); i++) {
+                data[i] = (byte) Integer.parseInt(s.substring(i * 2, (i * 2) + 2), 16);
+            }
+
+            return data;
+        }
     }
 
     /**
@@ -1471,46 +1623,14 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+        return PropertySpecFactory.toPropertySpecs(getProperties().getRequiredKeys());
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+        return PropertySpecFactory.toPropertySpecs(getProperties() .getOptionalKeys());
     }
 
-    /**
-     * the implementation returns both the address and password key
-     *
-     * @return a list of strings
-     */
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-
-        return result;
-    }
-
-    /**
-     * this implementation returns an empty list
-     *
-     * @return a list of strings
-     */
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add("Timeout");
-        result.add("Retries");
-        result.add("DelayAfterFail");
-        result.add("RequestTimeZone");
-        result.add("FirmwareVersion");
-        result.add("SecurityLevel");
-        result.add("ClientMacAddress");
-        result.add("ServerUpperMacAddress");
-        result.add("ServerLowerMacAddress");
-        result.add("ExtendedLogging");
-        result.add("AddressingMode");
-        result.add("AlarmStatusFlagChannel");
-        return result;
-    }
 
     public int requestTimeZone() throws IOException {
         // All time reporting is UTC for the SL7000
@@ -1621,7 +1741,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
             if (ocm == null) {
-                ocm = new ObisCodeMapper(getCosemObjectFactory());
+                ocm = new ObisCodeMapper(getCosemObjectFactory(), this);
             }
             return ocm.getRegisterValue(obisCode);
         } catch (Exception e) {
@@ -1633,5 +1753,17 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
+    /*
+     * MessageProtocol methods below this banner
+     */
+
+    public List getMessageCategories() {
+        return this.messageProtocol.getMessageCategories();
+    }
+
+    public void resetDemand() throws IOException {
+        GenericInvoke gi = new GenericInvoke(this, new ObjectReference(getMeterConfig().getObject(new DLMSObis(ObisCode.fromString("0.0.240.1.0.255").getLN(), (short)10100, (short)0)).getBaseName()),6);
+        gi.invoke(new Integer8(0).getBEREncodedByteArray());
+    }
 } // public class DLMSProtocolLN extends MeterProtocol
 

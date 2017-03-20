@@ -69,8 +69,9 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.userFileReferencePropertySpec(seasonProfileXmlUserFileAttributeName),
             PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName)),
     SPECIAL_DAY_CALENDAR_WITH_GIVEN_TABLE_OBIS_FROM_XML(16, PropertySpecFactory.stringPropertySpec(specialDaysTableObiscodeAttributeName),
-            PropertySpecFactory.userFileReferencePropertySpec(specialDaysXmlUserFileAttributeName))
-    ;
+            PropertySpecFactory.userFileReferencePropertySpec(specialDaysXmlUserFileAttributeName)),
+    SELECTION_OF_12_LINES_IN_TOU_TABLE(17, PropertySpecFactory.stringPropertySpec(activityCalendarNameAttributeName),
+            PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName));
 
     private static final DeviceMessageCategory activityCalendarCategory = DeviceMessageCategories.ACTIVITY_CALENDAR;
 

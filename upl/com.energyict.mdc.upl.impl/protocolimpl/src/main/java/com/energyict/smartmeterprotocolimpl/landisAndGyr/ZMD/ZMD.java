@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
 import com.energyict.cbo.Utils;
+import com.energyict.cpo.PropertySpec;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -19,21 +20,13 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.GenericInvoke;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.tasks.support.DeviceSecuritySupport;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.DemandResetProtocol;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.Register;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
@@ -41,6 +34,8 @@ import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.dlms.siemenszmd.LogBookReader;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
+import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
+import com.energyict.protocolimplv2.security.SimplePasswordSecuritySupport;
 import com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging.ZMDMessages;
 
 import java.io.IOException;
@@ -59,8 +54,7 @@ import java.util.logging.Logger;
  * Date: 13/12/11
  * Time: 16:02
  */
-public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtocol, MessageProtocol, ProtocolLink, SerialNumberSupport {
-
+public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtocol, MessageProtocol, ProtocolLink, SerialNumberSupport, DeviceSecuritySupport {
     protected static final ObisCode[] SerialNumberSelectionObjects = {
             // Identification numbers 1.1, 1.2, 1.3 and 1.4
             ObisCode.fromString("1.0.0.0.0.255"), ObisCode.fromString("1.0.0.0.1.255"), ObisCode.fromString("1.0.0.0.2.255"), ObisCode.fromString("1.0.0.0.3.255"),
@@ -89,6 +83,9 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
     private ZMDProperties properties = null;
 
     private final ZMDMessages messageProtocol;
+
+    private DeviceProtocolSecurityCapabilities securitySupport;
+    private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
 
     public ZMD() {
         this.messageProtocol = new ZMDMessages(this);
@@ -246,7 +243,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
      * Returns the protocol version date
      */
     public String getVersion() {
-        return "$Date: 2015-11-26 15:23:42 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: 2017-03-03 10:23:42 +0200 (Fr, 03 Mar 2017)$";
     }
 
     public void resetDemand() throws IOException {
@@ -328,5 +325,75 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
         } catch (IOException e) {
             throw ProtocolIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
         }
+    }
+
+    public void setRegister(String name, String value) throws IOException {
+        boolean classSpecified = false;
+        if (name.indexOf(':') >= 0) {
+            classSpecified = true;
+        }
+        final DLMSObis ln = new DLMSObis(name);
+        if ((ln.isLogicalName()) && (classSpecified)) {
+            getCosemObjectFactory().getGenericWrite(ObisCode.fromByteArray(ln.getLN()), ln.getOffset(), ln.getDLMSClass()).write(convert(value));
+        } else {
+            throw new NoSuchRegisterException("GenericGetSet, setRegister, register " + name + " does not exist.");
+        }
+    }
+
+    /**
+     * Converts the given string.
+     *
+     * @param s The string.
+     * @return
+     */
+    private final byte[] convert(final String s) {
+        if ((s.length() % 2) != 0) {
+            throw new IllegalArgumentException("String length is not a modulo 2 hex representation!");
+        } else {
+            final byte[] data = new byte[s.length() / 2];
+
+            for (int i = 0; i < (s.length() / 2); i++) {
+                data[i] = (byte) Integer.parseInt(s.substring(i * 2, (i * 2) + 2), 16);
+            }
+
+            return data;
+        }
+    }
+
+    @Override
+    public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+        getProperties().setSecurityPropertySet(deviceProtocolSecurityPropertySet);
+    }
+
+    @Override
+    public List<PropertySpec> getSecurityProperties() {
+        return getSecuritySupport().getSecurityProperties();
+    }
+
+    @Override
+    public String getSecurityRelationTypeName() {
+        return getSecuritySupport().getSecurityRelationTypeName();
+    }
+
+    @Override
+    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
+        return getSecuritySupport().getAuthenticationAccessLevels();
+    }
+
+    @Override
+    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
+        return getSecuritySupport().getEncryptionAccessLevels();
+    }
+
+    @Override
+    public PropertySpec getSecurityPropertySpec(String name) {
+        return getSecuritySupport().getSecurityPropertySpec(name);
+    }
+
+    public DeviceProtocolSecurityCapabilities getSecuritySupport() {
+        if (this.securitySupport == null) {
+            this.securitySupport = new SimplePasswordSecuritySupport();
+        }
+        return this.securitySupport;
     }
 }

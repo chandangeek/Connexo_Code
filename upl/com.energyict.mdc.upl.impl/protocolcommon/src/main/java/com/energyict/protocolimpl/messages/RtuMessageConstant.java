@@ -443,4 +443,7 @@ public class RtuMessageConstant {
     public static final String CONFIG_CONSUMPTION_LIMITATION = "ConfigureConsumptionLimitation";
     public static final String CONFIG_EMERGENCY_CONSUMPTION_LIMITATION = "ConfigureEmergencyConsumptionLimitation";
     public static final String CONFIG_TARIFF = "TariffConfig";
+
+    public static final String SELECTION_OF_12_LINES_IN_TOU_TABLE = "SelectionOf12LinesInTOUTable";
+
 }

@@ -5,6 +5,7 @@ import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.Code;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.*;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.TimeOfUseMessageEntry;
 
 import java.math.BigDecimal;
@@ -20,6 +21,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  * Time: 16:26
  */
 public class SmartZmdMessageConverter extends AbstractMessageConverter {
+    private static final String BILLING_RESET = "BillingReset";
 
     /**
      * Represents a mapping between {@link com.energyict.mdc.messages.DeviceMessageSpec deviceMessageSpecs}
@@ -35,10 +37,12 @@ public class SmartZmdMessageConverter extends AbstractMessageConverter {
         registry.put(ClockDeviceMessage.SetStartOfDST, new SetStartOfDSTMessageEntry(month, dayOfMonth, dayOfWeek, hour));
 
         //Code table related
-        registry.put(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
-
-        // reset messages
-        registry.put(DeviceActionMessage.DEMAND_RESET, new DemandResetMessageEntry());
+        registry.put(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND, new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
+        registry.put(ActivityCalendarDeviceMessage.SELECTION_OF_12_LINES_IN_TOU_TABLE, new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
+        //Display configuration
+        registry.put(DisplayDeviceMessage.SET_DISPLAY_MESSAGE,new SetDisplayMessageEntry(DisplayMessageAttributeName));
+        //EOB reset messages
+        registry.put(DeviceActionMessage.DEMAND_RESET, new SimpleTagMessageEntry(BILLING_RESET, false));
     }
 
     /**

@@ -6,11 +6,13 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.messaging.TimeOfUseMessageBuilder;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
+import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.messages.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.ZMD;
@@ -19,6 +21,7 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 /**
  * Copyrights EnergyICT
@@ -31,8 +34,14 @@ public class ZMDMessages extends ProtocolMessages {
     public static String ENABLE_DST = "EnableDST";
     public static String START_OF_DST = "StartOfDST";
     public static String END_OF_DST = "EndOfDST";
+    private static final String SET_DISPLAY_MESSAGE = "Write a message to the LCD of the meter";
+    private static final String SET_DISPLAY_MESSAGE_TAG = "SET_DISPLAY_MESSAGE";
+    private static final String BILLINGRESET = RtuMessageConstant.BILLINGRESET;
+    private static final String BILLINGRESET_DISPLAY = "Billing reset";
 
     private final ZMD protocol;
+
+    private int currentLineCalendarNumber = 0;
 
     public ZMDMessages(final ZMD protocol) {
         this.protocol = protocol;
@@ -85,6 +94,15 @@ public class ZMDMessages extends ProtocolMessages {
                 setDSTTime(messageEntry, false);
                 infoLog("EndOfDST message successful");
                 return MessageResult.createSuccess(messageEntry);
+            }else if (messageEntry.getContent().contains(RtuMessageConstant.TOU_ACTIVITY_CAL)) {
+                return writeActivityCalendar(messageEntry);
+            } else if (messageEntry.getContent().contains(RtuMessageConstant.TOU_SPECIAL_DAYS)) {
+                return writeSpecialDays(messageEntry);
+            }else if (messageEntry.getContent().contains(SET_DISPLAY_MESSAGE)) {
+                doWriteMessageToDisplay(getContentBetweenTags(messageEntry.getContent()));
+                return MessageResult.createSuccess(messageEntry);
+            }else if (messageEntry.getContent().contains(RtuMessageConstant.SELECTION_OF_12_LINES_IN_TOU_TABLE)) {
+                return write12LinesInActivityCalendar(messageEntry);
             } else {
                 infoLog("Unknown message received.");
                 return MessageResult.createUnknown(messageEntry);
@@ -103,6 +121,52 @@ public class ZMDMessages extends ProtocolMessages {
         return MessageResult.createFailed(messageEntry);
     }
 
+
+    private MessageResult writeActivityCalendar(MessageEntry messageEntry) throws IOException {
+        try {
+            ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(protocol.getCosemObjectFactory(), protocol.getTimeZone());
+            activityCalendarController.parseContent(messageEntry.getContent());
+            activityCalendarController.writeCalendarName("");
+            activityCalendarController.writeCalendar();
+            protocol.getLogger().log(Level.INFO, "Activity calendar was successfully written");
+            return MessageResult.createSuccess(messageEntry);
+        } catch (DataAccessResultException e) {
+            protocol.getLogger().severe("Writing of the activity calendar failed: " + e.getMessage());
+            return MessageResult.createFailed(messageEntry, e.getMessage());   //Meter did not accept the specified code table, set message to failed
+        }
+    }
+
+    private MessageResult write12LinesInActivityCalendar(MessageEntry messageEntry) throws IOException {
+        try {
+            ZMDActivityCalendarController activityCalendarController = new ZMDActivityCalendarController(protocol);
+            activityCalendarController.parseContent(messageEntry.getContent());
+            activityCalendarController.writeCalendarName("");
+            if(currentLineCalendarNumber == 3){
+                currentLineCalendarNumber = 0;
+            }
+            activityCalendarController.write12LinesCalendar(currentLineCalendarNumber);
+            currentLineCalendarNumber++;
+            protocol.getLogger().log(Level.INFO, "Activity calendar was successfully written");
+            return MessageResult.createSuccess(messageEntry);
+        } catch (DataAccessResultException e) {
+            protocol.getLogger().severe("Writing of the activity calendar failed: " + e.getMessage());
+            return MessageResult.createFailed(messageEntry, e.getMessage());   //Meter did not accept the specified code table, set message to failed
+        }
+    }
+
+    private MessageResult writeSpecialDays(MessageEntry messageEntry) throws IOException {
+        try {
+            ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(protocol.getCosemObjectFactory(), protocol.getTimeZone());
+            activityCalendarController.parseContent(messageEntry.getContent());
+            activityCalendarController.writeSpecialDaysTable();
+            protocol.getLogger().log(Level.INFO, "Special days were successfully written");
+            return MessageResult.createSuccess(messageEntry);
+        } catch (DataAccessResultException e) {
+            protocol.getLogger().severe("Writing of the special days table failed: " + e.getMessage());
+            return MessageResult.createFailed(messageEntry, e.getMessage());   //Meter did not accept the specified code table, set message to failed
+        }
+    }
+
     public List getMessageCategories() {
         List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
         MessageCategorySpec catDaylightSaving = new MessageCategorySpec("Daylight saving");
@@ -114,7 +178,21 @@ public class ZMDMessages extends ProtocolMessages {
 
         categories.add(ProtocolMessageCategories.getDemandResetCategory());
         categories.add(catDaylightSaving);
+        MessageCategorySpec catDisplay = new MessageCategorySpec("'Display' Messages");
+        catDisplay.addMessageSpec(addBasicMsg(SET_DISPLAY_MESSAGE, SET_DISPLAY_MESSAGE_TAG, false));
+        categories.add(catDisplay);
+        MessageCategorySpec catBilling = new MessageCategorySpec("Billing");
+        MessageSpec  msgSpec = addBasicMsg(BILLINGRESET_DISPLAY, BILLINGRESET, false);
+        catBilling.addMessageSpec(msgSpec);
+        categories.add(catBilling);
         return categories;
+    }
+
+    private static MessageSpec addBasicMsg(String messageType, String tag, boolean advanced) {
+        MessageSpec msgSpec = new MessageSpec(messageType, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tag);
+        msgSpec.add(tagSpec);
+        return msgSpec;
     }
 
     protected MessageSpec addMsgWithValue(final String description, final String tagName, final boolean advanced, boolean required) {
@@ -268,4 +346,24 @@ public class ZMDMessages extends ProtocolMessages {
     private void infoLog(String messageToLog) {
         this.protocol.getLogger().info(messageToLog);
     }
+
+    /**
+     * This command sends a message onto the display of the meter. This message
+     * has the highest priority. This means that all other messages are
+     * overwritten by this message in scrollmode.
+     * @param message The message to show on the LCD of the device
+     * @throws IOException
+     */
+    public void doWriteMessageToDisplay(String message) throws IOException {
+       ZmdDisplayController displayController = new ZmdDisplayController(protocol);
+        displayController.writeMessage(message);
+    }
+
+    private static String getContentBetweenTags(String value) {
+        String returnValue = value;
+        int startPos = returnValue.indexOf('>') + 1;
+        int endPos = returnValue.lastIndexOf('<');
+        return returnValue.substring(startPos, endPos);
+    }
+
 }

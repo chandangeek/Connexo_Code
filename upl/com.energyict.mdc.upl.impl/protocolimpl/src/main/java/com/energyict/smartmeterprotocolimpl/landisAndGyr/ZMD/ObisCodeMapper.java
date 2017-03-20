@@ -38,7 +38,12 @@ public class ObisCodeMapper {
     private final CosemObjectFactory cof;
     private final DLMSMeterConfig meterConfig;
     private final ZMD protocol;
-
+    public static final String VOLTAGE_L1 = "1.1.32.7.0.255";
+    public static final String VOLTAGE_L2 = "1.1.52.7.0.255";
+    public static final String VOLTAGE_L3 = "1.1.72.7.0.255";
+    public static final String CURRENT_L1 = "1.1.31.7.0.255";
+    public static final String CURRENT_L2 = "1.1.51.7.0.255";
+    public static final String CURRENT_L3 = "1.1.71.7.0.255";
     /**
      * Creates a new instance of ObisCodeMapper
      */
@@ -118,6 +123,14 @@ public class ObisCodeMapper {
             return new RegisterValue(register, Integer.toString(protocol.getDstFlag()));
         } else if (obisCode.equals(ObisCode.fromString("0.0.131.0.6.255")) | obisCode.equals(ObisCode.fromString("0.0.131.0.7.255"))) {    // DST switching times
             return getDSTSwitchingTime(register);
+        }else if (obisCode.equals(ObisCode.fromString(VOLTAGE_L1))||
+                  obisCode.equals(ObisCode.fromString(VOLTAGE_L2))||
+                  obisCode.equals(ObisCode.fromString(VOLTAGE_L3)) ||
+                  obisCode.equals(ObisCode.fromString(CURRENT_L1))  ||
+                  obisCode.equals(ObisCode.fromString(CURRENT_L2)) ||
+                  obisCode.equals(ObisCode.fromString(CURRENT_L3))) {
+            com.energyict.dlms.cosem.Register cosemRegister = cof.getRegister(obisCode);
+            return new RegisterValue(register, ParseUtils.registerToQuantity(cosemRegister));
         }
 
         // *********************************************************************************
