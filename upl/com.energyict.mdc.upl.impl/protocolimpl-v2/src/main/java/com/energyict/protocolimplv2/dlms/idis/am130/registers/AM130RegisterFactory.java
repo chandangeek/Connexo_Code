@@ -332,14 +332,10 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
         }
 
         AbstractDataType attributeValue = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
-        RegisterValue registerValue;
-        if (attributeValue.getOctetString() != null) {
-            registerValue = new RegisterValue(offlineRegister, attributeValue.getOctetString().stringValue());
-        } else {
-            // let each sub-protocol to create it's own flavour of time-stamp combination
-            // AM540 when reading mirror will change this
-            registerValue = getRegisterValueForComposedRegister(offlineRegister, captureTime, attributeValue, unit );
-        }
+
+        // let each sub-protocol to create it's own flavour of time-stamp combination
+        // AM540 when reading mirror will change this
+        RegisterValue registerValue  = getRegisterValueForComposedRegister(offlineRegister, captureTime, attributeValue, unit );
 
         CollectedRegister collectedRegister = createCollectedRegister(registerValue, offlineRegister);
         if (timeZoneIssue!=null) {
@@ -360,10 +356,14 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
      *
      */
     protected RegisterValue getRegisterValueForComposedRegister(OfflineRegister offlineRegister, Date captureTime, AbstractDataType attributeValue, Unit unit) {
-        return  new RegisterValue(offlineRegister,
-                new Quantity(attributeValue.toBigDecimal(), unit),
-                captureTime // eventTime
-        );
+        if (attributeValue.isOctetString()) {
+            return new RegisterValue(offlineRegister, attributeValue.getOctetString().stringValue());
+        } else {
+            return new RegisterValue(offlineRegister,
+                    new Quantity(attributeValue.toBigDecimal(), unit),
+                    captureTime // eventTime
+            );
+    }
     }
 
     protected RegisterValue getRegisterValueForAlarms(OfflineRegister offlineRegister, AbstractDataType dataValue) {

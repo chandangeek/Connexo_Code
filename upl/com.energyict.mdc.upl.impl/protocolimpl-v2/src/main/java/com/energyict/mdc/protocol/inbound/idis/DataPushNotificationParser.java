@@ -380,18 +380,18 @@ public class DataPushNotificationParser {
         if (timeZone == null) {
             if (getDeviceIdentifier() == null) {
                 timeZone = TimeZone.getTimeZone(DEFAULT_TIMEZONE);
-            }
-
-            TypedProperties deviceProtocolProperties = getInboundDAO().getDeviceProtocolProperties(getDeviceIdentifier());
-            if (deviceProtocolProperties == null) {
-                timeZone = TimeZone.getTimeZone(DEFAULT_TIMEZONE);
-            }
-
-            TimeZoneInUse timeZoneInUse = deviceProtocolProperties.getTypedProperty(TIMEZONE);
-            if (timeZoneInUse == null || timeZoneInUse.getTimeZone() == null) {
-                timeZone = TimeZone.getTimeZone(DEFAULT_TIMEZONE);
             } else {
-                timeZone = timeZoneInUse.getTimeZone();
+                TypedProperties deviceProtocolProperties = getInboundDAO().getDeviceProtocolProperties(getDeviceIdentifier());
+                if (deviceProtocolProperties == null) {
+                    timeZone = TimeZone.getTimeZone(DEFAULT_TIMEZONE);
+                } else {
+                    TimeZoneInUse timeZoneInUse = deviceProtocolProperties.getTypedProperty(TIMEZONE);
+                    if (timeZoneInUse == null || timeZoneInUse.getTimeZone() == null) {
+                        timeZone = TimeZone.getTimeZone(DEFAULT_TIMEZONE);
+                    } else {
+                        timeZone = timeZoneInUse.getTimeZone();
+                    }
+                }
             }
         }
         return timeZone;

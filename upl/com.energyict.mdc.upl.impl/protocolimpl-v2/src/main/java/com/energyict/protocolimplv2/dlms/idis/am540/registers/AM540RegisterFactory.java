@@ -106,12 +106,22 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
         if (captureTime!=null && am540Properties.useBeaconMirrorDeviceDialect()) {
             // for composed registers:
             // - readTime is the value stored in attribute#5=captureTime = the metrological date
-            // - eventTime is the communication time -> not used in metrology
-            return new RegisterValue(offlineRegister, new Quantity(attributeValue.toBigDecimal(), unit),
-                    new Date(), // eventTime = read-out time
-                    null,       // fromTime
-                    null,       // toTime
-                    captureTime); // readTime
+            // - eventTime is the communication time -> not used in macrology
+            if (attributeValue.isOctetString()) {
+                return new RegisterValue(offlineRegister,
+                        null, //quantity
+                        new Date(), // eventTime = read-out time,
+                        null, null, // fromTime, toTime
+                        captureTime, // readTime
+                        0,
+                        attributeValue.getOctetString().stringValue());
+            } else {
+                return new RegisterValue(offlineRegister, new Quantity(attributeValue.toBigDecimal(), unit),
+                        new Date(), // eventTime = read-out time
+                        null,       // fromTime
+                        null,       // toTime
+                        captureTime); // readTime
+            }
         } else {
             return super.getRegisterValueForComposedRegister(offlineRegister, captureTime, attributeValue, unit);
         }
