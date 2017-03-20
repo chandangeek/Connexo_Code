@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
@@ -12,6 +13,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import java.util.List;
@@ -58,22 +60,15 @@ public abstract class AbstractUsagePointChannelInfoFactory {
                             requirementsCollector.getReadingTypeRequirements().stream()
                                     .flatMap(readingTypeRequirement -> readingTypeRequirement.getMatchingChannelsFor(
                                             meterActivation.getChannelsContainer()).stream())
-                                    .forEach(ch -> {
-                                        ReadingType mainReadingType = ch.getMainReadingType();
-                                        com.energyict.mdc.device.data.Channel channelOnDevice = device.getChannels()
-                                                .stream()
-                                                .filter(deviceChannel -> ch.getReadingTypes()
-                                                        .contains(deviceChannel.getReadingType()))
-                                                .findFirst()
-                                                .orElse(null);
-                                        deviceChannelInfo.channel = new IdWithNameInfo(
-                                                channelOnDevice != null ? channelOnDevice.getId() : null,
-                                                mainReadingType.getFullAliasName());
-                                    });
+                                    .forEach(ch ->
+                                            deviceChannelInfo.channel = createDeviceChannelInfo(device, ch)
+                                    );
                             list.add(deviceChannelInfo);
                         });
             }
             meterActivationOld = meterActivation;
         }
     }
+
+    abstract IdWithNameInfo createDeviceChannelInfo(Device device, Channel ch);
 }

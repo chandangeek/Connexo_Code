@@ -174,7 +174,7 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
         assertThat(jsonModel.<Long>get("$.registers[0].deviceRegisters[0].until")).isNull();
         assertThat(jsonModel.<String>get("$.registers[0].deviceRegisters[0].device")).isEqualTo("testD");
         assertThat(jsonModel.<String>get("$.registers[0].deviceRegisters[0].channel.name")).isEqualTo("testR");
-        assertThat(jsonModel.<Integer>get("$.registers[0].deviceRegisters[0].channel.id")).isEqualTo(1);
+        assertThat(jsonModel.<Integer>get("$.registers[0].deviceRegisters[0].channel.id")).isNull();
         assertThat(jsonModel.<Long>get("$.registers[0].deviceRegisters[1].from")).isEqualTo(1410515420000L);
         assertThat(jsonModel.<Long>get("$.registers[0].deviceRegisters[1].until")).isEqualTo(1410774620100L);
         assertThat(jsonModel.<String>get("$.registers[0].deviceRegisters[1].device")).isEqualTo("testOldDevice");
@@ -226,7 +226,7 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
         assertThat(jsonModel.<Long>get("$.deviceRegisters[0].until")).isNull();
         assertThat(jsonModel.<String>get("$.deviceRegisters[0].device")).isEqualTo("testD");
         assertThat(jsonModel.<String>get("$.deviceRegisters[0].channel.name")).isEqualTo("testR");
-        assertThat(jsonModel.<Integer>get("$.deviceRegisters[0].channel.id")).isEqualTo(1);
+        assertThat(jsonModel.<Integer>get("$.deviceRegisters[0].channel.id")).isNull();
         assertThat(jsonModel.<Long>get("$.deviceRegisters[1].from")).isEqualTo(1410515420000L);
         assertThat(jsonModel.<Long>get("$.deviceRegisters[1].until")).isEqualTo(1410774620100L);
         assertThat(jsonModel.<String>get("$.deviceRegisters[1].device")).isEqualTo("testOldDevice");

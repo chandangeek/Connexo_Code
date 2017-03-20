@@ -9,7 +9,9 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import javax.inject.Inject;
@@ -47,5 +49,19 @@ public class UsagePointRegisterInfoFactory extends AbstractUsagePointChannelInfo
         info.deviceRegisters = new ArrayList<>();
         fillDevicePartList(info.deviceRegisters, readingType, metrologyConfiguration, usagePoint);
         return info;
+    }
+
+    @Override
+    IdWithNameInfo createDeviceChannelInfo(Device device, Channel ch) {
+        ReadingType mainReadingType = ch.getMainReadingType();
+        com.energyict.mdc.device.data.Register registerOnDevice = device.getRegisters()
+                .stream()
+                .filter(deviceChannel -> ch.getReadingTypes()
+                        .contains(deviceChannel.getReadingType()))
+                .findFirst()
+                .orElse(null);
+        return new IdWithNameInfo(
+                registerOnDevice != null ? registerOnDevice.getRegisterSpecId() : null,
+                mainReadingType.getFullAliasName());
     }
 }

@@ -5,12 +5,15 @@
 package com.energyict.mdc.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.ReadingTypeUnitConversion;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import javax.inject.Inject;
@@ -71,5 +74,19 @@ public class UsagePointChannelInfoFactory extends AbstractUsagePointChannelInfoF
         fillDevicePartList(info.deviceChannels, readingType, metrologyConfiguration, usagePoint);
 
         return info;
+    }
+
+    @Override
+    IdWithNameInfo createDeviceChannelInfo(Device device, Channel ch) {
+        ReadingType mainReadingType = ch.getMainReadingType();
+        com.energyict.mdc.device.data.Channel channelOnDevice = device.getChannels()
+                .stream()
+                .filter(deviceChannel -> ch.getReadingTypes()
+                        .contains(deviceChannel.getReadingType()))
+                .findFirst()
+                .orElse(null);
+        return new IdWithNameInfo(
+                channelOnDevice != null ? channelOnDevice.getId() : null,
+                mainReadingType.getFullAliasName());
     }
 }
