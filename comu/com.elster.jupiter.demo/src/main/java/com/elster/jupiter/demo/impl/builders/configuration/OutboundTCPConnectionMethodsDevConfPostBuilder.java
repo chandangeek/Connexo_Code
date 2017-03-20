@@ -1,11 +1,5 @@
 package com.elster.jupiter.demo.impl.builders.configuration;
 
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.elster.jupiter.time.TimeDuration;
@@ -54,7 +48,7 @@ public class OutboundTCPConnectionMethodsDevConfPostBuilder implements Consumer<
 
     @Override
     public void accept(DeviceConfiguration configuration) {
-        ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName("OutboundTcpIp").get();
+        ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName("OutboundTcpIpConnectionType").get();
         final PartialScheduledConnectionTaskBuilder builder = configuration
                 .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(retryDelayInMinutes, TimeDuration.TimeUnit.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .comPortPool(Builders.from(OutboundTCPComPortPoolTpl.ORANGE).get())
