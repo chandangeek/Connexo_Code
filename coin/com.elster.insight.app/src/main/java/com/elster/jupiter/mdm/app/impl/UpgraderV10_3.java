@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mdm.app.impl;
 
+import com.elster.jupiter.fileimport.security.Privileges;
 import com.elster.jupiter.mdm.app.MdmAppService;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.Upgrader;
@@ -60,6 +61,7 @@ public class UpgraderV10_3 implements Upgrader {
                 // Import services
                 com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
                 com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_HISTORY,
+                com.elster.jupiter.fileimport.security.Privileges.Constants.IMPORT_FILE,
 
                 // Usage point groups
                 com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_USAGE_POINT_GROUP,
@@ -100,6 +102,7 @@ public class UpgraderV10_3 implements Upgrader {
                 // Import services
                 com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
                 com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_HISTORY,
+                com.elster.jupiter.fileimport.security.Privileges.Constants.IMPORT_FILE,
 
 
                 // Usage point groups
