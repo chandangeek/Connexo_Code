@@ -76,7 +76,7 @@ public interface OfflineLoadProfile extends Offline {
      * @return the ID of the Device
      */
     @XmlAttribute
-    int getDeviceId();
+    long getDeviceId();
 
     /**
      * Returns the SerialNumber of the Master Device
