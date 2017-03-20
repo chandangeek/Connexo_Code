@@ -165,7 +165,7 @@ public class SurveyChannelTypeParser {
             case 0x05:
                 this.unit = Unit.get(BaseUnit.VOLT); // Channel value base unit is voltage ABC
                 this.instantType = VOLTS;
-                return new Pair<>(12 + mapRegValueToPhase(regValue, 0x03).getOffset(), 0);
+                return new Pair<>(12 + mapRegValueToPhase(regValue, 0x03).getOffset(), regFunction <= 0x09 ? 0 : 1); // D-field 0 = Regular voltage, 1 = Fundamental voltage
             case 0x06:
             case 0x07:
             case 0x08:
@@ -222,14 +222,17 @@ public class SurveyChannelTypeParser {
                 this.instantType = ANGLE;
                 return new Pair<>(81, dField);
             case 0x1A:
-                dField = 1;
             case 0x1B:
-                dField = (dField == null) ? 2 : dField;
             case 0x1C:
-                dField = (dField == null) ? 3 : dField;
-                this.unit = Unit.get(BaseUnit.UNITLESS); // Channel value base unit is Unbalanced Voltage 123 or THD Voltage A-C
-                this.instantType = ANGLE;
-                return new Pair<>(regFunction <= 0x09 ? 128 : 129, dField); // 128 = Unbalance Voltage 123, 129 = THD Voltage ABC
+                if (regFunction <= 0x09) {
+                    this.unit = Unit.get(BaseUnit.VOLT); // Channel value base unit is Unbalanced Voltage 123
+                    this.instantType = VOLTS;
+                    return new Pair<>(12 + mapRegValueToPhase(regValue, 0x1A).getOffset(), 2);
+                } else {
+                    this.unit = Unit.get(BaseUnit.UNITLESS); // Channel value base unit is THD Voltage A-C
+                    this.instantType = ANGLE;
+                    return new Pair<>(12 + mapRegValueToPhase(regValue, 0x1A).getOffset(), 124);
+                }
             default:
                 throw new ProtocolException("Load survey channel definition contains invalid/unsupported instantaneous register (function '" + regFunction + "'" + ", value '" + regValue + "')");
         }

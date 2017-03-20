@@ -447,7 +447,7 @@ public class EventPushNotificationParserTest extends TestCase {
 
 
         Beacon3100PushEventNotification beacon3100PushEventNotification = new Beacon3100PushEventNotification();
-        CollectedTopology collectedTopology = beacon3100PushEventNotification.extractNodeInformation(meterProtocolEvent, Beacon3100PushEventNotification.TopologyAction.REMOVE);
+        CollectedTopology collectedTopology = beacon3100PushEventNotification.extractNodeInformation(meterProtocolEvent.getMessage(), Beacon3100PushEventNotification.TopologyAction.REMOVE);
 
         DeviceIdentifier needle = new DialHomeIdDeviceIdentifier("02237EFFFEFDAF26");
         boolean found = false;

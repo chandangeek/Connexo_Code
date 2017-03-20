@@ -91,25 +91,25 @@ public class RegisterFactory {
         list.add(new RegisterInf(0xE3E6, 69, "L3 apparent import"));
         list.add(new RegisterInf(0xE3E7, 9, "Total apparent import"));
 
-        list.add(new RegisterInf(0xE4E0, 134, "L1 apparent Q2")); // manufacturer
-        list.add(new RegisterInf(0xE4E1, 135, "L2 apparent Q2")); // manufacturer
-        list.add(new RegisterInf(0xE4E2, 136, "L3 apparent Q2")); // manufacturer
-        list.add(new RegisterInf(0xE4E3, 137, "Total apparent Q2")); // manufacturer
+        list.add(new RegisterInf(0xE4E4, 152, "L1 apparent Q1")); // manufacturer
+        list.add(new RegisterInf(0xE4E5, 172, "L2 apparent Q1")); // manufacturer
+        list.add(new RegisterInf(0xE4E6, 192, "L3 apparent Q1")); // manufacturer
+        list.add(new RegisterInf(0xE4E7, 132, "Total apparent Q1")); // manufacturer
 
-        list.add(new RegisterInf(0xE4E4, 138, "L1 apparent Q1")); // manufacturer
-        list.add(new RegisterInf(0xE4E5, 139, "L2 apparent Q1")); // manufacturer
-        list.add(new RegisterInf(0xE4E6, 140, "L3 apparent Q1")); // manufacturer
-        list.add(new RegisterInf(0xE4E7, 141, "Total apparent Q1")); // manufacturer
+        list.add(new RegisterInf(0xE4E0, 153, "L1 apparent Q2")); // manufacturer
+        list.add(new RegisterInf(0xE4E1, 173, "L2 apparent Q2")); // manufacturer
+        list.add(new RegisterInf(0xE4E2, 193, "L3 apparent Q2")); // manufacturer
+        list.add(new RegisterInf(0xE4E3, 133, "Total apparent Q2")); // manufacturer
 
-        list.add(new RegisterInf(0xE5E0, 142, "L1 apparent Q3")); // manufacturer
-        list.add(new RegisterInf(0xE5E1, 143, "L2 apparent Q3")); // manufacturer
-        list.add(new RegisterInf(0xE5E2, 144, "L3 apparent Q3")); // manufacturer
-        list.add(new RegisterInf(0xE5E3, 145, "Total apparent Q3")); // manufacturer
+        list.add(new RegisterInf(0xE5E0, 154, "L1 apparent Q3")); // manufacturer
+        list.add(new RegisterInf(0xE5E1, 174, "L2 apparent Q3")); // manufacturer
+        list.add(new RegisterInf(0xE5E2, 194, "L3 apparent Q3")); // manufacturer
+        list.add(new RegisterInf(0xE5E3, 134, "Total apparent Q3")); // manufacturer
 
-        list.add(new RegisterInf(0xE5E4, 146, "L1 apparent Q4")); // manufacturer
-        list.add(new RegisterInf(0xE5E5, 147, "L2 apparent Q4")); // manufacturer
-        list.add(new RegisterInf(0xE5E6, 148, "L3 apparent Q4")); // manufacturer
-        list.add(new RegisterInf(0xE5E7, 149, "Total apparent Q4")); // manufacturer
+        list.add(new RegisterInf(0xE5E4, 155, "L1 apparent Q4")); // manufacturer
+        list.add(new RegisterInf(0xE5E5, 175, "L2 apparent Q4")); // manufacturer
+        list.add(new RegisterInf(0xE5E6, 195, "L3 apparent Q4")); // manufacturer
+        list.add(new RegisterInf(0xE5E7, 135, "Total apparent Q4")); // manufacturer
     }
 
     /**

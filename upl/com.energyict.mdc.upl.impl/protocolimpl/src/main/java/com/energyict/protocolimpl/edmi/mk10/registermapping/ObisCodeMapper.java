@@ -17,6 +17,8 @@ import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.edmi.common.CommandLineProtocol;
+import com.energyict.protocolimpl.edmi.common.command.ReadCommand;
+import com.energyict.protocolimpl.edmi.common.core.AbstractRegisterType;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -42,6 +44,7 @@ public class ObisCodeMapper {
 
     public RegisterValue getRegisterValue(ObisCode obisCode) throws NoSuchRegisterException {
         int billingPoint;
+        MK10InstantaneousRegisterInformation instantaneousRegisterInformation;
 
         // obis F code
         if ((obisCode.getF() >= -99) && (obisCode.getF() <= 99)) {
@@ -64,6 +67,9 @@ public class ObisCodeMapper {
             return new RegisterValue(obisCode, getProtocol().getCommandFactory().getReadCommand(MK10RegisterInformation.SYSTEM_SOFTWARE_REVISION).getRegister().getString());
         } else if (obisCode.toString().contains("1.1.0.2.8.255")) {
             return new RegisterValue(obisCode, getProtocol().getCommandFactory().getReadCommand(MK10RegisterInformation.SYSTEM_BOOTLOADER_REVISION).getRegister().getString());
+        } else if (obisCode.toString().contains("1.2.0.2.0.255")) {
+            AbstractRegisterType register = getProtocol().getCommandFactory().getReadCommand(MK10RegisterInformation.SYSTEM_EDITION).getRegister();
+            return new RegisterValue(obisCode, "0x" + Long.toString(register.getBigDecimal().longValue(), 16));
         } else if ((obisCode.toString().contains("1.0.0.1.0.255")) || (obisCode.toString().contains("1.1.0.1.0.255"))) { // billing counter
             return new RegisterValue(obisCode, new Quantity(new BigDecimal("" + getObisCodeFactory().getBillingInfo().getNrOfBillingResets()), Unit.get("")));
         } // billing counter
@@ -83,6 +89,8 @@ public class ObisCodeMapper {
             return new RegisterValue(obisCode, new Quantity(getProtocol().getCommandFactory().getReadCommand(MK10RegisterInformation.CT_DIVISOR).getRegister().getBigDecimal(), Unit.get("")));
         } else if ((obisCode.toString().contains("1.0.0.4.6.255")) || (obisCode.toString().contains("1.1.0.4.6.255"))) { // VT denominator
             return new RegisterValue(obisCode, new Quantity(getProtocol().getCommandFactory().getReadCommand(MK10RegisterInformation.VT_DIVISOR).getRegister().getBigDecimal(), Unit.get("")));
+        } else if ((instantaneousRegisterInformation = MK10InstantaneousRegisterInformation.fromObisCode(obisCode)) != null) {
+            return readInstantaneousRegister(instantaneousRegisterInformation);
         } else {
             //TODO: also map the instantaneous registers (3.2.2 Instantaneous Measurement Registers)
 
@@ -90,6 +98,11 @@ public class ObisCodeMapper {
             // electricity related registers
             return getObisCodeFactory().getRegisterValue(obisCode);
         }
+    }
+
+    private RegisterValue readInstantaneousRegister(MK10InstantaneousRegisterInformation instantaneousRegisterInformation) {
+        ReadCommand readCommand = getProtocol().getCommandFactory().getReadCommand(instantaneousRegisterInformation.getRegisterId());
+        return new RegisterValue(instantaneousRegisterInformation.getObisCode(), new Quantity(readCommand.getRegister().getBigDecimal(), readCommand.getUnit()));
     }
 
     public ObisCodeFactory getObisCodeFactory() {
