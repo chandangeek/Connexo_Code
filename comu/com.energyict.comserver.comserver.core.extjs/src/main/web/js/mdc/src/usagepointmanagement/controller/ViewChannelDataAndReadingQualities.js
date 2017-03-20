@@ -113,13 +113,13 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualiti
             dataIntervalAndZoomLevels = me.getStore('Uni.store.DataIntervalAndZoomLevels').getIntervalRecord(channel.get('interval')),
             all = dataIntervalAndZoomLevels.get('all'),
             filter = {};
-        console.log(dataIntervalAndZoomLevels);
+
         filter.durationStore = me.getStore('Mdc.store.LoadProfileDataDurations');
         filter.interval = dataIntervalAndZoomLevels;
         filter.defaultDuration = all.count + all.timeUnit;
 
         filter.durationStore.loadData(dataIntervalAndZoomLevels.get('duration'));
-        console.log(filter);
+
         return filter;
     }
 });
