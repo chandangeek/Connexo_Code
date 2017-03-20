@@ -646,6 +646,11 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
+    public void estimateReadings(QualityCodeSystem system, List<? extends BaseReading> readings) {
+        getCimChannel(getMainReadingType()).ifPresent(cimChannel -> cimChannel.estimateReadings(system, readings));
+    }
+
+    @Override
     public void confirmReadings(QualityCodeSystem system, List<? extends BaseReading> readings) {
         getCimChannel(getMainReadingType()).ifPresent(cimChannel ->
                 cimChannel.confirmReadings(system, readings));
@@ -681,10 +686,10 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public MeterReading deleteReadings(Range<Instant> instant) {
-        List<BaseReadingRecord> readings = getReadings(Ranges.copy(instant).withOpenLowerBound());
+    public MeterReading deleteReadings(Range<Instant> instantRange) {
+        List<BaseReadingRecord> readings = getReadings(Ranges.copy(instantRange).withOpenLowerBound());
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-        Map<Instant, List<ReadingQualityRecord>> qualities = findReadingQualities().inTimeInterval(instant).stream()
+        Map<Instant, List<ReadingQualityRecord>> qualities = findReadingQualities().inTimeInterval(instantRange).stream()
                 .collect(Collectors.groupingBy(ReadingQualityRecord::getReadingTimestamp));
         Set<Instant> readingTimes = readings.stream().map(BaseReadingRecord::getTimeStamp).collect(Collectors.toSet());
         if (!readingTimes.isEmpty()) {
@@ -695,7 +700,7 @@ public final class ChannelImpl implements ChannelContract {
                 }
                 for (BaseReadingRecord baseReadingRecord : readings) {
                     IntervalReadingRecord intervalReadingRecord = (IntervalReadingRecord) baseReadingRecord;
-                    intervalBlocks.entrySet().stream().forEach(intervalBlock -> {
+                    intervalBlocks.entrySet().forEach(intervalBlock -> {
                         IntervalReadingRecord filtered = intervalReadingRecord.filter(intervalBlock.getKey());
                         IntervalReadingImpl intervalReading = IntervalReadingImpl.of(filtered.getTimeStamp(), filtered.getValue(), filtered
                                 .getReadingQualities());
@@ -720,7 +725,7 @@ public final class ChannelImpl implements ChannelContract {
                 }
             }
 
-            timeSeries.get().removeEntries(Ranges.copy(instant).withOpenLowerBound());
+            timeSeries.get().removeEntries(Ranges.copy(instantRange).withOpenLowerBound());
             dataModel.mapper(ReadingQualityRecord.class)
                     .remove(qualities.values().stream().flatMap(Collection::stream).collect(Collectors.toList()));
             qualities.values()
@@ -762,10 +767,10 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     public static class ReadingsDeletedEventImpl implements Channel.ReadingsDeletedEvent {
-        private ChannelImpl channel;
+        private Channel channel;
         private Set<Instant> readingTimes;
 
-        public ReadingsDeletedEventImpl(ChannelImpl channel, Set<Instant> readingTimes) {
+        public ReadingsDeletedEventImpl(Channel channel, Set<Instant> readingTimes) {
             this.channel = channel;
             this.readingTimes = readingTimes;
         }
