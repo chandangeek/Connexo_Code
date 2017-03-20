@@ -43,6 +43,7 @@ public class IDISProfileDataReader {
     private static final ObisCode DAILY_LOAD_PROFILE_OBISCODE = ObisCode.fromString("1.0.99.2.0.255");
     private static final ObisCode BILLING_LOAD_PROFILE_OBISCODE = ObisCode.fromString("0.0.98.1.0.255");
     private static final ObisCode OBISCODE_MBUS_LOAD_PROFILE = ObisCode.fromString("0.x.24.3.0.255");
+    private static final ObisCode PQ_PROFILE_OBISCODE = ObisCode.fromString("1.0.99.14.0.255");
 
     private static final ObisCode OBISCODE_NR_OF_POWER_FAILURES = ObisCode.fromString("0.0.96.7.9.255");
     private static final int DO_NOT_LIMIT_MAX_NR_OF_DAYS = 0;
@@ -66,6 +67,7 @@ public class IDISProfileDataReader {
         supportedLoadProfiles.add(DAILY_LOAD_PROFILE_OBISCODE);
         supportedLoadProfiles.add(OBISCODE_MBUS_LOAD_PROFILE);
         supportedLoadProfiles.add(BILLING_LOAD_PROFILE_OBISCODE);
+        supportedLoadProfiles.add(PQ_PROFILE_OBISCODE);
     }
 
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfileReaders) {
