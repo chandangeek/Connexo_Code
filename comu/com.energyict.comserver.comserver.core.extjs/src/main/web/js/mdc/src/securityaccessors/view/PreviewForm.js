@@ -8,7 +8,8 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
     layout: 'fit',
 
     requires: [
-        'Uni.form.field.ExecutionLevelDisplay'
+        'Uni.form.field.ExecutionLevelDisplay',
+        'Mdc.securityaccessors.store.TrustStores'
     ],
 
     items: {
@@ -19,8 +20,12 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
             layout: 'form',
             columnWidth: 0.5
         },
-        items: [
-            {
+        items: []
+    },
+
+    doLoadRecord: function(record) {
+        var me = this,
+            leftItems = {
                 defaults: {
                     xtype: 'displayfield'
                 },
@@ -51,7 +56,12 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                     }
                 ]
             },
-            {
+            rightItems,
+            form = me.down('form');
+
+        form.removeAll();
+        if (record.get('isKey')) {
+            rightItems = {
                 defaults: {
                     xtype: 'displayfield'
                 },
@@ -82,6 +92,29 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                     }
                 ]
             }
-        ]
+        } else {
+            rightItems = {
+                defaults: {
+                    xtype: 'displayfield'
+                },
+                items: [
+                    {
+                        fieldLabel: Uni.I18n.translate('general.trustStore', 'MDC', 'Trust store'),
+                        name: 'trustStoreId',
+                        renderer: function (val) {
+                            if (Ext.isEmpty(val)) {
+                                return '-';
+                            }
+                            var trustStoresStore = Ext.getStore('Mdc.securityaccessors.store.TrustStores'),
+                                storeIndex = trustStoresStore.findExact('id', val);
+                            return trustStoresStore.getAt(storeIndex).get('name');
+                        }
+                    }
+                ]
+            }
+        }
+        form.add([leftItems, rightItems]);
+        form.loadRecord(record);
     }
+
 });

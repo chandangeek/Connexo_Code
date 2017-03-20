@@ -9,6 +9,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
             {
                 text: Uni.I18n.translate('general.changePrivileges', 'MDC', 'Change privileges'),
                 privileges: Mdc.privileges.DeviceType.canAdministrate(),
+                //hidden: Ext.isEmpty(this.record) || !this.record.get('isKey'),
                 action: 'changePrivileges',
                 section: this.SECTION_EDIT
             },

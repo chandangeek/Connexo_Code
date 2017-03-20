@@ -29,7 +29,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         },
         {
             ref: 'previewForm',
-            selector: '#mdc-devicetype-security-accessors-preview-form form'
+            selector: '#mdc-devicetype-security-accessors-preview-form'
         },
         {
             ref: 'preview',
@@ -124,7 +124,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
 
     recordSelected: function (grid, record) {
         var me = this;
-        me.getPreviewForm().loadRecord(record);
+        me.getPreviewForm().doLoadRecord(record);
         me.getPreview().setTitle(Ext.htmlEncode(record.get('name')));
         if (me.getPreview().down('security-accessors-action-menu')) {
             me.getPreview().down('security-accessors-action-menu').record = record;
