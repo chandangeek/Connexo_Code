@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mdm.usagepoint.config.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.security.Privileges;
 import com.elster.jupiter.metering.MeteringService;
@@ -31,13 +32,13 @@ class Installer implements FullInstaller, PrivilegesProvider {
     private final MetrologyConfigurationsInstaller metrologyConfigurationsInstaller;
 
     @Inject
-    Installer(DataModel dataModel, UserService userService, MetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService) {
+    Installer(DataModel dataModel, UserService userService, CalendarService calendarService, MetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService) {
         super();
         this.dataModel = dataModel;
         this.userService = userService;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.meteringService = meteringService;
-        this.metrologyConfigurationsInstaller = new MetrologyConfigurationsInstaller(metrologyConfigurationService, meteringService);
+        this.metrologyConfigurationsInstaller = new MetrologyConfigurationsInstaller(calendarService, metrologyConfigurationService, meteringService);
     }
 
     @Override

@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mdm.usagepoint.config.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.security.Privileges;
 import com.elster.jupiter.metering.MeteringService;
@@ -42,18 +43,20 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
 
     private final DataModel dataModel;
     private final UserService userService;
+    private final CalendarService calendarService;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final MeteringService meteringService;
     private final MetrologyConfigurationsInstaller metrologyConfigurationsInstaller;
 
     @Inject
-    UpgraderV10_3(DataModel dataModel, MetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService, UserService userService) {
+    UpgraderV10_3(DataModel dataModel, MetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService, UserService userService, CalendarService calendarService) {
         super();
         this.dataModel = dataModel;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.meteringService = meteringService;
         this.userService = userService;
-        this.metrologyConfigurationsInstaller = new MetrologyConfigurationsInstaller(metrologyConfigurationService, meteringService);
+        this.calendarService = calendarService;
+        this.metrologyConfigurationsInstaller = new MetrologyConfigurationsInstaller(this.calendarService, metrologyConfigurationService, meteringService);
     }
 
     @Override
@@ -223,11 +226,13 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
     }
 
     private void addResidentialNetMeteringConsumptionThickTimeOfUse() {
-        new MetrologyConfigurationsInstaller(this.metrologyConfigurationService, this.meteringService).residentialNetMeteringConsumptionThickTimeOfUse();
+        MetrologyConfigurationsInstaller installer = new MetrologyConfigurationsInstaller(calendarService, this.metrologyConfigurationService, this.meteringService);
+        installer.residentialNetMeteringConsumptionThickTimeOfUse(installer.findOrCreateTimeOfUseEventSet());
     }
 
     private void addResidentialNetMeteringConsumptionThinTimeOfUse() {
-        new MetrologyConfigurationsInstaller(this.metrologyConfigurationService, this.meteringService).residentialNetMeteringConsumptionThinTimeOfUse();
+        MetrologyConfigurationsInstaller installer = new MetrologyConfigurationsInstaller(calendarService, this.metrologyConfigurationService, this.meteringService);
+        installer.residentialNetMeteringConsumptionThinTimeOfUse(installer.findOrCreateTimeOfUseEventSet());
     }
 
     @Override
