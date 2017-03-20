@@ -59,8 +59,6 @@ public class UPLPropertySpecServiceImplTest {
     private Thesaurus thesaurus;
     @Mock
     private NlsService nlsService;
-    @Mock
-    private ServerProtocolPluggableService protocolPluggableService;
 
     private UPLPropertySpecServiceImpl propertySpecService;
 
@@ -109,7 +107,7 @@ public class UPLPropertySpecServiceImplTest {
                                 injector.getInstance(PropertySpecService.class),
                                 dataVaultService,
                                 injector.getInstance(OrmService.class)),
-                        this.protocolPluggableService);
+                        this.nlsService);
     }
 
     @Test
