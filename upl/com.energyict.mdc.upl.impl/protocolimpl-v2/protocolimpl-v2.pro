@@ -74,6 +74,11 @@
 	public *;
 	protected *;
 }
+-keepnames class com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.properties.T210DProperties
+-keep public class com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.properties.T210DProperties {
+	public *;
+	protected *;
+}
 -keepnames class com.energyict.protocolimplv2.dlms.idis.am130.properties.IDISSecurityProvider
 -keep public class com.energyict.protocolimplv2.dlms.idis.am130.properties.IDISSecurityProvider {
 	public *;
