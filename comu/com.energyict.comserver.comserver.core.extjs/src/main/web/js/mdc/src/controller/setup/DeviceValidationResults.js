@@ -271,40 +271,9 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             isFromNewValidation = confWindow.down('#rdg-validation-run').getValue().validation === 'newValidation';
 
         me.confirmationWindowButtonsDisable(true);
-        Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + encodeURIComponent(me.deviceId) + '/validationrulesets/validationstatus',
-            method: 'PUT',
-            isNotEdit: true,
-            jsonData: {
-                isActive: 'true',
-                lastChecked: (isFromNewValidation ? confWindow.down('#dtm-validation-from-date').getValue().getTime() : me.dataValidationLastChecked.getTime()),
-                device: _.pick(me.getMainPage().device.getRecordData(), 'name', 'version', 'parent')
-            },
-            success: function () {
-                me.updateDevice(function () {
-                    me.validateData(confWindow)
-                });
-            },
-            failure: function (response) {
-                var res = Ext.JSON.decode(response.responseText);
-
-                if (response.status === 400) {
-                    me.showValidationActivationErrors(res.errors[0].msg);
-                    me.confirmationWindowButtonsDisable(false);
-                } else {
-                    confWindow.destroy();
-                }
-            }
-        });
-    },
-
-    validateData: function (confWindow) {
-        var me = this;
-
         confWindow.down('#pnl-validation-progress').add(Ext.create('Ext.ProgressBar', {
                 margin: '5 0 15 0'
             })).wait({
-                duration: 120000,
                 text: Uni.I18n.translate('device.dataValidation.isInProgress', 'MDC', 'Data validation is in progress. Please wait...'),
                 fn: function () {
                     me.destroyConfirmationWindow();
@@ -326,11 +295,42 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                     }).show({
                             ui: 'notification-error',
                             title: Uni.I18n.translate('device.dataValidation.timeout.title1', 'MDC', 'Data validation takes longer than expected'),
-                            msg: Uni.I18n.translate('device.dataValidation.timeout.msg1', 'MDC', 'Data validation takes longer than expected. Data validation will continue in the background.'),
+                            msg: Uni.I18n.translate('device.dataValidation.timeout.message', 'MDC', 'Data validation takes longer than expected and will continue in the background.'),
                             icon: Ext.MessageBox.ERROR
                         });
                 }
             });
+
+        Ext.Ajax.request({
+            url: '../../api/ddr/devices/' + encodeURIComponent(me.deviceId) + '/validationrulesets/validationstatus',
+            method: 'PUT',
+            isNotEdit: true,
+            jsonData: {
+                isActive: 'true',
+                lastChecked: (isFromNewValidation ? confWindow.down('#dtm-validation-from-date').getValue().getTime() : me.dataValidationLastChecked.getTime()),
+                device: _.pick(me.getMainPage().device.getRecordData(), 'name', 'version', 'parent')
+            },
+            success: function () {
+                me.updateDevice(function () {
+                    me.validateData(confWindow)
+                });
+            },
+            failure: function (response) {
+                var res = Ext.JSON.decode(response.responseText);
+                confWindow.down('#pnl-validation-progress').removeAll(true);
+                if (response.status === 400) {
+                    me.showValidationActivationErrors(res.errors[0].msg);
+                    me.confirmationWindowButtonsDisable(false);
+                } else {
+                    confWindow.destroy();
+                }
+            }
+        });
+    },
+
+    validateData: function (confWindow) {
+        var me = this;
+
 
         Ext.Ajax.request({
             url: '../../api/ddr/devices/' + encodeURIComponent(me.deviceId) + '/validationrulesets/validate',

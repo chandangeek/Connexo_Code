@@ -28,7 +28,7 @@ Ext.define('Mdc.usagepointmanagement.view.RegistersGrid', {
                 }
             },
             {
-                header: Uni.I18n.translate('general.measurementTime', 'MDC', 'measurementTime'),
+                header: Uni.I18n.translate('general.measurementTime', 'MDC', 'Measurement time'),
                 dataIndex: 'measurementTime',
                 flex: 1,
                 renderer: function (value) {

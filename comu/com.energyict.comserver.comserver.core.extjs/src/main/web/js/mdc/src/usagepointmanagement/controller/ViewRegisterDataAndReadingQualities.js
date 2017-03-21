@@ -90,8 +90,8 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewRegisterDataAndReadingQualit
 
         registerModel.getProxy().setExtraParam('usagePointId', usagePointId);
         registerModel.load(registerId, {
-            success: function (record) {
-                me.setDataFilter();
+            success: function () {
+                filter = me.setDataFilter();
                 onDependencyLoad();
             }
         });
@@ -107,7 +107,7 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewRegisterDataAndReadingQualit
         preview.loadRecord(record);
     },
 
-    setDataFilter: function (register) {
+    setDataFilter: function () {
         return {
                 defaultFromDate: moment().startOf('day').subtract(1, 'years').toDate(),
                 defaultDuration: '1years'

@@ -44,7 +44,7 @@ Ext.define('Mdc.usagepointmanagement.view.RegisterDataGrid', {
             {
                 dataIndex: 'validation',
                 flex: 1,
-                renderer: function (value, metaData, record) {
+                renderer: function (value) {
                     var validationMap = {
                         NOT_VALIDATED: '<span class="icon-flag6" style="margin-left: -15px; line-height: 12px" data-qtip="' + Uni.I18n.translate('devicechannelsreadings.validationResult.notvalidated', 'MDC', 'Not validated') + '"></span>',
                         SUSPECT: '<span class="icon-flag5" style="margin-left: -15px; color:red; line-height: 12px" data-qtip="' + Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect') + '"></span>',

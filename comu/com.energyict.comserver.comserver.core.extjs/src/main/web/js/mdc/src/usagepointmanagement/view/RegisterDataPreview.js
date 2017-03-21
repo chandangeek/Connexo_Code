@@ -30,19 +30,19 @@ Ext.define('Mdc.usagepointmanagement.view.RegisterDataPreview', {
                     frame: true,
                     defaults: defaults,
                     items: [
-                        // {
-                        //     itemId: 'interval-field',
-                        //     fieldLabel: Uni.I18n.translate('general.interval', 'MDC', 'Interval'),
-                        //     name: 'interval',
-                        //     htmlEncode: false,
-                        //     renderer: function (value) {
-                        //         return value
-                        //             ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value.start)), Uni.DateTime.formatTimeLong(new Date(value.start))], false)
-                        //         + ' - ' +
-                        //         Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value.end)), Uni.DateTime.formatTimeLong(new Date(value.end))], false)
-                        //             : '-';
-                        //     }
-                        // },
+                        {
+                            itemId: 'measurement-time-field',
+                            fieldLabel: Uni.I18n.translate('general.measurementTime', 'MDC', 'Measurement time'),
+                            name: 'measurementTime',
+                            htmlEncode: false,
+                            renderer: function (value) {
+                                return value
+                                    ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value.start)), Uni.DateTime.formatTimeLong(new Date(value.start))], false)
+                                + ' - ' +
+                                Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value.end)), Uni.DateTime.formatTimeLong(new Date(value.end))], false)
+                                    : '-';
+                            }
+                        },
                         {
                             itemId: 'readingTime-field',
                             fieldLabel: Uni.I18n.translate('deviceloadprofiles.readingTime', 'MDC', 'Reading time'),

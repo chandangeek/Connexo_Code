@@ -5,7 +5,7 @@
 Ext.define('Mdc.usagepointmanagement.model.RegisterReading', {
     extend: 'Uni.model.Version',
     fields: [
-        'value', 'interval', 'readingTime', 'readingQualities', 'validationResult', 'dataValidated', 'validationAction', 'validationRules',
+        'value', 'measurementTime', 'readingTime', 'readingQualities', 'validationResult', 'dataValidated', 'validationAction', 'validationRules',
         {
             name: 'id',
             mapping: 'interval.end'
