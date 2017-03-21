@@ -1,24 +1,14 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.LittleEndianOutputStream;
-import com.energyict.cbo.TimeConstants;
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.MdwInterface;
-import com.energyict.mdc.ServerManager;
-import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
-import com.energyict.mdc.meterdata.DefaultCollectedDataFactoryProvider;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.DeviceFactory;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalValue;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.exception.CommunicationException;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -49,35 +39,11 @@ public class ProfileBuilderTest {
 
     private static final int DEVICE_ID = 122;
 
-    @BeforeClass
-    public static void doBefore() {
-        CollectedDataFactoryProvider.instance.set(new DefaultCollectedDataFactoryProvider());
-    }
-
     @Mock
     private CollectedDataFactory collectedDataFactory;
 
-    @Mock
-    private ServerManager manager;
-    @Mock
-    private MdwInterface mdwInterface;
-    @Mock
-    private DeviceFactory deviceFactory;
-    @Mock
-    private Device device;
-
-    @Before
-    public void initializeMocksAndFactories () {
-        when(this.device.getId()).thenReturn(DEVICE_ID);
-        when(this.device.getId()).thenReturn(DEVICE_ID);
-        when(this.deviceFactory.find(DEVICE_ID)).thenReturn(this.device);
-        when(this.mdwInterface.getDeviceFactory()).thenReturn(this.deviceFactory);
-        when(this.manager.getMdwInterface()).thenReturn(this.mdwInterface);
-        ManagerFactory.setCurrent(this.manager);
-    }
-
     @Test
-    public void testGetProfileDataForDefaultNumberOfChannels () throws IOException {
+    public void testGetProfileDataForDefaultNumberOfChannels() throws IOException {
         PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDiscoveryContext.class)), collectedDataFactory);
         String deviceId = "221";
         packetBuilder.parse(deviceId, "FFFF", "0", "0", null, null, "123,132,213,231,312,321", "192.168.2.100", null, "0");
@@ -102,7 +68,7 @@ public class ProfileBuilderTest {
     }
 
     @Test
-    public void testGetProfileDataForOneChannel () throws IOException {
+    public void testGetProfileDataForOneChannel() throws IOException {
         PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDiscoveryContext.class)), collectedDataFactory);
         String deviceId = "221";
         packetBuilder.parse(deviceId, "FFFF", "0", "0", null, "1", "696", "192.168.2.100", null, "0");
@@ -122,7 +88,7 @@ public class ProfileBuilderTest {
     }
 
     @Test
-    public void testGetMeterReadingsForOneChannel () throws IOException {
+    public void testGetMeterReadingsForOneChannel() throws IOException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         LittleEndianOutputStream leos = new LittleEndianOutputStream(os);
         byte[] versionBytes = new byte[1];
@@ -166,7 +132,7 @@ public class ProfileBuilderTest {
     }
 
     @Test
-    public void testGetEventDataForOneChannel () throws IOException {
+    public void testGetEventDataForOneChannel() throws IOException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         LittleEndianOutputStream leos = new LittleEndianOutputStream(os);
         byte[] versionBytes = new byte[1];
@@ -213,7 +179,7 @@ public class ProfileBuilderTest {
     }
 
     @Test(expected = CommunicationException.class)
-    public void testMissingInboundData () throws IOException {
+    public void testMissingInboundData() throws IOException {
         PacketBuilder packetBuilder = mock(PacketBuilder.class);
         when(packetBuilder.getData()).thenReturn(null);
         when(packetBuilder.getDeviceIdentifier()).thenReturn(mock(DeviceIdentifier.class));
@@ -224,13 +190,13 @@ public class ProfileBuilderTest {
         // Expected CommunicationException because the inbound data was missing
     }
 
-    private void writeData (LittleEndianOutputStream os, int... readings) throws IOException {
+    private void writeData(LittleEndianOutputStream os, int... readings) throws IOException {
         for (Integer reading : readings) {
             os.writeLEInt(reading);
         }
     }
 
-    private void writeEventData (LittleEndianOutputStream os, short code, String description) throws IOException {
+    private void writeEventData(LittleEndianOutputStream os, short code, String description) throws IOException {
         os.write(1);    // count, i.e. the number of events
         os.writeLEInt(this.getCorrectTimeAsInt());  // event time
         os.writeLEShort(code);  // Event code
@@ -238,19 +204,19 @@ public class ProfileBuilderTest {
         os.writeString(description, description.length());
     }
 
-    private void writeTariff (LittleEndianOutputStream os, int tariff) throws IOException {
+    private void writeTariff(LittleEndianOutputStream os, int tariff) throws IOException {
         os.writeByte(tariff);
     }
 
-    private void writeStateBits (LittleEndianOutputStream os, short stateBits) throws IOException {
+    private void writeStateBits(LittleEndianOutputStream os, short stateBits) throws IOException {
         os.writeLEShort(stateBits);
     }
 
-    private int getCorrectTimeAsInt () {
-        return (int) ((this.getCorrectTime().getTime() - EIWebConstants.SECONDS10YEARS) / TimeConstants.MILLISECONDS_IN_SECOND);
+    private int getCorrectTimeAsInt() {
+        return (int) ((this.getCorrectTime().getTime() - EIWebConstants.SECONDS10YEARS) / 1000);
     }
 
-    private Date getCorrectTime () {
+    private Date getCorrectTime() {
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         calendar.set(Calendar.HOUR_OF_DAY, 14);
         calendar.set(Calendar.MINUTE, 21);

@@ -1,17 +1,12 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.properties.Converter;
-import com.energyict.mdc.upl.properties.Password;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.protocolimplv2.eict.eiweb.SimplePassword;
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -22,7 +17,6 @@ import com.energyict.protocolimplv2.messages.ZigBeeConfigurationDeviceMessage;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.text.ParseException;
@@ -40,17 +34,6 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class UkHubMessageConverterTest extends AbstractMessageConverterTest {
-
-    @Mock
-    private PropertySpecService propertySpecService;
-    @Mock
-    private NlsService nlsService;
-    @Mock
-    private Converter converter;
-    @Mock
-    private DeviceMessageFileFinder messageFileFinder;
-    @Mock
-    private Extractor extractor;
 
     @Test
     public void testMessageConversion() {
@@ -148,12 +131,12 @@ public class UkHubMessageConverterTest extends AbstractMessageConverterTest {
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new UkHub(propertySpecService, messageFileFinder, extractor);
+        return new UkHub(propertySpecService, deviceMessageFileFinder, deviceMessageFileExtractor);
     }
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new UkHubMessageConverter(null, this.propertySpecService, this.nlsService, this.converter, this.extractor);
+        return new UkHubMessageConverter(getMessagingProtocol(), this.propertySpecService, this.nlsService, this.converter, this.deviceMessageFileExtractor);
     }
 
     @Override
@@ -171,7 +154,7 @@ public class UkHubMessageConverterTest extends AbstractMessageConverterTest {
                 case DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName:
                     return "ABC";
                 case DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName:
-                    return new Password("123");
+                    return new SimplePassword("123");
                 case DeviceMessageConstants.ZigBeeConfigurationMirrorAddressAttributeName:
                     return "1";
                 case DeviceMessageConstants.ZigBeeConfigurationForceRemovalAttributeName:
@@ -180,9 +163,9 @@ public class UkHubMessageConverterTest extends AbstractMessageConverterTest {
                 case DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateFileAttributeName:
                 case DeviceMessageConstants.firmwareUpdateFileAttributeName:
                 case DeviceMessageConstants.UserFileConfigAttributeName:
-                    UserFile mockedUserFile = mock(UserFile.class);
-                    when(mockedUserFile.getId()).thenReturn(10);
-                    return mockedUserFile;
+                    DeviceMessageFile deviceMessageFile = mock(DeviceMessageFile.class);
+                    when(deviceMessageFileExtractor.id(deviceMessageFile)).thenReturn("10");
+                    return deviceMessageFile;
                 case DeviceMessageConstants.ZigBeeConfigurationSASExtendedPanIdAttributeName:
                     return "A";
                 case DeviceMessageConstants.ZigBeeConfigurationSASPanIdAttributeName:

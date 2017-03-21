@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-import com.energyict.mdc.upl.properties.Password;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.protocolimplv2.eict.eiweb.SimplePassword;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
@@ -60,21 +60,21 @@ public class REMIDataloggerMessageConverterTest extends AbstractMessageConverter
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new REMIDatalogger();
+        return new REMIDatalogger(calendarFinder, calendarExtractor, deviceMessageFileFinder, deviceMessageFileExtractor, propertySpecService, numberLookupFinder, numberLookupExtractor);
     }
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new REMIDataloggerMessageConverter();
+        return new REMIDataloggerMessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter, loadProfileExtractor);
     }
 
     @Override
     protected Object getPropertySpecValue(PropertySpec propertySpec) {
-        switch(propertySpec.getName()) {
+        switch (propertySpec.getName()) {
             case DeviceMessageConstants.usernameAttributeName:
                 return "user";
             case DeviceMessageConstants.passwordAttributeName:
-                return new Password("pass");
+                return new SimplePassword("pass");
             case DeviceMessageConstants.apnAttributeName:
                 return "apn";
             case DeviceMessageConstants.enableDSTAttributeName:

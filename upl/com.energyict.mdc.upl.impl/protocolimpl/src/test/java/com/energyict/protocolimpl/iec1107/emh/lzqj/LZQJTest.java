@@ -1,14 +1,16 @@
 package com.energyict.protocolimpl.iec1107.emh.lzqj;
 
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.properties.TypedProperties;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Properties;
-
-import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -20,13 +22,18 @@ import static org.junit.Assert.fail;
  */
 public class LZQJTest {
 
+    @Mock
+    private NlsService nlsService;
+    @Mock
+    private PropertySpecService propertySpecService;
+
     @Test
     public void readRegisterTest() {
         byte[] responseByte = new byte[]{48, 46, 49, 46, 48, 40, 48, 49, 41, 13, 10};
         try {
-            LZQJ protocol = new LZQJ();
-            Properties props = new Properties();
-            props.put("DataReadout", "1");
+            LZQJ protocol = new LZQJ(propertySpecService, nlsService);
+            TypedProperties props = TypedProperties.empty();
+            props.setProperty("DataReadout", "1");
             protocol.setUPLProperties(props);
             DummyFlagConnection dConnection = new DummyFlagConnection(null, null, 1, 1, 1, 1, 1, true);
             protocol.setConnection(dConnection);
@@ -78,9 +85,9 @@ public class LZQJTest {
     public void getClearedBillingRegisterTest() {
         byte[] responseByte = new byte[]{48, 46, 49, 46, 48, 40, 48, 48, 41, 13, 10};
         try {
-            LZQJ protocol = new LZQJ();
-            Properties props = new Properties();
-            props.put("DataReadout", "1");
+            LZQJ protocol = new LZQJ(propertySpecService, nlsService);
+            TypedProperties props = TypedProperties.empty();
+            props.setProperty("DataReadout", "1");
             protocol.setUPLProperties(props);
             DummyFlagConnection dConnection = new DummyFlagConnection(null, null, 1, 1, 1, 1, 1, true);
             protocol.setConnection(dConnection);

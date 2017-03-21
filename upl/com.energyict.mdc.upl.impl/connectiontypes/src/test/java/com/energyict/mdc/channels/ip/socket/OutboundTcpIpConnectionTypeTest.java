@@ -1,23 +1,27 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.channels.ip.socket;
 
 import com.energyict.mdc.channels.ip.OutboundIpConnectionType;
+import com.energyict.mdc.channels.ip.datagrams.OutboundUdpConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.protocol.exceptions.ConnectionException;
-
-import java.math.BigDecimal;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-
+import com.energyict.protocolimpl.properties.TypedProperties;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.math.BigDecimal;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
+import java.time.Duration;
+
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 /**
  * Tests the {@link OutboundTcpIpConnectionType} component.
@@ -34,17 +38,16 @@ public class OutboundTcpIpConnectionTypeTest {
     private PropertySpecService propertySpecService;
 
     @Test(expected = UnknownHostException.class)
-    public void testConnectToUnknownHost () throws Throwable {
-        OutboundTcpIpConnectionType connectionType = new OutboundTcpIpConnectionType(this.propertySpecService);
-        ComPort comPort = getMockedComPort();
+    public void testConnectToUnknownHost() throws Throwable {
 
-        List<ConnectionTaskProperty> properties = getConnectionProperties("www.ditiszekereendomeinnaamdienietbestaat.zelfsdeextentiebestaatniet", DEFAULT_HTTP_PORT, 1);
+        com.energyict.mdc.upl.properties.TypedProperties properties = getConnectionProperties("www.ditiszekereendomeinnaamdienietbestaat.zelfsdeextentiebestaatniet", DEFAULT_HTTP_PORT, 1);
+        OutboundTcpIpConnectionType connectionType = new OutboundTcpIpConnectionType(this.propertySpecService);
+        connectionType.setUPLProperties(properties);
 
         try {
             // Business method
-            connectionType.connect(comPort, properties);
-        }
-        catch (ConnectionException e) {
+            connectionType.connect();
+        } catch (ConnectionException e) {
             // Expected a ConnectionException but want to assert that the cause is a SocketTimeoutException
             Throwable cause = e.getCause();
             assertThat(cause).isInstanceOf(UnknownHostException.class);
@@ -53,22 +56,21 @@ public class OutboundTcpIpConnectionTypeTest {
     }
 
     @Test
-    public void testTimeoutIsRespected () throws SocketTimeoutException {
-        OutboundTcpIpConnectionType connectionType = new OutboundTcpIpConnectionType();
-        ComPort comPort = getMockedComPort();
+    public void testTimeoutIsRespected() throws SocketTimeoutException, PropertyValidationException {
+        OutboundTcpIpConnectionType connectionType = new OutboundTcpIpConnectionType(propertySpecService);
 
         int timeOut = 3;    // seconds
-        List<ConnectionTaskProperty> properties = getConnectionProperties("10.0.13.13", DEFAULT_HTTP_PORT, timeOut);
+        com.energyict.mdc.upl.properties.TypedProperties typedProperties = getConnectionProperties("10.0.13.13", DEFAULT_HTTP_PORT, timeOut);
         long timeBeforeConnect = System.currentTimeMillis();
+        connectionType.setUPLProperties(typedProperties);
 
         try {
             // Business method
-            connectionType.connect(comPort, properties);
-        }
-        catch (ConnectionException e) {
+            connectionType.connect();
+        } catch (ConnectionException e) {
             long timeAfterConnect = System.currentTimeMillis();
             long connectTime = timeAfterConnect - timeBeforeConnect;
-            long secs = connectTime / TimeConstants.MILLISECONDS_IN_SECOND;
+            long secs = connectTime / 1000;
             assertThat(e.getCause()).isInstanceOf(SocketTimeoutException.class);
 
             // Asserts
@@ -76,49 +78,40 @@ public class OutboundTcpIpConnectionTypeTest {
         }
     }
 
-    private ArrayList<ConnectionTaskProperty> getConnectionProperties (String hostName, int port, int timeOut) {
-        ArrayList<ConnectionTaskProperty> properties = new ArrayList<>(0);
-        ConnectionTaskPropertyImpl hostProperty = new ConnectionTaskPropertyImpl(OutboundIpConnectionType.HOST_PROPERTY_NAME);
-        hostProperty.setValue(hostName);
-        properties.add(hostProperty);
-        ConnectionTaskPropertyImpl portProperty = new ConnectionTaskPropertyImpl(OutboundIpConnectionType.PORT_PROPERTY_NAME);
-        portProperty.setValue(new BigDecimal(port));
-        properties.add(portProperty);
-        ConnectionTaskPropertyImpl timeOutProperty = new ConnectionTaskPropertyImpl(OutboundIpConnectionType.CONNECTION_TIMEOUT_PROPERTY_NAME);
-        timeOutProperty.setValue(new TimeDuration(timeOut));
-        properties.add(timeOutProperty);
-        return properties;
-    }
+    private com.energyict.mdc.upl.properties.TypedProperties getConnectionProperties(String hostName, int port, int timeOut) {
+        TypedProperties typedProperties = TypedProperties.empty();
 
-    private ComPort getMockedComPort() {
-        return mock(ComPort.class);
+        typedProperties.setProperty(OutboundUdpConnectionType.HOST_PROPERTY_NAME, hostName);
+        typedProperties.setProperty(OutboundUdpConnectionType.PORT_PROPERTY_NAME, new BigDecimal(port));
+        typedProperties.setProperty(OutboundUdpConnectionType.CONNECTION_TIMEOUT_PROPERTY_NAME, Duration.ofSeconds(timeOut));
+
+        return typedProperties;
     }
 
     @Test
-    public void testConnectToJira () throws ConnectionException {
+    public void testConnectToJira() throws ConnectionException, PropertyValidationException {
         OutboundTcpIpConnectionType connectionType = this.newTcpIpConnectionType();
 
         ComChannel comChannel = null;
         try {
             // Business method
-            comChannel = connectionType.connect(getMockedComPort(), new ArrayList<ConnectionTaskProperty>(0));
+            comChannel = connectionType.connect();
 
             // Asserts
             assertThat(comChannel).isNotNull();
-        }
-        finally {
+        } finally {
             this.close(comChannel);
         }
     }
 
     @Test
-    public void testTalkToJira () throws ConnectionException {
+    public void testTalkToJira() throws ConnectionException, PropertyValidationException {
         OutboundTcpIpConnectionType connectionType = this.newTcpIpConnectionType();
 
         ComChannel comChannel = null;
         try {
             // Business methods
-            comChannel = connectionType.connect(getMockedComPort(), new ArrayList<ConnectionTaskProperty>(0));
+            comChannel = connectionType.connect();
             comChannel.write("GET / HTTP/1.1\r\n\r\n".getBytes());
             comChannel.startReading();
             byte[] buffer = new byte[100];
@@ -126,25 +119,23 @@ public class OutboundTcpIpConnectionTypeTest {
 
             // Asserts
             assertThat(bytesRead).isGreaterThan(0);
-        }
-        finally {
+        } finally {
             this.close(comChannel);
         }
     }
 
-    private OutboundTcpIpConnectionType newTcpIpConnectionType () {
-        OutboundTcpIpConnectionType connectionType = new OutboundTcpIpConnectionType();
+    private OutboundTcpIpConnectionType newTcpIpConnectionType() throws PropertyValidationException {
+        OutboundTcpIpConnectionType connectionType = new OutboundTcpIpConnectionType(propertySpecService);
         TypedProperties properties = TypedProperties.empty();
         properties.setProperty(OutboundIpConnectionType.HOST_PROPERTY_NAME, "jira.eict.vpdc");
         properties.setProperty(OutboundIpConnectionType.PORT_PROPERTY_NAME, new BigDecimal(DEFAULT_HTTP_PORT));
-        connectionType.addProperties(properties);
+        connectionType.setUPLProperties(properties);
         return connectionType;
     }
 
-    private void close (ComChannel comChannel) {
+    private void close(ComChannel comChannel) {
         if (comChannel != null) {
             comChannel.close();
         }
     }
-
 }

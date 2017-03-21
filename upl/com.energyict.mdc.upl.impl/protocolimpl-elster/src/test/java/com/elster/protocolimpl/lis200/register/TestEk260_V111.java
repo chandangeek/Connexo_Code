@@ -1,16 +1,19 @@
 package com.elster.protocolimpl.lis200.register;
 
-import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.elster.protocolimpl.lis200.EK260;
 import com.elster.protocolimpl.lis200.objects.ClockObject;
 import com.elster.protocolimpl.lis200.objects.GenericArchiveObject;
 import com.elster.protocolimpl.lis200.registers.HistoricalArchive;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,10 +25,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -39,8 +38,8 @@ public class TestEk260_V111 extends EK260 {
 
     private Locale savedLocale;
 
-    public TestEk260_V111(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public TestEk260_V111(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Before

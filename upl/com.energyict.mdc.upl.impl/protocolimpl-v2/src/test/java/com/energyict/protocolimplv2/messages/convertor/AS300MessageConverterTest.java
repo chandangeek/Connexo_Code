@@ -1,19 +1,11 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Formatter;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
-import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
@@ -26,7 +18,6 @@ import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.text.ParseException;
@@ -53,60 +44,11 @@ public class AS300MessageConverterTest extends AbstractMessageConverterTest {
     private String ExpectedActivityCalendarMessageContent;
     private Date activityCalendarActivationDate;
 
-    @Mock
-    private TariffCalendarFinder calendarFinder;
-    @Mock
-    private TariffCalendarExtractor calendarExtractor;
-    @Mock
-    private DeviceMessageFileFinder messageFileFinder;
-    @Mock
-    private DeviceMessageFileExtractor messageFileExtractor;
-    @Mock
-    private Formatter dateFormatter;
-    @Mock
-    private PropertySpecService propertySpecService;
-    @Mock
-    private NlsService nlsService;
-    @Mock
-    private Converter converter;
-
-    protected TariffCalendarFinder getCalendarFinder() {
-        return calendarFinder;
-    }
-
-    protected TariffCalendarExtractor getCalendarExtractor() {
-        return calendarExtractor;
-    }
-
-    protected DeviceMessageFileFinder getMessageFileFinder() {
-        return messageFileFinder;
-    }
-
-    protected DeviceMessageFileExtractor getMessageFileExtractor() {
-        return messageFileExtractor;
-    }
-
-    protected Formatter getDateFormatter() {
-        return dateFormatter;
-    }
-
-    protected PropertySpecService getPropertySpecService() {
-        return propertySpecService;
-    }
-
-    protected NlsService getNlsService() {
-        return nlsService;
-    }
-
-    protected Converter getConverter() {
-        return converter;
-    }
-
     @Test
     public void testMessageConversion() {
         try {
             activityCalendarActivationDate = europeanDateTimeFormat.parse("25/10/2013 14:30:00");
-            ExpectedActivityCalendarMessageContent = "<TimeOfUse name=\"MyActivityCal\" activationDate=\""+ activityCalendarActivationDate.getTime()+"\"><CodeId>8</CodeId><Activity_Calendar>H4sIAAAAAAAAAN1WS27bMBDtJkAvUcAXKCLLRdMFQaCwkyYLtwXsIEh2rDWGichkQFIJdKderXfokJT4kYS2XhQFqo3mvZl5HA7psb7/eHVmXr8hW36EL/tbDZQsWQ2iYuozOwJdtx93hj9z0yJNzjMfWcoKtuxbDTb7QQqgSxBGsXp22Sj5BEzMrAfTRoExdwXacMEMlyJ4PykA8cJ3h9l6QmQqI+rdCAPqmdV08b4okqzAx9ArJY/3wBQti/kiCQ18skPZBZapZsfGsA0wLcUGzE1Fy3kSmTqIa6mrf8UM0PniQ3lRvCsL+5DzgTeKo6PvPyVe8KuSe16DHuABdKeFymOyi9sYpgwlbjNvsWy/q7UU5kAReoOsWGuRffVaXaIHdwCP+VKBGaw9xFi/DZ1EGejlhxR5ecQiK19gsJHdNqAD3QPk76ASiSdCm3NoVJLUI/RcKR74zkZ2w0yjrF1YPiDraUTkvZ3VniPtWjwFUhsvkD+EiBPvlim+3+sxNWaGQoG1kR6447W/MUquZaPsRtybrLloDNaIRG/iJdhh27U/fW86+ZHUaM0/rLY8sdqLf1rtqb214+LvlDuidMb94qIV/91F+20vEmBd08M3jvUn2HFWu5EYbZ2C1L7Ef8fWT/WTZu2UwIhs/YFN8imdgWyPWUz8IvgJB2iK+SQIAAA=</Activity_Calendar></TimeOfUse>";
+            ExpectedActivityCalendarMessageContent = "<TimeOfUse name=\"MyActivityCal\" activationDate=\"" + activityCalendarActivationDate.getTime() + "\"><CodeId>8</CodeId><Activity_Calendar>H4sIAAAAAAAAAN1WS27bMBDtJkAvUcAXKCLLRdMFQaCwkyYLtwXsIEh2rDWGichkQFIJdKderXfokJT4kYS2XhQFqo3mvZl5HA7psb7/eHVmXr8hW36EL/tbDZQsWQ2iYuozOwJdtx93hj9z0yJNzjMfWcoKtuxbDTb7QQqgSxBGsXp22Sj5BEzMrAfTRoExdwXacMEMlyJ4PykA8cJ3h9l6QmQqI+rdCAPqmdV08b4okqzAx9ArJY/3wBQti/kiCQ18skPZBZapZsfGsA0wLcUGzE1Fy3kSmTqIa6mrf8UM0PniQ3lRvCsL+5DzgTeKo6PvPyVe8KuSe16DHuABdKeFymOyi9sYpgwlbjNvsWy/q7UU5kAReoOsWGuRffVaXaIHdwCP+VKBGaw9xFi/DZ1EGejlhxR5ecQiK19gsJHdNqAD3QPk76ASiSdCm3NoVJLUI/RcKR74zkZ2w0yjrF1YPiDraUTkvZ3VniPtWjwFUhsvkD+EiBPvlim+3+sxNWaGQoG1kR6447W/MUquZaPsRtybrLloDNaIRG/iJdhh27U/fW86+ZHUaM0/rLY8sdqLf1rtqb214+LvlDuidMb94qIV/91F+20vEmBd08M3jvUn2HFWu5EYbZ2C1L7Ef8fWT/WTZu2UwIhs/YFN8imdgWyPWUz8IvgJB2iK+SQIAAA=</Activity_Calendar></TimeOfUse>";
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -172,12 +114,12 @@ public class AS300MessageConverterTest extends AbstractMessageConverterTest {
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new AS300(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, dateFormatter, propertySpecService);
+        return new AS300(deviceMessageFileFinder, deviceMessageFileExtractor, propertySpecService);
     }
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        AS300MessageConverter messageConverter = spy(new AS300MessageConverter(null, this.propertySpecService, this.nlsService, this.converter, this.calendarExtractor));
+        AS300MessageConverter messageConverter = spy(new AS300MessageConverter(getMessagingProtocol(), this.propertySpecService, this.nlsService, this.converter, deviceMessageFileExtractor, this.calendarExtractor));
         // We stub the encode method, cause CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable() is not subject of this test
         doReturn(XMLEncodedActivityCalendar).when(messageConverter).encode(any(TariffCalendar.class));
         return messageConverter;
@@ -197,11 +139,11 @@ public class AS300MessageConverterTest extends AbstractMessageConverterTest {
                     return "1";
                 case DeviceMessageConstants.PricingInformationUserFileAttributeName:
                     DeviceMessageFile mockedUserFile = mock(DeviceMessageFile.class);
-                    when(this.calendarExtractor.contents(mockedUserFile)).thenReturn("Content");
+                    when(this.deviceMessageFileExtractor.contents(mockedUserFile)).thenReturn("Content");
                     return mockedUserFile;
                 case DeviceMessageConstants.firmwareUpdateFileAttributeName:
                     mockedUserFile = mock(DeviceMessageFile.class);
-                    when(this.calendarExtractor.id(mockedUserFile)).thenReturn("1");
+                    when(this.deviceMessageFileExtractor.id(mockedUserFile)).thenReturn("1");
                     return mockedUserFile;
                 case DeviceMessageConstants.DisplayMessageActivationDate:
                 case DeviceMessageConstants.ConfigurationChangeActivationDate:

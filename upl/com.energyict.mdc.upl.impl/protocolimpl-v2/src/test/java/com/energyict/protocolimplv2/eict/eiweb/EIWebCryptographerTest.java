@@ -1,14 +1,9 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
-import com.energyict.mdc.protocol.inbound.crypto.MD5Seed;
-import com.energyict.mdc.protocol.security.SecurityProperty;
-import com.energyict.mdc.tasks.InboundConnectionTask;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.DeviceFactory;
-import com.energyict.mdw.core.DeviceFactoryProvider;
+import com.energyict.mdc.upl.security.SecurityProperty;
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.identifier.NotFoundException;
 import com.energyict.protocolimpl.properties.TypedProperties;
@@ -18,6 +13,7 @@ import java.util.Collections;
 import java.util.Optional;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -37,7 +33,7 @@ public class EIWebCryptographerTest {
      * does not break the EIWebCryptographer component.
      */
     @Test(expected = NotFoundException.class)
-    public void testBuildMD5SeedForNonExistingDevice () {
+    public void testBuildMD5SeedForNonExistingDevice() {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         InboundDiscoveryContext inboundDiscoveryContext = mock(InboundDiscoveryContext.class);
         doThrow(NotFoundException.class).when(inboundDiscoveryContext).getConnectionTypeProperties(deviceIdentifier);
@@ -56,7 +52,7 @@ public class EIWebCryptographerTest {
      * because not {@link InboundConnectionTask}s are defined against it.
      */
     @Test(expected = CommunicationException.class)
-    public void testBuildMD5SeedWithoutConnectionTypeProperties () {
+    public void testBuildMD5SeedWithoutConnectionTypeProperties() {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         InboundDiscoveryContext inboundDiscoveryContext = mock(InboundDiscoveryContext.class);
         when(inboundDiscoveryContext.getConnectionTypeProperties(deviceIdentifier)).thenReturn(Optional.empty());
@@ -70,54 +66,45 @@ public class EIWebCryptographerTest {
     }
 
     @Test
-    public void testBuildMD5SeedExistingDevice () {
-        DeviceFactory deviceFactory = mock(DeviceFactory.class);
-        DeviceFactoryProvider.instance.set(() -> deviceFactory);
-        Device device = mock(Device.class);
-        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        when(deviceFactory.find(deviceIdentifier)).thenReturn(device);
+    public void testBuildMD5SeedExistingDevice() {
         TypedProperties connectionTypeProperties = TypedProperties.empty();
         connectionTypeProperties.setProperty(EIWebConnectionType.MAC_ADDRESS_PROPERTY_NAME, MAC_ADDRESS_VALUE);
         SecurityProperty encryptionPassword = mock(SecurityProperty.class);
         when(encryptionPassword.getValue()).thenReturn(new SimplePassword("EIWebCryptographerTest"));
         InboundDiscoveryContext inboundDiscoveryContext = mock(InboundDiscoveryContext.class);
-        when(inboundDiscoveryContext.getConnectionTypeProperties(deviceIdentifier)).thenReturn(connectionTypeProperties);
-        when(inboundDiscoveryContext.getProtocolSecurityProperties(deviceIdentifier)).thenReturn(Collections.singletonList(encryptionPassword));
+        when(inboundDiscoveryContext.getConnectionTypeProperties(any(DeviceIdentifier.class))).thenReturn(Optional.of(connectionTypeProperties));
+        when(inboundDiscoveryContext.getProtocolSecurityProperties(any(DeviceIdentifier.class))).thenReturn(Optional.of(Collections.singletonList(encryptionPassword)));
 
         EIWebCryptographer cryptographer = new EIWebCryptographer(inboundDiscoveryContext);
 
         // Business method
-        MD5Seed md5Seed = cryptographer.buildMD5Seed(deviceIdentifier, "1234");
+        StringBasedMD5Seed md5Seed = cryptographer.buildMD5Seed(mock(DeviceIdentifier.class), "1234");
 
         // Asserts
         assertThat(md5Seed).isNotNull();
     }
 
     @Test
-    public void testWasUsed () {
-        DeviceFactory deviceFactory = mock(DeviceFactory.class);
-        Device device = mock(Device.class);
-        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        when(deviceFactory.find(deviceIdentifier)).thenReturn(device);
+    public void testWasUsed() {
         InboundDiscoveryContext inboundDiscoveryContext = mock(InboundDiscoveryContext.class);
         TypedProperties connectionTypeProperties = TypedProperties.empty();
         connectionTypeProperties.setProperty(EIWebConnectionType.MAC_ADDRESS_PROPERTY_NAME, MAC_ADDRESS_VALUE);
-        when(inboundDiscoveryContext.getConnectionTypeProperties(deviceIdentifier)).thenReturn(connectionTypeProperties);
+        when(inboundDiscoveryContext.getConnectionTypeProperties(any(DeviceIdentifier.class))).thenReturn(Optional.of(connectionTypeProperties));
         SecurityProperty encryptionPassword = mock(SecurityProperty.class);
         when(encryptionPassword.getValue()).thenReturn(new SimplePassword("EIWebCryptographerTest"));
-        when(inboundDiscoveryContext.getProtocolSecurityProperties(deviceIdentifier)).thenReturn(Collections.singletonList(encryptionPassword));
+        when(inboundDiscoveryContext.getProtocolSecurityProperties(any(DeviceIdentifier.class))).thenReturn(Optional.of(Collections.singletonList(encryptionPassword)));
 
         EIWebCryptographer cryptographer = new EIWebCryptographer(inboundDiscoveryContext);
 
         // Business method
-        cryptographer.buildMD5Seed(deviceIdentifier, "1234");
+        cryptographer.buildMD5Seed(mock(DeviceIdentifier.class), "1234");
 
         // Asserts
         assertThat(cryptographer.wasUsed()).isTrue();
     }
 
     @Test
-    public void testWasNotUsed () {
+    public void testWasNotUsed() {
         EIWebCryptographer cryptographer = new EIWebCryptographer(mock(InboundDiscoveryContext.class));
 
         // Business method

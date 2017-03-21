@@ -4,17 +4,15 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-
-import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.protocolimpl.din19244.poreg2.Poreg2;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.enums.DSTAlgorithm;
-
-import java.io.IOException;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.io.IOException;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.dstEndAlgorithmAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.dstStartAlgorithmAttributeName;
@@ -44,20 +42,19 @@ public class PoregMeterMessageConverterTest extends AbstractMessageConverterTest
         assertEquals("<Algorithms Start Algorithm=\"7\" End Algorithm=\"7\"> </Algorithms>", messageEntry.getContent());
 
 
-
     }
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new Poreg2();
+        return new Poreg2(propertySpecService, nlsService);
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {
-        return new PoregMeterMessageConverter();
+        return new PoregMeterMessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter);
     }
 
     /**
-     * Gets the value to use for the given {@link com.energyict.cpo.PropertySpec}
+     * Gets the value to use for the given {@link com.energyict.mdc.upl.properties.PropertySpec}
      */
     protected Object getPropertySpecValue(PropertySpec propertySpec) {
         if (propertySpec.getName().equals(dstStartAlgorithmAttributeName) || propertySpec.getName().equals(dstEndAlgorithmAttributeName)) {

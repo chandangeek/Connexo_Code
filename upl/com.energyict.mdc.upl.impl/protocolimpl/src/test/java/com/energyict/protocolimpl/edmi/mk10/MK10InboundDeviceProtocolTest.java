@@ -1,12 +1,11 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
-import com.energyict.cpo.Environment;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.upl.InboundDeviceProtocol;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.exception.ProtocolRuntimeException;
+import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import org.junit.Test;
@@ -26,8 +25,8 @@ import static org.mockito.Mockito.when;
 @RunWith(PowerMockRunner.class)
 public class MK10InboundDeviceProtocolTest {
 
-    private static final String TIMEOUT_KEY = Environment.getDefault().getTranslation("protocol.timeout");
-    private static final String RETRIES_KEY = Environment.getDefault().getTranslation("protocol.retries");
+    private static final String TIMEOUT_KEY = "Timeout";
+    private static final String RETRIES_KEY = "Retries";
 
     private static final String SERIALNUMBER = "209435639";
 

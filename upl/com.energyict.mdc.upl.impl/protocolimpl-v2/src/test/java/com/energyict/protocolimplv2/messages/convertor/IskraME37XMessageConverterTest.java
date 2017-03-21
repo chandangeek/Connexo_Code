@@ -4,17 +4,15 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-
-import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.protocolimpl.dlms.iskrame37x.IskraME37X;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-
-import java.io.IOException;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -44,15 +42,15 @@ public class IskraME37XMessageConverterTest extends AbstractMessageConverterTest
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new IskraME37X();
+        return new IskraME37X(propertySpecService);
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {
-        return new IskraME37XMessageConverter();
+        return new IskraME37XMessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter);
     }
 
     /**
-     * Gets the value to use for the given {@link com.energyict.cpo.PropertySpec}
+     * Gets the value to use for the given {@link com.energyict.mdc.upl.properties.PropertySpec}
      */
     protected Object getPropertySpecValue(PropertySpec propertySpec) {
         return "";

@@ -1,7 +1,5 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.mdc.messages.DeviceMessageAttributeImpl;
-import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
@@ -11,41 +9,34 @@ import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.mdw.core.DataVaultProvider;
-import com.energyict.mdw.core.RandomProvider;
-import com.energyict.mdw.crypto.KeyStoreDataVaultProvider;
-import com.energyict.mdw.crypto.SecureRandomProvider;
-import com.energyict.mdw.offlineimpl.OfflineDeviceMessageAttributeImpl;
-import com.energyict.protocolimpl.properties.TypedProperties;
-import com.energyict.protocolimplv2.eict.rtuplusserver.eiwebplus.RtuServer;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.OutputConfigurationMessage;
 import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.convertor.AbstractMessageConverterTest;
 import com.energyict.protocolimplv2.messages.convertor.EIWebPlusMessageConverter;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
+import com.energyict.protocolimplv2.messages.convertor.EictZ3MessageConverterTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
  * Test that creates OfflineDeviceMessages (the attributes are all filled with "1" values) and converts them to the legacy XML message, using the EIWebPlusMessageConverter.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 2/10/13
  * Time: 13:11
@@ -53,8 +44,6 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class EIWebPlusMessageConverterTest {
-
-    private static final long DEVICE_MESSAGE_ID = 1L;
 
     @Mock
     private OfflineDeviceMessage absoluteDOSwitchRuleMessage;
@@ -93,7 +82,6 @@ public class EIWebPlusMessageConverterTest {
 
     @Before
     public void mockMessages() {
-        mockProviders();
         absoluteDOSwitchRuleMessage = createMessage(OutputConfigurationMessage.AbsoluteDOSwitchRule.get(this.propertySpecService, this.nlsService, this.uplConverter));
         rtuPlusServerEnterMaintenanceModeMessage = createMessage(DeviceActionMessage.RtuPlusServerEnterMaintenanceMode.get(this.propertySpecService, this.nlsService, this.uplConverter));
         forceMessageToFailedMessage = createMessage(DeviceActionMessage.ForceMessageToFailed.get(this.propertySpecService, this.nlsService, this.uplConverter));
@@ -154,29 +142,22 @@ public class EIWebPlusMessageConverterTest {
         return getConverter().getRegistry().get(deviceMessage.getSpecification());
     }
 
-    private void mockProviders() {
-        DataVaultProvider.instance.set(new KeyStoreDataVaultProvider());
-        RandomProvider.instance.set(new SecureRandomProvider());
-    }
-
     /**
      * Create a device message based on the given spec, and fill its attributes with "1" values.
      */
     private OfflineDeviceMessage createMessage(DeviceMessageSpec messageSpec) {
-        OfflineDeviceMessage message = getEmptyMessageMock();
-        List<OfflineDeviceMessageAttribute> attributes = new ArrayList<>();
-        DeviceMessage deviceMessage = mock(DeviceMessage.class);
-        when(deviceMessage.getMessageId()).thenReturn(DEVICE_MESSAGE_ID);
+        OfflineDeviceMessage offlineMessage = getEmptyMessageMock();
 
-        OfflineDevice offlineDevice = mock(OfflineDevice.class);
+        List<OfflineDeviceMessageAttribute> attributes = new ArrayList<>();
         for (PropertySpec propertySpec : messageSpec.getPropertySpecs()) {
-            TypedProperties propertyStorage = TypedProperties.empty();
-            propertyStorage.setProperty(propertySpec.getName(), "1");
-            attributes.add(new OfflineDeviceMessageAttributeImpl(offlineDevice, message, new DeviceMessageAttributeImpl(propertySpec, deviceMessage, propertyStorage), new RtuServer(this.collectedDataFactory, propertySpecService, nlsService, converter, messageFileExtractor)));
+            AbstractMessageConverterTest.TestOfflineDeviceMessageAttribute e = new EictZ3MessageConverterTest().new TestOfflineDeviceMessageAttribute(getConverter(), propertySpec, "1", messageSpec.getId());
+            attributes.add(e);
         }
-        when(message.getDeviceMessageAttributes()).thenReturn(attributes);
-        when(message.getSpecification()).thenReturn(messageSpec);
-        return message;
+
+        doReturn(attributes).when(offlineMessage).getDeviceMessageAttributes();
+        when(offlineMessage.getSpecification()).thenReturn(messageSpec);
+        when(offlineMessage.getDeviceMessageId()).thenReturn(messageSpec.getId());
+        return offlineMessage;
     }
 
     private OfflineDeviceMessage getEmptyMessageMock() {

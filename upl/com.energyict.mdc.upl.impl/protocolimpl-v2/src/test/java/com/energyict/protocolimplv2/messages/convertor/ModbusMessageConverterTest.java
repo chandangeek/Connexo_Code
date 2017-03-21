@@ -4,12 +4,10 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-
-import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.protocolimpl.modbus.multilin.epm2200.EPM2200;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.ModbusConfigurationDeviceMessage;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -42,11 +40,11 @@ public class ModbusMessageConverterTest extends AbstractMessageConverterTest {
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new EPM2200();
+        return new EPM2200(propertySpecService, nlsService);
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {
-        return new ModbusMessageConverter();
+        return new ModbusMessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter);
     }
 
     /**

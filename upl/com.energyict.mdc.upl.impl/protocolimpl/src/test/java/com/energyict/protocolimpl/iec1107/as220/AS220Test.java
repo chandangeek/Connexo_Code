@@ -1,8 +1,11 @@
 package com.energyict.protocolimpl.iec1107.as220;
 
-import static org.junit.Assert.assertNotNull;
-
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import org.junit.Test;
+import org.mockito.Mock;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author jme
@@ -10,10 +13,15 @@ import org.junit.Test;
  */
 public class AS220Test {
 
-	@Test
-	public void testMethods() {
-		AS220 as220 = new AS220();
-		assertNotNull(as220.getProtocolVersion());
-	}
+    @Mock
+    private NlsService nlsService;
+    @Mock
+    private PropertySpecService propertySpecService;
+
+    @Test
+    public void testMethods() {
+        AS220 as220 = new AS220(propertySpecService, nlsService);
+        assertNotNull(as220.getProtocolVersion());
+    }
 
 }

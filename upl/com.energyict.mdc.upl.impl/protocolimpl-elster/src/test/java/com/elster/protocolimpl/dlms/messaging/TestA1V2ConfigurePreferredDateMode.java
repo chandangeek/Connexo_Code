@@ -1,7 +1,5 @@
 package com.elster.protocolimpl.dlms.messaging;
 
-import com.energyict.cbo.BusinessException;
-
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -12,12 +10,10 @@ import static org.junit.Assert.fail;
  * Date: 03.07.13
  * Time: 10:10
  */
-public class TestA1V2ConfigurePreferredDateMode
-{
+public class TestA1V2ConfigurePreferredDateMode {
 
     @Test
-    public void validateText() throws BusinessException
-    {
+    public void validateText() throws IllegalArgumentException {
         TestClass tc = new TestClass();
         tc.doValidate("23:59:59");
         tc.doValidate("31 23:59:59");
@@ -29,79 +25,59 @@ public class TestA1V2ConfigurePreferredDateMode
         tc.doValidate("Sa 23:59:59");
         tc.doValidate("Su 23:59:59");
 
-        try
-        {
+        try {
             tc.doValidate("M 23:59:59");
             fail("M 32 23:59:59");
+        } catch (IllegalArgumentException ignore) {
         }
-        catch (BusinessException ignore)
-        {
-        }
-        try
-        {
+        try {
             tc.doValidate("32 23:59:59");
             fail("32 23:59:59");
+        } catch (IllegalArgumentException ignore) {
         }
-        catch (BusinessException ignore)
-        {
-        }
-        try
-        {
+        try {
             tc.doValidate("24:59:59");
             fail("24:59:59");
+        } catch (IllegalArgumentException ignore) {
         }
-        catch (BusinessException ignore)
-        {
-        }
-        try
-        {
+        try {
             tc.doValidate("23:60:59");
             fail("23:60:59");
+        } catch (IllegalArgumentException ignore) {
         }
-        catch (BusinessException ignore)
-        {
-        }
-        try
-        {
+        try {
             tc.doValidate("23:59:60");
             fail("23:59:60");
-        }
-        catch (BusinessException ignore)
-        {
+        } catch (IllegalArgumentException ignore) {
         }
     }
 
     @Test
-    public void checkPatternGroups()
-    {
+    public void checkPatternGroups() {
         TestClass tc = new TestClass();
         String dist = "23:59:59";
-        long distance =  tc.getComputedDistance(dist);
+        long distance = tc.getComputedDistance(dist);
         assertEquals(dist, 0x00173B3BL, distance);
 
         dist = "15 23:59:59";
-        distance =  tc.getComputedDistance(dist);
+        distance = tc.getComputedDistance(dist);
         assertEquals(dist, 0xF0173B3BL, distance);
 
         dist = "Mo 23:59:59";
-        distance =  tc.getComputedDistance(dist);
+        distance = tc.getComputedDistance(dist);
         assertEquals(dist, 0x01173B3BL, distance);
     }
 
-    private class TestClass extends A1ConfigurePreferredDateMode
-    {
-        private TestClass()
-        {
+    private class TestClass extends A1ConfigurePreferredDateMode {
+        private TestClass() {
             super(null);
         }
 
-        public void doValidate(final String testString) throws BusinessException
-        {
+        public void doValidate(final String testString) throws IllegalArgumentException {
             validateMessageData(testString);
         }
 
-        public long getComputedDistance(final String distance)
-        {
+        public long getComputedDistance(final String distance) {
             return computeDate(distance);
         }
     }

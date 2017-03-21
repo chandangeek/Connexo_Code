@@ -1,9 +1,17 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -47,7 +55,6 @@ public class IDISMessageConverterTest extends AbstractMessageConverterTest {
     private static final String xmlEncodedCodeTable = "<TimeOfUse><CalendarName>KHE</CalendarName><CodeTableTimeZone>Central European Time</CodeTableTimeZone><CodeTableDestinationTimeZone>Central European Time</CodeTableDestinationTimeZone><CodeTableInterval>3600</CodeTableInterval><CodeTableFromYear>2012</CodeTableFromYear><CodeTableToYear>2020</CodeTableToYear><CodeTableSeasonSetId>21</CodeTableSeasonSetId><ActivationDate>1</ActivationDate><CodeTableActCalendar><SeasonProfiles><SeasonProfile><SeasonProfileName>0</SeasonProfileName><SeasonStart><Year>-1</Year><Month>1</Month><Day>1</Day></SeasonStart><SeasonWeekName>0</SeasonWeekName></SeasonProfile></SeasonProfiles><WeekProfiles><WeekProfile><WeekProfileName>0</WeekProfileName><wkMonday>0</wkMonday><wkTuesday>0</wkTuesday><wkWednesday>0</wkWednesday><wkThursday>0</wkThursday><wkFriday>0</wkFriday><wkSaturday>0</wkSaturday><wkSunday>1</wkSunday></WeekProfile></WeekProfiles><DayProfiles><DayProfile><DayProfileId>0</DayProfileId><DayProfileTariffs><DayProfileTariff><DayProfileTariffId>1</DayProfileTariffId><DayTariffStartTime><Hour>0</Hour><Minutes>0</Minutes><Seconds>0</Seconds></DayTariffStartTime></DayProfileTariff><DayProfileTariff><DayProfileTariffId>2</DayProfileTariffId><DayTariffStartTime><Hour>7</Hour><Minutes>0</Minutes><Seconds>0</Seconds></DayTariffStartTime></DayProfileTariff><DayProfileTariff><DayProfileTariffId>1</DayProfileTariffId><DayTariffStartTime><Hour>21</Hour><Minutes>0</Minutes><Seconds>0</Seconds></DayTariffStartTime></DayProfileTariff></DayProfileTariffs></DayProfile><DayProfile><DayProfileId>1</DayProfileId><DayProfileTariffs><DayProfileTariff><DayProfileTariffId>1</DayProfileTariffId><DayTariffStartTime><Hour>0</Hour><Minutes>0</Minutes><Seconds>0</Seconds></DayTariffStartTime></DayProfileTariff></DayProfileTariffs></DayProfile></DayProfiles></CodeTableActCalendar><CodeTableSpecialDay><SpecialDays><SpecialDay><SpecialDayEntryDate><Year>-1</Year><Month>-1</Month><Day>-1</Day></SpecialDayEntryDate><SpecialDayEntryDayId>1</SpecialDayEntryDayId></SpecialDay></SpecialDays></CodeTableSpecialDay></TimeOfUse>";
     protected final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/mm/yyyy hh:mm");
 
-
     @Test
     public void testMessageConversion() throws IOException {
         MessageEntry messageEntry;
@@ -77,11 +84,11 @@ public class IDISMessageConverterTest extends AbstractMessageConverterTest {
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new IDIS(calendarFinder);
+        return new IDIS(propertySpecService, calendarFinder, calendarExtractor, nlsService);
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {
-        return new TestIDISMessageConverter();
+        return new TestIDISMessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter, deviceMessageFileExtractor, calendarExtractor);
     }
 
     /**
@@ -90,19 +97,23 @@ public class IDISMessageConverterTest extends AbstractMessageConverterTest {
      */
     public class TestIDISMessageConverter extends IDISMessageConverter {
 
+        protected TestIDISMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor calendarExtractor) {
+            super(messagingProtocol, propertySpecService, nlsService, converter, deviceMessageFileExtractor, calendarExtractor);
+        }
+
         @Override
-        protected String convertCodeTableToXML(Code messageAttribute) {
+        protected String convertCodeTableToXML(TariffCalendar messageAttribute, TariffCalendarExtractor extractor) {
             return xmlEncodedCodeTableWithEmptyName;
         }
 
         @Override
-        protected String convertSpecialDaysCodeTableToXML(Code messageAttribute) {
+        protected String convertSpecialDaysCodeTableToXML(TariffCalendar messageAttribute, TariffCalendarExtractor extractor) {
             return xmlSpecialDays;
         }
     }
 
     /**
-     * Gets the value to use for the given {@link com.energyict.cpo.PropertySpec}
+     * Gets the value to use for the given {@link com.energyict.mdc.upl.properties.PropertySpec}
      */
     protected Object getPropertySpecValue(PropertySpec propertySpec) {
         if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName) || propertySpec.getName().equals(contactorActivationDateAttributeName)) {
@@ -112,13 +123,13 @@ public class IDISMessageConverterTest extends AbstractMessageConverterTest {
                 e.printStackTrace();
             }
         } else if (propertySpec.getName().equals(specialDaysAttributeName) || propertySpec.getName().equals(activityCalendarAttributeName)) {
-            return mock(Code.class);
+            return mock(TariffCalendar.class);
         } else if (propertySpec.getName().equals(activityCalendarNameAttributeName)) {
             return "KHE";
         } else if (propertySpec.getName().equals(configUserFileAttributeName) || propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
-            UserFile userFile = mock(UserFile.class);
-            when(userFile.loadFileInByteArray()).thenReturn("userFileBytes".getBytes());
-            return userFile;
+            DeviceMessageFile deviceMessageFile = mock(DeviceMessageFile.class);
+            when(deviceMessageFileExtractor.binaryContents(deviceMessageFile)).thenReturn("userFileBytes".getBytes());
+            return deviceMessageFile;
         } else if (propertySpec.getName().equals(resumeFirmwareUpdateAttributeName)) {
             return Boolean.FALSE;
         }

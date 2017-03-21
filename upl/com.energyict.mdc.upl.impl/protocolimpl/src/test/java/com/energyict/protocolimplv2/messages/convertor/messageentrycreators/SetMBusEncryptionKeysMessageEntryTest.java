@@ -1,30 +1,21 @@
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators;
 
-import com.energyict.mdc.messages.DeviceMessageAttributeImpl;
-import com.energyict.mdc.protocol.DeviceProtocol;
+import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
-
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdw.core.DataVaultProvider;
-import com.energyict.mdw.core.RandomProvider;
-import com.energyict.mdw.crypto.KeyStoreDataVaultProvider;
-import com.energyict.mdw.crypto.SecureRandomProvider;
-import com.energyict.mdw.offlineimpl.OfflineDeviceMessageAttributeImpl;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.OneTagMessageEntry;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.MbusDevice;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,9 +23,13 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.openKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.transferKeyAttributeName;
 import static junit.framework.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -48,7 +43,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class SetMBusEncryptionKeysMessageEntryTest {
 
-    public static final int DEVICE_MESSAGE_ID = 1;
+    public static final long DEVICE_MESSAGE_ID = 1;
     public static final String ATTRIBUTE_VALUE = "000102030405060708090A0B0C0D0E0F";
 
     @Mock
@@ -57,15 +52,19 @@ public class SetMBusEncryptionKeysMessageEntryTest {
     private OfflineDeviceMessage decommissionMessage;
     @Mock
     private DeviceProtocol deviceProtocol;
+    @Mock
+    private PropertySpecService propertySpecServicep;
+    @Mock
+    private NlsService nlsService;
+    @Mock
+    private Converter converter;
 
     @Before
     public void doBefore() {
-        DataVaultProvider.instance.set(new KeyStoreDataVaultProvider());
-        RandomProvider.instance.set(new SecureRandomProvider());
 
         when(deviceProtocol.format(Matchers.any(OfflineDevice.class), Matchers.any(OfflineDeviceMessage.class), Matchers.any(PropertySpec.class), Matchers.anyObject())).thenReturn(ATTRIBUTE_VALUE);
-        keyMessage = createMessage(MBusSetupDeviceMessage.SetEncryptionKeys);
-        decommissionMessage = createMessage(MBusSetupDeviceMessage.Decommission);
+        keyMessage = createMessage(MBusSetupDeviceMessage.SetEncryptionKeys.get(propertySpecServicep, nlsService, converter));
+        decommissionMessage = createMessage(MBusSetupDeviceMessage.Decommission.get(propertySpecServicep, nlsService, converter));
     }
 
     @Test
@@ -88,15 +87,19 @@ public class SetMBusEncryptionKeysMessageEntryTest {
         OfflineDeviceMessage message = getEmptyMessageMock();
         List<OfflineDeviceMessageAttribute> attributes = new ArrayList<>();
         DeviceMessage deviceMessage = mock(DeviceMessage.class);
-        when(deviceMessage.getId()).thenReturn(DEVICE_MESSAGE_ID);
+        when(deviceMessage.getMessageId()).thenReturn(DEVICE_MESSAGE_ID);
 
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         for (PropertySpec propertySpec : messageSpec.getPropertySpecs()) {
-            TypedProperties propertyStorage = TypedProperties.empty();
-            propertyStorage.setProperty(propertySpec.getName(), ATTRIBUTE_VALUE);
-            attributes.add(new OfflineDeviceMessageAttributeImpl(offlineDevice, message, new DeviceMessageAttributeImpl(propertySpec, deviceMessage, propertyStorage), deviceProtocol));
+            OfflineDeviceMessageAttribute offlineDeviceMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
+            when(offlineDeviceMessageAttribute.getName()).thenReturn(propertySpec.getName());
+            when(offlineDeviceMessageAttribute.getValue()).thenReturn(ATTRIBUTE_VALUE);
+            when(offlineDeviceMessageAttribute.getDeviceMessageId()).thenReturn(DEVICE_MESSAGE_ID);
+
+            attributes.add(offlineDeviceMessageAttribute);
         }
-        when(message.getDeviceMessageAttributes()).thenReturn(attributes);
+
+        doReturn(attributes).when(message).getDeviceMessageAttributes();
         when(message.getSpecification()).thenReturn(messageSpec);
         return message;
     }

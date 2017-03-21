@@ -1,6 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.channels.serial.modem;
 
-import com.energyict.cbo.ApplicationException;
 import com.energyict.mdc.channel.serial.modemproperties.TypedAtModemProperties;
 import com.energyict.mdc.channel.serial.modemproperties.postdialcommand.AbstractAtPostDialCommand;
 import com.energyict.mdc.channel.serial.modemproperties.postdialcommand.PostDialCommandParser;
@@ -28,7 +31,7 @@ public class TypedAtModemPropertiesTest {
         assertEquals("Expecting 6 dial commands.", 6, postDialCommandList.size());
     }
 
-    @Test(expected = ApplicationException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testInvalidValidatePostDialCommand() throws Exception {
         TypedAtModemProperties modemProperties = new TypedAtModemProperties();
         String postDialCommands = "(D(D:50)(F)(F:100)(W:\\(data\\))(S:7E1)";
@@ -37,7 +40,7 @@ public class TypedAtModemPropertiesTest {
         PostDialCommandParser.parseAndValidatePostDialCommands(postDialCommands);
     }
 
-    @Test(expected = ApplicationException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testAnotherInvalidValidatePostDialCommand() throws Exception {
         TypedAtModemProperties modemProperties = new TypedAtModemProperties();
         String postDialCommands = "(D)(D:50)(F)(F:100)(W:data)(S:0E1)";

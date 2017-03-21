@@ -1,15 +1,14 @@
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.protocolimpl.utils.Utilities;
+import com.energyict.protocolimpl.siemens7ED62.SCTMDumpData;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.fail;
@@ -34,7 +33,7 @@ public class AS220ActivityCalendarControllerTest {
         String dayArray = "01030202110201010203090400000000090600000a0064ff1200000202110101030203090400000000090600000a0064ff1200000203090406000000090600000a0064ff1200010203090415000000090600000a0064ff1200000202110001010203090400000000090600000a0064ff120001";
         String specialDayArray = "010302031200000905ffff0b0bff110002031200010905ffff0c19ff11000203120002090507db0418ff1100";
 
-        String msgXml = new String(Utilities.readResource("com/energyict/protocolimpl/dlms/as220/parsing/ActivityCalendar.xml"));
+        String msgXml = new String(readResource("com/energyict/protocolimpl/dlms/as220/parsing/ActivityCalendar.xml"));
 
         AS220ActivityCalendarController aacc = new AS220ActivityCalendarController(null);
         aacc.parseContent(msgXml);
@@ -45,22 +44,38 @@ public class AS220ActivityCalendarControllerTest {
         assertArrayEquals(DLMSUtils.hexStringToByteArray(specialDayArray), aacc.getSpecialDayArray().getBEREncodedByteArray());
     }
 
+    /**
+     * Read the resourceFile
+     *
+     * @param resourceUrl the URL to the resourceFile
+     * @return the byteArray content of the resourceFile
+     * @throws IOException if something fishy happened during the reading of the resource
+     */
+    public static byte[] readResource(String resourceUrl) throws IOException {
+        File file = new File(SCTMDumpData.class.getClassLoader().getResource(resourceUrl).getFile());
+        FileInputStream fis = new FileInputStream(file);
+        byte[] content = new byte[(int) file.length()];
+        fis.read(content);
+        fis.close();
+        return content;
+    }
+
     @Test
-    public void getContentValueTest(){
+    public void getContentValueTest() {
         String content = "ContentOfTheTest";
-        String xmlContent = "<test>"+content+"</test>";
+        String xmlContent = "<test>" + content + "</test>";
 
         AS220ActivityCalendarController aacc = new AS220ActivityCalendarController(null);
         assertEquals(content, aacc.getContentValue(xmlContent, "test"));
 
-        String xmlContentWithAttributes = "<test attrb1='attrb1'>"+content+"</test>";
+        String xmlContentWithAttributes = "<test attrb1='attrb1'>" + content + "</test>";
         assertEquals(content, aacc.getContentValue(xmlContentWithAttributes, "test"));
     }
 
     @Test
-    public void getAttributeValueTest(){
+    public void getAttributeValueTest() {
         String content = "ContentOfTheTest";
-        String xmlContentWithAttributes = "<test attrb1=\"attrb1\">"+content+"</test>";
+        String xmlContentWithAttributes = "<test attrb1=\"attrb1\">" + content + "</test>";
 
         AS220ActivityCalendarController aacc = new AS220ActivityCalendarController(null);
 
@@ -68,19 +83,19 @@ public class AS220ActivityCalendarControllerTest {
     }
 
     @Test
-    public void getImplicitContentValueTest(){
+    public void getImplicitContentValueTest() {
         String content = "<test>ContentOfTheTest</test>";
-        String xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"+content;
+        String xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + content;
 
         AS220ActivityCalendarController aacc = new AS220ActivityCalendarController(null);
         assertEquals(content, aacc.getImplicitContentValue(xmlContent, "test"));
     }
 
     @Test
-    public void createSeasonNameTest(){
+    public void createSeasonNameTest() {
         AS220ActivityCalendarController aacc = new AS220ActivityCalendarController(null);
         try {
-            assertArrayEquals(new byte[]{0x09, 0x01, 0x00},aacc.createSeasonName("0").getBEREncodedByteArray());
+            assertArrayEquals(new byte[]{0x09, 0x01, 0x00}, aacc.createSeasonName("0").getBEREncodedByteArray());
         } catch (IOException e) {
             logger.error(e.getMessage());
             fail();
@@ -94,7 +109,7 @@ public class AS220ActivityCalendarControllerTest {
     }
 
     @Test
-    public final void constructEightByteCalendarNameTest(){
+    public final void constructEightByteCalendarNameTest() {
         byte[] expected = new byte[]{0x43, 0x61, 0x6c, 0x20, 0x20, 0x20, 0x20, 0x20};
         AS220ActivityCalendarController aacc = new AS220ActivityCalendarController(null);
         assertArrayEquals(expected, aacc.constructEightByteCalendarName("Cal"));

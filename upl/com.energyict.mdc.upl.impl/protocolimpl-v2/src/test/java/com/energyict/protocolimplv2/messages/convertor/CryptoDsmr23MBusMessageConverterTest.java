@@ -4,13 +4,11 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-
-import com.energyict.cbo.HexString;
-import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.upl.properties.HexString;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.MbusDevice;
-
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
@@ -36,19 +34,19 @@ public class CryptoDsmr23MBusMessageConverterTest extends AbstractMessageConvert
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new MbusDevice();
+        return new MbusDevice(propertySpecService, calendarFinder, calendarExtractor, deviceMessageFileExtractor, deviceMessageFileFinder, numberLookupFinder, numberLookupExtractor);
     }
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new CryptoDsmr23MBusMessageConverter();
+        return new CryptoDsmr23MBusMessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter, loadProfileExtractor);
     }
 
     @Override
     protected Object getPropertySpecValue(PropertySpec propertySpec) {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.defaultKeyAttributeName:
-                return new HexString("0102030405060708090A0B0C0D0E0F");
+                return (HexString) () -> "0102030405060708090A0B0C0D0E0F";
             default:
                 return "1";
         }

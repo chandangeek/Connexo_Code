@@ -1,19 +1,11 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Formatter;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.properties.Converter;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdw.core.Code;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
@@ -22,7 +14,6 @@ import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.smartmeterprotocolimpl.actaris.sl7000.ActarisSl7000;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.text.ParseException;
@@ -49,31 +40,11 @@ public class ActarisSL7000MessageConverterTest extends AbstractMessageConverterT
     private String ExpectedActivityCalendarMessageContent;
     private Date activityCalendarActivationDate;
 
-    @Mock
-    private TariffCalendarFinder calendarFinder;
-    @Mock
-    private PropertySpecService propertySpecService;
-    @Mock
-    private NlsService nlsService;
-    @Mock
-    private Converter converter;
-    @Mock
-    private DeviceMessageFileFinder messageFileFinder;
-    @Mock
-    private Formatter dateFormatter;
-    @Mock
-    private DeviceMessageFileExtractor deviceMessageFileExtractor;
-    @Mock
-    private TariffCalendarExtractor tariffCalendarExtractor;
-
-    public ActarisSL7000MessageConverterTest() {
-    }
-
     @Test
     public void testMessageConversion() {
         try {
             activityCalendarActivationDate = europeanDateTimeFormat.parse("25/10/2013 14:30:00");
-            ExpectedActivityCalendarMessageContent = "<TimeOfUse name=\"MyActivityCal\" activationDate=\""+ activityCalendarActivationDate.getTime()+"\"><CodeId>8</CodeId><Activity_Calendar>H4sIAAAAAAAAAN1WS27bMBDtJkAvUcAXKCLLRdMFQaCwkyYLtwXsIEh2rDWGichkQFIJdKderXfokJT4kYS2XhQFqo3mvZl5HA7psb7/eHVmXr8hW36EL/tbDZQsWQ2iYuozOwJdtx93hj9z0yJNzjMfWcoKtuxbDTb7QQqgSxBGsXp22Sj5BEzMrAfTRoExdwXacMEMlyJ4PykA8cJ3h9l6QmQqI+rdCAPqmdV08b4okqzAx9ArJY/3wBQti/kiCQ18skPZBZapZsfGsA0wLcUGzE1Fy3kSmTqIa6mrf8UM0PniQ3lRvCsL+5DzgTeKo6PvPyVe8KuSe16DHuABdKeFymOyi9sYpgwlbjNvsWy/q7UU5kAReoOsWGuRffVaXaIHdwCP+VKBGaw9xFi/DZ1EGejlhxR5ecQiK19gsJHdNqAD3QPk76ASiSdCm3NoVJLUI/RcKR74zkZ2w0yjrF1YPiDraUTkvZ3VniPtWjwFUhsvkD+EiBPvlim+3+sxNWaGQoG1kR6447W/MUquZaPsRtybrLloDNaIRG/iJdhh27U/fW86+ZHUaM0/rLY8sdqLf1rtqb214+LvlDuidMb94qIV/91F+20vEmBd08M3jvUn2HFWu5EYbZ2C1L7Ef8fWT/WTZu2UwIhs/YFN8imdgWyPWUz8IvgJB2iK+SQIAAA=</Activity_Calendar></TimeOfUse>";
+            ExpectedActivityCalendarMessageContent = "<TimeOfUse name=\"MyActivityCal\" activationDate=\"" + activityCalendarActivationDate.getTime() + "\"><CodeId>8</CodeId><Activity_Calendar>H4sIAAAAAAAAAN1WS27bMBDtJkAvUcAXKCLLRdMFQaCwkyYLtwXsIEh2rDWGichkQFIJdKderXfokJT4kYS2XhQFqo3mvZl5HA7psb7/eHVmXr8hW36EL/tbDZQsWQ2iYuozOwJdtx93hj9z0yJNzjMfWcoKtuxbDTb7QQqgSxBGsXp22Sj5BEzMrAfTRoExdwXacMEMlyJ4PykA8cJ3h9l6QmQqI+rdCAPqmdV08b4okqzAx9ArJY/3wBQti/kiCQ18skPZBZapZsfGsA0wLcUGzE1Fy3kSmTqIa6mrf8UM0PniQ3lRvCsL+5DzgTeKo6PvPyVe8KuSe16DHuABdKeFymOyi9sYpgwlbjNvsWy/q7UU5kAReoOsWGuRffVaXaIHdwCP+VKBGaw9xFi/DZ1EGejlhxR5ecQiK19gsJHdNqAD3QPk76ASiSdCm3NoVJLUI/RcKR74zkZ2w0yjrF1YPiDraUTkvZ3VniPtWjwFUhsvkD+EiBPvlim+3+sxNWaGQoG1kR6447W/MUquZaPsRtybrLloDNaIRG/iJdhh27U/fW86+ZHUaM0/rLY8sdqLf1rtqb214+LvlDuidMb94qIV/91F+20vEmBd08M3jvUn2HFWu5EYbZ2C1L7Ef8fWT/WTZu2UwIhs/YFN8imdgWyPWUz8IvgJB2iK+SQIAAA=</Activity_Calendar></TimeOfUse>";
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -107,18 +78,18 @@ public class ActarisSL7000MessageConverterTest extends AbstractMessageConverterT
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new ActarisSl7000(propertySpecService, calendarFinder, this.tariffCalendarExtractor, messageFileFinder, this.deviceMessageFileExtractor, dateFormatter);
+        return new ActarisSl7000(propertySpecService, deviceMessageFileFinder, this.deviceMessageFileExtractor);
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {
-        ActarisSL7000MessageConverter messageConverter = spy(new ActarisSL7000MessageConverter(null, this.propertySpecService, this.nlsService, this.converter, this.tariffCalendarExtractor));
+        ActarisSL7000MessageConverter messageConverter = spy(new ActarisSL7000MessageConverter(getMessagingProtocol(), this.propertySpecService, this.nlsService, this.converter, this.calendarExtractor));
         // We stub the encode method, cause CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable() is not subject of this test
-        doReturn(XMLEncodedActivityCalendar).when(messageConverter).encode(any(Code.class));
+        doReturn(XMLEncodedActivityCalendar).when(messageConverter).encode(any(TariffCalendar.class));
         return messageConverter;
     }
 
     /**
-     * Gets the value to use for the given {@link com.energyict.cpo.PropertySpec}
+     * Gets the value to use for the given {@link PropertySpec}
      */
     protected Object getPropertySpecValue(PropertySpec propertySpec) {
         try {
@@ -138,9 +109,9 @@ public class ActarisSL7000MessageConverterTest extends AbstractMessageConverterT
                 case DeviceMessageConstants.activityCalendarNameAttributeName:
                     return "MyActivityCal";
                 case DeviceMessageConstants.activityCalendarAttributeName:
-                    Code code = mock(Code.class);
-                    when(code.getId()).thenReturn(8);
-                    return code;
+                    TariffCalendar tariffCalendar = mock(TariffCalendar.class);
+                    when(calendarExtractor.id(tariffCalendar)).thenReturn("8");
+                    return tariffCalendar;
                 case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
                     return activityCalendarActivationDate;
                 default:

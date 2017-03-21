@@ -1,19 +1,13 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.elster.protocolimpl.dlms.A1;
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.properties.Converter;
-import com.energyict.mdc.upl.properties.Password;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.protocolimplv2.eict.eiweb.SimplePassword;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
@@ -23,7 +17,6 @@ import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
@@ -47,19 +40,6 @@ public class A1MessageConverterTest extends AbstractMessageConverterTest {
     private static final String TARIFF_CODE_EXPECTED_CONTENT = "<SetPassiveCalendar TARIFF_ACTIVATION_DATE=\"2015-08-01 00:00:00\" TARIFF_CALENDAR_FILE=\"<?xml version=''1.0'' encoding=''iso-8859-1''?><Calendar></Calendar>\"> </SetPassiveCalendar>";
     private static final String SPECIAL_DAYS_EXPECTED_CONTENT = "<SetSpecialDaysTable SPECIAL_DAYS_TABLE_FILE=\"<?xml version=''1.0'' encoding=''iso-8859-1''?><Calendar></Calendar>\"> </SetSpecialDaysTable>";
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-    @Mock
-    private TariffCalendarFinder calendarFinder;
-    @Mock
-    private TariffCalendarExtractor calendarExtractor;
-    @Mock
-    private DeviceMessageFileExtractor messageFileExtractor;
-    @Mock
-    private PropertySpecService propertySpecService;
-    @Mock
-    private NlsService nlsService;
-    @Mock
-    private Converter converter;
 
     @Test
     public void testMessageConversion_ChangeCredentials() {
@@ -165,12 +145,14 @@ public class A1MessageConverterTest extends AbstractMessageConverterTest {
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<SetClockConfiguration TIMEZONE_OFFSET=\"120\" DST_ENABLED=\"1\" DST_DEVIATION=\"60\"> </SetClockConfiguration>", messageEntry.getContent());
     }
+
     @Test
     public void testMessageConversion_ConfigureStartOfGasDayDSTSettings() {
         OfflineDeviceMessage offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.ConfigureStartOfGasDaySettings.get(this.propertySpecService, this.nlsService, this.converter));
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<GasDayConfiguration GDC_FLAG=\"0\"> </GasDayConfiguration>", messageEntry.getContent());
     }
+
     @Test
     public void testMessageConversion_ConfigureStartOfGasDay() {
         OfflineDeviceMessage offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.ConfigureStartOfGasDay.get(this.propertySpecService, this.nlsService, this.converter));
@@ -201,12 +183,12 @@ public class A1MessageConverterTest extends AbstractMessageConverterTest {
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new A1(this.calendarFinder, this.calendarExtractor);
+        return new A1(this.calendarFinder, this.calendarExtractor, propertySpecService, deviceMessageFileFinder, deviceMessageFileExtractor, nlsService);
     }
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new A1MessageConverter(null, this.propertySpecService, this.nlsService, this.converter,  this.messageFileExtractor);
+        return new A1MessageConverter(getMessagingProtocol(), this.propertySpecService, this.nlsService, this.converter, this.deviceMessageFileExtractor);
     }
 
     @Override
@@ -218,15 +200,15 @@ public class A1MessageConverterTest extends AbstractMessageConverterTest {
                 case DeviceMessageConstants.usernameAttributeName:
                     return "MyTestUserName";
                 case DeviceMessageConstants.passwordAttributeName:
-                    return new Password("MyTestPassword");
+                    return new SimplePassword("MyTestPassword");
                 case DeviceMessageConstants.clientMacAddress:
                     return BigDecimal.ONE;
                 case DeviceMessageConstants.masterKey:
-                    return new Password("MASTER_Key");
+                    return new SimplePassword("MASTER_Key");
                 case DeviceMessageConstants.newAuthenticationKeyAttributeName:
-                    return new Password("AUTH_Key");
+                    return new SimplePassword("AUTH_Key");
                 case DeviceMessageConstants.newEncryptionKeyAttributeName:
-                    return new Password("ENCR_Key");
+                    return new SimplePassword("ENCR_Key");
                 case DeviceMessageConstants.newPDRAttributeName:
                     return "PDR";
                 case DeviceMessageConstants.sessionTimeoutAttributeName:
@@ -270,8 +252,8 @@ public class A1MessageConverterTest extends AbstractMessageConverterTest {
                 case DeviceMessageConstants.enableRSSIMultipleSampling:
                     return true;
                 case DeviceMessageConstants.XmlUserFileAttributeName:
-                    UserFile userFile = mock(UserFile.class);
-                    when(userFile.loadFileInByteArray()).thenReturn(USER_FILE_XML.getBytes(Charset.forName("US-ASCII")));
+                    DeviceMessageFile userFile = mock(DeviceMessageFile.class);
+                    when(deviceMessageFileExtractor.binaryContents(userFile)).thenReturn(USER_FILE_XML.getBytes(Charset.forName("US-ASCII")));
                     return userFile;
                 case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
                     return dateFormat.parse("2015-08-01 00:00:00");

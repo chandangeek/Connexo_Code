@@ -5,26 +5,24 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-
 import com.energyict.protocolimpl.properties.TypedProperties;
 import org.fest.assertions.core.Condition;
+import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.util.List;
-
-import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 
 /**
  * Tests the {@link DlmsSecuritySupport} component
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 11/01/13
  * Time: 10:40
  */
-public class DlmsSecuritySupportTest {
+public class DlmsSecuritySupportTest extends AbstractSecuritySupportTest {
 
     @Test
     public void getSecurityPropertiesTest() {
@@ -39,7 +37,7 @@ public class DlmsSecuritySupportTest {
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.equals(DeviceSecurityProperty.PASSWORD.getPropertySpec())) {
+                    if (propertySpec.equals(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService))) {
                         match |= true;
                     }
                 }
@@ -53,7 +51,7 @@ public class DlmsSecuritySupportTest {
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.equals(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec())) {
+                    if (propertySpec.equals(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService))) {
                         match |= true;
                     }
                 }
@@ -67,7 +65,7 @@ public class DlmsSecuritySupportTest {
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.equals(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec())) {
+                    if (propertySpec.equals(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService))) {
                         match |= true;
                     }
                 }
@@ -81,7 +79,7 @@ public class DlmsSecuritySupportTest {
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.equals(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec())) {
+                    if (propertySpec.equals(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService))) {
                         match |= true;
                     }
                 }
@@ -391,17 +389,17 @@ public class DlmsSecuritySupportTest {
         DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport(propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty("SecurityLevel", DlmsSecuritySupport.AuthenticationAccessLevelIds.MD5_AUTHENTICATION.getAccessLevel() + ":" + DlmsSecuritySupport.EncryptionAccessLevelIds.NO_MESSAGE_ENCRYPTION.getAccessLevel());
-        securityProperties.setProperty(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec().getName(), "some mac address");
-        securityProperties.setProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec().getName(), "some password");
-        securityProperties.setProperty(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec().getName(), "unused");
+        securityProperties.setProperty(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService).getName(), "some mac address");
+        securityProperties.setProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService).getName(), "some password");
+        securityProperties.setProperty(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService).getName(), "unused");
 
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = dlmsSecuritySupport.convertFromTypedProperties(securityProperties);
         assertThat(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(DlmsSecuritySupport.AuthenticationAccessLevelIds.MD5_AUTHENTICATION.getAccessLevel());
         assertThat(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(DlmsSecuritySupport.EncryptionAccessLevelIds.NO_MESSAGE_ENCRYPTION.getAccessLevel());
         assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().size()).isEqualTo(2);
-        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec().getName())).isEqualTo(new BigDecimal(1));
-        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec().getName())).isEqualTo("some password");
-        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec().getName())).isNull();
+        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService).getName())).isEqualTo(new BigDecimal(1));
+        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService).getName())).isEqualTo("some password");
+        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService).getName())).isNull();
 
     }
 
@@ -410,35 +408,35 @@ public class DlmsSecuritySupportTest {
         DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport(propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty("SecurityLevel", DlmsSecuritySupport.EncryptionAccessLevelIds.MESSAGE_ENCRYPTION_AUTHENTICATION.getAccessLevel() + ":" + DlmsSecuritySupport.AuthenticationAccessLevelIds.LOW_LEVEL_AUTHENTICATION.getAccessLevel());
-        securityProperties.setProperty(DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec().getName(), "unused");
-        securityProperties.setProperty(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec().getName(), "some mac address");
-        securityProperties.setProperty(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec().getName(), "some encryption key");
-        securityProperties.setProperty(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec().getName(), "some authentication key");
-        securityProperties.setProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec().getName(), "some password");
-        securityProperties.setProperty(DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec().getName(), "unused");
+        securityProperties.setProperty(DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(propertySpecService).getName(), "unused");
+        securityProperties.setProperty(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService).getName(), "some mac address");
+        securityProperties.setProperty(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService).getName(), "some encryption key");
+        securityProperties.setProperty(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService).getName(), "some authentication key");
+        securityProperties.setProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService).getName(), "some password");
+        securityProperties.setProperty(DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(propertySpecService).getName(), "unused");
 
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = dlmsSecuritySupport.convertFromTypedProperties(securityProperties);
         assertThat(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(DlmsSecuritySupport.EncryptionAccessLevelIds.MESSAGE_ENCRYPTION_AUTHENTICATION.getAccessLevel());
         assertThat(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(DlmsSecuritySupport.AuthenticationAccessLevelIds.LOW_LEVEL_AUTHENTICATION.getAccessLevel());
         assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().size()).isEqualTo(4);
-        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec().getName())).isEqualTo(new BigDecimal(1));
-        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec().getName())).isEqualTo("some password");
-        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec().getName())).isEqualTo("some encryption key");
-        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec().getName())).isEqualTo("some authentication key");
-        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec().getName())).isNull();
-        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec().getName())).isNull();
+        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService).getName())).isEqualTo(new BigDecimal(1));
+        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService).getName())).isEqualTo("some password");
+        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService).getName())).isEqualTo("some encryption key");
+        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService).getName())).isEqualTo("some authentication key");
+        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(propertySpecService).getName())).isNull();
+        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(propertySpecService).getName())).isNull();
     }
 
     @Test
     public void testClientMacAddressConversion() {
         DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport(propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
-        securityProperties.setProperty(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec().getName(), "16");
+        securityProperties.setProperty(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService).getName(), "16");
 
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = dlmsSecuritySupport.convertFromTypedProperties(securityProperties);
         final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString());
         assertThat(property).isNotNull();
         assertThat(property).isExactlyInstanceOf(BigDecimal.class);
-        assertThat(((BigDecimal)property).intValue()).isEqualTo(16);
+        assertThat(((BigDecimal) property).intValue()).isEqualTo(16);
     }
 }

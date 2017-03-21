@@ -1,12 +1,12 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-import com.energyict.mdc.upl.properties.Password;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.protocolimplv2.eict.eiweb.SimplePassword;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
  * Created by cisac on 8/17/2015.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class AM110RMessageConverterTest extends AbstractMessageConverterTest{
+public class AM110RMessageConverterTest extends AbstractMessageConverterTest {
 
     @Test
     public void testMessageConversion() {
@@ -131,12 +131,12 @@ public class AM110RMessageConverterTest extends AbstractMessageConverterTest{
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new AM110R(propertySpecService);
+        return new AM110R(propertySpecService, deviceMessageFileFinder, deviceMessageFileExtractor);
     }
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new AM110RMessageConverter();
+        return new AM110RMessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter, deviceMessageFileExtractor);
     }
 
     @Override
@@ -167,7 +167,7 @@ public class AM110RMessageConverterTest extends AbstractMessageConverterTest{
                 case DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName:
                     return "ABC";
                 case DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName:
-                    return new Password("123");
+                    return new SimplePassword("123");
                 case DeviceMessageConstants.ZigBeeConfigurationDeviceType:
                     return "3";
                 case DeviceMessageConstants.ZigBeeConfigurationMirrorAddressAttributeName:
@@ -176,13 +176,13 @@ public class AM110RMessageConverterTest extends AbstractMessageConverterTest{
                     return false;
                 case DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateFileAttributeName:
                 case DeviceMessageConstants.firmwareUpdateFileAttributeName:
-                    UserFile mockedUserFile = mock(UserFile.class);
-                    when(mockedUserFile.loadFileInByteArray()).thenReturn("Content".getBytes(Charset.forName("UTF-8")));
-                    return mockedUserFile;
+                    DeviceMessageFile deviceMessageFile1 = mock(DeviceMessageFile.class);
+                    when(deviceMessageFileExtractor.binaryContents(deviceMessageFile1)).thenReturn("Content".getBytes(Charset.forName("UTF-8")));
+                    return deviceMessageFile1;
                 case DeviceMessageConstants.ZigBeeConfigurationHANRestoreUserFileAttributeName:
-                    mockedUserFile = mock(UserFile.class);
-                    when(mockedUserFile.getId()).thenReturn(10);
-                    return mockedUserFile;
+                    DeviceMessageFile deviceMessageFile2 = mock(DeviceMessageFile.class);
+                    when(deviceMessageFileExtractor.id(deviceMessageFile2)).thenReturn("10");
+                    return deviceMessageFile2;
                 case DeviceMessageConstants.ZigBeeConfigurationSASExtendedPanIdAttributeName:
                     return "A";
                 case DeviceMessageConstants.ZigBeeConfigurationSASPanIdAttributeName:
@@ -190,7 +190,7 @@ public class AM110RMessageConverterTest extends AbstractMessageConverterTest{
                 case DeviceMessageConstants.ZigBeeConfigurationSASPanChannelMaskAttributeName:
                     return 2;
                 case DeviceMessageConstants.ZigBeeConfigurationSASInsecureJoinAttributeName:
-                    return new Boolean(true);
+                    return true;
                 case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
                 case DeviceMessageConstants.ZigBeeConfigurationActivationDateAttributeName:
                     return europeanDateTimeFormat.parse("28/10/2013 10:30:00");

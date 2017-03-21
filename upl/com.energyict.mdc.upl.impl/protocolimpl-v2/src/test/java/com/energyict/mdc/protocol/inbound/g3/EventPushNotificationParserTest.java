@@ -1,18 +1,14 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.mdc.channel.SynchroneousComChannel;
-import com.energyict.mdc.meterdata.CollectedDataFactory;
-import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
-import com.energyict.mdc.meterdata.DeviceLogBook;
-import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.ComChannelType;
-import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
-import com.energyict.mdc.protocol.security.SecurityProperty;
-import com.energyict.mdc.protocol.security.SecurityPropertySet;
 import com.energyict.mdc.upl.InboundDAO;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.security.SecurityProperty;
+import com.energyict.mdc.upl.security.SecurityPropertySet;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.exception.DataParseException;
@@ -34,8 +30,10 @@ import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -83,8 +81,6 @@ public class EventPushNotificationParserTest extends TestCase {
 
 
     @Mock
-    protected CollectedDataFactoryProvider collectedDataFactoryProvider;
-    @Mock
     protected CollectedDataFactory collectedDataFactory;
     @Mock
     private InboundDiscoveryContext context;
@@ -96,19 +92,18 @@ public class EventPushNotificationParserTest extends TestCase {
         context = mock(InboundDiscoveryContext.class);
         inboundDAO = mock(InboundDAO.class);
 
-        List<SecurityProperty> securityProperties = createSecurityProperties(3, AK, EK);
-        when(inboundDAO.getDeviceProtocolSecurityProperties(Matchers.<DeviceIdentifier>any(), Matchers.<InboundComPort>any())).thenReturn(securityProperties);
+        Optional<List<SecurityProperty>> securityProperties = Optional.of(createSecurityProperties(3, AK, EK));
+        doReturn(securityProperties).when(context).getProtocolSecurityProperties(Matchers.<DeviceIdentifier>any());
         when(context.getInboundDAO()).thenReturn(inboundDAO);
 
-        when(collectedDataFactoryProvider.getCollectedDataFactory()).thenReturn(collectedDataFactory);
-        CollectedDataFactoryProvider.instance.set(collectedDataFactoryProvider);
         LogBookIdentifier any = any(LogBookIdentifier.class);
-        when(collectedDataFactory.createCollectedLogBook(any)).thenReturn(new DeviceLogBook(any));
+        //TODO mock creation of collected logbook?
+        //when(collectedDataFactory.createCollectedLogBook(any)).thenReturn(new DeviceLogBook(any));
     }
 
     public void setSecurityContext_1_6() throws IOException {
         List<SecurityProperty> securityProperties = createSecurityProperties(3, AK_1, EK_1);
-        when(inboundDAO.getDeviceProtocolSecurityProperties(Matchers.<DeviceIdentifier>any(), Matchers.<InboundComPort>any())).thenReturn(securityProperties);
+        doReturn(securityProperties).when(context).getProtocolSecurityProperties(Matchers.<DeviceIdentifier>any());
         when(context.getInboundDAO()).thenReturn(inboundDAO);
     }
 
@@ -134,7 +129,7 @@ public class EventPushNotificationParserTest extends TestCase {
     }
 
     @Test
-    public void testPlainFrame() throws IOException, SQLException, BusinessException {
+    public void testPlainFrame() throws IOException, SQLException {
         EventPushNotificationParser parser = spyParser(PLAIN_FRAME);
         parser.readAndParseInboundFrame();
         assertEquals(new DeviceIdentifierBySerialNumber("660-00545D-1125"), parser.getDeviceIdentifier());
@@ -147,7 +142,7 @@ public class EventPushNotificationParserTest extends TestCase {
     }
 
     @Test
-    public void testMeterEventNotification_1_3_0() throws IOException, SQLException, BusinessException {
+    public void testMeterEventNotification_1_3_0() throws IOException, SQLException {
         EventPushNotificationParser parser = spyParser(METER_EVENT_NOTIFICATION_1_3_0);
         Throwable expected = null;
         try {
@@ -159,13 +154,14 @@ public class EventPushNotificationParserTest extends TestCase {
     }
 
     @Test
-    public void testBeaconNotification1_3_0() throws IOException, SQLException, BusinessException {
+    public void testBeaconNotification1_3_0() throws IOException, SQLException {
         EventPushNotificationParser parser = spyParser(BEACON_NOTIFICATION_1_3_0);
 
         //Business code
         parser.readAndParseInboundFrame();
 
-        assertEquals(parser.getDeviceIdentifier().getIdentifier(), "34157300028003");
+        assertEquals(parser.getDeviceIdentifier().forIntrospection().getTypeName(), "SerialNumber");
+        assertEquals(parser.getDeviceIdentifier().forIntrospection().getValue("serialNumber"), "34157300028003");
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent.getTime().getTime(), 1458814903000L);
         assertEquals(meterProtocolEvent.getMessage(), "Tamper detected");
@@ -174,7 +170,7 @@ public class EventPushNotificationParserTest extends TestCase {
     }
 
     // relayed supported now
-    public void testMeterEventNotification_1_4_0() throws IOException, SQLException, BusinessException {
+    public void testMeterEventNotification_1_4_0() throws IOException, SQLException {
         EventPushNotificationParser parser = spyParser(METER_EVENT_NOTIFICATION_1_4_0);
         Throwable expected = null;
         try {
@@ -187,13 +183,14 @@ public class EventPushNotificationParserTest extends TestCase {
     }
 
     @Test
-    public void testBeaconNotification1_4_0() throws IOException, SQLException, BusinessException {
+    public void testBeaconNotification1_4_0() throws IOException, SQLException {
         EventPushNotificationParser parser = spyParser(BEACON_NOTIFICATION_1_4_0);
 
         //Business code
         parser.readAndParseInboundFrame();
 
-        assertEquals(parser.getDeviceIdentifier().getIdentifier(), "Equipment-Identifier");
+        assertEquals(parser.getDeviceIdentifier().forIntrospection().getTypeName(), "SerialNumber");
+        assertEquals(parser.getDeviceIdentifier().forIntrospection().getValue("serialNumber"), "Equipment-Identifier");
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent.getTime().getTime(), 127056000L);
         assertEquals(meterProtocolEvent.getMessage(), "Additional info");
@@ -202,7 +199,7 @@ public class EventPushNotificationParserTest extends TestCase {
     }
 
     @Test
-    public void testPlainFrameEventSerialNumberReadout() throws IOException, SQLException, BusinessException {
+    public void testPlainFrameEventSerialNumberReadout() throws IOException, SQLException {
         EventPushNotificationParser parser = spyParser(BEACON_PLAIN_EVENT_SERIAL_NUMBER_READOUT);
         parser.readAndParseInboundFrame();
         assertEquals(new DeviceIdentifierBySerialNumber("01054250370100162134157300029781"), parser.getDeviceIdentifier());
@@ -215,7 +212,7 @@ public class EventPushNotificationParserTest extends TestCase {
     }
 
     @Test
-    public void testPlainFrameEventMeterRegistered() throws IOException, SQLException, BusinessException {
+    public void testPlainFrameEventMeterRegistered() throws IOException, SQLException {
         EventPushNotificationParser parser = spyParser(BEACON_PLAIN_EVENT_METER_REGISTERED);
         parser.readAndParseInboundFrame();
         assertEquals(new DeviceIdentifierBySerialNumber("01054250370100162134157300026645"), parser.getDeviceIdentifier());
@@ -228,7 +225,7 @@ public class EventPushNotificationParserTest extends TestCase {
     }
 
     @Test
-    public void testPlainFrame2() throws IOException, SQLException, BusinessException {
+    public void testPlainFrame2() throws IOException, SQLException {
         EventPushNotificationParser parser = spyParser(PLAIN_FRAME2);
         parser.readAndParseInboundFrame();
         assertEquals(new DeviceIdentifierBySerialNumber("660-059F43-1425"), parser.getDeviceIdentifier());
@@ -241,7 +238,7 @@ public class EventPushNotificationParserTest extends TestCase {
     }
 
     @Test
-    public void testPlainFrame3() throws IOException, SQLException, BusinessException {
+    public void testPlainFrame3() throws IOException, SQLException {
         EventPushNotificationParser parser = spyParser(PLAIN_FRAME3);
         parser.readAndParseInboundFrame();
         assertEquals(new DeviceIdentifierBySerialNumber("34157300028003"), parser.getDeviceIdentifier());
@@ -254,7 +251,7 @@ public class EventPushNotificationParserTest extends TestCase {
     }
 
     @Test
-    public void testPlainDataNotification() throws IOException, SQLException, BusinessException {
+    public void testPlainDataNotification() throws IOException, SQLException {
         EventPushNotificationParser parser = spyParser(DATA_NOTIFICATION_PLAIN_1_6_0);
         parser.readAndParseInboundFrame();
         assertEquals(new DeviceIdentifierBySerialNumber("34157300028003"), parser.getDeviceIdentifier());
@@ -267,42 +264,42 @@ public class EventPushNotificationParserTest extends TestCase {
     }
 
     @Test
-    public void testWrapAsServerDataNotification() throws IOException, SQLException, BusinessException {
+    public void testWrapAsServerDataNotification() throws IOException, SQLException {
         EventPushNotificationParser parser = spyParser(RELAYED_DATA_NOTIFICATION_WRAP_AS_SERVER_1_6_0);
         parser.readAndParseInboundFrame();
         assertEquals(new DeviceIdentifierBySerialNumber("34157300028003"), parser.getDeviceIdentifier());
     }
 
     @Test
-    public void testWrapAsServerDataNotification_1() throws IOException, SQLException, BusinessException {
+    public void testWrapAsServerDataNotification_1() throws IOException, SQLException {
         EventPushNotificationParser parser = spyParser(RELAYED_DATA_NOTIFICATION_WRAP_AS_SERVER_1_6_1);
         parser.readAndParseInboundFrame();
         assertEquals(new DeviceIdentifierBySerialNumber("RTU-SERIAL-NUMBER"), parser.getDeviceIdentifier());
     }
 
     @Test
-    public void testOriginHeaderAM540RelayEventNotification() throws IOException, SQLException, BusinessException {
+    public void testOriginHeaderAM540RelayEventNotification() throws IOException, SQLException {
         EventPushNotificationParser parser = spyParser(RELAYED_EVENT_NOTIFICATION_ORIGIN_HEADER_AM540_1_6_0);
         parser.readAndParseInboundFrame();
         assertEquals(new DialHomeIdDeviceIdentifier("020000FFFE00003B").toString(), parser.getDeviceIdentifier().toString());
     }
 
     @Test
-    public void testOriginHeaderLinkyCoverRelayEventNotification() throws IOException, SQLException, BusinessException {
+    public void testOriginHeaderLinkyCoverRelayEventNotification() throws IOException, SQLException {
         EventPushNotificationParser parser = spyParser(RELAYED_EVENT_NOTIFICATION_ORIGIN_HEADER_LINKY_COVER_1_6_0);
         parser.readAndParseInboundFrame();
         assertEquals(new DeviceIdentifierBySerialNumber("34157300029560"), parser.getDeviceIdentifier());
     }
 
     @Test
-    public void testOriginHeaderAM540RelayDataNotification() throws IOException, SQLException, BusinessException {
+    public void testOriginHeaderAM540RelayDataNotification() throws IOException, SQLException {
         EventPushNotificationParser parser = spyParser(RELAYED_DATA_NOTIFICATION_ORIGIN_HEADER_AM540_1_6_0);
         parser.readAndParseInboundFrame();
         assertEquals(new DeviceIdentifierBySerialNumber("34157300029781"), parser.getDeviceIdentifier());
     }
 
     @Test
-    public void testPlainRelayEventNotification() throws IOException, SQLException, BusinessException {
+    public void testPlainRelayEventNotification() throws IOException, SQLException {
         DeviceIdentifier expectedIdentifier = new DialHomeIdDeviceIdentifier("02237EFFFEFDAF24");
         EventPushNotificationParser parser = spyParser(RELAY_EVENT_NOTIFICATION_1_6_0);
         parser.readAndParseInboundFrame();
@@ -319,9 +316,9 @@ public class EventPushNotificationParserTest extends TestCase {
     }
 
     @Test
-    public void testEncryptedFrame() throws IOException, SQLException, BusinessException {
+    public void testEncryptedFrame() throws IOException, SQLException {
         List<SecurityProperty> securityProperties = createSecurityProperties(2, AK, EK);
-        when(inboundDAO.getDeviceProtocolSecurityProperties(Matchers.<DeviceIdentifier>any(), Matchers.<InboundComPort>any())).thenReturn(securityProperties);
+        doReturn(securityProperties).when(context).getProtocolSecurityProperties(Matchers.<DeviceIdentifier>any());
         EventPushNotificationParser parser = spyParser(ENCRYPTED_FRAME);
         parser.readAndParseInboundFrame();
         assertEquals(new DeviceIdentifierBySerialNumber("660-059F43-1425"), parser.getDeviceIdentifier());
@@ -364,7 +361,7 @@ public class EventPushNotificationParserTest extends TestCase {
     }
 
     @Test
-    public void testBeaconDataNotification_EncrypWithAuth_1_6_0() throws IOException, SQLException, BusinessException {
+    public void testBeaconDataNotification_EncrypWithAuth_1_6_0() throws IOException, SQLException {
         setSecurityContext_1_6();
 
         EventPushNotificationParser parser = spyParser(DATA_NOTIFICATION_ENCRYPTED_WITH_AUTHENTICATION_1_6_0);
@@ -382,7 +379,7 @@ public class EventPushNotificationParserTest extends TestCase {
     }
 
     @Test
-    public void testEncryptedAndAuthenticatedFrame() throws IOException, SQLException, BusinessException {
+    public void testEncryptedAndAuthenticatedFrame() throws IOException, SQLException {
         EventPushNotificationParser parser = spyParser(ENCRYPTED_FRAME_WITH_AUTHENTICATION);
         parser.readAndParseInboundFrame();
         assertEquals(new DeviceIdentifierBySerialNumber("660-059F43-1425"), parser.getDeviceIdentifier());
@@ -406,9 +403,9 @@ public class EventPushNotificationParserTest extends TestCase {
     }
 
     @Test
-    public void testAuthenticatedFrameNotEncrypted() throws IOException, SQLException, BusinessException {
+    public void testAuthenticatedFrameNotEncrypted() throws IOException, SQLException {
         List<SecurityProperty> securityProperties = createSecurityProperties(1, AK, EK);
-        when(inboundDAO.getDeviceProtocolSecurityProperties(Matchers.<DeviceIdentifier>any(), Matchers.<InboundComPort>any())).thenReturn(securityProperties);
+        doReturn(securityProperties).when(context).getProtocolSecurityProperties(Matchers.<DeviceIdentifier>any());
 
         EventPushNotificationParser parser = spyParser(AUTHENTICATED_NOT_ENCRYPTED);
         parser.readAndParseInboundFrame();
@@ -423,7 +420,7 @@ public class EventPushNotificationParserTest extends TestCase {
 
 
     @Test
-    public void testExceptionLogging() throws IOException, SQLException, BusinessException {
+    public void testExceptionLogging() throws IOException, SQLException {
         EventPushNotificationParser parser = spyParser(PLAIN_FRAME);
 
         PushEventNotification pushEventNotification = new PushEventNotification();
@@ -442,7 +439,7 @@ public class EventPushNotificationParserTest extends TestCase {
             }
         };
         comChannel.startReading();
-        return spy(new EventPushNotificationParser(comChannel, context, collectedDataFactory));
+        return spy(new EventPushNotificationParser(comChannel, context));
     }
 
     public class MockedInputStream extends InputStream {

@@ -1,22 +1,16 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.properties.Converter;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.InHomeDisplay;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.text.ParseException;
@@ -35,17 +29,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class IHDMessageConverterTest extends AbstractMessageConverterTest {
 
-    @Mock
-    private PropertySpecService propertySpecService;
-    @Mock
-    private NlsService nlsService;
-    @Mock
-    private Converter converter;
-    @Mock
-    private DeviceMessageFileFinder messageFileFinder;
-    @Mock
-    private Extractor extractor;
-
     @Test
     public void testMessageConversion() {
         MessageEntry messageEntry;
@@ -62,12 +45,12 @@ public class IHDMessageConverterTest extends AbstractMessageConverterTest {
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new InHomeDisplay(this.propertySpecService, this.messageFileFinder, this.extractor);
+        return new InHomeDisplay(this.propertySpecService, this.deviceMessageFileFinder, deviceMessageFileExtractor);
     }
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new IHDMessageConverter(null, this.propertySpecService, this.nlsService, this.converter, this.extractor);
+        return new IHDMessageConverter(getMessagingProtocol(), this.propertySpecService, this.nlsService, this.converter);
     }
 
     @Override
@@ -75,9 +58,9 @@ public class IHDMessageConverterTest extends AbstractMessageConverterTest {
         try {
             switch (propertySpec.getName()) {
                 case DeviceMessageConstants.firmwareUpdateFileAttributeName:
-                    UserFile mockedUserFile = mock(UserFile.class);
-                    when(mockedUserFile.getId()).thenReturn(1);
-                    return mockedUserFile;
+                    DeviceMessageFile deviceMessageFile = mock(DeviceMessageFile.class);
+                    when(deviceMessageFileExtractor.id(deviceMessageFile)).thenReturn("1");
+                    return deviceMessageFile;
                 case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
                     return europeanDateTimeFormat.parse("28/10/2013 10:00:00");
                 default:

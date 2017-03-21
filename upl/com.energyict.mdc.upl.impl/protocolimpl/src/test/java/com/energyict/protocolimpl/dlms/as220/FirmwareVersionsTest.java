@@ -1,13 +1,7 @@
 package com.energyict.protocolimpl.dlms.as220;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.protocolimpl.utils.DummyDLMSConnection;
-import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.sql.SQLException;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;

@@ -4,11 +4,9 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-
-import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.protocolimpl.iec1107.abba1700.ABBA1700;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -37,12 +35,12 @@ public class ABBA1700MessageConverterTest extends AbstractMessageConverterTest {
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new ABBA1700();
+        return new ABBA1700(propertySpecService);
     }
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new ABBA1700MessageConverter();
+        return new ABBA1700MessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter);
     }
 
     @Override

@@ -1,21 +1,19 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo5;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.Formatter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimpl.utils.ProtocolTools;
-
-import java.io.IOException;
-import java.util.List;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.io.IOException;
+import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
 
@@ -30,7 +28,7 @@ public class Apollo5MessageExecutorTest {
     @Mock
     private TariffCalendarFinder calendarFinder;
     @Mock
-    private Extractor extractor;
+    private DeviceMessageFileExtractor extractor;
     @Mock
     private DeviceMessageFileFinder messageFileFinder;
     @Mock
@@ -42,9 +40,8 @@ public class Apollo5MessageExecutorTest {
     public void test() throws IOException {
         String xml = "<SetPublicKeysOfAggregationGroup><KeyPair1>0102030405010203040501020304050102030405010203040501020304050101,0102030405010203040501020304050102030405010203040501020304050101</KeyPair1><KeyPair2>0102030405010203040501020304050102030405010203040501020304050101,0102030405010203040501020304050102030405010203040501020304050101</KeyPair2></SetPublicKeysOfAggregationGroup>";
         AS300DPETMessageExecutor executor =
-                new AS300DPETMessageExecutor(
-                        new AS300DPET(calendarFinder, extractor, messageFileFinder, dateFormatter, propertySpecService),
-                        calendarFinder, extractor, messageFileFinder, dateFormatter, propertySpecService);
+                new AS300DPETMessageExecutor(new AS300DPET(messageFileFinder, extractor, propertySpecService),
+                        messageFileFinder, extractor);
         List<String> keyPairs = executor.parseKeyPairs(MessageEntry.fromContent(xml).trackingId("0").finish());
 
         for (String keyPair : keyPairs) {

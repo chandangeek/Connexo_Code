@@ -1,36 +1,36 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.channels.serial.modem.serialio;
 
-import com.energyict.cbo.TimeDuration;
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.ServerManager;
 import com.energyict.mdc.channel.serial.SerialPortConfiguration;
 import com.energyict.mdc.channel.serial.ServerSerialPort;
 import com.energyict.mdc.channel.serial.SignalController;
 import com.energyict.mdc.channel.serial.direct.serialio.SioSerialPort;
-import com.energyict.mdc.channel.serial.modemproperties.AbstractCaseModemProperties;
+import com.energyict.mdc.channel.serial.modemproperties.TypedAtModemProperties;
 import com.energyict.mdc.channels.serial.modem.AbstractModemTests;
-import com.energyict.mdc.channels.serial.modem.CaseModemComponent;
 import com.energyict.mdc.channels.serial.modem.TypedCaseModemProperties;
-import com.energyict.mdc.channels.serial.modem.TypedPaknetModemProperties;
-import com.energyict.mdc.io.SerialComponentFactory;
-import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
-import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
+import com.energyict.mdc.protocol.ComChannelType;
+import com.energyict.mdc.upl.io.SerialComponentService;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocol.exception.ModemException;
 import com.energyict.protocol.exception.ProtocolExceptionReference;
 import com.energyict.protocol.exceptions.ConnectionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -47,21 +47,24 @@ import static org.mockito.Mockito.when;
  * @since 30/04/13 - 14:43
  */
 @RunWith(MockitoJUnitRunner.class)
-public class SioCaseModemConnectionTypeTest extends AbstractModemTests{
+public class SioCaseModemConnectionTypeTest extends AbstractModemTests {
 
     private static final int DTR_TOGGLE_DELAY_VALUE = 100;
 
     private final List<String> OK_LIST = Arrays.asList(RUBBISH_FOR_FLUSH, "ECHO OFF", "DTR NORMAL", "ERROR CORRECTING MODE", "LINK ESTABLISHED");
 
-    @Mock
-    private ServerManager manager;
-    @Mock
-    private SerialComponentFactory serialComponentFactory;
+    private PropertySpecService propertySpecService;
+    private SerialComponentService serialComponentService;
 
     @Before
-    public void initializeMocksAndFactories () {
-        when(this.manager.getSerialComponentFactory()).thenReturn(this.serialComponentFactory);
-        ManagerFactory.setCurrent(this.manager);
+    public void initializeMocksAndFactories() {
+        propertySpecService = mock(PropertySpecService.class);
+        serialComponentService = mock(SerialComponentService.class);
+/*
+        //TODO
+        PropertySpecBuilderWizard.NlsOptions propertySpecBuilder = new PropertySpecBuilderImpl();
+        when(propertySpecService.encryptedStringSpec()).thenReturn(propertySpecBuilder);
+*/
     }
 
     private AbstractModemTests.TestableSerialComChannel getTestableComChannel() {
@@ -75,63 +78,39 @@ public class SioCaseModemConnectionTypeTest extends AbstractModemTests{
         return new TestableSerialComChannel(serialPort);
     }
 
-    private TimeoutSerialComChannel getTimeoutSerialComChannel(long sleepTime) {
-        InputStream inputStream = mock(InputStream.class);
-        OutputStream outputStream = mock(OutputStream.class);
-        ServerSerialPort serialPort = mock(ServerSerialPort.class);
-        SignalController signalController = mock(SignalController.class);
-        when(serialPort.getInputStream()).thenReturn(inputStream);
-        when(serialPort.getOutputStream()).thenReturn(outputStream);
-        when(serialPort.getSerialPortSignalController()).thenReturn(signalController);
-        return new TimeoutSerialComChannel(serialPort, sleepTime);
+    private TypedProperties getProperProperties() {
+        com.energyict.protocolimpl.properties.TypedProperties result = com.energyict.protocolimpl.properties.TypedProperties.empty();
+
+        result.setProperty(TypedAtModemProperties.DELAY_BEFORE_SEND, Duration.ofMillis(10));
+        result.setProperty(TypedAtModemProperties.COMMAND_TIMEOUT, Duration.ofMillis(COMMAND_TIMEOUT_VALUE));
+        result.setProperty(TypedAtModemProperties.COMMAND_TRIES, new BigDecimal(1));
+        result.setProperty(TypedAtModemProperties.MODEM_INIT_STRINGS, "");
+        result.setProperty(TypedAtModemProperties.DELAY_AFTER_CONNECT, Duration.ofMillis(10));
+        result.setProperty(TypedAtModemProperties.CONNECT_TIMEOUT, Duration.ofMillis(COMMAND_TIMEOUT_VALUE));
+        result.setProperty(TypedAtModemProperties.MODEM_DIAL_PREFIX, "");
+        result.setProperty(TypedAtModemProperties.MODEM_ADDRESS_SELECTOR, "");
+        result.setProperty(TypedAtModemProperties.DTR_TOGGLE_DELAY, Duration.ofMillis(DTR_TOGGLE_DELAY_VALUE));
+        result.setProperty(TypedAtModemProperties.PHONE_NUMBER_PROPERTY_NAME, PHONE_NUMBER);
+
+        return result;
     }
 
-    private List<ConnectionTaskProperty> getProperProperties() {
-        ConnectionTaskPropertyImpl delayBeforeSendProperty = new ConnectionTaskPropertyImpl(TypedCaseModemProperties.DELAY_BEFORE_SEND);
-        delayBeforeSendProperty.setValue(new TimeDuration(10, TimeDuration.MILLISECONDS));
-        ConnectionTaskPropertyImpl commandTimeout = new ConnectionTaskPropertyImpl(TypedCaseModemProperties.COMMAND_TIMEOUT);
-        commandTimeout.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.MILLISECONDS));
-        ConnectionTaskPropertyImpl commandTries = new ConnectionTaskPropertyImpl(TypedCaseModemProperties.COMMAND_TRIES);
-        commandTries.setValue(new BigDecimal(1));
-        ConnectionTaskPropertyImpl modemInitStrings = new ConnectionTaskPropertyImpl(TypedCaseModemProperties.MODEM_INIT_STRINGS);
-        modemInitStrings.setValue("");
-        ConnectionTaskPropertyImpl delayAfterConnect = new ConnectionTaskPropertyImpl(TypedCaseModemProperties.DELAY_AFTER_CONNECT);
-        delayAfterConnect.setValue(new TimeDuration(10, TimeDuration.MILLISECONDS));
-        ConnectionTaskPropertyImpl connectTimeOut = new ConnectionTaskPropertyImpl(TypedCaseModemProperties.CONNECT_TIMEOUT);
-        connectTimeOut.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.MILLISECONDS));
-        ConnectionTaskPropertyImpl dialPrefix = new ConnectionTaskPropertyImpl(TypedCaseModemProperties.MODEM_DIAL_PREFIX);
-        dialPrefix.setValue("");
-        ConnectionTaskPropertyImpl addressSelector = new ConnectionTaskPropertyImpl(TypedCaseModemProperties.MODEM_ADDRESS_SELECTOR);
-        addressSelector.setValue("");
-        ConnectionTaskPropertyImpl dtrToggleDelay = new ConnectionTaskPropertyImpl(TypedPaknetModemProperties.DTR_TOGGLE_DELAY);
-        dtrToggleDelay.setValue(new TimeDuration(DTR_TOGGLE_DELAY_VALUE, TimeDuration.MILLISECONDS));
-        ConnectionTaskPropertyImpl phoneNumber = new ConnectionTaskPropertyImpl(TypedCaseModemProperties.PHONE_NUMBER_PROPERTY_NAME);
-        phoneNumber.setValue(PHONE_NUMBER);
-
-        return Arrays.<ConnectionTaskProperty>asList(delayBeforeSendProperty, commandTimeout, commandTries, modemInitStrings,
-                delayAfterConnect, connectTimeOut, dialPrefix, addressSelector, dtrToggleDelay, phoneNumber);
-    }
-
-    private ComPort getProperlyMockedComPort(TestableSerialComChannel serialComChannel, SioSerialPort sioSerialPort) throws Exception {
-        ComPort comPort = mock(ComPort.class);
-        when(comPort.getName()).thenReturn(comPortName);
-        when(this.serialComponentFactory.newSioSerialPort(any(SerialPortConfiguration.class))).thenReturn(sioSerialPort);
-        when(this.serialComponentFactory.newSerialComChannel(any(ServerSerialPort.class))).thenReturn(serialComChannel);
-        return comPort;
+    private void getProperlyMockedComPort(TestableSerialComChannel serialComChannel, SioSerialPort sioSerialPort) throws Exception {
+        when(this.serialComponentService.newSerialPort(any(SerialPortConfiguration.class))).thenReturn(sioSerialPort);
+        when(this.serialComponentService.newSerialComChannel(any(ServerSerialPort.class), any(ComChannelType.class))).thenReturn(serialComChannel);
     }
 
     @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ConnectionException.class)
     public void readTimeOutExceptionTest() throws Exception {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
         SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        ComPort comPort = getProperlyMockedComPort(serialComChannel, sioSerialPort);
+        getProperlyMockedComPort(serialComChannel, sioSerialPort);
 
-        CaseModemComponent caseModemComponent = spy(new CaseModemComponent(new TypedCaseModemProperties(getProperProperties())));
-        when(this.serialComponentFactory.newCaseModemComponent(any(AbstractCaseModemProperties.class))).thenReturn(caseModemComponent);
-        SioCaseModemConnectionType caseModemConnectionType = new SioCaseModemConnectionType();
+        SioCaseModemConnectionType caseModemConnectionType = new SioCaseModemConnectionType(propertySpecService);
+        caseModemConnectionType.setUPLProperties(getProperProperties());
 
         try {
-            caseModemConnectionType.connect(comPort, getProperProperties());
+            caseModemConnectionType.connect();
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.MODEM_COULD_NOT_SEND_INIT_STRING)) {
                 fail("Should have gotten exception indicating that the modem init string could not be sent, but was " + e.getMessage());
@@ -145,15 +124,14 @@ public class SioCaseModemConnectionTypeTest extends AbstractModemTests{
         TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(OK_LIST);
         SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        ComPort comPort = getProperlyMockedComPort(comChannel, sioSerialPort);
+        getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        CaseModemComponent atModemComponent = spy(new CaseModemComponent(new TypedCaseModemProperties(getProperProperties())));
-        when(this.serialComponentFactory.newCaseModemComponent(any(AbstractCaseModemProperties.class))).thenReturn(atModemComponent);
-        SioCaseModemConnectionType caseModemConnectionType = spy(new SioCaseModemConnectionType());
+        SioCaseModemConnectionType caseModemConnectionType = spy(new SioCaseModemConnectionType(propertySpecService));
+        caseModemConnectionType.setUPLProperties(getProperProperties());
 
-        caseModemConnectionType.connect(comPort, getProperProperties());
+        caseModemConnectionType.connect();
 
-        verify(atModemComponent, times(1)).sendInitStrings(comChannel);
+        verify(caseModemConnectionType.caseModemComponent, times(1)).sendInitStrings(comChannel);
     }
 
     @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ConnectionException.class)
@@ -161,15 +139,14 @@ public class SioCaseModemConnectionTypeTest extends AbstractModemTests{
         TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "ECHO OFF", "DTR NORMAL", "Not_CorrectAnswer"));
         SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        ComPort comPort = getProperlyMockedComPort(comChannel, sioSerialPort);
+        getProperlyMockedComPort(comChannel, sioSerialPort);
 
 
-        CaseModemComponent atModemComponent = spy(new CaseModemComponent(new TypedCaseModemProperties(getProperProperties())));
-        when(this.serialComponentFactory.newCaseModemComponent(any(AbstractCaseModemProperties.class))).thenReturn(atModemComponent);
-        SioCaseModemConnectionType caseModemConnectionType = spy(new SioCaseModemConnectionType());
+        SioCaseModemConnectionType caseModemConnectionType = spy(new SioCaseModemConnectionType(propertySpecService));
+        caseModemConnectionType.setUPLProperties(getProperProperties());
 
         try {
-            caseModemConnectionType.connect(comPort, getProperProperties());
+            caseModemConnectionType.connect();
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.MODEM_COULD_NOT_SEND_INIT_STRING)) {
                 fail("Should have gotten exception indicating that the modem init string could not be sent, but was " + e.getMessage());
@@ -184,21 +161,20 @@ public class SioCaseModemConnectionTypeTest extends AbstractModemTests{
         TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "ECHO OFF", "CALL ABORTED"));
         SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        ComPort comPort = getProperlyMockedComPort(comChannel, sioSerialPort);
+        getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        CaseModemComponent modemComponent = spy(new CaseModemComponent(new TypedCaseModemProperties(getProperProperties())));
-        when(this.serialComponentFactory.newCaseModemComponent(any(AbstractCaseModemProperties.class))).thenReturn(modemComponent);
-        SioCaseModemConnectionType caseModemConnectionType = spy(new SioCaseModemConnectionType());
+        SioCaseModemConnectionType caseModemConnectionType = spy(new SioCaseModemConnectionType(propertySpecService));
+        caseModemConnectionType.setUPLProperties(getProperProperties());
 
         try {
-            caseModemConnectionType.connect(comPort, getProperProperties());
+            caseModemConnectionType.connect();
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.MODEM_CALL_ABORTED)) {
                 fail("Should have gotten exception indicating that the modem received a ERROR signal, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
-            verify(modemComponent).sendInitStrings(comChannel);
-            verify(modemComponent, never()).dialModem(comChannel);
+            verify(caseModemConnectionType.caseModemComponent).sendInitStrings(comChannel);
+            verify(caseModemConnectionType.caseModemComponent, never()).dialModem(comChannel);
             throw e;
         }
     }
@@ -208,15 +184,14 @@ public class SioCaseModemConnectionTypeTest extends AbstractModemTests{
         TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(OK_LIST);
         SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        ComPort comPort = getProperlyMockedComPort(comChannel, sioSerialPort);
+        getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        CaseModemComponent modemComponent = spy(new CaseModemComponent(new TypedCaseModemProperties(getProperProperties())));
-        when(this.serialComponentFactory.newCaseModemComponent(any(AbstractCaseModemProperties.class))).thenReturn(modemComponent);
-        SioCaseModemConnectionType caseModemConnectionType = spy(new SioCaseModemConnectionType());
+        SioCaseModemConnectionType caseModemConnectionType = spy(new SioCaseModemConnectionType(propertySpecService));
+        caseModemConnectionType.setUPLProperties(getProperProperties());
 
-        caseModemConnectionType.connect(comPort, getProperProperties());
+        caseModemConnectionType.connect();
 
-        verify(modemComponent, times(1)).dialModem(comChannel);
+        verify(caseModemConnectionType.caseModemComponent, times(1)).dialModem(comChannel);
     }
 
     @Test(timeout = TEST_TIMEOUT_MILLIS)
@@ -224,16 +199,15 @@ public class SioCaseModemConnectionTypeTest extends AbstractModemTests{
         TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(OK_LIST);
         SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        ComPort comPort = getProperlyMockedComPort(comChannel, sioSerialPort);
+        getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        CaseModemComponent modemComponent = spy(new CaseModemComponent(new TypedCaseModemProperties(getProperProperties())));
-        when(this.serialComponentFactory.newCaseModemComponent(any(AbstractCaseModemProperties.class))).thenReturn(modemComponent);
-        SioCaseModemConnectionType caseModemConnectionType = spy(new SioCaseModemConnectionType());
+        SioCaseModemConnectionType caseModemConnectionType = spy(new SioCaseModemConnectionType(propertySpecService));
+        caseModemConnectionType.setUPLProperties(getProperProperties());
 
-        caseModemConnectionType.connect(comPort, getProperProperties());
+        caseModemConnectionType.connect();
 
-        verify(modemComponent, times(1)).dialModem(comChannel);
-        verify(modemComponent, never()).sendAddressSelector(comChannel);
+        verify(caseModemConnectionType.caseModemComponent, times(1)).dialModem(comChannel);
+        verify(caseModemConnectionType.caseModemComponent, never()).sendAddressSelector(comChannel);
     }
 
     @Test(timeout = TEST_TIMEOUT_MILLIS)
@@ -241,22 +215,18 @@ public class SioCaseModemConnectionTypeTest extends AbstractModemTests{
         TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(OK_LIST);
         SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        ComPort comPort = getProperlyMockedComPort(comChannel, sioSerialPort);
+        getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        List<ConnectionTaskProperty> properProperties = getProperProperties();
-        for (ConnectionTaskProperty properProperty : properProperties) {
-            if (properProperty.getName().equals(TypedCaseModemProperties.MODEM_ADDRESS_SELECTOR)) {
-                ((ConnectionTaskPropertyImpl) properProperty).setValue("AddressSelect_01");
-            }
-        }
-        CaseModemComponent modemComponent = spy(new CaseModemComponent(new TypedCaseModemProperties(properProperties)));
-        when(this.serialComponentFactory.newCaseModemComponent(any(AbstractCaseModemProperties.class))).thenReturn(modemComponent);
-        SioCaseModemConnectionType caseModemConnectionType = spy(new SioCaseModemConnectionType());
+        TypedProperties typedProperties = getProperProperties();
+        typedProperties.setProperty(TypedCaseModemProperties.MODEM_ADDRESS_SELECTOR, "AddressSelect_01");
 
-        caseModemConnectionType.connect(comPort, properProperties);
+        SioCaseModemConnectionType caseModemConnectionType = spy(new SioCaseModemConnectionType(propertySpecService));
 
-        verify(modemComponent, times(1)).dialModem(comChannel);
-        verify(modemComponent, times(1)).sendAddressSelector(comChannel);
+        caseModemConnectionType.setUPLProperties(typedProperties);
+        caseModemConnectionType.connect();
+
+        verify(caseModemConnectionType.caseModemComponent, times(1)).dialModem(comChannel);
+        verify(caseModemConnectionType.caseModemComponent, times(1)).sendAddressSelector(comChannel);
 
     }
 }

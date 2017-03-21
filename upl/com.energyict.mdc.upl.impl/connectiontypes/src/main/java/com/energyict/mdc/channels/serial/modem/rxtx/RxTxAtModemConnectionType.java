@@ -28,7 +28,7 @@ import java.util.List;
 @XmlRootElement
 public class RxTxAtModemConnectionType extends RxTxSerialConnectionType {
 
-    private AtModemComponent atModemComponent;
+    protected AtModemComponent atModemComponent;
 
     public RxTxAtModemConnectionType(PropertySpecService propertySpecService) {
         super(propertySpecService);

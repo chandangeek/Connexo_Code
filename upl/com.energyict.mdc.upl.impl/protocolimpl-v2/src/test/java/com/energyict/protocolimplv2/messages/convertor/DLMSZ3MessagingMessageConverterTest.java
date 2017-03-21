@@ -4,19 +4,17 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.Duration;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.digitalOutputAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.normalThresholdAttributeName;
@@ -51,23 +49,23 @@ public class DLMSZ3MessagingMessageConverterTest extends AbstractMessageConverte
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new DLMSZ3Messaging();
+        return new DLMSZ3Messaging(propertySpecService);
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {
-        return new DLMSZ3MessagingMessageConverter();
+        return new DLMSZ3MessagingMessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter);
     }
 
     /**
-     * Gets the value to use for the given {@link com.energyict.cpo.PropertySpec}
+     * Gets the value to use for the given {@link com.energyict.mdc.upl.properties.PropertySpec}
      */
     protected Object getPropertySpecValue(PropertySpec propertySpec) {
         if (propertySpec.getName().equals(digitalOutputAttributeName)) {
             return "1";
         } else if (propertySpec.getName().equals(readFrequencyInMinutesAttributeName)) {
-            return new TimeDuration(120);
+            return Duration.ofSeconds(120);
         } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)) {
-            return new TimeDuration(10);
+            return Duration.ofSeconds(10);
         } else if (propertySpec.getName().equals(normalThresholdAttributeName)) {
             return new BigDecimal(2);
         }

@@ -1,15 +1,16 @@
 package com.energyict.protocolimpl.iec1107.abba1700;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.DLMSUtils;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.emh.lzqj.DummyFlagConnection;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
@@ -21,15 +22,18 @@ import static org.junit.Assert.assertEquals;
  */
 public class ABBA1700MeterEventsTest {
 
+    @Mock
+    private PropertySpecService propertySpecService;
+
     @Test
     public void getReverseRunCounterEventsTest() throws ConnectionException {
         byte[] responseByte = new byte[]{(byte) 0x30, (byte) 0x36, (byte) 0x30, (byte) 0x30, (byte) 0x43, (byte) 0x37, (byte) 0x36, (byte) 0x30, (byte) 0x41, (byte) 0x33, (byte) 0x34, (byte) 0x43, (byte) 0x42, (byte) 0x38, (byte) 0x36, (byte) 0x41, (byte) 0x42, (byte) 0x41, (byte) 0x34, (byte) 0x39, (byte) 0x33, (byte) 0x35, (byte) 0x36, (byte) 0x32, (byte) 0x42, (byte) 0x41, (byte) 0x34, (byte) 0x39};
-        ABBA1700 protocol = new ABBA1700();
+        ABBA1700 protocol = new ABBA1700(propertySpecService);
         DummyFlagConnection connection = new DummyFlagConnection(null, null, 1, 1, 1, 1, 1, true);
         connection.setResponseByte(responseByte);
         protocol.init(null, null, TimeZone.getTimeZone("Europe/Brussel"), Logger.getAnonymousLogger());
         protocol.setConnection(connection);
-        protocol.setRegisterFactory(new ABBA1700RegisterFactory((ProtocolLink) protocol, (MeterExceptionInfo) protocol, new ABBA1700MeterType(1)));
+        protocol.setRegisterFactory(new ABBA1700RegisterFactory(protocol, protocol, new ABBA1700MeterType(1)));
         ABBA1700MeterEvents events = new ABBA1700MeterEvents(protocol, new ABBA1700MeterType(1));
 
         List<MeterEvent> meterEvents = events.getReverseRunCounterEvents(new Date(1));
@@ -59,12 +63,12 @@ public class ABBA1700MeterEventsTest {
     public void getProgrammingCounterTest() throws ConnectionException {
 
         byte[] responseByte = new byte[]{(byte) 0x30, (byte) 0x42, (byte) 0x30, (byte) 0x30, (byte) 0x36, (byte) 0x43, (byte) 0x37, (byte) 0x30, (byte) 0x43, (byte) 0x34, (byte) 0x34, (byte) 0x44, (byte) 0x30, (byte) 0x44, (byte) 0x37, (byte) 0x35, (byte) 0x41, (byte) 0x38, (byte) 0x34, (byte) 0x44, (byte) 0x46, (byte) 0x33, (byte) 0x41, (byte) 0x37, (byte) 0x34, (byte) 0x44, (byte) 0x34, (byte) 0x43};
-        ABBA1700 protocol = new ABBA1700();
+        ABBA1700 protocol = new ABBA1700(propertySpecService);
         DummyFlagConnection connection = new DummyFlagConnection(null, null, 1, 1, 1, 1, 1, true);
         connection.setResponseByte(responseByte);
         protocol.init(null, null, TimeZone.getTimeZone("Europe/Brussel"), Logger.getAnonymousLogger());
         protocol.setConnection(connection);
-        protocol.setRegisterFactory(new ABBA1700RegisterFactory((ProtocolLink) protocol, (MeterExceptionInfo) protocol, new ABBA1700MeterType(1)));
+        protocol.setRegisterFactory(new ABBA1700RegisterFactory(protocol, protocol, new ABBA1700MeterType(1)));
         ABBA1700MeterEvents events = new ABBA1700MeterEvents(protocol, new ABBA1700MeterType(1));
 
         List<MeterEvent> meterEvents = events.getProgrammingCounterEvents(new Date(1));
@@ -93,12 +97,12 @@ public class ABBA1700MeterEventsTest {
     public void getPowerDownCounterTest() throws IOException {
 
         byte[] responseByte = new byte[]{(byte) 0x36, (byte) 0x44, (byte) 0x30, (byte) 0x30, (byte) 0x46, (byte) 0x41, (byte) 0x42, (byte) 0x42, (byte) 0x43, (byte) 0x32, (byte) 0x34, (byte) 0x44, (byte) 0x44, (byte) 0x46, (byte) 0x37, (byte) 0x37, (byte) 0x43, (byte) 0x32, (byte) 0x34, (byte) 0x44, (byte) 0x35, (byte) 0x33, (byte) 0x41, (byte) 0x39, (byte) 0x42, (byte) 0x36, (byte) 0x34, (byte) 0x44};
-        ABBA1700 protocol = new ABBA1700();
+        ABBA1700 protocol = new ABBA1700(propertySpecService);
         DummyFlagConnection connection = new DummyFlagConnection(null, null, 1, 1, 1, 1, 1, true);
         connection.setResponseByte(responseByte);
         protocol.init(null, null, TimeZone.getTimeZone("Europe/Brussel"), Logger.getAnonymousLogger());
         protocol.setConnection(connection);
-        protocol.setRegisterFactory(new ABBA1700RegisterFactory((ProtocolLink) protocol, (MeterExceptionInfo) protocol, new ABBA1700MeterType(1)));
+        protocol.setRegisterFactory(new ABBA1700RegisterFactory(protocol, protocol, new ABBA1700MeterType(1)));
         ABBA1700MeterEvents events = new ABBA1700MeterEvents(protocol, new ABBA1700MeterType(1));
 
         List<MeterEvent> meterEvents = events.getPowerDownEvents(new Date(1));
@@ -127,12 +131,12 @@ public class ABBA1700MeterEventsTest {
     public void getPhaseFailureEventsTest() throws ConnectionException {
 
         byte[] responseByte = new byte[]{(byte) 0x33, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x39, (byte) 0x33, (byte) 0x32, (byte) 0x32, (byte) 0x37, (byte) 0x46, (byte) 0x34, (byte) 0x44, (byte) 0x33, (byte) 0x30, (byte) 0x32, (byte) 0x32, (byte) 0x37, (byte) 0x46, (byte) 0x34, (byte) 0x44, (byte) 0x43, (byte) 0x36, (byte) 0x32, (byte) 0x31, (byte) 0x37, (byte) 0x46, (byte) 0x34, (byte) 0x44, (byte) 0x30, (byte) 0x33, (byte) 0x30, (byte) 0x32, (byte) 0x30, (byte) 0x31};
-        ABBA1700 protocol = new ABBA1700();
+        ABBA1700 protocol = new ABBA1700(propertySpecService);
         DummyFlagConnection connection = new DummyFlagConnection(null, null, 1, 1, 1, 1, 1, true);
         connection.setResponseByte(responseByte);
         protocol.init(null, null, TimeZone.getTimeZone("Europe/Brussel"), Logger.getAnonymousLogger());
         protocol.setConnection(connection);
-        protocol.setRegisterFactory(new ABBA1700RegisterFactory((ProtocolLink) protocol, (MeterExceptionInfo) protocol, new ABBA1700MeterType(1)));
+        protocol.setRegisterFactory(new ABBA1700RegisterFactory(protocol, protocol, new ABBA1700MeterType(1)));
         ABBA1700MeterEvents events = new ABBA1700MeterEvents(protocol, new ABBA1700MeterType(1));
 
         List<MeterEvent> meterEvents = events.getPhaseFailureEvents(new Date(1));

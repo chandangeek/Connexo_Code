@@ -5,14 +5,12 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-
 import com.energyict.protocolimpl.properties.TypedProperties;
 import org.fest.assertions.core.Condition;
+import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.util.List;
-
-import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
@@ -22,14 +20,14 @@ import static org.junit.Assert.assertNotNull;
  * Date: 19/06/13
  * Time: 10:05
  */
-public class DlmsSecuritySupportPerClientTest {
+public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTest {
 
     @Test
     public void getSecurityPropertiesTest() {
-        DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient();
+        DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient(propertySpecService);
 
         // currently only 4 properties are necessary
-        assertThat(dlmsSecuritySupportPerClient.getSecurityProperties()).hasSize(3*6);
+        assertThat(dlmsSecuritySupportPerClient.getSecurityProperties()).hasSize(3 * 6);
 
         assertThat(dlmsSecuritySupportPerClient.getSecurityProperties()).has(new Condition<List<PropertySpec>>() {
             @Override
@@ -279,7 +277,7 @@ public class DlmsSecuritySupportPerClientTest {
 
     @Test
     public void getAuthenticationAccessLevelsTest() {
-        DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient();
+        DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient(propertySpecService);
 
         // currently only 30 levels are supported
         assertThat(dlmsSecuritySupportPerClient.getAuthenticationAccessLevels()).hasSize(5 * 6);
@@ -348,7 +346,7 @@ public class DlmsSecuritySupportPerClientTest {
                 return match;
             }
         });
-     assertThat(dlmsSecuritySupportPerClient.getAuthenticationAccessLevels()).has(new Condition<List<AuthenticationDeviceAccessLevel>>() {
+        assertThat(dlmsSecuritySupportPerClient.getAuthenticationAccessLevels()).has(new Condition<List<AuthenticationDeviceAccessLevel>>() {
             @Override
             public boolean matches(List<AuthenticationDeviceAccessLevel> authenticationDeviceAccessLevels) {
                 boolean match = false;
@@ -412,7 +410,7 @@ public class DlmsSecuritySupportPerClientTest {
                 return match;
             }
         });
-     assertThat(dlmsSecuritySupportPerClient.getAuthenticationAccessLevels()).has(new Condition<List<AuthenticationDeviceAccessLevel>>() {
+        assertThat(dlmsSecuritySupportPerClient.getAuthenticationAccessLevels()).has(new Condition<List<AuthenticationDeviceAccessLevel>>() {
             @Override
             public boolean matches(List<AuthenticationDeviceAccessLevel> authenticationDeviceAccessLevels) {
                 boolean match = false;
@@ -476,7 +474,7 @@ public class DlmsSecuritySupportPerClientTest {
                 return match;
             }
         });
-     assertThat(dlmsSecuritySupportPerClient.getAuthenticationAccessLevels()).has(new Condition<List<AuthenticationDeviceAccessLevel>>() {
+        assertThat(dlmsSecuritySupportPerClient.getAuthenticationAccessLevels()).has(new Condition<List<AuthenticationDeviceAccessLevel>>() {
             @Override
             public boolean matches(List<AuthenticationDeviceAccessLevel> authenticationDeviceAccessLevels) {
                 boolean match = false;
@@ -540,7 +538,7 @@ public class DlmsSecuritySupportPerClientTest {
                 return match;
             }
         });
-     assertThat(dlmsSecuritySupportPerClient.getAuthenticationAccessLevels()).has(new Condition<List<AuthenticationDeviceAccessLevel>>() {
+        assertThat(dlmsSecuritySupportPerClient.getAuthenticationAccessLevels()).has(new Condition<List<AuthenticationDeviceAccessLevel>>() {
             @Override
             public boolean matches(List<AuthenticationDeviceAccessLevel> authenticationDeviceAccessLevels) {
                 boolean match = false;
@@ -604,7 +602,7 @@ public class DlmsSecuritySupportPerClientTest {
                 return match;
             }
         });
-     assertThat(dlmsSecuritySupportPerClient.getAuthenticationAccessLevels()).has(new Condition<List<AuthenticationDeviceAccessLevel>>() {
+        assertThat(dlmsSecuritySupportPerClient.getAuthenticationAccessLevels()).has(new Condition<List<AuthenticationDeviceAccessLevel>>() {
             @Override
             public boolean matches(List<AuthenticationDeviceAccessLevel> authenticationDeviceAccessLevels) {
                 boolean match = false;
@@ -673,7 +671,7 @@ public class DlmsSecuritySupportPerClientTest {
 
     @Test
     public void getEncryptionAccessLevelsTest() {
-        DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient();
+        DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient(propertySpecService);
 
         // currently only 24 levels are supported
         assertThat(dlmsSecuritySupportPerClient.getEncryptionAccessLevels()).hasSize(4 * 6);
@@ -1012,9 +1010,9 @@ public class DlmsSecuritySupportPerClientTest {
 
     @Test
     public void testClientMacAddressConversion() {
-        DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient();
+        DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient(propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
-        securityProperties.setProperty(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec().getName(), "64");
+        securityProperties.setProperty(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService).getName(), "64");
 
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = dlmsSecuritySupportPerClient.convertFromTypedProperties(securityProperties);
         assertThat(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(18);
@@ -1023,7 +1021,7 @@ public class DlmsSecuritySupportPerClientTest {
 
     @Test
     public void testClientMacAddressConversionWithEmptyProperty() {
-        DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient();
+        DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient(propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
 
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = dlmsSecuritySupportPerClient.convertFromTypedProperties(securityProperties);
@@ -1033,9 +1031,9 @@ public class DlmsSecuritySupportPerClientTest {
 
     @Test
     public void clientMacAddressConversionWithBigDecimalValueTest() {
-        DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient();
+        DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient(propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
-        securityProperties.setProperty(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec().getName(), new BigDecimal(80));
+        securityProperties.setProperty(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService).getName(), new BigDecimal(80));
 
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = dlmsSecuritySupportPerClient.convertFromTypedProperties(securityProperties);
         assertThat(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(24);
@@ -1044,32 +1042,32 @@ public class DlmsSecuritySupportPerClientTest {
 
     @Test
     public void testSecuredPropertySetConversionWithDifferentTypedPropertiesInAuthenticationAndEncryption() throws Exception {
-        DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient();
+        DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient(propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty("SecurityLevel", "1:3");
-        securityProperties.setProperty(DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec().getName(), "unused");
-        securityProperties.setProperty(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec().getName(), "32");
+        securityProperties.setProperty(DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(propertySpecService).getName(), "unused");
+        securityProperties.setProperty(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService).getName(), "32");
         securityProperties.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY_DATA.toString(), "some encryption key");
         securityProperties.setProperty(SecurityPropertySpecName.AUTHENTICATION_KEY_DATA.toString(), "some authentication key");
         securityProperties.setProperty(SecurityPropertySpecName.PASSWORD_DATA.toString(), "some password");
-        securityProperties.setProperty(DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec().getName(), "unused");
+        securityProperties.setProperty(DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(propertySpecService).getName(), "unused");
 
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = dlmsSecuritySupportPerClient.convertFromTypedProperties(securityProperties);
         assertThat(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(DlmsSecuritySupportPerClient.AuthenticationAccessLevelIds.DATA_CLIENT_LOW_LEVEL_AUTHENTICATION.getAccessLevel());
         assertThat(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(DlmsSecuritySupportPerClient.EncryptionAccessLevelIds.DATA_CLIENT_MESSAGE_ENCRYPTION_AUTHENTICATION.getAccessLevel());
         assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().size()).isEqualTo(3);
-        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec().getName())).isNull();
+        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService).getName())).isNull();
         assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD_DATA.toString())).isEqualTo("some password");
         assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_DATA.toString())).isEqualTo("some encryption key");
         assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.AUTHENTICATION_KEY_DATA.toString())).isEqualTo("some authentication key");
-        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec().getName())).isNull();
-        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec().getName())).isNull();
+        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(propertySpecService).getName())).isNull();
+        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(propertySpecService).getName())).isNull();
     }
 
 
     @Test
     public void testPasswordConversion() {
-        DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient();
+        DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient(propertySpecService);
         final TypedProperties securityProperties = TypedProperties.empty();
         String passwordValue = "MyPassword";
         Password password = new SimplePassword(passwordValue);
@@ -1101,7 +1099,7 @@ public class DlmsSecuritySupportPerClientTest {
 
     @Test
     public void testConvertTypedPropertiesToSecuritySetMissingSecurityProperty() throws Exception {
-        DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient();
+        DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient(propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
 
         DeviceProtocolSecurityPropertySet securityPropertySet = dlmsSecuritySupportPerClient.convertFromTypedProperties(securityProperties);
@@ -1112,7 +1110,7 @@ public class DlmsSecuritySupportPerClientTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConvertTypedPropertiesToSecuritySetWithSecurityLevelIllegalAuthenticationLevel() throws Exception {
-        DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient();
+        DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient(propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty("SecurityLevel", "1A2:21"); // illegal int value
 
@@ -1123,7 +1121,7 @@ public class DlmsSecuritySupportPerClientTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConvertTypedPropertiesToSecuritySetWithSecurityLevelIllegalEncryptionLevel() throws Exception {
-        DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient();
+        DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient(propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty("SecurityLevel", "12:2A1"); // illegal int value
 
@@ -1133,7 +1131,7 @@ public class DlmsSecuritySupportPerClientTest {
 
     @Test(expected = IllegalStateException.class)
     public void testConvertTypedPropertiesToSecuritySetWithSecurityLevelIllegalFormat() throws Exception {
-        DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient();
+        DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient(propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty("SecurityLevel", "12;21"); // illegal format
 
@@ -1142,7 +1140,7 @@ public class DlmsSecuritySupportPerClientTest {
 
     @Test
     public void convertToTypedPropertiesTest() {
-        DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient();
+        DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient(propertySpecService);
         final TypedProperties securityProperties = TypedProperties.empty();
         String encryptionKeyValue = "MyEncryptionKey";
         securityProperties.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY_MANAGEMENT.toString(), encryptionKeyValue);

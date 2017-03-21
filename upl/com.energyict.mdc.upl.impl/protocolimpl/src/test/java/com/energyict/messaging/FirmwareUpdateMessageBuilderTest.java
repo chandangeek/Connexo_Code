@@ -37,7 +37,7 @@ public class FirmwareUpdateMessageBuilderTest {
         attributes.add(attribute);
         Mockito.doReturn(attributes).when(offlineDeviceMessage).getDeviceMessageAttributes();
 
-        MessageEntry messageEntry = new FirmwareUdateWithUserFileMessageEntry(DeviceMessageConstants.firmwareUpdateFileAttributeName).createMessageEntry(new AS220(null, null, null, null, null), offlineDeviceMessage);
+        MessageEntry messageEntry = new FirmwareUdateWithUserFileMessageEntry(DeviceMessageConstants.firmwareUpdateFileAttributeName).createMessageEntry(new AS220(null, null, null), offlineDeviceMessage);
         builder.initFromXml(messageEntry.getContent());
 
         Assert.assertEquals(PATH, builder.getPath());

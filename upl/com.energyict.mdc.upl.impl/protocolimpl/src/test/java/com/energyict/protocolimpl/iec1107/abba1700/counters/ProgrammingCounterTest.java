@@ -1,9 +1,11 @@
 package com.energyict.protocolimpl.iec1107.abba1700.counters;
 
 import com.energyict.dlms.DLMSUtils;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.iec1107.abba1700.ABBA1700;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import java.io.IOException;
 import java.util.Date;
@@ -17,10 +19,13 @@ import static org.junit.Assert.assertEquals;
  */
 public class ProgrammingCounterTest {
 
+    @Mock
+    private PropertySpecService propertySpecService;
+
     @Test
     public void parseProgrammingCounterTest() throws IOException {
         byte[] response = DLMSUtils.hexStringToByteArray("30423030364337304334344430443735413834444633413734443443");
-        ABBA1700 protocol = new ABBA1700();
+        ABBA1700 protocol = new ABBA1700(propertySpecService);
         protocol.init(null, null, TimeZone.getTimeZone("Europe/Brussels"), Logger.getAnonymousLogger());
         ProgrammingCounter pc = new ProgrammingCounter(protocol);
         pc.parse(ProtocolUtils.convert2ascii(response));

@@ -1,17 +1,16 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
-
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdw.core.DataVault;
-import com.energyict.mdw.core.DataVaultProvider;
-
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Optional;
+
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link EIWebConnectionType} component.
@@ -21,64 +20,31 @@ import static org.mockito.Mockito.when;
  */
 public class EIWebConnectionTypePropertiesTest {
 
+    private PropertySpecService propertySpecService;
+
     @Before
-    public void initializeDataVaultProvider () {
-        DataVault dataVault = mock(DataVault.class);
-        DataVaultProvider dataVaultProvider = mock(DataVaultProvider.class);
-        when(dataVaultProvider.getKeyVault()).thenReturn(dataVault);
-        DataVaultProvider.instance.set(dataVaultProvider);
+    public void initializeMocksAndFactories() {
+        propertySpecService = mock(PropertySpecService.class);
+/*
+        //TODO
+        PropertySpecBuilderWizard.NlsOptions propertySpecBuilder = new PropertySpecBuilderImpl();
+        when(propertySpecService.encryptedStringSpec()).thenReturn(propertySpecBuilder);
+*/
     }
 
     @Test
-    public void testGetOptionalPropertiesIsNotNull () {
-        EIWebConnectionType connectionType = new EIWebConnectionType();
-        assertThat(connectionType.getOptionalProperties()).isNotNull();
+    public void testGetPropertiesIsNotNull() {
+        EIWebConnectionType connectionType = new EIWebConnectionType(propertySpecService);
+        assertThat(connectionType.getUPLPropertySpecs()).isNotNull();
     }
 
     @Test
-    public void testAllOptionalPropertiesAreReturnedByGetPropertySpec () {
-        EIWebConnectionType connectionType = new EIWebConnectionType();
-        for (PropertySpec optionalPropertySpec : connectionType.getOptionalProperties()) {
-            assertThat(connectionType.getUPLPropertySpec(optionalPropertySpec.getName())).
-                    as("Property " + optionalPropertySpec.getName() + " is not returned by getPropertySpec").
-                    isNotNull();
-            assertThat(connectionType.getUPLPropertySpec(optionalPropertySpec.getName())).isEqualTo(optionalPropertySpec);
+    public void testAllPropertiesAreReturnedByGetPropertySpec() {
+        EIWebConnectionType connectionType = new EIWebConnectionType(propertySpecService);
+        for (PropertySpec optionalPropertySpec : connectionType.getUPLPropertySpecs()) {
+            Optional<PropertySpec> uplPropertySpec = connectionType.getUPLPropertySpec(optionalPropertySpec.getName());
+            assertTrue(uplPropertySpec.isPresent());
+            assertThat(uplPropertySpec.get()).isEqualTo(optionalPropertySpec);
         }
     }
-
-    @Test
-    public void testOptionalPropertiesAreNotRequired () {
-        EIWebConnectionType connectionType = new EIWebConnectionType();
-        for (PropertySpec optionalPropertySpec : connectionType.getOptionalProperties()) {
-            assertThat(connectionType.isRequiredProperty(optionalPropertySpec.getName())).isFalse();
-        }
-    }
-
-    @Test
-    public void testGetRequiredPropertiesIsNotNull () {
-        EIWebConnectionType connectionType = new EIWebConnectionType();
-        assertThat(connectionType.getRequiredProperties()).isNotNull();
-    }
-
-    @Test
-    public void testAllRequiredPropertiesAreReturnedByGetPropertySpec () {
-        EIWebConnectionType connectionType = new EIWebConnectionType();
-        for (PropertySpec requiredPropertySpec : connectionType.getRequiredProperties()) {
-            assertThat(connectionType.getUPLPropertySpec(requiredPropertySpec.getName())).
-                    as("Property " + requiredPropertySpec.getName() + " is not returned by getPropertySpec").
-                    isNotNull();
-            assertThat(connectionType.getUPLPropertySpec(requiredPropertySpec.getName())).isEqualTo(requiredPropertySpec);
-        }
-    }
-
-    @Test
-    public void testRequiredPropertiesAreRequired () {
-        EIWebConnectionType connectionType = new EIWebConnectionType();
-        for (PropertySpec requiredPropertySpec : connectionType.getRequiredProperties()) {
-            assertThat(connectionType.isRequiredProperty(requiredPropertySpec.getName())).
-                    as("Optional property " + requiredPropertySpec.getName() + " is expected to be required").
-                    isTrue();
-        }
-    }
-
 }

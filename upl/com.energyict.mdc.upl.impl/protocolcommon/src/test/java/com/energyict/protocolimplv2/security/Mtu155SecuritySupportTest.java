@@ -5,13 +5,11 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-
 import com.energyict.protocolimpl.properties.TypedProperties;
 import org.fest.assertions.core.Condition;
+import org.junit.Test;
 
 import java.util.List;
-
-import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
@@ -21,7 +19,7 @@ import static org.junit.Assert.assertNotNull;
  * Date: 28/05/13
  * Time: 11:22
  */
-public class Mtu155SecuritySupportTest {
+public class Mtu155SecuritySupportTest extends AbstractSecuritySupportTest {
 
     @Test
     public void getSecurityPropertiesTest() {
@@ -36,7 +34,7 @@ public class Mtu155SecuritySupportTest {
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.equals(DeviceSecurityProperty.PASSWORD.getPropertySpec())) {
+                    if (propertySpec.equals(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService))) {
                         match |= true;
                     }
                 }

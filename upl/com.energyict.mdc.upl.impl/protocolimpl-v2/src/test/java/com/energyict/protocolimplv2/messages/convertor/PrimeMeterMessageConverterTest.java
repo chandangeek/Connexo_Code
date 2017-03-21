@@ -1,14 +1,14 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cbo.HexString;
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-import com.energyict.mdc.upl.properties.Password;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.HexString;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.protocolimpl.dlms.prime.PrimeMeter;
+import com.energyict.protocolimplv2.eict.eiweb.SimplePassword;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
@@ -79,35 +79,35 @@ public class PrimeMeterMessageConverterTest extends AbstractMessageConverterTest
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new PrimeMeter();
+        return new PrimeMeter(propertySpecService, nlsService);
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {
-        return new PrimeMeterMessageConverter();
+        return new PrimeMeterMessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter, deviceMessageFileExtractor);
     }
 
     /**
-     * Gets the value to use for the given {@link com.energyict.cpo.PropertySpec}
+     * Gets the value to use for the given {@link com.energyict.mdc.upl.properties.PropertySpec}
      */
     protected Object getPropertySpecValue(PropertySpec propertySpec) {
         if (propertySpec.getName().equals(relayNumberAttributeName)) {
             return BigDecimal.valueOf(2);
         } else if (propertySpec.getName().equals(contractsXmlUserFileAttributeName)) {
-            UserFile userFile = mock(UserFile.class);
-            when(userFile.loadFileInByteArray()).thenReturn("XML content".getBytes());
-            return userFile;
+            DeviceMessageFile deviceMessageFile = mock(DeviceMessageFile.class);
+            when(deviceMessageFileExtractor.binaryContents(deviceMessageFile)).thenReturn("XML content".getBytes());
+            return deviceMessageFile;
         } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
-            UserFile userFile = mock(UserFile.class);
-            when(userFile.loadFileInByteArray()).thenReturn("Firmware bytes".getBytes());
-            return userFile;
+            DeviceMessageFile deviceMessageFile = mock(DeviceMessageFile.class);
+            when(deviceMessageFileExtractor.binaryContents(deviceMessageFile)).thenReturn("Firmware bytes".getBytes());
+            return deviceMessageFile;
         } else if (propertySpec.getName().equals(newManagementClientPasswordAttributeName)
                 || propertySpec.getName().equals(newFirmwareClientPasswordAttributeName)
                 || propertySpec.getName().equals(newReadingClientPasswordAttributeName)) {
-            return new Password("abcdefgh");
+            return new SimplePassword("abcdefgh");
         } else if (propertySpec.getName().equals(MulticastAddress1AttributeName)
                 || propertySpec.getName().equals(MulticastAddress2AttributeName)
                 || propertySpec.getName().equals(MulticastAddress3AttributeName)) {
-            return new HexString("FFFFFFFF");
+            return (HexString) () -> "FFFFFFFF";
         } else if (propertySpec.getName().equals(activationDatedAttributeName)) {
             return new Date(10000000000000L);
         }

@@ -1,16 +1,11 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.properties.Converter;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -19,12 +14,12 @@ import com.energyict.protocolimplv2.messages.PricingInformationMessage;
 import com.energyict.smartmeterprotocolimpl.elster.AS300P.AS300P;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.text.ParseException;
+import java.time.Duration;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -35,15 +30,6 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AS300PMessageConverterTest extends AbstractMessageConverterTest {
-
-    @Mock
-    private PropertySpecService propertySpecService;
-    @Mock
-    private NlsService nlsService;
-    @Mock
-    private Converter converter;
-    @Mock
-    private Extractor extractor;
 
     @Test
     public void testMessageConversion() {
@@ -135,7 +121,7 @@ public class AS300PMessageConverterTest extends AbstractMessageConverterTest {
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new AS300PMessageConverter(null, this.propertySpecService, this.nlsService, this.converter, this.extractor);
+        return new AS300PMessageConverter(getMessagingProtocol(), this.propertySpecService, this.nlsService, this.converter, this.deviceMessageFileExtractor);
     }
 
     @Override
@@ -149,9 +135,9 @@ public class AS300PMessageConverterTest extends AbstractMessageConverterTest {
                 case DeviceMessageConstants.firmwareUpdateFileAttributeName:
                 case DeviceMessageConstants.contractsXmlUserFileAttributeName:
                 case DeviceMessageConstants.PricingInformationUserFileAttributeName:
-                    UserFile mockedUserFile = mock(UserFile.class);
-                    when(mockedUserFile.loadFileInByteArray()).thenReturn("Content".getBytes(Charset.forName("UTF-8")));
-                    return mockedUserFile;
+                    DeviceMessageFile deviceMessageFile1 = mock(DeviceMessageFile.class);
+                    when(deviceMessageFileExtractor.binaryContents(deviceMessageFile1)).thenReturn("Content".getBytes(Charset.forName("UTF-8")));
+                    return deviceMessageFile1;
                 case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
                 case DeviceMessageConstants.PricingInformationActivationDateAttributeName:
                 case DeviceMessageConstants.ConfigurationChangeActivationDate:
@@ -169,7 +155,7 @@ public class AS300PMessageConverterTest extends AbstractMessageConverterTest {
                 case DeviceMessageConstants.engineerPin:
                     return "12345555";
                 case DeviceMessageConstants.engineerPinTimeout:
-                    return TimeDuration.seconds(300);
+                    return Duration.ofSeconds(100);
                 default:
                     return "";
             }

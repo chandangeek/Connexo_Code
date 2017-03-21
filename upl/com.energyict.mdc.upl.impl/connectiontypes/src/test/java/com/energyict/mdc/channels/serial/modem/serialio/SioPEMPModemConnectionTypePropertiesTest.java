@@ -1,14 +1,22 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.channels.serial.modem.serialio;
 
 import com.energyict.mdc.channels.serial.modem.AbstractModemTests;
-
-import com.energyict.cpo.PropertySpec;
-
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Optional;
+
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author sva
@@ -17,57 +25,31 @@ import static org.fest.assertions.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class SioPEMPModemConnectionTypePropertiesTest extends AbstractModemTests {
 
-    @Test
-    public void testGetOptionalPropertiesIsNotNull() {
-        SioPaknetModemConnectionType connectionType = new SioPaknetModemConnectionType();
-        assertThat(connectionType.getOptionalProperties()).isNotNull();
+    private PropertySpecService propertySpecService;
+
+    @Before
+    public void initializeMocksAndFactories() {
+        propertySpecService = mock(PropertySpecService.class);
+/*
+        //TODO
+        PropertySpecBuilderWizard.NlsOptions propertySpecBuilder = new PropertySpecBuilderImpl();
+        when(propertySpecService.encryptedStringSpec()).thenReturn(propertySpecBuilder);
+*/
     }
 
     @Test
-    public void testAllOptionalPropertiesAreReturnedByGetPropertySpec() {
-        SioPaknetModemConnectionType connectionType = new SioPaknetModemConnectionType();
-        for (PropertySpec optionalPropertySpec : connectionType.getOptionalProperties()) {
-            assertThat(connectionType.getUPLPropertySpec(optionalPropertySpec.getName())).
-                    as("Property " + optionalPropertySpec.getName() + " is not returned by getPropertySpec").
-                    isNotNull();
-            assertThat(connectionType.getUPLPropertySpec(optionalPropertySpec.getName())).isEqualTo(optionalPropertySpec);
-        }
+    public void testGetPropertiesIsNotNull() {
+        SioPEMPModemConnectionType connectionType = new SioPEMPModemConnectionType(propertySpecService);
+        assertThat(connectionType.getUPLPropertySpecs()).isNotNull();
     }
 
     @Test
-    public void testOptionalPropertiesAreNotRequired() {
-        SioPaknetModemConnectionType connectionType = new SioPaknetModemConnectionType();
-        for (PropertySpec optionalPropertySpec : connectionType.getOptionalProperties()) {
-            assertThat(connectionType.isRequiredProperty(optionalPropertySpec.getName())).
-                    as("Optional property " + optionalPropertySpec.getName() + " is not expected to be required").
-                    isFalse();
-        }
-    }
-
-    @Test
-    public void testGetRequiredPropertiesIsNotNull() {
-        SioPaknetModemConnectionType connectionType = new SioPaknetModemConnectionType();
-        assertThat(connectionType.getRequiredProperties()).isNotNull();
-    }
-
-    @Test
-    public void testAllRequiredPropertiesAreReturnedByGetPropertySpec() {
-        SioPaknetModemConnectionType connectionType = new SioPaknetModemConnectionType();
-        for (PropertySpec requiredPropertySpec : connectionType.getRequiredProperties()) {
-            assertThat(connectionType.getUPLPropertySpec(requiredPropertySpec.getName())).
-                    as("Property " + requiredPropertySpec.getName() + " is not returned by getPropertySpec").
-                    isNotNull();
-            assertThat(connectionType.getUPLPropertySpec(requiredPropertySpec.getName())).isEqualTo(requiredPropertySpec);
-        }
-    }
-
-    @Test
-    public void testRequiredPropertiesAreRequired() {
-        SioPaknetModemConnectionType connectionType = new SioPaknetModemConnectionType();
-        for (PropertySpec requiredPropertySpec : connectionType.getRequiredProperties()) {
-            assertThat(connectionType.isRequiredProperty(requiredPropertySpec.getName())).
-                    as("Optional property " + requiredPropertySpec.getName() + " is expected to be required").
-                    isTrue();
+    public void testAllPropertiesAreReturnedByGetPropertySpec() {
+        SioPEMPModemConnectionType connectionType = new SioPEMPModemConnectionType(propertySpecService);
+        for (PropertySpec optionalPropertySpec : connectionType.getUPLPropertySpecs()) {
+            Optional<PropertySpec> uplPropertySpec = connectionType.getUPLPropertySpec(optionalPropertySpec.getName());
+            assertTrue(uplPropertySpec.isPresent());
+            assertThat(uplPropertySpec.get()).isEqualTo(optionalPropertySpec);
         }
     }
 }

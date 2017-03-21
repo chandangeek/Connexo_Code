@@ -2,23 +2,21 @@ package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
-
 import org.fest.assertions.core.Condition;
+import org.junit.Test;
 
 import java.util.List;
-
-import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
  * Tests for the {@link NoOrPasswordSecuritySupport} component
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 31/01/13
  * Time: 14:05
  */
-public class NoOrPasswordSecuritySupportTest {
+public class NoOrPasswordSecuritySupportTest extends AbstractSecuritySupportTest {
 
     @Test
     public void getSecurityPropertiesTest() {
@@ -33,7 +31,7 @@ public class NoOrPasswordSecuritySupportTest {
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.equals(DeviceSecurityProperty.PASSWORD.getPropertySpec())) {
+                    if (propertySpec.equals(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService))) {
                         match |= true;
                     }
                 }
@@ -79,7 +77,7 @@ public class NoOrPasswordSecuritySupportTest {
     }
 
     @Test
-    public void getEncryptionAccessLevelsTest(){
+    public void getEncryptionAccessLevelsTest() {
         NoOrPasswordSecuritySupport passwordWithLevelSecuritySupport = new NoOrPasswordSecuritySupport(propertySpecService);
 
         // assert that you only have one encryption level

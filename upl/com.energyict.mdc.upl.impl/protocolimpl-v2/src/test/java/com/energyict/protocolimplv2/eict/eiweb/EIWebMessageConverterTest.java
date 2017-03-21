@@ -1,25 +1,19 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.mdc.messages.DeviceMessageAttributeImpl;
-import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.offline.OfflineDevice;
-
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdw.core.DataVaultProvider;
-import com.energyict.mdw.core.RandomProvider;
-import com.energyict.mdw.crypto.KeyStoreDataVaultProvider;
-import com.energyict.mdw.crypto.SecureRandomProvider;
-import com.energyict.mdw.offlineimpl.OfflineDeviceMessageAttributeImpl;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.messages.ChannelConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DLMSConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageSpecSupplier;
 import com.energyict.protocolimplv2.messages.EIWebConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.GeneralDeviceMessage;
 import com.energyict.protocolimplv2.messages.LogBookDeviceMessage;
@@ -34,6 +28,9 @@ import com.energyict.protocolimplv2.messages.PPPConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.PeakShaverConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.SMSConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.TotalizersConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.convertor.AbstractMessageConverterTest;
+import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
+import com.energyict.protocolimplv2.messages.convertor.EictZ3MessageConverterTest;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.AnalogOutMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.ChangeAdminPasswordMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.ChannelMessageEntry;
@@ -45,23 +42,23 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiwe
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SimplePeakShaverMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.TotalizerEIWebMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.XMLAttributeDeviceMessageEntry;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
  * Test that creates OfflineDeviceMessages (the attributes are all filled with "1" values) and converts them to the legacy XML message, using the EIWebMessageConverter.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 2/10/13
  * Time: 13:11
@@ -69,8 +66,12 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class EIWebMessageConverterTest {
-
-    private static final int DEVICE_MESSAGE_ID = 1;
+    @Mock
+    protected PropertySpecService propertySpecService;
+    @Mock
+    protected NlsService nlsService;
+    @Mock
+    protected Converter converter;
 
     @Mock
     private OfflineDeviceMessage setDescriptionMessage;
@@ -167,7 +168,6 @@ public class EIWebMessageConverterTest {
 
     @Before
     public void mockMessages() {
-        mockProviders();
         setDescriptionMessage = createMessage(ConfigurationChangeDeviceMessage.SetDescription);
         setIntervalInSeconds = createMessage(ConfigurationChangeDeviceMessage.SetIntervalInSeconds);
         setProxyServer = createMessage(NetworkConnectivityMessage.SetProxyServer);
@@ -360,33 +360,32 @@ public class EIWebMessageConverterTest {
         assertEquals("<tag>value</tag>", messageEntry.getContent());
     }
 
-    private void mockProviders() {
-        DataVaultProvider.instance.set(new KeyStoreDataVaultProvider());
-        RandomProvider.instance.set(new SecureRandomProvider());
-    }
-
     /**
      * Create a device message based on the given spec, and fill its attributes with "1" values.
      */
-    private OfflineDeviceMessage createMessage(DeviceMessageSpec messageSpec) {
-        OfflineDeviceMessage message = getEmptyMessageMock();
-        List<OfflineDeviceMessageAttribute> attributes = new ArrayList<>();
-        DeviceMessage deviceMessage = mock(DeviceMessage.class);
-        when(deviceMessage.getId()).thenReturn(DEVICE_MESSAGE_ID);
+    private OfflineDeviceMessage createMessage(DeviceMessageSpecSupplier supplier) {
+        DeviceMessageSpec messageSpec = supplier.get(propertySpecService, nlsService, converter);
 
-        OfflineDevice offlineDevice = mock(OfflineDevice.class);
+        OfflineDeviceMessage offlineMessage = getEmptyMessageMock();
+
+        List<OfflineDeviceMessageAttribute> attributes = new ArrayList<>();
         for (PropertySpec propertySpec : messageSpec.getPropertySpecs()) {
-            TypedProperties propertyStorage = TypedProperties.empty();
+
+            String value;
             if (messageSpec == GeneralDeviceMessage.SEND_XML_MESSAGE) {
-                propertyStorage.setProperty(propertySpec.getName(), "<tag>value</tag>");
+                value = "<tag>value</tag>";
             } else {
-                propertyStorage.setProperty(propertySpec.getName(), "1");
+                value = "1";
             }
-            attributes.add(new OfflineDeviceMessageAttributeImpl(offlineDevice, message, new DeviceMessageAttributeImpl(propertySpec, deviceMessage, propertyStorage), new EIWeb()));
+            EIWebMessageConverter messageConverter = new EIWebMessageConverter(null, propertySpecService, nlsService, converter);
+            AbstractMessageConverterTest.TestOfflineDeviceMessageAttribute e = new EictZ3MessageConverterTest().new TestOfflineDeviceMessageAttribute(messageConverter, propertySpec, value, messageSpec.getId());
+            attributes.add(e);
         }
-        when(message.getDeviceMessageAttributes()).thenReturn(attributes);
-        when(message.getSpecification()).thenReturn(messageSpec);
-        return message;
+
+        doReturn(attributes).when(offlineMessage).getDeviceMessageAttributes();
+        when(offlineMessage.getSpecification()).thenReturn(messageSpec);
+        when(offlineMessage.getDeviceMessageId()).thenReturn(messageSpec.getId());
+        return offlineMessage;
     }
 
     private OfflineDeviceMessage getEmptyMessageMock() {

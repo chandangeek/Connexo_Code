@@ -4,13 +4,11 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-
-import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.MBusConfigurationDeviceMessage;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.MbusDevice;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -47,12 +45,12 @@ public class IskraMx372MBusDeviceMessageConverterTest extends AbstractMessageCon
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new MbusDevice();
+        return new MbusDevice(propertySpecService, calendarFinder, calendarExtractor, deviceMessageFileExtractor, deviceMessageFileFinder, numberLookupFinder, numberLookupExtractor);
     }
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new IskraMx372MBusDeviceMessageConverter();
+        return new IskraMx372MBusDeviceMessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter, loadProfileExtractor);
     }
 
     @Override

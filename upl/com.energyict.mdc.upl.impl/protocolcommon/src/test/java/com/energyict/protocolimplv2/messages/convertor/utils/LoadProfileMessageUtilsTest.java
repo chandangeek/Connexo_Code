@@ -1,18 +1,12 @@
 package com.energyict.protocolimplv2.messages.convertor.utils;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
-
 import com.energyict.cbo.Unit;
-import com.energyict.mdw.amr.RegisterMapping;
-import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.LoadProfile;
-import com.energyict.mdw.core.LoadProfileSpec;
+import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
+import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.obis.ObisCode;
+import org.junit.Test;
 
 import java.util.Arrays;
-
-import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -35,53 +29,27 @@ public class LoadProfileMessageUtilsTest {
 
     @Test
     public void loadProfileFormatTest() {
-        Device device = createdMockedDevice();
-        Channel channel1 = createdMockedChannel(device, OBISCODE1);
-        Channel channel2 = createdMockedChannel(device, OBISCODE2);
-        LoadProfile loadProfile = createMockedLoadProfile();
-        when(loadProfile.getRtu()).thenReturn(device);
-        when(loadProfile.getAllChannels()).thenReturn(Arrays.asList(channel1, channel2));
-        Extractor extractor = mock(Extractor.class);
-        String expectedObisCode = "1.0.99.1.0.255";
-        String expectedDeviceSerialNumber = "SomeSerialNumber";
+        LoadProfileExtractor.Channel channel1 = createdMockedChannel(OBISCODE1);
+        LoadProfileExtractor.Channel channel2 = createdMockedChannel(OBISCODE2);
+        LoadProfile loadProfile = mock(LoadProfile.class);
+        LoadProfileExtractor loadProfileExtractor = mock(LoadProfileExtractor.class);
         String expectedLoadProfileId = "0";
-        when(extractor.specDeviceObisCode(loadProfile)).thenReturn(expectedObisCode);
-        when(extractor.deviceSerialNumber(loadProfile)).thenReturn(expectedDeviceSerialNumber);
-        when(extractor.id(loadProfile)).thenReturn(expectedLoadProfileId);
+        when(loadProfileExtractor.specDeviceObisCode(loadProfile)).thenReturn(LOAD_PROFILE_OBISCODE.toString());
+        when(loadProfileExtractor.deviceSerialNumber(loadProfile)).thenReturn(METER_SERIAL_NUMBER);
+        when(loadProfileExtractor.id(loadProfile)).thenReturn(expectedLoadProfileId);
+        when(loadProfileExtractor.channels(loadProfile)).thenReturn(Arrays.asList(channel1, channel2));
 
-        final String format = LoadProfileMessageUtils.formatLoadProfile(loadProfile, extractor);
+        final String format = LoadProfileMessageUtils.formatLoadProfile(loadProfile, loadProfileExtractor);
 
         assertThat(format).isNotNull();
         assertThat(format).isEqualTo(expectedXml);
     }
 
-    private LoadProfile createMockedLoadProfile() {
-        LoadProfile loadProfile = mock(LoadProfile.class);
-        LoadProfileSpec loadProfileSpec = mock(LoadProfileSpec.class);
-        when(loadProfileSpec.getDeviceObisCode()).thenReturn(LOAD_PROFILE_OBISCODE);
-        when(loadProfile.getLoadProfileSpec()).thenReturn(loadProfileSpec);
-        return loadProfile;
-    }
-
-    private Channel createdMockedChannel(Device device, ObisCode obisCode) {
-        Channel channel = mock(Channel.class);
-        RegisterMapping registerMapping = createMockedRegisterMapping(obisCode);
-        when(channel.getDevice()).thenReturn(device);
-        when(channel.getDeviceRegisterMapping()).thenReturn(registerMapping);
+    private LoadProfileExtractor.Channel createdMockedChannel(ObisCode obisCode) {
+        LoadProfileExtractor.Channel channel = mock(LoadProfileExtractor.Channel.class);
+        when(channel.deviceSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
+        when(channel.obisCode()).thenReturn(obisCode.toString());
+        when(channel.unit()).thenReturn(UNIT.toString());
         return channel;
     }
-
-    private RegisterMapping createMockedRegisterMapping(ObisCode obisCode) {
-        RegisterMapping registerMapping = mock(RegisterMapping.class);
-        when(registerMapping.getObisCode()).thenReturn(obisCode);
-        when(registerMapping.getUnit()).thenReturn(UNIT);
-        return registerMapping;
-    }
-
-    private Device createdMockedDevice() {
-        Device device = mock(Device.class);
-        when(device.getSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
-        return device;
-    }
-
 }

@@ -4,20 +4,16 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.protocolimpl.iec1107.abba1350.ABBA1350;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-
-import java.nio.charset.Charset;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.nio.charset.Charset;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -32,11 +28,6 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ABBA1350MessageConverterTest extends AbstractMessageConverterTest {
-
-    @Mock
-    private Messaging deviceMessageFileExtractor;
-    @Mock
-    private PropertySpecService propertySpecService;
 
     @Test
     public void testMessageConversion() {
@@ -54,25 +45,25 @@ public class ABBA1350MessageConverterTest extends AbstractMessageConverterTest {
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new ABBA1350(propertySpecService);
+        return new ABBA1350(propertySpecService, nlsService);
     }
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new ABBA1350MessageConverter(null, propertySpecService, deviceMessageFileExtractor);
+        return new ABBA1350MessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter, deviceMessageFileExtractor);
     }
 
     @Override
     protected Object getPropertySpecValue(PropertySpec propertySpec) {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.SwitchPointClockSettings:
-                UserFile mockedUserFile = mock(UserFile.class);
-                when(mockedUserFile.loadFileInByteArray()).thenReturn("content_SPC".getBytes(Charset.forName("UTF-8")));
-                return mockedUserFile;
+                DeviceMessageFile deviceMessageFile1 = mock(DeviceMessageFile.class);
+                when(deviceMessageFileExtractor.binaryContents(deviceMessageFile1)).thenReturn("content_SPC".getBytes(Charset.forName("UTF-8")));
+                return deviceMessageFile1;
             case DeviceMessageConstants.SwitchPointClockUpdateSettings:
-                mockedUserFile = mock(UserFile.class);
-                when(mockedUserFile.loadFileInByteArray()).thenReturn("content_SPCU".getBytes(Charset.forName("UTF-8")));
-                return mockedUserFile;
+                DeviceMessageFile deviceMessageFile2 = mock(DeviceMessageFile.class);
+                when(deviceMessageFileExtractor.binaryContents(deviceMessageFile2)).thenReturn("content_SPCU".getBytes(Charset.forName("UTF-8")));
+                return deviceMessageFile2;
             default:
                 return "0";
         }

@@ -1,33 +1,29 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
-import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
-import com.energyict.mdc.meterdata.DefaultCollectedDataFactoryProvider;
-import com.energyict.mdc.meterdata.DefaultDeviceRegister;
-import com.energyict.mdc.meterdata.DeviceLoadProfile;
-import com.energyict.mdc.meterdata.DeviceLogBook;
-import com.energyict.mdc.upl.meterdata.CollectedData;
-import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalValue;
 import com.energyict.protocol.MeterProtocolEvent;
+import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.SMSFrame;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
-
-import java.util.List;
-
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -42,19 +38,19 @@ public class SmsHandlerTest {
 
     @Mock
     DeviceIdentifier deviceIdentifier;
+    @Mock
+    CollectedDataFactory collectedDataFactory;
+    @Mock
+    IssueFactory issueFactory;
 
     /**
      * TODO: update with additional tests for following cases
-     *
+     * <p>
      * Query against register
      * ACK
      * NACK
      */
 
-    @BeforeClass
-    public static void doBefore() {
-        CollectedDataFactoryProvider.instance.set(new DefaultCollectedDataFactoryProvider());
-    }
 
     @Test(expected = CTRException.class)
     public void testHandlingOfUnsupportedSMS() throws Exception {
@@ -100,7 +96,7 @@ public class SmsHandlerTest {
         assertCollectedRegister(collectedDataList.get(2), "7.0.13.0.0.255", new Quantity("257", Unit.get("m3")), null);
         assertCollectedRegister(collectedDataList.get(3), "7.0.13.2.0.255", new Quantity("1684300.9", Unit.get("m3")), null);
         assertCollectedRegister(collectedDataList.get(4), "7.0.128.1.0.255", new Quantity("3362048.1", Unit.get("m3")), null);
-        assertCollectedRegister(collectedDataList.get(5), "7.0.43.0.0.255", new Quantity("660.49",Unit.get(15, -2)), null);
+        assertCollectedRegister(collectedDataList.get(5), "7.0.43.0.0.255", new Quantity("660.49", Unit.get(15, -2)), null);
         assertCollectedRegister(collectedDataList.get(6), "7.0.43.1.0.255", new Quantity("1976.32", Unit.get(15, -2)), null);
         assertCollectedRegister(collectedDataList.get(7), "7.0.42.0.0.255", new Quantity("1976.32", Unit.get("bar")), null);
         assertCollectedRegister(collectedDataList.get(8), "7.0.41.0.0.255", new Quantity("66051", Unit.get("K")), null);
@@ -156,16 +152,16 @@ public class SmsHandlerTest {
 
         // Asserts
         assertEquals("Expecting only 1 CollectedData object", 1, collectedDataList.size());
-        assertTrue("Expecting a CollectedData object of type DeviceLogBook", collectedDataList.get(0) instanceof DeviceLogBook);
-        DeviceLogBook deviceLogBook = (DeviceLogBook) collectedDataList.get(0);
+        assertTrue("Expecting a CollectedData object of type CollectedLogBook", collectedDataList.get(0) instanceof CollectedLogBook);
+        CollectedLogBook deviceLogBook = (CollectedLogBook) collectedDataList.get(0);
         assertEquals("Unexpected logbook identifier", "Identifier for logbook with obiscode '0.0.99.98.0.255' on " + deviceIdentifier.toString(), deviceLogBook.getLogBookIdentifier().toString());
         assertEquals("Expecting 6 MeterProtocolEvents", 6, deviceLogBook.getCollectedMeterEvents().size());
-        assertCollectedMeterEvent(deviceLogBook.getCollectedMeterEvents().get(0), 1287666600000l, 0, 64, "Event buffer full [1]", "0.0.0.0");
-        assertCollectedMeterEvent(deviceLogBook.getCollectedMeterEvents().get(1), 1287666600000l, 0, 58, "Calculation error [1]", "0.0.0.0");
-        assertCollectedMeterEvent(deviceLogBook.getCollectedMeterEvents().get(2), 1287666600000l, 23, 70, "Fraud attempt [1]", "0.12.43.257");
-        assertCollectedMeterEvent(deviceLogBook.getCollectedMeterEvents().get(3), 1286716200000l, 0, 53, "General fault [1]", "0.0.0.0");
-        assertCollectedMeterEvent(deviceLogBook.getCollectedMeterEvents().get(4), 1286543400000l, 0, 53, "General fault [1]", "0.0.0.0");
-        assertCollectedMeterEvent(deviceLogBook.getCollectedMeterEvents().get(5), 1286457000000l, 0, 53, "General fault [1]", "0.0.0.0");
+        assertCollectedMeterEvent(deviceLogBook.getCollectedMeterEvents().get(0), 1287666600000L, 0, 64, "Event buffer full [1]", "0.0.0.0");
+        assertCollectedMeterEvent(deviceLogBook.getCollectedMeterEvents().get(1), 1287666600000L, 0, 58, "Calculation error [1]", "0.0.0.0");
+        assertCollectedMeterEvent(deviceLogBook.getCollectedMeterEvents().get(2), 1287666600000L, 23, 70, "Fraud attempt [1]", "0.12.43.257");
+        assertCollectedMeterEvent(deviceLogBook.getCollectedMeterEvents().get(3), 1286716200000L, 0, 53, "General fault [1]", "0.0.0.0");
+        assertCollectedMeterEvent(deviceLogBook.getCollectedMeterEvents().get(4), 1286543400000L, 0, 53, "General fault [1]", "0.0.0.0");
+        assertCollectedMeterEvent(deviceLogBook.getCollectedMeterEvents().get(5), 1286457000000L, 0, 53, "General fault [1]", "0.0.0.0");
     }
 
     @Test   // Profile data Hourly - Qm [1.0.2]
@@ -179,9 +175,9 @@ public class SmsHandlerTest {
 
         // Asserts
         assertEquals("Expecting the collectedDataList to contain 1 element", 1, collectedDataList.size());
-        assertTrue("Expecting a CollectedData element of type DeviceLoadProfile", collectedDataList.get(0) instanceof DeviceLoadProfile);
+        assertTrue("Expecting a CollectedData element of type CollectedLoadProfile", collectedDataList.get(0) instanceof CollectedLoadProfile);
 
-        DeviceLoadProfile collectedProfile = (DeviceLoadProfile) collectedDataList.get(0);
+        CollectedLoadProfile collectedProfile = (CollectedLoadProfile) collectedDataList.get(0);
         assertTrue("Expecting the LoadProfileIdentifier to be of type LoadProfileIdentifierByObisCodeAndDevice", collectedProfile.getLoadProfileIdentifier() instanceof LoadProfileIdentifierByObisCodeAndDevice);
 
         LoadProfileIdentifierByObisCodeAndDevice loadProfileIdentifier = (LoadProfileIdentifierByObisCodeAndDevice) collectedProfile.getLoadProfileIdentifier();
@@ -191,22 +187,22 @@ public class SmsHandlerTest {
         assertEquals("Expecting 24 IntervalData elements", 24, collectedIntervalData.size());
 
         IntervalData firstIntervalData = collectedIntervalData.get(0);
-        assertEquals(1372658400000l, firstIntervalData.getEndTime().getTime());
+        assertEquals(1372658400000L, firstIntervalData.getEndTime().getTime());
         assertEquals(32, firstIntervalData.getEiStatus());
         assertEquals(208, firstIntervalData.getProtocolStatus());
         assertEquals(1, firstIntervalData.getValueCount());
-        assertEquals(0, ((IntervalValue) firstIntervalData.getIntervalValues().get(0)).getNumber().intValue());
-        assertEquals(32, ((IntervalValue) firstIntervalData.getIntervalValues().get(0)).getEiStatus());
-        assertEquals(208, ((IntervalValue) firstIntervalData.getIntervalValues().get(0)).getProtocolStatus());
+        assertEquals(0, firstIntervalData.getIntervalValues().get(0).getNumber().intValue());
+        assertEquals(32, firstIntervalData.getIntervalValues().get(0).getEiStatus());
+        assertEquals(208, firstIntervalData.getIntervalValues().get(0).getProtocolStatus());
 
         IntervalData lastIntervalData = collectedIntervalData.get(23);
-        assertEquals(1372741200000l, lastIntervalData.getEndTime().getTime());
+        assertEquals(1372741200000L, lastIntervalData.getEndTime().getTime());
         assertEquals(32, lastIntervalData.getEiStatus());
         assertEquals(80, lastIntervalData.getProtocolStatus());
         assertEquals(1, lastIntervalData.getValueCount());
-        assertEquals(0, ((IntervalValue) lastIntervalData.getIntervalValues().get(0)).getNumber().intValue());
-        assertEquals(32, ((IntervalValue) lastIntervalData.getIntervalValues().get(0)).getEiStatus());
-        assertEquals(80, ((IntervalValue) lastIntervalData.getIntervalValues().get(0)).getProtocolStatus());
+        assertEquals(0, lastIntervalData.getIntervalValues().get(0).getNumber().intValue());
+        assertEquals(32, lastIntervalData.getIntervalValues().get(0).getEiStatus());
+        assertEquals(80, lastIntervalData.getIntervalValues().get(0).getProtocolStatus());
 
 
         List<ChannelInfo> channelInfos = collectedProfile.getChannelInfo();
@@ -232,9 +228,9 @@ public class SmsHandlerTest {
 
         // Asserts
         assertEquals("Expecting the collectedDataList to contain 1 element", 1, collectedDataList.size());
-        assertTrue("Expecting a CollectedData element of type DeviceLoadProfile", collectedDataList.get(0) instanceof DeviceLoadProfile);
+        assertTrue("Expecting a CollectedData element of type CollectedLoadProfile", collectedDataList.get(0) instanceof CollectedLoadProfile);
 
-        DeviceLoadProfile collectedProfile = (DeviceLoadProfile) collectedDataList.get(0);
+        CollectedLoadProfile collectedProfile = (CollectedLoadProfile) collectedDataList.get(0);
         assertTrue("Expecting the LoadProfileIdentifier to be of type LoadProfileIdentifierByObisCodeAndDevice", collectedProfile.getLoadProfileIdentifier() instanceof LoadProfileIdentifierByObisCodeAndDevice);
 
         LoadProfileIdentifierByObisCodeAndDevice loadProfileIdentifier = (LoadProfileIdentifierByObisCodeAndDevice) collectedProfile.getLoadProfileIdentifier();
@@ -244,22 +240,22 @@ public class SmsHandlerTest {
         assertEquals("Expecting 24 IntervalData elements", 24, collectedIntervalData.size());
 
         IntervalData firstIntervalData = collectedIntervalData.get(0);
-        assertEquals(1372658400000l, firstIntervalData.getEndTime().getTime());
+        assertEquals(1372658400000L, firstIntervalData.getEndTime().getTime());
         assertEquals(32, firstIntervalData.getEiStatus());
         assertEquals(19, firstIntervalData.getProtocolStatus());
         assertEquals(1, firstIntervalData.getValueCount());
-        assertEquals(0, ((IntervalValue) firstIntervalData.getIntervalValues().get(0)).getNumber().intValue());
-        assertEquals(32, ((IntervalValue) firstIntervalData.getIntervalValues().get(0)).getEiStatus());
-        assertEquals(19, ((IntervalValue) firstIntervalData.getIntervalValues().get(0)).getProtocolStatus());
+        assertEquals(0, firstIntervalData.getIntervalValues().get(0).getNumber().intValue());
+        assertEquals(32, firstIntervalData.getIntervalValues().get(0).getEiStatus());
+        assertEquals(19, firstIntervalData.getIntervalValues().get(0).getProtocolStatus());
 
         IntervalData lastIntervalData = collectedIntervalData.get(23);
-        assertEquals(1372741200000l, lastIntervalData.getEndTime().getTime());
+        assertEquals(1372741200000L, lastIntervalData.getEndTime().getTime());
         assertEquals(32, lastIntervalData.getEiStatus());
         assertEquals(19, lastIntervalData.getProtocolStatus());
         assertEquals(1, lastIntervalData.getValueCount());
-        assertEquals(0, ((IntervalValue) lastIntervalData.getIntervalValues().get(0)).getNumber().intValue());
-        assertEquals(32, ((IntervalValue) lastIntervalData.getIntervalValues().get(0)).getEiStatus());
-        assertEquals(19, ((IntervalValue) lastIntervalData.getIntervalValues().get(0)).getProtocolStatus());
+        assertEquals(0, lastIntervalData.getIntervalValues().get(0).getNumber().intValue());
+        assertEquals(32, lastIntervalData.getIntervalValues().get(0).getEiStatus());
+        assertEquals(19, lastIntervalData.getIntervalValues().get(0).getProtocolStatus());
 
 
         List<ChannelInfo> channelInfos = collectedProfile.getChannelInfo();
@@ -275,9 +271,9 @@ public class SmsHandlerTest {
     }
 
     private void assertCollectedRegister(CollectedData collectedData, String obisCode, Quantity quantity, String text) {
-        assertTrue("CollectedData should be an instance of DefaultDeviceRegister", collectedData instanceof DefaultDeviceRegister);
+        assertTrue("CollectedData should be an instance of CollectedRegister", collectedData instanceof CollectedRegister);
 
-        DefaultDeviceRegister deviceRegister = (DefaultDeviceRegister) collectedData;
+        CollectedRegister deviceRegister = (CollectedRegister) collectedData;
         assertEquals("The register identifier of the DefaultDeviceRegister doesn't match the expected one", "deviceIdentifier = deviceIdentifier and ObisCode = " + obisCode, deviceRegister.getRegisterIdentifier().toString());
         if (quantity == null) {
             assertTrue("Unexpected register quantity", deviceRegister.getCollectedQuantity() == null);

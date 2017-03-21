@@ -2,22 +2,16 @@ package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.LittleEndianOutputStream;
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
-import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
-import com.energyict.mdc.meterdata.DefaultCollectedDataFactoryProvider;
-import com.energyict.mdc.meterdata.DeviceIpAddress;
-import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.DeviceFactory;
-import com.energyict.mdw.core.DeviceFactoryProvider;
+import com.energyict.mdc.upl.security.SecurityProperty;
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.DataEncryptionException;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import org.fest.assertions.core.Condition;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -58,11 +52,6 @@ public class PacketBuilderTest {
 
     @Mock
     private CollectedDataFactory collectedDataFactory;
-
-    @BeforeClass
-    public static void doBefore() {
-        CollectedDataFactoryProvider.instance.set(new DefaultCollectedDataFactoryProvider());
-    }
 
     @Test
     public void testParseFromUnencryptedStringValuesWithDeviceId() throws IOException {
@@ -242,7 +231,7 @@ public class PacketBuilderTest {
         assertThat(collectedData).areExactly(1, new Condition<CollectedData>() {
             @Override
             public boolean matches(CollectedData value) {
-                return value instanceof DeviceIpAddress;
+                return value instanceof CollectedDeviceInfo;
             }
         });
     }
@@ -416,22 +405,18 @@ public class PacketBuilderTest {
     }
 
     private void writeEncryptedData(String values, LittleEndianOutputStream os) throws IOException {
-        DeviceFactory deviceFactory = mock(DeviceFactory.class);
-        DeviceFactoryProvider.instance.set(() -> deviceFactory);
-        Device device = mock(Device.class);
 
         TypedProperties connectionTypeProperties = TypedProperties.empty();
         connectionTypeProperties.setProperty(EIWebConnectionType.MAC_ADDRESS_PROPERTY_NAME, "mac-address");
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        when(deviceFactory.find(deviceIdentifier)).thenReturn(device);
 
         InboundDiscoveryContext inboundDiscoveryContext = mock(InboundDiscoveryContext.class);
         when(inboundDiscoveryContext.getConnectionTypeProperties(deviceIdentifier)).thenReturn(Optional.of(connectionTypeProperties));
         SecurityProperty encryptionPassword = mock(SecurityProperty.class);
         when(encryptionPassword.getValue()).thenReturn(new SimplePassword("zorro"));
-        when(inboundDiscoveryContext.getProtocolSecurityProperties(deviceIdentifier)).thenReturn(Collections.singletonList(encryptionPassword));
+        when(inboundDiscoveryContext.getProtocolSecurityProperties(any(DeviceIdentifier.class))).thenReturn(Optional.of(Collections.singletonList(encryptionPassword)));
         EIWebCryptographer cryptographer = new EIWebCryptographer(inboundDiscoveryContext);
-        Encryptor encryptor = new Encryptor(cryptographer.buildMD5Seed(deviceIdentifier, "2114"));
+        Encryptor encryptor = new Encryptor(cryptographer.buildMD5Seed(mock(DeviceIdentifier.class), "2114"));
         for (byte rawByte : values.getBytes()) {
             os.write(encryptor.encrypt(rawByte));
         }

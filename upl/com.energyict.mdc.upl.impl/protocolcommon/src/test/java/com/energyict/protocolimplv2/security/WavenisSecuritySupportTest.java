@@ -1,36 +1,29 @@
 package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-
 import com.energyict.protocolimpl.properties.TypedProperties;
 import org.fest.assertions.core.Condition;
-
-import java.util.List;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 
 /**
  * Tests for the {@link WavenisSecuritySupport} component
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 11/01/13
  * Time: 16:25
  */
 @RunWith(MockitoJUnitRunner.class)
-public class WavenisSecuritySupportTest {
-
-    @Mock
-    private PropertySpecService propertySpecService;
+public class WavenisSecuritySupportTest extends AbstractSecuritySupportTest {
 
     @Test
     public void getSecurityPropertiesTest() {

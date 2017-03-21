@@ -1,26 +1,27 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-
-import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.mdc.upl.SmartMeterProtocol;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.Register;
-import com.energyict.protocol.SmartMeterProtocol;
+import com.energyict.protocolimpl.properties.TypedProperties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -37,9 +38,15 @@ public class WebRTUZ3RegisterFactoryTest {
     @Mock
     private TariffCalendarFinder calendarFinder;
     @Mock
+    private TariffCalendarExtractor calendarExtractor;
+    @Mock
     private DeviceMessageFileFinder messageFileFinder;
     @Mock
-    private Extractor extractor;
+    private DeviceMessageFileExtractor deviceMessageFileExtractor;
+    @Mock
+    private NumberLookupFinder numberLookupFinder;
+    @Mock
+    private NumberLookupExtractor numberLookupExtractor;
     @Mock
     private PropertySpecService propertySpecService;
 
@@ -49,9 +56,9 @@ public class WebRTUZ3RegisterFactoryTest {
     public void constructComposedObjectFromRegisterListTest() {
         try {
             TypedProperties props = new TypedProperties();
-            props.setProperty(SmartMeterProtocol.SERIALNUMBER, "Master");
-            WebRTUZ3 meterProtocol = new WebRTUZ3(calendarFinder, messageFileFinder, extractor, propertySpecService);
-            meterProtocol.addProperties(props);
+            props.setProperty(SmartMeterProtocol.Property.SERIALNUMBER.getName(), "Master");
+            WebRTUZ3 meterProtocol = new WebRTUZ3(calendarFinder, calendarExtractor, messageFileFinder, deviceMessageFileExtractor, propertySpecService, numberLookupFinder, numberLookupExtractor);
+            meterProtocol.setUPLProperties(props);
             meterProtocol.getDlmsSession().init();
             WebRTUZ3RegisterFactory registerFactory = new WebRTUZ3RegisterFactory(meterProtocol);
 

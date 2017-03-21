@@ -28,7 +28,7 @@ import java.util.List;
 @XmlRootElement
 public class SioAtModemConnectionType extends SioSerialConnectionType {
 
-    private AtModemComponent atModemComponent;
+    protected AtModemComponent atModemComponent;
 
     public SioAtModemConnectionType(PropertySpecService propertySpecService) {
         super(propertySpecService);

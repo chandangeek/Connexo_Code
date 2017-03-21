@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-import com.energyict.mdc.upl.properties.Password;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.protocolimplv2.eict.eiweb.SimplePassword;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
@@ -47,7 +47,7 @@ public class Dsmr23MBusDeviceMessageConverterTest extends AbstractMessageConvert
 
         offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<connectLoad Activation_date=\""+activityCalendarActivationDate.getTime() / 1000+"\"> </connectLoad>", messageEntry.getContent());
+        assertEquals("<connectLoad Activation_date=\"" + activityCalendarActivationDate.getTime() / 1000 + "\"> </connectLoad>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_OPEN);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
@@ -55,7 +55,7 @@ public class Dsmr23MBusDeviceMessageConverterTest extends AbstractMessageConvert
 
         offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<disconnectLoad Activation_date=\""+activityCalendarActivationDate.getTime() / 1000+"\"> </disconnectLoad>", messageEntry.getContent());
+        assertEquals("<disconnectLoad Activation_date=\"" + activityCalendarActivationDate.getTime() / 1000 + "\"> </disconnectLoad>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
@@ -80,12 +80,12 @@ public class Dsmr23MBusDeviceMessageConverterTest extends AbstractMessageConvert
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new MbusDevice();
+        return new MbusDevice(propertySpecService, calendarFinder, calendarExtractor, deviceMessageFileExtractor, deviceMessageFileFinder, numberLookupFinder, numberLookupExtractor);
     }
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new Dsmr23MBusDeviceMessageConverter();
+        return new Dsmr23MBusDeviceMessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter, loadProfileExtractor);
     }
 
     @Override
@@ -96,9 +96,9 @@ public class Dsmr23MBusDeviceMessageConverterTest extends AbstractMessageConvert
             case DeviceMessageConstants.contactorModeAttributeName:
                 return 1;
             case DeviceMessageConstants.openKeyAttributeName:
-                return new Password("open");
+                return new SimplePassword("open");
             case DeviceMessageConstants.transferKeyAttributeName:
-                return new Password("transfer");
+                return new SimplePassword("transfer");
             default:
                 return "";
         }

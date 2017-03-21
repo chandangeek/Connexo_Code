@@ -4,25 +4,23 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-
 import com.energyict.protocolimpl.properties.TypedProperties;
 import org.fest.assertions.core.Condition;
+import org.junit.Test;
 
 import java.util.List;
-
-import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 
 /**
  * Tests the {@link SimplePasswordSecuritySupport} component
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 11/01/13
  * Time: 14:56
  */
-public class SimplePasswordSecuritySupportTest {
+public class SimplePasswordSecuritySupportTest extends AbstractSecuritySupportTest {
 
     @Test
     public void getSecurityPropertiesTest() {
@@ -38,7 +36,7 @@ public class SimplePasswordSecuritySupportTest {
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.equals(DeviceSecurityProperty.PASSWORD.getPropertySpec())) {
+                    if (propertySpec.equals(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService))) {
                         match |= true;
                     }
                 }
@@ -70,7 +68,7 @@ public class SimplePasswordSecuritySupportTest {
     }
 
     @Test
-    public void getEncryptionAccessLevelsTest(){
+    public void getEncryptionAccessLevelsTest() {
         SimplePasswordSecuritySupport simplePasswordSecuritySupport = new SimplePasswordSecuritySupport(propertySpecService);
 
         // assert that we don't have any encryption level
@@ -78,7 +76,7 @@ public class SimplePasswordSecuritySupportTest {
     }
 
     @Test
-    public void convertToTypedPropertiesTest(){
+    public void convertToTypedPropertiesTest() {
         SimplePasswordSecuritySupport simplePasswordSecuritySupport = new SimplePasswordSecuritySupport(propertySpecService);
         final TypedProperties securityProperties = TypedProperties.empty();
         String passwordValue = "MyPassword";
@@ -115,7 +113,7 @@ public class SimplePasswordSecuritySupportTest {
         SimplePasswordSecuritySupport simplePasswordSecuritySupport = new SimplePasswordSecuritySupport(propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
         String passwordValue = "MyPassword";
-        securityProperties.setProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec().getName(), passwordValue);
+        securityProperties.setProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService).getName(), passwordValue);
 
         DeviceProtocolSecurityPropertySet securityPropertySet = simplePasswordSecuritySupport.convertFromTypedProperties(securityProperties);
         assertThat(securityPropertySet).isNotNull();
@@ -123,6 +121,6 @@ public class SimplePasswordSecuritySupportTest {
         assertThat(securityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(-1);
         assertThat(securityPropertySet.getSecurityProperties()).isNotNull();
         assertThat(securityPropertySet.getSecurityProperties().size()).isEqualTo(1);
-        assertThat(securityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec().getName())).isEqualTo("MyPassword");
+        assertThat(securityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService).getName())).isEqualTo("MyPassword");
     }
 }

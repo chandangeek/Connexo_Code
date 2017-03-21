@@ -1,47 +1,58 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.channels.serial.optical.serialio;
 
 import com.energyict.mdc.channel.serial.SerialPortConfiguration;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import org.junit.Before;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
-/**
- * Tests for the {@link SioOpticalConnectionType} component
- * <p/>
- * Copyrights EnergyICT
- * Date: 12/11/12
- * Time: 13:03
- */
 public class SioOpticalConnectionTypeTest {
 
+    private PropertySpecService propertySpecService;
+
+    @Before
+    public void initializeMocksAndFactories() {
+        propertySpecService = mock(PropertySpecService.class);
+/*
+        //TODO
+        PropertySpecBuilderWizard.NlsOptions propertySpecBuilder = new PropertySpecBuilderImpl();
+        when(propertySpecService.encryptedStringSpec()).thenReturn(propertySpecBuilder);
+*/
+    }
 
     @Test
     public void allowSimultaneousConnectionsTest() {
-        SioOpticalConnectionType sioOpticalConnectionType = new SioOpticalConnectionType();
+        SioOpticalConnectionType sioOpticalConnectionType = new SioOpticalConnectionType(propertySpecService);
 
         assertFalse(sioOpticalConnectionType.allowsSimultaneousConnections());
     }
 
     @Test
     public void getRequiredKeysTest() {
-        SioOpticalConnectionType sioOpticalConnectionType = new SioOpticalConnectionType();
+        SioOpticalConnectionType sioOpticalConnectionType = new SioOpticalConnectionType(propertySpecService);
 
         // asserts
-        assertThat(sioOpticalConnectionType.getRequiredProperties()).isNotEmpty();
-        assertTrue(sioOpticalConnectionType.isRequiredProperty(SerialPortConfiguration.PARITY_NAME));
-        assertTrue(sioOpticalConnectionType.isRequiredProperty(SerialPortConfiguration.BAUDRATE_NAME));
-        assertTrue(sioOpticalConnectionType.isRequiredProperty(SerialPortConfiguration.NR_OF_STOP_BITS_NAME));
-        assertTrue(sioOpticalConnectionType.isRequiredProperty(SerialPortConfiguration.NR_OF_DATA_BITS_NAME));
+        assertThat(sioOpticalConnectionType.getUPLPropertySpecs()).isNotEmpty();
+        assertTrue(sioOpticalConnectionType.getUPLPropertySpec(SerialPortConfiguration.PARITY_NAME).get().isRequired());
+        assertTrue(sioOpticalConnectionType.getUPLPropertySpec(SerialPortConfiguration.BAUDRATE_NAME).get().isRequired());
+        assertTrue(sioOpticalConnectionType.getUPLPropertySpec(SerialPortConfiguration.NR_OF_STOP_BITS_NAME).get().isRequired());
+        assertTrue(sioOpticalConnectionType.getUPLPropertySpec(SerialPortConfiguration.NR_OF_DATA_BITS_NAME).get().isRequired());
     }
 
     @Test
     public void getOptionalPropertiesTest() {
-        SioOpticalConnectionType sioOpticalConnectionType = new SioOpticalConnectionType();
+        SioOpticalConnectionType sioOpticalConnectionType = new SioOpticalConnectionType(propertySpecService);
 
         // asserts
-        assertThat(sioOpticalConnectionType.getOptionalProperties()).isNotEmpty();
-        assertThat(sioOpticalConnectionType.getOptionalProperties()).contains(sioOpticalConnectionType.getUPLPropertySpec(SerialPortConfiguration.FLOW_CONTROL_NAME));
+        assertThat(sioOpticalConnectionType.getUPLPropertySpecs()).isNotEmpty();
+        assertTrue(!sioOpticalConnectionType.getUPLPropertySpec(SerialPortConfiguration.FLOW_CONTROL_NAME).get().isRequired());
     }
-
 }

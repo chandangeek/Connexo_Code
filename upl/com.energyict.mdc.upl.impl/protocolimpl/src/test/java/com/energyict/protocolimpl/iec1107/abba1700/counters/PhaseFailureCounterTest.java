@@ -1,9 +1,11 @@
 package com.energyict.protocolimpl.iec1107.abba1700.counters;
 
 import com.energyict.dlms.DLMSUtils;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.iec1107.abba1700.ABBA1700;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import java.util.Date;
 import java.util.TimeZone;
@@ -16,10 +18,13 @@ import static org.junit.Assert.assertEquals;
  */
 public class PhaseFailureCounterTest {
 
+    @Mock
+    private PropertySpecService propertySpecService;
+
     @Test
     public void testParse() throws Exception {
         byte[] response = DLMSUtils.hexStringToByteArray("33303030393332323746344433303232374634444336323137463444303330323031");
-        ABBA1700 protocol = new ABBA1700();
+        ABBA1700 protocol = new ABBA1700(propertySpecService);
         protocol.init(null, null, TimeZone.getTimeZone("Europe/Brussels"), Logger.getAnonymousLogger());
         PhaseFailureCounter pc = new PhaseFailureCounter(protocol);
         pc.parse(ProtocolUtils.convert2ascii(response));

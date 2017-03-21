@@ -4,12 +4,10 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-
-import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.protocolimpl.elster.a1800.A1800;
 import com.energyict.protocolimplv2.messages.ChannelConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -38,12 +36,12 @@ public class ElsterA1800MessageConverterTest extends AbstractMessageConverterTes
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new A1800();
+        return new A1800(propertySpecService, nlsService);
     }
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new ElsterA1800MessageConverter();
+        return new ElsterA1800MessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter);
     }
 
     @Override

@@ -38,6 +38,8 @@ public enum DeviceProtocolDialectNameEnum implements TranslationKey {
     private final String defaultTranslation;
     private String uniqueName;
 
+    public final static int MAX_NAME_LENGTH = 24;
+
     DeviceProtocolDialectNameEnum(String uniqueName, String defaultTranslation) {
         this.uniqueName = uniqueName;
         this.defaultTranslation = defaultTranslation;

@@ -1,16 +1,14 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-import com.energyict.mdc.upl.properties.Password;
-import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.protocolimplv2.eict.eiweb.SimplePassword;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540;
 import org.junit.Test;
-import org.mockito.Mock;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -22,9 +20,6 @@ import static junit.framework.Assert.assertEquals;
  * @since 30/10/13 - 14:22
  */
 public class Dsmr50MessageConverterTest extends AbstractMessageConverterTest {
-
-    @Mock
-    private PropertySpecService propertySpecService;
 
     @Test
     public void testMessageConversion() {
@@ -39,16 +34,16 @@ public class Dsmr50MessageConverterTest extends AbstractMessageConverterTest {
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new AM540(propertySpecService, extractor, calendarFinder);
+        return new AM540(propertySpecService, calendarFinder, calendarExtractor, deviceMessageFileFinder, deviceMessageFileExtractor, numberLookupFinder, numberLookupExtractor);
     }
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new Dsmr50MessageConverter();
+        return new Dsmr50MessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter, loadProfileExtractor, numberLookupExtractor, calendarExtractor);
     }
 
     @Override
     protected Object getPropertySpecValue(PropertySpec propertySpec) {
-        return new Password("key");
+        return new SimplePassword("key");
     }
 }

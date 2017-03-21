@@ -1,24 +1,18 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
-import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.upl.InboundDeviceProtocol;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.GPRSFrame;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.IdentificationResponseStructure;
-import org.powermock.modules.junit4.PowerMockRunner;
-
-import java.sql.SQLException;
-
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -46,10 +40,6 @@ public class CtrInboundDeviceProtocolTest {
         GPRSFrame frame = new GPRSFrame().parse(rawFrame, 0);
         IdentificationResponseStructure identificationResponseStructure = (IdentificationResponseStructure) frame.getData();
         when(this.requestFactory.getIdentificationStructure()).thenReturn(identificationResponseStructure);
-    }
-
-    @After
-    public void cleanUp() throws BusinessException, SQLException {
     }
 
     @Test

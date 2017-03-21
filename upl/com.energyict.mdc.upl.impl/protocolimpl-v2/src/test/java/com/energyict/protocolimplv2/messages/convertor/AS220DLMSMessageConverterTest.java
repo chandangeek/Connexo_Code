@@ -1,18 +1,17 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -21,7 +20,6 @@ import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
@@ -46,21 +44,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class AS220DLMSMessageConverterTest extends AbstractMessageConverterTest {
 
-    @Mock
-    private PropertySpecService propertySpecService;
-    @Mock
-    private NlsService nlsService;
-    @Mock
-    private Converter converter;
-    @Mock
-    private TariffCalendarExtractor extractor;
-    @Mock
-    private TariffCalendarFinder calendarFinder;
-    @Mock
-    private DeviceMessageFileExtractor messageFileExtractor;
-    @Mock
-    private TariffCalendarExtractor calendarExtractor;
-
     private static final String xmlEncodedCodeTable = "<TimeOfUse><CalendarName>TariffCodeTable</CalendarName><CodeTableTimeZone>Central European Time</CodeTableTimeZone><CodeTableDestinationTimeZone>Greenwich Mean Time</CodeTableDestinationTimeZone><CodeTableInterval>3600</CodeTableInterval><CodeTableFromYear>2014</CodeTableFromYear><CodeTableToYear>2014</CodeTableToYear><CodeTableSeasonSetId>21</CodeTableSeasonSetId><ActivationDate>1</ActivationDate><CodeTableActCalendar><SeasonProfiles><SeasonProfile><SeasonProfileName>0</SeasonProfileName><SeasonStart><Year>-1</Year><Month>1</Month><Day>1</Day></SeasonStart><SeasonWeekName>0</SeasonWeekName></SeasonProfile></SeasonProfiles><WeekProfiles><WeekProfile><WeekProfileName>0</WeekProfileName><wkMonday>1</wkMonday><wkTuesday>1</wkTuesday><wkWednesday>1</wkWednesday><wkThursday>1</wkThursday><wkFriday>1</wkFriday><wkSaturday>0</wkSaturday><wkSunday>0</wkSunday></WeekProfile></WeekProfiles><DayProfiles><DayProfile><DayProfileId>1</DayProfileId><DayProfileTariffs><DayProfileTariff><DayProfileTariffId>1</DayProfileTariffId><DayTariffStartTime><Hour>0</Hour><Minutes>0</Minutes><Seconds>0</Seconds></DayTariffStartTime></DayProfileTariff><DayProfileTariff><DayProfileTariffId>2</DayProfileTariffId><DayTariffStartTime><Hour>7</Hour><Minutes>0</Minutes><Seconds>0</Seconds></DayTariffStartTime></DayProfileTariff><DayProfileTariff><DayProfileTariffId>1</DayProfileTariffId><DayTariffStartTime><Hour>21</Hour><Minutes>0</Minutes><Seconds>0</Seconds></DayTariffStartTime></DayProfileTariff></DayProfileTariffs></DayProfile><DayProfile><DayProfileId>0</DayProfileId><DayProfileTariffs><DayProfileTariff><DayProfileTariffId>1</DayProfileTariffId><DayTariffStartTime><Hour>0</Hour><Minutes>0</Minutes><Seconds>0</Seconds></DayTariffStartTime></DayProfileTariff></DayProfileTariffs></DayProfile></DayProfiles></CodeTableActCalendar><CodeTableSpecialDay><SpecialDays><SpecialDay><SpecialDayEntryDate><Year>-1</Year><Month>12</Month><Day>25</Day></SpecialDayEntryDate><SpecialDayEntryDayId>0</SpecialDayEntryDayId></SpecialDay><SpecialDay><SpecialDayEntryDate><Year>-1</Year><Month>1</Month><Day>1</Day></SpecialDayEntryDate><SpecialDayEntryDayId>0</SpecialDayEntryDayId></SpecialDay><SpecialDay><SpecialDayEntryDate><Year>-1</Year><Month>-1</Month><Day>-1</Day></SpecialDayEntryDate><SpecialDayEntryDayId>0</SpecialDayEntryDayId></SpecialDay></SpecialDays></CodeTableSpecialDay></TimeOfUse>";
 
     @Test
@@ -74,7 +57,7 @@ public class AS220DLMSMessageConverterTest extends AbstractMessageConverterTest 
 
         offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<TimeOfUse>" + ProtocolTools.compress(xmlEncodedCodeTable)+"</TimeOfUse>", messageEntry.getContent());
+        assertEquals("<TimeOfUse>" + ProtocolTools.compress(xmlEncodedCodeTable) + "</TimeOfUse>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(PLCConfigurationDeviceMessage.SetPlcChannelFreqSnrCredits.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
@@ -91,15 +74,15 @@ public class AS220DLMSMessageConverterTest extends AbstractMessageConverterTest 
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new AS220(this.propertySpecService, this.calendarFinder, this.extractor);
+        return new AS220(this.propertySpecService, this.calendarFinder, this.calendarExtractor);
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {
-        return new TestAS220DLMSMessageConverter(null, this.propertySpecService, this.nlsService, this.converter, this.calendarExtractor, this.messageFileExtractor);
+        return new TestAS220DLMSMessageConverter(getMessagingProtocol(), this.propertySpecService, this.nlsService, this.converter, this.calendarExtractor, this.deviceMessageFileExtractor);
     }
 
     /**
-     * Gets the value to use for the given {@link com.energyict.cpo.PropertySpec}
+     * Gets the value to use for the given {@link com.energyict.mdc.upl.properties.PropertySpec}
      */
     protected Object getPropertySpecValue(PropertySpec propertySpec) {
         if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
@@ -109,14 +92,14 @@ public class AS220DLMSMessageConverterTest extends AbstractMessageConverterTest 
                 e.printStackTrace();
             }
         } else if (propertySpec.getName().equals(specialDaysAttributeName) || propertySpec.getName().equals(activityCalendarAttributeName)) {
-            return mock(Code.class);
+            return mock(TariffCalendar.class);
         } else if (propertySpec.getName().equals(activityCalendarNameAttributeName)) {
             return "STIJNVA";
         } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
-            UserFile userFile = mock(UserFile.class);
-            when(userFile.getId()).thenReturn(1121);
-            when(userFile.loadFileInByteArray()).thenReturn("userFileBytes".getBytes());
-            return userFile;
+            DeviceMessageFile deviceMessageFile1 = mock(DeviceMessageFile.class);
+            when(deviceMessageFileExtractor.binaryContents(deviceMessageFile1)).thenReturn("userFileBytes".getBytes());
+            when(deviceMessageFileExtractor.id(deviceMessageFile1)).thenReturn("1121");
+            return deviceMessageFile1;
         }
         return "1";     //All other attribute values are "1"
     }

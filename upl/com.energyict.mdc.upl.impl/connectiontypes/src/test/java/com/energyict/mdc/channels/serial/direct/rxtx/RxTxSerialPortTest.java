@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.channels.serial.direct.rxtx;
 
 import com.energyict.mdc.channel.serial.BaudrateValue;
@@ -7,7 +11,7 @@ import com.energyict.mdc.channel.serial.NrOfStopBits;
 import com.energyict.mdc.channel.serial.Parities;
 import com.energyict.mdc.channel.serial.SerialPortConfiguration;
 import com.energyict.mdc.channel.serial.direct.rxtx.RxTxSerialPort;
-import com.energyict.mdc.exceptions.SerialPortException;
+import com.energyict.mdc.upl.io.SerialPortException;
 import gnu.io.SerialPort;
 import gnu.io.UnsupportedCommOperationException;
 import org.junit.Test;
@@ -21,13 +25,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-/**
- * Tests for the {@link RxTxSerialPort} component
- * <p/>
- * Copyrights EnergyICT
- * Date: 17/08/12
- * Time: 9:52
- */
 public class RxTxSerialPortTest {
 
     private static final BigDecimal NR_OF_DATA_BITS_8 = new BigDecimal(SerialPort.DATABITS_8);
@@ -52,7 +49,7 @@ public class RxTxSerialPortTest {
             serialPortRxTx.getRxTxNrOfDataBits(new BigDecimal(2345));
         } catch (SerialPortException e) {
             // we should get a configuration mismatch exception, otherwise throw the exception so the TestFrameWork can handle this
-            if (!e.getMessageId().equals("CSM-COM-203")) {
+            if (!e.getType().equals(SerialPortException.Type.SERIAL_PORT_CONFIGURATION_MISMATCH)) {
                 throw e;
             }
         }
@@ -75,7 +72,7 @@ public class RxTxSerialPortTest {
             serialPortRxTx.getRxTxNrOfStopBits(new BigDecimal(1000));
         } catch (SerialPortException e) {
             // we should get a configuration mismatch exception, otherwise throw the exception so the TestFrameWork can handle this
-            if (!e.getMessageId().equals("CSM-COM-203")) {
+            if (!e.getType().equals(SerialPortException.Type.SERIAL_PORT_CONFIGURATION_MISMATCH)) {
                 throw e;
             }
         }
@@ -100,7 +97,7 @@ public class RxTxSerialPortTest {
             serialPortRxTx.getRxTxParity("UnKnoWnPariTy");
         } catch (SerialPortException e) {
             // we should get a configuration mismatch exception, otherwise throw the exception so the TestFrameWork can handle this
-            if (!e.getMessageId().equals("CSM-COM-203")) {
+            if (!e.getType().equals(SerialPortException.Type.SERIAL_PORT_CONFIGURATION_MISMATCH)) {
                 throw e;
             }
         }
@@ -135,7 +132,7 @@ public class RxTxSerialPortTest {
             serialPortRxTx.setFlowControlMode(FlowControl.DTRDSR.getFlowControl());
         } catch (SerialPortException e) {
             // we should get a configuration mismatch because currently we don't support the DTR/DSR type ...
-            if (!e.getMessageId().equals("CSM-COM-203")) {
+            if (!e.getType().equals(SerialPortException.Type.SERIAL_PORT_CONFIGURATION_MISMATCH)) {
                 throw e;
             }
         }
@@ -153,13 +150,13 @@ public class RxTxSerialPortTest {
             serialPortRxTx.setFlowControlMode("UnkNoWnflOwCONtrOlMOde");
         } catch (SerialPortException e) {
             // we should get a configuration mismatch exception, otherwise throw the exception so the TestFrameWork can handle this
-            if (!e.getMessageId().equals("CSM-COM-203")) {
+            if (!e.getType().equals(SerialPortException.Type.SERIAL_PORT_CONFIGURATION_MISMATCH)) {
                 throw e;
             }
         }
     }
 
-//    @Test // this test can NOT run on Bamboo, only for local testing of you own ComPorts
+    //    @Test // this test can NOT run on Bamboo, only for local testing of you own ComPorts
     public void comPortTest() {
         SerialPortConfiguration configuration = new SerialPortConfiguration(
                 "COM15",
@@ -181,7 +178,7 @@ public class RxTxSerialPortTest {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if(serialPortRxTx != null){
+            if (serialPortRxTx != null) {
                 serialPortRxTx.close();
             }
         }

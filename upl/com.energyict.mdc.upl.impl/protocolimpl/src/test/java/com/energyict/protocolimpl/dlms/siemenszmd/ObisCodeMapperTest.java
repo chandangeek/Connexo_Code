@@ -1,28 +1,26 @@
 package com.energyict.protocolimpl.dlms.siemenszmd;
 
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
-import com.energyict.mdc.upl.messages.legacy.Formatter;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ObjectReference;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.DLMSZMD;
 import com.energyict.protocolimpl.utils.DummyDLMSConnection;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -41,15 +39,15 @@ public class ObisCodeMapperTest {
     @Mock
     private DeviceMessageFileFinder messageFileFinder;
     @Mock
-    private Formatter dateFormatter;
+    private DeviceMessageFileExtractor deviceMessageFileExtractor;
     @Mock
-    private Extractor extractor;
+    private NlsService nlsService;
 
     @Test
     public void errorRegisterTest() throws IOException {
         DummyDLMSConnection connection = new DummyDLMSConnection();
         connection.setResponseByte(DLMSUtils.hexStringToByteArray("E6E7000C0100090400810019"));
-        DLMSZMD protocol = new DLMSZMD(this.propertySpecService, this.calendarFinder, this.messageFileFinder, this.dateFormatter, this.extractor);
+        DLMSZMD protocol = new DLMSZMD(this.propertySpecService, this.messageFileFinder, this.deviceMessageFileExtractor, this.nlsService);
         UniversalObject[] uos = new UniversalObject[1];
         List<Long> demandResetFields =
                 Arrays.asList(

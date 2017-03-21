@@ -1,30 +1,24 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-import com.energyict.mdc.upl.messages.legacy.RegisterExtractor;
-
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdw.amr.Register;
-import com.energyict.mdw.amr.RegisterReading;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.Group;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.Register;
+import com.energyict.mdc.upl.properties.DeviceGroup;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.smartmeterprotocolimpl.elster.apollo5.AS300DPET;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.Arrays;
+import java.util.Optional;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -43,39 +37,34 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class AS300DPETMessageConverterTest extends AS300MessageConverterTest {
 
-    @Mock
-    private RegisterExtractor registerExtractor;
-    @Mock
-    private DeviceExtractor deviceExtractor;
-
     @Test
     public void testAllianderPETMessageConversion() {
         MessageEntry messageEntry;
         OfflineDeviceMessage offlineDeviceMessage;
 
-        offlineDeviceMessage = createMessage(SecurityMessage.GENERATE_NEW_PUBLIC_KEY.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        offlineDeviceMessage = createMessage(SecurityMessage.GENERATE_NEW_PUBLIC_KEY.get(propertySpecService, nlsService, converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<GenerateNewPublicKey> </GenerateNewPublicKey>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(SecurityMessage.GENERATE_NEW_PUBLIC_KEY_FROM_RANDOM.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        offlineDeviceMessage = createMessage(SecurityMessage.GENERATE_NEW_PUBLIC_KEY_FROM_RANDOM.get(propertySpecService, nlsService, converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<GenerateNewPublicKey Random 32 bytes (optional)=\"random\"> </GenerateNewPublicKey>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(SecurityMessage.SET_PUBLIC_KEYS_OF_AGGREGATION_GROUP.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        offlineDeviceMessage = createMessage(SecurityMessage.SET_PUBLIC_KEYS_OF_AGGREGATION_GROUP.get(propertySpecService, nlsService, converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<SetPublicKeysOfAggregationGroup><Key1>KeyPair1</Key1></SetPublicKeysOfAggregationGroup>", messageEntry.getContent());
     }
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new AS300DPET(this.getCalendarFinder(), this.getCalendarExtractor(), this.getMessageFileFinder(), this.getMessageFileExtractor(), getDateFormatter(), this.getPropertySpecService());
+        return new AS300DPET(deviceMessageFileFinder, deviceMessageFileExtractor, propertySpecService);
     }
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        AS300DPETMessageConverter messageConverter = spy(new AS300DPETMessageConverter(null, getPropertySpecService(), getNlsService(), this.getConverter(), this.getMessageFileExtractor(), this.getCalendarExtractor(), this.deviceExtractor, this.registerExtractor));
+        AS300DPETMessageConverter messageConverter = spy(new AS300DPETMessageConverter(getMessagingProtocol(), propertySpecService, nlsService, converter, deviceMessageFileExtractor, calendarExtractor, deviceExtractor, registerExtractor, deviceGroupExtractor));
         // We stub the encode method, cause CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable() is not subject of this test
-        doReturn(XMLEncodedActivityCalendar).when(messageConverter).encode(any(Code.class));
+        doReturn(XMLEncodedActivityCalendar).when(messageConverter).encode(any(TariffCalendar.class));
         return messageConverter;
     }
 
@@ -91,22 +80,13 @@ public class AS300DPETMessageConverterTest extends AS300MessageConverterTest {
         }
     }
 
-    private Group getMockedDeviceGroup() {
-        Group deviceGroup = mock(Group.class);
+    private DeviceGroup getMockedDeviceGroup() {
+        DeviceGroup deviceGroup = mock(DeviceGroup.class);
         Device member = mock(Device.class);
+        when(deviceGroupExtractor.members(deviceGroup)).thenReturn(Arrays.asList(member));
         Register register = mock(Register.class);
-        List<RegisterReading> registerReadings = new ArrayList<>(1);
-        List<Device> members = new ArrayList<>(1);
-
-        RegisterReading registerReading = mock(RegisterReading.class);
-        when(registerReading.getText()).thenReturn("KeyPair1");
-        registerReadings.add(registerReading);
-
-        when(register.getLastXReadings(any(Integer.class))).thenReturn(registerReadings);
-        when(member.getRegister(any(ObisCode.class))).thenReturn(register);
-        members.add(member);
-
-        doReturn(members).when(deviceGroup).getMembers();
+        when(registerExtractor.lastReading(register)).thenReturn(Optional.of(() -> "KeyPair1"));
+        when(deviceExtractor.register(member, any(ObisCode.class))).thenReturn(Optional.of(register));
         return deviceGroup;
     }
 }

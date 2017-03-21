@@ -1,8 +1,10 @@
 package com.energyict.mdc.protocol.inbound.general;
 
-import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
+import com.energyict.mdc.upl.InboundDeviceProtocol;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -17,25 +19,19 @@ import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cbo.Unit;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdw.core.LogBookSpec;
 import com.energyict.protocol.MeterProtocolEvent;
-import com.energyict.util.IssueFactoryProvider;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.List;
-
+import com.energyict.protocolimpl.properties.TypedProperties;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.Duration;
+import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -46,7 +42,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * Tests that mock the comchannel and stub an incoming frame to test the inbound parsing of the RequestDiscover implementation
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 28/06/12
  * Time: 11:34
@@ -58,13 +54,9 @@ public class RequestDiscoverTest {
     @Mock
     protected ComChannel comChannel;
     @Mock
-    protected LogBookSpec logBookSpec;
-    @Mock
-    protected CollectedDataFactoryProvider collectedDataFactoryProvider;
+    protected DeviceMasterDataExtractor.LogBookSpec logBookSpec;
     @Mock
     protected CollectedDataFactory collectedDataFactory;
-    @Mock
-    protected IssueFactoryProvider issueFactoryProvider;
     @Mock
     protected IssueFactory issueFactory;
     @Mock
@@ -79,11 +71,9 @@ public class RequestDiscoverTest {
     @Before
     public void initialize() {
         when(Services.collectedDataFactory()).thenReturn(collectedDataFactory);
-        CollectedDataFactoryProvider.instance.set(collectedDataFactoryProvider);
 
         when(Services.issueFactory()).thenReturn(issueFactory);
         when(collectedDataFactory.createCollectedRegisterList(any(DeviceIdentifier.class))).thenReturn(this.collectedRegisterList);
-        IssueFactoryProvider.instance.set(issueFactoryProvider);
     }
 
     @Test
@@ -238,7 +228,7 @@ public class RequestDiscoverTest {
 
     private RequestDiscover getProtocolInstance() {
         TypedProperties properties = TypedProperties.empty();
-        properties.setProperty(AbstractDiscover.TIMEOUT_KEY, TimeDuration.seconds(1));
+        properties.setProperty(AbstractDiscover.TIMEOUT_KEY, Duration.ofSeconds(1));
         properties.setProperty(AbstractDiscover.RETRIES_KEY, BigDecimal.ZERO);
         RequestDiscover requestDiscover = new RequestDiscover(propertySpecService, collectedDataFactory, issueFactory);
         requestDiscover.setUPLProperties(properties);

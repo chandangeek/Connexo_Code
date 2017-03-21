@@ -10,7 +10,6 @@ import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.io.ModemException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
@@ -28,7 +27,7 @@ import java.util.List;
 @XmlRootElement
 public class SioPaknetModemConnectionType extends SioSerialConnectionType {
 
-    private PaknetModemComponent paknetModemComponent;
+    protected PaknetModemComponent paknetModemComponent;
 
     public SioPaknetModemConnectionType(PropertySpecService propertySpecService) {
         super(propertySpecService);

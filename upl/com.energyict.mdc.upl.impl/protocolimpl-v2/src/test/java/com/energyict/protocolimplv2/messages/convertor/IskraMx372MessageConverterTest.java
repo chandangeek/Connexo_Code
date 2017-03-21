@@ -1,20 +1,11 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Formatter;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
-import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.properties.Converter;
-import com.energyict.mdc.upl.properties.Password;
-import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.protocolimplv2.eict.eiweb.SimplePassword;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -25,7 +16,6 @@ import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.text.ParseException;
@@ -41,25 +31,6 @@ import static junit.framework.Assert.assertEquals;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class IskraMx372MessageConverterTest extends AbstractMessageConverterTest {
-
-    @Mock
-    private TariffCalendarFinder calendarFinder;
-    @Mock
-    private TariffCalendarExtractor extractor;
-    @Mock
-    private LoadProfileExtractor loadProfileExtractor;
-    @Mock
-    private DeviceMessageFileFinder messageFileFinder;
-    @Mock
-    private Formatter dateFormatter;
-    @Mock
-    private PropertySpecService propertySpecService;
-    @Mock
-    private NlsService nlsService;
-    @Mock
-    private Converter converter;
-    @Mock
-    private DeviceMessageFileExtractor messageFileExtractor;
 
     @Test
     public void testMessageConversion() {
@@ -138,12 +109,12 @@ public class IskraMx372MessageConverterTest extends AbstractMessageConverterTest
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new IskraMx372(propertySpecService, calendarFinder, extractor, messageFileExtractor);
+        return new IskraMx372(propertySpecService, calendarFinder, calendarExtractor, deviceMessageFileExtractor, deviceMessageFileFinder, numberLookupFinder, numberLookupExtractor);
     }
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new IskraMx372MessageConverter(null, this.propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor);
+        return new IskraMx372MessageConverter(getMessagingProtocol(), this.propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor);
     }
 
     @Override
@@ -171,7 +142,7 @@ public class IskraMx372MessageConverterTest extends AbstractMessageConverterTest
                 case DeviceMessageConstants.whiteListPhoneNumbersAttributeName:
                     return "number1; number2";
                 case DeviceMessageConstants.newHexPasswordAttributeName:
-                    return new Password("FF00AA");
+                    return new SimplePassword("FF00AA");
                 default:
                     return "";
             }

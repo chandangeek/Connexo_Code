@@ -3,7 +3,7 @@ package com.elster.protocolimpl.dlms.messaging;
 import com.elster.dlms.cosem.classes.class20.DayProfile;
 import com.elster.dlms.cosem.classes.class20.WeekProfile;
 import com.elster.protocolimpl.dlms.messaging.utils.TariffCalendar;
-import com.energyict.cbo.BusinessException;
+import org.junit.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -26,18 +26,14 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
  * Created by heuckeg on 21.05.2014.
- *
  */
 @SuppressWarnings("unused")
-public class TestWritePassiveCalendarMessage extends A1WritePassiveCalendarMessage
-{
+public class TestWritePassiveCalendarMessage extends A1WritePassiveCalendarMessage {
     private static final String testData = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n" +
             "<calendar>\n" +
             "   <name>ccc</name>\n" +
@@ -114,14 +110,12 @@ public class TestWritePassiveCalendarMessage extends A1WritePassiveCalendarMessa
             "  </daily_schedule>\n" +
             "</calendar>\n";
 
-    public TestWritePassiveCalendarMessage()
-    {
+    public TestWritePassiveCalendarMessage() {
         super(null);
     }
 
     @Test
-    public void validateActivationDate1() throws BusinessException, ParseException
-    {
+    public void validateActivationDate1() throws IllegalArgumentException, ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.ENGLISH);
         sdf.setTimeZone(TimeZone.getTimeZone("GMT0"));
 
@@ -134,8 +128,7 @@ public class TestWritePassiveCalendarMessage extends A1WritePassiveCalendarMessa
     }
 
     @Test
-    public void validateActivationDate2() throws BusinessException, ParseException
-    {
+    public void validateActivationDate2() throws IllegalArgumentException, ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.ENGLISH);
         sdf.setTimeZone(TimeZone.getTimeZone("GMT0"));
 
@@ -148,8 +141,7 @@ public class TestWritePassiveCalendarMessage extends A1WritePassiveCalendarMessa
     }
 
     @Test
-    public void validateActivationDate3() throws BusinessException, ParseException
-    {
+    public void validateActivationDate3() throws IllegalArgumentException, ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.ENGLISH);
         sdf.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 
@@ -161,9 +153,8 @@ public class TestWritePassiveCalendarMessage extends A1WritePassiveCalendarMessa
         assertEquals(sdf.parse(dateString).toString(), date.toString());
     }
 
-    @Test(expected = BusinessException.class)
-    public void validateActivationDateErr1() throws BusinessException, ParseException
-    {
+    @Test(expected = IllegalArgumentException.class)
+    public void validateActivationDateErr1() throws IllegalArgumentException, ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.ENGLISH);
         sdf.setTimeZone(TimeZone.getTimeZone("GMT0"));
 
@@ -172,9 +163,8 @@ public class TestWritePassiveCalendarMessage extends A1WritePassiveCalendarMessa
         Date date = validateActivationDate(dateString);
     }
 
-    @Test(expected = BusinessException.class)
-    public void validateActivationDateErr2() throws BusinessException, ParseException
-    {
+    @Test(expected = IllegalArgumentException.class)
+    public void validateActivationDateErr2() throws IllegalArgumentException, ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.ENGLISH);
         sdf.setTimeZone(TimeZone.getTimeZone("GMT0"));
 
@@ -183,9 +173,8 @@ public class TestWritePassiveCalendarMessage extends A1WritePassiveCalendarMessa
         Date date = validateActivationDate(dateString);
     }
 
-    @Test(expected = BusinessException.class)
-    public void validateActivationDateErr3() throws BusinessException, ParseException
-    {
+    @Test(expected = IllegalArgumentException.class)
+    public void validateActivationDateErr3() throws IllegalArgumentException, ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.ENGLISH);
         sdf.setTimeZone(TimeZone.getTimeZone("GMT0"));
 
@@ -194,9 +183,8 @@ public class TestWritePassiveCalendarMessage extends A1WritePassiveCalendarMessa
         Date date = validateActivationDate(dateString);
     }
 
-    @Test(expected = BusinessException.class)
-    public void validateActivationDateErr4() throws BusinessException, ParseException
-    {
+    @Test(expected = IllegalArgumentException.class)
+    public void validateActivationDateErr4() throws IllegalArgumentException, ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.ENGLISH);
         sdf.setTimeZone(TimeZone.getTimeZone("GMT0"));
 
@@ -206,8 +194,7 @@ public class TestWritePassiveCalendarMessage extends A1WritePassiveCalendarMessa
     }
 
     @Test
-    public void testTariffCalendarOk() throws IOException
-    {
+    public void testTariffCalendarOk() throws IOException {
         TariffCalendar cal = validateTariffCalendar(testData);
 
         String c1 = cal.toString();
@@ -221,17 +208,15 @@ public class TestWritePassiveCalendarMessage extends A1WritePassiveCalendarMessa
     }
 
     @Test(expected = IOException.class)
-    public void testTariffCalendarErr() throws IOException
-    {
+    public void testTariffCalendarErr() throws IOException {
         TariffCalendar cal = validateTariffCalendar(testDataErr1);
     }
 
     @Test
-    public void testTariffCalendarOkTypeTest() throws IOException
-    {
+    public void testTariffCalendarOkTypeTest() throws IOException {
         TariffCalendar cal = validateTariffCalendar(testData);
 
-        Object[] data = new Object[] {cal.getName(), new Date(), cal.getDayProfiles().toArray(new DayProfile[0]), cal.getWeekProfiles().toArray(new WeekProfile[0])};
+        Object[] data = new Object[]{cal.getName(), new Date(), cal.getDayProfiles().toArray(new DayProfile[0]), cal.getWeekProfiles().toArray(new WeekProfile[0])};
 
         assertTrue(data[0] instanceof String);
         assertTrue(data[1] instanceof Date);
@@ -240,8 +225,7 @@ public class TestWritePassiveCalendarMessage extends A1WritePassiveCalendarMessa
     }
 
 
-    private void printNodes(Element element, Integer ins)
-    {
+    private void printNodes(Element element, Integer ins) {
         for (int i = 0; i < ins; i++) {
             System.out.print(" ");
         }
@@ -251,58 +235,46 @@ public class TestWritePassiveCalendarMessage extends A1WritePassiveCalendarMessa
 
         NodeList nodes = element.getChildNodes();
 
-        if (element.getAttributes().getLength() > 0)
-        {
+        if (element.getAttributes().getLength() > 0) {
             NamedNodeMap a = element.getAttributes();
-            for (int i = 0; i < a.getLength(); i++)
-            {
+            for (int i = 0; i < a.getLength(); i++) {
                 Node n = a.item(i);
                 System.out.print(" [" + n.getNodeName() + ":" + n.getNodeValue() + "]");
             }
         }
-        for (int i = 0; i < nodes.getLength(); i++)
-        {
+        for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.item(i);
-            if (node instanceof Element)
-            {
+            if (node instanceof Element) {
                 continue;
             }
-            if (node instanceof Attr)
-            {
+            if (node instanceof Attr) {
                 System.out.print(" (Attr=" + node.toString() + ")");
                 continue;
             }
-            if (node instanceof Text)
-            {
+            if (node instanceof Text) {
                 System.out.print(" (Text=" + ((Text) node).getWholeText() + ")");
                 continue;
             }
             System.out.println(node.toString());
         }
         System.out.println();
-        for (int i = 0; i < nodes.getLength(); i++)
-        {
+        for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.item(i);
-            if (node instanceof Element)
-            {
+            if (node instanceof Element) {
                 //a child element to process
                 printNodes((Element) node, ins);
             }
         }
     }
 
-    private Document createDocument(String xml) throws IOException
-    {
-        try
-        {
+    private Document createDocument(String xml) throws IOException {
+        try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             xml = xml.replaceAll("\n", "").replaceAll("\r", "").replaceAll(">\\s*<", "><");
 
             DocumentBuilder builder = factory.newDocumentBuilder();
             return builder.parse(new InputSource(new StringReader(xml)));
-        }
-        catch (ParserConfigurationException | SAXException | IOException | DOMException e)
-        {
+        } catch (ParserConfigurationException | SAXException | IOException | DOMException e) {
             throw new IOException("Failed to parse the xml document - the user file does not contain a valid XML document: " + e.getMessage());
         }
     }

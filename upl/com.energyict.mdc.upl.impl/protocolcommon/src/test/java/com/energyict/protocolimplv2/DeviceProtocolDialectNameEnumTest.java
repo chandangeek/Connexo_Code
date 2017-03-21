@@ -1,7 +1,5 @@
 package com.energyict.protocolimplv2;
 
-import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.FieldLengthValidator;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -9,11 +7,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
  * Tests the {@link DeviceProtocolDialectNameEnum} component
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 5/02/13
  * Time: 15:06
@@ -60,14 +59,9 @@ public class DeviceProtocolDialectNameEnumTest {
      * relationTypeNames, eg. max 24 chars
      */
     @Test
-    public void lengthTest() throws BusinessException {
-        int maxLength = 24;
+    public void lengthTest() {
         for (DeviceProtocolDialectNameEnum deviceProtocolDialectNameEnum : DeviceProtocolDialectNameEnum.values()) {
-            try {
-                FieldLengthValidator.validateMaxLength(deviceProtocolDialectNameEnum.getName(), "name", maxLength, false);
-            } catch (BusinessException e) {
-                fail(deviceProtocolDialectNameEnum.getName() + " is to long, only " + maxLength + " chars are allowed.");
-            }
+            assertTrue(deviceProtocolDialectNameEnum.getName().length() < DeviceProtocolDialectNameEnum.MAX_NAME_LENGTH);
         }
     }
 

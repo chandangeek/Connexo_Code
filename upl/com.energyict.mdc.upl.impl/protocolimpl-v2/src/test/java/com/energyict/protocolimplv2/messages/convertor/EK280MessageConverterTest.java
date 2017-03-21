@@ -1,18 +1,12 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.elster.protocolimpl.dlms.EK280;
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.properties.Converter;
-import com.energyict.mdc.upl.properties.Password;
-import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.protocolimplv2.eict.eiweb.SimplePassword;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -20,7 +14,6 @@ import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
@@ -34,19 +27,6 @@ import static junit.framework.Assert.assertEquals;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class EK280MessageConverterTest extends AbstractMessageConverterTest {
-
-    @Mock
-    private PropertySpecService propertySpecService;
-    @Mock
-    private NlsService nlsService;
-    @Mock
-    private Converter converter;
-    @Mock
-    private TariffCalendarFinder calendarFinder;
-    @Mock
-    private TariffCalendarExtractor calendarExtractor;
-    @Mock
-    private DeviceMessageFileExtractor messageFileExtractor;
 
     @Test
     public void testMessageConversion_ChangeCredentials() {
@@ -110,6 +90,7 @@ public class EK280MessageConverterTest extends AbstractMessageConverterTest {
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<DisableAutoAnswer AutoAnswerId=\"1\"> </DisableAutoAnswer>", messageEntry.getContent());
     }
+
     @Test
     public void testMessageConversion_ConfigureAutoConnect() {
         OfflineDeviceMessage offlineDeviceMessage = createMessage(NetworkConnectivityMessage.ConfigureAutoConnect.get(this.propertySpecService, this.nlsService, this.converter));
@@ -133,12 +114,12 @@ public class EK280MessageConverterTest extends AbstractMessageConverterTest {
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new EK280(this.calendarFinder, this.calendarExtractor);
+        return new EK280(this.calendarFinder, this.calendarExtractor, propertySpecService, deviceMessageFileFinder, deviceMessageFileExtractor, nlsService);
     }
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new EK280MessageConverter(null, this.propertySpecService, this.nlsService, this.converter, calendarFinder, this.calendarExtractor, this.messageFileExtractor);
+        return new EK280MessageConverter(getMessagingProtocol(), this.propertySpecService, this.nlsService, this.converter, calendarFinder, this.calendarExtractor, this.deviceMessageFileExtractor, deviceMessageFileFinder);
     }
 
     @Override
@@ -149,15 +130,15 @@ public class EK280MessageConverterTest extends AbstractMessageConverterTest {
             case DeviceMessageConstants.usernameAttributeName:
                 return "MyTestUserName";
             case DeviceMessageConstants.passwordAttributeName:
-                return new Password("MyTestPassword");
+                return new SimplePassword("MyTestPassword");
             case DeviceMessageConstants.clientMacAddress:
                 return BigDecimal.ONE;
             case DeviceMessageConstants.masterKey:
-                return new Password("MASTER_Key");
+                return new SimplePassword("MASTER_Key");
             case DeviceMessageConstants.newAuthenticationKeyAttributeName:
-                return new Password("AUTH_Key");
+                return new SimplePassword("AUTH_Key");
             case DeviceMessageConstants.newEncryptionKeyAttributeName:
-                return new Password("ENCR_Key");
+                return new SimplePassword("ENCR_Key");
             case DeviceMessageConstants.newPDRAttributeName:
                 return "PDR";
             case DeviceMessageConstants.gasDensityAttributeName:
