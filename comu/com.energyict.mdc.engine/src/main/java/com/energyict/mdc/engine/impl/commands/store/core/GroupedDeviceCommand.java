@@ -153,7 +153,7 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
                 if (comTaskExecutionComCommand.getCompletionCode().equals(CompletionCode.NotExecuted)) {
                     comTaskExecutionComCommand.setExecutionState(BasicComCommandBehavior.ExecutionState.NOT_EXECUTED);
                     successIndicator = ComTaskExecutionSession.SuccessIndicator.Failure;
-                } else if (comTaskExecutionComCommand.getProblems().size() > 0) {
+                } else if (!comTaskExecutionComCommand.getProblems().isEmpty()) {
                     comTaskExecutionComCommand.setExecutionState(BasicComCommandBehavior.ExecutionState.FAILED);
                     executionContext.comTaskExecutionFailed(comTaskExecutionComCommand.getComTaskExecution());
                     successIndicator = ComTaskExecutionSession.SuccessIndicator.Failure;

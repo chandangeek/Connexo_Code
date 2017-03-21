@@ -13,7 +13,6 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.ComTaskExecutionCollectedData;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 
@@ -64,7 +63,7 @@ public class ComTaskExecutionComCommandImpl extends CompositeComCommandImpl impl
                 }
             }
         } finally {
-            if (getProblems().size() > 0) { // if one of my commands failed with an error
+            if (!getProblems().isEmpty()) { // if one of my commands failed with an error
                 setExecutionState(BasicComCommandBehavior.ExecutionState.FAILED);
                 delegateToJournalistIfAny(executionContext);
             } else {
@@ -76,7 +75,6 @@ public class ComTaskExecutionComCommandImpl extends CompositeComCommandImpl impl
     private String getComTasksDescription(ExecutionContext executionContext) {
         return executionContext.getComTaskExecution().getComTask().getName();
     }
-
 
     @Override
     public List<CollectedData> getCollectedData() {

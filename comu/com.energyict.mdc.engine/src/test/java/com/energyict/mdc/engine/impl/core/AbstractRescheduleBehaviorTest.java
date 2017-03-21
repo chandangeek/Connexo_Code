@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.core;
 
-
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.StopWatch;
@@ -41,12 +40,13 @@ import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.issue.Warning;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
-import org.joda.time.DateTime;
-
 import java.io.IOException;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.Calendar;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -88,7 +88,7 @@ public abstract class AbstractRescheduleBehaviorTest {
     protected ConnectionTaskService connectionTaskService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     protected ComSessionBuilder comSessionBuilder;
-    protected Clock clock = Clock.fixed(new DateTime(2014, 5, 20, 16, 16, 17, 222).toDate().toInstant(), ZoneId.systemDefault());
+    protected Clock clock = Clock.fixed(LocalDateTime.of(2014, 5, 20, 16, 16, 17, 222).atZone(ZoneOffset.systemDefault()).toInstant(), ZoneId.systemDefault());
     @Mock
     protected EventPublisher eventPublisher;
     @Mock
@@ -191,7 +191,7 @@ public abstract class AbstractRescheduleBehaviorTest {
         ClockTask clockTask = mock(ClockTask.class);
         when(clockTask.getClockTaskType()).thenReturn(ClockTaskType.SETCLOCK);
         ClockCommandImpl clockCommand = spy(new ClockCommandImpl(groupedDeviceCommand, clockTask, comTaskExecution));
-        doThrow(ConnectionCommunicationException.allowedAttemptsExceeded(new Exception(), 1))
+        doThrow(ConnectionCommunicationException.unexpectedIOException(new IOException("For testing purposes only")))
             .when(clockCommand)
             .doExecute(any(DeviceProtocol.class), any(ExecutionContext.class));
         groupedDeviceCommand.addCommand(clockCommand, comTaskExecution);
@@ -234,9 +234,16 @@ public abstract class AbstractRescheduleBehaviorTest {
     }
 
     protected ComTaskExecution mockNewComTaskExecution() {
+        NextExecutionSpecs nextExecutionSpecs = mock(NextExecutionSpecs.class);
+        when(nextExecutionSpecs.getNextTimestamp(any(Calendar.class)))
+            .thenAnswer(invocation -> {
+                Calendar calendar = (Calendar) invocation.getArguments()[0];
+                calendar.add(Calendar.MINUTE, 5);
+                return calendar.getTime();
+            });
         ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
         when(comTaskExecution1.getDevice()).thenReturn(device);
-        when(comTaskExecution1.getNextExecutionSpecs()).thenReturn(Optional.empty());
+        when(comTaskExecution1.getNextExecutionSpecs()).thenReturn(Optional.of(nextExecutionSpecs));
         ComTask comTask = mock(ComTask.class);
         when(comTaskExecution1.getComTask()).thenReturn(comTask);
         return comTaskExecution1;

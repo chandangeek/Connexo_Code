@@ -54,6 +54,7 @@ import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.upl.meterdata.CollectedData;
+
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import java.text.MessageFormat;
@@ -200,7 +201,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         return false;
     }
 
-    protected Duration getElapsedTimeInMillis() {
+    Duration getElapsedTimeInMillis() {
         return Duration.ofMillis(this.connecting.getElapsed() / NANOS_IN_MILLI);
     }
 
@@ -504,7 +505,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         }
     }
 
-    protected void completeFailure(ComSession.SuccessIndicator successIndicator) {
+    void completeFailure(ComSession.SuccessIndicator successIndicator) {
         sessionBuilder.setFailedTasks(this.jobExecution.getFailedComTaskExecutions().size());
         sessionBuilder.setSuccessFulTasks(this.jobExecution.getSuccessfulComTaskExecutions().size());
         sessionBuilder.setNotExecutedTasks(this.jobExecution.getNotExecutedComTaskExecutions().size());
@@ -512,7 +513,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.createComSessionCommand(sessionBuilder, successIndicator);
     }
 
-    protected void completeSuccessful() {
+    void completeSuccessful() {
         sessionBuilder.setFailedTasks(this.jobExecution.getFailedComTaskExecutions().size());
         sessionBuilder.setSuccessFulTasks(this.jobExecution.getSuccessfulComTaskExecutions().size());
         sessionBuilder.setNotExecutedTasks(this.jobExecution.getNotExecutedComTaskExecutions().size());
@@ -521,7 +522,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.createComSessionCommand(sessionBuilder, successIndicator);
     }
 
-    protected void completeOutsideComWindow() {
+    void completeOutsideComWindow() {
         ComSession.SuccessIndicator successIndicator = ComSession.SuccessIndicator.Success;
         this.createComSessionCommand(sessionBuilder, successIndicator);
     }
