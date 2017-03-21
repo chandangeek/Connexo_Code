@@ -8,7 +8,11 @@ import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
+import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.nls.MessageSeed;
+import com.energyict.mdc.upl.nls.NlsMessageFormat;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.Thesaurus;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 import org.joda.time.DateTime;
@@ -27,7 +31,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -92,13 +98,33 @@ public class CannotEstablishConnectionEventTest {
 
     @Test
     public void testIsFailure () {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        String expectedTranslation = "Translation for Test message seed";
+        when(messageFormat.format(anyVararg())).thenReturn(expectedTranslation);
+        Thesaurus thesaurus = mock(Thesaurus.class);
+        when(thesaurus.getFormat(TestMessageSeeds.TEST)).thenReturn(messageFormat);
+        NlsService nlsService = mock(NlsService.class);
+        when(nlsService.getThesaurus(THESAURUS_ID)).thenReturn(thesaurus);
+        Services.nlsService(nlsService);
         ComPort comPort = mock(ComPort.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
         CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(this.serviceProvider, comPort, connectionTask, new ConnectionException(THESAURUS_ID, TestMessageSeeds.TEST, new Exception()));
 
         // Business method & asserts
         assertThat(event.isFailure()).isTrue();
-        assertThat(event.getFailureMessage()).startsWith(THESAURUS_ID);
+        verify(nlsService).getThesaurus(THESAURUS_ID);
+        assertThat(event.getFailureMessage()).contains(expectedTranslation);
+    }
+
+    @Test
+    public void testIsFailureWithoutNlsService () {
+        ComPort comPort = mock(ComPort.class);
+        ConnectionTask connectionTask = mock(ConnectionTask.class);
+        CannotEstablishConnectionEvent event = new CannotEstablishConnectionEvent(this.serviceProvider, comPort, connectionTask, new ConnectionException(THESAURUS_ID, TestMessageSeeds.TEST, new Exception()));
+
+        // Business method & asserts
+        assertThat(event.isFailure()).isTrue();
+        assertThat(event.getFailureMessage()).contains(TestMessageSeeds.TEST.getDefaultFormat());
     }
 
     @Test
