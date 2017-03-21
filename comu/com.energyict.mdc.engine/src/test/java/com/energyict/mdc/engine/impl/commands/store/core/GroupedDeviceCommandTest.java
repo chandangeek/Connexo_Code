@@ -15,6 +15,7 @@ import com.energyict.mdc.engine.impl.commands.collect.LogBooksCommand;
 import com.energyict.mdc.engine.impl.commands.collect.MessagesCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
 import com.energyict.mdc.engine.impl.commands.collect.RegisterCommand;
+import com.energyict.mdc.engine.impl.commands.offline.ServerOfflineDevice;
 import com.energyict.mdc.engine.impl.commands.store.access.DaisyChainedLogOffCommand;
 import com.energyict.mdc.engine.impl.commands.store.access.DaisyChainedLogOnCommand;
 import com.energyict.mdc.engine.impl.commands.store.access.LogOffCommand;
@@ -419,7 +420,7 @@ public class GroupedDeviceCommandTest extends CommonCommandImplTests {
     }
 
     private OfflineDevice mockOfflineDevice(Long deviceId) {
-        OfflineDevice offlineDevice1 = mock(OfflineDevice.class);
+        ServerOfflineDevice offlineDevice1 = mock(ServerOfflineDevice.class);
         when(offlineDevice1.getMacException()).thenReturn(Optional.empty());
         when(offlineDevice1.getId()).thenReturn(deviceId);
         return offlineDevice1;
