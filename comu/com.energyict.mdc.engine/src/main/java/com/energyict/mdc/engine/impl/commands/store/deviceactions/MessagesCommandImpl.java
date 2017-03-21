@@ -245,7 +245,8 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
         DeviceProtocolMessage message = new DeviceProtocolMessage(offlineMessage.getIdentifier());
         message.setFailureInformation(
                 ResultType.ConfigurationMisMatch,
-                getCommandRoot().getServiceProvider().issueService().newProblem(
+                getIssueService()
+                    .newProblem(
                         this.getGroupedDeviceCommand().getOfflineDevice(),
                         MESSAGE_NO_LONGER_VALID));
         message.setDeviceProtocolInformation(offlineMessage.getProtocolInfo());

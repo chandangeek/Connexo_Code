@@ -79,6 +79,7 @@ public class MessagesCommandImplTest extends AbstractComCommandExecuteTest {
     @Before
     public void setUp() throws Exception {
         when(uplDeviceMessageCategory.getId()).thenReturn(DEVICE_MESSAGE_CATEGORY_ID);
+        when(deviceMessageCategory.getId()).thenReturn(DEVICE_MESSAGE_CATEGORY_ID);
         when(device.getId()).thenReturn(DEVICE_ID);
         when(comTaskExecution.getDevice()).thenReturn(device);
     }
@@ -258,14 +259,18 @@ public class MessagesCommandImplTest extends AbstractComCommandExecuteTest {
         String debugJournalMessage = messagesCommand.toJournalMessageDescription(LogLevel.DEBUG);
 
         // Asserts
-        assertThat(infoJournalMessage).isEqualTo(ComCommandDescriptionTitle.MessagesCommandImpl.getDescription()
-                + " {executionState: NOT_EXECUTED; completionCode: Ok;"
-                + " nrOfPendingMessages: 2; nrOfPendingInvalidMessages: 0; nrOfMessagesFromPreviousSessions: 1}");
-        assertThat(debugJournalMessage).isEqualTo(ComCommandDescriptionTitle.MessagesCommandImpl.getDescription()
-                + " {executionState: NOT_EXECUTED; completionCode: Ok;" +
-                " pendingMessages: (ACTIVITY_CALENDAR_WRITE_CONTRACTS_FROM_XML_USERFILE, DeviceMessageTestCategories - TEST_SPEC_WITH_EXTENDED_SPECS), (ACTIVITY_CALENDER_SEND, DeviceMessageTestCategories - TEST_SPEC_WITHOUT_SPECS);" +
-                " There are no invalid pending messages;" +
-                " messagesFromPreviousSession: (ACTIVITY_CALENDAR_READ, DeviceMessageTestCategories - TEST_SPEC_WITH_SIMPLE_SPECS)}");
+        assertThat(infoJournalMessage)
+                .isEqualTo(
+                        ComCommandDescriptionTitle.MessagesCommandImpl.getDescription() +
+                        " {executionState: NOT_EXECUTED; completionCode: Ok;" +
+                        " nrOfPendingMessages: 2; nrOfPendingInvalidMessages: 0; nrOfMessagesFromPreviousSessions: 1}");
+        assertThat(debugJournalMessage)
+                .matches(
+                        ComCommandDescriptionTitle.MessagesCommandImpl.getDescription() +
+                        " \\{executionState: NOT_EXECUTED; completionCode: Ok;" +
+                        " pendingMessages: \\(.*, DeviceMessageTestCategories - TEST_SPEC_WITH_EXTENDED_SPECS\\), \\(.*, DeviceMessageTestCategories - TEST_SPEC_WITHOUT_SPECS\\);" +
+                        " There are no invalid pending messages;" +
+                        " messagesFromPreviousSession: \\(.*, DeviceMessageTestCategories - TEST_SPEC_WITH_SIMPLE_SPECS\\)\\}");
     }
 
     private MessagesTask createMockedMessagesTaskWithCategories() {
