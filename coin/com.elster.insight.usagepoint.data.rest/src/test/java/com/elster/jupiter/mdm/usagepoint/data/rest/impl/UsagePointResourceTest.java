@@ -856,6 +856,44 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         assertThat(model.<String>get("$.privileges[0].name")).isEqualTo("usagepoint.action.link.metrology.configuration");
     }
 
+    @Test
+    public void testGetUsagePointPrivilegesWithOpenMC() throws Exception {
+        EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationOnUsagePoint1 = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        UsagePointStage  stage = mock(UsagePointStage.class);
+        UsagePointState state = mock(UsagePointState.class);
+        List<EffectiveMetrologyConfigurationOnUsagePoint> configurationOnUsagePointList =  Arrays.asList(metrologyConfigurationOnUsagePoint,metrologyConfigurationOnUsagePoint1);
+        Range<Instant> range = Range.closed(new DateMidnight(2014, 1, 1).toDate().toInstant(), new DateMidnight(2014, 2, 1).toDate().toInstant());
+        Range<Instant> range1 = Range.atLeast(Instant.from(NOW));
+        when(usagePoint.getState()).thenReturn(state);
+        when(state.getStage()).thenReturn(stage);
+        when(stage.getKey()).thenReturn(UsagePointStage.Key.SUSPENDED);
+        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(configurationOnUsagePointList);
+        when(metrologyConfigurationOnUsagePoint1.getRange()).thenReturn(range1);
+        when(metrologyConfigurationOnUsagePoint.getRange()).thenReturn(range);
+
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/privileges").request().get();
+        JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Integer>get("$.total")).isEqualTo(0);
+        assertThat(model.<List>get("$.privileges")).hasSize(0);
+    }
+
+    @Test
+    public void testGetUsagePointPrivilegesWithNoMC() throws Exception {
+        UsagePointStage  stage = mock(UsagePointStage.class);
+        UsagePointState state = mock(UsagePointState.class);
+        List<EffectiveMetrologyConfigurationOnUsagePoint> configurationOnUsagePointList = Collections.emptyList();
+        when(usagePoint.getState()).thenReturn(state);
+        when(state.getStage()).thenReturn(stage);
+        when(stage.getKey()).thenReturn(UsagePointStage.Key.SUSPENDED);
+        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(configurationOnUsagePointList);
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/privileges").request().get();
+        JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(model.<List>get("$.privileges")).hasSize(1);
+        assertThat(model.<String>get("$.privileges[0]")).isEqualTo("usagepoint.action.link.metrology.configuration");
+    }
+
     private UsagePointInfo getInfoWithMetrologyConfigurationAndMeters() {
         UsagePointInfo usagePointInfo = getBasicUsagePointInfo();
         CustomPropertySetInfo casInfo = new CustomPropertySetInfo();
