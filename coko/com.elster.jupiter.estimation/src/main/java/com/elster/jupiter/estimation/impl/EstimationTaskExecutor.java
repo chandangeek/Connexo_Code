@@ -115,13 +115,11 @@ class EstimationTaskExecutor implements TaskExecutor {
             try (TransactionContext transactionContext = transactionService.getContext()) {
                 estimationService.estimate(system, meterActivation.getChannelsContainer(), period(meterActivation.getChannelsContainer(), relativePeriod, triggerTime), taskLogger);
                 transactionContext.commit();
-
             }
         } catch (Exception ex) {
-            transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to estimate "+ meterActivation.getMeter()
-                    .map(IdentifiedObject::getName)
+            transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to estimate " + meterActivation.getMeter().map(IdentifiedObject::getName)
                     .orElseGet(() -> meterActivation.getUsagePoint(triggerTime).map(IdentifiedObject::getName).orElse("Unknown"))
-                    + " . Error: " + ex.getLocalizedMessage(), ex +"."));
+                    + " . Error: " + ex.getLocalizedMessage(), ex ));
         }
     }
 
@@ -139,7 +137,7 @@ class EstimationTaskExecutor implements TaskExecutor {
         } catch (Exception ex) {
             transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to estimate "+channelsContainer.getUsagePoint()
                     .map(IdentifiedObject::getName).orElse("Unknown")
-                    + " . Error: " + ex.getLocalizedMessage(), ex +"."));
+                    + " . Error: " + ex.getLocalizedMessage(), ex ));
         }
     }
 
