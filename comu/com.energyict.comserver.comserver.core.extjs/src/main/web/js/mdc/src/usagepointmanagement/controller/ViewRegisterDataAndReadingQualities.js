@@ -90,7 +90,8 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewRegisterDataAndReadingQualit
 
         registerModel.getProxy().setExtraParam('usagePointId', usagePointId);
         registerModel.load(registerId, {
-            success: function () {
+            success: function (record) {
+                register = record;
                 filter = me.setDataFilter();
                 onDependencyLoad();
             }
