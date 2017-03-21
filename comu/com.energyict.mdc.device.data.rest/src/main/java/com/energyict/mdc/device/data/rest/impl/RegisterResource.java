@@ -131,9 +131,8 @@ public class RegisterResource {
         Register<?, ?> register = doGetRegister(name, registerId);
         Register.RegisterUpdater registerUpdater = device.getRegisterUpdaterFor(register);
         if (register.getRegisterSpec() instanceof NumericalRegisterSpec) {
-            NumericalRegisterInfo numericalRegisterInfo = ((NumericalRegisterInfo) registerInfo);
-            registerUpdater.setNumberOfFractionDigits(numericalRegisterInfo.overruledNumberOfFractionDigits);
-            registerUpdater.setOverflowValue(numericalRegisterInfo.overruledOverflow);
+            registerUpdater.setNumberOfFractionDigits(registerInfo.overruledNumberOfFractionDigits);
+            registerUpdater.setOverflowValue(registerInfo.overruledOverflow);
         }
         registerUpdater.setObisCode(registerInfo.overruledObisCode);
         registerUpdater.update();
