@@ -241,7 +241,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         List<OfflineDevice> slaveDevices = new ArrayList<>();
         slaveDevices.add(offlineSlave_1);
         slaveDevices.add(offlineSlave_2);
-        doReturn(slaveDevices).when(offlineDevice.getAllSlaveDevices());
+        doReturn(slaveDevices).when(offlineDevice).getAllSlaveDevices();
 
         Map<DeviceIdentifier, CollectedTopology.ObservationTimestampProperty> slaveDeviceIdentifiers = new HashMap<>();
         slaveDeviceIdentifiers.put(slave2Identifier, mock(CollectedTopology.ObservationTimestampProperty.class));
@@ -279,7 +279,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         List<OfflineDevice> slaveDevices = new ArrayList<>();
         slaveDevices.add(offlineSlave_1);
         slaveDevices.add(offlineSlave_2);
-        doReturn(slaveDevices).when(offlineDevice.getAllSlaveDevices());
+        doReturn(slaveDevices).when(offlineDevice).getAllSlaveDevices();
 
         Map<DeviceIdentifier, CollectedTopology.ObservationTimestampProperty> slaveDeviceIdentifiers = new HashMap<>();
         slaveDeviceIdentifiers.put(slave2Identifier, mock(CollectedTopology.ObservationTimestampProperty.class));
@@ -302,7 +302,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         List<OfflineDevice> slaveDevices = new ArrayList<>();
         slaveDevices.add(this.offlineSlave_1);
         slaveDevices.add(this.offlineSlave_2);
-        doReturn(slaveDevices).when(this.offlineDevice.getAllSlaveDevices());
+        doReturn(slaveDevices).when(this.offlineDevice).getAllSlaveDevices();
 
         Map<DeviceIdentifier, CollectedTopology.ObservationTimestampProperty> slaveDeviceIdentifiers = new HashMap<>();
         slaveDeviceIdentifiers.put(slave2Identifier, mock(CollectedTopology.ObservationTimestampProperty.class));
