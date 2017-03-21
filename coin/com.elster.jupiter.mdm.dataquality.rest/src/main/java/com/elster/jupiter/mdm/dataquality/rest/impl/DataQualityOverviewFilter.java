@@ -209,7 +209,7 @@ public enum DataQualityOverviewFilter {
     }
 
     enum Operator {
-        EQUAL("=") {
+        EQUAL("==") {
             @Override
             void apply(String filterProperty, JsonNode criteriaNode, MetricSpecificationBuilder builder, ResourceHelper resourceHelper) {
                 if (!criteriaNode.isNumber()) {
