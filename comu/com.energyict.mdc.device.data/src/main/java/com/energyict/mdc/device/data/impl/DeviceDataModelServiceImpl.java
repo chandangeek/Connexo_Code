@@ -26,6 +26,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -148,6 +149,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile LockService lockService;
     private volatile DataVaultService dataVaultService;
+    private volatile PkiService pkiService;
 
     private ServerConnectionTaskService connectionTaskService;
     private ConnectionTaskReportService connectionTaskReportService;
@@ -180,7 +182,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
             SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
             QueryService queryService, TaskService mdcTaskService, MasterDataService masterDataService,
             TransactionService transactionService, JsonService jsonService, com.energyict.mdc.issues.IssueService mdcIssueService, MdcReadingTypeUtilService mdcReadingTypeUtilService,
-            UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService, ServiceCallService serviceCallService, ThreadPrincipalService threadPrincipalService, LockService lockService, DataVaultService dataVaultService) {
+            UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService, ServiceCallService serviceCallService, ThreadPrincipalService threadPrincipalService,
+            LockService lockService, DataVaultService dataVaultService, PkiService pkiService) {
         this();
         setOrmService(ormService);
         setEventService(eventService);
@@ -218,6 +221,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         setThreadPrincipalService(threadPrincipalService);
         setLockService(lockService);
         setDataVaultService(dataVaultService);
+        setPkiService(pkiService);
         activate(bundleContext);
     }
 
@@ -245,6 +249,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     @Reference
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
+    }
+
+    @Reference
+    public void setPkiService(PkiService pkiService) {
+        this.pkiService = pkiService;
     }
 
     @Reference
@@ -577,6 +586,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 bind(DeviceMessageService.class).toInstance(deviceMessageService);
                 bind(DeviceLifeCycleConfigurationService.class).toInstance(deviceLifeCycleConfigurationService);
                 bind(LockService.class).toInstance(lockService);
+                bind(PkiService.class).toInstance(pkiService);
             }
         };
     }

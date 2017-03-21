@@ -48,7 +48,12 @@ public interface KeyAccessor<T> {
      * Create a new value for the KeyAccessor. The new value will be stored in the temp value holder.
      * If there is already a temp value, it will be overwritten!
      */
-//    void renew; // TODO implement, will delegate to wrapper who (should) implement renewable
+    void renew();
+
+    /**
+     * Moves the value in temp to actual. The original 'actual value' will be lost.
+     */
+    void tempToActual();
 
     /**
      * Allows for the key accessor to be updated only

@@ -58,7 +58,8 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=generateCSR",
                 "osgi.command.function=truststores",
                 "osgi.command.function=createTrustStore",
-                "osgi.command.function=importSymmetricKey"
+                "osgi.command.function=importSymmetricKey",
+                "osgi.command.function=renew"
 
         },
         immediate = true)
@@ -222,7 +223,7 @@ public class KeyAccessorCommands {
         System.out.println("e.g. : generateCSR 1 \"TLS SUITE 1\" comserver \"Comserver TLS\"");
     }
 
-    public void generateCSR(long deviceId, String certKatName, String keyKatName, String alias, String cn) throws
+    public void generateCSR(long deviceId, String certKatName, String alias, String cn) throws
             NoSuchAlgorithmException {
         threadPrincipalService.set(() -> "Console");
 
@@ -242,12 +243,41 @@ public class KeyAccessorCommands {
             X500NameBuilder x500NameBuilder = new X500NameBuilder();
             x500NameBuilder.addRDN(BCStyle.CN, cn);
             PKCS10CertificationRequest pkcs10CertificationRequest = clientCertificateWrapper.getPrivateKeyWrapper()
-                    .generateCSR(x500NameBuilder.build(), certKeyAccessorType.getKeyType().getKeyAlgorithm());
+                    .generateCSR(x500NameBuilder.build(), certKeyAccessorType.getKeyType().getSignatureAlgorithm());
             clientCertificateWrapper.setCSR(pkcs10CertificationRequest);
             clientCertificateWrapper.save();
             context.commit();
         } catch (Exception e) {
             System.err.println("Failed to create CSR: "+e.getMessage());
+        }
+    }
+
+    public void renew() {
+        System.out.println("Trigger renew for a key accessor type on a device");
+        System.out.println("e.g.: renew 1001 MK");
+    }
+
+    public void renew(long deviceId, String keyAccessorTypeName) {
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            Device device = deviceService.findDeviceById(deviceId)
+                    .orElseThrow(() -> new RuntimeException("No such device"));
+            KeyAccessorType keyAccessorType = device.getDeviceType()
+                    .getKeyAccessorTypes()
+                    .stream()
+                    .filter(kat -> kat.getName().equals(keyAccessorTypeName))
+                    .findAny()
+                    .orElseThrow(() -> new RuntimeException("No such key accessor type on the device type: " + keyAccessorTypeName));
+
+            KeyAccessor keyAccessor = device.getKeyAccessor(keyAccessorType)
+                    .orElseThrow(() -> new RuntimeException("No key accessor for key accessor type " + keyAccessorTypeName));
+
+            keyAccessor.renew();
+
+            context.commit();
+        } catch (Exception e) {
+            System.err.println("Failed to renew value: "+e.getMessage());
         }
     }
 
