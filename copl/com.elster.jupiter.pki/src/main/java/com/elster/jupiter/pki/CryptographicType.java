@@ -25,11 +25,15 @@ public enum CryptographicType {
         return durationMandatory;
     };
 
+    public MetaType getMetaType() {
+        return metaType;
+    }
+
     public boolean isKey() {
         return MetaType.KEY.equals(metaType);
     }
 
-    enum MetaType {
+    public enum MetaType {
         KEY, CERTIFICATE
     }
 }
