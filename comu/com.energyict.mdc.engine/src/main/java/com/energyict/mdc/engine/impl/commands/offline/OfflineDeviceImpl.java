@@ -314,15 +314,11 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     private List<OfflineLogBook> convertToOfflineLogBooks(final List<LogBook> logBooks) {
-        List<OfflineLogBook> offlineLogBooks = new ArrayList<>(logBooks.size());
-        offlineLogBooks.addAll(logBooks.stream().map(logBook -> new OfflineLogBookImpl(logBook, serviceProvider.identificationService())).collect(Collectors.toList()));
-        return offlineLogBooks;
+        return logBooks.stream().map(logBook -> new OfflineLogBookImpl(logBook, serviceProvider.identificationService())).collect(Collectors.toList());
     }
 
     private List<OfflineRegister> convertToOfflineRegister(final List<Register> registers) {
-        List<OfflineRegister> offlineRegisters = new ArrayList<>(registers.size());
-        offlineRegisters.addAll(registers.stream().map(register -> new OfflineRegisterImpl(register, serviceProvider.identificationService())).collect(Collectors.toList()));
-        return offlineRegisters;
+        return registers.stream().map(register -> new OfflineRegisterImpl(register, serviceProvider.identificationService())).collect(Collectors.toList());
     }
 
     @Override
