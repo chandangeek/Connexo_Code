@@ -131,6 +131,11 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     }
 
     @Override
+    public void delete() {
+        dataModel.remove(this);
+    }
+
+    @Override
     public void setProperties(Map<String, Object> properties) {
         EnumSet.allOf(Properties.class).forEach(p -> p.copyFromMap(properties, this));
     }

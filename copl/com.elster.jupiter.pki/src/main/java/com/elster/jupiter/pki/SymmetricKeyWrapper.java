@@ -20,4 +20,8 @@ public interface SymmetricKeyWrapper extends HasDynamicPropertiesWithUpdatableVa
      */
     Instant getExpirationTime();
 
+    /**
+     * Deletes this wrapper and the key it contains
+     */
+    void delete();
 }

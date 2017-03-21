@@ -57,4 +57,12 @@ public class ClientCertificateWrapperImpl extends RequestableCertificateWrapperI
     public KeyType getKeyType() {
         return keyTypeReference.get();
     }
+
+    @Override
+    public void delete() {
+        if (privateKeyReference.isPresent()) {
+            ((PrivateKeyWrapper)privateKeyReference.get()).delete();
+        }
+        super.delete();
+    }
 }

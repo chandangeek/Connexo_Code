@@ -145,6 +145,11 @@ public class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
         Save.action(id).save(dataModel, this);
     }
 
+    @Override
+    public void delete() {
+        dataModel.remove(this);
+    }
+
     public enum Properties {
         ENCRYPTED_KEY("key") {
             public PropertySpec asPropertySpec(PropertySpecService propertySpecService) {

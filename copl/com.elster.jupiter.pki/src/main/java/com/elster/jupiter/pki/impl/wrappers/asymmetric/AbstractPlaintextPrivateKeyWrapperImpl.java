@@ -168,6 +168,11 @@ abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements Plaintex
     }
 
     @Override
+    public void delete() {
+        dataModel.remove(this);
+    }
+
+    @Override
     public void generateValue() {
         try {
             doGenerateValue();

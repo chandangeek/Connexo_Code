@@ -56,4 +56,9 @@ public interface PrivateKeyWrapper extends HasDynamicPropertiesWithUpdatableValu
      */
     PKCS10CertificationRequest generateCSR(X500Name subjectDN, String signatureAlgorithm);
 
+    /**
+     * Deletes the private key wrapper and all information contained within the wrapper
+     */
+    void delete();
+
 }

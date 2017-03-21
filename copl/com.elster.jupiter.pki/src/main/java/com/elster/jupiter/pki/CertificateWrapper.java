@@ -45,6 +45,11 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
     void setCertificate(X509Certificate certificate);
 
     /**
+     * Deletes this wrapper and the contained certificate and private key, if applicable.
+     */
+    void delete();
+
+    /**
      * Persist changes to this object
      */
     void save();

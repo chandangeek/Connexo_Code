@@ -14,6 +14,10 @@ import com.elster.jupiter.util.exception.MessageSeed;
  */
 public class PkiLocalizedException extends LocalizedException {
 
+    public PkiLocalizedException(Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed);
+    }
+
     public PkiLocalizedException(Thesaurus thesaurus, MessageSeed messageSeed, Throwable throwable) {
         super(thesaurus, messageSeed, throwable);
     }

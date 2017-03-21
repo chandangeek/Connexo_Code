@@ -32,7 +32,8 @@ public enum MessageSeeds implements MessageSeed {
     FAILED_TO_GENERATE_CSR(1016, "FailedToConstructCSR", "CSR could not be created"),
     INCORRECT_KEY_ENCRYTION_METHOD(1017, "IncorrectKeyEncryptionMethod", "Can not handle non-plaintext keys"),
     FAILED_TO_WRAP_WK(1018, "FailedToWrapWK", "Failed to AES wrap the WK: {0}"),
-    GENERAL_KEYSTORE_FAILURE(1019, "GeneralKeystoreFailure", "The keystore could not be read: {0}");
+    GENERAL_KEYSTORE_FAILURE(1019, "GeneralKeystoreFailure", "The keystore could not be read: {0}"),
+    ;
 
     private final int number;
     private final String key;
