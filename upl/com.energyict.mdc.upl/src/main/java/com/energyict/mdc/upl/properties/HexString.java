@@ -9,7 +9,9 @@ package com.energyict.mdc.upl.properties;
 public interface HexString {
     String getContent();
 
-    int length();
+    default int length() {
+        return getContent().length();
+    }
 
     default boolean isEmpty() {
         return this.length() == 0;

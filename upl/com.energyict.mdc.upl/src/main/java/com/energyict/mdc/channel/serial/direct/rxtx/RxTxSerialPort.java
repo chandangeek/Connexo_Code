@@ -95,7 +95,7 @@ public class RxTxSerialPort implements ServerSerialPort {
      * @param flowControl the configured mode
      * @throws UnsupportedCommOperationException if a mode is not supported by the underlying OS
      */
-    protected void setFlowControlMode(String flowControl) throws UnsupportedCommOperationException {
+    public void setFlowControlMode(String flowControl) throws UnsupportedCommOperationException {
         if (FlowControl.NONE.getFlowControl().equals(flowControl)) {
             serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
             getSerialPortSignalController().setRTS(true);
@@ -118,7 +118,7 @@ public class RxTxSerialPort implements ServerSerialPort {
         }
     }
 
-    protected int getRxTxParity(String configParity) {
+    public int getRxTxParity(String configParity) {
         if (Parities.NONE.getParity().equals(configParity)) {
             return SerialPort.PARITY_NONE;
         } else if (Parities.EVEN.getParity().equals(configParity)) {
@@ -133,7 +133,7 @@ public class RxTxSerialPort implements ServerSerialPort {
         throw SerialPortException.configurationMisMatch(SerialPortConfiguration.PARITY_NAME, configParity);
     }
 
-    protected int getRxTxNrOfStopBits(BigDecimal stopBits) {
+    public int getRxTxNrOfStopBits(BigDecimal stopBits) {
         switch (stopBits.unscaledValue().intValue()) {   // we use the unscaled integer so we can get the 1.5 value
             case STOPBITS_1_UNSCALED_VALUE:
                 return SerialPort.STOPBITS_1;
@@ -145,7 +145,7 @@ public class RxTxSerialPort implements ServerSerialPort {
         throw SerialPortException.configurationMisMatch(SerialPortConfiguration.NR_OF_STOP_BITS_NAME, stopBits.toString());
     }
 
-    protected int getRxTxNrOfDataBits(BigDecimal dataBits) {
+    public int getRxTxNrOfDataBits(BigDecimal dataBits) {
         if (SUPPORTED_NUMBER_OF_DATABITS.contains(dataBits.intValue())) {
             return dataBits.intValue();
         } else {
@@ -215,7 +215,7 @@ public class RxTxSerialPort implements ServerSerialPort {
      *
      * @param serialPort the serialPort to set
      */
-    protected void setSerialPort(SerialPort serialPort) {
+    public void setSerialPort(SerialPort serialPort) {
         this.serialPort = serialPort;
     }
 
