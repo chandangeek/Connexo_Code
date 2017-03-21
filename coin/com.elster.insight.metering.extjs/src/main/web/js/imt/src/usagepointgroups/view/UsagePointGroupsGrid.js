@@ -38,6 +38,7 @@ Ext.define('Imt.usagepointgroups.view.UsagePointGroupsGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 itemId: 'usagepointgroup-actioncolumn',
                 privileges: Imt.privileges.UsagePointGroup.administrateAnyOrStaticGroup,
                 isDisabled: function(view, rowIndex, colIndex, item, record) {

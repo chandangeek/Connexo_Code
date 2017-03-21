@@ -62,8 +62,12 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
         } else if (validationResult) {
             switch (validationResult.split('.')[1]) {
                 case 'notValidated':
-                    validationResultText = '(' + Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') + ')' +
-                        '<span class="icon-flag6" style="margin-left:10px; display:inline-block; vertical-align:top;"></span>';
+                    if (!Ext.isEmpty(estimatedByRule)) {
+                        validationResultText = '(' + Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') + ')' + me.getEstimationFlagWithTooltip(estimatedByRule);
+                    } else {
+                        validationResultText = '(' + Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') + ')' +
+                            '<span class="icon-flag6" style="margin-left:10px; display:inline-block; vertical-align:top;"></span>';
+                    }
                     break;
                 case 'suspect':
                     validationResultText = '(' + Uni.I18n.translate('reading.validationResult.suspect', 'IMT', 'Suspect') + ')' +
@@ -74,12 +78,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                     if (record.get('action') == 'WARN_ONLY') {
                         validationResultText += '<span class="icon-flag5" style="margin-left:10px; color:#dedc49;"></span>';
                     } else if (!Ext.isEmpty(estimatedByRule)) {
-                        validationResultText += '<span class="icon-flag5" style="margin-left:10px; color:#33CC33;" data-qtip="'
-                            + Uni.I18n.translate('reading.estimated', 'IMT', 'Estimated in {0} on {1} at {2}',[
-                                estimatedByRule.application.name,
-                                Uni.DateTime.formatDateLong(new Date(estimatedByRule.when)),
-                                Uni.DateTime.formatTimeLong(new Date(estimatedByRule.when))
-                            ], false) + '"></span>';
+                        validationResultText += me.getEstimationFlagWithTooltip(estimatedByRule);
                     }
                     break;
             }
@@ -98,6 +97,10 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
             record = me.down('form').getRecord(),
             estimatedByRule;
 
+        if (record) {
+            estimatedByRule = record.get('estimatedByRule');
+        }
+
         if (!Ext.isEmpty(record) && record.get('isConfirmed')) {
             validationResultText = Uni.I18n.translate('reading.validationResult.notsuspect', 'IMT', 'Not suspect');
             validationResultText += '<span class="icon-checkmark" style="margin-left:10px; position:absolute;"></span>';
@@ -106,32 +109,39 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
 
         switch (validationResult.split('.')[1]) {
             case 'notValidated':
-                validationResultText = Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') +
-                    '<span class="icon-flag6" style="margin-left:10px; display:inline-block; vertical-align:top;"></span>';
+                if (!Ext.isEmpty(estimatedByRule)) {
+                    validationResultText = Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') + me.getEstimationFlagWithTooltip(estimatedByRule);
+                } else {
+                    validationResultText = Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') +
+                        '<span class="icon-flag6" style="margin-left:10px; display:inline-block; vertical-align:top;"></span>';
+                }
                 break;
             case 'suspect':
                 validationResultText = Uni.I18n.translate('reading.validationResult.suspect', 'IMT', 'Suspect') +
                     '<span class="icon-flag5" style="margin-left:10px; display:inline-block; vertical-align:top; color:red;"></span>';
                 break;
             case 'ok':
-                estimatedByRule = record.get('estimatedByRule');
                 validationResultText = Uni.I18n.translate('reading.validationResult.notsuspect', 'IMT', 'Not suspect');
                 if (record.get('isConfirmed')) {
                     validationResultText += '<span class="icon-checkmark" style="margin-left:10px; position:absolute;"></span>';
                 } else if (record.get('action') == 'WARN_ONLY') {
                     validationResultText += '<span class="icon-flag5" style="margin-left:10px; color:#dedc49;"></span>';
                 } else if (!Ext.isEmpty(estimatedByRule)) {
-                    validationResultText += '<span class="icon-flag5" style="margin-left:10px; color:#33CC33;" data-qtip="'
-                        + Uni.I18n.translate('reading.estimated', 'IMT', 'Estimated in {0} on {1} at {2}',[
-                            estimatedByRule.application.name,
-                            Uni.DateTime.formatDateLong(new Date(estimatedByRule.when)),
-                            Uni.DateTime.formatTimeLong(new Date(estimatedByRule.when))
-                        ], false) + '"></span>';
+                    validationResultText += me.getEstimationFlagWithTooltip(estimatedByRule);
                 }
                 break;
         }
 
         return validationResultText;
+    },
+
+    getEstimationFlagWithTooltip: function(estimatedByRule) {
+        return '<span class="icon-flag5" style="margin-left:10px; color:#33CC33;" data-qtip="'
+            + Uni.I18n.translate('reading.estimated', 'IMT', 'Estimated in {0} on {1} at {2}',[
+                estimatedByRule.application.name,
+                Uni.DateTime.formatDateLong(new Date(estimatedByRule.when)),
+                Uni.DateTime.formatTimeLong(new Date(estimatedByRule.when))
+            ], false) + '"></span>';
     },
 
     setDataQualityFields: function(deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities) {
@@ -218,7 +228,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
             case 'channel':
             {
                 generalTimeField = {
-                    fieldLabel: Uni.I18n.translate('general.interval', 'IMT', 'Interval'),
+                    fieldLabel: Uni.I18n.translate('general.measurementPeriod', 'IMT', 'Measurement period'),
                     name: 'interval',
                     itemId: 'interval-field',
                     renderer: function (value) {
@@ -230,26 +240,61 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                     },
                     htmlEncode: false
                 }
-            }
-                break;
-            case 'register':
-            {
-                generalTimeField = {
-                    fieldLabel: Uni.I18n.translate('general.measurementTime', 'IMT', 'Measurement time'),
-                    name: 'timeStamp',
-                    itemId: 'measurement-time-field',
-                    renderer: function (value) {
-                        return value
-                            ? Uni.DateTime.formatDateTimeShort(new Date(value))
-                            : '-';
+            } break;
+            case 'register':{
+                if((me.output.get('deliverableType')==='numerical' || me.output.get('deliverableType')==='billing') && (me.output.get('isCummulative') || me.output.get('isBilling'))){
+                    generalTimeField = {
+                        fieldLabel: Uni.I18n.translate('general.measurementPeriod', 'IMT', 'Measurement period'),
+                        name: 'interval',
+                        itemId: 'interval-field',
+                        renderer: function (value) {
+                            if (!Ext.isEmpty(value) && !!value.start) {
+                                return value
+                                    ? Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value.start)), Uni.DateTime.formatTimeLong(new Date(value.start))])
+                                + ' - ' +
+                                Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value.end)), Uni.DateTime.formatTimeLong(new Date(value.end))])
+                                    : '-';
+                            } else if (!Ext.isEmpty(value) && !!value.end){
+                                return Uni.DateTime.formatDateLong(new Date(value.end))
+                            }
+                            return '-';
+                        },
+                        htmlEncode: false
+                    }
+                } else if (!me.output.get('hasEvent')){
+                    generalTimeField = {
+                        fieldLabel: Uni.I18n.translate('general.measurementTime', 'IMT', 'Measurement time'),
+                        name: 'timeStamp',
+                        itemId: 'measurement-time-field',
+                        renderer: function (value) {
+                            return value
+                                ? Uni.DateTime.formatDateTimeShort(new Date(value))
+                                : '-';
+                        }
                     }
                 }
             }
                 break;
         }
+        generalItems.push(generalTimeField);
+
+        if(me.output.get('hasEvent')){
+            generalItems.push(
+                {
+                    fieldLabel: Uni.I18n.translate('device.registerData.eventTime', 'IMT', 'Event time'),
+                    dataIndex: 'eventDate',
+                    itemId: 'eventTime',
+                    renderer: function (value) {
+                        return value
+                            ? Uni.DateTime.formatDateTimeLong(new Date(value))
+                            : '-';
+                    }
+                }
+            );
+        }
+
 
         generalItems.push(
-            generalTimeField,
             {
                 fieldLabel: Uni.I18n.translate('device.readingData.lastUpdate', 'IMT', 'Last update'),
                 name: 'reportedDateTime',
@@ -281,10 +326,18 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                 fieldLabel: Uni.I18n.translate('general.value', 'IMT', 'Value'),
                 name: 'value',
                 itemId: 'reading-value-field',
+                width: 400,
                 renderer: function (value) {
                     return me.setValueWithResult(value);
                 }
-            },
+            });
+        if(me.output.get('isCummulative')){
+            valuesItems.push({
+                fieldLabel: Uni.I18n.translate('device.registerData.deltaValue', 'IMT', 'Delta value'),
+                dataIndex: 'deltaValue'
+            })
+        }
+        valuesItems.push(
             {
                 fieldLabel: Uni.I18n.translate('general.formula', 'IMT', 'Formula'),
                 itemId: 'formula-field'

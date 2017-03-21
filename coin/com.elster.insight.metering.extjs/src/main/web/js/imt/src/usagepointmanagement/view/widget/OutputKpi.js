@@ -46,6 +46,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
             total = output.get('total'),
             fields = ['name', 'key', 'data', 'url', 'percentage', 'detail', 'tooltip'],
             edited = [],
+            estimated = [],
             title = '<a href="' + url + '">'
                 + Ext.String.htmlEncode(output.get('name'))
                 + '</a>',
@@ -53,7 +54,8 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
             statisticsValid,
             statisticsSuspect,
             statisticsNotValidated,
-            statisticsEdited;
+            statisticsEdited,
+            statisticsEstimated;
 
         if (!me.titleIsPartOfDataView) {
             me.title = title;
@@ -62,17 +64,20 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
         if (total > 0) {
             output.get('statistics').map(function (item) {
                 switch (item.key) {
-                    case 'statisticsValid':
-                        statisticsValid = item;
-                        break;
                     case 'statisticsSuspect':
                         statisticsSuspect = item;
+                        break;
+                    case 'statisticsValid':
+                        statisticsValid = item;
                         break;
                     case 'statisticsNotValidated':
                         statisticsNotValidated = item;
                         break;
                     case 'statisticsEdited':
                         statisticsEdited = item;
+                        break;
+                    case 'statisticsEstimated':
+                        statisticsEstimated = item;
                         break;
                 }
             });
@@ -88,6 +93,9 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
             if (statisticsEdited) {
                 sortedStatistics.push(statisticsEdited);
             }
+            if (statisticsEstimated) {
+                sortedStatistics.push(statisticsEstimated);
+            }
             me.titleAlign = 'right';
             sortedStatistics.map(function(item) {
                 var queryParams = {},
@@ -102,10 +110,12 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                     tooltip: me.prepareTooltip(item, 'VIEW')
                 };
 
-                if (item.key != 'statisticsEdited') {
+                if (item.key != 'statisticsEdited' && item.key != 'statisticsEstimated') {
                     data.push(dataItem);
-                } else {
+                } else if (item.key === 'statisticsEdited') {
                     edited.push(dataItem);
+                } else if (item.key === 'statisticsEstimated') {
+                    estimated.push(dataItem);
                 }
             });
 
@@ -147,9 +157,6 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                                     case 'statisticsNotValidated':
                                         color = '#71adc7';
                                         break;
-                                    case 'statisticsMissing':
-                                        color = 'rgba(235, 86, 66, 0.3)';
-                                        break;
                                 }
                                 return Ext.apply(attributes, {
                                     fill: color
@@ -170,7 +177,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                     deferInitialRefresh: false,
                     store: Ext.create('Ext.data.Store', {
                         fields: fields,
-                        data: Ext.Array.merge(data, edited)
+                        data: Ext.Array.merge(data, edited, estimated)
                     }),
                     itemSelector: 'tr.trlegend',
                     tpl: [
