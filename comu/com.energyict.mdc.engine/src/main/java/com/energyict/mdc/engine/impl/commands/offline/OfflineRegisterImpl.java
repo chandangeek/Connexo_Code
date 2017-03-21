@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
@@ -9,6 +8,8 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -117,9 +118,6 @@ public class OfflineRegisterImpl implements OfflineRegister {
         this.isText = this.register.getRegisterSpec().isTextual();
     }
 
-    /**
-     * @return the ID of the {@link com.energyict.mdc.upl.meterdata.Register}
-     */
     @Override
     public long getRegisterId() {
         return this.registerId;

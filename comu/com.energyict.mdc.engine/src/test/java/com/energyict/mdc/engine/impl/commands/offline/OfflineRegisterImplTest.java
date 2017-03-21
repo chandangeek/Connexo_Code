@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
@@ -11,15 +10,19 @@ import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -60,8 +63,15 @@ public class OfflineRegisterImplTest {
     }
 
     public static RegisterType getMockedRegisterType(RegisterGroup registerGroup) {
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn(OfflineRegisterImplTest.class.getSimpleName());
         RegisterType registerType = mock(RegisterType.class);
-        when(registerType.getRegisterGroups()).thenReturn(registerGroup == null ? Collections.<RegisterGroup>emptyList() : Arrays.asList(registerGroup));
+        if (registerGroup == null) {
+            when(registerType.getRegisterGroups()).thenReturn(Collections.<RegisterGroup>emptyList());
+        } else {
+            when(registerType.getRegisterGroups()).thenReturn(Arrays.asList(registerGroup));
+        }
+        when(registerType.getReadingType()).thenReturn(readingType);
         return registerType;
     }
 
@@ -78,6 +88,7 @@ public class OfflineRegisterImplTest {
         RegisterGroup mockedRegisterGroup = getMockedRtuRegisterGroup();
         RegisterSpec mockedRegisterSpec = getMockedRegisterSpec(mockedRegisterGroup);
         when(register.getRegisterSpec()).thenReturn(mockedRegisterSpec);
+        when(register.getRegisterSpecId()).thenReturn(REGISTER_SPEC_ID);
         when(register.getDevice()).thenReturn(device);
         when(register.getDeviceObisCode()).thenReturn(REGISTER_MAPPING_OBISCODE);
 
@@ -104,6 +115,7 @@ public class OfflineRegisterImplTest {
         Device device = getMockedDevice();
         Register register = getMockedRegister(device);
         when(register.getDeviceObisCode()).thenReturn(REGISTER_MAPPING_OBISCODE);
+        when(register.getRegisterSpecId()).thenReturn(REGISTER_SPEC_ID);
 
         //Business Methods
         OfflineRegister offlineRegister = new OfflineRegisterImpl(register, identificationService);
