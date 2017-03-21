@@ -24,9 +24,21 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.CimChannel;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -51,10 +63,13 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.After;
@@ -157,15 +172,7 @@ public class EstimationServiceImplTest {
     @Mock
     private UsagePointMetrologyConfiguration usagePointMetrologyConfiguration;
     @Mock
-    List<MetrologyContract> metrologyContracts;
-    @Mock
     MetrologyContract metrologyContract;
-    @Mock
-    List<ReadingTypeDeliverable> readingTypeDeliverables;
-    @Mock
-    Stream<MetrologyContract> metrologyContractStream;
-    @Mock
-    Stream<ReadingTypeDeliverable> readingTypeDeliverableStream;
     @Mock
     ReadingType readingType;
     @Mock
@@ -244,21 +251,6 @@ public class EstimationServiceImplTest {
         doReturn(channelsContainer).when(channel).getChannelsContainer();
         doReturn(Optional.of(meter)).when(channelsContainer).getMeter();
         when(channelsContainer.getReadingTypes(any())).thenReturn(new HashSet<>(Arrays.asList(readingType1, readingType2)));
-        when(channelsContainer.getUsagePoint()).thenReturn(Optional.of(usagePoint));
-        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
-        when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
-        when(usagePointMetrologyConfiguration.getContracts()).thenReturn(metrologyContracts);
-        when(metrologyContracts.stream()).thenReturn(metrologyContractStream);
-        when(metrologyContract.getDeliverables()).thenReturn(readingTypeDeliverables);
-        when(readingTypeDeliverables.stream()).thenReturn(readingTypeDeliverableStream);
-        when(readingTypeDeliverableStream.filter(readingTypeDeliverable -> readingTypeDeliverable.getReadingType().equals((readingType))))
-                .thenReturn(readingTypeDeliverableStream);
-        when(readingTypeDeliverableStream.findAny()).thenReturn(Optional.of(readingTypeDeliverable));
-        when(Optional.of(readingTypeDeliverable).isPresent()).thenReturn(true);
-        when(metrologyContractStream.filter(metrologyContract -> true)).thenReturn(metrologyContractStream);
-        when(metrologyContractStream.map(metrologyContract -> metrologyContract.getMetrologyPurpose().getName()))
-                .thenReturn(stringStream);
-        when(stringStream.collect(Collectors.joining(" ,"))).thenReturn("djakdjajl");
         doAnswer(invocation -> {
             List<EstimationBlock> estimationBlocks = (List<EstimationBlock>) invocation.getArguments()[0];
             SimpleEstimationResult.EstimationResultBuilder builder = SimpleEstimationResult.builder();
@@ -315,6 +307,22 @@ public class EstimationServiceImplTest {
 
     @Test
     public void testPreviewEstimate() {
+        EstimationBlock estimationBlock = mock(EstimationBlock.class);
+        MetrologyPurpose metrologyPurpose = mock(MetrologyPurpose.class);
+        List<MetrologyContract> metrologyContracts = Arrays.asList(metrologyContract);
+        List<ReadingTypeDeliverable> readingTypeDeliverables = Arrays.asList(readingTypeDeliverable);
+
+        when(estimationBlock.getReadingType()).thenReturn(readingType2);
+        when(estimationBlock.getChannel()).thenReturn(channel);
+        when(channelsContainer.getUsagePoint()).thenReturn(Optional.of(usagePoint));
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
+        when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
+        when(usagePointMetrologyConfiguration.getContracts()).thenReturn(metrologyContracts);
+        when(metrologyContract.getDeliverables()).thenReturn(readingTypeDeliverables);
+        when(readingTypeDeliverable.getReadingType()).thenReturn(readingType1);
+        when(metrologyContract.getMetrologyPurpose()).thenReturn(metrologyPurpose);
+        when(metrologyPurpose.getName()).thenReturn("Billing");
+
         EstimationReport report = estimationService.previewEstimate(QualityCodeSystem.MDC, channelsContainer, Range.all(), LOGGER);
         assertThat(report.getResults()).hasSize(2).containsKey(readingType1).containsKey(readingType2);
 
@@ -337,12 +345,26 @@ public class EstimationServiceImplTest {
     public void testPreviewEstimateWhenRuleIsNotActive() {
         doReturn(false).when(rule1).isActive();
         doReturn(false).when(rule2).isActive();
+        EstimationBlock estimationBlock = mock(EstimationBlock.class);
+        MetrologyPurpose metrologyPurpose = mock(MetrologyPurpose.class);
+        List<MetrologyContract> metrologyContracts = Arrays.asList(metrologyContract);
+        List<ReadingTypeDeliverable> readingTypeDeliverables = Arrays.asList(readingTypeDeliverable);
+
+        when(estimationBlock.getReadingType()).thenReturn(readingType2);
+        when(estimationBlock.getChannel()).thenReturn(channel);
+        when(channelsContainer.getUsagePoint()).thenReturn(Optional.of(usagePoint));
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
+        when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
+        when(usagePointMetrologyConfiguration.getContracts()).thenReturn(metrologyContracts);
+        when(metrologyContract.getDeliverables()).thenReturn(readingTypeDeliverables);
+        when(readingTypeDeliverable.getReadingType()).thenReturn(readingType1);
+        when(metrologyContract.getMetrologyPurpose()).thenReturn(metrologyPurpose);
+        when(metrologyPurpose.getName()).thenReturn("Billing");
 
         EstimationReport report = estimationService.previewEstimate(QualityCodeSystem.MDC, channelsContainer, Range.all(), LOGGER);
         assertThat(report.getResults()).hasSize(2).containsKey(readingType1).containsKey(readingType2);
 
         EstimationResult estimationResult = report.getResults().get(readingType1);
-
         assertThat(estimationResult.estimated()).hasSize(0);
         assertThat(estimationResult.remainingToBeEstimated()).hasSize(3);
         assertThat(logRecorder).hasRecordWithMessage(message -> message.endsWith(" could not be estimated."));
