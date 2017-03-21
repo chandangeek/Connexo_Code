@@ -71,9 +71,9 @@ public class DeviceRegisterTest {
         BillingDeviceRegisters billingDeviceRegisters = new BillingDeviceRegisters(getMockedRegisterIdentifier());
         billingDeviceRegisters.setCollectedTimeStamps(Date.from(readTime), Date.from(fromTime), Date.from(toTime));
 
-        assertThat(billingDeviceRegisters.getReadTime()).isEqualTo(readTime);
-        assertThat(billingDeviceRegisters.getFromTime()).isEqualTo(fromTime);
-        assertThat(billingDeviceRegisters.getToTime()).isEqualTo(toTime);
+        assertThat(billingDeviceRegisters.getReadTime()).isEqualTo(Date.from(readTime));
+        assertThat(billingDeviceRegisters.getFromTime()).isEqualTo(Date.from(fromTime));
+        assertThat(billingDeviceRegisters.getToTime()).isEqualTo(Date.from(toTime));
         assertThat(billingDeviceRegisters.getEventTime()).isNull();
     }
 
@@ -86,10 +86,10 @@ public class DeviceRegisterTest {
         MaximumDemandDeviceRegister maximumDemandDeviceRegister = new MaximumDemandDeviceRegister(getMockedRegisterIdentifier());
         maximumDemandDeviceRegister.setCollectedTimeStamps(Date.from(readTime), Date.from(fromTime), Date.from(toTime), Date.from(eventTime));
 
-        assertThat(maximumDemandDeviceRegister.getReadTime()).isEqualTo(readTime);
-        assertThat(maximumDemandDeviceRegister.getFromTime()).isEqualTo(fromTime);
-        assertThat(maximumDemandDeviceRegister.getToTime()).isEqualTo(toTime);
-        assertThat(maximumDemandDeviceRegister.getEventTime()).isEqualTo(eventTime);
+        assertThat(maximumDemandDeviceRegister.getReadTime()).isEqualTo(Date.from(readTime));
+        assertThat(maximumDemandDeviceRegister.getFromTime()).isEqualTo(Date.from(fromTime));
+        assertThat(maximumDemandDeviceRegister.getToTime()).isEqualTo(Date.from(toTime));
+        assertThat(maximumDemandDeviceRegister.getEventTime()).isEqualTo(Date.from(eventTime));
     }
 
     @Test
@@ -98,8 +98,8 @@ public class DeviceRegisterTest {
         DefaultDeviceRegister defaultDeviceRegister = new DefaultDeviceRegister(getMockedRegisterIdentifier());
         defaultDeviceRegister.setReadTime(Date.from(readTime));
 
-        assertThat(defaultDeviceRegister.getReadTime()).isEqualTo(readTime);
-        assertThat(defaultDeviceRegister.getToTime()).isEqualTo(readTime);
+        assertThat(defaultDeviceRegister.getReadTime()).isEqualTo(Date.from(readTime));
+        assertThat(defaultDeviceRegister.getToTime()).isEqualTo(Date.from(readTime));
         assertThat(defaultDeviceRegister.getFromTime()).isNull();
         assertThat(defaultDeviceRegister.getEventTime()).isNull();
     }
