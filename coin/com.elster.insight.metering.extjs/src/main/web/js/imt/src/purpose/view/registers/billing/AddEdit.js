@@ -39,7 +39,6 @@ Ext.define('Imt.purpose.view.registers.billing.AddEdit', {
 
     initComponent: function () {
         var me = this;
-
         me.content = [
             {
                 xtype: 'form',
