@@ -31,6 +31,7 @@ import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.RegisterService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -98,6 +99,7 @@ import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateAlias;
+
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -945,7 +947,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         TypedProperties result = TypedProperties.empty();
         if (defaultConnectionTask.isPresent()) {
             result = defaultConnectionTask.get().getTypedProperties();
-        } else if (outboundConnectionTasks.size() > 0) {
+        } else if (!outboundConnectionTasks.isEmpty()) {
             result = outboundConnectionTasks.get(0).getTypedProperties();
         }
         return TypedPropertiesValueAdapter.adaptToUPLValues(result);
@@ -956,7 +958,11 @@ public class ComServerDAOImpl implements ComServerDAO {
         try {
             Optional<Device> device = this.getDeviceFor(identifier);
             TypedProperties typedProperties = device.map(Device::getDeviceProtocolProperties).orElse(null);
-            return TypedPropertiesValueAdapter.adaptToUPLValues(typedProperties);
+            if (typedProperties != null) {
+                return TypedPropertiesValueAdapter.adaptToUPLValues(typedProperties);
+            } else {
+                return null;
+            }
         } catch (CanNotFindForIdentifier e) {
             return null;
         }
@@ -1083,7 +1089,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     private Device findDevice(DeviceIdentifier identifier) {
         return this
                 .getOptionalDeviceByIdentifier(identifier)
-                .orElseThrow(() -> new IllegalArgumentException("Device with identifier " + identifier.toString() + " does not exist"));
+                .orElseThrow(() -> CanNotFindForIdentifier.device(identifier, MessageSeeds.CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER));
     }
 
     private Optional<Device> getOptionalDeviceByIdentifier(DeviceIdentifier deviceIdentifier) {
