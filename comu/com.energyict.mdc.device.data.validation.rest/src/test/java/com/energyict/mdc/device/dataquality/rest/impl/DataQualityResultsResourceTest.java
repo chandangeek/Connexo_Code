@@ -234,11 +234,11 @@ public class DataQualityResultsResourceTest extends DeviceDataQualityRestApplica
         //@formatter:off
         String filter = asJsonFilter(
                 "[" +
-                        "{'property':'amountOfSuspects','value':{'operator':'=','criteria':10}}," +
-                        "{'property':'amountOfConfirmed','value':{'operator':'=','criteria':10}}," +
-                        "{'property':'amountOfEstimates','value':{'operator':'=','criteria':10}}," +
-                        "{'property':'amountOfInformatives','value':{'operator':'=','criteria':10}}," +
-                        "{'property':'amountOfEdited','value':{'operator':'=','criteria':10}}" +
+                        "{'property':'amountOfSuspects','value':{'operator':'==','criteria':10}}," +
+                        "{'property':'amountOfConfirmed','value':{'operator':'==','criteria':10}}," +
+                        "{'property':'amountOfEstimates','value':{'operator':'==','criteria':10}}," +
+                        "{'property':'amountOfInformatives','value':{'operator':'==','criteria':10}}," +
+                        "{'property':'amountOfEdited','value':{'operator':'==','criteria':10}}" +
                 "]");
         //@formatter:on
 

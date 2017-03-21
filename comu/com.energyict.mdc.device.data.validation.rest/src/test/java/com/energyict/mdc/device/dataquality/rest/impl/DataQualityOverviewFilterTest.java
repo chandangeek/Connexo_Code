@@ -391,7 +391,7 @@ public class DataQualityOverviewFilterTest {
     }
 
     private void applyAmountEqualsToFilter(DataQualityOverviewFilter amountFilter, Runnable assertion) throws Exception {
-        String filter = "[{'property': '" + amountFilter.jsonName() + "', 'value': {'operator': '=', 'criteria': 10}}]";
+        String filter = "[{'property': '" + amountFilter.jsonName() + "', 'value': {'operator': '==', 'criteria': 10}}]";
         JsonQueryFilter jsonQueryFilter = jsonQueryFilter(filter);
 
         // Business method
@@ -552,10 +552,10 @@ public class DataQualityOverviewFilterTest {
 
     @Test
     public void amountOfSuspectsEqualsFilterCriteriaNodeIsNotNumber() throws Exception {
-        String filter = "[{'property': 'amountOfSuspects', 'value': {'operator': '=', 'criteria': 'hundred'}}]";
+        String filter = "[{'property': 'amountOfSuspects', 'value': {'operator': '==', 'criteria': 'hundred'}}]";
         JsonQueryFilter jsonQueryFilter = jsonQueryFilter(filter);
 
-        exception.expectMessage(MessageFormat.format(MessageSeeds.INVALID_OPERATOR_CRITERIA.getDefaultFormat(), "=", "amountOfSuspects"));
+        exception.expectMessage(MessageFormat.format(MessageSeeds.INVALID_OPERATOR_CRITERIA.getDefaultFormat(), "==", "amountOfSuspects"));
 
         // Business method
         DataQualityOverviewFilter.AMOUNT_OF_SUSPECTS.apply(jsonQueryFilter, overviewBuilder, resourceHelper);
