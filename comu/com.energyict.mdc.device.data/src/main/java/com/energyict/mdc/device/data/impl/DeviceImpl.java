@@ -1632,7 +1632,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                                 journalReadingOptional = instantListEntry.getValue()
                                         .stream()
                                         .sorted((a, b) -> b.getReadingTime().compareTo(a.getReadingTime()))
-                                        .filter(x -> x.getReadingTime().compareTo(rqj.getTimestamp()) < 0)
+                                        .filter(x -> x.getReadingTime().compareTo(rqj.getTimestamp()) <= 0)
                                         .findFirst();
                             }
                             journalReadingOptional.ifPresent(journalReading -> {

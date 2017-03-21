@@ -149,7 +149,7 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
             Optional<ReadingRecord> journalReadingOptional = Optional.empty();
             journalReadingOptional = (rqj.getTypeCode().compareTo("2.5.258") != 0) ?
                     readings.stream().sorted((a, b) -> a.getReportedDateTime().compareTo(b.getReportedDateTime())).filter(x -> x.getReportedDateTime().compareTo(rqj.getTimestamp()) > 0).findFirst() :
-                    readings.stream().sorted((a, b) -> b.getReportedDateTime().compareTo(a.getReportedDateTime())).filter(x -> x.getReportedDateTime().compareTo(rqj.getTimestamp()) < 0).findFirst();
+                    readings.stream().sorted((a, b) -> b.getReportedDateTime().compareTo(a.getReportedDateTime())).filter(x -> x.getReportedDateTime().compareTo(rqj.getTimestamp()) <= 0).findFirst();
 
             journalReadingOptional.ifPresent(journalReading -> {
                 mapReadingQualityRecord.get(journalReading).add(rqj);
