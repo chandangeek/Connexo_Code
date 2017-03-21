@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,6 +43,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static com.energyict.mdc.device.dataquality.DeviceDataQualityService.DataQualityOverviewBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.verify;
@@ -187,7 +189,7 @@ public class DataQualityOverviewFilterTest {
     }
 
     @Test
-    public void deviceTypeFilterNoSuchDeviceGroup() throws Exception {
+    public void deviceTypeFilterNoSuchDeviceType() throws Exception {
         String filter = ExtjsFilter.filter("deviceType", Collections.singletonList(156));
         JsonQueryFilter jsonQueryFilter = jsonQueryFilter(filter);
 
@@ -352,7 +354,7 @@ public class DataQualityOverviewFilterTest {
     }
 
     @Test
-    public void estimatorFilterNoSuchValidator() throws Exception {
+    public void estimatorFilterNoSuchEstimator() throws Exception {
         String filter = ExtjsFilter.filter("estimator", Collections.singletonList("unknown estimator"));
         JsonQueryFilter jsonQueryFilter = jsonQueryFilter(filter);
 
@@ -367,30 +369,30 @@ public class DataQualityOverviewFilterTest {
 
     @Test
     public void amountOfSuspectsEqualToFilter() throws Exception {
-        applyAmountEqualsToFilter(DataQualityOverviewFilter.AMOUNT_OF_SUSPECTS, overviewBuilder::withSuspectsAmount);
+        applyAmountEqualsToFilter(DataQualityOverviewFilter.AMOUNT_OF_SUSPECTS, DataQualityOverviewBuilder::withSuspectsAmount);
     }
 
     @Test
     public void amountOfConfirmedEqualToFilter() throws Exception {
-        applyAmountEqualsToFilter(DataQualityOverviewFilter.AMOUNT_OF_CONFIRMED, overviewBuilder::withConfirmedAmount);
+        applyAmountEqualsToFilter(DataQualityOverviewFilter.AMOUNT_OF_CONFIRMED, DataQualityOverviewBuilder::withConfirmedAmount);
     }
 
     @Test
     public void amountOfEstimatesEqualToFilter() throws Exception {
-        applyAmountEqualsToFilter(DataQualityOverviewFilter.AMOUNT_OF_ESTIMATES, overviewBuilder::withEstimatesAmount);
+        applyAmountEqualsToFilter(DataQualityOverviewFilter.AMOUNT_OF_ESTIMATES, DataQualityOverviewBuilder::withEstimatesAmount);
     }
 
     @Test
     public void amountOfInformativesEqualToFilter() throws Exception {
-        applyAmountEqualsToFilter(DataQualityOverviewFilter.AMOUNT_OF_INFORMATIVES, overviewBuilder::withInformativesAmount);
+        applyAmountEqualsToFilter(DataQualityOverviewFilter.AMOUNT_OF_INFORMATIVES, DataQualityOverviewBuilder::withInformativesAmount);
     }
 
     @Test
     public void amountOfEditedEqualToFilter() throws Exception {
-        applyAmountEqualsToFilter(DataQualityOverviewFilter.AMOUNT_OF_EDITED, overviewBuilder::withEditedAmount);
+        applyAmountEqualsToFilter(DataQualityOverviewFilter.AMOUNT_OF_EDITED, DataQualityOverviewBuilder::withEditedAmount);
     }
 
-    private void applyAmountEqualsToFilter(DataQualityOverviewFilter amountFilter, Runnable assertion) throws Exception {
+    private void applyAmountEqualsToFilter(DataQualityOverviewFilter amountFilter, Consumer<DataQualityOverviewBuilder> expectedBuilderInvocation) throws Exception {
         String filter = "[{'property': '" + amountFilter.jsonName() + "', 'value': {'operator': '=', 'criteria': 10}}]";
         JsonQueryFilter jsonQueryFilter = jsonQueryFilter(filter);
 
@@ -399,35 +401,35 @@ public class DataQualityOverviewFilterTest {
 
         // Asserts
         verify(metricSpecificationBuilder).equalTo(10);
-        assertion.run();
+        expectedBuilderInvocation.accept(verify(overviewBuilder));
     }
 
     @Test
     public void amountOfSuspectsGreaterThanFilter() throws Exception {
-        applyAmountGreaterThanFilter(DataQualityOverviewFilter.AMOUNT_OF_SUSPECTS, overviewBuilder::withSuspectsAmount);
+        applyAmountGreaterThanFilter(DataQualityOverviewFilter.AMOUNT_OF_SUSPECTS, DataQualityOverviewBuilder::withSuspectsAmount);
     }
 
     @Test
     public void amountOfConfirmedGreaterThanFilter() throws Exception {
-        applyAmountGreaterThanFilter(DataQualityOverviewFilter.AMOUNT_OF_CONFIRMED, overviewBuilder::withConfirmedAmount);
+        applyAmountGreaterThanFilter(DataQualityOverviewFilter.AMOUNT_OF_CONFIRMED, DataQualityOverviewBuilder::withConfirmedAmount);
     }
 
     @Test
     public void amountOfEstimatesGreaterThanFilter() throws Exception {
-        applyAmountGreaterThanFilter(DataQualityOverviewFilter.AMOUNT_OF_ESTIMATES, overviewBuilder::withEstimatesAmount);
+        applyAmountGreaterThanFilter(DataQualityOverviewFilter.AMOUNT_OF_ESTIMATES, DataQualityOverviewBuilder::withEstimatesAmount);
     }
 
     @Test
     public void amountOfInformativesGreaterThanFilter() throws Exception {
-        applyAmountGreaterThanFilter(DataQualityOverviewFilter.AMOUNT_OF_INFORMATIVES, overviewBuilder::withInformativesAmount);
+        applyAmountGreaterThanFilter(DataQualityOverviewFilter.AMOUNT_OF_INFORMATIVES, DataQualityOverviewBuilder::withInformativesAmount);
     }
 
     @Test
     public void amountOfEditedGreaterThanFilter() throws Exception {
-        applyAmountGreaterThanFilter(DataQualityOverviewFilter.AMOUNT_OF_EDITED, overviewBuilder::withEditedAmount);
+        applyAmountGreaterThanFilter(DataQualityOverviewFilter.AMOUNT_OF_EDITED, DataQualityOverviewBuilder::withEditedAmount);
     }
 
-    private void applyAmountGreaterThanFilter(DataQualityOverviewFilter amountFilter, Runnable assertion) throws Exception {
+    private void applyAmountGreaterThanFilter(DataQualityOverviewFilter amountFilter, Consumer<DataQualityOverviewBuilder> expectedBuilderInvocation) throws Exception {
         String filter = "[{'property': '" + amountFilter.jsonName() + "', 'value': {'operator': '>', 'criteria': 10}}]";
         JsonQueryFilter jsonQueryFilter = jsonQueryFilter(filter);
 
@@ -436,35 +438,35 @@ public class DataQualityOverviewFilterTest {
 
         // Asserts
         verify(metricSpecificationBuilder).inRange(Range.greaterThan(10L));
-        assertion.run();
+        expectedBuilderInvocation.accept(verify(overviewBuilder));
     }
 
     @Test
     public void amountOfSuspectsLessThanFilter() throws Exception {
-        applyAmountLessThanFilter(DataQualityOverviewFilter.AMOUNT_OF_SUSPECTS, overviewBuilder::withSuspectsAmount);
+        applyAmountLessThanFilter(DataQualityOverviewFilter.AMOUNT_OF_SUSPECTS, DataQualityOverviewBuilder::withSuspectsAmount);
     }
 
     @Test
     public void amountOfConfirmedLessThanFilter() throws Exception {
-        applyAmountLessThanFilter(DataQualityOverviewFilter.AMOUNT_OF_CONFIRMED, overviewBuilder::withConfirmedAmount);
+        applyAmountLessThanFilter(DataQualityOverviewFilter.AMOUNT_OF_CONFIRMED, DataQualityOverviewBuilder::withConfirmedAmount);
     }
 
     @Test
     public void amountOfEstimatesLessThanFilter() throws Exception {
-        applyAmountLessThanFilter(DataQualityOverviewFilter.AMOUNT_OF_ESTIMATES, overviewBuilder::withEstimatesAmount);
+        applyAmountLessThanFilter(DataQualityOverviewFilter.AMOUNT_OF_ESTIMATES, DataQualityOverviewBuilder::withEstimatesAmount);
     }
 
     @Test
     public void amountOfInformativesLessThanFilter() throws Exception {
-        applyAmountLessThanFilter(DataQualityOverviewFilter.AMOUNT_OF_INFORMATIVES, overviewBuilder::withInformativesAmount);
+        applyAmountLessThanFilter(DataQualityOverviewFilter.AMOUNT_OF_INFORMATIVES, DataQualityOverviewBuilder::withInformativesAmount);
     }
 
     @Test
     public void amountOfEditedLessThanFilter() throws Exception {
-        applyAmountLessThanFilter(DataQualityOverviewFilter.AMOUNT_OF_EDITED, overviewBuilder::withEditedAmount);
+        applyAmountLessThanFilter(DataQualityOverviewFilter.AMOUNT_OF_EDITED, DataQualityOverviewBuilder::withEditedAmount);
     }
 
-    private void applyAmountLessThanFilter(DataQualityOverviewFilter amountFilter, Runnable assertion) throws Exception {
+    private void applyAmountLessThanFilter(DataQualityOverviewFilter amountFilter, Consumer<DataQualityOverviewBuilder> expectedBuilderInvocation) throws Exception {
         String filter = "[{'property': '" + amountFilter.jsonName() + "', 'value': {'operator': '<', 'criteria': 10}}]";
         JsonQueryFilter jsonQueryFilter = jsonQueryFilter(filter);
 
@@ -473,35 +475,35 @@ public class DataQualityOverviewFilterTest {
 
         // Asserts
         verify(metricSpecificationBuilder).inRange(Range.lessThan(10L));
-        assertion.run();
+        expectedBuilderInvocation.accept(verify(overviewBuilder));
     }
 
     @Test
     public void amountOfSuspectsBetweenFilter() throws Exception {
-        applyAmountBetweenFilter(DataQualityOverviewFilter.AMOUNT_OF_SUSPECTS, overviewBuilder::withSuspectsAmount);
+        applyAmountBetweenFilter(DataQualityOverviewFilter.AMOUNT_OF_SUSPECTS, DataQualityOverviewBuilder::withSuspectsAmount);
     }
 
     @Test
     public void amountOfConfirmedBetweenFilter() throws Exception {
-        applyAmountBetweenFilter(DataQualityOverviewFilter.AMOUNT_OF_CONFIRMED, overviewBuilder::withConfirmedAmount);
+        applyAmountBetweenFilter(DataQualityOverviewFilter.AMOUNT_OF_CONFIRMED, DataQualityOverviewBuilder::withConfirmedAmount);
     }
 
     @Test
     public void amountOfEstimatesBetweenFilter() throws Exception {
-        applyAmountBetweenFilter(DataQualityOverviewFilter.AMOUNT_OF_ESTIMATES, overviewBuilder::withEstimatesAmount);
+        applyAmountBetweenFilter(DataQualityOverviewFilter.AMOUNT_OF_ESTIMATES, DataQualityOverviewBuilder::withEstimatesAmount);
     }
 
     @Test
     public void amountOfInformativesBetweenFilter() throws Exception {
-        applyAmountBetweenFilter(DataQualityOverviewFilter.AMOUNT_OF_INFORMATIVES, overviewBuilder::withInformativesAmount);
+        applyAmountBetweenFilter(DataQualityOverviewFilter.AMOUNT_OF_INFORMATIVES, DataQualityOverviewBuilder::withInformativesAmount);
     }
 
     @Test
     public void amountOfEditedBetweenFilter() throws Exception {
-        applyAmountBetweenFilter(DataQualityOverviewFilter.AMOUNT_OF_EDITED, overviewBuilder::withEditedAmount);
+        applyAmountBetweenFilter(DataQualityOverviewFilter.AMOUNT_OF_EDITED, DataQualityOverviewBuilder::withEditedAmount);
     }
 
-    private void applyAmountBetweenFilter(DataQualityOverviewFilter amountFilter, Runnable assertion) throws Exception {
+    private void applyAmountBetweenFilter(DataQualityOverviewFilter amountFilter, Consumer<DataQualityOverviewBuilder> expectedBuilderInvocation) throws Exception {
         String filter = "[{'property': '" + amountFilter.jsonName() + "', 'value': {'operator': 'BETWEEN', 'criteria': [10, 100]}}]";
         JsonQueryFilter jsonQueryFilter = jsonQueryFilter(filter);
 
@@ -510,7 +512,7 @@ public class DataQualityOverviewFilterTest {
 
         // Asserts
         verify(metricSpecificationBuilder).inRange(Range.open(10L, 100L));
-        assertion.run();
+        expectedBuilderInvocation.accept(verify(overviewBuilder));
     }
 
     private JsonQueryFilter jsonQueryFilter(String filter) throws UnsupportedEncodingException {
