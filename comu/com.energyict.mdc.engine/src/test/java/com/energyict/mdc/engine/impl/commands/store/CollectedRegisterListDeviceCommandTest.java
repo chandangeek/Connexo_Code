@@ -97,8 +97,9 @@ public class CollectedRegisterListDeviceCommandTest {
         when(this.collectedRegister.getText()).thenReturn("CollectedRegister text");
         when(this.collectedRegister.getResultType()).thenReturn(ResultType.Supported);
         ReadingType readingType = mock(ReadingType.class);
-        when(readingType.getMRID()).thenReturn("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.3.72.0");
-        when(this.offlineRegister.getReadingTypeMRID()).thenReturn(readingType.getMRID());
+        String readingType_mRID = "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.3.72.0";
+        when(readingType.getMRID()).thenReturn(readingType_mRID);
+        when(this.offlineRegister.getReadingTypeMRID()).thenReturn(readingType_mRID);
         when(this.collectedRegisterIdentifier.getRegisterObisCode()).thenReturn(REGISTER_OBIS);
         when(this.collectedRegister.getRegisterIdentifier()).thenReturn(this.collectedRegisterIdentifier);
         when(this.device.getId()).thenReturn(DEVICE_ID);
