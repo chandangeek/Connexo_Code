@@ -53,16 +53,12 @@ public class SymmetricKeyAccessorImpl extends AbstractKeyAccessorImpl<SymmetricK
     @Override
     public void renew() {
         if (tempSymmetricKeyWrapperReference.isPresent()) {
-            ((SymmetricKeyWrapper)tempSymmetricKeyWrapperReference.get()).delete();
+            clearTempValue();
         }
         doRenewValue();
     }
 
     private void doRenewValue() {
-        if (tempSymmetricKeyWrapperReference.isPresent()) {
-            clearTempValue();
-        }
-
         SymmetricKeyWrapper symmetricKeyWrapper = pkiService.newSymmetricKeyWrapper(getKeyAccessorType());
         symmetricKeyWrapper.generateValue();
         tempSymmetricKeyWrapperReference = dataModel.asRefAny(symmetricKeyWrapper);
