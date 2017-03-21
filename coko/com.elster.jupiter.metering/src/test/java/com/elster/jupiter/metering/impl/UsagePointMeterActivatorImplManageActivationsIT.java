@@ -25,7 +25,6 @@ import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.config.TestHeadEndInterface;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
@@ -362,6 +361,7 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         usagePoint2.linkMeters().activate(meter, meterRole).complete();
         usagePoint2.linkMeters().clear(ONE_DAY_AFTER, meterRole).complete();
         reloadObjects();
+        usagePoint.getEffectiveMetrologyConfiguration(INSTALLATION_TIME).get().close(INSTALLATION_TIME.plusSeconds(60));
         usagePoint.apply(usagePointMetrologyConfiguration, INSTALLATION_TIME.plusSeconds(60));
         usagePoint.linkMeters().activate(ONE_DAY_AFTER, meter, meterRole)
                 .activate(INSTALLATION_TIME, meter2, meterRole2).complete();

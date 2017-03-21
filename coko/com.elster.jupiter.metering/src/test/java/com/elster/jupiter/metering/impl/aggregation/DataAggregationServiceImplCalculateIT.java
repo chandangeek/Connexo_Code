@@ -491,7 +491,7 @@ public class DataAggregationServiceImplCalculateIT {
         this.initializeSqlBuilders();
 
         // Apply MetrologyConfiguration to UsagePoint
-        this.usagePoint.apply(this.configuration, jan1st2016.plusSeconds(20));
+        this.usagePoint.apply(this.configuration, feb1st2016);
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
         this.contract.addDeliverable(netConsumption);
@@ -601,7 +601,7 @@ public class DataAggregationServiceImplCalculateIT {
         this.initializeSqlBuilders();
 
         // Apply MetrologyConfiguration to UsagePoint
-        this.usagePoint.apply(this.configuration, jan1st2016.plusSeconds(20));
+        this.usagePoint.apply(this.configuration, feb1st2016);
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
         this.contract.addDeliverable(netConsumption);
@@ -714,7 +714,7 @@ public class DataAggregationServiceImplCalculateIT {
         this.initializeSqlBuilders();
 
         // Apply MetrologyConfiguration to UsagePoint
-        this.usagePoint.apply(this.configuration, jan1st2016.plusSeconds(20));
+        this.usagePoint.apply(this.configuration, feb1st2016);
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
         this.contract.addDeliverable(netConsumption);
@@ -850,7 +850,7 @@ public class DataAggregationServiceImplCalculateIT {
         this.initializeSqlBuilders();
 
         // Apply MetrologyConfiguration to UsagePoint
-        this.usagePoint.apply(this.configuration, jan1st2016.plusSeconds(20));
+        this.usagePoint.apply(this.configuration, jan1st2016);
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
         this.contract.addDeliverable(netConsumption);
@@ -918,22 +918,17 @@ public class DataAggregationServiceImplCalculateIT {
     private void setupUsagePoint(String name) {
         ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         this.usagePoint = electricity.newUsagePoint(name, jan1st2016).create();
-        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP1", electricity).create();
-        usagePointMetrologyConfiguration.addMeterRole(getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT));
-        usagePointMetrologyConfiguration.addMeterRole(getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.CONSUMPTION));
-        usagePointMetrologyConfiguration.addMeterRole(getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.PRODUCTION));
-        usagePoint.apply(usagePointMetrologyConfiguration, jan1st2016);
     }
 
     private void activateMeterWithAll15MinChannels(MeterRole meterRole) {
-        MeterActivation meterActivation = this.usagePoint.activate(this.meter1, meterRole, jan1st2016);
+        MeterActivation meterActivation = this.usagePoint.activate(this.meter1, meterRole, feb1st2016);
         meterActivation.getChannelsContainer().createChannel(fifteenMinuteskWhReverse);
         meterActivation.getChannelsContainer().createChannel(fifteenMinuteskWhForward);
     }
 
     private void activateMetersWithAll15MinChannels(MeterRole meterRole) {
-        MeterActivation meterActivation1 = this.usagePoint.activate(this.meter1, meterRole, jan1st2016);
-        MeterActivation meterActivation2 = this.usagePoint.activate(this.meter2, meterRole, feb1st2016);
+        MeterActivation meterActivation1 = this.usagePoint.activate(this.meter1, meterRole, feb1st2016);
+        MeterActivation meterActivation2 = this.usagePoint.activate(this.meter2, meterRole, feb1st2016.plusSeconds(60));
         meterActivation1.getChannelsContainer().createChannel(fifteenMinuteskWhReverse);
         meterActivation1.getChannelsContainer().createChannel(fifteenMinuteskWhForward);
         meterActivation2.getChannelsContainer().createChannel(fifteenMinuteskWhReverse);
@@ -948,7 +943,7 @@ public class DataAggregationServiceImplCalculateIT {
     }
 
     private void activateMeterWithAll15And30MinChannels() {
-        MeterActivation meterActivation = this.usagePoint.activate(this.meter1, jan1st2016);
+        MeterActivation meterActivation = this.usagePoint.activate(this.meter1, feb1st2016);
         meterActivation.getChannelsContainer().createChannel(thirtyMinuteskWhReverse);
         meterActivation.getChannelsContainer().createChannel(fifteenMinuteskWhForward);
     }

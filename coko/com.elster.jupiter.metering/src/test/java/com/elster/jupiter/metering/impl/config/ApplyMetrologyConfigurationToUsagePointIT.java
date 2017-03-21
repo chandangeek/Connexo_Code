@@ -198,13 +198,14 @@ public class ApplyMetrologyConfigurationToUsagePointIT {
                 .get();
 
         // Business method
-        usagePoint.apply(metrologyConfiguration, INSTALLATION_TIME.plusSeconds(20), Stream.of(contractInformation).collect(Collectors.toSet()));
+        usagePoint.getEffectiveMetrologyConfiguration(INSTALLATION_TIME).get().close(INSTALLATION_TIME);
+        usagePoint.apply(metrologyConfiguration, INSTALLATION_TIME, Stream.of(contractInformation).collect(Collectors.toSet()));
 
         // Asserts that usage point is now linked to metrology configuration
         Optional<EffectiveMetrologyConfigurationOnUsagePoint> currentEffectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration();
         assertThat(currentEffectiveMetrologyConfiguration).isPresent();
         assertThat(currentEffectiveMetrologyConfiguration.get().getMetrologyConfiguration()).isEqualTo(metrologyConfiguration);
-        assertThat(currentEffectiveMetrologyConfiguration.get().getRange()).isEqualTo(Range.atLeast(INSTALLATION_TIME.plusSeconds(20)));
+        assertThat(currentEffectiveMetrologyConfiguration.get().getRange()).isEqualTo(Range.atLeast(INSTALLATION_TIME));
 
         Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfiguration;
 
@@ -212,7 +213,7 @@ public class ApplyMetrologyConfigurationToUsagePointIT {
         effectiveMetrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration(INSTALLATION_TIME.plusMillis(1));
         assertThat(effectiveMetrologyConfiguration).isPresent();
         assertThat(currentEffectiveMetrologyConfiguration.get().getMetrologyConfiguration()).isEqualTo(metrologyConfiguration);
-        assertThat(currentEffectiveMetrologyConfiguration.get().getRange()).isEqualTo(Range.atLeast(INSTALLATION_TIME.plusSeconds(20)));
+        assertThat(currentEffectiveMetrologyConfiguration.get().getRange()).isEqualTo(Range.atLeast(INSTALLATION_TIME));
         assertThat(currentEffectiveMetrologyConfiguration.get().getMetrologyConfiguration().getContracts().get(0).getStatus(usagePoint).isComplete()).isTrue();
 
         MetrologyContract contract1 = metrologyConfiguration.getContracts()
