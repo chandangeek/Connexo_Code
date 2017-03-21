@@ -164,12 +164,7 @@ Ext.define('Uni.controller.Error', {
                     'UNI',
                     'Internal server error'
                 );
-                message = Uni.I18n.translate(
-                    'error.internalServerErrorMessage',
-                    'UNI',
-                    'Please contact your system administrator.'
-                );
-                me.showError(title, message, code);
+                me.showError(title, decoded.message ? decoded.message : message, decoded.errorCode ? decoded.errorCode : code);
                 break;
             case 404: // Not found.
                 title = Uni.I18n.translate(
@@ -328,8 +323,8 @@ Ext.define('Uni.controller.Error', {
         config = config ? config : {};
         Ext.apply(config, {
             title: title,
-            msg: message + '<br/><b>Error code: </b>' + errorCode,
             errCode: errorCode,
+            msg: ((typeof errorCode) != 'undefined') && errorCode ? message + '<br/><b>Error code: </b>' + errorCode : message,
             modal: false,
             ui: 'message-error',
             icon: 'icon-warning2',
