@@ -12,7 +12,7 @@ public enum MessageSeeds implements MessageSeed {
 
     NO_SUCH_ENDDEVICE_GROUP(1, "NoSuchDeviceGroup", "No end device group with id ''{0}''", Level.SEVERE),
     NO_SUCH_USAGEPOINT_GROUP(2, "NoSuchUsagePointGroup", "No usage point group with id ''{0}''", Level.SEVERE),
-    NO_SUCH_METROLOGY_PURPOSE(3, "NoSuchDeviceGroup", "No metrology purpose with id ''{0}''", Level.SEVERE),
+    NO_SUCH_METROLOGY_PURPOSE(3, "NoSuchMetrologyPurpose", "No metrology purpose with id ''{0}''", Level.SEVERE),
     CAN_NOT_BE_EMPTY(4, "CanNotBeEmpty", "This field is required", Level.SEVERE);
 
     MessageSeeds(int number, String key, String defaultFormat, Level level) {
