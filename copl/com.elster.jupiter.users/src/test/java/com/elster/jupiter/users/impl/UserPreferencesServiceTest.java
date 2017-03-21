@@ -34,6 +34,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -145,6 +146,15 @@ public class UserPreferencesServiceTest {
         assertThat(preference.get().getFormat()).isEqualTo("fr_be");
         assertThat(preference.get().getDisplayFormat()).isEqualTo("fr_fe");
         assertThat(preference.get().isDefault()).isTrue();
+    }
+
+    @Test
+    public void testGetDateTimeFormatter() {
+        User principal = mock(User.class);
+        when(principal.getLocale()).thenReturn(Optional.of(Locale.FRANCE));
+        DateTimeFormatter dateTimeFormatter = userPrefsService.getDateTimeFormatter(principal, PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
+
+        assertThat(dateTimeFormatter.getLocale()).isEqualTo(Locale.FRANCE);
     }
 
     @Test

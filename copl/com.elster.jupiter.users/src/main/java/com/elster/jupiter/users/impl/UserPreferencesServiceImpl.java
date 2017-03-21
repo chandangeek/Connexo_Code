@@ -73,8 +73,7 @@ public class UserPreferencesServiceImpl implements UserPreferencesService {
     public DateTimeFormatter getDateTimeFormatter(Principal principal, PreferenceType... preferenceTypes) {
         // Construct the default backend date format:
 
-        String dateTimeFormat;
-        dateTimeFormat = "HH:mm:ss EEE dd MMM ''yy";
+        String dateTimeFormat = "HH:mm:ss EEE dd MMM ''yy";
         Locale locale = Locale.ENGLISH;
         if (principal instanceof User) {
             User user = (User) principal;

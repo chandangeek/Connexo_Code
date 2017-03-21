@@ -23,11 +23,11 @@ public interface UserPreferencesService {
     Optional<UserPreference> getPreferenceByKey(Locale locale, PreferenceType format);
 
     /***
-     * This method is used to receive date time formatter for user and selected preference types.
-     * Note that there cannot be more than 2 preference types
      * @param principal
      * @param preferenceTypes
-     * @return
+     * @return dateTimeFormatter which is configured based on user preferences: date and time formats.
+     * If date and time preferences are not configured for provided user, then default format is using: <>
+     * Note that maximum two preference types can be passed in arguments: one for date and another one for time
      */
     DateTimeFormatter getDateTimeFormatter(Principal principal, PreferenceType... preferenceTypes);
 }
