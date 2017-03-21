@@ -44,6 +44,7 @@ Ext.define('Mdc.view.setup.devicechannels.History', {
                     itemId: 'device-channels-history-preview-container',
                     grid: {
                         xtype: 'device-channels-history-grid',
+                        itemId: 'device-channels-history-grid',
                         channelRecord: me.channel,
                         store: 'Mdc.store.HistoryChannels',
                         deviceId: me.deviceId,

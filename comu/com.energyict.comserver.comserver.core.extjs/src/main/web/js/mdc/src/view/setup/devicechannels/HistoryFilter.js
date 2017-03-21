@@ -22,6 +22,8 @@ Ext.define('Mdc.view.setup.devicechannels.HistoryFilter', {
                 text: Uni.I18n.translate('general.startDate', 'MDC', 'Start date'),
                 durationStore: me.filterDefault.durationStore,
                 loadStore: false,
+                defaultFromDate: me.filterDefault.fromDate,
+                defaultDuration: me.filterDefault.duration,
                 itemId: 'devicechannels-topfilter-duration'
             },
             {

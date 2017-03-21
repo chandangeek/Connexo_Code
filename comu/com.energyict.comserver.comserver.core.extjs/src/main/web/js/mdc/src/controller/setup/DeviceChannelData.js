@@ -447,7 +447,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 me.confirmValue(menu.record, false);
                 break;
             case 'viewHistory':
-                route = 'devices/device/channels/channel/history';
+                route = 'devices/device/channels/channeldata/history';
                 filterParams = {
                     endInterval: Number(menu.record.get('interval').end - 1) + '-' + Number(menu.record.get('interval').end),
                     isBulk: false
@@ -802,9 +802,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 me.removeReadings(records, true);
                 break;
             case 'viewHistory':
-                route = 'devices/device/channels/channel/history';
+                route = 'devices/device/channels/channeldata/history';
                 filterParams = {
-                    interval: router.queryParams.interval,
+                    interval: me.getFilterPanel().down('#devicechannels-topfilter-duration').getParamValue(),
                     isBulk: true,
                     changedDataOnly: 'yes'
                 };
@@ -1040,7 +1040,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                             router: router,
                             channel: channel,
                             filterDefault: {
-                                durationStore: Ext.getStore('Mdc.store.LoadProfileDataDurations')
+                                durationStore: Ext.getStore('Mdc.store.LoadProfileDataDurations'),
+                                fromDate: router.queryParams.interval ? new Date(Number(router.queryParams.interval.split('-')[0])) : undefined,
+                                duration: router.queryParams.interval ? router.queryParams.interval.split('-')[1] : undefined
                             },
                             showFilter: router.queryParams.isBulk == "true"
                         });

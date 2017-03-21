@@ -89,7 +89,11 @@ Ext.define('Mdc.controller.setup.DeviceRegisterHistoryData', {
                             router: router,
                             register: register,
                             type: type,
-                            showFilter: router.queryParams.changedDataOnly == 'yes'
+                            showFilter: router.queryParams.changedDataOnly == 'yes',
+                            filterDefault: {
+                                defaultFromDate: new Date(Number(router.queryParams.endInterval.split('-')[0])),
+                                defaultToDate: new Date(Number(router.queryParams.endInterval.split('-')[1]))
+                            }
                         });
                         var store = widget.down('#device-registers-history').store;
                         widget.down('#device-register-history-filter').store = store;

@@ -220,7 +220,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                 });
                 break;
             case 'viewHistory':
-                route = 'devices/device/registers/register/history';
+                route = 'devices/device/registers/registerdata/history';
                 filterParams = {
                     endInterval: Number(menu.record.get('timeStamp') - 1) + '-' + Number(menu.record.get('timeStamp'))
                 };
@@ -248,7 +248,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
 
         switch (item.action) {
             case 'viewHistory':
-                route = 'devices/device/registers/register/history';
+                route = 'devices/device/registers/registerdata/history';
                 var param = {};
                 me.getFilterPanel().down('#deviceregister-topfilter-interval').applyParamValue(param);
                 filterParams = {
