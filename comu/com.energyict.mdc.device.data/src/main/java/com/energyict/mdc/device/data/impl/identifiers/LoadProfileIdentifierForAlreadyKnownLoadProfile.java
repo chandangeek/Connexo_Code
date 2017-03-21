@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl.identifiers;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+
 import com.energyict.obis.ObisCode;
 
 import java.text.MessageFormat;
@@ -56,6 +57,23 @@ public class LoadProfileIdentifierForAlreadyKnownLoadProfile implements LoadProf
                 "load profile with name ''{0}'' on device with name ''{1}''",
                 loadProfile.getLoadProfileSpec().getLoadProfileType().getName(),
                 loadProfile.getDevice().getName());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        LoadProfileIdentifierForAlreadyKnownLoadProfile that = (LoadProfileIdentifierForAlreadyKnownLoadProfile) o;
+        return loadProfile.getId() == that.loadProfile.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Long.hashCode(loadProfile.getId());
     }
 
     private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
