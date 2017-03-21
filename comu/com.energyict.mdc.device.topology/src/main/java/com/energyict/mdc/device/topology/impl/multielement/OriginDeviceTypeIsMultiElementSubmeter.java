@@ -17,7 +17,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({java.lang.annotation.ElementType.TYPE})
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = {OriginDeviceTypeIsDataLoggerValidator.class})
+@Constraint(validatedBy = {OriginDeviceTypeIsMultiElementSubmeterValidator.class})
 public @interface OriginDeviceTypeIsMultiElementSubmeter {
     String message() default "";
 

@@ -3,4 +3,4 @@
 Private-Package:  \
 	com.energyict.mdc.device.topology.impl
 Export-Package:  \
-	com.energyict.mdc.device.topology
+	com.energyict.mdc.device.topology, com.energyict.mdc.device.topology.multielelement

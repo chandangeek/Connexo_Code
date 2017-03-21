@@ -5,12 +5,12 @@
 package com.energyict.mdc.device.topology.impl.multielement;
 
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.topology.multielement.MultiElementDeviceReference;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class GatewayDeviceTypeIsMultiElementEnabledValidator implements ConstraintValidator<GatewayDeviceTypeIsMultiElementEnabled, SubMeterReferenceImpl> {
-
+public class GatewayDeviceTypeIsMultiElementEnabledValidator implements ConstraintValidator<GatewayDeviceTypeIsMultiElementEnabled, MultiElementDeviceReferenceImpl> {
 
     @Override
     public void initialize(GatewayDeviceTypeIsMultiElementEnabled gatewayDeviceTypeIsMultiElementEnabled) {
@@ -18,8 +18,8 @@ public class GatewayDeviceTypeIsMultiElementEnabledValidator implements Constrai
     }
 
     @Override
-    public boolean isValid(SubMeterReferenceImpl subMeterReference, ConstraintValidatorContext constraintValidatorContext) {
-        Device gateway = subMeterReference.getGateway();
+    public boolean isValid(MultiElementDeviceReferenceImpl multiElementDeviceReference, ConstraintValidatorContext constraintValidatorContext) {
+        Device gateway = multiElementDeviceReference.getGateway();
         return (gateway != null && gateway.getDeviceConfiguration().isMultiElementEnabled());
     }
 }

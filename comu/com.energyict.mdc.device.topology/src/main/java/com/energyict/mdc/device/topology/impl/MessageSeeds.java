@@ -55,7 +55,7 @@ public enum MessageSeeds implements MessageSeed {
         this.level = level;
     }
 
-    static MessageSeeds forKey(String key){
+    public static MessageSeeds forKey(String key){
         return Stream.of(values()).filter(x -> x.getKey().equals(key)).findFirst().orElseThrow(() -> new IllegalArgumentException("Invalid key: "+key));
     }
 

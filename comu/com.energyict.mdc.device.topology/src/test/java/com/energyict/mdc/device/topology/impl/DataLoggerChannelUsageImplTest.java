@@ -16,6 +16,7 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.topology.DataLoggerReference;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
 
@@ -529,11 +530,13 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         channelMapping1.put(slave1.getChannels().get(2), dataLogger.getChannels().get(2));
         HashMap<Register, Register> registerMapping1 = new HashMap<>();
         inMemoryPersistence.getTopologyService().setDataLogger(slave1, dataLogger, linkingDate, channelMapping1, registerMapping1);
+        assertThat(inMemoryPersistence.getTopologyService().dataModel().query(PhysicalGatewayReference.class).select(Condition.TRUE)).hasSize(1);
 
         HashMap<Channel, Channel> channelMapping2 = new HashMap<>();
         channelMapping2.put(slave2.getChannels().get(0), dataLogger.getChannels().get(4));
         HashMap<Register, Register> registerMapping2 = new HashMap<>();
         inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, linkingDate, channelMapping2, registerMapping2);
+        assertThat(inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerReferenceImpl.class).select(Condition.TRUE)).hasSize(2);
 
         assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(0))).isTrue();
         assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(4))).isTrue();

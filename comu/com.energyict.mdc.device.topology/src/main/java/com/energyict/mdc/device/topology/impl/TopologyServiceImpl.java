@@ -53,6 +53,9 @@ import com.energyict.mdc.device.topology.PhaseInfo;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.TopologyTimeslice;
+import com.energyict.mdc.device.topology.impl.utils.ChannelDataTransferor;
+import com.energyict.mdc.device.topology.impl.utils.MeteringChannelProvider;
+import com.energyict.mdc.device.topology.impl.utils.Utils;
 
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -66,7 +69,6 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -97,6 +99,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     private volatile CommunicationTaskService communicationTaskService;
     private volatile UpgradeService upgradeService;
     private volatile QueryService queryService;
+    private MeteringChannelProvider meteringChannelProvider ;
 
     // For OSGi framework only
     public TopologyServiceImpl() {
@@ -114,6 +117,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         setCommunicationTaskService(communicationTaskService);
         setUpgradeService(upgradeService);
         setQueryService(queryService);
+        meteringChannelProvider = new MeteringChannelProvider(thesaurus);
         activate();
     }
 
@@ -315,7 +319,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
                            (where("interval").isEffective(Instant.now())) ,PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName());
     }
 
-    private Optional<PhysicalGatewayReference> getPhysicalGatewayReference(Device slave, Instant when) {
+    public Optional<PhysicalGatewayReference> getPhysicalGatewayReference(Device slave, Instant when) {
         DataMapper<PhysicalGatewayReference> mapper = this.dataModel.mapper(PhysicalGatewayReference.class);
         List<PhysicalGatewayReference> allEffective =
                 mapper.select(where(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName()).isEqualTo(slave)
@@ -330,7 +334,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         }
     }
 
-    private List<PhysicalGatewayReference> getPhysicalGateWayReferencesFrom(Device slave, Instant when) {
+    public List<PhysicalGatewayReference> getPhysicalGateWayReferencesFrom(Device slave, Instant when) {
         DataMapper<PhysicalGatewayReference> mapper = this.dataModel.mapper(PhysicalGatewayReference.class);
         return mapper.select(where(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName()).isEqualTo(slave)
                         .and(where("interval.end").isGreaterThan(when.toEpochMilli())),
@@ -367,7 +371,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     @Override
     public void setDataLogger(Device slave, Device dataLogger, Instant linkingDate, Map<Channel, Channel> slaveDataLoggerChannelMap, Map<Register, Register> slaveDataLoggerRegisterMap) {
-        Instant linkDate = generalizeDataloggerLinkingDate(linkingDate);
+        Instant linkDate = Utils.generalizeLinkingDate(linkingDate);
         Optional<PhysicalGatewayReference> existingGatewayReference = this.getPhysicalGatewayReference(slave, linkDate);
         if (existingGatewayReference.isPresent()) {
             throw DataLoggerLinkException.slaveWasAlreadyLinkedToOtherDatalogger(thesaurus, slave, existingGatewayReference.get().getGateway(), linkDate);
@@ -386,7 +390,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         Instant start = linkDate;
         Instant end = null;
         for (MeterActivation slaveMeterActivation : slaveMeterActivations) {
-            List<MeterActivation> overLappingDataLoggerMeterActivations = getOverLappingDataLoggerMeterActivations(slaveMeterActivation, dataLoggerMeterActivations);
+            List<MeterActivation> overLappingDataLoggerMeterActivations = Utils.getOverLappingDataLoggerMeterActivations(slaveMeterActivation, dataLoggerMeterActivations);
             for (MeterActivation dataLoggerMeterActivation : overLappingDataLoggerMeterActivations) {
                 findOrCreateNewDataLoggerReference(slave, dataLogger, slaveDataLoggerChannelMap, slaveDataLoggerRegisterMap, start, slaveMeterActivation, dataLoggerMeterActivation);
 
@@ -414,18 +418,13 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
             slaveDataLoggerChannelMap.forEach((slaveChannel, dataLoggerChannel) -> this.addChannelDataLoggerUsage(dataLoggerReference, slaveChannel, dataLoggerChannel, dataLoggerMeterActivation, slaveMeterActivation));
             slaveDataLoggerRegisterMap.forEach((slaveRegister, dataLoggerRegister) -> this.addRegisterDataLoggerUsage(dataLoggerReference, slaveRegister, dataLoggerRegister, dataLoggerMeterActivation, slaveMeterActivation));
             Save.CREATE.validate(this.dataModel, dataLoggerReference);
-            dataLoggerReference.transferChannelDataToSlave(this); // todo check if we can do this for a selective range
+            ChannelDataTransferor dataTransferor = new ChannelDataTransferor();
+            dataLoggerReference.getDataLoggerChannelUsages().stream().forEach(dataTransferor::transferChannelDataToSlave);
             this.dataModel.persist(dataLoggerReference);
             return dataLoggerReference;
         } else {
             return existingDataLoggerReference.get();
         }
-    }
-
-    private List<MeterActivation> getOverLappingDataLoggerMeterActivations(MeterActivation slaveMeterActivation, List<MeterActivation> dataLoggerMeterActivations) {
-        return dataLoggerMeterActivations.stream()
-                .filter(dataLoggerMeterActivation -> slaveMeterActivation.getRange().isConnected(dataLoggerMeterActivation.getRange()))
-                .collect(Collectors.toList());
     }
 
     private void validateUniqueKeyConstraintForDataloggerReference(Device dataLogger, Instant linkingDate, Device slave) {
@@ -474,20 +473,20 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     @Override
     public Optional<Channel> getSlaveChannel(Channel dataLoggerChannel, Instant when) {
-        return getMeteringChannel(dataLoggerChannel)
+        return meteringChannelProvider.getMeteringChannel(dataLoggerChannel)
                 .flatMap(meteringChannel -> findDataLoggerChannelUsage(meteringChannel, when))
-                .map((dataLoggerChannelUsage) -> getChannel(dataLoggerChannelUsage.getDataLoggerReference().getOrigin(), dataLoggerChannelUsage.getSlaveChannel()).get());
+                .map((dataLoggerChannelUsage) -> getChannel(dataLoggerChannelUsage.getPhysicalGatewayReference().getOrigin(), dataLoggerChannelUsage.getSlaveChannel()).get());
     }
 
-    Optional<Channel> getChannel(Device device, com.elster.jupiter.metering.Channel channel) {
+    private Optional<Channel> getChannel(Device device, com.elster.jupiter.metering.Channel channel) {
         return device.getChannels().stream().filter(mdcChannel -> channel.getReadingTypes().contains(mdcChannel.getReadingType())).findFirst();
     }
 
     @Override
     public Optional<Register> getSlaveRegister(Register dataLoggerRegister, Instant when) {
-        return getMeteringChannel(dataLoggerRegister)
+        return meteringChannelProvider.getMeteringChannel(dataLoggerRegister)
                 .flatMap(meteringChannel -> findDataLoggerChannelUsage(meteringChannel, when))
-                .map((dataLoggerChannelUsage) -> getRegister(dataLoggerChannelUsage.getDataLoggerReference().getOrigin(), dataLoggerChannelUsage.getSlaveChannel()).get());
+                .map((dataLoggerChannelUsage) -> getRegister(dataLoggerChannelUsage.getPhysicalGatewayReference().getOrigin(), dataLoggerChannelUsage.getSlaveChannel()).get());
     }
 
     private Optional<Register> getRegister(Device device, com.elster.jupiter.metering.Channel channel) {
@@ -496,14 +495,14 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     @Override
     public boolean isReferenced(Channel dataLoggerChannel) {
-        return this.getMeteringChannel(dataLoggerChannel)
+        return meteringChannelProvider.getMeteringChannel(dataLoggerChannel)
                 .map(this::isReferenced)
                 .orElse(false);
     }
 
     @Override
     public boolean isReferenced(Register dataLoggerRegister) {
-        return this.getMeteringChannel(dataLoggerRegister)
+        return meteringChannelProvider.getMeteringChannel(dataLoggerRegister)
                 .map(this::isReferenced)
                 .orElse(false);
     }
@@ -591,7 +590,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     private Function<DataLoggerChannelUsage, Optional<Channel>> getSlaveChannel() {
-        return dataLoggerChannelUsage -> dataLoggerChannelUsage.getDataLoggerReference()
+        return dataLoggerChannelUsage -> dataLoggerChannelUsage.getPhysicalGatewayReference()
                 .getOrigin()
                 .getChannels()
                 .stream()
@@ -600,7 +599,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     private Function<DataLoggerChannelUsage, Optional<Register>> getSlaveRegister() {
-        return dataLoggerChannelUsage -> dataLoggerChannelUsage.getDataLoggerReference()
+        return dataLoggerChannelUsage -> dataLoggerChannelUsage.getPhysicalGatewayReference()
                 .getOrigin()
                 .getRegisters()
                 .stream()
@@ -616,7 +615,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         }
     }
 
-    boolean isReferenced(com.elster.jupiter.metering.Channel dataLoggerChannel) {
+    public boolean isReferenced(com.elster.jupiter.metering.Channel dataLoggerChannel) {
         return !findDataLoggerChannelUsage(dataLoggerChannel).isEmpty();
     }
 
@@ -638,7 +637,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     @Override
     public List<DataLoggerChannelUsage> findDataLoggerChannelUsagesForChannels(Channel dataLoggerChannel, Range<Instant> referencePeriod) {
-        Optional<com.elster.jupiter.metering.Channel> meteringChannel = getMeteringChannel(dataLoggerChannel);
+        Optional<com.elster.jupiter.metering.Channel> meteringChannel = meteringChannelProvider.getMeteringChannel(dataLoggerChannel);
         if (meteringChannel.isPresent()) {
             return findDataLoggerChannelUsages(meteringChannel.get(), referencePeriod);
         }
@@ -647,7 +646,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     @Override
     public List<DataLoggerChannelUsage> findDataLoggerChannelUsagesForRegisters(Register<?, ?> dataLoggerRegister, Range<Instant> referencePeriod) {
-        Optional<com.elster.jupiter.metering.Channel> meteringChannel = getMeteringChannel(dataLoggerRegister);
+        Optional<com.elster.jupiter.metering.Channel> meteringChannel = meteringChannelProvider.getMeteringChannel(dataLoggerRegister);
         if (meteringChannel.isPresent()) {
             return findDataLoggerChannelUsages(meteringChannel.get(), referencePeriod);
         }
@@ -656,13 +655,13 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     @Override
     public Optional<Instant> availabilityDate(Channel dataLoggerChannel) {
-        return getMeteringChannel(dataLoggerChannel).flatMap(meteringChannel ->
+        return meteringChannelProvider.getMeteringChannel(dataLoggerChannel).flatMap(meteringChannel ->
                 availabilityDate(meteringChannel, dataLoggerChannel.getDevice().getLifecycleDates().getReceivedDate()));
     }
 
     @Override
     public Optional<Instant> availabilityDate(Register dataLoggerRegister) {
-        return getMeteringChannel(dataLoggerRegister).flatMap(meteringChannel ->
+        return meteringChannelProvider.getMeteringChannel(dataLoggerRegister).flatMap(meteringChannel ->
                 availabilityDate(meteringChannel, dataLoggerRegister.getDevice().getLifecycleDates().getReceivedDate()));
     }
 
@@ -683,7 +682,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     private List<DataLoggerChannelUsage> findDataLoggerChannelUsages(com.elster.jupiter.metering.Channel dataLoggerChannel, Range<Instant> referencePeriod) {
         Condition gateway = where(DataLoggerChannelUsageImpl.Field.GATEWAY_CHANNEL.fieldName()).isEqualTo(dataLoggerChannel);
         Condition effective = where(DataLoggerChannelUsageImpl.Field.PHYSICALGATEWAYREF.fieldName() + "." + AbstractPhysicalGatewayReferenceImpl.Field.INTERVAL.fieldName()).isEffective(referencePeriod);
-        return dataModel.query(DataLoggerChannelUsage.class, PhysicalGatewayReference.class).select(gateway.and(effective), Order.descending("dataloggerReference.interval.start"));
+        return dataModel.query(DataLoggerChannelUsage.class, PhysicalGatewayReference.class).select(gateway.and(effective), Order.descending("PGRSTARTTIME"));
 
     }
 
@@ -701,7 +700,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     public void clearDataLogger(Device slave, Instant when) {
-        Instant unlinkTimeStamp = generalizeDataloggerLinkingDate(when);
+        Instant unlinkTimeStamp = Utils.generalizeLinkingDate(when);
         List<PhysicalGatewayReference> physicalGatewayReferences = getPhysicalGateWayReferencesFrom(slave, when);
         if (!physicalGatewayReferences.isEmpty()) {
             terminateTemporal(physicalGatewayReferences.get(0), unlinkTimeStamp);
@@ -717,57 +716,24 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         }
     }
 
-    /**
-     * We truncate the link and unlink dates of a datalogger to 0 seconds.
-     * This way we prevent unintentional misconfiguration of unlinking before linking (within the same minute)
-     *
-     * @param when the date to generalize
-     * @return the truncated date
-     */
-    private Instant generalizeDataloggerLinkingDate(Instant when) {
-        return when.truncatedTo(ChronoUnit.MINUTES);
-    }
-
     private void addChannelDataLoggerUsage(DataLoggerReferenceImpl dataLoggerReference, Channel slave, Channel dataLogger, MeterActivation dataLoggerMeterActivation, MeterActivation slaveMeterActivation) {
-        com.elster.jupiter.metering.Channel channelForSlave = getMeteringChannel(slave, slaveMeterActivation);
-        com.elster.jupiter.metering.Channel channelForDataLogger = getMeteringChannel(dataLogger, dataLoggerMeterActivation);
+        com.elster.jupiter.metering.Channel channelForSlave = meteringChannelProvider.getMeteringChannel(slave, slaveMeterActivation);
+        com.elster.jupiter.metering.Channel channelForDataLogger = meteringChannelProvider.getMeteringChannel(dataLogger, dataLoggerMeterActivation);
         dataLoggerReference.addDataLoggerChannelUsage(channelForSlave, channelForDataLogger);
     }
 
     private void addRegisterDataLoggerUsage(DataLoggerReferenceImpl dataLoggerReference, Register slave, Register dataLogger, MeterActivation dataLoggerMeterActivation, MeterActivation slaveMeterActivation) {
-        com.elster.jupiter.metering.Channel channelForSlave = getMeteringChannel(slave, slaveMeterActivation);
-        com.elster.jupiter.metering.Channel channelForDataLogger = getMeteringChannel(dataLogger, dataLoggerMeterActivation);
+        com.elster.jupiter.metering.Channel channelForSlave = meteringChannelProvider.getMeteringChannel(slave, slaveMeterActivation);
+        com.elster.jupiter.metering.Channel channelForDataLogger = meteringChannelProvider.getMeteringChannel(dataLogger, dataLoggerMeterActivation);
         dataLoggerReference.addDataLoggerChannelUsage(channelForSlave, channelForDataLogger);
     }
 
-    private Optional<com.elster.jupiter.metering.Channel> getMeteringChannel(final com.energyict.mdc.device.data.Channel channel) {
-        return channel.getDevice().getCurrentMeterActivation().map(meterActivation -> getMeteringChannel(channel, meterActivation));
-    }
-
-    private com.elster.jupiter.metering.Channel getMeteringChannel(final com.energyict.mdc.device.data.Channel channel, final MeterActivation meterActivation) {
-        return meterActivation.getChannelsContainer().getChannels()
-                .stream()
-                .filter(meterActivationChannel -> meterActivationChannel.getReadingTypes().contains(channel.getReadingType()))
-                .findFirst()
-                .orElseThrow(() -> DataLoggerLinkException.noPhysicalChannelForReadingType(this.thesaurus, channel.getReadingType()));
-    }
-
-    private Optional<com.elster.jupiter.metering.Channel> getMeteringChannel(final Register register) {
-        return register.getDevice().getCurrentMeterActivation().map(meterActivation -> getMeteringChannel(register, meterActivation));
-    }
-
-    private com.elster.jupiter.metering.Channel getMeteringChannel(final Register register, final MeterActivation meterActivation) {
-        return meterActivation.getChannelsContainer().getChannels().stream().filter((x) -> x.getReadingTypes().contains(register.getReadingType()))
-                .findFirst()
-                .orElseThrow(() -> DataLoggerLinkException.noPhysicalChannelForReadingType(this.thesaurus, register.getReadingType()));
-    }
-
-    private void terminateTemporal(PhysicalGatewayReference gatewayReference, Instant now) {
-        gatewayReference.terminate(now);
+    public void terminateTemporal(PhysicalGatewayReference gatewayReference, Instant now) {
+        gatewayReference.terminate(now, new ChannelDataTransferor());
         this.dataModel.update(gatewayReference);
     }
 
-    private void slaveTopologyChanged(Device slave, Optional<Device> gateway) {
+    public void slaveTopologyChanged(Device slave, Optional<Device> gateway) {
         List<ComTaskExecution> comTasksForDefaultConnectionTask = this.communicationTaskService.findComTasksByDefaultConnectionTask(slave);
         if (gateway.isPresent()) {
             this.updateComTasksToUseNewDefaultConnectionTask(slave, comTasksForDefaultConnectionTask);
@@ -1068,6 +1034,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(TopologyService.COMPONENT_NAME, Layer.DOMAIN);
+        meteringChannelProvider = new MeteringChannelProvider(thesaurus);
     }
 
     @Reference

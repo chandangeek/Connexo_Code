@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
@@ -31,6 +27,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.topology.impl.multielement.MultiElementDeviceReferenceImpl;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
 
@@ -55,17 +52,23 @@ import org.junit.Test;
 import static com.elster.jupiter.util.streams.Predicates.not;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.when;
-public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
+
+/**
+ * Copyrights EnergyICT
+ * Date: 20/03/2017
+ * Time: 11:00
+ */
+public class MultiElementReferenceImplTest extends PersistenceIntegrationTest {
 
     private final static Unit kiloWattHours = Unit.get("kWh");
 
-    private DeviceConfiguration dataLoggerConfiguration, configurationForSlaveWithLoadProfiles, configurationForSlaveWithRegisters;
+    private DeviceConfiguration multiElementEnabledConfiguration, configurationForSlaveWithLoadProfiles, configurationForSlaveWithRegisters;
 
     private ReadingType channelReadingType1, channelReadingType2, channelReadingType3, channelReadingType4, channelReadingType5, channelReadingType6;
     private ReadingType registerReadingType1, registerReadingType3, registerReadingType4;
 
 
-    private void setUpForDataLoggerEnabledDevice() {
+    private void setUpForMultiElementEnabledDevice() {
         // set up for first loadProfile
         registerReadingType1 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.1.8.0.255"), kiloWattHours);
         ReadingType registerReadingType2 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.2.8.0.255"), kiloWattHours);
@@ -122,43 +125,43 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         lpt1.save();
         lpt2.save();
 
-        DeviceType dataLoggerDeviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("dataLoggerDeviceType", deviceProtocolPluggableClass);
-        dataLoggerDeviceType.addRegisterType(registerTypeForChannel1);
-        dataLoggerDeviceType.addRegisterType(registerTypeForChannel2);
-        dataLoggerDeviceType.addRegisterType(registerTypeForChannel3);
-        dataLoggerDeviceType.addRegisterType(registerTypeForChannel4);
-        dataLoggerDeviceType.addRegisterType(registerTypeForChannel5);
-        dataLoggerDeviceType.addRegisterType(registerTypeForChannel6);
-        dataLoggerDeviceType.addLoadProfileType(lpt1);
-        dataLoggerDeviceType.addLoadProfileType(lpt2);
-        dataLoggerDeviceType.update();
+        DeviceType multiElementDeviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("multiElementDeviceType", deviceProtocolPluggableClass);
+        multiElementDeviceType.addRegisterType(registerTypeForChannel1);
+        multiElementDeviceType.addRegisterType(registerTypeForChannel2);
+        multiElementDeviceType.addRegisterType(registerTypeForChannel3);
+        multiElementDeviceType.addRegisterType(registerTypeForChannel4);
+        multiElementDeviceType.addRegisterType(registerTypeForChannel5);
+        multiElementDeviceType.addRegisterType(registerTypeForChannel6);
+        multiElementDeviceType.addLoadProfileType(lpt1);
+        multiElementDeviceType.addLoadProfileType(lpt2);
+        multiElementDeviceType.update();
 
-        DeviceType.DeviceConfigurationBuilder dataLoggerEnabledDeviceConfigurationBuilder = dataLoggerDeviceType.newConfiguration("Default");
-        dataLoggerEnabledDeviceConfigurationBuilder.isDirectlyAddressable(true);
-        dataLoggerEnabledDeviceConfigurationBuilder.dataloggerEnabled(true);
-        dataLoggerConfiguration = dataLoggerEnabledDeviceConfigurationBuilder.add();
+        DeviceType.DeviceConfigurationBuilder multiElementEnabledDeviceConfigurationBuilder = multiElementDeviceType.newConfiguration("Default");
+        multiElementEnabledDeviceConfigurationBuilder.isDirectlyAddressable(true);
+        multiElementEnabledDeviceConfigurationBuilder.multiElementEnabled(true);
+        multiElementEnabledConfiguration = multiElementEnabledDeviceConfigurationBuilder.add();
 
-        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder1 = dataLoggerConfiguration.createLoadProfileSpec(lpt1);
-        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder2 = dataLoggerConfiguration.createLoadProfileSpec(lpt2);
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder1 = multiElementEnabledConfiguration.createLoadProfileSpec(lpt1);
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder2 = multiElementEnabledConfiguration.createLoadProfileSpec(lpt2);
         LoadProfileSpec loadProfileSpec1 = loadProfileSpecBuilder1.add();
         LoadProfileSpec loadProfileSpec2 = loadProfileSpecBuilder2.add();
 
-        dataLoggerConfiguration.createChannelSpec(lpt1.findChannelType(registerTypeForChannel1).get(), loadProfileSpec1).overflow(new BigDecimal(1000000L)).add();
-        dataLoggerConfiguration.createChannelSpec(lpt1.findChannelType(registerTypeForChannel2).get(), loadProfileSpec1).overflow(new BigDecimal(1000000L)).add();
-        dataLoggerConfiguration.createChannelSpec(lpt2.findChannelType(registerTypeForChannel3).get(), loadProfileSpec2).interval(TimeDuration.minutes(15)).overflow(new BigDecimal(1000000L)).add();
-        dataLoggerConfiguration.createChannelSpec(lpt2.findChannelType(registerTypeForChannel4).get(), loadProfileSpec2).interval(TimeDuration.minutes(15)).overflow(new BigDecimal(1000000L)).add();
-        dataLoggerConfiguration.createChannelSpec(lpt2.findChannelType(registerTypeForChannel5).get(), loadProfileSpec2).interval(TimeDuration.minutes(15)).overflow(new BigDecimal(1000000L)).add();
-        dataLoggerConfiguration.createChannelSpec(lpt2.findChannelType(registerTypeForChannel6).get(), loadProfileSpec2).interval(TimeDuration.minutes(15)).overflow(new BigDecimal(1000000L)).add();
+        multiElementEnabledConfiguration.createChannelSpec(lpt1.findChannelType(registerTypeForChannel1).get(), loadProfileSpec1).overflow(new BigDecimal(1000000L)).add();
+        multiElementEnabledConfiguration.createChannelSpec(lpt1.findChannelType(registerTypeForChannel2).get(), loadProfileSpec1).overflow(new BigDecimal(1000000L)).add();
+        multiElementEnabledConfiguration.createChannelSpec(lpt2.findChannelType(registerTypeForChannel3).get(), loadProfileSpec2).interval(TimeDuration.minutes(15)).overflow(new BigDecimal(1000000L)).add();
+        multiElementEnabledConfiguration.createChannelSpec(lpt2.findChannelType(registerTypeForChannel4).get(), loadProfileSpec2).interval(TimeDuration.minutes(15)).overflow(new BigDecimal(1000000L)).add();
+        multiElementEnabledConfiguration.createChannelSpec(lpt2.findChannelType(registerTypeForChannel5).get(), loadProfileSpec2).interval(TimeDuration.minutes(15)).overflow(new BigDecimal(1000000L)).add();
+        multiElementEnabledConfiguration.createChannelSpec(lpt2.findChannelType(registerTypeForChannel6).get(), loadProfileSpec2).interval(TimeDuration.minutes(15)).overflow(new BigDecimal(1000000L)).add();
 
-        dataLoggerConfiguration.createNumericalRegisterSpec(registerTypeForChannel1).noMultiplier().overflowValue(new BigDecimal(999999L)).numberOfFractionDigits(0).add();
-        dataLoggerConfiguration.createNumericalRegisterSpec(registerTypeForChannel2).noMultiplier().overflowValue(new BigDecimal(999999L)).numberOfFractionDigits(0).add();
-        dataLoggerConfiguration.createNumericalRegisterSpec(registerTypeForChannel3).noMultiplier().overflowValue(new BigDecimal(999999L)).numberOfFractionDigits(0).add();
-        dataLoggerConfiguration.createNumericalRegisterSpec(registerTypeForChannel4).noMultiplier().overflowValue(new BigDecimal(999999L)).numberOfFractionDigits(0).add();
-        dataLoggerConfiguration.createNumericalRegisterSpec(registerTypeForChannel5).noMultiplier().overflowValue(new BigDecimal(999999L)).numberOfFractionDigits(0).add();
-        dataLoggerConfiguration.createNumericalRegisterSpec(registerTypeForChannel6).noMultiplier().overflowValue(new BigDecimal(999999L)).numberOfFractionDigits(0).add();
+        multiElementEnabledConfiguration.createNumericalRegisterSpec(registerTypeForChannel1).noMultiplier().overflowValue(new BigDecimal(999999L)).numberOfFractionDigits(0).add();
+        multiElementEnabledConfiguration.createNumericalRegisterSpec(registerTypeForChannel2).noMultiplier().overflowValue(new BigDecimal(999999L)).numberOfFractionDigits(0).add();
+        multiElementEnabledConfiguration.createNumericalRegisterSpec(registerTypeForChannel3).noMultiplier().overflowValue(new BigDecimal(999999L)).numberOfFractionDigits(0).add();
+        multiElementEnabledConfiguration.createNumericalRegisterSpec(registerTypeForChannel4).noMultiplier().overflowValue(new BigDecimal(999999L)).numberOfFractionDigits(0).add();
+        multiElementEnabledConfiguration.createNumericalRegisterSpec(registerTypeForChannel5).noMultiplier().overflowValue(new BigDecimal(999999L)).numberOfFractionDigits(0).add();
+        multiElementEnabledConfiguration.createNumericalRegisterSpec(registerTypeForChannel6).noMultiplier().overflowValue(new BigDecimal(999999L)).numberOfFractionDigits(0).add();
 
-        deviceMessageIds.stream().forEach(dataLoggerConfiguration::createDeviceMessageEnablement);
-        dataLoggerConfiguration.activate();
+        deviceMessageIds.stream().forEach(multiElementEnabledConfiguration::createDeviceMessageEnablement);
+        multiElementEnabledConfiguration.activate();
     }
 
     private void setUpForSlaveHavingLoadProfiles() {
@@ -181,7 +184,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         lpt.save();
 
         DeviceType slaveDeviceType = inMemoryPersistence.getDeviceConfigurationService()
-                .newDataloggerSlaveDeviceTypeBuilder("slave1DeviceType", inMemoryPersistence.getDeviceLifeCycleConfigurationService().findDefaultDeviceLifeCycle().get())
+                .newMultiElementSlaveDeviceTypeBuilder("slave1DeviceType", inMemoryPersistence.getDeviceLifeCycleConfigurationService().findDefaultDeviceLifeCycle().get())
                 .create();
         slaveDeviceType.addRegisterType(registerTypeForChannel1);
         slaveDeviceType.addRegisterType(registerTypeForChannel2);
@@ -217,7 +220,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         registerTypeForChannel3.save();
 
         DeviceType slaveDeviceType = inMemoryPersistence.getDeviceConfigurationService()
-                .newDataloggerSlaveDeviceTypeBuilder("slave1DeviceType", inMemoryPersistence.getDeviceLifeCycleConfigurationService().findDefaultDeviceLifeCycle().get())
+                .newMultiElementSlaveDeviceTypeBuilder("slave1DeviceType", inMemoryPersistence.getDeviceLifeCycleConfigurationService().findDefaultDeviceLifeCycle().get())
                 .create();
         slaveDeviceType.addRegisterType(registerTypeForChannel1);
         slaveDeviceType.addRegisterType(registerTypeForChannel2);
@@ -234,8 +237,8 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
     }
 
-    protected Device createDataLoggerDevice(String name, Instant start) {
-        return inMemoryPersistence.getDeviceService().newDevice(dataLoggerConfiguration, name, name + "MrId", start);
+    protected Device createMultiElementDevice(String name, Instant start) {
+        return inMemoryPersistence.getDeviceService().newDevice(multiElementEnabledConfiguration, name, name + "MrId", start);
     }
 
     private Device createSlaveWithProfiles(String name, Instant start) {
@@ -308,7 +311,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void testLinkSlaveWithoutData() {
         when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC));
-        setUpForDataLoggerEnabledDevice();
+        setUpForMultiElementEnabledDevice();
         setUpForSlaveHavingLoadProfiles();
 
         Instant start = LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC);
@@ -316,41 +319,42 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         Instant firstOfJune = LocalDateTime.of(2016, 6, 1, 0, 0).toInstant(ZoneOffset.UTC);
 
         Device slave = createSlaveWithProfiles("slave1", start);
-        Device dataLogger = createDataLoggerDevice("dataLogger", start);
+        Device multiElementDevice = createMultiElementDevice("multiElementDevice", start);
 
         when(inMemoryPersistence.getClock().instant()).thenReturn(Instant.now());
         HashMap<Channel, Channel> channelMapping = new HashMap<>();
 
-        channelMapping.put(slave.getChannels().get(0), dataLogger.getChannels().get(0));
-        channelMapping.put(slave.getChannels().get(1), dataLogger.getChannels().get(1));
-        channelMapping.put(slave.getChannels().get(2), dataLogger.getChannels().get(2));
+        channelMapping.put(slave.getChannels().get(0), multiElementDevice.getChannels().get(0));
+        channelMapping.put(slave.getChannels().get(1), multiElementDevice.getChannels().get(1));
+        channelMapping.put(slave.getChannels().get(2), multiElementDevice.getChannels().get(2));
         HashMap<Register, Register> registerMapping = new HashMap<>();
 
-        inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger, startLink, channelMapping, registerMapping);
+        inMemoryPersistence.getMultiElementDeviceService().addSlave(slave, multiElementDevice, startLink, channelMapping, registerMapping);
 
-        List<DataLoggerReferenceImpl> dataLoggerReferences = inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerReferenceImpl.class).select(Condition.TRUE);
-        assertThat(dataLoggerReferences).hasSize(1);
-        assertThat(dataLoggerReferences.get(0).getRange().lowerEndpoint()).isEqualTo(startLink);
-        assertThat(dataLoggerReferences.get(0).getRange().hasUpperBound()).isFalse();
+        List<MultiElementDeviceReferenceImpl> multiElementDeviceReferences = inMemoryPersistence.getMultiEditServiceDataModel().query(MultiElementDeviceReferenceImpl.class).select(Condition.TRUE);
+        assertThat(multiElementDeviceReferences).hasSize(1);
+        MultiElementDeviceReferenceImpl multiElementDeviceReference = multiElementDeviceReferences.get(0);
+        assertThat(multiElementDeviceReference.getRange().lowerEndpoint()).isEqualTo(startLink);
+        assertThat(multiElementDeviceReference.getRange().hasUpperBound()).isFalse();
 
-        assertThat(dataLoggerReferences.get(0).existsFor(startLink)).isTrue();
-        assertThat(dataLoggerReferences.get(0).isEffectiveAt(startLink)).isTrue();
+        assertThat(multiElementDeviceReference.existsFor(startLink)).isTrue();
+        assertThat(multiElementDeviceReference.isEffectiveAt(startLink)).isTrue();
 
-        assertThat(dataLoggerReferences.get(0).existsFor(start)).isFalse();
-        assertThat(dataLoggerReferences.get(0).isEffectiveAt(start)).isFalse();
+        assertThat(multiElementDeviceReference.existsFor(start)).isFalse();
+        assertThat(multiElementDeviceReference.isEffectiveAt(start)).isFalse();
 
-        assertThat(dataLoggerReferences.get(0).existsFor(firstOfJune)).isTrue();
-        assertThat(dataLoggerReferences.get(0).isEffectiveAt(firstOfJune)).isTrue();
+        assertThat(multiElementDeviceReference.existsFor(firstOfJune)).isTrue();
+        assertThat(multiElementDeviceReference.isEffectiveAt(firstOfJune)).isTrue();
 
-        assertThat(dataLoggerReferences.get(0).getOrigin().getId()).isEqualTo(slave.getId());
-        assertThat(dataLoggerReferences.get(0).getGateway().getId()).isEqualTo(dataLogger.getId());
-        assertThat(dataLoggerReferences.get(0).getDataLoggerChannelUsages()).hasSize(3);
+        assertThat(multiElementDeviceReference.getOrigin().getId()).isEqualTo(slave.getId());
+        assertThat(multiElementDeviceReference.getGateway().getId()).isEqualTo(multiElementDevice.getId());
+        assertThat(multiElementDeviceReference.getChannelUsages()).hasSize(3);
 
-        List<Device> slaves = inMemoryPersistence.getTopologyService().findDataLoggerSlaves(dataLogger);
+        List<Device> slaves = inMemoryPersistence.getMultiElementDeviceService().findMultiElementSlaves(multiElementDevice);
         assertThat(slaves).hasSize(1);
         assertThat(slaves.get(0).getId()).isEqualTo(slave.getId());
 
-        assertThat(inMemoryPersistence.getTopologyService().findAllEffectiveDataLoggerSlaveDevices().find()).hasSize(1);
+        assertThat(inMemoryPersistence.getMultiElementDeviceService().findAllEffectiveMultiElementSlaveDevices().find()).hasSize(1);
 
         assertThat(slave.hasData()).isFalse();
     }
@@ -359,7 +363,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void testLinkSlaveWithRegistersWithoutData() {
         when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC));
-        setUpForDataLoggerEnabledDevice();
+        setUpForMultiElementEnabledDevice();
         setUpForSlaveHavingRegisters();
 
         Instant start = LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC);
@@ -367,40 +371,40 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         Instant firstOfJune = LocalDateTime.of(2016, 6, 1, 0, 0).toInstant(ZoneOffset.UTC);
 
         Device slave = createSlaveWithRegisters("slave1", start);
-        Device dataLogger = createDataLoggerDevice("dataLogger", start);
+        Device multiElementDevice = createMultiElementDevice("multiElementDevice", start);
         when(inMemoryPersistence.getClock().instant()).thenReturn(Instant.now());
 
         HashMap<Channel, Channel> channelMapping = new HashMap<>();
         HashMap<Register, Register> registerMapping = new HashMap<>();
-        registerMapping.put(slave.getRegisters().get(0), dataLogger.getRegisters().get(0));
-        registerMapping.put(slave.getRegisters().get(1), dataLogger.getRegisters().get(1));
-        registerMapping.put(slave.getRegisters().get(2), dataLogger.getRegisters().get(2));
+        registerMapping.put(slave.getRegisters().get(0), multiElementDevice.getRegisters().get(0));
+        registerMapping.put(slave.getRegisters().get(1), multiElementDevice.getRegisters().get(1));
+        registerMapping.put(slave.getRegisters().get(2), multiElementDevice.getRegisters().get(2));
 
-        inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger, startLink, channelMapping, registerMapping);
+        inMemoryPersistence.getMultiElementDeviceService().addSlave(slave, multiElementDevice, startLink, channelMapping, registerMapping);
 
-        List<DataLoggerReferenceImpl> dataLoggerReferences = inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerReferenceImpl.class).select(Condition.TRUE);
-        assertThat(dataLoggerReferences).hasSize(1);
-        assertThat(dataLoggerReferences.get(0).getRange().lowerEndpoint()).isEqualTo(startLink);
-        assertThat(dataLoggerReferences.get(0).getRange().hasUpperBound()).isFalse();
+        List<MultiElementDeviceReferenceImpl> multiElementDeviceReferences = inMemoryPersistence.getMultiEditServiceDataModel().query(MultiElementDeviceReferenceImpl.class).select(Condition.TRUE);
+        assertThat(multiElementDeviceReferences).hasSize(1);
+        assertThat(multiElementDeviceReferences.get(0).getRange().lowerEndpoint()).isEqualTo(startLink);
+        assertThat(multiElementDeviceReferences.get(0).getRange().hasUpperBound()).isFalse();
 
-        assertThat(dataLoggerReferences.get(0).existsFor(startLink)).isTrue();
-        assertThat(dataLoggerReferences.get(0).isEffectiveAt(startLink)).isTrue();
+        assertThat(multiElementDeviceReferences.get(0).existsFor(startLink)).isTrue();
+        assertThat(multiElementDeviceReferences.get(0).isEffectiveAt(startLink)).isTrue();
 
-        assertThat(dataLoggerReferences.get(0).existsFor(start)).isFalse();
-        assertThat(dataLoggerReferences.get(0).isEffectiveAt(start)).isFalse();
+        assertThat(multiElementDeviceReferences.get(0).existsFor(start)).isFalse();
+        assertThat(multiElementDeviceReferences.get(0).isEffectiveAt(start)).isFalse();
 
-        assertThat(dataLoggerReferences.get(0).existsFor(firstOfJune)).isTrue();
-        assertThat(dataLoggerReferences.get(0).isEffectiveAt(firstOfJune)).isTrue();
+        assertThat(multiElementDeviceReferences.get(0).existsFor(firstOfJune)).isTrue();
+        assertThat(multiElementDeviceReferences.get(0).isEffectiveAt(firstOfJune)).isTrue();
 
-        assertThat(dataLoggerReferences.get(0).getOrigin().getId()).isEqualTo(slave.getId());
-        assertThat(dataLoggerReferences.get(0).getGateway().getId()).isEqualTo(dataLogger.getId());
-        assertThat(dataLoggerReferences.get(0).getDataLoggerChannelUsages()).hasSize(3);
+        assertThat(multiElementDeviceReferences.get(0).getOrigin().getId()).isEqualTo(slave.getId());
+        assertThat(multiElementDeviceReferences.get(0).getGateway().getId()).isEqualTo(multiElementDevice.getId());
+        assertThat(multiElementDeviceReferences.get(0).getChannelUsages()).hasSize(3);
 
-        List<Device> slaves = inMemoryPersistence.getTopologyService().findDataLoggerSlaves(dataLogger);
+        List<Device> slaves = inMemoryPersistence.getMultiElementDeviceService().findMultiElementSlaves(multiElementDevice);
         assertThat(slaves).hasSize(1);
         assertThat(slaves.get(0).getId()).isEqualTo(slave.getId());
 
-        assertThat(inMemoryPersistence.getTopologyService().findAllEffectiveDataLoggerSlaveDevices().find()).hasSize(1);
+        assertThat(inMemoryPersistence.getMultiElementDeviceService().findAllEffectiveMultiElementSlaveDevices().find()).hasSize(1);
 
         assertThat(slave.hasData()).isFalse();
     }
@@ -409,7 +413,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void testLinkSlaveWithProfileData() {
         when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC));
-        setUpForDataLoggerEnabledDevice();
+        setUpForMultiElementEnabledDevice();
         setUpForSlaveHavingLoadProfiles();
 
         Instant start = LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC);
@@ -421,7 +425,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         assertThat(slave.getChannels().get(0).getLastReading().isPresent()).isFalse();
         assertThat(slave.getChannels().get(1).getLastReading().isPresent()).isFalse();
         assertThat(slave.getChannels().get(2).getLastReading().isPresent()).isFalse();
-        Device dataLogger = createDataLoggerDevice("dataLogger", start);
+        Device dataLogger = createMultiElementDevice("dataLogger", start);
         addProfileDataToDevice(dataLogger, start, endOfData);
         // Make sure the data on the data logger is present
         assertThat(dataLogger.getChannels().get(0).hasData()).isTrue();
@@ -435,7 +439,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         channelMapping.put(slave.getChannels().get(2), dataLogger.getChannels().get(2));
         HashMap<Register, Register> registerMapping = new HashMap<>();
 
-        inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger, startLink, channelMapping, registerMapping);
+        inMemoryPersistence.getMultiElementDeviceService().addSlave(slave, dataLogger, startLink, channelMapping, registerMapping);
 //        profile.add(IntervalReadingImpl.of(readingTime, value, new HashSet<>(Collections.singletonList(ProtocolReadingQualities.TEST.getReadingQualityType()))));
 
         assertThat(slave.hasData()).isTrue();
@@ -497,7 +501,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void testLinkSlaveWithConfirmedProfileData() {
         when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC));
-        setUpForDataLoggerEnabledDevice();
+        setUpForMultiElementEnabledDevice();
         setUpForSlaveHavingLoadProfiles();
 
         Instant start = LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC);
@@ -510,7 +514,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         assertThat(slave.getChannels().get(0).getLastReading().isPresent()).isFalse();
         assertThat(slave.getChannels().get(1).getLastReading().isPresent()).isFalse();
         assertThat(slave.getChannels().get(2).getLastReading().isPresent()).isFalse();
-        Device dataLogger = createDataLoggerDevice("dataLogger", start);
+        Device dataLogger = createMultiElementDevice("dataLogger", start);
         addProfileDataToDevice(dataLogger, start, endOfData);
 
         // 1 interval reading confirmed and should also be transferred
@@ -530,7 +534,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         channelMapping.put(slave.getChannels().get(2), dataLogger.getChannels().get(2));
         HashMap<Register, Register> registerMapping = new HashMap<>();
 
-        inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger, startLink, channelMapping, registerMapping);
+        inMemoryPersistence.getMultiElementDeviceService().addSlave(slave, dataLogger, startLink, channelMapping, registerMapping);
 
         assertThat(slave.hasData()).isTrue();
         Channel channel1 = slave.getChannels().get(0);
@@ -594,7 +598,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void testLinkSlaveWithEditedProfileData() {
         when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC));
-        setUpForDataLoggerEnabledDevice();
+        setUpForMultiElementEnabledDevice();
         setUpForSlaveHavingLoadProfiles();
 
         Instant start = LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC);
@@ -607,7 +611,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         assertThat(slave.getChannels().get(0).getLastReading().isPresent()).isFalse();
         assertThat(slave.getChannels().get(1).getLastReading().isPresent()).isFalse();
         assertThat(slave.getChannels().get(2).getLastReading().isPresent()).isFalse();
-        Device dataLogger = createDataLoggerDevice("dataLogger", start);
+        Device dataLogger = createMultiElementDevice("dataLogger", start);
         addProfileDataToDevice(dataLogger, start, endOfData);
 
         // 1 interval reading edited and should not be transferred
@@ -627,7 +631,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         channelMapping.put(slave.getChannels().get(2), dataLogger.getChannels().get(2));
         HashMap<Register, Register> registerMapping = new HashMap<>();
 
-        inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger, startLink, channelMapping, registerMapping);
+        inMemoryPersistence.getMultiElementDeviceService().addSlave(slave, dataLogger, startLink, channelMapping, registerMapping);
 
         assertThat(slave.hasData()).isTrue();
         Channel channel1 = slave.getChannels().get(0);
@@ -706,7 +710,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void testLinkSlaveWithRegisterData() {
         when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC));
-        setUpForDataLoggerEnabledDevice();
+        setUpForMultiElementEnabledDevice();
         setUpForSlaveHavingRegisters();
 
         Instant start = LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC);
@@ -714,7 +718,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         Instant firstOfJune = LocalDateTime.of(2016, 6, 1, 0, 0).toInstant(ZoneOffset.UTC);
 
         Device slave = createSlaveWithRegisters("slave1", start);
-        Device dataLogger = createDataLoggerDevice("dataLogger", start);
+        Device dataLogger = createMultiElementDevice("dataLogger", start);
         Register dataLoggerR1 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255"));
         Register dataLoggerR2 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.1.255"));
         Register dataLoggerR3 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.2.255"));
@@ -752,14 +756,14 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         registerMapping.put(slaveRegister2, dataLoggerR2);
         registerMapping.put(slaveRegister3, dataLoggerR3);
 
-        inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger, startLink, channelMapping, registerMapping);
+        inMemoryPersistence.getMultiElementDeviceService().addSlave(slave, dataLogger, startLink, channelMapping, registerMapping);
 
         assertThat(dataLogger.getMeterActivationsMostRecentFirst()).hasSize(1);
 
-        List<DataLoggerReferenceImpl> dataLoggerReferences = inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerReferenceImpl.class).select(Condition.TRUE);
-        assertThat(dataLoggerReferences).hasSize(1);
-        assertThat(dataLoggerReferences.get(0).getRange().lowerEndpoint()).isEqualTo(startLink);
-        assertThat(dataLoggerReferences.get(0).getRange().hasUpperBound()).isFalse();
+        List<MultiElementDeviceReferenceImpl> multiElementDeviceReferences = inMemoryPersistence.getMultiEditServiceDataModel().query(MultiElementDeviceReferenceImpl.class).select(Condition.TRUE);
+        assertThat(multiElementDeviceReferences).hasSize(1);
+        assertThat(multiElementDeviceReferences.get(0).getRange().lowerEndpoint()).isEqualTo(startLink);
+        assertThat(multiElementDeviceReferences.get(0).getRange().hasUpperBound()).isFalse();
 
         assertThat(slave.hasData()).isTrue();
         assertThat(slaveRegister1.hasData()).isTrue();
@@ -809,7 +813,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void testLinkSlaveWithEditedRegisterData() {
         when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC));
-        setUpForDataLoggerEnabledDevice();
+        setUpForMultiElementEnabledDevice();
         setUpForSlaveHavingRegisters();
 
         Instant start = LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC);
@@ -817,7 +821,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         Instant firstOfJune = LocalDateTime.of(2016, 6, 1, 0, 0).toInstant(ZoneOffset.UTC);
 
         Device slave = createSlaveWithRegisters("slave1", start);
-        Device dataLogger = createDataLoggerDevice("dataLogger", start);
+        Device dataLogger = createMultiElementDevice("dataLogger", start);
         Register dataLoggerR1 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255"));
         Register dataLoggerR2 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.1.255"));
         Register dataLoggerR3 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.2.255"));
@@ -858,14 +862,14 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
                 .editReading(ReadingImpl.of(dataLoggerR2.getReadingType().getMRID(), new BigDecimal(0), readingsDataLoggerR2.get(readingsDataLoggerR2.size()-2).getTimeStamp()))
                 .complete();
 
-        inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger, startLink, channelMapping, registerMapping);
+        inMemoryPersistence.getMultiElementDeviceService().addSlave(slave, dataLogger, startLink, channelMapping, registerMapping);
 
         assertThat(dataLogger.getMeterActivationsMostRecentFirst()).hasSize(1);
 
-        List<DataLoggerReferenceImpl> dataLoggerReferences = inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerReferenceImpl.class).select(Condition.TRUE);
-        assertThat(dataLoggerReferences).hasSize(1);
-        assertThat(dataLoggerReferences.get(0).getRange().lowerEndpoint()).isEqualTo(startLink);
-        assertThat(dataLoggerReferences.get(0).getRange().hasUpperBound()).isFalse();
+        List<MultiElementDeviceReferenceImpl> multiElementDeviceReferences = inMemoryPersistence.getMultiEditServiceDataModel().query(MultiElementDeviceReferenceImpl.class).select(Condition.TRUE);
+        assertThat(multiElementDeviceReferences).hasSize(1);
+        assertThat(multiElementDeviceReferences.get(0).getRange().lowerEndpoint()).isEqualTo(startLink);
+        assertThat(multiElementDeviceReferences.get(0).getRange().hasUpperBound()).isFalse();
 
         assertThat(slave.hasData()).isTrue();
         assertThat(slaveRegister1.hasData()).isTrue();
@@ -918,7 +922,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void testUnLinkSlaveWithoutData() {
         when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC));
-        setUpForDataLoggerEnabledDevice();
+        setUpForMultiElementEnabledDevice();
         setUpForSlaveHavingLoadProfiles();
 
         Instant start = LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC);
@@ -927,7 +931,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
         Device slave = createSlaveWithProfiles("slave1", start);
         assertThat(slave.getMeterActivationsMostRecentFirst()).hasSize(1);
-        Device dataLogger = createDataLoggerDevice("dataLogger", start);
+        Device dataLogger = createMultiElementDevice("dataLogger", start);
         when(inMemoryPersistence.getClock().instant()).thenReturn(Instant.now());
 
         HashMap<Channel, Channel> channelMapping = new HashMap<>();
@@ -937,16 +941,16 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         channelMapping.put(slave.getChannels().get(2), dataLogger.getChannels().get(2));
         HashMap<Register, Register> registerMapping = new HashMap<>();
 
-        inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger, startLink, channelMapping, registerMapping);
+        inMemoryPersistence.getMultiElementDeviceService().addSlave(slave, dataLogger, startLink, channelMapping, registerMapping);
 
-        List<Device> slaves = inMemoryPersistence.getTopologyService().findDataLoggerSlaves(dataLogger);
+        List<Device> slaves = inMemoryPersistence.getMultiElementDeviceService().findMultiElementSlaves(dataLogger);
         assertThat(slaves).hasSize(1);
         assertThat(slaves.get(0).getId()).isEqualTo(slave.getId());
 
-        inMemoryPersistence.getTopologyService().clearDataLogger(slaves.get(0), midMay);
+        inMemoryPersistence.getMultiElementDeviceService().removeSlave(slaves.get(0), midMay);
 
         assertThat(inMemoryPersistence.getTopologyService().findAllEffectiveDataLoggerSlaveDevices().find()).isEmpty();
-        assertThat(inMemoryPersistence.getTopologyService().findDataLoggerSlaves(dataLogger)).isEmpty();
+        assertThat(inMemoryPersistence.getMultiElementDeviceService().findMultiElementSlaves(dataLogger)).isEmpty();
 
         List<MeterActivation> meterActivations = slaves.get(0).getMeterActivationsMostRecentFirst();
         assertThat(meterActivations).hasSize(1);
@@ -961,7 +965,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void testUnLinkSlaveWithProfileData() {
         when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC));
-        setUpForDataLoggerEnabledDevice();
+        setUpForMultiElementEnabledDevice();
         setUpForSlaveHavingLoadProfiles();
 
         Instant start = LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC);
@@ -971,21 +975,21 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         Instant firstOfJuli = LocalDateTime.of(2016, 7, 1, 0, 0).toInstant(ZoneOffset.UTC);
 
         Device slave = createSlaveWithProfiles("slave1", start);
-        Device dataLogger = createDataLoggerDevice("dataLogger", start);
-        addProfileDataToDevice(dataLogger, start, endOfData);
+        Device multiElementDevice = createMultiElementDevice("multiElementDevice", start);
+        addProfileDataToDevice(multiElementDevice, start, endOfData);
         // Make sure the data on the data logger is present
-        assertThat(dataLogger.getChannels().get(0).hasData()).isTrue();
-        assertThat(dataLogger.getChannels().get(0).getLastDateTime().get()).isEqualTo(endOfData);
-        assertThat(dataLogger.getChannels().get(0).getChannelData(Range.openClosed(start, firstOfJuli))).hasSize(5856); //month april: 30*24*4 + month may: 31*24*4
+        assertThat(multiElementDevice.getChannels().get(0).hasData()).isTrue();
+        assertThat(multiElementDevice.getChannels().get(0).getLastDateTime().get()).isEqualTo(endOfData);
+        assertThat(multiElementDevice.getChannels().get(0).getChannelData(Range.openClosed(start, firstOfJuli))).hasSize(5856); //month april: 30*24*4 + month may: 31*24*4
 
         HashMap<Channel, Channel> channelMapping = new HashMap<>();
 
-        channelMapping.put(slave.getChannels().get(0), dataLogger.getChannels().get(0));
-        channelMapping.put(slave.getChannels().get(1), dataLogger.getChannels().get(1));
-        channelMapping.put(slave.getChannels().get(2), dataLogger.getChannels().get(2));
+        channelMapping.put(slave.getChannels().get(0), multiElementDevice.getChannels().get(0));
+        channelMapping.put(slave.getChannels().get(1), multiElementDevice.getChannels().get(1));
+        channelMapping.put(slave.getChannels().get(2), multiElementDevice.getChannels().get(2));
         HashMap<Register, Register> registerMapping = new HashMap<>();
 
-        inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger, startLink, channelMapping, registerMapping);
+        inMemoryPersistence.getMultiElementDeviceService().addSlave(slave, multiElementDevice, startLink, channelMapping, registerMapping);
 
         assertThat(slave.hasData()).isTrue();
         // Making sure all data is in the slave channels until 2016/06/01
@@ -993,10 +997,10 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         assertThat(slave.getChannels().get(1).getLastDateTime().get()).isEqualTo(endOfData);
         assertThat(slave.getChannels().get(2).getLastDateTime().get()).isEqualTo(endOfData);
 
-        inMemoryPersistence.getTopologyService().clearDataLogger(slave, endLink);
+        inMemoryPersistence.getMultiElementDeviceService().removeSlave(slave, endLink);
 
-        assertThat(inMemoryPersistence.getTopologyService().findAllEffectiveDataLoggerSlaveDevices().find()).isEmpty();
-        assertThat(inMemoryPersistence.getTopologyService().findDataLoggerSlaves(dataLogger)).isEmpty();
+        assertThat(inMemoryPersistence.getMultiElementDeviceService().findAllEffectiveMultiElementSlaveDevices().find()).isEmpty();
+        assertThat(inMemoryPersistence.getMultiElementDeviceService().findMultiElementSlaves(multiElementDevice)).isEmpty();
 
         List<MeterActivation> meterActivations = slave.getMeterActivationsMostRecentFirst();
         assertThat(meterActivations).hasSize(1);
@@ -1005,7 +1009,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         assertThat(meterActivations.get(0).getChannelsContainer().getChannels().get(1).hasData()).isTrue();
         assertThat(meterActivations.get(0).getChannelsContainer().getChannels().get(2).hasData()).isTrue();
 
-        List<MeterActivation> meterActivationsMostRecentFirst = dataLogger.getMeterActivationsMostRecentFirst();
+        List<MeterActivation> meterActivationsMostRecentFirst = multiElementDevice.getMeterActivationsMostRecentFirst();
         assertThat(meterActivationsMostRecentFirst).hasSize(1);
 
         //still 15 days of 15-min data - all with manual edit reading quality
@@ -1028,7 +1032,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void testUnLinkSlaveWithRegisterData() {
         when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC));
-        setUpForDataLoggerEnabledDevice();
+        setUpForMultiElementEnabledDevice();
         setUpForSlaveHavingRegisters();
 
         Instant start = LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC);
@@ -1037,12 +1041,12 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         Instant endLink = LocalDateTime.of(2016, 5, 15, 0, 0).toInstant(ZoneOffset.UTC);
 
         Device slave = createSlaveWithRegisters("slave1", start);
-        Device dataLogger = createDataLoggerDevice("dataLogger", start);
-        Register dataLoggerR1 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255"));
-        Register dataLoggerR2 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.1.255"));
-        Register dataLoggerR3 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.2.255"));
+        Device multiElementDevice = createMultiElementDevice("multiElementDevice", start);
+        Register dataLoggerR1 = multiElementDevice.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255"));
+        Register dataLoggerR2 = multiElementDevice.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.1.255"));
+        Register dataLoggerR3 = multiElementDevice.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.2.255"));
 
-        MeterReadingImpl meterReading = addRegisterDataToDevice(dataLogger, start, firstOfJune);
+        MeterReadingImpl meterReading = addRegisterDataToDevice(multiElementDevice, start, firstOfJune);
         //Making sure the data is available
         List<com.elster.jupiter.metering.readings.Reading> readingsDataLoggerR1 = meterReading.getReadings()
                 .stream()
@@ -1066,7 +1070,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         Register slaveRegister3 = slave.getRegisters().get(2);
         registerMapping.put(slaveRegister3, dataLoggerR3);
 
-        inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger, startLink, channelMapping, registerMapping);
+        inMemoryPersistence.getMultiElementDeviceService().addSlave(slave, multiElementDevice, startLink, channelMapping, registerMapping);
         // Making sure data has been transferred form data logge<r to slave
         assertThat(slaveRegister1.getReadings(Interval.of(Range.atLeast(startLink)))).hasSize(new Long(readingsDataLoggerR1.stream()
                 .filter((reading) -> Range.atLeast(startLink).contains(reading.getTimeStamp()))
@@ -1078,10 +1082,10 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
                 .filter((reading) -> Range.atLeast(startLink).contains(reading.getTimeStamp()))
                 .count()).intValue());
 
-        inMemoryPersistence.getTopologyService().clearDataLogger(slave, endLink);
+        inMemoryPersistence.getMultiElementDeviceService().removeSlave(slave, endLink);
 
-        assertThat(inMemoryPersistence.getTopologyService().findAllEffectiveDataLoggerSlaveDevices().find()).isEmpty();
-        assertThat(inMemoryPersistence.getTopologyService().findDataLoggerSlaves(dataLogger)).isEmpty();
+        assertThat(inMemoryPersistence.getMultiElementDeviceService().findAllEffectiveMultiElementSlaveDevices().find()).isEmpty();
+        assertThat(inMemoryPersistence.getMultiElementDeviceService().findMultiElementSlaves(multiElementDevice)).isEmpty();
 
         List<MeterActivation> meterActivations = slave.getMeterActivationsMostRecentFirst();
         assertThat(meterActivations).hasSize(1); // No new MeterActivation was started
@@ -1096,7 +1100,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
                 .filter((reading) -> Range.openClosed(startLink, endLink).contains(reading.getTimeStamp()))
                 .count()).intValue());
 
-        List<MeterActivation> meterActivationsMostRecentFirst = dataLogger.getMeterActivationsMostRecentFirst();
+        List<MeterActivation> meterActivationsMostRecentFirst = multiElementDevice.getMeterActivationsMostRecentFirst();
         assertThat(meterActivationsMostRecentFirst).hasSize(1);
 
         //data should be with manual edit reading quality
