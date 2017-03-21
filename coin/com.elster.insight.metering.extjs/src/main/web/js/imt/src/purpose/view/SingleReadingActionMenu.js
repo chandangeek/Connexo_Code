@@ -15,6 +15,13 @@ Ext.define('Imt.purpose.view.SingleReadingActionMenu', {
                 section: this.SECTION_ACTION
             },
             {
+                itemId: 'clear-projected',
+                hidden: true,
+                text: Uni.I18n.translate("general.clearProjectedFlag", 'IMT', 'Clear projected flag'),
+                action: 'clearProjectedFlag',
+                section: this.SECTION_ACTION
+            },
+            {
                 itemId: 'estimate-value',
                 hidden: true,
                 text: Uni.I18n.translate('general.editWithEstimator', 'IMT', 'Edit with estimator'),

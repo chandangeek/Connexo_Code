@@ -24,6 +24,14 @@ Ext.define('Imt.purpose.view.MultipleReadingsActionMenu', {
                 section: this.SECTION_ACTION
             },
             {
+                itemId: 'clear-projected',
+                privileges: Imt.privileges.UsagePoint.admin,
+                hidden: true,
+                text: Uni.I18n.translate("general.clearProjectedFlag", 'IMT', 'Clear projected flag'),
+                action: 'clearProjectedFlag',
+                section: this.SECTION_ACTION
+            },
+            {
                 itemId: 'estimate-value-with-rule',
                 privileges: Imt.privileges.UsagePoint.admin,
                 hidden: true,

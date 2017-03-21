@@ -54,7 +54,8 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
             readingType = me.output.get('readingType'),
             unitOfMeasure = readingType.names ? readingType.names.unitOfMeasure : readingType.unit,
             estimatedByRule = record.get('estimatedByRule'),
-            validationResultText = '';
+            validationResultText = '',
+            editedAndProjected = record.get('modificationFlag') && record.get('modificationDate') && record.get('isProjected') === true;
 
         if (!Ext.isEmpty(record) && record.get('isConfirmed')) {
             validationResultText = '(' + Uni.I18n.translate('reading.validationResult.notsuspect', 'IMT', 'Not suspect') + ')' +
@@ -83,7 +84,10 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                     break;
             }
         }
-
+        if(editedAndProjected) {
+            validationResultText = '<span style="margin-left:5px; font-weight:bold; cursor: default" data-qtip="'
+                + Uni.I18n.translate('reading.estimated.projected', 'IMT', 'Projected') + '">P</span>';
+        }
         if (!Ext.isEmpty(value)) {
             return value + ' ' + unitOfMeasure + ' ' + validationResultText;
         } else {
@@ -95,10 +99,12 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
         var me = this,
             validationResultText = '',
             record = me.down('form').getRecord(),
-            estimatedByRule;
+            estimatedByRule,
+            editedAndProjected;
 
         if (record) {
             estimatedByRule = record.get('estimatedByRule');
+            editedAndProjected = record.get('modificationFlag') && record.get('modificationDate') && record.get('isProjected') === true
         }
 
         if (!Ext.isEmpty(record) && record.get('isConfirmed')) {
@@ -130,6 +136,10 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                     validationResultText += me.getEstimationFlagWithTooltip(estimatedByRule, record);
                 }
                 break;
+        }
+        if(editedAndProjected) {
+            validationResultText += '<span style="margin-left:7px; font-weight:bold; cursor: default" data-qtip="'
+                + Uni.I18n.translate('reading.estimated.projected', 'IMT', 'Projected') + '">P</span>';
         }
 
         return validationResultText;
