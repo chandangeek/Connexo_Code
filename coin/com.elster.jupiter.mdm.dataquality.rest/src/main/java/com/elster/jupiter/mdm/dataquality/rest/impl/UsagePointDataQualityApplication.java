@@ -31,7 +31,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.mdm.dataquality.rest", service = {Application.class, MessageSeedProvider.class}, immediate = true, property = {"alias=/udq", "app=INS", "name=" + UsagePointDataQualityService.COMPONENT_NAME})
+@Component(
+        name = "com.elster.jupiter.mdm.dataquality.rest",
+        service = {Application.class, MessageSeedProvider.class},
+        immediate = true,
+        property = {"alias=/udq", "app=INS", "name=" + UsagePointDataQualityApplication.COMPONENT_NAME}
+)
 public class UsagePointDataQualityApplication extends Application implements MessageSeedProvider {
 
     public static final String APP_KEY = "INS";

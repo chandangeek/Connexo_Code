@@ -305,7 +305,7 @@ public class FieldResourceTest extends DeviceDataQualityRestApplicationJerseyTes
         // Asserts
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(4);
-        assertThat(jsonModel.<List<String>>get("$.estimators[*].id")).containsExactly(estimator_2.getClass().getName(), estimator_2.getClass().getName());
+        assertThat(jsonModel.<List<String>>get("$.estimators[*].id")).containsExactly(estimator_2.getClass().getName(), estimator_3.getClass().getName());
         assertThat(jsonModel.<List<String>>get("$.estimators[*].name")).containsExactly("e2", "E3");
     }
 
