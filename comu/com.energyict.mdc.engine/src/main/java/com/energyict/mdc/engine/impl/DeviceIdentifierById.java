@@ -30,9 +30,13 @@ public final class DeviceIdentifierById implements DeviceIdentifier {
     public DeviceIdentifierById() {
     }
 
-    public DeviceIdentifierById(long mrid) {
+    public static DeviceIdentifierById from(long id) {
+        return new DeviceIdentifierById(id);
+    }
+
+    private DeviceIdentifierById(long id) {
         this();
-        this.id = mrid;
+        this.id = id;
     }
 
     @Override
