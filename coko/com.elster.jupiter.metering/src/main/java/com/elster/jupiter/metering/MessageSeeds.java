@@ -134,7 +134,7 @@ public enum MessageSeeds implements MessageSeed {
 
     DUPLICATE_SLP_NAME(11001, Constants.DUPLICATE_SLP_NAME, "Synthetic load profile name must be unique", Level.SEVERE),
 
-    METER_ACTIVATION_INVALID_DATE(12001, Constants.METER_ACTIVATION_INVALID_DATE, "The metrology configuration's start date must be greater than, or equal to, the meters' activation date {0}"),
+    METER_ACTIVATION_INVALID_DATE(12001, Constants.METER_ACTIVATION_INVALID_DATE, "The metrology configuration''s start date must be greater than, or equal to, the meters'' activation date {0}"),
     METROLOGY_CONFIGURATION_INVALID_START_DATE(12002, Constants.METROLOGY_CONFIGURATION_INVALID_START_DATE, "Metrology configuration {0} could not be linked to usage point {1} at {2} because another metrology configuration is active at that point in time"),
     METER_ACTIVATION_INVALID_REQUIREMENTS(12203, Constants.METER_ACTIVATION_INVALID_REQUIREMENTS, "The meters of the usage point do not provide the necessary reading types for purposes {0}  of the new metrology configuration")
     ;

@@ -560,8 +560,8 @@ public class UsagePointImpl implements ServerUsagePoint {
     private void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Set<MetrologyContract> optionalContractsToActivate, Instant start, Instant end) {
         validateApplyTimeAndCreateDate(start);
         validateUsagePointStage(start);
-        validateMeterActivations(this.getMeterActivations(), start);
-        validateActiveMetrologyConfigs(metrologyConfiguration.getName(), start);
+        validateMeterActivationsStartDate(this.getMeterActivations(), start);
+        validateMetrologyConfigOverlapping(metrologyConfiguration, start);
         validateMeters(this.getMeterActivations(), metrologyConfiguration.getContracts());
         validateEffectiveMetrologyConfigurationInterval(start, end);
         validateAndClosePreviousMetrologyConfigurationIfExists(start);
@@ -625,18 +625,18 @@ public class UsagePointImpl implements ServerUsagePoint {
         }
     }
 
-    private void validateMeterActivations(List<MeterActivation> meterActivations, Instant mcStart) {
-        if (meterActivations.size() != 0) {
+    private void validateMeterActivationsStartDate(List<MeterActivation> meterActivations, Instant mcStart) {
+        if (!meterActivations.isEmpty()) {
             DateTimeFormatter dateTimeFormatter = userService.getUserPreferencesService().getDateTimeFormatter(threadPrincipalService.getPrincipal(), PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
             meterActivations.stream().filter(meterActivation -> meterActivation.getStart().isAfter(mcStart) || meterActivation.getStart().equals(mcStart)).findAny()
                     .orElseThrow(() -> UsagePointManagementException.incorrectMeterActivationTime(thesaurus, dateTimeFormatter.format(LocalDateTime.ofInstant(mcStart, ZoneId.systemDefault()))));
         }
     }
 
-    private void validateActiveMetrologyConfigs(String metrologyConfigurationName, Instant mcStart) {
-        if (this.getEffectiveMetrologyConfigurations().stream().filter(mc -> mc.isEffectiveAt(mcStart)).findFirst().isPresent()) {
+    private void validateMetrologyConfigOverlapping(UsagePointMetrologyConfiguration metrologyConfiguration, Instant mcStart) {
+        if (this.getEffectiveMetrologyConfigurations(Range.greaterThan(mcStart)).stream().findAny().isPresent()) {
             DateTimeFormatter dateTimeFormatter = userService.getUserPreferencesService().getDateTimeFormatter(threadPrincipalService.getPrincipal(), PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
-            throw UsagePointManagementException.incorrectMetrologyConfigStartDate(thesaurus, metrologyConfigurationName, this.getName(), dateTimeFormatter.format(LocalDateTime.ofInstant(mcStart, ZoneId.systemDefault())));
+            throw UsagePointManagementException.incorrectMetrologyConfigStartDate(thesaurus, metrologyConfiguration.getName(), this.getName(), dateTimeFormatter.format(LocalDateTime.ofInstant(mcStart, ZoneId.systemDefault())));
         }
     }
 

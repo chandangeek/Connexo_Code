@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.UsagePointManagementException;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
@@ -35,6 +36,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,6 +58,8 @@ public class UsagePointImplIT {
     public ExpectedConstraintViolationRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.getTransactionService());
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @BeforeClass
     public static void setUp() {
@@ -212,9 +216,11 @@ public class UsagePointImplIT {
         assertThat(metrologyConfigurations).hasSize(2);
     }
 
-    @Test(expected = UsagePointManagementException.class)
+    @Test
     @Transactional
     public void testCannotLinkMetrologyConfigWhenAnotherMetrConfigIsAlreadyLinked() {
+        expectedException.expect(UsagePointManagementException.class);
+        expectedException.expectMessage("Metrology configuration metrologyConfiguration2 could not be linked to usage point usagePoint at 01:00:00 Mon 01 Aug '16 because another metrology configuration is active at that point in time");
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint =
@@ -237,9 +243,11 @@ public class UsagePointImplIT {
         usagePoint.apply(configuration2, AUG_1ST_2016);
     }
 
-    @Test(expected = UsagePointManagementException.class)
+    @Test
     @Transactional
-    public void testCannotActivateMetrologyConfigWithInvalidStartDate() {
+    public void canNotLinkMetrologyConfigurationBeforeUsagePointInstallationTime() {
+        expectedException.expect(UsagePointManagementException.class);
+        expectedException.expectMessage("Start date must be greater than or equal to Created date of usage point");
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint =
@@ -255,9 +263,11 @@ public class UsagePointImplIT {
         usagePoint.apply(configuration1, JUNE_1ST_2016);
     }
 
-    @Test(expected = UsagePointManagementException.class)
+    @Test
     @Transactional
     public void testCannotActivateMetrologyConfigWithInvalidMeterActivationsDate() {
+        expectedException.expect(UsagePointManagementException.class);
+        expectedException.expectMessage("The metrology configuration's start date must be greater than, or equal to, the meters' activation date 01:00:00 Mon 15 Aug '16");
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter meter = system.newMeter("Meter", "meterName").create();
@@ -275,9 +285,11 @@ public class UsagePointImplIT {
         usagePoint.apply(configuration1, AUG_15TH_2016);
     }
 
-    @Test(expected = UsagePointManagementException.class)
+    @Test
     @Transactional
     public void testCannotActivateMetrologyConfigWithIncompatibleMeterRequirements() {
+        expectedException.expect(UsagePointManagementException.class);
+        expectedException.expectMessage("The meters of the usage point do not provide the necessary reading types for purposes [metrology.purpose.voltage.monitoring.name]  of the new metrology configuration");
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter meter = system.newMeter("Meter", "meterName").create();
@@ -293,9 +305,13 @@ public class UsagePointImplIT {
                         .getMetrologyConfigurationService()
                         .newUsagePointMetrologyConfiguration("metrologyConfiguration1", serviceCategory)
                         .create();
-        configuration.addMandatoryMetrologyContract(inMemoryBootstrapModule.getMetrologyConfigurationService().findMetrologyPurpose(3).get());
+        configuration.addMandatoryMetrologyContract(getMonitorVolatageMetrologyPurpose());
         configuration.activate();
         usagePoint.apply(configuration, AUG_1ST_2016);
+    }
+
+    private MetrologyPurpose getMonitorVolatageMetrologyPurpose() {
+        return inMemoryBootstrapModule.getMetrologyConfigurationService().findMetrologyPurpose(3).get();
     }
 
     @Test
