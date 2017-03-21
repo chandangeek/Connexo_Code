@@ -1,14 +1,17 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
-import org.junit.Test;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 
 import java.util.Optional;
+
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -37,8 +40,11 @@ public class OfflineLoadProfileChannelImplTest {
         Device device = mock(Device.class);
         when(device.getSerialNumber()).thenReturn(MASTER_SERIAL_NUMBER);
         when(device.getId()).thenReturn(DEVICE_ID);
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn(OfflineLoadProfileChannelImplTest.class.getSimpleName());
         Channel channel = mock(Channel.class);
         ChannelSpec channelSpec = mock(ChannelSpec.class);
+        when(channelSpec.getReadingType()).thenReturn(readingType);
         when(channel.getObisCode()).thenReturn(OfflineRegisterImplTest.REGISTER_MAPPING_OBISCODE);
         when(channel.getChannelSpec()).thenReturn(channelSpec);
         when(channel.getUnit()).thenReturn(CHANNEL_UNIT);
