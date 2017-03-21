@@ -16,13 +16,15 @@ Ext.define('Imt.usagepointhistory.controller.History', {
         'Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets',
         'Imt.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnUsagePoint',
         'Imt.usagepointmanagement.store.CalendarHistory',
-        'Imt.usagepointhistory.store.LifeCycleAndState'
+        'Imt.usagepointhistory.store.LifeCycleAndState',
+        'Imt.usagepointhistory.store.MetrologyConfigurationsHistory'
     ],
     views: [
         'Imt.usagepointhistory.view.Overview',
         'Imt.usagepointhistory.view.VersionsOverview',
         'Imt.usagepointhistory.view.CalendarsVersionsOverview',
-        'Imt.usagepointhistory.view.lifecycleandstate.LifeCycleAndState'
+        'Imt.usagepointhistory.view.lifecycleandstate.LifeCycleAndState',
+        'Imt.usagepointhistory.view.metrologyconfigurations.MetrologyConfigurationVersion'
     ],
     refs: [
         {
@@ -81,9 +83,11 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             return
         }
         var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router'),
             versionsStore = me.getStore('Imt.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnUsagePoint'),
             lifeCycleAndStateStore = me.getStore('Imt.usagepointhistory.store.LifeCycleAndState'),
+            metrologyConfigurationsHistoryStore = me.getStore('Imt.usagepointhistory.store.MetrologyConfigurationsHistory'),
             attributeSetModel = Ext.ModelManager.getModel('Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'),
             calendarStore = me.getStore('Imt.usagepointmanagement.store.CalendarHistory'),
             usagePointId = decodeURIComponent(router.arguments.usagePointId),
@@ -91,6 +95,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             cardView,
             onVersionsStoreLoad,
             url;
+
 
         if (oldCard) {
             oldCard.removeAll();
@@ -107,6 +112,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             });
         }
         else if (!customAttributeSetId) {
+            viewport.setLoading(true);
             if (router.queryParams.customAttributeSetId) {
                 delete router.queryParams.customAttributeSetId;
                 url = router.getRoute().buildUrl(router.arguments, router.queryParams);
@@ -114,16 +120,38 @@ Ext.define('Imt.usagepointhistory.controller.History', {
                 Uni.util.History.suspendEventsForNextCall();
                 window.location.replace(url);
             }
-            lifeCycleAndStateStore.getProxy().setParams(usagePointId);
-            Ext.suspendLayouts();
-            cardView = newCard.add({
-                xtype: 'life-cycle-and-state',
-                itemId: 'life-cycle-and-state',
-                margin: '10 0 0 0'
-            });
-            Ext.resumeLayouts(true);
-            lifeCycleAndStateStore.load();
-        } else {
+            if(newCard.itemId === 'up-life-cycle-tab'){
+                lifeCycleAndStateStore.getProxy().setParams(usagePointId);
+                Ext.suspendLayouts();
+                cardView = newCard.add({
+                    xtype: 'life-cycle-and-state',
+                    itemId: 'life-cycle-and-state',
+                    margin: '10 0 0 0'
+                });
+                Ext.resumeLayouts(true);
+                lifeCycleAndStateStore.load({
+                    callback: function () {
+                        viewport.setLoading(false);
+                    }
+                });
+            } else if(newCard.itemId === 'metrology-configurations-tab'){
+                metrologyConfigurationsHistoryStore.getProxy().setParams(usagePointId);
+                Ext.suspendLayouts();
+                cardView = newCard.add({
+                    xtype: 'metrology-configuration-version-overview',
+                    itemId: 'metrology-configuration-version-overview',
+                    router: router,
+                    margin: '10 0 0 0'
+                });
+                Ext.resumeLayouts(true);
+                metrologyConfigurationsHistoryStore.load({
+                    callback: function () {
+                        viewport.setLoading(false);
+                    }
+                });
+            }
+        }
+        else {
             if (customAttributeSetId != router.queryParams.customAttributeSetId) {
                 router.queryParams.customAttributeSetId = customAttributeSetId;
                 url = router.getRoute().buildUrl(router.arguments, router.queryParams);
