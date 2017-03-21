@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;
+import java.util.Collections;
 import java.util.Optional;
 
 public class InboundComPortPoolBuilder extends NamedBuilder<InboundComPortPool, InboundComPortPoolBuilder> {
@@ -39,7 +40,7 @@ public class InboundComPortPoolBuilder extends NamedBuilder<InboundComPortPool, 
     @Override
     public InboundComPortPool create() {
         InboundDeviceProtocolPluggableClass protocolPluggableClass = protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName("com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover").get(0);
-        InboundComPortPool inboundComPortPool = engineConfigurationService.newInboundComPortPool(getName(), ComPortType.SERVLET, protocolPluggableClass);
+        InboundComPortPool inboundComPortPool = engineConfigurationService.newInboundComPortPool(getName(), ComPortType.SERVLET, protocolPluggableClass, Collections.emptyMap());
         inboundComPortPool.setActive(isActive);
         inboundComPortPool.update();
         return inboundComPortPool;
