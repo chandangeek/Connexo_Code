@@ -27,7 +27,7 @@ public class ReadingQualityPropertyValue extends HasIdAndName {
     }
 
     public ReadingQualityPropertyValue(String cimCode, String systemName, String categoryName, String indexName) {
-        this.cimCode = cimCode;
+        this(cimCode);
         this.systemName = systemName;
         this.categoryName = categoryName;
         this.indexName = indexName;
@@ -46,23 +46,20 @@ public class ReadingQualityPropertyValue extends HasIdAndName {
         }
         ReadingQualityPropertyValue other = (ReadingQualityPropertyValue) obj;
 
-        String thisCimCode = getCimCode();
-        String thatCimCode = other.getCimCode();
-
-        String test;
-        String regex;
-
-        if (thisCimCode.contains(WILDCARD)) {
-            test = thatCimCode;
-            regex = escape(thisCimCode).replaceAll("\\*", ".");     //Replace the * wildcards with the proper regex wildcard
-        } else if (thatCimCode.contains(WILDCARD)) {
-            test = thisCimCode;
-            regex = escape(thatCimCode).replaceAll("\\*", ".");     //Replace the * wildcards with the proper regex wildcard
-        } else {
-            return thisCimCode.equals(thatCimCode);
+        String[] theseCodes = getCimCode().split("\\.");
+        String[] otherCodes = other.getCimCode().split("\\.");
+        if (theseCodes.length != otherCodes.length) {
+            return false;
         }
-
-        return test.matches(regex);
+        String thisCode, otherCode;
+        for (int i = 0; i < theseCodes.length; ++i) {
+            thisCode = theseCodes[i];
+            otherCode = otherCodes[i];
+            if (!WILDCARD.equals(thisCode) && !WILDCARD.equals(otherCode) && !thisCode.equals(otherCode)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -73,13 +70,6 @@ public class ReadingQualityPropertyValue extends HasIdAndName {
     @Override
     public String toString() {
         return getCimCode();
-    }
-
-    /**
-     * Escape the normal dot in the CIM code, so it is not interpreted as a regex character
-     */
-    private String escape(String cimCode) {
-        return cimCode.replaceAll("\\.", "\\\\.");
     }
 
     @Override
