@@ -53,14 +53,17 @@ public class CertificateAccessorImpl extends AbstractKeyAccessorImpl<Certificate
     }
 
     @Override
-    public void tempToActual() {
+    public void swapValues() {
         if (!tempCertificate.isPresent()) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.TEMP_VALUE_NOT_SET);
         }
-        CertificateWrapper certificateWrapper = actualCertificate.get();
+        if (!actualCertificate.isPresent()) {
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.TEMP_VALUE_NOT_SET);
+        }
+        CertificateWrapper actualCertificateWrapper = actualCertificate.get();
         actualCertificate.set(tempCertificate.get());
-        certificateWrapper.delete();
-        tempCertificate.setNull();
+        tempCertificate.set(actualCertificateWrapper);
+        this.save();
     }
 
     @Override
@@ -78,10 +81,13 @@ public class CertificateAccessorImpl extends AbstractKeyAccessorImpl<Certificate
         }
     }
 
-    private void clearTempValue() {
-        CertificateWrapper certificateWrapper = this.tempCertificate.get();
-        tempCertificate.setNull();
-        certificateWrapper.delete();
+    @Override
+    public void clearTempValue() {
+        if (tempCertificate.isPresent()) {
+            CertificateWrapper certificateWrapper = this.tempCertificate.get();
+            tempCertificate.setNull();
+            certificateWrapper.delete();
+        }
     }
 
     private void doRenewCertificate() throws CertificateEncodingException {

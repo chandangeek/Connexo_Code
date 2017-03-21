@@ -59,7 +59,9 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=truststores",
                 "osgi.command.function=createTrustStore",
                 "osgi.command.function=importSymmetricKey",
-                "osgi.command.function=renew"
+                "osgi.command.function=renew",
+                "osgi.command.function=swap",
+                "osgi.command.function=clearTemp"
 
         },
         immediate = true)
@@ -278,6 +280,64 @@ public class KeyAccessorCommands {
             context.commit();
         } catch (Exception e) {
             System.err.println("Failed to renew value: "+e.getMessage());
+        }
+    }
+
+    public void swap() {
+        System.out.println("Swap actual and temp values on a device for a key accessor type");
+        System.out.println("e.g.: swap 1001 MK");
+    }
+
+    public void swap(long deviceId, String keyAccessorTypeName) {
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            Device device = deviceService.findDeviceById(deviceId)
+                    .orElseThrow(() -> new RuntimeException("No such device"));
+            KeyAccessorType keyAccessorType = device.getDeviceType()
+                    .getKeyAccessorTypes()
+                    .stream()
+                    .filter(kat -> kat.getName().equals(keyAccessorTypeName))
+                    .findAny()
+                    .orElseThrow(() -> new RuntimeException("No such key accessor type on the device type: " + keyAccessorTypeName));
+
+            KeyAccessor keyAccessor = device.getKeyAccessor(keyAccessorType)
+                    .orElseThrow(() -> new RuntimeException("No key accessor for key accessor type " + keyAccessorTypeName));
+
+            keyAccessor.swapValues();
+
+            context.commit();
+        } catch (Exception e) {
+            System.err.println("Failed to swap values: "+e.getMessage());
+        }
+    }
+
+    public void clearTemp() {
+        System.out.println("Clears the temp value on a device for a key accessor type");
+        System.out.println("e.g.: clearTemp 1001 MK");
+    }
+
+    public void clearTemp(long deviceId, String keyAccessorTypeName) {
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            Device device = deviceService.findDeviceById(deviceId)
+                    .orElseThrow(() -> new RuntimeException("No such device"));
+            KeyAccessorType keyAccessorType = device.getDeviceType()
+                    .getKeyAccessorTypes()
+                    .stream()
+                    .filter(kat -> kat.getName().equals(keyAccessorTypeName))
+                    .findAny()
+                    .orElseThrow(() -> new RuntimeException("No such key accessor type on the device type: " + keyAccessorTypeName));
+
+            KeyAccessor keyAccessor = device.getKeyAccessor(keyAccessorType)
+                    .orElseThrow(() -> new RuntimeException("No key accessor for key accessor type " + keyAccessorTypeName));
+
+            keyAccessor.clearTempValue();
+
+            context.commit();
+        } catch (Exception e) {
+            System.err.println("Failed to clear temp value: "+e.getMessage());
         }
     }
 

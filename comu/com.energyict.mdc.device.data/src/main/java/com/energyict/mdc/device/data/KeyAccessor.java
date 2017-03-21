@@ -51,9 +51,14 @@ public interface KeyAccessor<T> {
     void renew();
 
     /**
-     * Moves the value in temp to actual. The original 'actual value' will be lost.
+     * Swaps the actual and temp value. This method can only be called of the Accessor has both an actual an a temp value.
      */
-    void tempToActual();
+    void swapValues();
+
+    /**
+     * The temp value and all keys and/or certificates it contains is destroyed
+     */
+    void clearTempValue();
 
     /**
      * Allows for the key accessor to be updated only

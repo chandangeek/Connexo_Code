@@ -5,11 +5,13 @@
 package com.energyict.mdc.device.data.impl.pki;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 
 import com.google.inject.Inject;
 
@@ -21,14 +23,16 @@ import java.util.Optional;
 public class SymmetricKeyAccessorImpl extends AbstractKeyAccessorImpl<SymmetricKeyWrapper> implements KeyAccessor<SymmetricKeyWrapper> {
     private final DataModel dataModel;
     private final PkiService pkiService;
+    private final Thesaurus thesaurus;
 
     private RefAny actualSymmetricKeyWrapperReference;
     private RefAny tempSymmetricKeyWrapperReference;
 
     @Inject
-    public SymmetricKeyAccessorImpl(DataModel dataModel, PkiService pkiService) {
+    public SymmetricKeyAccessorImpl(DataModel dataModel, PkiService pkiService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.pkiService = pkiService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -65,15 +69,28 @@ public class SymmetricKeyAccessorImpl extends AbstractKeyAccessorImpl<SymmetricK
         this.save();
     }
 
-    private void clearTempValue() {
-        SymmetricKeyWrapper symmetricKeyWrapper = (SymmetricKeyWrapper) this.tempSymmetricKeyWrapperReference.get();
-        this.tempSymmetricKeyWrapperReference = null; // TODO will this work?
-        symmetricKeyWrapper.delete();
+    @Override
+    public void clearTempValue() {
+        if (tempSymmetricKeyWrapperReference.isPresent()) {
+            SymmetricKeyWrapper symmetricKeyWrapper = (SymmetricKeyWrapper) this.tempSymmetricKeyWrapperReference.get();
+            this.tempSymmetricKeyWrapperReference = null;
+            symmetricKeyWrapper.delete();
+            this.save();
+        }
     }
 
     @Override
-    public void tempToActual() {
-
+    public void swapValues() {
+        if (!actualSymmetricKeyWrapperReference.isPresent()) {
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.ACTUAL_VALUE_NOT_SET);
+        }
+        if (!tempSymmetricKeyWrapperReference.isPresent()) {
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.TEMP_VALUE_NOT_SET);
+        }
+        Object actual = actualSymmetricKeyWrapperReference.get();
+        actualSymmetricKeyWrapperReference = dataModel.asRefAny(tempSymmetricKeyWrapperReference.get());
+        tempSymmetricKeyWrapperReference = dataModel.asRefAny(actual);
+        this.save();
     }
 
     @Override
