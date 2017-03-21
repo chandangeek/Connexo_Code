@@ -56,19 +56,19 @@ public class DataQualityOverviewBuilderTest {
     @Mock
     private Estimator estimator1, estimator2;
 
-    private UsagePointDataQualityServiceImpl deviceDataQualityService;
+    private UsagePointDataQualityServiceImpl usagePointDataQualityService;
 
     @Before
     public void setUp() {
         when(ormService.getDataModel(any())).thenReturn(Optional.of(dataModel));
         when(clock.instant()).thenReturn(Instant.now());
-        deviceDataQualityService = new UsagePointDataQualityServiceImpl(ormService, validationService, estimationService, clock);
+        usagePointDataQualityService = new UsagePointDataQualityServiceImpl(ormService, validationService, estimationService, clock);
     }
 
     @Test
     public void buildWithUsagePointGroups() {
         // Business method
-        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
+        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) usagePointDataQualityService
                 .forAllUsagePoints()
                 .in(Collections.emptyList())
                 .in(Collections.singletonList(usagePointGroup1))
@@ -82,7 +82,7 @@ public class DataQualityOverviewBuilderTest {
     @Test
     public void buildWithMetrologyConfigurations() {
         // Business method
-        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
+        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) usagePointDataQualityService
                 .forAllUsagePoints()
                 .of(Collections.emptyList())
                 .of(Collections.singletonList(metrologyConfiguration1))
@@ -96,7 +96,7 @@ public class DataQualityOverviewBuilderTest {
     @Test
     public void buildWithMetrologyPurposes() {
         // Business method
-        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
+        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) usagePointDataQualityService
                 .forAllUsagePoints()
                 .with(Collections.emptyList())
                 .with(Collections.singletonList(metrologyPurpose1))
@@ -113,7 +113,7 @@ public class DataQualityOverviewBuilderTest {
         Range<Instant> period = Range.open(now.minusSeconds(1), now.plusSeconds(1));
 
         // Business method
-        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
+        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) usagePointDataQualityService
                 .forAllUsagePoints()
                 .in(period);
 
@@ -125,7 +125,7 @@ public class DataQualityOverviewBuilderTest {
     @Test
     public void buildForSuspects() {
         // Business method
-        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
+        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) usagePointDataQualityService
                 .forAllUsagePoints()
                 .havingSuspects();
 
@@ -137,7 +137,7 @@ public class DataQualityOverviewBuilderTest {
     @Test
     public void buildForEstimates() {
         // Business method
-        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
+        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) usagePointDataQualityService
                 .forAllUsagePoints()
                 .havingEstimates();
 
@@ -149,7 +149,7 @@ public class DataQualityOverviewBuilderTest {
     @Test
     public void buildForEdited() {
         // Business method
-        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
+        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) usagePointDataQualityService
                 .forAllUsagePoints()
                 .havingEdited();
 
@@ -162,7 +162,7 @@ public class DataQualityOverviewBuilderTest {
     @Test
     public void buildForConfirmed() {
         // Business method
-        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
+        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) usagePointDataQualityService
                 .forAllUsagePoints()
                 .havingConfirmed();
 
@@ -174,7 +174,7 @@ public class DataQualityOverviewBuilderTest {
     @Test
     public void buildForInformatives() {
         // Business method
-        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
+        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) usagePointDataQualityService
                 .forAllUsagePoints()
                 .havingInformatives();
 
@@ -186,7 +186,7 @@ public class DataQualityOverviewBuilderTest {
     @Test
     public void buildWithExactMatchAmountOfSuspects() {
         // Business method
-        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
+        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) usagePointDataQualityService
                 .forAllUsagePoints()
                 .withSuspectsAmount()
                 .equalTo(10);
@@ -200,7 +200,7 @@ public class DataQualityOverviewBuilderTest {
     @Test
     public void buildWithRangeMatchAmountOfSuspects() {
         // Business method
-        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
+        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) usagePointDataQualityService
                 .forAllUsagePoints()
                 .withSuspectsAmount()
                 .inRange(Range.atLeast(10L));
@@ -214,7 +214,7 @@ public class DataQualityOverviewBuilderTest {
     @Test
     public void buildWithExactMatchAmountOfEstimates() {
         // Business method
-        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
+        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) usagePointDataQualityService
                 .forAllUsagePoints()
                 .withEstimatesAmount()
                 .equalTo(10);
@@ -228,7 +228,7 @@ public class DataQualityOverviewBuilderTest {
     @Test
     public void buildWithRangeMatchAmountOfEstimates() {
         // Business method
-        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
+        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) usagePointDataQualityService
                 .forAllUsagePoints()
                 .withEstimatesAmount()
                 .inRange(Range.atLeast(10L));
@@ -242,7 +242,7 @@ public class DataQualityOverviewBuilderTest {
     @Test
     public void buildWithExactMatchAmountOfEdited() {
         // Business method
-        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
+        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) usagePointDataQualityService
                 .forAllUsagePoints()
                 .withEditedAmount()
                 .equalTo(10);
@@ -256,7 +256,7 @@ public class DataQualityOverviewBuilderTest {
     @Test
     public void buildWithRangeMatchAmountOfEdited() {
         // Business method
-        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
+        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) usagePointDataQualityService
                 .forAllUsagePoints()
                 .withEditedAmount()
                 .inRange(Range.atLeast(10L));
@@ -270,7 +270,7 @@ public class DataQualityOverviewBuilderTest {
     @Test
     public void buildWithExactMatchAmountOfConfirmed() {
         // Business method
-        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
+        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) usagePointDataQualityService
                 .forAllUsagePoints()
                 .withConfirmedAmount()
                 .equalTo(10);
@@ -284,7 +284,7 @@ public class DataQualityOverviewBuilderTest {
     @Test
     public void buildWithRangeMatchAmountOfConfirmed() {
         // Business method
-        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
+        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) usagePointDataQualityService
                 .forAllUsagePoints()
                 .withConfirmedAmount()
                 .inRange(Range.atLeast(10L));
@@ -298,7 +298,7 @@ public class DataQualityOverviewBuilderTest {
     @Test
     public void buildWithExactMatchAmountOfInformatives() {
         // Business method
-        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
+        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) usagePointDataQualityService
                 .forAllUsagePoints()
                 .withInformativesAmount()
                 .equalTo(10);
@@ -312,7 +312,7 @@ public class DataQualityOverviewBuilderTest {
     @Test
     public void buildWithRangeMatchAmountOfInformatives() {
         // Business method
-        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
+        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) usagePointDataQualityService
                 .forAllUsagePoints()
                 .withInformativesAmount()
                 .inRange(Range.atLeast(10L));
@@ -326,7 +326,7 @@ public class DataQualityOverviewBuilderTest {
     @Test
     public void buildWithValidators() {
         // Business method
-        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
+        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) usagePointDataQualityService
                 .forAllUsagePoints()
                 .suspectedBy(Collections.emptyList())
                 .suspectedBy(Collections.singletonList(validator1))
@@ -340,7 +340,7 @@ public class DataQualityOverviewBuilderTest {
     @Test
     public void buildWithEstimators() {
         // Business method
-        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) deviceDataQualityService
+        DataQualityOverviewBuilderImpl builder = (DataQualityOverviewBuilderImpl) usagePointDataQualityService
                 .forAllUsagePoints()
                 .estimatedBy(Collections.emptyList())
                 .estimatedBy(Collections.singletonList(estimator1))

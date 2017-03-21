@@ -25,7 +25,7 @@ import java.sql.SQLException;
 import java.time.Clock;
 
 @Component(
-        name = "com.elsetr.jupiter.mdm.dataquality",
+        name = "com.elster.jupiter.mdm.dataquality",
         service = {UsagePointDataQualityService.class},
         property = "name=" + UsagePointDataQualityService.COMPONENT_NAME,
         immediate = true
