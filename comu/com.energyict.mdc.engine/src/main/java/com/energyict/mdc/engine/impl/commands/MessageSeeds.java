@@ -80,8 +80,7 @@ public enum MessageSeeds implements MessageSeed, com.energyict.mdc.upl.nls.Messa
     MAC_CHECK_FAILURE(5065, "macCheckFailure", "Failed to execute command due to message authentication check failure."),
     UNSUPPORTED_PROTOCOL_PROPERTY_TYPE(5066, "protocolPropertyUnsupportedType", "Unsupported protocol property type"),
     INCOMPATIBLE_PROTOCOL_PROPERTY_VALUE(5067, "protocolPropertyIncompatibleValue", "Value of protocol property is not compatible with the type definition"),
-    UNKNOWN_DEVICE(5068, "collectedDeviceProtocolPropertyForUnknownDevice", "Protocol property for unknown device")
-    ;
+    UNKNOWN_DEVICE(5068, "collectedDeviceProtocolPropertyForUnknownDevice", "Protocol property for unknown device");
 
     private final int number;
     private final String key;

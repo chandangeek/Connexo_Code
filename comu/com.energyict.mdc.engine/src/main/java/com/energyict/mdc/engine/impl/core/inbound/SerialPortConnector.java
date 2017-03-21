@@ -118,7 +118,11 @@ public class SerialPortConnector implements InboundComPortConnector {
                 comPort.getAddressSelector(),
                 null,//Use the default line toggle delay
                 comPort.getPostDialCommands());
-        atModemComponent.initializeModem(comPort.getName(), comChannel);
+        try {
+            atModemComponent.initializeModem(comPort.getName(), comChannel);
+        } catch (com.energyict.mdc.upl.io.ModemException e) {
+            throw ModemException.from(e);
+        }
         return atModemComponent;
     }
 

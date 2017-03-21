@@ -11,12 +11,12 @@ import com.energyict.mdc.channel.serial.ServerSerialPort;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
+import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.io.impl.SerialIOAtModemComponentServiceImpl;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.api.impl.HexServiceImpl;
 import com.energyict.mdc.protocol.api.services.HexService;
-import com.energyict.mdc.upl.io.ModemException;
 import com.energyict.mdc.upl.io.SerialComponentService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -70,7 +70,8 @@ public class SerialPortConnectorTest {
     public void initializeMocks() throws IOException {
         when(comPort.getName()).thenReturn("COM3");
         when(comPort.getSerialPortConfiguration()).thenReturn(
-                new SerialPortConfiguration("Unknown",
+                new SerialPortConfiguration(
+                        "Unknown",
                         BaudrateValue.BAUDRATE_9600,
                         NrOfDataBits.EIGHT,
                         NrOfStopBits.ONE,
@@ -380,8 +381,6 @@ public class SerialPortConnectorTest {
         SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock, this.deviceMessageService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
-//        serialComChannel.setResponses(Arrays.asList("RUBBISH - RUBBISH", "RUBBISH - RUBBISH", "RUBBISH - RUBBISH"));      // Answer at modem hang up command (first try)
-
         serialComChannel.setResponseTimings(Collections.singletonList(0));    // Answer at modem hang up command
         int expectedRunTime = 1 + (3 * 1);    // Delay before hang up + 3 tries to hang up
         long timeBeforeConnect = System.currentTimeMillis();
@@ -390,7 +389,9 @@ public class SerialPortConnectorTest {
         try {
             portConnector.accept();
         } catch (ModemException e) {
-            assertThat(e.getType()).isEqualTo(ModemException.Type.MODEM_COULD_NOT_HANG_UP);
+            assertThat(e.getCause()).isInstanceOf(com.energyict.mdc.upl.io.ModemException.class);
+            com.energyict.mdc.upl.io.ModemException cause = (com.energyict.mdc.upl.io.ModemException) e.getCause();
+            assertThat(cause.getType()).isEqualTo(com.energyict.mdc.upl.io.ModemException.Type.MODEM_COULD_NOT_HANG_UP);
             long timeAfterConnect = System.currentTimeMillis();
             long connectTime = timeAfterConnect - timeBeforeConnect;
             long secs = connectTime / DateTimeConstants.MILLIS_PER_SECOND;
