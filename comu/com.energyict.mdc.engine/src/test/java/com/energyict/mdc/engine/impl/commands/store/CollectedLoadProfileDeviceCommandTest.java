@@ -6,11 +6,11 @@ import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDeviceByMrID;
 import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.engine.DeviceCreator;
 import com.energyict.mdc.engine.config.ComServer;
@@ -18,18 +18,14 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
+
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalValue;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -41,9 +37,17 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -185,11 +189,12 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         long deviceId = device.getId();
         when(this.getComServerDAOServiceProvider().deviceService()).thenReturn(this.deviceService);
         when(this.deviceService.findDeviceById(deviceId)).thenReturn(Optional.of(device));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(device))).thenReturn(Optional.of(device));
 
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(device.getLoadProfiles().get(0));
 
         final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, null, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
-        OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
+        OfflineLoadProfile offlineLoadProfile = createOfflineLoadProfile(device);
 
         final ComServerDAO comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
 
@@ -234,9 +239,10 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(device.getLoadProfiles().get(0));
         when(this.getComServerDAOServiceProvider().deviceService()).thenReturn(this.deviceService);
         when(this.deviceService.findDeviceById(deviceId)).thenReturn(Optional.of(device));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(device))).thenReturn(Optional.of(device));
 
         final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, null, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
-        OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
+        OfflineLoadProfile offlineLoadProfile = createOfflineLoadProfile(device);
 
         final ComServerDAO comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
         freezeClock(verificationTimeStamp);
@@ -281,7 +287,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         when(this.deviceService.findDeviceById(deviceId)).thenReturn(Optional.of(device));
 
         final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, null, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
-        OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
+        OfflineLoadProfile offlineLoadProfile = createOfflineLoadProfile(device);
 
         final ComServerDAO comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
 
@@ -317,9 +323,10 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(device.getLoadProfiles().get(0));
         when(this.getComServerDAOServiceProvider().deviceService()).thenReturn(this.deviceService);
         when(this.deviceService.findDeviceById(deviceId)).thenReturn(Optional.of(device));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(device))).thenReturn(Optional.of(device));
 
         CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, null, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
-        OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
+        OfflineLoadProfile offlineLoadProfile = createOfflineLoadProfile(device);
 
         final ComServerDAO comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
 
@@ -377,9 +384,10 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(loadProfile);
         when(this.getComServerDAOServiceProvider().deviceService()).thenReturn(this.deviceService);
         when(this.deviceService.findDeviceById(device.getId())).thenReturn(Optional.of(device));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(device))).thenReturn(Optional.of(device));
 
         final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, null, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
-        OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
+        OfflineLoadProfile offlineLoadProfile = createOfflineLoadProfile(device);
 
         final ComServerDAO comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
 
@@ -409,9 +417,10 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(dataLogger.getLoadProfiles().get(0));
         when(this.getComServerDAOServiceProvider().deviceService()).thenReturn(this.deviceService);
         when(this.deviceService.findDeviceById(deviceId)).thenReturn(Optional.of(dataLogger));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(dataLogger))).thenReturn(Optional.of(dataLogger));
 
         final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, null, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
-        OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(dataLogger);
+        OfflineLoadProfile offlineLoadProfile = createOfflineLoadProfile(dataLogger);
 
         final ComServerDAO comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
         freezeClock(verificationTimeStamp);
@@ -467,16 +476,18 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
 
         when(this.getComServerDAOServiceProvider().deviceService()).thenReturn(this.deviceService);
         when(this.deviceService.findDeviceById(dataLoggerId)).thenReturn(Optional.of(dataLogger));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(dataLogger))).thenReturn(Optional.of(dataLogger));
         when(this.deviceService.findDeviceById(slaveId)).thenReturn(Optional.of(slave));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDeviceByMrID(slave))).thenReturn(Optional.of(slave));
 
-        HashMap<com.energyict.mdc.device.data.Channel, com.energyict.mdc.device.data.Channel> channelMap = new HashMap<>();
+        Map<com.energyict.mdc.device.data.Channel, com.energyict.mdc.device.data.Channel> channelMap = new HashMap<>();
         // Linking the slave
         LoadProfile dataLoggerLoadProfile = dataLogger.getLoadProfiles().get(0);
         LoadProfile slaveLoggerLoadProfile = slave.getLoadProfiles().get(0);
         slaveLoggerLoadProfile.getChannels().stream().forEach(slaveChannel -> {
             channelMap.put(slaveChannel, dataLoggerLoadProfile.getChannels().get(channelMap.size()));
         });
-        createMockedOfflineLoadProfile(slave);
+        createOfflineLoadProfile(slave);
 
         getTopologyService().setDataLogger(slave, dataLogger, fromClock.toInstant(), channelMap, new HashMap<>());
         //Assert the linking of the data logger channels with the slave channels
@@ -485,9 +496,8 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
 
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(dataLogger.getLoadProfiles().get(0));
 
-
         final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, null, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
-        OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(dataLogger);
+        OfflineLoadProfile offlineLoadProfile = createOfflineLoadProfile(dataLogger);
 
         final ComServerDAO comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
         freezeClock(verificationTimeStamp);

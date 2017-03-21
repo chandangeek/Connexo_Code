@@ -8,7 +8,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.masterdata.LoadProfileIntervals;
@@ -18,6 +17,8 @@ import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLoadProfileChannel;
+
+import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
 import com.google.common.collect.Range;
 
@@ -230,11 +231,11 @@ public class PreStoreLoadProfile {
             }
         }
 
-        final protected Range<Instant> getRangeForNewIntervalStorage(Instant intervalStorageEnd) {
+        protected final Range<Instant> getRangeForNewIntervalStorage(Instant intervalStorageEnd) {
             return Range.openClosed(offlineLoadProfile.getLastReading() == null ? Instant.EPOCH : offlineLoadProfile.getLastReading().toInstant(), intervalStorageEnd);
         }
 
-        final protected IntervalReading getMultipliedReading(BigDecimal multiplier, IntervalReading intervalReading) {
+        protected final IntervalReading getMultipliedReading(BigDecimal multiplier, IntervalReading intervalReading) {
             if (!Checks.is(multiplier).equalValue(BigDecimal.ONE)) {
                 return IntervalReadingImpl.of(intervalReading.getTimeStamp(), intervalReading.getValue().multiply(multiplier), intervalReading.getReadingQualities());
             } else {
@@ -242,7 +243,7 @@ public class PreStoreLoadProfile {
             }
         }
 
-        final protected IntervalReading getScaledIntervalReading(int scaler, IntervalReading intervalReading) {
+        protected final IntervalReading getScaledIntervalReading(int scaler, IntervalReading intervalReading) {
             if (scaler == 0) {
                 return intervalReading;
             } else {
@@ -251,7 +252,7 @@ public class PreStoreLoadProfile {
             }
         }
 
-        final protected int getScaler(Unit fromUnit, Unit toUnit) {
+        protected final int getScaler(Unit fromUnit, Unit toUnit) {
             if (fromUnit.equalBaseUnit(toUnit)) {
                 return fromUnit.getScale() - toUnit.getScale();
             } else {
