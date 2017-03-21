@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -84,6 +85,7 @@ public class TariffCalendarFinderImplTest {
 
     @Test
     public void nonExistingCalendar() {
+        when(this.service.findCalendar(anyLong())).thenReturn(Optional.empty());
         TariffCalendarFinderImpl finder = this.getInstance();
 
         // Business method
@@ -91,7 +93,7 @@ public class TariffCalendarFinderImplTest {
 
         // Asserts
         assertThat(calendar).isEmpty();
-        verify(this.service.findCalendar(101L));
+        verify(this.service).findCalendar(101L);
     }
 
     @Test
@@ -102,7 +104,7 @@ public class TariffCalendarFinderImplTest {
         Optional<TariffCalendar> calendar = finder.from(Long.toString(CALENDAR_ID));
 
         // Asserts
-        verify(this.service.findCalendar(CALENDAR_ID));
+        verify(this.service).findCalendar(CALENDAR_ID);
     }
 
     private TariffCalendarFinderImpl getInstance() {
