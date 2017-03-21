@@ -8,7 +8,7 @@
   </application>
   <executable name="Connexo" type="1" iconSet="false" iconFile="" executableDir="./bin" redirectStderr="false" stderrFile="error.log" stderrMode="overwrite" redirectStdout="false" stdoutFile="output.log" stdoutMode="overwrite" failOnStderrOutput="true" executableMode="2" changeWorkingDirectory="true" workingDirectory=".." singleInstance="false" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="asInvoker" checkConsoleParameter="false" globalSingleInstance="false" singleInstanceActivate="true" dpiAware="false" amd64="true">
     <messageSet />
-    <versionInfo include="true" fileVersion="" fileDescription="" legalCopyright="" internalName="Connexo" productName="" companyName="Elster EnergyICT" productVersion="10.1.0" />
+    <versionInfo include="true" fileVersion="" fileDescription="" legalCopyright="Copyright (c) 2013 by Honeywell International Inc. All Rights Reserved" internalName="Connexo" productName="" companyName="Honeywell" productVersion="10.3" />
   </executable>
   <splashScreen show="false" width="0" height="0" bitmapFile="" windowsNative="false" textOverlay="false">
     <text>
@@ -18,6 +18,7 @@
   </splashScreen>
   <java mainClass="com.elster.jupiter.launcher.ConnexoLauncher" vmParameters="" arguments="" allowVMPassthroughParameters="true" preferredVM="server" bundleRuntime="true" minVersion="1.8" maxVersion="" allowBetaVM="false" jdkOnly="false">
     <searchSequence>
+      <directory location="../jre" />
       <envVar name="JAVA_HOME" />
       <envVar name="JDK_HOME" />
       <registry />
