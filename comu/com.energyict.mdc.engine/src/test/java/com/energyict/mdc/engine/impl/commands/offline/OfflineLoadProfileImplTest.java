@@ -15,6 +15,7 @@ import com.energyict.obis.ObisCode;
 import java.sql.Date;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.Test;
@@ -61,6 +62,7 @@ public class OfflineLoadProfileImplTest {
         when(loadProfile.getId()).thenReturn(id);
         when(loadProfile.getLastReading()).thenReturn(Date.from(LAST_READING));
         when(loadProfile.getDevice()).thenReturn(device);
+        when(loadProfile.getDeviceObisCode()).thenReturn(obisCode);
         return loadProfile;
     }
 
@@ -83,7 +85,7 @@ public class OfflineLoadProfileImplTest {
         when(device2.getChannels()).thenReturn(Arrays.asList(channel3, channel4));
         when(device2.isLogicalSlave()).thenReturn(true);
         when(newMockedLoadProfile.getDevice()).thenReturn(device1);
-        when(topologyService.findPhysicalConnectedDevices(device1)).thenReturn(Arrays.asList(device2));
+        when(topologyService.findPhysicalConnectedDevices(device1)).thenReturn(Collections.singletonList(device2));
         when(newMockedLoadProfile.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
         return newMockedLoadProfile;
     }
@@ -106,8 +108,7 @@ public class OfflineLoadProfileImplTest {
         assertThat(offlineLoadProfile.getObisCode()).isEqualTo(loadProfileObisCode);
         assertThat(offlineLoadProfile.getLoadProfileId()).isEqualTo(LOAD_PROFILE_ID);
         assertThat(offlineLoadProfile.interval()).isEqualTo(PROFILE_INTERVAL.asTemporalAmount());
-        assertThat(offlineLoadProfile.getLastReading() != null).isTrue();
-        assertThat(offlineLoadProfile.getLastReading()).isEqualTo(LAST_READING);
+        assertThat(offlineLoadProfile.getLastReading()).isEqualTo(Date.from(LAST_READING));
         assertThat(offlineLoadProfile.getDeviceId()).isEqualTo(RTU_ID);
         assertThat(offlineLoadProfile.getLoadProfileTypeId()).isEqualTo(LOAD_PROFILE_TYPE_ID);
         assertThat(offlineLoadProfile.getMasterSerialNumber()).isEqualTo(MASTER_SERIAL_NUMBER);
