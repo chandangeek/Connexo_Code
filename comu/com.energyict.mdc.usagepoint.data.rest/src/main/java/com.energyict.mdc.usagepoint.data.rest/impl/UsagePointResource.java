@@ -11,7 +11,6 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
-import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
@@ -285,8 +284,7 @@ public class UsagePointResource {
         readingTypeDeliverable.get().getFormula().getExpressionNode().accept(readingTypeRequirementsCollector);
         List<ReadingTypeRequirement> readingTypeRequirements = readingTypeRequirementsCollector.getReadingTypeRequirements();
         if (!readingTypeRequirements.isEmpty()) {
-            FullySpecifiedReadingTypeRequirement readingTypeRequirement = (FullySpecifiedReadingTypeRequirement) readingTypeRequirements
-                    .get(0);// expecting max 1 requirement
+            ReadingTypeRequirement readingTypeRequirement = readingTypeRequirements.get(0);// expecting max 1 requirement
             return Optional.of(readingTypeRequirement);
         }
         return Optional.empty();
