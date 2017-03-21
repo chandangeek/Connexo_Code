@@ -29,7 +29,7 @@ class DeviceRequestType extends IdBusinessObjectRequestType {
 
     @Override
     protected Request newRequestAccording(String parameterString) throws BusinessObjectParseException {
-        try{
+        try {
             parameterString = parameterString.replaceAll("\\s*,\\s*", ",");
             //As the parameterString could not be parsed to a List of long,
             // We consider the parameterString being a comma separated list of MRID's
@@ -43,7 +43,7 @@ class DeviceRequestType extends IdBusinessObjectRequestType {
                 return this.newRequestForAll();
             }
             return new DeviceRequest(deviceService, mrids);
-        }catch (CanNotFindForIdentifier e) {
+        } catch (CanNotFindForIdentifier e) {
             DeviceIdentifier identifier = (DeviceIdentifier) e.getMessageArguments()[0];
             throw new BusinessObjectParseException(identifier.toString() + " could not be found", e);
         }

@@ -26,6 +26,7 @@ public class RequestParser {
     private final RunningComServer comServer;
     private final ServiceProvider serviceProvider;
     private List<RequestType> requestTypes;
+
     public RequestParser(RunningComServer comServer, ServiceProvider serviceProvider) {
         this.comServer = comServer;
         this.serviceProvider = serviceProvider;

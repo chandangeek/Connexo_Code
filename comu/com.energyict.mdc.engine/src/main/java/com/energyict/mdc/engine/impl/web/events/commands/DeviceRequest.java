@@ -2,11 +2,14 @@ package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
+import com.energyict.mdc.engine.impl.DeviceIdentifierById;
+import com.energyict.mdc.engine.impl.DeviceIdentifierByMRID;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -50,19 +53,27 @@ class DeviceRequest extends IdBusinessObjectRequest {
     private void validateDeviceIds() {
         this.devices = this.getBusinessObjectIds()
                 .stream()
-                .map(deviceService::findDeviceById)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .map(this::findDeviceByIdOrThrowException)
                 .collect(Collectors.toList());
     }
 
     private void validateDeviceMRIDs(List<String> deviceMRIDs) {
         this.devices = deviceMRIDs
                 .stream()
-                .map(deviceService::findDeviceByMrid)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .map(this::findDeviceByMRIDOrThrowException)
                 .collect(Collectors.toList());
+    }
+
+    private Device findDeviceByIdOrThrowException(long id) {
+        return this.deviceService
+                .findDeviceById(id)
+                .orElseThrow(() -> CanNotFindForIdentifier.device(new DeviceIdentifierById(id), MessageSeeds.CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER));
+    }
+
+    private Device findDeviceByMRIDOrThrowException(String mRID) {
+        return this.deviceService
+                .findDeviceByMrid(mRID)
+                .orElseThrow(() -> CanNotFindForIdentifier.device(new DeviceIdentifierByMRID(mRID), MessageSeeds.CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER));
     }
 
     @Override

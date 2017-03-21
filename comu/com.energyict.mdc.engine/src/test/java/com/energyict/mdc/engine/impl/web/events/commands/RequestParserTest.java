@@ -27,6 +27,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -343,6 +345,9 @@ public class RequestParserTest {
 
     @Test(expected = BusinessObjectParseException.class)
     public void testMultipleDeviceWithMRIDAndUnknown() throws RequestParseException {
+        when(this.deviceService.findDeviceById(anyLong())).thenReturn(Optional.empty());
+        when(this.deviceService.findDeviceByIdentifier(any(DeviceIdentifier.class))).thenReturn(Optional.empty());
+        when(this.deviceService.findDeviceByMrid(anyString())).thenReturn(Optional.empty());
         doThrow(CanNotFindForIdentifier.device(mock(DeviceIdentifier.class), null)).when(this.identificationService).createDeviceIdentifierByMRID("unknown");
         this.mockDevices();
         RequestParser parser = new RequestParser(this.runningComServer, this.serviceProvider);
@@ -359,6 +364,9 @@ public class RequestParserTest {
 
     @Test(expected = BusinessObjectParseException.class)
     public void testNonExistingDevice() throws RequestParseException {
+        when(this.deviceService.findDeviceById(anyLong())).thenReturn(Optional.empty());
+        when(this.deviceService.findDeviceByIdentifier(any(DeviceIdentifier.class))).thenReturn(Optional.empty());
+        when(this.deviceService.findDeviceByMrid(anyString())).thenReturn(Optional.empty());
         doThrow(CanNotFindForIdentifier.device(mock(DeviceIdentifier.class), null)).when(this.identificationService).createDeviceIdentifierByMRID(NON_EXISTING_DEVICE_MRID);
         this.mockDevices();
         RequestParser parser = new RequestParser(this.runningComServer, this.serviceProvider);
@@ -753,9 +761,10 @@ public class RequestParserTest {
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(deviceId);
         when(this.deviceService.findDeviceById(deviceId)).thenReturn(Optional.of(device));
+        when(this.deviceService.findDeviceByMrid("MRID_" + deviceId)).thenReturn(Optional.of(device));
         when(this.deviceService.findDeviceByIdentifier(deviceIdentifier)).thenReturn(Optional.of(device));
         when(this.identificationService.createDeviceIdentifierByDatabaseId(deviceId)).thenReturn(deviceIdentifier);
-        when(this.identificationService.createDeviceIdentifierByMRID("MRID_"+deviceId)).thenReturn(deviceIdentifier);
+        when(this.identificationService.createDeviceIdentifierByMRID("MRID_" + deviceId)).thenReturn(deviceIdentifier);
     }
 
     private void mockConnectionTasks() {
