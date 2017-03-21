@@ -21,7 +21,7 @@ public final class UsagePointPrivileges {
         if(EnumSet.of(UsagePointStage.Key.PRE_OPERATIONAL, UsagePointStage.Key.SUSPENDED).contains(usagePoint.getState().getStage().getKey())) {
             if(usagePoint.getEffectiveMetrologyConfigurations().stream()
                     .map(EffectiveMetrologyConfigurationOnUsagePoint::getRange)
-                    .anyMatch(Range::hasUpperBound)){
+                    .allMatch(Range::hasUpperBound)){
                 privileges.add(LINK_METROLOGY_CONFIG);
             }
         }

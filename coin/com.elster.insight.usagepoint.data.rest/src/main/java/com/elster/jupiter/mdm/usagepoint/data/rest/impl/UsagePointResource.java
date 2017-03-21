@@ -95,7 +95,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Duration;
@@ -924,13 +927,9 @@ public class UsagePointResource {
             Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getUsagePointPrivileges(@PathParam("name") String name ,@BeanParam JsonQueryParameters queryParameters) {
-
-        List<IdWithNameInfo> privileges = UsagePointPrivileges
-                .getUsagePointPrivilegesBasedOnStage(resourceHelper.findUsagePointByNameOrThrowException(name))
-                .stream()
-                .map(privilege -> new IdWithNameInfo(null, privilege))
-                .collect(Collectors.toList());
-        return PagedInfoList.fromCompleteList("privileges", privileges, queryParameters);
+        List<String> actions = UsagePointPrivileges
+                .getUsagePointPrivilegesBasedOnStage(resourceHelper.findUsagePointByNameOrThrowException(name));
+        return PagedInfoList.fromCompleteList("privileges", actions, queryParameters);
     }
 
     private boolean isMember(UsagePoint usagePoint, UsagePointGroup usagePointGroup) {
