@@ -61,7 +61,7 @@ public final class DeviceIdentifierById implements DeviceIdentifier {
 
     @Override
     public int hashCode() {
-        return Long.valueOf(this.id).hashCode();
+        return Long.hashCode(this.id);
     }
 
     private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
