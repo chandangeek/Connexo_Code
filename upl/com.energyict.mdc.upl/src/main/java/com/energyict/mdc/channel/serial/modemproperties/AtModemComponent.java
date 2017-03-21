@@ -133,7 +133,7 @@ public class AtModemComponent implements ModemComponent, Serializable {
     }
 
     /**
-     * Send all initialization strings to the modem
+     * Sends all initialization strings to the modem.
      *
      * @param comChannel the comChannel to send the commands to
      * @return true if all commands succeeded, false otherwise
@@ -157,8 +157,7 @@ public class AtModemComponent implements ModemComponent, Serializable {
     }
 
     /**
-     * Restore the default profile of the modem.
-     * (by calling ATZ)
+     * Restores the default profile of the modem (by calling ATZ).
      *
      * @param comChannel the comChannel to send the commands to
      * @return true if the command succeeded, false otherwise
@@ -169,7 +168,7 @@ public class AtModemComponent implements ModemComponent, Serializable {
     }
 
     /**
-     * Terminate all current sessions on the modem
+     * Terminates all current sessions on the modem.
      *
      * @param comChannel the serialComChannel
      */
@@ -179,7 +178,7 @@ public class AtModemComponent implements ModemComponent, Serializable {
     }
 
     /**
-     * Hangs the current connection of the modem up
+     * Hangs up the current connection of the modem.
      *
      * @param comChannel the comChannel to send the commands to
      * @return true if the command succeeded, false otherwise
@@ -192,7 +191,7 @@ public class AtModemComponent implements ModemComponent, Serializable {
     }
 
     /**
-     * Send a '+++' sequence to terminate all current sessions on the modem
+     * Sends a '+++' sequence to terminate all current sessions on the modem.
      *
      * @param comChannel the comChannel to send the commands to
      */
