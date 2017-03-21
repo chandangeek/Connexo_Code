@@ -9,12 +9,10 @@ import javax.inject.Provider;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class GenericExceptionMapper<T extends Throwable> implements ExceptionMapper<T> {
+public class GenericExceptionMapper implements ExceptionMapper<Exception> {
 
     private static final Logger LOGGER = Logger.getLogger(GenericExceptionMapper.class.getName());
     private final Provider<GenericExceptionInfo> infoProvider;
@@ -25,17 +23,14 @@ public class GenericExceptionMapper<T extends Throwable> implements ExceptionMap
     }
 
     @Override
-    public Response toResponse(Throwable exception) {
+    public Response toResponse(Exception exception) {
         GenericExceptionInfo exceptionInfo = infoProvider.get();
-        //TODO - add translation to message and from() method to exceptionInfo
-        exceptionInfo.message = "Internal server error dummy";
-        exceptionInfo.error = exception.getLocalizedMessage();
-        exceptionInfo.errorCode = getErrorCode();
-        log(getErrorCode(), exception);
+        exceptionInfo = exceptionInfo.from(exception);
+        log(exceptionInfo.errorCode, exception);
         return Response.status(getStatus(exception)).entity(exceptionInfo).build();
     }
 
-    private Response.Status getStatus(Throwable exception) {
+    private Response.Status getStatus(Exception exception) {
         if (exception instanceof WebApplicationException) {
             WebApplicationException webEx = (WebApplicationException) exception;
             return Response.Status.fromStatusCode(webEx.getResponse().getStatus());
@@ -44,22 +39,8 @@ public class GenericExceptionMapper<T extends Throwable> implements ExceptionMap
 
         }
     }
-
-
-    private void log(String errorReference, Throwable exception) {
+    private void log(String errorReference, Exception exception) {
         LOGGER.log(Level.SEVERE, errorReference + " - " + exception.getMessage(), exception);
-    }
-
-    private String getErrorCode() {
-        return getHostname() + "-" + Long.toHexString(System.currentTimeMillis()).toUpperCase();
-    }
-
-    private String getHostname() {
-        try {
-            return InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e) {
-            return "UNKOWNHOST";
-        }
     }
 }
 

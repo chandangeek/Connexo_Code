@@ -5,13 +5,14 @@
 package com.elster.jupiter.rest.util;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.impl.MessageSeeds;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.inject.Inject;
-import javax.xml.bind.annotation.XmlRootElement;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
-@XmlRootElement
 public class GenericExceptionInfo {
 
     private final Thesaurus thesaurus;
@@ -27,5 +28,25 @@ public class GenericExceptionInfo {
     @Inject
     public GenericExceptionInfo(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
+    }
+
+    public GenericExceptionInfo from(Exception exception){
+        this.message = thesaurus.getSimpleFormat(MessageSeeds.INTERNAL_CONNEXO_ERROR).format();
+        this.error = exception.getLocalizedMessage();
+        this.errorCode = getErrorCode();
+        return this;
+    }
+
+
+    private String getErrorCode() {
+        return getHostname() + "-" + Long.toHexString(System.currentTimeMillis()).toUpperCase();
+    }
+
+    private String getHostname() {
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            return "UNKOWNHOST";
+        }
     }
 }
