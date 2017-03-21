@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -14,12 +16,16 @@ import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 public class OutputRegisterDataInfoFactory {
+    private final List<Aggregate> aggregatesWithEventDate = Arrays.asList(Aggregate.MAXIMUM, Aggregate.FIFTHMAXIMIMUM,
+            Aggregate.FOURTHMAXIMUM, Aggregate.MINIMUM, Aggregate.SECONDMAXIMUM, Aggregate.SECONDMINIMUM, Aggregate.THIRDMAXIMUM);
 
     private final ValidationRuleInfoFactory validationRuleInfoFactory;
     private final ReadingQualityInfoFactory readingQualityInfoFactory;
@@ -31,7 +37,7 @@ public class OutputRegisterDataInfoFactory {
     }
 
     public OutputRegisterDataInfo createRegisterDataInfo(RegisterReadingWithValidationStatus readingWithValidationStatus, ReadingTypeDeliverable deliverable) {
-        OutputRegisterDataInfo info = createRegisterDataInfo(readingWithValidationStatus, deliverable.getType());
+        OutputRegisterDataInfo info = createRegisterDataInfo(readingWithValidationStatus, deliverable.getType(),deliverable.getReadingType());
         info.timeStamp = readingWithValidationStatus.getTimeStamp();
         info.reportedDateTime = readingWithValidationStatus.getReportedDateTime();
 
@@ -43,13 +49,19 @@ public class OutputRegisterDataInfoFactory {
         return info;
     }
 
-    private OutputRegisterDataInfo createRegisterDataInfo(RegisterReadingWithValidationStatus readingWithValidationStatus, DeliverableType deliverableType) {
+    private OutputRegisterDataInfo createRegisterDataInfo(RegisterReadingWithValidationStatus readingWithValidationStatus, DeliverableType deliverableType, ReadingType readingType) {
         switch (deliverableType) {
             case BILLING:
                 BillingOutputRegisterDataInfo billingOutputRegisterDataInfo = new BillingOutputRegisterDataInfo();
                 billingOutputRegisterDataInfo.value = readingWithValidationStatus.getValue();
                 billingOutputRegisterDataInfo.calculatedValue = readingWithValidationStatus.getCalculatedValue().orElse(null);
                 billingOutputRegisterDataInfo.interval = readingWithValidationStatus.getBillingPeriod().map(IntervalInfo::from).orElse(null);
+                if(aggregatesWithEventDate.contains(readingType.getAggregate())){
+                    billingOutputRegisterDataInfo.eventDate = readingWithValidationStatus.getEventDate().orElse(null);
+                }
+                if(readingType.isCumulative()){
+                    billingOutputRegisterDataInfo.deltaValue = readingWithValidationStatus.getDeltaValue();
+                }
                 return billingOutputRegisterDataInfo;
             case TEXT:
                 TextOutputRegisterDataInfo textOutputRegisterDataInfo = new TextOutputRegisterDataInfo();
@@ -62,7 +74,18 @@ public class OutputRegisterDataInfoFactory {
             default:
                 NumericalOutputRegisterDataInfo numericalOutputRegisterDataInfo = new NumericalOutputRegisterDataInfo();
                 numericalOutputRegisterDataInfo.value = readingWithValidationStatus.getValue();
-                numericalOutputRegisterDataInfo.calculatedValue = readingWithValidationStatus.getCalculatedValue().orElse(null);
+                numericalOutputRegisterDataInfo.calculatedValue = readingWithValidationStatus.getCalculatedValue()
+                        .orElse(null);
+
+                numericalOutputRegisterDataInfo.interval = readingWithValidationStatus.getTimePeriod()
+                        .map(IntervalInfo::from)
+                        .orElse(null);
+                if(aggregatesWithEventDate.contains(readingType.getAggregate())){
+                    numericalOutputRegisterDataInfo.eventDate = readingWithValidationStatus.getEventDate().orElse(null);
+                }
+                if(readingType.isCumulative()){
+                    numericalOutputRegisterDataInfo.deltaValue = readingWithValidationStatus.getDeltaValue();
+                }
                 return numericalOutputRegisterDataInfo;
         }
     }

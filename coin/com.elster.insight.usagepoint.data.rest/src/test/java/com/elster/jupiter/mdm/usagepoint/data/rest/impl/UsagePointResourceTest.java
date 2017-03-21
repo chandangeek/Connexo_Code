@@ -260,6 +260,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(validationTask.getLastRun()).thenReturn(Optional.empty());
         when(validationTask.getLastOccurrence()).thenReturn(Optional.empty());
         when(validationTask.getId()).thenReturn(31L);
+        when(validationTask.getMetrologyPurpose()).thenReturn(Optional.empty());
         doReturn(usagePointQuery).when(meteringService).getUsagePointQuery();
         doReturn(Collections.singletonList(usagePoint)).when(usagePointQuery)
                 .select(any(Condition.class), anyInt(), anyInt());
@@ -561,6 +562,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         verify(effectiveMetrologyConfigurationOnUsagePoint, times(1)).close(now);
     }
 
+
     @Test
     public void testCanActivateAndClearMetersOnUsagePoint() {
         Meter meter1 = mock(Meter.class);
@@ -606,7 +608,8 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         info.version = usagePoint.getVersion();
         info.meterActivations = Arrays.asList(meterActivation1, meterActivation2, meterActivation3);
 
-        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/activatemeters").request().put(Entity.json(info));
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/activatemeters").request()
+                .put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
 
         verify(linker).activate(eq(meter1), eq(meterRole1));

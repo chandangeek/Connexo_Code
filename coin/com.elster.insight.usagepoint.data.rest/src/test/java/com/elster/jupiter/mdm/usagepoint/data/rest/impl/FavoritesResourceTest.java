@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.rest.util.ConcurrentModificationInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -428,6 +429,9 @@ public class FavoritesResourceTest extends UsagePointDataRestApplicationJerseyTe
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
         when(usagePoint.getCurrentConnectionState()).thenReturn(Optional.empty());
         when(usagePoint.getCreateDate()).thenReturn(Instant.now());
+        UsagePointState usagePointState = mock(UsagePointState.class);
+        when(usagePoint.getState()).thenReturn(usagePointState);
+        when(usagePointState.getName()).thenReturn("TestState");
 
         Response response = target("/favorites/usagepoints").request().get();
         assertThat(response.getStatus()).isEqualTo(200);
