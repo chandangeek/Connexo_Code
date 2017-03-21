@@ -20,7 +20,7 @@ public class RegisterHistoryInfo {
     public static RegisterHistoryInfo from(DataLoggerChannelUsage dataLoggerChannelUsage) {
         RegisterHistoryInfo registerHistoryInfo = new RegisterHistoryInfo();
         List<? extends ReadingType> slaveRegisterReadingTypes = dataLoggerChannelUsage.getSlaveChannel().getReadingTypes();
-        Optional<Register> slaveRegister = dataLoggerChannelUsage.getDataLoggerReference()
+        Optional<Register> slaveRegister = dataLoggerChannelUsage.getPhysicalGatewayReference()
                 .getOrigin()
                 .getRegisters()
                 .stream()
@@ -28,7 +28,7 @@ public class RegisterHistoryInfo {
                 .findFirst();
         slaveRegister.ifPresent(register -> {
             registerHistoryInfo.registerId = register.getRegisterSpecId();
-            registerHistoryInfo.deviceName = dataLoggerChannelUsage.getDataLoggerReference().getOrigin().getName();
+            registerHistoryInfo.deviceName = dataLoggerChannelUsage.getPhysicalGatewayReference().getOrigin().getName();
             if (dataLoggerChannelUsage.getRange().hasLowerBound()) {
                 registerHistoryInfo.startDate = dataLoggerChannelUsage.getRange().lowerEndpoint().toEpochMilli();
             }

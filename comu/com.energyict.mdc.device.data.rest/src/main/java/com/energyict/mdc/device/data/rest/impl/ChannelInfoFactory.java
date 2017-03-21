@@ -65,7 +65,7 @@ public class ChannelInfoFactory {
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         List<DataLoggerChannelUsage> dataLoggerChannelUsages = topologyService.findDataLoggerChannelUsagesForChannels(channel, Range.atLeast(clock.instant()));
         if (!dataLoggerChannelUsages.isEmpty()) {
-            info.dataloggerSlaveName = dataLoggerChannelUsages.get(0).getDataLoggerReference().getOrigin().getName();
+            info.dataloggerSlaveName = dataLoggerChannelUsages.get(0).getPhysicalGatewayReference().getOrigin().getName();
         }
         return info;
     }
