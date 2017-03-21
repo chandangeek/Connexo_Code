@@ -226,7 +226,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
 
     @Override
     public Optional<BaseReadingRecord> getReading(Instant when) {
-        return persistedChannel.getReadings(Range.openClosed(when.minusMillis(1L), when)).stream().findFirst();
+        return persistedChannel.getReading(when);
     }
 
     @Override

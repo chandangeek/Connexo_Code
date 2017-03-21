@@ -275,4 +275,12 @@ public class MetrologyContractImpl implements MetrologyContract {
                 .collect(Collectors.groupingBy(Map.Entry::getValue, TreeMap::new, Collectors.mapping(Map.Entry::getKey, Collectors.toSet())))
                 .values();
     }
+
+    @Override
+    public List<ReadingType> sortReadingTypesByDependency() {
+        return DependencyAnalyzer.forAnalysisOf(this)
+                .getDeliverables().stream()
+                .map(ReadingTypeDeliverable::getReadingType)
+                .collect(Collectors.toList());
+    }
 }
