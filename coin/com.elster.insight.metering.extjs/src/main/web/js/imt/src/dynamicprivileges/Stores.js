@@ -6,11 +6,16 @@ Ext.define('Imt.dynamicprivileges.Stores', {
     singleton: true,
 
     required: [
-        'Imt.usagepointmanagement.store.UsagePointPrivileges'
+        'Imt.usagepointmanagement.store.UsagePointPrivileges',
+        'Imt.usagepointmanagement.store.MetrologyConfigurationDefinePrivileges'
     ],
 
     usagePointStore: [
         'Imt.usagepointmanagement.store.UsagePointPrivileges'
+    ],
+
+    definePrivileges: [
+        'Imt.usagepointmanagement.store.MetrologyConfigurationDefinePrivileges'
     ],
 
     all: [

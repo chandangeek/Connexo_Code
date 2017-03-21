@@ -16,6 +16,7 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'name', type: 'string'},
         {name: 'installationTime', type: 'int', defaultValue: null, useNull: true},
         {name: 'lastTransitionTime', type: 'int', defaultValue: null, useNull: true},
+        {name: 'isReadyForLinkingMC', type: 'boolean', defaultValue: true},
         {name: 'state', persist: false},
         {
             name: 'extendedGeoCoordinates',

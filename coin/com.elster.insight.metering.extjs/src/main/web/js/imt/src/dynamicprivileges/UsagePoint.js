@@ -9,5 +9,6 @@ Ext.define('Imt.dynamicprivileges.UsagePoint', {
         'Uni.DynamicPrivileges'
     ],
 
-    viable: 'privilege.edit.usage.point.cps'
+    viable: 'privilege.edit.usage.point.cps',
+    metrologyDefine: 'usagepoint.action.link.metrology.configuration'
 });
