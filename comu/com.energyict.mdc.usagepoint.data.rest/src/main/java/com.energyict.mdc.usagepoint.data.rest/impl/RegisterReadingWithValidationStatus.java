@@ -21,15 +21,12 @@ public class RegisterReadingWithValidationStatus {
     private Optional<ReadingRecord> readingRecord = Optional.empty();
     private ZonedDateTime readingTimeStamp;
 
-    public RegisterReadingWithValidationStatus(ZonedDateTime readingTimeStamp) {
+    public RegisterReadingWithValidationStatus(ZonedDateTime readingTimeStamp, ReadingRecord readingRecord) {
         this.readingTimeStamp = readingTimeStamp;
-    }
-
-    public void setReadingRecord(ReadingRecord readingRecord) {
         this.readingRecord = Optional.of(readingRecord);
     }
 
-    public BigDecimal getValue(){
+    public BigDecimal getValue() {
         return readingRecord.map(ReadingRecord::getValue).orElse(null);
     }
 

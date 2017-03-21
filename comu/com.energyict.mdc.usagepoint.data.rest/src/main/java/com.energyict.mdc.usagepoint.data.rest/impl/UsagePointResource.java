@@ -228,24 +228,14 @@ public class UsagePointResource {
             if (usagePointActivationInterval.isConnected(requestedInterval)) {
 
                 Range<Instant> effectiveInterval = usagePointActivationInterval.intersection(requestedInterval);
-                Map<Instant, RegisterReadingWithValidationStatus> preFilledRegisterDataMap =
-                        register.toList(effectiveInterval)
-                                .stream()
-                                .collect(Collectors.toMap(Function.identity(), timeStamp -> new
-                                        RegisterReadingWithValidationStatus(ZonedDateTime.ofInstant(timeStamp, clock
-                                        .getZone()))));
 
-                List<ReadingRecord> registerReadings = register.getRegisterReadings(effectiveInterval);
-                for (ReadingRecord readingRecord : registerReadings) {
-                    RegisterReadingWithValidationStatus registerReadingWithValidationStatus = preFilledRegisterDataMap
-                            .get(readingRecord.getTimeStamp());
-                    if (registerReadingWithValidationStatus != null) {
-                        registerReadingWithValidationStatus.setReadingRecord(readingRecord);
-                    }
-                }
+                Map<Instant, RegisterReadingWithValidationStatus> preFilledRegisterDataMap = register.getRegisterReadings(effectiveInterval)
+                        .stream()
+                        .collect(Collectors.toMap(ReadingRecord::getTimeStamp, reading ->
+                                new RegisterReadingWithValidationStatus(ZonedDateTime.ofInstant(reading.getTimeStamp(), clock.getZone()),reading)));
 
-                RangeMap<Instant, Instant> lastCheckedOfSourceChannels = getLastCheckedOfSourceChannels
-                        (effectiveMetrologyConfiguration, register);
+                RangeMap<Instant, Instant> lastCheckedOfSourceChannels =
+                        getLastCheckedOfSourceChannels(effectiveMetrologyConfiguration, register);
 
                 outputRegisterDataInfoList = preFilledRegisterDataMap.entrySet().stream()
                         .sorted(Collections.reverseOrder(Comparator.comparing(Map.Entry::getKey)))
