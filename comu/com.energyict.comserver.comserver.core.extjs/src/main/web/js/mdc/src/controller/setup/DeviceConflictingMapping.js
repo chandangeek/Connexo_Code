@@ -246,7 +246,7 @@ Ext.define('Mdc.controller.setup.DeviceConflictingMapping', {
                 break;
             case('securitySets'):
             {
-                label = Uni.I18n.translate('deviceconfiguration.securitySettings', 'MDC', 'Security settings');
+                label = Uni.I18n.translate('general.securitySettings', 'MDC', 'Security settings');
                 tooltipLabel = Uni.I18n.translate('deviceconfiguration.tooltipLabel.securitySetting', 'MDC', 'security setting');
                 noAvailableLabel = Uni.I18n.translate('deviceconfiguration.lowercase.noSecuritySettingAvailable', 'MDC', 'No security setting available');
 

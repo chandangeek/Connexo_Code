@@ -996,7 +996,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             filter: 'Mdc.model.LogbookOfDeviceDataFilter'
                         },
                         securitysettings: {
-                            title: Uni.I18n.translate('securitySetting.title', 'MDC', 'Security settings'),
+                            title: Uni.I18n.translate('general.securitySettings', 'MDC', 'Security settings'),
                             route: 'securitysettings',
                             controller: 'Mdc.controller.setup.DeviceSecuritySettings',
                             privileges: Ext.Array.merge(Mdc.privileges.Device.deviceOperator, Mdc.privileges.DeviceSecurity.viewOrEditLevels),
@@ -1021,6 +1021,13 @@ Ext.define('Mdc.controller.history.Setup', {
                                     }
                                 }
                             }
+                        },
+                        securityaccessors: {
+                            title: Uni.I18n.translate('general.securityAccessors', 'MDC', 'Security accessors'),
+                            route: 'securityaccessors',
+                            controller: 'Mdc.securityaccessors.controller.DeviceSecurityAccessors',
+                            //privileges: Ext.Array.merge(Mdc.privileges.Device.deviceOperator, Mdc.privileges.DeviceSecurity.viewOrEditLevels),
+                            action: 'showDeviceSecurityAccessors'
                         },
                         'processes': {
                             title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),
@@ -1386,7 +1393,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     },
                                                     //Security settings routes
                                                     securitysettings: {
-                                                        title: Uni.I18n.translate('securitySetting.title', 'MDC', 'Security settings'),
+                                                        title: Uni.I18n.translate('general.securitySettings', 'MDC', 'Security settings'),
                                                         route: 'securitysettings',
                                                         privileges: Mdc.privileges.DeviceType.view,
                                                         controller: 'Mdc.controller.setup.SecuritySettings',

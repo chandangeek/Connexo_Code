@@ -170,9 +170,14 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                             href: '#/devices/' + encodeURIComponent(deviceId) + '/connectionmethods'
                         },
                         {
-                            text: Uni.I18n.translate('devicemenu.security', 'MDC', 'Security settings'),
+                            text: Uni.I18n.translate('general.securitySettings', 'MDC', 'Security settings'),
                             itemId: 'securitySettingLink',
                             href: '#/devices/' + encodeURIComponent(deviceId) + '/securitysettings'
+                        },
+                        {
+                            text: Uni.I18n.translate('general.securityAccessors', 'MDC', 'Security accessors'),
+                            itemId: 'securityAccessorsLink',
+                            href: '#/devices/' + encodeURIComponent(deviceId) + '/securityaccessors'
                         },
                         {
                             text: Uni.I18n.translate('devicemenu.protocols', 'MDC', 'Protocol dialects'),

@@ -38,7 +38,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
             {
                 xtype: 'panel',
                 ui: 'large',
-                title: Uni.I18n.translate('securitySetting.title','MDC','Security settings'),
+                title: Uni.I18n.translate('general.securitySettings','MDC','Security settings'),
                 items: [
                     {
                         xtype: 'preview-container',
