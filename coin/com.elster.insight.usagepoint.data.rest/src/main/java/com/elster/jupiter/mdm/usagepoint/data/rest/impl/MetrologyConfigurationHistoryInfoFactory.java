@@ -47,8 +47,10 @@ public class MetrologyConfigurationHistoryInfoFactory {
         String correlationId = usagePoint.getMRID() + ":processOnMetrologyConfig:" + metrologyConfiguration.getId();
         info.ongoingProcesses = bpmService.getRunningProcesses(auth, filterFor(correlationId)).processes
                 .stream()
-                .count();
+                .map(processInstanceInfo -> new IdWithNameInfo(processInstanceInfo.processId, processInstanceInfo.name))
+                .collect(Collectors.toList());
 
+        info.ongoingProcessesNumber = info.ongoingProcesses.size();
         return info;
     }
 

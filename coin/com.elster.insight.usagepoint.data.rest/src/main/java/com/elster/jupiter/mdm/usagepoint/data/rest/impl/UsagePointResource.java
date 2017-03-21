@@ -573,12 +573,14 @@ public class UsagePointResource {
     @Path("{name}/history/metrologyConfigurations")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.VIEW_ANY_USAGEPOINT})
-    public List<MetrologyConfigurationHistoryInfo> getMetrologyConfigurationsHistory(@PathParam("name") String name, @HeaderParam("Authorization") String auth) {
+    public PagedInfoList getMetrologyConfigurationsHistory(@PathParam("name") String name, @HeaderParam("Authorization") String auth, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-        return usagePoint.getEffectiveMetrologyConfigurations()
+        List<MetrologyConfigurationHistoryInfo> infos = usagePoint.getEffectiveMetrologyConfigurations()
                 .stream()
                 .map(metrologyConfiguration -> metrologyConfigurationHistoryInfoFactory.from(metrologyConfiguration, usagePoint, auth))
                 .collect(Collectors.toList());
+
+        return PagedInfoList.fromCompleteList("data", infos, queryParameters);
     }
 
     private void validateServiceKind(String serviceKindString) {

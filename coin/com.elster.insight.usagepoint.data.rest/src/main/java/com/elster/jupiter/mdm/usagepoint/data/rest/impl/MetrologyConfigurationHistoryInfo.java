@@ -19,5 +19,7 @@ public class MetrologyConfigurationHistoryInfo {
     public IdWithNameInfo metrologyConfiguration;
     public boolean current;
     public Map<String, List<ReadingTypeInfo>> purposesWithReadingTypes = new HashMap<>();
-    public long ongoingProcesses;
+    public long ongoingProcessesNumber;
+    public List<IdWithNameInfo> ongoingProcesses;
+
 }

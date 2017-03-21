@@ -829,17 +829,17 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         JsonModel jsonModel = JsonModel.model((InputStream)response.getEntity());
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(jsonModel.<Boolean>get("$.[0]current")).isEqualTo(true);
-        assertThat(jsonModel.<Long>get("$.[0].start")).isEqualTo(effectiveTime.toEpochMilli());
-        assertThat(jsonModel.<String>get("$.[0].purposesWithReadingTypes.Billing[0].name")).isEqualTo("readingTypeName");
-        assertThat(jsonModel.<String>get("$.[0].metrologyConfiguration.name")).isEqualTo("Current effective");
-        assertThat(jsonModel.<Integer>get("$.[0].metrologyConfiguration.id")).isEqualTo(555);
+        assertThat(jsonModel.<Boolean>get("$.data[0]current")).isEqualTo(true);
+        assertThat(jsonModel.<Long>get("$.data[0].start")).isEqualTo(effectiveTime.toEpochMilli());
+        assertThat(jsonModel.<String>get("$.data[0].purposesWithReadingTypes.Billing[0].name")).isEqualTo("readingTypeName");
+        assertThat(jsonModel.<String>get("$.data[0].metrologyConfiguration.name")).isEqualTo("Current effective");
+        assertThat(jsonModel.<Integer>get("$.data[0].metrologyConfiguration.id")).isEqualTo(555);
 
-        assertThat(jsonModel.<Boolean>get("$.[1]current")).isEqualTo(false);
-        assertThat(jsonModel.<Long>get("$.[1].start")).isEqualTo(closedTime.toEpochMilli());
-        assertThat(jsonModel.<String>get("$.[1].purposesWithReadingTypes.Billing[0].name")).isEqualTo("readingTypeName");
-        assertThat(jsonModel.<String>get("$.[1].metrologyConfiguration.name")).isEqualTo("Closed effective");
-        assertThat(jsonModel.<Integer>get("$.[1].metrologyConfiguration.id")).isEqualTo(666);
+        assertThat(jsonModel.<Boolean>get("$.data[1]current")).isEqualTo(false);
+        assertThat(jsonModel.<Long>get("$.data[1].start")).isEqualTo(closedTime.toEpochMilli());
+        assertThat(jsonModel.<String>get("$.data[1].purposesWithReadingTypes.Billing[0].name")).isEqualTo("readingTypeName");
+        assertThat(jsonModel.<String>get("$.data[1].metrologyConfiguration.name")).isEqualTo("Closed effective");
+        assertThat(jsonModel.<Integer>get("$.data[1].metrologyConfiguration.id")).isEqualTo(666);
     }
 
     private UsagePointInfo getInfoWithMetrologyConfigurationAndMeters() {
