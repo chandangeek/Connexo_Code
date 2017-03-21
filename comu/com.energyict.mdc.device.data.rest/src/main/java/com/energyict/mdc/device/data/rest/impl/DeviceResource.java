@@ -131,6 +131,7 @@ public class DeviceResource {
     private final Provider<DeviceScheduleResource> deviceScheduleResourceProvider;
     private final Provider<DeviceComTaskResource> deviceComTaskResourceProvider;
     private final Provider<SecurityPropertySetResource> securityPropertySetResourceProvider;
+    private final Provider<SecurityAccessorResource> securityAccessorResourceProvider;
     private final Provider<ConnectionMethodResource> connectionMethodResourceProvider;
     private final Provider<DeviceMessageResource> deviceCommandResourceProvider;
     private final Provider<DeviceLabelResource> deviceLabelResourceProvider;
@@ -179,6 +180,7 @@ public class DeviceResource {
             DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory,
             DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory,
             Provider<SecurityPropertySetResource> securityPropertySetResourceProvider,
+            Provider<SecurityAccessorResource> securityAccessorResourceProvider,
             Provider<DeviceLabelResource> deviceLabelResourceProvider,
             Provider<ConnectionMethodResource> connectionMethodResourceProvider,
             Provider<ChannelResource> channelsOnDeviceResourceProvider,
@@ -215,6 +217,7 @@ public class DeviceResource {
         this.deviceScheduleResourceProvider = deviceScheduleResourceProvider;
         this.deviceComTaskResourceProvider = deviceComTaskResourceProvider;
         this.securityPropertySetResourceProvider = securityPropertySetResourceProvider;
+        this.securityAccessorResourceProvider = securityAccessorResourceProvider;
         this.connectionMethodResourceProvider = connectionMethodResourceProvider;
         this.deviceCommandResourceProvider = deviceCommandResourceProvider;
         this.deviceLabelResourceProvider = deviceLabelResourceProvider;
@@ -777,6 +780,11 @@ public class DeviceResource {
     @Path("/{name}/securityproperties")
     public SecurityPropertySetResource getSecurityPropertySetResource() {
         return securityPropertySetResourceProvider.get();
+    }
+
+    @Path("/{name}/securityaccessors")
+    public SecurityAccessorResource getSecurityAccessorResource() {
+        return securityAccessorResourceProvider.get();
     }
 
     @Path("/{name}/protocols")
