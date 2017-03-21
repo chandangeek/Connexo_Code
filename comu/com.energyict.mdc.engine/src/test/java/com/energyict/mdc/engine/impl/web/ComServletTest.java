@@ -17,11 +17,11 @@ import com.energyict.mdc.engine.impl.monitor.InboundComPortMonitorImpl;
 import com.energyict.mdc.engine.impl.monitor.InboundComPortOperationalStatisticsImpl;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.protocol.api.inbound.ServletBasedInboundDeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
-import com.energyict.mdc.upl.ServletBasedInboundDeviceProtocol;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -127,11 +127,11 @@ public class ComServletTest {
     @Test
     public void testDoPostCallsDoDiscovery() throws IOException, ServletException {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        ServletBasedInboundDeviceProtocol uplInboundDeviceProtocol = mock(ServletBasedInboundDeviceProtocol.class);
-        when(uplInboundDeviceProtocol.doDiscovery()).thenReturn(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.DATA);
-        when(uplInboundDeviceProtocol.getDeviceIdentifier()).thenReturn(deviceIdentifier);
+        ServletBasedInboundDeviceProtocol inboundDeviceProtocol = mock(ServletBasedInboundDeviceProtocol.class);
+        when(inboundDeviceProtocol.doDiscovery()).thenReturn(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.DATA);
+        when(inboundDeviceProtocol.getDeviceIdentifier()).thenReturn(deviceIdentifier);
         InboundDeviceProtocolPluggableClass discoveryProtocolPluggableClass = mock(InboundDeviceProtocolPluggableClass.class);
-        when(discoveryProtocolPluggableClass.getInboundDeviceProtocol()).thenReturn(new UplServletBasedInboundDeviceProtocolAdapter(uplInboundDeviceProtocol));
+        when(discoveryProtocolPluggableClass.getInboundDeviceProtocol()).thenReturn(inboundDeviceProtocol);
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         when(comPortPool.getDiscoveryProtocolPluggableClass()).thenReturn(discoveryProtocolPluggableClass);
         ComServer comServer = mock(ComServer.class);
@@ -152,90 +152,9 @@ public class ComServletTest {
         comServlet.doPost(servletRequest, servletResponse);
 
         // Asserts
-        verify(uplInboundDeviceProtocol).initializeDiscoveryContext(any(InboundDiscoveryContextImpl.class));
-        verify(uplInboundDeviceProtocol).init(servletRequest, servletResponse);
-        verify(uplInboundDeviceProtocol).doDiscovery();
+        verify(inboundDeviceProtocol).initializeDiscoveryContext(any(InboundDiscoveryContextImpl.class));
+        verify(inboundDeviceProtocol).init(servletRequest, servletResponse);
+        verify(inboundDeviceProtocol).doDiscovery();
     }
 
-    private class UplServletBasedInboundDeviceProtocolAdapter implements InboundDeviceProtocol {
-        private final ServletBasedInboundDeviceProtocol actual;
-
-        private UplServletBasedInboundDeviceProtocolAdapter(ServletBasedInboundDeviceProtocol actual) {
-            this.actual = actual;
-        }
-
-        @Override
-        public void copyProperties(com.energyict.mdc.common.TypedProperties properties) {
-            // Not necessary in this unit test
-        }
-
-        @Override
-        public List<PropertySpec> getPropertySpecs() {
-            return this.actual
-                    .getUPLPropertySpecs()
-                    .stream()
-                    .map(UPLToConnexoPropertySpecAdapter::new)
-                    .collect(Collectors.toList());
-        }
-
-        @Override
-        public void initializeDiscoveryContext(InboundDiscoveryContext context) {
-            actual.initializeDiscoveryContext(context);
-        }
-
-        @Override
-        public InboundDiscoveryContext getContext() {
-            return actual.getContext();
-        }
-
-        @Override
-        public DiscoverResultType doDiscovery() {
-            return actual.doDiscovery();
-        }
-
-        @Override
-        public void provideResponse(DiscoverResponseType responseType) {
-            actual.provideResponse(responseType);
-        }
-
-        @Override
-        public DeviceIdentifier getDeviceIdentifier() {
-            return actual.getDeviceIdentifier();
-        }
-
-        @Override
-        public String getAdditionalInformation() {
-            return actual.getAdditionalInformation();
-        }
-
-        @Override
-        public List<CollectedData> getCollectedData() {
-            return actual.getCollectedData();
-        }
-
-        @Override
-        public boolean hasSupportForRequestsOnInbound() {
-            return actual.hasSupportForRequestsOnInbound();
-        }
-
-        @Override
-        public String getVersion() {
-            return actual.getVersion();
-        }
-
-        @Override
-        public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
-            return actual.getUPLPropertySpecs();
-        }
-
-        @Override
-        public Optional<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpec(String name) {
-            return actual.getUPLPropertySpec(name);
-        }
-
-        @Override
-        public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
-            actual.setUPLProperties(properties);
-        }
-    }
 }

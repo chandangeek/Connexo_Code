@@ -7,7 +7,7 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.upl.ServletBasedInboundDeviceProtocol;
+import com.energyict.mdc.protocol.api.inbound.ServletBasedInboundDeviceProtocol;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
