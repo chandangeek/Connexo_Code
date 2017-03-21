@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -69,6 +71,7 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
     public void testExecute() {
         freezeClock(new Date());
         final DeviceMessageIdentifierForAlreadyKnownMessage deviceMessageIdentifier = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage1);
+        when(this.deviceMessageService.findDeviceMessageByIdentifier(deviceMessageIdentifier)).thenReturn(Optional.of(this.deviceMessage1));
         OfflineDeviceMessage offlineDeviceMessage = mock(OfflineDeviceMessage.class);
         when(offlineDeviceMessage.getIdentifier()).thenReturn(deviceMessageIdentifier);
         DeviceProtocolMessage collectedMessage1 = new DeviceProtocolMessage(deviceMessageIdentifier);
@@ -149,11 +152,13 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
     public void testUnProcessedDeviceMessage(){
         freezeClock(new Date());
         final DeviceMessageIdentifierForAlreadyKnownMessage deviceMessageIdentifier1 = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage1);
+        doReturn(Optional.of(this.deviceMessage1)).when(this.deviceMessageService).findDeviceMessageByIdentifier(deviceMessageIdentifier1);
         DeviceProtocolMessage collectedMessage1 = new DeviceProtocolMessage(deviceMessageIdentifier1);
         collectedMessage1.setSentDate(getClock().instant());
         collectedMessage1.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
 
         final DeviceMessageIdentifierForAlreadyKnownMessage deviceMessageIdentifier2 = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage2);
+        doReturn(Optional.of(this.deviceMessage2)).when(this.deviceMessageService).findDeviceMessageByIdentifier(deviceMessageIdentifier2);
         DeviceProtocolMessage collectedMessage2 = new DeviceProtocolMessage(deviceMessageIdentifier2);
         collectedMessage2.setSentDate(getClock().instant());
         collectedMessage2.setNewDeviceMessageStatus(DeviceMessageStatus.INDOUBT);
