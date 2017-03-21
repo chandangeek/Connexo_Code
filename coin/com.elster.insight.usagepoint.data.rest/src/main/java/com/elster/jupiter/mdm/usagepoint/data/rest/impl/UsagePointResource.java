@@ -927,9 +927,12 @@ public class UsagePointResource {
             Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getUsagePointPrivileges(@PathParam("name") String name ,@BeanParam JsonQueryParameters queryParameters) {
-        List<String> actions = UsagePointPrivileges
-                .getUsagePointPrivilegesBasedOnStage(resourceHelper.findUsagePointByNameOrThrowException(name));
-        return PagedInfoList.fromCompleteList("privileges", actions, queryParameters);
+        List<IdWithNameInfo> privileges = UsagePointPrivileges
+                .getUsagePointPrivilegesBasedOnStage(resourceHelper.findUsagePointByNameOrThrowException(name))
+                .stream()
+                .map(privilege -> new IdWithNameInfo(null,privilege))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("privileges", privileges, queryParameters);
     }
 
     private boolean isMember(UsagePoint usagePoint, UsagePointGroup usagePointGroup) {

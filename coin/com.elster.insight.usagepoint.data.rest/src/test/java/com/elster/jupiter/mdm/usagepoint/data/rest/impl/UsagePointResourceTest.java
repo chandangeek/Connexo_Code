@@ -891,7 +891,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);
         assertThat(model.<List>get("$.privileges")).hasSize(1);
-        assertThat(model.<String>get("$.privileges[0]")).isEqualTo("usagepoint.action.link.metrology.configuration");
+        assertThat(model.<String>get("$.privileges[0].name")).isEqualTo("usagepoint.action.link.metrology.configuration");
     }
 
     private UsagePointInfo getInfoWithMetrologyConfigurationAndMeters() {
