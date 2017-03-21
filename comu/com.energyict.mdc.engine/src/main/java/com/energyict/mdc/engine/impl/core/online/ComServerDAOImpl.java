@@ -924,7 +924,7 @@ public class ComServerDAOImpl implements ComServerDAO {
                     // 'linked' periods
                     if (!dataLoggerChannelUsages.isEmpty()) {
                         dataLoggerChannelUsages.forEach(usage -> {
-                            Device slave = usage.getDataLoggerReference().getOrigin();
+                            Device slave = usage.getPhysicalGatewayReference().getOrigin();
                             List<? extends ReadingType> slaveChannelReadingTypes = usage.getSlaveChannel().getReadingTypes();
                             Optional<Channel> slaveChannel = slave.getChannels().stream().filter((c) -> slaveChannelReadingTypes.contains(c.getReadingType())).findFirst();
                             if (slaveChannel.isPresent()) {
