@@ -2,6 +2,7 @@ package com.energyict.protocol.exceptions;
 
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.nls.MessageSeed;
+import com.energyict.mdc.upl.nls.NlsService;
 
 /**
  * Models the exceptional situation that occurs when a connection
@@ -43,11 +44,15 @@ public class ConnectionException extends Exception {
 
     @Override
     public String getLocalizedMessage() {
-        return Services
-                .nlsService()
-                .getThesaurus(this.thesaurusId)
-                .getFormat(this.messageSeed)
-                .format(this.messageArgs);
+        NlsService nlsService = Services.nlsService();
+        if (nlsService != null) {
+            return nlsService
+                    .getThesaurus(this.thesaurusId)
+                    .getFormat(this.messageSeed)
+                    .format(this.messageArgs);
+        } else {
+            return super.getLocalizedMessage();
+        }
     }
 
 }
