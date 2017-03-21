@@ -59,22 +59,25 @@ import com.energyict.mdc.tasks.TopologyTask;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.google.common.base.Strings;
 import org.joda.time.DateTime;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Map;
+import java.util.Optional;
+import java.util.logging.Logger;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Map;
-import java.util.Optional;
-import java.util.logging.Logger;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -292,8 +295,9 @@ public class JobExecutionTest {
         DeviceProtocolPluggableClass severServerDeviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(severServerDeviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(genericDeviceProtocol);
         when(offlineDevice.getDeviceProtocolPluggableClass()).thenReturn(severServerDeviceProtocolPluggableClass);
+        when(offlineDevice.getAllProperties()).thenReturn(TypedProperties.empty());
         when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineDevice));
-        jobExecution.prepareAll(Arrays.asList(comTaskExecution));
+        jobExecution.prepareAll(Collections.singletonList(comTaskExecution));
         verify(genericDeviceProtocol, times(1)).organizeComCommands(any(CommandRoot.class));
     }
 
@@ -311,7 +315,7 @@ public class JobExecutionTest {
         when(offlineDevice.getDeviceProtocolPluggableClass()).thenReturn(severServerDeviceProtocolPluggableClass);
         when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineDevice));
 
-        jobExecution.prepareAll(Arrays.asList(comTaskExecution));
+        jobExecution.prepareAll(Collections.singletonList(comTaskExecution));
         verify(genericDeviceProtocol, never()).organizeComCommands(any(CommandRoot.class));
     }
 
