@@ -11,9 +11,9 @@ import com.energyict.mdc.pluggable.Pluggable;
  * This component will indicate that to the ComServer
  * by returning the appropriate InputDataType.
  * When binary data is required, the component <strong>MUST</strong>
- * implement the {@link com.energyict.mdc.upl.BinaryInboundDeviceProtocol}.
+ * implement the {@link BinaryInboundDeviceProtocol}.
  * When servlet technology is used, the component <strong>MUST</strong>
- * implement the {@link com.energyict.mdc.upl.ServletBasedInboundDeviceProtocol}.
+ * implement the {@link ServletBasedInboundDeviceProtocol}.
  *
  * @since 2012-06-21 (13:34)
  */
