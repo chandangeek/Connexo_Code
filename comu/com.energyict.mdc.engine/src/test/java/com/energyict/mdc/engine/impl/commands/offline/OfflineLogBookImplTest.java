@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
@@ -7,14 +8,15 @@ import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlready
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
@@ -79,6 +81,7 @@ public class OfflineLogBookImplTest {
     private LogBookSpec getMockedLogBookSpec(LogBookType logBookType) {
         LogBookSpec logBookSpec = mock(LogBookSpec.class);
         when(logBookSpec.getLogBookType()).thenReturn(logBookType);
+        when(logBookSpec.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
         return logBookSpec;
     }
 
