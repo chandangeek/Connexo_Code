@@ -69,13 +69,14 @@ public class CollectedDeviceCacheCommandTest {
         deviceCacheCommand.execute(comServerDAO);
 
         // Asserts
-        verify(this.engineService, times(0)).findDeviceCacheByDevice(any(Device.class));
+        verify(this.engineService, times(0)).findDeviceCacheByDeviceIdentifier(any(DeviceIdentifier.class));
     }
 
     @Test
     public void updateWithChangeTest() throws SQLException {
         final String newDescription = "laaaalallalallallllaaal";
-        UpdatedDeviceCache updatedDeviceCache = new UpdatedDeviceCache(getMockedDeviceIdentifier());
+        DeviceIdentifier deviceIdentifier = getMockedDeviceIdentifier();
+        UpdatedDeviceCache updatedDeviceCache = new UpdatedDeviceCache(deviceIdentifier);
         SimpleDeviceProtocolCache protocolCache = new SimpleDeviceProtocolCache();
         protocolCache.updateChangedState(true);
         protocolCache.updateDescription(newDescription);
@@ -85,7 +86,8 @@ public class CollectedDeviceCacheCommandTest {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
         DeviceCache existingCache = mock(DeviceCache.class);
-        when(this.engineService.findDeviceCacheByDevice(this.device)).thenReturn(Optional.of(existingCache));
+        when(this.engineService.findDeviceCacheByDeviceIdentifier(deviceIdentifier)).thenReturn(Optional.of(existingCache));
+
         // Business method
         deviceCacheCommand.execute(comServerDAO);
 
