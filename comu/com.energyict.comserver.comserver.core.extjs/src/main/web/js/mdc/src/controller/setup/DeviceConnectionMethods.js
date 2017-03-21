@@ -242,7 +242,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             } else {
                 this.getDeviceConnectionMethodPreview().down('#connectionDetailsTitle').setVisible(false);
             }
-            if (connectionMethod[0].get('connectionStrategyInfo')['connectionStrategy'] === 'MINIMIZE_CONNECTIONS') {
+            if (connectionMethod[0].get('direction') === 'Inbound' ||connectionMethod[0].get('connectionStrategyInfo')['connectionStrategy'] === 'MINIMIZE_CONNECTIONS') {
                 this.getDeviceConnectionMethodPreview().down('#numberOfSimultaneousConnections').setVisible(false);
             } else {
                 this.getDeviceConnectionMethodPreview().down('#numberOfSimultaneousConnections').setVisible(true);

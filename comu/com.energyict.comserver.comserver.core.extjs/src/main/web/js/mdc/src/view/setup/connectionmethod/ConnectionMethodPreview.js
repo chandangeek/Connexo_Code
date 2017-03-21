@@ -104,7 +104,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                                     fieldLabel: Uni.I18n.translate('communicationtasks.task.protocolDialectConfigurationProperties', 'MDC', 'Protocol dialect'),
                                     name: 'protocolDialectConfigurationProperties',
                                     renderer: function (value) {
-                                        return Ext.String.htmlEncode(value.name);
+                                        return Ext.String.htmlEncode(value.displayName);
                                     }
                                 },
                                 {
@@ -130,8 +130,11 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                                     name: 'connectionStrategyInfo',
                                     fieldLabel: Uni.I18n.translate('connectionmethod.connectionStrategy', 'MDC', 'Connection strategy'),
                                     renderer: function (value, field) {
-                                        if (value) {
+                                        if (!Ext.isEmpty(value)) {
+                                            field.show();
                                             return value.localizedValue;
+                                        } else {
+                                            field.hide();
                                         }
                                     }
                                 },

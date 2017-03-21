@@ -144,8 +144,13 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodPreview'
                                     xtype: 'displayfield',
                                     name: 'connectionStrategyInfo',
                                     fieldLabel: Uni.I18n.translate('deviceconnectionmethod.connectionStrategy', 'MDC', 'Connection strategy'),
-                                    renderer: function (value) {
-                                        if (value) {
+                                    renderer: function (value, field) {
+                                        var record = this.up('form').getRecord();
+                                        if (record && (record.get('direction') === 'Inbound')) {
+                                            field.hide();
+                                        }
+                                        else if (value) {
+                                            field.show();
                                             return value['localizedValue'];
                                        }
                                     }
@@ -154,8 +159,17 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodPreview'
                                     xtype: 'displayfield',
                                     name: 'nextExecutionSpecs',
                                     fieldLabel: Uni.I18n.translate('communicationschedule.schedule', 'MDC', 'Schedule'),
-                                    renderer: function (value) {
-                                        return Mdc.util.ScheduleToStringConverter.convert(value) || Uni.I18n.translate('general.undefined', 'MDC', 'Undefined');
+                                    renderer: function (value, field) {
+                                        var record = this.up('form').getRecord(),
+                                            isMinimizeConnections,
+                                            connectionStrategyInfo = record && record.get('connectionStrategyInfo');
+                                        isMinimizeConnections = connectionStrategyInfo && connectionStrategyInfo.connectionStrategy === 'MINIMIZE_CONNECTIONS';
+                                        if (!isMinimizeConnections) {
+                                            field.hide();
+                                        } else {
+                                            field.show();
+                                        }
+                                        return Mdc.util.ScheduleToStringConverter.convert(value) || '-';
                                     }
 
                                 },
@@ -163,7 +177,14 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodPreview'
                                     xtype: 'displayfield',
                                     name: 'connectionWindow',
                                     fieldLabel: Uni.I18n.translate('connectionmethod.connectionWindow', 'MDC', 'Connection window'),
-                                    renderer: function (value) {
+                                    renderer: function (value, field) {
+                                        var record = this.up('form').getRecord();
+                                        if (record && (record.get('direction') === 'Inbound')) {
+                                            field.hide();
+                                            return '-';
+                                        } else {
+                                            field.show();
+                                        }
                                         if (value) {
                                             if (value.start || value.end) {
                                                 var startMinutes = (value.start / 3600 | 0),
