@@ -2537,9 +2537,8 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         for (ReadingType readingType : readingTypes) {
             FullySpecifiedReadingTypeRequirement fullySpecifiedReadingTypeRequirement = mc.newReadingTypeRequirement(readingType.getFullAliasName(), meterRoleDefault)
                     .withReadingType(readingType);
-            ReadingTypeDeliverableBuilder builder = mc.newReadingTypeDeliverable(readingType.getFullAliasName(), readingType, Formula.Mode.AUTO);
-            ReadingTypeDeliverable deliverable = builder.build(builder.requirement(fullySpecifiedReadingTypeRequirement));
-            metrologyContract.addDeliverable(deliverable);
+            ReadingTypeDeliverableBuilder builder = metrologyContract.newReadingTypeDeliverable(readingType.getFullAliasName(), readingType, Formula.Mode.AUTO);
+            builder.build(builder.requirement(fullySpecifiedReadingTypeRequirement));
         }
         mc.activate();
         return mc;
