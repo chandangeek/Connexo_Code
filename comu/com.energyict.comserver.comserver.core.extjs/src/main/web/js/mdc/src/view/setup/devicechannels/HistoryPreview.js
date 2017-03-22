@@ -147,10 +147,6 @@ Ext.define('Mdc.view.setup.devicechannels.HistoryPreview', {
                 }
             } else {
                 switch (validationInfo.validationResult.split('.')[1]) {
-                    case 'notValidated':
-                        validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notvalidated', 'MDC', 'Not validated') + ')' +
-                            '<span class="icon-flag6" style="margin-left:10px; display:inline-block; vertical-align:top;"></span>';
-                        break;
                     case 'suspect':
                         validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.suspect', 'MDC', 'Suspect') + ')' +
                             '<span class="icon-flag5" style="margin-left:10px; display:inline-block; vertical-align:top; color:red;"></span>';

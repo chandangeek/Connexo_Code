@@ -72,8 +72,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.HistoryGrid', {
                                 + Uni.I18n.translate('reading.validationResult.confirmed', 'MDC', 'Confirmed') + '"></span>'
                         } else if (status === 'suspect') {
                             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;"></span>';
-                        } else if (status === 'notValidated') {
-                            icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>';
                         }
                         return Uni.Number.formatNumber(data, -1) + icon;
                     }

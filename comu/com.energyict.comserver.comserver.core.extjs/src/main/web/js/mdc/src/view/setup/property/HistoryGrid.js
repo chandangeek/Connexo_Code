@@ -118,10 +118,7 @@ Ext.define('Mdc.view.setup.property.HistoryGrid', {
                 me.channelRecord && !Ext.isEmpty(me.channelRecord.get('overruledNbrOfFractionDigits')) ? me.channelRecord.get('overruledNbrOfFractionDigits') : -1
             );
 
-        if (status === 'notValidated') {
-            icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
-                + Uni.I18n.translate('general.notValidated', 'MDC', 'Not validated') + '"></span>';
-        } else if (validationInfo.confirmedNotSaved) {
+        if (validationInfo.confirmedNotSaved) {
             metaData.tdCls = 'x-grid-dirty-cell';
         } else if (status === 'suspect') {
             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;" data-qtip="'
