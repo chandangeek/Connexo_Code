@@ -43,6 +43,8 @@ public class PkiApplication extends Application {
                 bind(pkiService).to(PkiService.class);
                 bind(transactionService).to(TransactionService.class);
                 bind(thesaurus).to(Thesaurus.class);
+                bind(TrustStoreInfoFactory.class).to(TrustStoreInfoFactory.class);
+                bind(TrustedCertificateInfoFactory.class).to(TrustedCertificateInfoFactory.class);
                 bind(ExceptionFactory.class).to(ExceptionFactory.class);
             }
         });
