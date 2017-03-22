@@ -91,6 +91,7 @@ Ext.define('Est.estimationrules.view.Grid', {
         } else {
             me.columns.push({
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Est.privileges.EstimationConfiguration.administrate,
                 menu: {
                     xtype: 'estimation-rules-action-menu',
