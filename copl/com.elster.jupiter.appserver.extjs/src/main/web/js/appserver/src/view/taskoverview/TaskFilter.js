@@ -19,7 +19,6 @@ Ext.define('Apr.view.taskoverview.TaskFilter', {
                 displayField: 'name',
                 valueField: 'id',
                 store: 'Apr.store.Applications'
-                //   hidden: !me.includeServiceCombo
             },
             {
                 type: 'combobox',
@@ -29,7 +28,6 @@ Ext.define('Apr.view.taskoverview.TaskFilter', {
                 displayField: 'queue',
                 valueField: 'queue',
                 store: 'Apr.store.Queues'
-                //   hidden: !me.includeServiceCombo
             },
             {
                 type: 'interval',
