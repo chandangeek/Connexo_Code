@@ -16,6 +16,7 @@ import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.Checks;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -29,6 +30,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -85,9 +87,12 @@ public class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
         return DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD;
     }
 
-    public SecretKey getKey() {
+    public Optional<SecretKey> getKey() {
+        if (Checks.is(this.encryptedKey).emptyOrOnlyWhiteSpace()) {
+            return Optional.empty();
+        }
         byte[] decrypt = dataVaultService.decrypt(this.encryptedKey);
-        return new SecretKeySpec(decrypt, getKeyType().getKeyAlgorithm());
+        return Optional.of(new SecretKeySpec(decrypt, getKeyType().getKeyAlgorithm()));
     }
 
     private KeyType getKeyType() {

@@ -66,7 +66,6 @@ public enum TableSpecs {
             table.addRefAnyColumns("PRIVATEKEY", false, AbstractCertificateWrapperImpl.Fields.PRIVATE_KEY.fieldName());
             table.column("ALIAS")
                     .varChar()
-                    .notNull()
                     .map(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName())
                     .add();
             table.column("CERTIFICATE")
