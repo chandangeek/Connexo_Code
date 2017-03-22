@@ -61,7 +61,8 @@ Ext.define('Cfg.view.validation.VersionsList', {
                 fixed: true
             },	
             {
-                xtype: 'uni-actioncolumn',				
+                xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Cfg.privileges.Validation.admin,
                 menu: {
                     itemId: 'ruleSetVersionsGridMenu',
