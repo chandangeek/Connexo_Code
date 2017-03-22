@@ -60,6 +60,21 @@ Ext.define('Mdc.usagepointmanagement.view.EditUsagePointForm', {
                 }
             },
             {
+                xtype: 'coordinates',
+                name: 'extendedGeoCoordinates',
+                itemId: 'geoCoordinatesEdit',
+                width: 600,
+                fieldLabel: Uni.I18n.translate('general.coordinates', 'MDC', 'Coordinates')
+            },
+            {
+                xtype: 'location',
+                name: 'extendedLocation',
+                itemId: 'locationEdit',
+                width: 610,
+                findLocationsUrl: '/api/jsr/search/com.energyict.mdc.device.data.Device/locationsearchcriteria/location',
+                locationDetailsUrl: '/api/ddr/devices/locations'
+            },
+            {
                 xtype: 'fieldcontainer',
                 ui: 'actions',
                 fieldLabel: '&nbsp',
@@ -80,7 +95,7 @@ Ext.define('Mdc.usagepointmanagement.view.EditUsagePointForm', {
                         xtype: 'button',
                         ui: 'link',
                         itemId: 'cancelLink',
-                        href: me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: me.usagePointId})
+                        href: me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: encodeURIComponent(me.usagePointId)})
                     }
                 ]
             }

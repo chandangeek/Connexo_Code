@@ -186,7 +186,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsLoadProfileR
             }
 
             if (dataViewValidateNowBtn) {
-                dataViewValidateNowBtn.setDisabled(!record.get('isActive') || record.get('allDataValidated'));
+                dataViewValidateNowBtn.setDisabled(!record.get('isActive'));
             }
 
             loadProfiles = record.get('detailedValidationLoadProfile');

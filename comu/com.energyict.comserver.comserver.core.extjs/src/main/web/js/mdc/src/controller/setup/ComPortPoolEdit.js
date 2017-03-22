@@ -97,10 +97,10 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
         form.loadRecord(model);
     },
 
-    loadProperties: function(combo, selectedRecords) {
+    loadProperties: function (combo, selectedRecords) {
         var editPage = this.getComPortPoolEditPage();
         editPage.down('#protocolDetectionDetails').setVisible(selectedRecords[0].properties().count() > 0);
-        if(this.isEdit && !Ext.isEmpty(this.editRecord) && this.selectedEqualsRecord(selectedRecords[0])) {
+        if (this.isEdit && !Ext.isEmpty(this.editRecord) && this.selectedEqualsRecord(selectedRecords[0])) {
             editPage.down('property-form').loadRecord(this.editRecord);
         } else {
             editPage.down('property-form').loadRecord(selectedRecords[0]);
@@ -133,7 +133,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
                         protocolDetectionCombo = form.down('combobox[name=discoveryProtocolPluggableClassId]'),
                         title;
 
-                    me.getApplication().fireEvent('loadComPortPool', record);
+                    me.getApplication().fireEvent('comPortPoolOverviewLoad', record);
 
                     title = Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[record.get('name')]);
 
@@ -150,7 +150,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
                     form.down('[name=direction_visual]').show();
                     form.down('[name=comPortType]').setDisabled(true);
                     form.loadRecord(record);
-                    if(record.properties().count() > 0) {
+                    if (record.properties().count() > 0) {
                         form.down('property-form').loadRecord(record);
                     }
                     form.down('[name=comPortType]').setValue(record.get('comPortType').id);
@@ -169,15 +169,15 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
             formErrorsPanel = form.down('uni-form-error-message'),
             record;
 
-        if(!form.isValid()) {
+        if (!form.isValid()) {
             formErrorsPanel.show();
             return;
         }
         form.updateRecord();
         record = form.getRecord();
-        if(record.get('direction') === 'Inbound') {
+        if (record.get('direction') === 'Inbound') {
             form.down('property-form').updateRecord();
-            if(!Ext.isEmpty(form.down('property-form').getRecord())) {
+            if (!Ext.isEmpty(form.down('property-form').getRecord())) {
                 record.propertiesStore = form.down('property-form').getRecord().properties();
                 record.set('properties', form.down('property-form').getFieldValues().properties);
             }

@@ -240,8 +240,8 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.RuleSets', {
                     success: function (deviceConfig) {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         widget.deviceConfiguration = deviceConfig;
-                        if (widget.down('#stepsMenu #deviceConfigurationOverviewLink')) {
-                            widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
+                        if (widget.down('#stepsMenu')) {
+                            widget.down('#stepsMenu').setHeader(deviceConfig.get('name'));
                         }
                     }
                 });

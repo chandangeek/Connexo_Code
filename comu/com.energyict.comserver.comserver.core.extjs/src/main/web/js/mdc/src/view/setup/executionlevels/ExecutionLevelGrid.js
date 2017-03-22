@@ -40,6 +40,7 @@ Ext.define('Mdc.view.setup.executionlevels.ExecutionLevelGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.DeviceType.admin,
                 menu: {
                     xtype: 'execution-level-action-menu'

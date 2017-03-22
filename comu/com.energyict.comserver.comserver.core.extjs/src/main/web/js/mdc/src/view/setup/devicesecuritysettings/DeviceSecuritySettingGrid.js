@@ -53,6 +53,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges:Mdc.privileges.DeviceSecurity.viewOrEditLevels,
                 menu: {
                     xtype: 'device-security-setting-action-menu',

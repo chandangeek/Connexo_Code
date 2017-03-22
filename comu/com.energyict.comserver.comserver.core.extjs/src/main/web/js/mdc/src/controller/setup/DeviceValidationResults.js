@@ -240,7 +240,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                 viewport.setLoading(false);
 
                 var res = Ext.JSON.decode(response.responseText);
-                if (!res.isActive || res.allDataValidated) {
+                if (!res.isActive) {
                     return;
                 }
 
@@ -331,6 +331,36 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
     validateData: function (confWindow) {
         var me = this;
 
+        confWindow.down('#pnl-validation-progress').add(Ext.create('Ext.ProgressBar', {
+                margin: '5 0 15 0'
+            })).wait({
+                duration: 120000,
+                text: Uni.I18n.translate('device.dataValidation.isInProgress', 'MDC', 'Data validation is in progress. Please wait...'),
+                fn: function () {
+                    me.destroyConfirmationWindow();
+                    Ext.widget('messagebox', {
+                        buttons: [
+                            {
+                                text: Uni.I18n.translate('general.close', 'MDC', 'Close'),
+                                ui: 'remove',
+                                handler: function () {
+                                    this.up('window').close();
+                                }
+                            }
+                        ],
+                        listeners: {
+                            close: function () {
+                                this.destroy();
+                            }
+                        }
+                    }).show({
+                            ui: 'notification-error',
+                            title: Uni.I18n.translate('device.dataValidation.timeout.title1', 'MDC', 'Data validation takes longer than expected'),
+                            msg: Uni.I18n.translate('device.dataValidation.timeout.message', 'MDC', 'Data validation takes longer than expected and will continue in the background.'),
+                            icon: Ext.MessageBox.ERROR
+                        });
+                }
+            });
 
         Ext.Ajax.request({
             url: '../../api/ddr/devices/' + encodeURIComponent(me.deviceId) + '/validationrulesets/validate',
@@ -382,7 +412,8 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                     },
                     items: [
                         {
-                            boxLabel: Uni.I18n.translate('validationResults.validate.fromLast', 'MDC', 'Validate data from last validation'),
+                            boxLabel: Uni.I18n.translate('validationResults.validate.fromLastChecked', 'MDC', 'Validate data from last validation ({0})',
+                                Uni.DateTime.formatDateShort(me.dataValidationLastChecked)),
                             inputValue: 'lastValidation',
                             itemId: 'rdo-validate-from-last',
                             xtype: 'radiofield',

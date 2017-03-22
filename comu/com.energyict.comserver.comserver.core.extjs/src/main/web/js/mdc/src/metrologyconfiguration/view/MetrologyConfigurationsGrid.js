@@ -38,6 +38,7 @@ Ext.define('Mdc.metrologyconfiguration.view.MetrologyConfigurationsGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.MetrologyConfiguration.canAdmin(),
                 menu: {
                     xtype: 'metrology-configuration-actions-menu',

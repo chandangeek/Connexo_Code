@@ -10,7 +10,7 @@ Ext.define('Mdc.view.setup.monitorprocesses.UsagePointProcessesMainView', {
         'Bpm.monitorprocesses.view.MonitorProcessesMainView'
     ],
     router: null,
-    deviceId: null,
+    usagePointId: null,
     properties: null,
 
     initComponent: function () {
@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.monitorprocesses.UsagePointProcessesMainView', {
                                 xtype: 'usage-point-management-side-menu',
                                 itemId: 'usage-point-management-side-menu',
                                 router: me.router,
-                                deviceId: me.deviceId
+                                usagePointId: me.usagePointId
                             }
                         ]
                     }

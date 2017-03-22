@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.comtasks.parameters.BasicCheck', {
     extend: 'Ext.form.Panel',
     requires: [
@@ -17,14 +21,14 @@ Ext.define('Mdc.view.setup.comtasks.parameters.BasicCheck', {
                 margin: '0 10 0 0'
             },
             items: [
-                {boxLabel: Uni.I18n.translate('general.yes','MDC','Yes'), inputValue: 'true'},
-                {boxLabel: Uni.I18n.translate('general.no','MDC','No'), inputValue: 'false', checked: true}
+                {boxLabel: Uni.I18n.translate('general.yes', 'MDC', 'Yes'), inputValue: 'true'},
+                {boxLabel: Uni.I18n.translate('general.no', 'MDC', 'No'), inputValue: 'false', checked: true}
             ]
         },
         {
             xtype: 'radiogroup',
             itemId: 'radioReadclockdifference',
-            fieldLabel: Uni.I18n.translate('comtask.read.clock.difference','MDC','Read clock difference'),
+            fieldLabel: Uni.I18n.translate('comtask.read.clock.difference', 'MDC', 'Read clock difference'),
             labelWidth: 300,
             width: 500,
             defaults: {
@@ -32,8 +36,13 @@ Ext.define('Mdc.view.setup.comtasks.parameters.BasicCheck', {
                 margin: '0 10 0 0'
             },
             items: [
-                {boxLabel: Uni.I18n.translate('general.yes','MDC','Yes'), inputValue: 'true', id: 'radioYes'},
-                {boxLabel: Uni.I18n.translate('general.no','MDC','No'), inputValue: 'false', checked: true, id: 'radioNo'}
+                {boxLabel: Uni.I18n.translate('general.yes', 'MDC', 'Yes'), inputValue: 'true', id: 'radioYes'},
+                {
+                    boxLabel: Uni.I18n.translate('general.no', 'MDC', 'No'),
+                    inputValue: 'false',
+                    checked: true,
+                    id: 'radioNo'
+                }
             ],
             listeners: {
                 change: function () {
@@ -51,7 +60,7 @@ Ext.define('Mdc.view.setup.comtasks.parameters.BasicCheck', {
             layout: 'hbox',
             itemId: 'mdc-maxClockDifferenceBasicCheck',
             msgTarget: 'under',
-            fieldLabel: Uni.I18n.translate('comtask.maximum.clock.difference','MDC','Maximum clock difference'),
+            fieldLabel: Uni.I18n.translate('comtask.maximum.clock.difference', 'MDC', 'Maximum clock difference'),
             labelWidth: 300,
             width: 500,
             disabled: true,

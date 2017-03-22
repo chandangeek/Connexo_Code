@@ -277,7 +277,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                     taskName = communicationTask.get('name');
 
                 me.getApplication().fireEvent('loadCommunicationTask', communicationTask);
-                widget.down('#mdc-comtask-overview-sidemenu #mdc-comtask-sidemenu-overviewLink').setText(taskName);
+                widget.down('#mdc-comtask-overview-sidemenu').setHeader(taskName);
                 widget.down('#mdc-comtask-overview-form').loadRecord(communicationTask);
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.goToTaskOverview = true;
@@ -323,7 +323,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                             actionsStore: actionsStore
                         });
                         me.getApplication().fireEvent('loadCommunicationTask', communicationTask);
-                        widget.down('#mdc-comtask-actions-sidemenu #mdc-comtask-sidemenu-overviewLink').setText(communicationTask.get('name'));
+                        widget.down('#mdc-comtask-actions-sidemenu').setHeader(communicationTask.get('name'));
                         me.getApplication().fireEvent('changecontentevent', widget);
 
                         if (Ext.isEmpty(me.categoriesStore)) {
@@ -377,7 +377,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                     }),
                     executeWhenStoreLoaded = function () {
                         me.getApplication().fireEvent('loadCommunicationTask', communicationTask);
-                        widget.down('#mdc-comtask-cmdcategories-sidemenu #mdc-comtask-sidemenu-overviewLink').setText(taskName);
+                        widget.down('#mdc-comtask-cmdcategories-sidemenu').setHeader(taskName);
                         widget.down('#mdc-comtask-commandCategories-grid').maxHeight = undefined;
                         me.getApplication().fireEvent('changecontentevent', widget);
 
@@ -455,8 +455,10 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 var executeAfterStoreLoad = function () {
                     Ext.Array.each(actionRecord.get('parameters'), function (parameter) {
                         if (parameter.name === 'loadprofiletypeids') {
-                            Ext.Array.each(parameter.value, function (value) {
-                                loadProfileTypes += Ext.String.htmlEncode(loadProfileTypesStore.findRecord('id', value.value).get('name'));
+                            Ext.Array.each(parameter.value, function(value) {
+                                var indexInStore = loadProfileTypesStore.findExact('id', value.value);
+                                var storeRecord = indexInStore === -1 ? null : loadProfileTypesStore.getAt(indexInStore);
+                                loadProfileTypes += Ext.String.htmlEncode(storeRecord.get('name'));
                                 loadProfileTypes += '\n'
                             });
                             if (Ext.isEmpty(loadProfileTypes)) {
@@ -506,24 +508,26 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 break;
 
             case 'logbooks':
-                var executeAfterStoreLoad = function () {
-                    Ext.Array.each(actionRecord.get('parameters'), function (parameter) {
-                        if (parameter.name === 'logbooktypeids') {
-                            Ext.Array.each(parameter.value, function (value) {
-                                logbookTypes += Ext.String.htmlEncode(logbookTypesStore.findRecord('id', value.value).get('name'));
-                                logbookTypes += '\n'
-                            });
-                            if (Ext.isEmpty(logbookTypes)) {
-                                logbookTypes = '-';
+                var executeAfterStoreLoad = function() {
+                        Ext.Array.each(actionRecord.get('parameters'), function (parameter) {
+                            if (parameter.name === 'logbooktypeids') {
+                                Ext.Array.each(parameter.value, function(value) {
+                                    var indexInStore = logbookTypesStore.findExact('id', value.value);
+                                    var storeRecord = indexInStore === -1 ? null : logbookTypesStore.getAt(indexInStore);
+                                    logbookTypes += Ext.String.htmlEncode(storeRecord.get('name'));
+                                    logbookTypes += '\n'
+                                });
+                                if (Ext.isEmpty(logbookTypes)) {
+                                    logbookTypes = '-';
+                                }
+                                previewForm.addAttribute(
+                                    Uni.I18n.translate('general.logbookTypes', 'MDC', 'Logbook types'),
+                                    logbookTypes
+                                );
+                                return false;
                             }
-                            previewForm.addAttribute(
-                                Uni.I18n.translate('general.logbookTypes', 'MDC', 'Logbook types'),
-                                logbookTypes
-                            );
-                            return false;
-                        }
-                    });
-                };
+                        });
+                    };
 
                 logbookTypesStore.getProxy().pageParam = false;
                 logbookTypesStore.getProxy().startParam = false;
@@ -532,24 +536,26 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 break;
 
             case 'registers':
-                var executeAfterStoreLoad = function () {
-                    Ext.Array.each(actionRecord.get('parameters'), function (parameter) {
-                        if (parameter.name === 'registergroupids') {
-                            Ext.Array.each(parameter.value, function (value) {
-                                registerGroups += Ext.String.htmlEncode(registerGroupsStore.findRecord('id', value.value).get('name'));
-                                registerGroups += '\n'
-                            });
-                            if (Ext.isEmpty(registerGroups)) {
-                                registerGroups = '-';
+                var executeAfterStoreLoad = function() {
+                        Ext.Array.each(actionRecord.get('parameters'), function (parameter) {
+                            if (parameter.name === 'registergroupids') {
+                                Ext.Array.each(parameter.value, function(value) {
+                                    var indexInStore = registerGroupsStore.findExact('id', value.value);
+                                    var storeRecord = indexInStore === -1 ? null : registerGroupsStore.getAt(indexInStore);
+                                    registerGroups += Ext.String.htmlEncode(storeRecord.get('name'));
+                                    registerGroups += '\n'
+                                });
+                                if (Ext.isEmpty(registerGroups)) {
+                                    registerGroups = '-';
+                                }
+                                previewForm.addAttribute(
+                                    Uni.I18n.translate('comtask.register.groups', 'MDC', 'Register groups'),
+                                    registerGroups
+                                );
+                                return false;
                             }
-                            previewForm.addAttribute(
-                                Uni.I18n.translate('comtask.register.groups', 'MDC', 'Register groups'),
-                                registerGroups
-                            );
-                            return false;
-                        }
-                    });
-                };
+                        });
+                    };
 
                 registerGroupsStore.getProxy().pageParam = false;
                 registerGroupsStore.getProxy().startParam = false;
@@ -591,7 +597,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 Ext.Array.each(actionRecord.get('parameters'), function (parameter) {
                     if (parameter.name === 'verifyserialnumber') {
                         verifyserialnumber = parameter.value;
-                    }else if (parameter.name === 'readclockdifference') {
+                    } else if (parameter.name === 'readclockdifference') {
                         readclockdifference = parameter.value;
                     } else if (parameter.name === 'maximumclockdifference') {
                         maximumClockDifference = parameter.value
@@ -604,10 +610,10 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                     verifyserialnumber ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No')
                 );
                 previewForm.addAttribute(
-                    Uni.I18n.translate('comtask.read.clock.difference','MDC','Read clock difference'),
+                    Uni.I18n.translate('comtask.read.clock.difference', 'MDC', 'Read clock difference'),
                     readclockdifference ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No')
                 );
-                if(!Ext.isEmpty(maximumClockDifference)) {
+                if (!Ext.isEmpty(maximumClockDifference)) {
                     previewForm.addAttribute(
                         Uni.I18n.translate('comtask.maximum.clock.difference', 'MDC', 'Maximum clock difference'),
                         maximumClockDifference
@@ -952,8 +958,14 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             iconFail = Ext.ComponentQuery.query('#radioFail')[0].getEl().down('span[class=icon-info]'),
             textFail = Uni.I18n.translate('comtask.tooltip.textFail', 'MDC', 'A profile configuration defines how a load profile of that configuration looks like. When the profile configuration doesn\'t match the load profile, a failure occurs');
 
-        iconIntervals.tooltip = Ext.create('Ext.tip.ToolTip', {target: iconIntervals, html: Ext.String.htmlEncode(textIntervals)});
-        iconEvents.tooltip = Ext.create('Ext.tip.ToolTip', {target: iconEvents, html: Ext.String.htmlEncode(textEvents)});
+        iconIntervals.tooltip = Ext.create('Ext.tip.ToolTip', {
+            target: iconIntervals,
+            html: Ext.String.htmlEncode(textIntervals)
+        });
+        iconEvents.tooltip = Ext.create('Ext.tip.ToolTip', {
+            target: iconEvents,
+            html: Ext.String.htmlEncode(textEvents)
+        });
         iconFail.tooltip = Ext.create('Ext.tip.ToolTip', {target: iconFail, html: Ext.String.htmlEncode(textFail)});
     },
 
@@ -1017,7 +1029,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 parametersContainer.down('#radioReadclockdifference').setValue({
                     readclockdifference: command.parameters[1].value.toString()
                 });
-                if(!Ext.isEmpty(command.parameters[2].value)) {
+                if (!Ext.isEmpty(command.parameters[2].value)) {
                     parametersContainer.down('#disContTime').setValue(command.parameters[2].value.name);
                     parametersContainer.down('#disContNum').setValue(command.parameters[2].value.value);
                 }
@@ -1435,7 +1447,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         readClock.value = readClockBoolean;
         action.parameters.push(readClock);
 
-        if(readClockBoolean) {
+        if (readClockBoolean) {
             var maxDifference = {},
                 maxDifferenceValue = {};
             maxDifference.name = "maximumclockdifference";

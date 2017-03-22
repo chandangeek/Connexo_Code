@@ -32,6 +32,7 @@ Ext.define('Mdc.view.setup.deviceconflictingmappings.DeviceConflictingMappingGri
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'device-conflicting-mapping-action-menu',
                     itemId: 'device-conflicting-mapping-action-menu'
