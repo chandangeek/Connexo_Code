@@ -5,6 +5,7 @@
 package com.elster.jupiter.yellowfin.impl;
 
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
@@ -12,6 +13,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.yellowfin.YellowfinFilterInfo;
 import com.elster.jupiter.yellowfin.YellowfinFilterListItemInfo;
 import com.elster.jupiter.yellowfin.YellowfinReportInfo;
@@ -50,12 +52,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component(name = "com.elster.jupiter.yellowfin", service = {YellowfinService.class, TranslationKeyProvider.class}, immediate = true, property = "name=" + YellowfinService.COMPONENTNAME)
 @SuppressWarnings("unused")
-public class YellowfinServiceImpl implements YellowfinService, TranslationKeyProvider {
+public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvider, TranslationKeyProvider {
     private static final String YELLOWFIN_URL = "com.elster.jupiter.yellowfin.url";
     private static final String YELLOWFIN_EXTERNAL_URL = "com.elster.jupiter.yellowfin.externalurl";
     private static final String YELLOWFIN_WEBSERVICES_USER = "com.elster.jupiter.yellowfin.user";
@@ -579,9 +584,14 @@ public class YellowfinServiceImpl implements YellowfinService, TranslationKeyPro
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> translationKeys = new ArrayList<>();
-        translationKeys.add(new SimpleTranslationKey("error.facts.unavailable", "Connexo Facts is not available."));
-        translationKeys.addAll(Arrays.asList(Privileges.values()));
-        return translationKeys;
+        return Stream.of(
+                Arrays.stream(Privileges.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 }
