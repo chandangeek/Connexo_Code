@@ -409,7 +409,8 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration').load(newValue, {
             success: function (record) {
                 if (wizard.rendered) {
-                    wizard.down('#purposes-field').setStore(record.metrologyContracts())
+                    wizard.down('#purposes-field').setStore(record.metrologyContracts());
+                    wizard.down('#custom-attributes-radiogroup').show();
                 }
             },
             callback: function () {

@@ -87,6 +87,42 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                         + '</span>'
                     },
                     {
+                        xtype: 'radiogroup',
+                        itemId: 'custom-attributes-radiogroup',
+                        fieldLabel: Uni.I18n.translate('metrologyConfiguration.wizard.customAttributes', 'IMT', 'Custom attributes'),
+                        required: true,
+                        hidden: true,
+                        width: 700,
+                        layout: 'vbox',
+                        items: [
+                            {
+                                boxLabel: Uni.I18n.translate('metrologyConfiguration.wizard.custtomAttributes.create', 'IMT', 'Create new versions for versioned custom attribute sets'),
+                                name: 'customAttributes',
+                                inputValue: 'create',
+                                checked: true
+                            },
+                            {
+                                boxLabel: Uni.I18n.translate('metrologyConfiguration.wizard.custtomAttributes.override', 'IMT', 'Override values of existing versions of versioned custom attribute sets'),
+                                name: 'customAttributes',
+                                inputValue: 'override'
+                            }
+                        ],
+                        listeners: {
+                            change: function (group, newValue) {
+                                var controller = me.down('textfield[name=mRID]'),
+                                    form = me.down('#reading-type-add-fields-container');
+                                switch (newValue.customAttributes) {
+                                    case 'create':
+
+                                        break;
+                                    case 'override':
+
+                                        break;
+                                }
+                            }
+                        }
+                    },
+                    {
                         xtype: 'purposes-field',
                         itemId: 'purposes-field'
                     }
