@@ -42,11 +42,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationDetailsForm', 
                     itemId: 'fld-mc-isGapAllowed',
                     fieldLabel: Uni.I18n.translate('general.label.isGapAllowed', 'IMT', 'Allow gaps'),
                     renderer: function (value) {
-                        var isAllowGaps = 'None';
-
-                        if (value !== null) {
-                            isAllowGaps = value ? 'Yes' : 'No';
-                        }
+                        var isAllowGaps = value ? 'Yes' : 'No';
 
                         return Ext.String.format(
                             '<span style="display: inline-block; float: left; margin: 0px 10px 0px 0px">' + isAllowGaps + '</span>' +
