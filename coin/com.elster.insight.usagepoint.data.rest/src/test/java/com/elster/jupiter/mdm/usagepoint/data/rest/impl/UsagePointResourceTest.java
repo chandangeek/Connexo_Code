@@ -849,7 +849,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(configurationOnUsagePointList);
         when(metrologyConfigurationOnUsagePoint.getRange()).thenReturn(range);
 
-        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/privileges").request().get();
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/metrologyconfiguration/privileges").request().get();
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);
         assertThat(model.<List>get("$.privileges")).hasSize(1);
@@ -872,7 +872,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(metrologyConfigurationOnUsagePoint1.getRange()).thenReturn(range1);
         when(metrologyConfigurationOnUsagePoint.getRange()).thenReturn(range);
 
-        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/privileges").request().get();
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/metrologyconfiguration/privileges").request().get();
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(model.<Integer>get("$.total")).isEqualTo(0);
         assertThat(model.<List>get("$.privileges")).hasSize(0);
@@ -887,7 +887,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(state.getStage()).thenReturn(stage);
         when(stage.getKey()).thenReturn(UsagePointStage.Key.SUSPENDED);
         when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(configurationOnUsagePointList);
-        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/privileges").request().get();
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/metrologyconfiguration/privileges").request().get();
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);
         assertThat(model.<List>get("$.privileges")).hasSize(1);
