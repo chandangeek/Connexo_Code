@@ -738,6 +738,14 @@ public enum TableSpecs {
                     .varChar()
                     .map(MetrologyConfigurationImpl.Fields.DESCRIPTION.fieldName())
                     .add();
+            table.column(MetrologyConfigurationImpl.Fields.ALLOW_GAP.name())
+                    .type("char(1)")
+                    .notNull()
+                    .conversion(CHAR2BOOLEAN)
+                    .map(MetrologyConfigurationImpl.Fields.ALLOW_GAP.fieldName())
+                    .since(version(10,3))
+                    .installValue("'N'")
+                    .add();
             table.column(MetrologyConfigurationImpl.Fields.STATUS.name())
                     .number()
                     .conversion(NUMBER2ENUM)
@@ -815,7 +823,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column usagePoint = table.column("USAGEPOINT").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column metrologyConfiguration = table.column("METROLOGYCONFIG").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
-            table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
+            table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add().upTo(version(10, 3));
             table.addIntervalColumns("interval");
             table.addAuditColumns();
             table.primaryKey("PK_MTR_UPMTRCONFIG").on(id).add();
