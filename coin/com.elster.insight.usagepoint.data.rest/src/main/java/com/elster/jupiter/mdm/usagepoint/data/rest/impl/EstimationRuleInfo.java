@@ -19,6 +19,8 @@ public class EstimationRuleInfo {
     @JsonProperty("displayName")
     public String estimatorName;
 
+    public String estimatorImpl;
+
     public long ruleSetId;
 
     public String name;
