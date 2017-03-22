@@ -48,6 +48,14 @@ Ext.define('Imt.usagepointhistory.view.Overview', {
                 activeTab: 0,
                 items: [
                     {
+                        title: Uni.I18n.translate('general.calendar', 'IMT', 'Calendar'),
+                        itemId: 'calendar-tab'
+                    },
+                    {
+                        title: Uni.I18n.translate('general.meters', 'IMT', 'Meters'),
+                        itemId: 'meters-tab'
+                    },
+                    {
                         title: Uni.I18n.translate('general.metrologyConfigurations', 'IMT', 'Metrology configurations'),
                         itemId: 'metrology-configurations-tab'
                     },
@@ -75,13 +83,6 @@ Ext.define('Imt.usagepointhistory.view.Overview', {
                 }
             }
         });
-
-        cfg.items.push(
-            {
-                title: Uni.I18n.translate('general.calendar', 'IMT', 'Calendar'),
-                itemId: 'calendar-tab'
-            }
-        );
 
         return cfg;
     }
