@@ -31,13 +31,11 @@ public class ClientCertificateWrapperImpl extends RequestableCertificateWrapperI
     /**
      * Initializer for Client certificate wrapper
      *
-     * @param alias The alias for this client certificate
      * @param privateKeyWrapper The Wrapper that will contain the private key for this client certificate
      * @param keyType The type for this certificate.
      * @return The updated ClientCertificateWrapper
      */
-    public ClientCertificateWrapperImpl init(String alias, PrivateKeyWrapper privateKeyWrapper, KeyType keyType) {
-        this.setAlias(alias);
+    public ClientCertificateWrapperImpl init(PrivateKeyWrapper privateKeyWrapper, KeyType keyType) {
         this.privateKeyReference = dataModel.asRefAny(privateKeyWrapper);
         this.keyTypeReference.set(keyType);
         return this;

@@ -19,11 +19,20 @@ import java.util.Optional;
 @ProviderType
 public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableValues, HasId {
     /**
-     * A certificate alias is the name given to a CA certificate located in the certificate store.
+     * A certificate alias is the name given to a certificate located in the certificate store.
      * Each entry in the certificate store has an alias to help identify it.
      * @return This certificate's alias
      */
     String getAlias();
+
+    /**
+     * Set the alias for this certificate.
+     * A certificate alias is the name given to a certificate located in the certificate store.
+     * A Certificate alias is unique in scope of a trust store, if the certificate is a trusted certificate.
+     * For non-trusted certificates, the alias is unique system-wide (among other non-trusted certificates)
+     * @param alias
+     */
+    void setAlias(String alias);
 
     /**
      * If a Certificate is available in this wrapper, it will be returned, if not, Optional.empty() will be returned.

@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.pki.impl.wrappers.certificate;
 
-import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -75,7 +74,6 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
 
     private long id;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private String alias;
     private byte[] certificate;
     private Instant expirationTime;
@@ -163,7 +161,9 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
 
             @Override
             void copyFromMap(Map<String, Object> properties, AbstractCertificateWrapperImpl certificateWrapper) {
-                // No properties to set
+                if (properties.containsKey(getPropertyName())) {
+                    certificateWrapper.setAlias((String) properties.get(getPropertyName()));
+                }
             }
 
             @Override

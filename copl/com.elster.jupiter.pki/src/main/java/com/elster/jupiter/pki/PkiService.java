@@ -132,11 +132,10 @@ public interface PkiService {
     /**
      * Creates a new Client certificate wrapper.
      *
-     * @param alias The alias by which this CertificateHolder will be known
      * @param clientCertificateAccessorType The Key AccessorType describing the certificate and the private key
      * @return Persisted, empty ClientCertificateWrapper
      */
-    ClientCertificateWrapper newClientCertificateWrapper(String alias, KeyAccessorType clientCertificateAccessorType);
+    ClientCertificateWrapper newClientCertificateWrapper(KeyAccessorType clientCertificateAccessorType);
 
     Optional<ClientCertificateWrapper> findClientCertificateWrapper(String alias);
 

@@ -456,7 +456,7 @@ public class PKIServiceImplIT {
         when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
         when(certificateAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
         ClientCertificateWrapper comserver = inMemoryPersistence.getPkiService()
-                .newClientCertificateWrapper("comserver-cc", certificateAccessorType);
+                .newClientCertificateWrapper(certificateAccessorType);
 
         Optional<ClientCertificateWrapper> comserver1 = inMemoryPersistence.getPkiService()
                 .findClientCertificateWrapper("comserver-cc");
@@ -475,7 +475,7 @@ public class PKIServiceImplIT {
         when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
         when(certificateAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
 
-        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper("comserver", certificateAccessorType);
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateAccessorType);
         clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
 
         X500NameBuilder x500NameBuilder = new X500NameBuilder();
@@ -507,7 +507,7 @@ public class PKIServiceImplIT {
         when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
         when(certificateAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
 
-        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper("comserver-rsa", certificateAccessorType);
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateAccessorType);
         clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
 
         X500NameBuilder x500NameBuilder = new X500NameBuilder();
@@ -539,7 +539,7 @@ public class PKIServiceImplIT {
         when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
         when(certificateAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
 
-        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper("comserver-dsa", certificateAccessorType);
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateAccessorType);
         clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
 
         X500NameBuilder x500NameBuilder = new X500NameBuilder();
@@ -572,8 +572,8 @@ public class PKIServiceImplIT {
         when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
         when(certificateAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
 
-        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper("comserver-dup", certificateAccessorType);
-        ClientCertificateWrapper duplicate = inMemoryPersistence.getPkiService().newClientCertificateWrapper("comserver-dup", certificateAccessorType);
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateAccessorType);
+        ClientCertificateWrapper duplicate = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateAccessorType);
     }
 
     @Test
@@ -589,7 +589,7 @@ public class PKIServiceImplIT {
         when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
         when(certificateAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
 
-        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper("comserver-dup1", certificateAccessorType);
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateAccessorType);
         CertificateWrapper duplicate = inMemoryPersistence.getPkiService().newCertificateWrapper("comserver-dup1");
     }
 
@@ -627,7 +627,7 @@ public class PKIServiceImplIT {
 
         X509Certificate certificate = loadCertificate("myRootCA.cert");
         ts1.addCertificate("myCert3", certificate);
-        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper("myCert3", certificateAccessorType);
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateAccessorType);
     }
 
     private X509Certificate createSelfSignedCertificate(String myself) throws Exception {

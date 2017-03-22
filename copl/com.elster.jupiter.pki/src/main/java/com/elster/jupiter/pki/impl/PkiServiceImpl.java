@@ -271,10 +271,10 @@ public class PkiServiceImpl implements PkiService {
     }
 
     @Override
-    public ClientCertificateWrapper newClientCertificateWrapper(String alias, KeyAccessorType clientCertificateAccessorType) {
+    public ClientCertificateWrapper newClientCertificateWrapper(KeyAccessorType clientCertificateAccessorType) {
         AbstractPlaintextPrivateKeyWrapperImpl privateKeyWrapper = (AbstractPlaintextPrivateKeyWrapperImpl) this.newPrivateKeyWrapper(clientCertificateAccessorType);
         ClientCertificateWrapperImpl clientCertificate = getDataModel().getInstance(ClientCertificateWrapperImpl.class)
-                .init(alias, privateKeyWrapper, clientCertificateAccessorType.getKeyType());
+                .init(privateKeyWrapper, clientCertificateAccessorType.getKeyType());
         clientCertificate.save();
         return clientCertificate;
     }
