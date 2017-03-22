@@ -4,12 +4,15 @@
 
 package com.elster.jupiter.users;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.security.Principal;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+@ProviderType
 public interface UserPreferencesService {
     
     UserPreference createUserPreference(Locale locale, PreferenceType key, String formatBE, String formatFE, boolean isDefault);
