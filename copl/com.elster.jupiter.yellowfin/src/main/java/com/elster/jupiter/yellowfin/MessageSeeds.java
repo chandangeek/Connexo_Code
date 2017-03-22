@@ -2,12 +2,11 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.yellowfin.impl;
+package com.elster.jupiter.yellowfin;
 
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.yellowfin.YellowfinService;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

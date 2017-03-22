@@ -6,7 +6,6 @@ package com.elster.jupiter.yellowfin.impl;
 
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
-import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
@@ -14,6 +13,7 @@ import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.yellowfin.MessageSeeds;
 import com.elster.jupiter.yellowfin.YellowfinFilterInfo;
 import com.elster.jupiter.yellowfin.YellowfinFilterListItemInfo;
 import com.elster.jupiter.yellowfin.YellowfinReportInfo;
