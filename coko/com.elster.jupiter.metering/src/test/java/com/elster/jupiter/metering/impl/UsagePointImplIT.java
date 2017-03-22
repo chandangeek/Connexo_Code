@@ -179,7 +179,7 @@ public class UsagePointImplIT {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint =
                 serviceCategory
-                        .newUsagePoint("twoEffectiveMetrologyConfigurationsOverlapsWithPeriodAtTheirBoundary", AUG_1ST_2016)
+                        .newUsagePoint("twoEffectiveMetrologyConfigurationsOverlapsWithPeriodAtTheirBoundary", JULY_1ST_2016)
                         .create();
         UsagePointMetrologyConfiguration configuration1 =
                 inMemoryBootstrapModule

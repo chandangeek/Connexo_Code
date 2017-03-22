@@ -389,7 +389,7 @@ public class DataAggregationServiceImplCalculateIT {
         this.initializeSqlBuilders();
 
         // Apply MetrologyConfiguration to UsagePoint
-        this.usagePoint.apply(this.configuration, jan1st2016);
+        this.usagePoint.apply(this.configuration, jan1st2016.plusSeconds(20));
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
         this.contract.addDeliverable(netConsumption);
@@ -491,7 +491,7 @@ public class DataAggregationServiceImplCalculateIT {
         this.initializeSqlBuilders();
 
         // Apply MetrologyConfiguration to UsagePoint
-        this.usagePoint.apply(this.configuration, jan1st2016);
+        this.usagePoint.apply(this.configuration, jan1st2016.plusSeconds(20));
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
         this.contract.addDeliverable(netConsumption);
@@ -601,7 +601,7 @@ public class DataAggregationServiceImplCalculateIT {
         this.initializeSqlBuilders();
 
         // Apply MetrologyConfiguration to UsagePoint
-        this.usagePoint.apply(this.configuration, jan1st2016);
+        this.usagePoint.apply(this.configuration, jan1st2016.plusSeconds(20));
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
         this.contract.addDeliverable(netConsumption);
@@ -714,7 +714,7 @@ public class DataAggregationServiceImplCalculateIT {
         this.initializeSqlBuilders();
 
         // Apply MetrologyConfiguration to UsagePoint
-        this.usagePoint.apply(this.configuration, jan1st2016);
+        this.usagePoint.apply(this.configuration, jan1st2016.plusSeconds(20));
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
         this.contract.addDeliverable(netConsumption);
@@ -850,7 +850,7 @@ public class DataAggregationServiceImplCalculateIT {
         this.initializeSqlBuilders();
 
         // Apply MetrologyConfiguration to UsagePoint
-        this.usagePoint.apply(this.configuration, jan1st2016);
+        this.usagePoint.apply(this.configuration, jan1st2016.plusSeconds(20));
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
         this.contract.addDeliverable(netConsumption);
@@ -918,6 +918,11 @@ public class DataAggregationServiceImplCalculateIT {
     private void setupUsagePoint(String name) {
         ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         this.usagePoint = electricity.newUsagePoint(name, jan1st2016).create();
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP1", electricity).create();
+        usagePointMetrologyConfiguration.addMeterRole(getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT));
+        usagePointMetrologyConfiguration.addMeterRole(getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.CONSUMPTION));
+        usagePointMetrologyConfiguration.addMeterRole(getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.PRODUCTION));
+        usagePoint.apply(usagePointMetrologyConfiguration, jan1st2016);
     }
 
     private void activateMeterWithAll15MinChannels(MeterRole meterRole) {
