@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Imt.usagepointmanagement.store.MetrologyConfigurationDefinePrivileges', {
+Ext.define('Imt.usagepointmanagement.store.DefineMetrologyConfigurationPrivileges', {
     extend: 'Ext.data.Store',
     fields: [
         'name'
@@ -12,7 +12,7 @@ Ext.define('Imt.usagepointmanagement.store.MetrologyConfigurationDefinePrivilege
 
     proxy: {
         type: 'rest',
-        url: '/api/udr/usagepoints/{usagePointId}/privileges',
+        url: '/api/udr/usagepoints/{usagePointId}/metrologyconfiguration/privileges',
 
         reader: {
             type: 'json',
