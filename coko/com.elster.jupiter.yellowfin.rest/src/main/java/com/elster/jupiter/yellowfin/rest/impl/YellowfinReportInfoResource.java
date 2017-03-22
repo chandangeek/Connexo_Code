@@ -5,10 +5,12 @@
 package com.elster.jupiter.yellowfin.rest.impl;
 
 
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.yellowfin.YellowfinReportInfo;
 import com.elster.jupiter.yellowfin.YellowfinService;
+import com.elster.jupiter.yellowfin.impl.MessageSeeds;
 import com.elster.jupiter.yellowfin.security.Privileges;
 import com.fasterxml.jackson.databind.util.JSONWrappedObject;
 
@@ -26,13 +28,13 @@ import java.util.List;
 public class YellowfinReportInfoResource {
 
     private YellowfinService yellowfinService;
-    private final String errorMessage;
+    private Thesaurus thesaurus;
 
 
     @Inject
     private YellowfinReportInfoResource(YellowfinService yellowfinService, Thesaurus thesaurus){
         this.yellowfinService = yellowfinService;
-        this.errorMessage = thesaurus.getString("error.facts.unavailable", "Connexo Facts is not available.");
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -46,23 +48,23 @@ public class YellowfinReportInfoResource {
 
         User user = (User) securityContext.getUserPrincipal();
         String found = yellowfinService.getUser(user.getName()).
-                orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build()));
+                orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.FACTS_NOT_AVAILABLE,YellowfinService.COMPONENTNAME){});
 
         if(found.equals("NOT_FOUND")) {
             found = yellowfinService.createUser(user.getName()).
-                    orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build()));
+                    orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.FACTS_NOT_AVAILABLE,YellowfinService.COMPONENTNAME){});
         }
 
         if(found.equals("SUCCESS")) {
             ReportInfos reportInfos = new ReportInfos();
             reportInfos.addAll(
                     yellowfinService.getUserReports(user.getName(), category, subCategory, reportUUID).
-                            orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build())));
+                            orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.FACTS_NOT_AVAILABLE,YellowfinService.COMPONENTNAME){}));
 
             return reportInfos;
         }
         else {
-            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build());
+            throw new LocalizedException(thesaurus, MessageSeeds.FACTS_NOT_AVAILABLE,YellowfinService.COMPONENTNAME){};
         }
     }
     @GET
@@ -76,35 +78,35 @@ public class YellowfinReportInfoResource {
         FilterInfos filterInfos = new FilterInfos();
         User user = (User) securityContext.getUserPrincipal();
         String found = yellowfinService.getUser(user.getName()).
-                orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build()));
+                orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.FACTS_NOT_AVAILABLE,YellowfinService.COMPONENTNAME){});
 
         if(found.equals("NOT_FOUND")) {
             found = yellowfinService.createUser(user.getName()).
-                    orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build()));
+                    orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.FACTS_NOT_AVAILABLE,YellowfinService.COMPONENTNAME){});
         }
 
         if(found.equals("SUCCESS")) {
             if (reportId != 0) {
                 filterInfos.addAll(
-                        yellowfinService.getReportFilters(reportId).orElseThrow(() -> new WebApplicationException(this.errorMessage, Response.Status.SERVICE_UNAVAILABLE)));
+                        yellowfinService.getReportFilters(reportId).orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.FACTS_NOT_AVAILABLE,YellowfinService.COMPONENTNAME){}));
             } else {
                 if (reportUUID != null) {
                     ReportInfos reportInfos = new ReportInfos();
                     reportInfos.addAll(
                             yellowfinService.getUserReports(user.getName(), null, null, reportUUID).
-                                    orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build())));
+                                    orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.FACTS_NOT_AVAILABLE,YellowfinService.COMPONENTNAME){}));
                     if (reportInfos.total > 0) {
                         List<ReportInfo> reportInfo = reportInfos.reports;
                         filterInfos.addAll(
                                 yellowfinService.getReportFilters(reportInfo.get(0).getReportId()).
-                                        orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build())));
+                                        orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.FACTS_NOT_AVAILABLE,YellowfinService.COMPONENTNAME){}));
                     }
                 }
             }
             return filterInfos;
         }
         else {
-            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build());
+            throw new LocalizedException(thesaurus, MessageSeeds.FACTS_NOT_AVAILABLE,YellowfinService.COMPONENTNAME){};
         }
     }
     @GET
@@ -118,36 +120,36 @@ public class YellowfinReportInfoResource {
         FilterListItemInfos filterInfos = new FilterListItemInfos();
         User user = (User) securityContext.getUserPrincipal();
         String found = yellowfinService.getUser(user.getName()).
-                orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build()));
+                orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.FACTS_NOT_AVAILABLE,YellowfinService.COMPONENTNAME){});
 
         if(found.equals("NOT_FOUND")) {
             found = yellowfinService.createUser(user.getName()).
-                    orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build()));
+                    orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.FACTS_NOT_AVAILABLE,YellowfinService.COMPONENTNAME){});
         }
 
         if(found.equals("SUCCESS")) {
             if (reportId != 0) {
                 filterInfos.addAll(
-                        yellowfinService.getFilterListItems(filterId, reportId).orElseThrow(() -> new WebApplicationException(this.errorMessage, Response.Status.SERVICE_UNAVAILABLE)));
+                        yellowfinService.getFilterListItems(filterId, reportId).orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.FACTS_NOT_AVAILABLE,YellowfinService.COMPONENTNAME){}));
             } else {
                 if (reportUUID != null) {
                     ReportInfos reportInfos = new ReportInfos();
                     reportInfos.addAll(
                             yellowfinService.getUserReports(user.getName(), null, null, reportUUID).
-                                    orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build())));
+                                    orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.FACTS_NOT_AVAILABLE,YellowfinService.COMPONENTNAME){}));
                     if (reportInfos.total > 0) {
-                        List<ReportInfo> reportInfo = new ArrayList<>();
+                        List<ReportInfo> reportInfo;
                         reportInfo = reportInfos.reports;
                         filterInfos.addAll(
                                 yellowfinService.getFilterListItems(filterId, reportInfo.get(0).getReportId()).
-                                        orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build())));
+                                        orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.FACTS_NOT_AVAILABLE,YellowfinService.COMPONENTNAME){}));
                     }
                 }
             }
             return filterInfos;
         }
         else {
-            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorMessage).build());
+            throw new LocalizedException(thesaurus, MessageSeeds.FACTS_NOT_AVAILABLE,YellowfinService.COMPONENTNAME){};
         }
     }
 }
