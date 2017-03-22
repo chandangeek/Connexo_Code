@@ -789,6 +789,7 @@ public class TableImpl<T> implements Table<T> {
     void prepare() {
         checkActiveBuilder();
         checkMapperTypeIsSet();
+        getMapperType().validate();
         PrimaryKeyConstraintImpl primaryKey = Objects.requireNonNull(getPrimaryKeyConstraint(), "Table '" + getName() + "' : No primary key defined");
         List<ColumnImpl> primaryKeyColumns = primaryKey.getColumns();
         for (int i = 0; i < primaryKeyColumns.size(); i++) {
@@ -876,6 +877,18 @@ public class TableImpl<T> implements Table<T> {
         for (ForeignKeyConstraintImpl constraint : reverseMappedConstraints) {
             if (constraint.isComposition()) {
                 return true;
+            }
+        }
+        return false;
+    }
+
+    boolean isChildFor(List objects) {
+        List<Class> classes = (List<Class>) objects.stream().map(Object::getClass).distinct().collect(Collectors.toList());
+        for (ForeignKeyConstraintImpl constraint : getForeignKeyConstraints()) {
+            if (constraint.isComposition()) {
+                if (classes.stream().anyMatch(clazz -> getDomainMapper().getField(clazz, constraint.getFieldName()) != null)) {
+                    return true;
+                }
             }
         }
         return false;

@@ -7,6 +7,7 @@ package com.elster.jupiter.orm.associations.impl;
 import com.elster.jupiter.orm.associations.AbstractTemporalAspect;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.TemporalAspect;
 import com.elster.jupiter.orm.associations.TemporalList;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
@@ -102,7 +103,7 @@ public enum AssociationKind {
 		}
 
 		public List<?> added(ForeignKeyConstraintImpl constraint, Field field, Object owner,boolean refresh) throws ReflectiveOperationException {
-			List<?>  result = ((AbstractTemporalAspect<?>) field.get(owner)).all();
+			List<?>  result = ((TemporalAspect<?>) field.get(owner)).all();
 			field.set(owner,create(constraint,field,owner,Optional.empty()));
 			return result;
 		}
@@ -115,7 +116,7 @@ public enum AssociationKind {
 		}
 
 		public List<?> added(ForeignKeyConstraintImpl constraint, Field field, Object owner,boolean refresh) throws ReflectiveOperationException {
-			List<?>  result = ((AbstractTemporalAspect<?>) field.get(owner)).all();
+			List<?>  result = ((TemporalAspect<?>) field.get(owner)).all();
 			field.set(owner,create(constraint,field,owner,Optional.empty()));
 			return result;
 		}

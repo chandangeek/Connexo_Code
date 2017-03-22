@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.orm.impl;
 
+import com.elster.jupiter.orm.IllegalTableMappingException;
 import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
@@ -104,6 +105,11 @@ public class InheritanceDataMapperType<T> extends DataMapperType<T> {
 			}
 			return false;
 		}
+	}
+
+	@Override
+	public void validate() {
+		getTable().getDiscriminator().orElseThrow(() -> new IllegalTableMappingException("Table " + getTable().getName() + " maps a hierarchy, but does not have a discriminator column"));
 	}
 
 
