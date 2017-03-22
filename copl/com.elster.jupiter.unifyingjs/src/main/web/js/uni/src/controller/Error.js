@@ -25,7 +25,7 @@ Ext.define('Uni.controller.Error', {
     },
 
     unhandledErrorMessages: [
-        Uni.I18n.translate('error.communication.failure', 'UNI', 'Communication failure')
+        Uni.I18n.translate('error.communication.failure', 'UNI', 'Your action took longer than expected')
     ],
 
     routeConfig: {
@@ -74,7 +74,7 @@ Ext.define('Uni.controller.Error', {
         if (Ext.isObject(error) && Ext.isDefined(error.title)) {
             title = error.title;
         } else {
-            title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Request failed');
+            title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Your action can\'t be successfully executed');
         }
         if (Ext.isObject(error) && Ext.isDefined(error.msg)) {
             error = error.msg;
@@ -88,7 +88,7 @@ Ext.define('Uni.controller.Error', {
 
     handleRequestError: function (conn, response, options) {
         var me = this,
-            title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Request failed'),
+            title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Your action can\'t be successfully executed'),
             message = response.responseText || response.statusText,
             decoded = Ext.decode(message, true),
             code;
@@ -138,7 +138,7 @@ Ext.define('Uni.controller.Error', {
             );
         }
         else {
-            title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Request failed');
+            title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Your action can\'t be successfully executed');
             message = Uni.I18n.translate('error.' + message.replace(' ', '.'), 'UNI', message);
         }
 
@@ -162,7 +162,15 @@ Ext.define('Uni.controller.Error', {
                 title = Uni.I18n.translate(
                     'error.internalServerError',
                     'UNI',
-                    'Internal server error'
+                    'Internal Connexo error'
+                );
+                me.showError(title, decoded.message ? decoded.message : message, decoded.errorCode ? decoded.errorCode : code);
+                break;
+            case 503: // Service unavailable.
+                title = Uni.I18n.translate(
+                    'error.serviceUnavailable',
+                    'UNI',
+                    'Service Unavailable'
                 );
                 me.showError(title, decoded.message ? decoded.message : message, decoded.errorCode ? decoded.errorCode : code);
                 break;
@@ -175,7 +183,7 @@ Ext.define('Uni.controller.Error', {
                 message = Uni.I18n.translate(
                     'error.internalServerErrorMessage',
                     'UNI',
-                    'Please contact your system administrator.'
+                    'Connexo has encountered an error, please contact your system administrator.'
                 );
                 options.method !== 'HEAD' && me.showError(title, message, code);
                 break;
@@ -191,7 +199,7 @@ Ext.define('Uni.controller.Error', {
                 message = Uni.I18n.translate(
                     'error.internalServerErrorMessage',
                     'UNI',
-                    'Please contact your system administrator.'
+                    'Connexo has encountered an error, please contact your system administrator.'
                 );
                 break;
             case 408:
