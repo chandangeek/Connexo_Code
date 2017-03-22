@@ -16,6 +16,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.validation.EventType;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;

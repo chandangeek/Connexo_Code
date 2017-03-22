@@ -14,9 +14,11 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.tasks.TaskOccurrence;
 
 import aQute.bnd.annotation.ProviderType;
+import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -52,10 +54,10 @@ public interface ValidationService {
     List<Validator> getAvailableValidators();
 
     /**
-     * Filters validators and returns ones supporting a given <code>qualityCodeSystem</code>.
+     * Filters validators and returns ones supporting a given {@code qualityCodeSystem}.
      *
-     * @param qualityCodeSystem a target QualityCodeSystem.
-     * @return the list of validators supporting a given <code>qualityCodeSystem</code>.
+     * @param qualityCodeSystem A target {@link QualityCodeSystem}.
+     * @return The list of validators supporting a given {@code qualityCodeSystem}.
      */
     List<Validator> getAvailableValidators(QualityCodeSystem qualityCodeSystem);
 
@@ -95,7 +97,13 @@ public interface ValidationService {
 
     void updateLastChecked(ChannelsContainer channelsContainer, Instant date);
 
+    /**
+     * Please consider {@link #moveLastCheckedBefore(Channel, Instant)} instead.
+     */
+    @Deprecated
     void updateLastChecked(Channel channel, Instant date);
+
+    void moveLastCheckedBefore(Channel channel, Instant date);
 
     /**
      * Validates all channels in the given {@code channelsContainer}.
@@ -117,6 +125,23 @@ public interface ValidationService {
     void validate(Set<QualityCodeSystem> targetQualityCodeSystems, ChannelsContainer channelsContainer, ReadingType readingType);
 
     void validate(ValidationContext validationContext, Instant date);
+
+    /**
+     * Resets last checked date on {@link Channel Channels} specified in the given map before the beginning of corresponding {@link Range Ranges},
+     * and re-validates the data again if 'validation-on-storage' is active on their {@link ChannelsContainer ChannelsContainers}.
+     * Does not take channel dependencies into account, i.e. does not guarantee the order of validation.
+     * @param rangeByChannelMap A {@link Map} of {@link Channel Channels} to re-validate and corresponding time {@link Range Ranges}.
+     */
+    void validate(Map<Channel, Range<Instant>> rangeByChannelMap);
+
+    /**
+     * Resets last checked date on {@link Channel Channels} specified in the given map before the beginning of corresponding {@link Range Ranges},
+     * and re-validates the data again if 'validation-on-storage' is active on the given {@link ChannelsContainer}.
+     * Does not take channel dependencies into account, i.e. does not guarantee the order of validation.
+     * @param channelsContainer A {@link ChannelsContainer} that contains all channels present in {@code rangeByChannelMap}.
+     * @param rangeByChannelMap A {@link Map} of {@link Channel Channels} to re-validate and corresponding time {@link Range Ranges}.
+     */
+    void validate(ChannelsContainer channelsContainer, Map<Channel, Range<Instant>> rangeByChannelMap);
 
     ValidationEvaluator getEvaluator();
 

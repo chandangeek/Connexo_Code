@@ -27,16 +27,26 @@ public class ChannelValidationContainer {
         channelValidations.stream()
                 .filter(ChannelValidation::hasActiveRules)
                 .forEach(channelValidation -> {
-                    channelValidation.updateLastChecked(date);
-                    channelValidation.getChannelsContainerValidation().save();
+                    if (channelValidation.updateLastChecked(date)) {
+                        channelValidation.getChannelsContainerValidation().save();
+                    }
+                });
+    }
+
+    void moveLastCheckedBefore(Instant date) {
+        channelValidations.stream()
+                .filter(ChannelValidation::hasActiveRules)
+                .forEach(channelValidation -> {
+                    if (channelValidation.moveLastCheckedBefore(date)) {
+                        channelValidation.getChannelsContainerValidation().save();
+                    }
                 });
     }
 
     boolean isValidationActive() {
-        return channelValidations.stream().anyMatch(ChannelValidation::hasActiveRules);
+        return stream().anyMatch(ChannelValidation::hasActiveRules);
     }
 
-    // TODO: think of lastChecked, if it should be common for MDC & MDM, or calculated and set independently
     Optional<Instant> getLastChecked() {
         return getLastChecked(stream());
     }
@@ -44,6 +54,7 @@ public class ChannelValidationContainer {
     static Optional<Instant> getLastChecked(Stream<? extends ChannelValidation> validations) {
         // if any is null, then we should return Optional.empty()
         return validations
+                .filter(ChannelValidation::hasActiveRules)
                 .map(ChannelValidation::getLastChecked)
                 .map(instant -> instant == null ? Instant.MIN : instant)
                 .min(Comparator.naturalOrder())
@@ -55,6 +66,6 @@ public class ChannelValidationContainer {
     }
 
     public Stream<ChannelValidation> stream() {
-        return channelValidations.stream().map(Function.<ChannelValidation>identity());
+        return channelValidations.stream().map(Function.identity());
     }
 }

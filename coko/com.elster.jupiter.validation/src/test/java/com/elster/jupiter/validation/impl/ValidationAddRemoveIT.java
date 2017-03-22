@@ -5,6 +5,7 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.FlowDirection;
@@ -108,7 +109,6 @@ public class ValidationAddRemoveIT {
     private static final String MAX = "max";
     private static final Instant date1 = ZonedDateTime.of(1983, 5, 31, 14, 0, 0, 0, ZoneId.systemDefault()).toInstant();
 
-
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
 
@@ -121,9 +121,7 @@ public class ValidationAddRemoveIT {
     @Mock
     private Validator minMax;
     @Mock
-    private Validator conseqZero;
-    @Mock
-    private PropertySpec min, max, conZero;
+    private PropertySpec min, max;
 
     private BigDecimalFactory valueFactory = new BigDecimalFactory();
     private MeterActivation meterActivation;
@@ -151,6 +149,7 @@ public class ValidationAddRemoveIT {
                     new IdsModule(),
                     new FiniteStateMachineModule(),
                     new UsagePointLifeCycleConfigurationModule(),
+                    new CalendarModule(),
                     new MeteringModule("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"),
                     new BasicPropertiesModule(),
                     new TimeModule(),
@@ -233,7 +232,6 @@ public class ValidationAddRemoveIT {
         });
     }
 
-
     @After
     public void tearDown() {
         inMemoryBootstrapModule.deactivate();
@@ -259,9 +257,8 @@ public class ValidationAddRemoveIT {
                 channel.removeReadings(QualityCodeSystem.MDC, readings.subList(1, readings.size()));
                 channelsContainerValidations = valDataModel.mapper(ChannelsContainerValidation.class).find("channelsContainer", meterActivation.getChannelsContainer());
                 channelValidation = channelsContainerValidations.get(0).getChannelValidations().iterator().next();
-                assertThat(channelValidation.getLastChecked()).isEqualTo(date1.plusSeconds(900));
+                assertThat(channelValidation.getLastChecked()).isEqualTo(date1.plusSeconds(900 * 2).minusMillis(1));
             }
         });
     }
-
 }

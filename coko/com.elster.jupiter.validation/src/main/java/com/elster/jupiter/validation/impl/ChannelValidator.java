@@ -35,14 +35,12 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.streams.Predicates.either;
 
 class ChannelValidator {
-
     private final Channel channel;
     private final Range<Instant> range;
     private final ListMultimap<Instant, ReadingQualityRecord> existingReadingQualities;
     private IValidationRule rule;
     private final List<? extends ReadingRecord> registerReadings;
     private final List<? extends IntervalReadingRecord> intervalReadings;
-
 
     ChannelValidator(Channel channel, Range<Instant> range) {
         this.channel = channel;
@@ -95,7 +93,7 @@ class ChannelValidator {
                         .map(readingRecord -> new ReadingTarget(readingRecord, validator.validate(readingRecord), channelReadingType));
     }
 
-    private final ListMultimap<Instant, ReadingQualityRecord> getExistingReadingQualities() {
+    private ListMultimap<Instant, ReadingQualityRecord> getExistingReadingQualities() {
         List<ReadingQualityRecord> readingQualities = channel.findReadingQualities().inTimeInterval(range).collect();
         return ArrayListMultimap.create(Multimaps.index(readingQualities, ReadingQualityRecord::getReadingTimestamp));
     }
@@ -257,5 +255,4 @@ class ChannelValidator {
             return validationResult;
         }
     }
-
 }
