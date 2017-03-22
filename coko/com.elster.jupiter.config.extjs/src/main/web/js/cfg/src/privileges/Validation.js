@@ -22,7 +22,8 @@ Ext.define('Cfg.privileges.Validation', {
     device:['privilege.view.fineTuneValidationConfiguration.onDevice'],
     deviceConfiguration: ['privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'],
     viewOrAdmin:['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'],
-
+    viewDataQuality:['privilege.view.dataQualityKpi'],
+    viewResultsOrAdministerDataQuality:['privilege.view.dataQualityResults', 'privilege.administer.dataQualityKpi'],
     validateManual: ['privilege.view.validateManual'],
     all: function() {
         return Ext.Array.merge(Cfg.privileges.Validation.view,
@@ -49,6 +50,8 @@ Ext.define('Cfg.privileges.Validation', {
     },
     canUpdateDeviceConfigurationValidation : function (){
         return Uni.Auth.checkPrivileges(Cfg.privileges.Validation.fineTuneOnDeviceConfiguration);
+    },
+    canViewResultsOrAdministerDataQuality: function () {
+        return Uni.Auth.checkPrivileges(Cfg.privileges.Validation.viewResultsOrAdministerDataQuality);
     }
-
 });
