@@ -202,7 +202,6 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
         UsagePointStateChangeRequestImpl request = (UsagePointStateChangeRequestImpl) lifeCycleService.getHistory(usagePoint).get(0);
         request.execute();
         assertThat(request.getGeneralFailReason()).isNotEmpty();
-        assertThat(request.getGeneralFailReason()).contains(String.valueOf(MessageSeeds.TRANSITION_NOT_FOUND.getNumber()));
         assertThat(request.getStatus()).isEqualTo(UsagePointStateChangeRequest.Status.FAILED);
     }
 
@@ -234,7 +233,6 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
 
         UsagePointStateChangeRequestImpl request = (UsagePointStateChangeRequestImpl) lifeCycleService.getHistory(usagePoint).get(0);
         assertThat(request.getGeneralFailReason()).isNotEmpty();
-        assertThat(request.getGeneralFailReason()).contains(String.valueOf(MessageSeeds.MICRO_CHECKS_FAILED_NO_PARAM.getNumber()));
         assertThat(request.getFailReasons().get(0).getKey()).isEqualTo(microCheck.getKey());
         assertThat(request.getStatus()).isEqualTo(UsagePointStateChangeRequest.Status.FAILED);
     }
@@ -254,7 +252,6 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
 
         UsagePointStateChangeRequestImpl request = (UsagePointStateChangeRequestImpl) lifeCycleService.getHistory(usagePoint).get(0);
         assertThat(request.getGeneralFailReason()).isNotEmpty();
-        assertThat(request.getGeneralFailReason()).contains(String.valueOf(MessageSeeds.MICRO_ACTION_FAILED_NO_PARAM.getNumber()));
         assertThat(request.getFailReasons().get(0).getKey()).isEqualTo(microAction.getKey());
         assertThat(request.getStatus()).isEqualTo(UsagePointStateChangeRequest.Status.FAILED);
     }
