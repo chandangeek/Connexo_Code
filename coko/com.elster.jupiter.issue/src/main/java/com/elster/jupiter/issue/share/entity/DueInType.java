@@ -40,8 +40,8 @@ public enum DueInType {
     }
 
     private static class Const {
-        private static long MILLIS_PER_MONTH = DateTimeConstants.MILLIS_PER_WEEK * 4;
-        private static long MILLIS_PER_YEAR = MILLIS_PER_MONTH * 12;
+        private static final long MILLIS_PER_MONTH = DateTimeConstants.MILLIS_PER_WEEK * 4;
+        private static final long MILLIS_PER_YEAR = MILLIS_PER_MONTH * 12;
 
         private Const(){}
     }
