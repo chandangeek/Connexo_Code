@@ -34,6 +34,7 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -59,6 +60,7 @@ public class PublicRestApplication extends Application {
     private volatile MeteringService meteringService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
+    private volatile UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     private volatile ServiceCallService serviceCallService;
     private volatile MessageService messageService;
     private volatile PropertyValueInfoService propertyValueInfoService;
@@ -77,7 +79,8 @@ public class PublicRestApplication extends Application {
                 EffectiveMetrologyConfigurationResource.class,
                 RestExceptionMapper.class,
                 ConstraintViolationExceptionMapper.class,
-                IssueResource.class
+                IssueResource.class,
+                UsagePointLifeCycleStateResource.class
         );
     }
 
@@ -107,6 +110,11 @@ public class PublicRestApplication extends Application {
     @Reference
     public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
         this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
+    @Reference
+    public void setUsagePointLifeCycleConfigurationService(UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
+        this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
     }
 
     @Reference
@@ -167,6 +175,7 @@ public class PublicRestApplication extends Application {
             bind(threadPrincipalService).to(ThreadPrincipalService.class);
             bind(locationService).to(LocationService.class);
             bind(issueService).to(IssueService.class);
+            bind(usagePointLifeCycleConfigurationService).to(UsagePointLifeCycleConfigurationService.class);
 
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
@@ -204,6 +213,7 @@ public class PublicRestApplication extends Application {
             bind(UsagePointShortInfoFactory.class).to(UsagePointShortInfoFactory.class);
             bind(LocationShortInfoFactory.class).to(LocationShortInfoFactory.class);
             bind(IssueShortInfoFactory.class).to(IssueShortInfoFactory.class);
+            bind(UsagePointLifeCycleStateInfoFactory.class).to(UsagePointLifeCycleStateInfoFactory.class);
         }
     }
 }

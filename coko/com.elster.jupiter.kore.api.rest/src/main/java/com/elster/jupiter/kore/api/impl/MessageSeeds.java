@@ -92,7 +92,9 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_STATUS(80, "NoSuchStatus", "No such Status with key {0}"),
     ISSUE_LOCK_ATTEMPT_FAILED(81, "IssueLockAttemptFailed", "Could not obtain a lock on issue with id {0}"),
     BAD_FIELD_VALUE(82, "BadFieldValue", "Bad field value for {0}"),
-    ISSUE_ALREADY_CLOSED(83, "IssueAlreadyClosed", "Issue with id {0} already closed")
+    ISSUE_ALREADY_CLOSED(83, "IssueAlreadyClosed", "Issue with id {0} already closed"),
+    NO_SUCH_USAGE_POINT_LIFECYCLE(84, "NoSuchUsagePointLifeCycle", "No such usage point lifecycle with id {0}"),
+    NO_SUCH_USAGE_POINT_LIFECYCLE_STATE(85, "NoSuchUsagePointLifeCycleState", "No such usage point lifecycle state with id {0}"),
     ;
 
     private final int number;

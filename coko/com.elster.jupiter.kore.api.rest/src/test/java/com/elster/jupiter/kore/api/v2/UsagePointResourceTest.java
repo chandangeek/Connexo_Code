@@ -87,7 +87,7 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
     public void testUsagePointFields() throws Exception {
         Response response = target("/usagepoints").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("$")).hasSize(23);
+        assertThat(model.<List>get("$")).hasSize(24);
         assertThat(model.<List<String>>get("$")).containsOnly(
                 "aliasName",
                 "description",
@@ -110,7 +110,8 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
                 "detail",
                 "isVirtual",
                 "isSdp",
-                "coordinates"
+                "coordinates",
+                "state"
         );
     }
 
