@@ -11,12 +11,14 @@ Ext.define('Ddv.view.Grid', {
     ],
     store: 'Ddv.store.DataQuality',
     router: null,
+    hasHtmlInColumnHeaders: true,
     initComponent: function () {
         var me = this;
 
         me.columns = [
             {
                 header: Uni.I18n.translate('general.name', 'DDV', 'Name'),
+                exportText: Uni.I18n.translate('general.name', 'DDV', 'Name'),
                 dataIndex: 'deviceName',
                 flex: 3,
                 renderer: function (value) {
@@ -28,11 +30,13 @@ Ext.define('Ddv.view.Grid', {
             },
             {
                 header: Uni.I18n.translate('general.serialNumber', 'DDV', 'Serial number'),
+                exportText: Uni.I18n.translate('general.serialNumber', 'DDV', 'Serial number'),
                 dataIndex: 'deviceSerialNumber',
                 flex: 3
             },
             {
                 header: Uni.I18n.translate('general.deviceType', 'DDV', 'Device type'),
+                exportText: Uni.I18n.translate('general.deviceType', 'DDV', 'Device type'),
                 dataIndex: 'deviceType',
                 renderer: function (value) {
                     var url = me.router.getRoute('administration/devicetypes/view').buildUrl({
@@ -44,6 +48,7 @@ Ext.define('Ddv.view.Grid', {
             },
             {
                 header: Uni.I18n.translate('general.configuration', 'DDV', 'Configuration'),
+                exportText: Uni.I18n.translate('general.configuration', 'DDV', 'Configuration'),
                 dataIndex: 'deviceConfig',
                 renderer: function (value, metaData, record) {
                     var url = me.router.getRoute('administration/devicetypes/view/deviceconfigurations/view').buildUrl({
@@ -56,30 +61,35 @@ Ext.define('Ddv.view.Grid', {
             },
             {
                 header: '<span class="white-circle-grid-header icon-flag5" style="color:red;" data-qtip="' + Uni.I18n.translate('general.suspects', 'DDV', 'Suspects') + '"></span>',
+                exportText: Uni.I18n.translate('general.suspects', 'DDV', 'Suspects'),
                 dataIndex: 'amountOfSuspects',
                 align: 'right',
                 flex: 1
             },
             {
                 header: '<span class="white-circle-grid-header icon-checkmark" style="color:#686868" data-qtip="' + Uni.I18n.translate('general.confirmed', 'DDV', 'Confirmed') + '"></span>',
+                exportText: Uni.I18n.translate('general.confirmed', 'DDV', 'Confirmed'),
                 dataIndex: 'amountOfConfirmed',
                 align: 'right',
                 flex: 1
             },
             {
                 header: '<span class="white-circle-grid-header icon-flag5" style="color:#33CC33;" data-qtip="' + Uni.I18n.translate('general.estimates', 'DDV', 'Estimates') + '"></span>',
+                exportText: Uni.I18n.translate('general.estimates', 'DDV', 'Estimates'),
                 dataIndex: 'amountOfEstimates',
                 align: 'right',
                 flex: 1
             },
             {
                 header: '<span class="white-circle-grid-header icon-flag5" style="color:#dedc49;" data-qtip="' + Uni.I18n.translate('general.informatives', 'DDV', 'Informatives') + '"></span>',
+                exportText: Uni.I18n.translate('general.informatives', 'DDV', 'Informatives'),
                 dataIndex: 'amountOfInformatives',
                 align: 'right',
                 flex: 1
             },
             {
                 header: '<span class="white-circle-grid-header icon-pencil4" style="color:#686868" data-qtip="' + Uni.I18n.translate('general.edited', 'DDV', 'Edited') + '"></span>',
+                exportText: Uni.I18n.translate('general.edited', 'DDV', 'Edited'),
                 dataIndex: 'amountOfTotalEdited',
                 align: 'right',
                 flex: 1
