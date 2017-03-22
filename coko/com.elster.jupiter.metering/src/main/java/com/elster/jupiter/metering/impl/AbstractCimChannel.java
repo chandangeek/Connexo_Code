@@ -217,12 +217,14 @@ public abstract class AbstractCimChannel implements CimChannel {
         cleanObsoleteQualities(currentQualityRecords,
                 either(ReadingQualityType::isSuspect)
                         .or(qualityType -> qualityType.hasEditCategory()
-                                && qualityType.getIndexCode() != QualityCodeIndex.ADDED.index())
+                                && qualityType.getIndexCode() != QualityCodeIndex.ADDED.index()
+                                && qualityType.getIndexCode() != QualityCodeIndex.REJECTED.index())
                         .or(ReadingQualityType::hasEstimatedCategory)
                         .or(ReadingQualityType::isConfirmed),
                 either(ReadingQualityType::hasValidationCategory)
                         .or(ReadingQualityType::isMissing)
-                        .or(qualityType -> qualityType.qualityIndex().filter(QualityCodeIndex.ADDED::equals).isPresent()));
+                        .or(qualityType -> qualityType.getIndexCode() == QualityCodeIndex.ADDED.index())
+                        .or(qualityType -> qualityType.getIndexCode() == QualityCodeIndex.REJECTED.index()));
     }
 
     private static void markEstimated(AbstractCimChannel derived, Instant timeStamp, List<? extends ReadingQuality> readingQualities) {

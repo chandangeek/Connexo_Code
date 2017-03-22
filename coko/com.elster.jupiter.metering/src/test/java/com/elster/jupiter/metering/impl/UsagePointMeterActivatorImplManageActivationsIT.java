@@ -13,7 +13,6 @@ import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -23,33 +22,26 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointMeterActivationException;
-import com.elster.jupiter.metering.ami.CommandFactory;
-import com.elster.jupiter.metering.ami.CompletionOptions;
-import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
-import com.elster.jupiter.metering.ami.EndDeviceCommand;
-import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.config.TestHeadEndInterface;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
-import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
-import java.net.URL;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.junit.After;
@@ -96,6 +88,9 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
             ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
             usagePoint = serviceCategory.newUsagePoint("UsagePoint", INSTALLATION_TIME).create();
             meterRole = inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
+            UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP", meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get()).create();
+            usagePointMetrologyConfiguration.addMeterRole(meterRole);
+            usagePoint.apply(usagePointMetrologyConfiguration, INSTALLATION_TIME);
             context.commit();
         }
     }
@@ -355,14 +350,19 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
     @Transactional
     public void testClearActivationsInTheMiddle() {
         ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
-        UsagePoint usagePoint2 = serviceCategory.newUsagePoint("UsagePoint2", ONE_DAY_BEFORE).create();
+        UsagePoint usagePoint2 = serviceCategory.newUsagePoint("UsagePoint2", THREE_DAYS_BEFORE).create();
         AmrSystem system = inMemoryBootstrapModule.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter meter2 = system.newMeter("Meter2", "myName2").create();
         MeterRole meterRole2 = inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.MAIN);
 
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP2", serviceCategory).create();
+        usagePointMetrologyConfiguration.addMeterRole(meterRole);
+        usagePointMetrologyConfiguration.addMeterRole(meterRole2);
+        usagePoint2.apply(usagePointMetrologyConfiguration, THREE_DAYS_BEFORE);
         usagePoint2.linkMeters().activate(meter, meterRole).complete();
         usagePoint2.linkMeters().clear(ONE_DAY_AFTER, meterRole).complete();
         reloadObjects();
+        usagePoint.apply(usagePointMetrologyConfiguration, INSTALLATION_TIME.plusSeconds(60));
         usagePoint.linkMeters().activate(ONE_DAY_AFTER, meter, meterRole)
                 .activate(INSTALLATION_TIME, meter2, meterRole2).complete();
         UsagePointMeterActivatorImpl activator = (UsagePointMeterActivatorImpl) usagePoint.linkMeters();
@@ -374,7 +374,7 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
 
         List<? extends MeterActivation> meterActivations = meter.getMeterActivations();
         assertThat(meterActivations).hasSize(3);
-        assertThat(meterActivations.get(0).getRange()).isEqualTo(Range.closedOpen(ONE_DAY_BEFORE, ONE_DAY_AFTER));
+        assertThat(meterActivations.get(0).getRange()).isEqualTo(Range.closedOpen(THREE_DAYS_BEFORE, ONE_DAY_AFTER));
         assertThat(meterActivations.get(1).getRange()).isEqualTo(Range.closedOpen(ONE_DAY_AFTER, THREE_DAYS_AFTER));
         assertThat(meterActivations.get(2).getRange()).isEqualTo(Range.atLeast(THREE_DAYS_AFTER));
 
@@ -392,7 +392,7 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
 
         usagePointActivations = usagePoint2.getMeterActivations();
         assertThat(usagePointActivations).hasSize(1);
-        assertThat(usagePointActivations.get(0).getRange()).isEqualTo(Range.closedOpen(ONE_DAY_BEFORE, ONE_DAY_AFTER));
+        assertThat(usagePointActivations.get(0).getRange()).isEqualTo(Range.closedOpen(THREE_DAYS_BEFORE, ONE_DAY_AFTER));
         assertThat(usagePointActivations.get(0).getMeter().get()).isEqualTo(meter);
     }
 

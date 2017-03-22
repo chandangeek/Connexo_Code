@@ -109,7 +109,7 @@ public class ReadingTypeDeliverableForMeterActivationSetDefinitionTest {
                         eq(SqlConstants.TimeSeriesColumnNames.SOURCECHANNELS.sqlName()),
                         eq(SqlConstants.TimeSeriesColumnNames.VALUE.sqlName()),
                         eq(SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName()));
-        assertThat(this.withClauseSqlBuilder.getText()).isEqualTo("SELECT -1, 0, 0, 0, 0, ,  ? , sysdate  FROM dual");
+        assertThat(this.withClauseSqlBuilder.getText()).isEqualTo("SELECT -1, 0, 0, 0, 0, '',  ? , sysdate  FROM dual");
         String selectClause = this.selectClauseSqlBuilder.getText().replace("\n", " ");
         assertThat(selectClause).isEqualTo("'ReadingTypeDeliverableForMeterActivationSetDefinitionTest', rod97_1.value, rod97_1.localdate, rod97_1.timestamp, rod97_1.readingQuality, 1, rod97_1.sourceChannels   FROM rod97_1");
     }

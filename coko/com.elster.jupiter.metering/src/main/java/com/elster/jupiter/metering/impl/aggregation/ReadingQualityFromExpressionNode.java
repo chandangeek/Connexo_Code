@@ -39,6 +39,11 @@ class ReadingQualityFromExpressionNode implements ServerExpressionNode.Visitor<S
     }
 
     @Override
+    public String visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
+        return null;
+    }
+
+    @Override
     public String visitNull(NullNode nullNode) {
         return null;
     }

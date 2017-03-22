@@ -5,6 +5,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -34,6 +35,7 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -132,6 +134,7 @@ public class MeteringInMemoryBootstrapModule {
         modules.add(new NlsModule());
         modules.add(new BasicPropertiesModule());
         modules.add(new TimeModule());
+        modules.add(new CalendarModule());
         modules.add(new SearchModule());
         modules.add(new UsagePointLifeCycleConfigurationModule());
         if (this.customPropertySetService == null) {
@@ -178,6 +181,10 @@ public class MeteringInMemoryBootstrapModule {
 
     public ServerMeteringService getMeteringService() {
         return injector.getInstance(ServerMeteringService.class);
+    }
+
+    public SyntheticLoadProfileService getSyntheticLoadProfileService() {
+        return injector.getInstance(SyntheticLoadProfileService.class);
     }
 
     public PropertySpecService getPropertySpecService() {
