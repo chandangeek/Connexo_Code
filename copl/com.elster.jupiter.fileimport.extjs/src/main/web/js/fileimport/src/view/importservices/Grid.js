@@ -57,6 +57,7 @@ Ext.define('Fim.view.importservices.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'fim-import-service-action-menu',
                     itemId: 'fim-import-service-action-menu'
