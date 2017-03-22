@@ -65,7 +65,6 @@ public class MetrologyConfigurationResourceTest extends MeteringApplicationJerse
         ReadingType readingType = mockReadingType(readingTypeMRID);
         ReadingTypeDeliverable deliverable = mock(ReadingTypeDeliverable.class);
         when(deliverable.getReadingType()).thenReturn(readingType);
-        when(mock.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
         return mock;
     }
 
@@ -93,12 +92,11 @@ public class MetrologyConfigurationResourceTest extends MeteringApplicationJerse
         FullySpecifiedReadingTypeRequirement fullySpecifiedReadingTypeRequirement = mock(FullySpecifiedReadingTypeRequirement.class);
         when(requirementBuilder.withReadingType(readingType)).thenReturn(fullySpecifiedReadingTypeRequirement);
         ReadingTypeDeliverableBuilder deliverableBuilder = mock(ReadingTypeDeliverableBuilder.class);
-        when(metrologyConfiguration.newReadingTypeDeliverable(readingType.getFullAliasName(), readingType, Formula.Mode.EXPERT)).thenReturn(deliverableBuilder);
         ReadingTypeDeliverable readingTypeDeliverable = mock(ReadingTypeDeliverable.class);
         when(deliverableBuilder.build(deliverableBuilder.requirement(fullySpecifiedReadingTypeRequirement))).thenReturn(readingTypeDeliverable);
         MetrologyContract metrologyContract = mock(MetrologyContract.class);
+        when(metrologyContract.newReadingTypeDeliverable(readingType.getFullAliasName(), readingType, Formula.Mode.EXPERT)).thenReturn(deliverableBuilder);
         when(metrologyConfiguration.addMandatoryMetrologyContract(metrologyPurpose)).thenReturn(metrologyContract);
-        when(metrologyContract.addDeliverable(readingTypeDeliverable)).thenReturn(metrologyContract);
         when(metrologyConfigurationService.findAndLockMetrologyConfiguration(info.id, info.version)).thenReturn(Optional.of(metrologyConfiguration));
         ResourceHelper resourceHelper = mock(ResourceHelper.class);
         when(resourceHelper.findAndLockMetrologyConfiguration(info)).thenReturn(null);

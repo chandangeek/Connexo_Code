@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
@@ -16,6 +17,7 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 import javax.inject.Inject;
 import java.time.Clock;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
@@ -40,7 +42,9 @@ public class MetrologyConfigurationInfoFactory {
         info.status = asInfo(metrologyConfiguration.getStatus());
         info.serviceCategory = asInfo(metrologyConfiguration.getServiceCategory());
         info.version = metrologyConfiguration.getVersion();
-        info.readingTypes = metrologyConfiguration.getDeliverables().stream()
+        info.readingTypes = metrologyConfiguration.getContracts().stream()
+                .map(MetrologyContract::getDeliverables)
+                .flatMap(Collection::stream)
                 .map(ReadingTypeDeliverable::getReadingType)
                 .map(readingTypeInfoFactory::from)
                 .sorted(Comparator.comparing(rt -> rt.fullAliasName))

@@ -154,7 +154,8 @@ public class ReadingTypeResourceTest extends MeteringApplicationJerseyTest {
         when(metrologyConfigurationService.findMetrologyConfiguration(13L)).thenReturn(Optional.of(metrologyConfiguration));
         ReadingTypeDeliverable deliverable = mock(ReadingTypeDeliverable.class);
         List<ReadingTypeDeliverable> readingTypeDeliverables = Collections.singletonList(deliverable);
-        when(metrologyConfiguration.getDeliverables()).thenReturn(readingTypeDeliverables);
+        MetrologyContract metrologyContract = mock(MetrologyContract.class);
+        when(metrologyContract.getDeliverables()).thenReturn(readingTypeDeliverables);
         ReadingType readingType = mockReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
         when(deliverable.getReadingType()).thenReturn(readingType);
         Finder finder = mock(Finder.class);
@@ -228,12 +229,12 @@ public class ReadingTypeResourceTest extends MeteringApplicationJerseyTest {
         ReadingType readingType = mockReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
         when(deliverable.getReadingType()).thenReturn(readingType);
         List<ReadingTypeDeliverable> readingTypeDeliverables = Collections.singletonList(deliverable);
-        when(metrologyConfiguration.getDeliverables()).thenReturn(readingTypeDeliverables);
 
         MetrologyPurpose purpose1 = mock(MetrologyPurpose.class);
         MetrologyPurpose purpose2 = mock(MetrologyPurpose.class);
         MetrologyContract contract1 = mock(MetrologyContract.class);
         when(contract1.getMetrologyPurpose()).thenReturn(purpose1);
+        when(contract1.getDeliverables()).thenReturn(readingTypeDeliverables);
         MetrologyContract contract2 = mock(MetrologyContract.class);
         when(contract2.getMetrologyPurpose()).thenReturn(purpose2);
         when(contract2.getDeliverables()).thenReturn(readingTypeDeliverables);

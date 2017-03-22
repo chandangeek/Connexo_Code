@@ -8,12 +8,14 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeFilter;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 
 import javax.inject.Inject;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -76,7 +78,9 @@ public class ReadingTypeFilterFactory {
     }
 
     private List<String> getReadingTypesOfMetrologyConfiguration(MetrologyConfiguration metrologyConfiguration) {
-        return metrologyConfiguration.getDeliverables().stream()
+        return metrologyConfiguration.getContracts().stream()
+                .map(MetrologyContract::getDeliverables)
+                .flatMap(Collection::stream)
                 .map(ReadingTypeDeliverable::getReadingType)
                 .map(ReadingType::getMRID)
                 .collect(Collectors.toList());
