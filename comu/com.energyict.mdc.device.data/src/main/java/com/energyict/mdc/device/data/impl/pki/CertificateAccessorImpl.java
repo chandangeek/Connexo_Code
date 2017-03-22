@@ -91,7 +91,7 @@ public class CertificateAccessorImpl extends AbstractKeyAccessorImpl<Certificate
     }
 
     private void doRenewCertificate() throws CertificateEncodingException {
-        ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(actualCertificate.get().getAlias()+"-renew", getKeyAccessorType());
+        ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(getKeyAccessorType());
         clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
         X500Name x500Name = getDNFromCertificate(getActualValue());
         PKCS10CertificationRequest pkcs10CertificationRequest = clientCertificateWrapper.getPrivateKeyWrapper()

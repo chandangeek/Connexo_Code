@@ -63,7 +63,10 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TemporalExpression;
@@ -261,6 +264,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final CustomPropertySetService customPropertySetService;
     private final ServerDeviceService deviceService;
     private final LockService lockService;
+    private final PkiService pkiService;
 
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final ThreadPrincipalService threadPrincipalService;
@@ -358,7 +362,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             UserPreferencesService userPreferencesService,
             DeviceConfigurationService deviceConfigurationService,
             ServerDeviceService deviceService,
-            LockService lockService) {
+            LockService lockService,
+            PkiService pkiService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.issueService = issueService;
@@ -381,6 +386,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.lockService = lockService;
         // Helper to get activation info... from 'Kore'
         this.koreHelper = new SyncDeviceWithKoreForInfo(this, this.deviceService, this.readingTypeUtilService, clock, this.eventService);
+        this.pkiService = pkiService;
         this.koreHelper.syncWithKore(this);
     }
 
@@ -476,11 +482,16 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             syncsWithKore.add(new SynchNewDeviceWithKore(this, koreHelper.getInitialMeterActivationStartDate(), deviceService, readingTypeUtilService, clock, eventService));
 
             this.saveNewDialectProperties();
+            this.createNewKeyAccessors();
             this.createComTaskExecutionsForEnablementsMarkedAsAlwaysExecuteForInbound();
 
             this.notifyCreated();
         }
         executeSyncs();
+    }
+
+    private void createNewKeyAccessors() {
+        getDeviceType().getKeyAccessorTypes().forEach(this::newKeyAccessor);
     }
 
     void validateForUpdate() {
@@ -3159,6 +3170,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             case ClientCertificate:
                 CertificateAccessorImpl certificateAccessor = dataModel.getInstance(CertificateAccessorImpl.class);
                 certificateAccessor.init(keyAccessorType, this);
+                ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(keyAccessorType);
+                certificateAccessor.setActualValue(clientCertificateWrapper);
+                certificateAccessor.save();
                 this.keyAccessors.add(certificateAccessor);
                 return certificateAccessor;
             case TrustedCertificate:
@@ -3166,6 +3180,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             case SymmetricKey:
                 SymmetricKeyAccessorImpl symmetricKeyAccessor = dataModel.getInstance(SymmetricKeyAccessorImpl.class);
                 symmetricKeyAccessor.init(keyAccessorType, this);
+                SymmetricKeyWrapper symmetricKeyWrapper = pkiService.newSymmetricKeyWrapper(keyAccessorType);
+                symmetricKeyAccessor.setActualValue(symmetricKeyWrapper);
+                symmetricKeyAccessor.save();
                 this.keyAccessors.add(symmetricKeyAccessor);
                 return symmetricKeyAccessor;
             case Passphrase:

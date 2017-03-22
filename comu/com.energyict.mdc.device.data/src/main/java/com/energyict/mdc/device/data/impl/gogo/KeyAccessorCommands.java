@@ -168,7 +168,8 @@ public class KeyAccessorCommands {
             if (key==null) {
                 throw new RuntimeException("The keystore does not contain a key with alias "+alias);
             }
-            ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(alias, certKeyAccessorType);
+            ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(certKeyAccessorType);
+            clientCertificateWrapper.setAlias(alias);
             clientCertificateWrapper.setCertificate((X509Certificate) certificate);
             PlaintextPrivateKeyWrapper privateKeyWrapper = (PlaintextPrivateKeyWrapper) clientCertificateWrapper.getPrivateKeyWrapper();
             privateKeyWrapper.setPrivateKey((PrivateKey) key);
@@ -239,7 +240,7 @@ public class KeyAccessorCommands {
                     .findAny()
                     .orElseThrow(() -> new RuntimeException("No such key accessor type on the device type: " + certKatName));
 
-            ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(alias, certKeyAccessorType);
+            ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(certKeyAccessorType);
             clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
 
             X500NameBuilder x500NameBuilder = new X500NameBuilder();
@@ -355,6 +356,8 @@ public class KeyAccessorCommands {
     }
 
     public void createTrustStore(String name) {
+        threadPrincipalService.set(() -> "Console");
+
         try (TransactionContext context = transactionService.getContext()) {
             pkiService.newTrustStore(name).description("Created by GoGo command").add();
             context.commit();

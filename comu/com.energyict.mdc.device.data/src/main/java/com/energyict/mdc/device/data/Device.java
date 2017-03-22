@@ -506,12 +506,12 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     public Optional<KeyAccessor> getKeyAccessor(KeyAccessorType keyAccessorType);
 
     /**
-     * Creates a new KeyAccessor for a certain KeyAcessorType. The KeyAccessor is merely an empty placeholder at this point.
+     * Creates a new KeyAccessor for a certain KeyAccessorType. The KeyAccessor is merely an empty placeholder at this point.
      * Users can set the value by calling the setter.
      * @param keyAccessorType The type of key accessor to be created
      * @return An empty key accessor.
      */
-    public KeyAccessor newKeyAccessor(KeyAccessorType keyAccessorType);
+    public KeyAccessor newKeyAccessor(KeyAccessorType keyAccessorType); // TODO REMOVE, no longer needed
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.
