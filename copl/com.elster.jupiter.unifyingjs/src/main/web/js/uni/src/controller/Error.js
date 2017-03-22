@@ -73,6 +73,8 @@ Ext.define('Uni.controller.Error', {
 
         if (Ext.isObject(error) && Ext.isDefined(error.title)) {
             title = error.title;
+        } else if (Ext.isObject(error)) {
+            title = Uni.I18n.translate('error.requestFailedConnexoKnownError', 'UNI', 'Couldn\'t perform your action');
         } else {
             title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Your action can\'t be successfully executed');
         }
@@ -88,7 +90,7 @@ Ext.define('Uni.controller.Error', {
 
     handleRequestError: function (conn, response, options) {
         var me = this,
-            title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Your action can\'t be successfully executed'),
+            title = Uni.I18n.translate('error.requestFailedConnexoKnownError', 'UNI', 'Couldn\'t perform your action'),
             message = response.responseText || response.statusText,
             decoded = Ext.decode(message, true),
             code;
@@ -138,7 +140,7 @@ Ext.define('Uni.controller.Error', {
             );
         }
         else {
-            title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Your action can\'t be successfully executed');
+            title = Uni.I18n.translate('error.requestFailedConnexoKnownError', 'UNI', 'Couldn\'t perform your action');
             message = Uni.I18n.translate('error.' + message.replace(' ', '.'), 'UNI', message);
         }
 
@@ -176,9 +178,9 @@ Ext.define('Uni.controller.Error', {
                 break;
             case 404: // Not found.
                 title = Uni.I18n.translate(
-                    'error.requestFailedConnexoKnownError',
+                    'error.requestFailed',
                     'UNI',
-                    'Couldn\'t perform your action'
+                    'Your action can\'t be successfully executed'
                 );
                 message = Uni.I18n.translate(
                     'error.internalServerErrorMessage',
@@ -192,14 +194,12 @@ Ext.define('Uni.controller.Error', {
                 break;
             case 403: // Forbidden.
                 title = Uni.I18n.translate(
-                    'error.requestFailedConnexoKnownError',
-                    'UNI',
-                    'Couldn\'t perform your action'
+                    'error.requestFailedConnexoKnownError', 'UNI', 'Couldn\'t perform your action'
                 );
                 message = Uni.I18n.translate(
-                    'error.internalServerErrorMessage',
+                    'error.forbiddenAccess',
                     'UNI',
-                    'Connexo has encountered an error, please contact your system administrator.'
+                    'Access denied.'
                 );
                 break;
             case 408:
