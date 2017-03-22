@@ -337,7 +337,10 @@ Ext.define('Uni.view.menu.SideMenu', {
     },
 
     buildHeader: function () {
-        var me = this;
+        var me = this,
+            objectType = Ext.htmlEncode(me.objectType),
+            title = Ext.htmlEncode(me.title);
+
         me.header = {
             xtype: 'panel',
             height: 50,
@@ -346,22 +349,33 @@ Ext.define('Uni.view.menu.SideMenu', {
                 xtype: 'component',
                 itemId: 'side-menu-header-object-type',
                 cls: 'x-menu-header-object-type',
-                html: Ext.htmlEncode(me.objectType)
+                html: objectType
             }, {
                 xtype: 'component',
                 itemId: 'side-menu-header-object-name',
                 cls: 'x-menu-header-object-name',
-                html: Ext.htmlEncode(me.title)
+                html: title
             }],
             title: false
         };
+        if (objectType !== title) {
+            var objectNameComponent = me.header.items.find(function (item) { return item.itemId === 'side-menu-header-object-name'});
+            objectNameComponent.autoEl = {
+                'data-qtip': title
+            }
+        }
     },
 
     setHeader: function (title) {
         var me = this;
         if (me.rendered) {
             if (title) {
-                me.down('#side-menu-header-object-name').update(Ext.htmlEncode(title));
+                var objectNameComponent = me.down('#side-menu-header-object-name');
+                Ext.create('Ext.tip.ToolTip', {
+                    target: objectNameComponent.getEl(),
+                    html: Ext.htmlEncode(title)
+                });
+                objectNameComponent.update(Ext.htmlEncode(title));
             }
             me.updateLayout();
         } else {
