@@ -29,6 +29,10 @@ public class UpgraderV10_3 implements Upgrader {
 
     private String[] getNewMeterExpertPrivileges() {
         return new String[]{
+                // manual estimation
+                com.energyict.mdc.device.data.security.Privileges.Constants.ESTIMATE_WITH_RULE,
+                com.energyict.mdc.device.data.security.Privileges.Constants.EDIT_WITH_ESTIMATOR,
+
                 //data quality kpi
                 com.elster.jupiter.dataquality.security.Privileges.Constants.ADMINISTER_DATA_QUALITY_KPI_CONFIGURATION,
                 com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_KPI_CONFIGURATION,
@@ -38,6 +42,10 @@ public class UpgraderV10_3 implements Upgrader {
 
     private String[] getNewMeterOperatorPrivileges() {
         return new String[]{
+                // manual estimation
+                com.energyict.mdc.device.data.security.Privileges.Constants.ESTIMATE_WITH_RULE,
+                com.energyict.mdc.device.data.security.Privileges.Constants.EDIT_WITH_ESTIMATOR,
+
                 //data quality kpi
                 com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_KPI_CONFIGURATION,
                 com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_RESULTS
