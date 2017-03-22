@@ -24,4 +24,6 @@ public class EstimationRuleInfo {
 
     public IdWithNameInfo application;
 
+    public String estimatorImpl;
+
 }

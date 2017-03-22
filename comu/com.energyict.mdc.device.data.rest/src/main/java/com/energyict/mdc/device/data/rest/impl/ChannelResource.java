@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.beans.BaseReadingImpl;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -25,6 +26,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
@@ -89,9 +91,11 @@ public class ChannelResource {
     private final EstimationHelper estimationHelper;
     private final TopologyService topologyService;
     private final MeteringService meteringService;
+    private final EstimationRuleInfoFactory estimationRuleInfoFactory;
+    private final DeviceConfigurationService deviceConfigurationService;
 
     @Inject
-    public ChannelResource(ExceptionFactory exceptionFactory, Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, ValidationInfoFactory validationInfoFactory, IssueDataValidationService issueDataValidationService, EstimationHelper estimationHelper, TopologyService topologyService, MeteringService meteringService) {
+    public ChannelResource(ExceptionFactory exceptionFactory, Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, ValidationInfoFactory validationInfoFactory, IssueDataValidationService issueDataValidationService, EstimationHelper estimationHelper, TopologyService topologyService, MeteringService meteringService, EstimationRuleInfoFactory estimationRuleInfoFactory, DeviceConfigurationService deviceConfigurationService) {
         this.exceptionFactory = exceptionFactory;
         this.channelHelper = channelHelper;
         this.resourceHelper = resourceHelper;
@@ -102,6 +106,8 @@ public class ChannelResource {
         this.estimationHelper = estimationHelper;
         this.topologyService = topologyService;
         this.meteringService = meteringService;
+        this.estimationRuleInfoFactory = estimationRuleInfoFactory;
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @GET
@@ -446,13 +452,15 @@ public class ChannelResource {
     @Path("/{channelid}/data")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA, Privileges.Constants.ESTIMATE_WITH_RULE, Privileges.Constants.EDIT_WITH_ESTIMATOR})
     public Response editChannelData(@PathParam("name") String name, @PathParam("channelid") long channelId, @BeanParam JsonQueryParameters queryParameters, List<ChannelDataInfo> channelDataInfos) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
         List<BaseReading> editedReadings = new ArrayList<>();
         List<BaseReading> editedBulkReadings = new ArrayList<>();
         List<BaseReading> confirmedReadings = new ArrayList<>();
+        List<BaseReading> estimatedReadings = new ArrayList<>();
+        List<BaseReading> estimatedBulkReadings = new ArrayList<>();
         List<Instant> removeCandidates = new ArrayList<>();
         channelDataInfos.forEach((channelDataInfo) -> {
             validateLinkedToSlave(channel, Range.closedOpen(Instant.ofEpochMilli(channelDataInfo.interval.start), Instant.ofEpochMilli(channelDataInfo.interval.end)));
@@ -460,10 +468,22 @@ public class ChannelResource {
                 removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
             } else {
                 if (channelDataInfo.value != null) {
-                    editedReadings.add(channelDataInfo.createNew());
+                    BaseReading baseReading = channelDataInfo.createNew();
+                    if (channelDataInfo.mainValidationInfo != null &&  channelDataInfo.mainValidationInfo.ruleId!= 0) {
+                        ((BaseReadingImpl)baseReading).addQuality("2.8." + channelDataInfo.mainValidationInfo.ruleId);
+                        estimatedReadings.add(baseReading);
+                    } else {
+                        editedReadings.add(baseReading);
+                    }
                 }
                 if (channelDataInfo.collectedValue != null) {
-                    editedBulkReadings.add(channelDataInfo.createNewBulk());
+                    BaseReading baseReading = channelDataInfo.createNewBulk();
+                    if (channelDataInfo.bulkValidationInfo != null && channelDataInfo.bulkValidationInfo.ruleId != 0) {
+                        ((BaseReadingImpl)baseReading).addQuality("2.8." + channelDataInfo.bulkValidationInfo.ruleId);
+                        estimatedBulkReadings.add(baseReading);
+                    } else {
+                        editedBulkReadings.add(baseReading);
+                    }
                 }
                 if (isToBeConfirmed(channelDataInfo)) {
                     confirmedReadings.add(channelDataInfo.createConfirm());
@@ -475,6 +495,8 @@ public class ChannelResource {
                 .editChannelData(editedReadings)
                 .editBulkChannelData(editedBulkReadings)
                 .confirmChannelData(confirmedReadings)
+                .estimateChannelData(estimatedReadings)
+                .estimateBulkChannelData(estimatedBulkReadings)
                 .complete();
 
         return Response.status(Response.Status.OK).build();
@@ -497,13 +519,47 @@ public class ChannelResource {
     @Path("/{channelid}/data/estimate")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.EDIT_WITH_ESTIMATOR})
     public List<ChannelDataInfo> previewEstimateChannelData(@PathParam("name") String name, @PathParam("channelid") long channelId,
                                                             @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName,
                                                             EstimateChannelDataInfo estimateChannelDataInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
         return previewEstimate(QualityCodeSystem.MDC, device, channel, estimateChannelDataInfo);
+    }
+
+    @GET
+    @Path("/{channelid}/data/estimateWithRule")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ESTIMATE_WITH_RULE})
+    public PagedInfoList getEstimationRulesForChannelData(@PathParam("name") String name, @PathParam("channelid") long channelId, @QueryParam("isBulk") boolean isBulk, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
+        List<EstimationRuleInfo> estimationRuleInfos;
+        if (isBulk) {
+            estimationRuleInfos = estimationHelper.getAllEstimationRules()
+                    .stream()
+                    .filter(estimationRule -> estimationRule.getRuleSet()
+                            .getQualityCodeSystem()
+                            .equals(QualityCodeSystem.MDC))
+                    .filter(estimationRule -> !deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(estimationRule.getRuleSet()).find().isEmpty())
+                    .filter(estimationRule -> estimationRule.getReadingTypes().contains(channel.getReadingType().getCalculatedReadingType().orElse(null)))
+                    .map(estimationRuleInfoFactory::asInfo)
+                    .collect(Collectors.toList());
+        } else {
+            estimationRuleInfos = estimationHelper.getAllEstimationRules()
+                    .stream()
+                    .filter(estimationRule -> estimationRule.getRuleSet()
+                            .getQualityCodeSystem()
+                            .equals(QualityCodeSystem.MDC))
+                    .filter(estimationRule -> !deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(estimationRule.getRuleSet()).find().isEmpty())
+                    .filter(estimationRule -> estimationRule.getReadingTypes().contains(channel.getReadingType()))
+                    .map(estimationRuleInfoFactory::asInfo)
+                    .collect(Collectors.toList());
+        }
+
+        return PagedInfoList.fromPagedList("rules", estimationRuleInfos, queryParameters);
     }
 
     private List<ChannelDataInfo> previewEstimate(QualityCodeSystem system, Device device, Channel channel, EstimateChannelDataInfo estimateChannelDataInfo) {
