@@ -1622,7 +1622,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         allReadingQuality.stream().forEach(rqj -> {
 
                             Optional<LoadProfileJournalReadingImpl> journalReadingOptional = Optional.empty();
-                            if (rqj.getTypeCode().compareTo("2.5.258") != 0) {
+                            if ((rqj.getTypeCode().compareTo("2.5.258") == 0) || (rqj.getTypeCode().compareTo("2.5.259") == 0)) {
                                 journalReadingOptional = instantListEntry.getValue()
                                         .stream()
                                         .sorted((a, b) -> a.getReadingTime().compareTo(b.getReadingTime()))

@@ -142,14 +142,17 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
         List<JournalEntry<? extends ReadingQualityRecord>> readingQualitiesJournal = this.device.getMeter().get().getReadingQualitiesJournal(interval,
                 Collections.singletonList(register.getRegisterSpec().getRegisterType().getReadingType()),
                 readings.stream().map(r -> r.getChannel().getId()).distinct().collect(Collectors.toList()));
-        List<ReadingQualityRecord> allReadingQuality = readingQualities.stream().collect(Collectors.toList());
+        List<ReadingQualityRecord> allReadingQuality = readingQualities.stream()
+                .filter(r -> r.getReadingType() == register.getRegisterSpec().getRegisterType().getReadingType())
+                .collect(Collectors.toList());
         allReadingQuality.addAll(readingQualitiesJournal.stream().map(j -> j.get()).collect(Collectors.toList()));
 
         allReadingQuality.stream().forEach(rqj -> {
             Optional<ReadingRecord> journalReadingOptional = Optional.empty();
-            journalReadingOptional = (rqj.getTypeCode().compareTo("2.5.258") != 0) ?
-                    readings.stream().sorted((a, b) -> a.getReportedDateTime().compareTo(b.getReportedDateTime())).filter(x -> x.getReportedDateTime().compareTo(rqj.getTimestamp()) > 0).findFirst() :
-                    readings.stream().sorted((a, b) -> b.getReportedDateTime().compareTo(a.getReportedDateTime())).filter(x -> x.getReportedDateTime().compareTo(rqj.getTimestamp()) <= 0).findFirst();
+            journalReadingOptional = ((rqj.getTypeCode().compareTo("2.5.258") == 0) || ((rqj.getTypeCode().compareTo("2.5.259") == 0))) ?
+                    readings.stream().sorted((a, b) -> b.getReportedDateTime().compareTo(a.getReportedDateTime())).filter(x -> x.getReportedDateTime().compareTo(rqj.getTimestamp()) < 0).findFirst() :
+                    readings.stream().sorted((a, b) -> a.getReportedDateTime().compareTo(b.getReportedDateTime())).filter(x -> x.getReportedDateTime().compareTo(rqj.getTimestamp()) >= 0).findFirst();
+
 
             journalReadingOptional.ifPresent(journalReading -> {
                 mapReadingQualityRecord.get(journalReading).add(rqj);
