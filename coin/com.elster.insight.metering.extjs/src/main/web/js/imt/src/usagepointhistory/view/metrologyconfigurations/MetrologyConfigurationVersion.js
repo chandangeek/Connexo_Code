@@ -16,7 +16,6 @@ Ext.define('Imt.usagepointhistory.view.metrologyconfigurations.MetrologyConfigur
         me.items = {
             xtype: 'preview-container',
             itemId: 'metrology-configuration-version-preview-container',
-            hasNotEmptyComponent: true,
             grid: {
                 xtype: 'metrology-configuration-version-grid',
                 itemId: 'metrology-configuration-version-grid',
@@ -26,6 +25,11 @@ Ext.define('Imt.usagepointhistory.view.metrologyconfigurations.MetrologyConfigur
                         fn: Ext.bind(me.onVersionSelect, me)
                     }
                 }
+            },
+            emptyComponent: {
+                xtype: 'uni-form-empty-message',
+                itemId: 'usage-point-history-meters-empty-message',
+                text: Uni.I18n.translate('usagePoint.history.meters.empty.title', 'IMT', 'No meters have been linked to this usage point yet')
             },
             previewComponent: {
                 router: me.router,
