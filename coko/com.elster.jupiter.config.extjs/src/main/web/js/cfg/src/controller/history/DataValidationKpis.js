@@ -17,12 +17,11 @@ Ext.define('Cfg.controller.history.DataValidationKpis', {
             route: 'administration',
             disabled: true,
             items: {
-                datavalidationkpis: {
+                dataqualitykpis: {
                     title: Uni.I18n.translate('general.dataQualityKpis', 'CFG', 'Data quality KPIs'),
-                    route: 'datavalidationkpis',
+                    route: 'dataqualitykpis',
                     items: {
                         add: {
-                            title: Uni.I18n.translate('dataqualitykpis.add', 'CFG', 'Add data quality KPI'),
                             route: 'add'
                         }
                     }
@@ -34,14 +33,15 @@ Ext.define('Cfg.controller.history.DataValidationKpis', {
         'MultiSense': {
             administration: {
                 items: {
-                    datavalidationkpis: {
+                    dataqualitykpis: {
                         controller: 'Cfg.controller.DataValidationKpi',
-                        privileges: Cfg.privileges.Validation.view,
+                        privileges: Cfg.privileges.Validation.viewOrAdministerDataQuality,
                         action: 'showDataValidationKPIs',
                         items: {
                             add: {
+                                title: Uni.I18n.translate('dataqualitykpis.add', 'CFG', 'Add data quality KPI'),
                                 controller: 'Cfg.controller.DataValidationKpi',
-                                privileges: Cfg.privileges.Validation.admin,
+                                privileges: Cfg.privileges.Validation.administerDataQuality,
                                 action: 'showAddDataValidationKpi'
                             }
                         }
@@ -52,14 +52,15 @@ Ext.define('Cfg.controller.history.DataValidationKpis', {
         'MdmApp': {
             administration: {
                 items: {
-                    datavalidationkpis: {
+                    dataqualitykpis: {
                         controller: 'Cfg.insight.dataqualitykpi.controller.DataQualityKpiOverview',
-                        privileges: Cfg.privileges.Validation.view,
+                        privileges: Cfg.privileges.Validation.viewOrAdministerDataQuality,
                         action: 'showDataQualityKPIs',
                         items: {
                             add: {
+                                title: Uni.I18n.translate('general.adddataqualitykpis', 'CFG', 'Add data quality KPIs'),
                                 controller: 'Cfg.insight.dataqualitykpi.controller.DataQualityKpiAdd',
-                                privileges: Cfg.privileges.Validation.admin,
+                                privileges: Cfg.privileges.Validation.administerDataQuality,
                                 action: 'showAddDataQualityKpi'
                             }
                         }

@@ -44,7 +44,7 @@ Ext.define('Cfg.view.datavalidationkpis.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn-remove',
-                privileges: Cfg.privileges.Validation.admin,
+                privileges: Cfg.privileges.Validation.administerDataQuality,
                 handler: function (grid, rowIndex, colIndex, column, event, record) {
                     this.fireEvent('remove', record);
                 }
@@ -64,7 +64,7 @@ Ext.define('Cfg.view.datavalidationkpis.Grid', {
                     {
                         xtype: 'button',
                         itemId: 'btn-data-validation-kpi',
-                        privileges: Cfg.privileges.Validation.admin,
+                        privileges: Cfg.privileges.Validation.administerDataQuality,
                         text: Uni.I18n.translate('dataqualitykpis.add', 'CFG', 'Add data quality KPI'),
                         action: 'addDataValidationKpi'
                     }

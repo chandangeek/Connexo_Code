@@ -35,7 +35,7 @@ Ext.define('Cfg.view.datavalidationkpis.Setup', {
                             {
                                 text: Uni.I18n.translate('dataqualitykpis.add', 'CFG', 'Add data quality KPI'),
                                 action: 'addDataValidationKpi',
-                                privileges: Cfg.privileges.Validation.admin
+                                privileges: Cfg.privileges.Validation.administerDataQuality
                             }
                         ]
                     },

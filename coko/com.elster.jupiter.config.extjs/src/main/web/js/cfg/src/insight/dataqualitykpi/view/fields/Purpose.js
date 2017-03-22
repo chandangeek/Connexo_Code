@@ -10,14 +10,6 @@ Ext.define('Cfg.insight.dataqualitykpi.view.fields.Purpose', {
     ],
     style: 'margin-top: 38px',
     msgTarget: 'under',
-    store: Ext.create('Ext.data.Store', {
-        fields: ['id', 'name'],
-        data: [
-            {id: 1, name: 'Purpose A'},
-            {id: 2, name: 'Purpose B'},
-            {id: 3, name: 'Purpose C'}
-        ]
-    }),
 
     initComponent: function () {
         var me = this;
@@ -58,7 +50,7 @@ Ext.define('Cfg.insight.dataqualitykpi.view.fields.Purpose', {
                 hideHeaders: true,
                 padding: 0,
                 scroll: 'vertical',
-                store: me.store,
+                store: undefined,
                 maxHeight: 292,
                 selType: 'checkboxmodel',
                 selModel: {
@@ -104,10 +96,13 @@ Ext.define('Cfg.insight.dataqualitykpi.view.fields.Purpose', {
         var me = this,
             grid = me.down('#selection-grid');
 
-        return _.map(grid.getSelectionModel().getSelection(), getRecordId);
+        return _.map(grid.getSelectionModel().getSelection(), getPurpose);
 
-        function getRecordId(record) {
-            return record.getId();
+        function getPurpose(record) {
+            return {
+                id: record.getId(),
+                name: record.get('name')
+            };
         }
     },
 

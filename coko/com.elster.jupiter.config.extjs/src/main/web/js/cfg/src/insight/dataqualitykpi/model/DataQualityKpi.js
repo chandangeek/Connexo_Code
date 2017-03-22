@@ -8,6 +8,7 @@ Ext.define('Cfg.insight.dataqualitykpi.model.DataQualityKpi', {
         {name: 'id', type: 'integer', useNull: true},
         {name: 'usagePointGroup', type: 'auto', defaultValue: null},
         {name: 'metrologyPurpose', type: 'auto', defaultValue: null},
+        {name: 'purposes', type: 'auto', defaultValue: null},
         {name: 'frequency', type: 'auto', defaultValue: null},
         {name: 'latestCalculationDate', dateFormat: 'time', type: 'date', persist: false}
     ],

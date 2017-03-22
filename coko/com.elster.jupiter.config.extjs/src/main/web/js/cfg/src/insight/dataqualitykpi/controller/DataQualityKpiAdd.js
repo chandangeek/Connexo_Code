@@ -6,7 +6,8 @@ Ext.define('Cfg.insight.dataqualitykpi.controller.DataQualityKpiAdd', {
     extend: 'Ext.app.Controller',
 
     stores: [
-        'Cfg.insight.dataqualitykpi.store.UsagePointGroups'
+        'Cfg.insight.dataqualitykpi.store.UsagePointGroups',
+        'Cfg.store.DataValidationKpiFrequency'
     ],
 
     models: [
@@ -49,7 +50,7 @@ Ext.define('Cfg.insight.dataqualitykpi.controller.DataQualityKpiAdd', {
                 itemId: 'ins-data-quality-kpi-add',
                 usagePointGroupsIsDefined: !Ext.isEmpty(usagePointGroups),
                 router: router,
-                returnLink: router.getRoute('administration/datavalidationkpis').buildUrl()
+                returnLink: router.getRoute('administration/dataqualitykpis').buildUrl()
             });
 
             app.fireEvent('changecontentevent', widget);
@@ -60,12 +61,16 @@ Ext.define('Cfg.insight.dataqualitykpi.controller.DataQualityKpiAdd', {
 
     onUsagePointGroupChange: function (usagePointGroupCombo, newValue) {
         var me = this,
-            purposesField;
+            purposesField,
+            usagePointGroup = usagePointGroupCombo.findRecordByValue(newValue);
 
-        if (usagePointGroupCombo.findRecordByValue(newValue)) {
+        if (usagePointGroup) {
             purposesField = me.getDataQualityKpiForm().down('#fld-purposes');
-            purposesField.setValue(null);
+            Ext.suspendLayouts();
+            purposesField.down('#selection-grid').getSelectionModel().deselectAll();
+            purposesField.down('#selection-grid').reconfigure(usagePointGroup.purposes());
             purposesField.show();
+            Ext.resumeLayouts(true);
         }
     },
 
@@ -73,6 +78,8 @@ Ext.define('Cfg.insight.dataqualitykpi.controller.DataQualityKpiAdd', {
         var me = this,
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             form = me.getDataQualityKpiForm(),
+            frequency = form.down('#cmb-frequency').getValue(),
+            usagePointGroupId = form.down('#cmb-usage-point-group').getValue(),
             baseForm = form.getForm(),
             errorMsg = form.down('#form-errors'),
             record = form.getRecord(),
@@ -82,10 +89,20 @@ Ext.define('Cfg.insight.dataqualitykpi.controller.DataQualityKpiAdd', {
         baseForm.clearInvalid();
         errorMsg.hide();
         Ext.resumeLayouts(true);
-
         mainView.setLoading();
-
         form.updateRecord();
+
+        record.beginEdit();
+        if (usagePointGroupId) {
+            record.set('usagePointGroup', {
+                id: usagePointGroupId
+            });
+        }
+        if (frequency) {
+            record.set('frequency', me.getStore('Cfg.store.DataValidationKpiFrequency').getById(frequency).get('value'));
+        }
+        record.endEdit();
+
         record.save({
             backUrl: backUrl,
             success: onSuccessSave,
@@ -95,7 +112,7 @@ Ext.define('Cfg.insight.dataqualitykpi.controller.DataQualityKpiAdd', {
 
         function onSuccessSave() {
             window.location.href = backUrl;
-            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dataqualitykpis.added', 'CFG', 'Data quality KPI added'));
+            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.dataqualitykpis.added', 'CFG', 'Data quality KPIs added'));
         }
 
         function onFailureSave(record, operation) {

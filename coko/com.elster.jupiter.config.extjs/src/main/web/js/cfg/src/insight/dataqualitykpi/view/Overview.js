@@ -44,10 +44,10 @@ Ext.define('Cfg.insight.dataqualitykpi.view.Overview', {
                             ],
                             stepItems: [
                                 {
-                                    text: Uni.I18n.translate('dataqualitykpis.add', 'CFG', 'Add data quality KPI'),
+                                    text: Uni.I18n.translate('general.adddataqualitykpis', 'CFG', 'Add data quality KPIs'),
                                     itemId: 'data-quality-kpi-overview-empty-message-add-btn',
-                                    privileges: Cfg.privileges.Validation.admin,
-                                    href: me.router.getRoute('administration/datavalidationkpis/add').buildUrl()
+                                    privileges: Cfg.privileges.Validation.administerDataQuality,
+                                    href: me.router.getRoute('administration/dataqualitykpis/add').buildUrl()
                                 }
                             ]
                         },

@@ -28,8 +28,11 @@ Ext.define('Cfg.insight.dataqualitykpi.view.Grid', {
             },
             {
                 header: Uni.I18n.translate('general.Purpose', 'CFG', 'Purpose'),
-                dataIndex: 'purpose',
-                flex: 1
+                dataIndex: 'metrologyPurpose',
+                flex: 1,
+                renderer: function (value) {
+                    return value ? Ext.String.htmlEncode(value.name) : '-';
+                }
             },
             {
                 header: Uni.I18n.translate('datavalidationkpis.calculationFrequency', 'CFG', 'Calculation frequency'),
@@ -53,7 +56,7 @@ Ext.define('Cfg.insight.dataqualitykpi.view.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn-remove',
-                privileges: Cfg.privileges.Validation.admin
+                privileges: Cfg.privileges.Validation.administerDataQuality
             }
 
         ];
@@ -70,9 +73,9 @@ Ext.define('Cfg.insight.dataqualitykpi.view.Grid', {
                     {
                         xtype: 'button',
                         itemId: 'add-data-quality-kpi-btn',
-                        privileges: Cfg.privileges.Validation.admin,
-                        text: Uni.I18n.translate('dataqualitykpis.add', 'CFG', 'Add data quality KPI'),
-                        href: me.router.getRoute('administration/datavalidationkpis/add').buildUrl()
+                        privileges: Cfg.privileges.Validation.administerDataQuality,
+                        text: Uni.I18n.translate('general.adddataqualitykpis', 'CFG', 'Add data quality KPIs'),
+                        href: me.router.getRoute('administration/dataqualitykpis/add').buildUrl()
                     }
                 ]
             },

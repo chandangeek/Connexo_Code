@@ -116,13 +116,13 @@ Ext.define('Cfg.controller.DataValidationKpi', {
     addDataValidationKpi: function () {
         var me = this;
 
-        me.getController('Uni.controller.history.Router').getRoute('administration/datavalidationkpis/add').forward();
+        me.getController('Uni.controller.history.Router').getRoute('administration/dataqualitykpis/add').forward();
     },
 
     cancelDataValidationKpi: function () {
         var me = this;
 
-        me.getController('Uni.controller.history.Router').getRoute('administration/datavalidationkpis').forward();
+        me.getController('Uni.controller.history.Router').getRoute('administration/dataqualitykpis').forward();
     },
 
     showAddDataValidationKpi: function () {
@@ -161,7 +161,7 @@ Ext.define('Cfg.controller.DataValidationKpi', {
             editForm = me.getDataValidationKpiEditForm(),
             record = editForm.getRecord(),
             frequency = editForm.down('[name=frequency]').getValue(),
-            backUrl = router.getRoute('administration/datavalidationkpis').buildUrl(),
+            backUrl = router.getRoute('administration/dataqualitykpis').buildUrl(),
             deviceGroup = {
                 id: editForm.down('[name=deviceGroup]').getValue()
             };

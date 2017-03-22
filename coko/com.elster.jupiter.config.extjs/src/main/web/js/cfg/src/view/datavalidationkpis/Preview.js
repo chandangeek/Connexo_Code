@@ -14,7 +14,7 @@ Ext.define('Cfg.view.datavalidationkpis.Preview', {
     tools: [
         {
             xtype: 'uni-button-action',
-            privileges: Cfg.privileges.Validation.admin,
+            privileges: Cfg.privileges.Validation.administerDataQuality,
             menu: {
                 xtype: 'cfg-data-validation-kpis-action-menu',
                 itemId: 'data-validation-kpis-preview-action-menu'

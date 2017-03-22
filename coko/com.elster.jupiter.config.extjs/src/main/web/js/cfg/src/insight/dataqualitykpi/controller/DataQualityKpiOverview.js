@@ -55,7 +55,7 @@ Ext.define('Cfg.insight.dataqualitykpi.controller.DataQualityKpiOverview', {
             menu = preview.down('#ins-data-quality-kpi-action-menu');
 
         Ext.suspendLayouts();
-        preview.setTitle(record.get('usagePointGroup'));
+        preview.setTitle(record.get('usagePointGroup').name);
         preview.loadRecord(record);
         Ext.resumeLayouts(true);
 
@@ -78,7 +78,7 @@ Ext.define('Cfg.insight.dataqualitykpi.controller.DataQualityKpiOverview', {
         var me = this;
 
         Ext.create('Uni.view.window.Confirmation').show({
-            title: Uni.I18n.translate('general.removex.kpi', 'CFG', "Remove '{0}'?", record.get('usagePointGroup')),
+            title: Uni.I18n.translate('general.removex.kpi', 'CFG', "Remove '{0}'?", record.get('usagePointGroup').name),
             msg: Uni.I18n.translate('dataqualitykpis.deleteConfirmation.msg', 'CFG', 'This data quality KPI will no longer be available in the system. Already calculated data will not be removed.'),
             fn: confirm
         });

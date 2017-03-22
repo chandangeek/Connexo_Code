@@ -14,7 +14,7 @@ Ext.define('Cfg.insight.dataqualitykpi.view.DetailsForm', {
         {
             xtype: 'uni-button-action',
             itemId: 'data-quality-kpi-details-action-btn',
-            privileges: Cfg.privileges.Validation.admin,
+            privileges: Cfg.privileges.Validation.administerDataQuality,
             menu: {
                 xtype: 'cfg-data-validation-kpis-action-menu',
                 itemId: 'ins-data-quality-kpi-action-menu'
@@ -37,12 +37,18 @@ Ext.define('Cfg.insight.dataqualitykpi.view.DetailsForm', {
                 {
                     name: 'usagePointGroup',
                     itemId: 'data-quality-kpis-details-usage-point-group',
-                    fieldLabel: Uni.I18n.translate('general.uagePointGroup', 'CFG', 'Usage point group')
+                    fieldLabel: Uni.I18n.translate('general.uagePointGroup', 'CFG', 'Usage point group'),
+                    renderer: function (value) {
+                        return value ? Ext.String.htmlEncode(value.name) : '-';
+                    }
                 },
                 {
-                    name: 'purpose',
+                    name: 'metrologyPurpose',
                     itemId: 'data-quality-kpis-details-purpose',
-                    fieldLabel: Uni.I18n.translate('general.Purpose', 'CFG', 'Purpose')
+                    fieldLabel: Uni.I18n.translate('general.Purpose', 'CFG', 'Purpose'),
+                    renderer: function (value) {
+                        return value ? Ext.String.htmlEncode(value.name) : '-';
+                    }
                 }
             ]
         },

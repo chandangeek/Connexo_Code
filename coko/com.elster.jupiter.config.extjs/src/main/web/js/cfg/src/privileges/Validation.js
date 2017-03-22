@@ -23,6 +23,8 @@ Ext.define('Cfg.privileges.Validation', {
     deviceConfiguration: ['privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'],
     viewOrAdmin:['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'],
     viewDataQuality:['privilege.view.dataQualityKpi'],
+    administerDataQuality: ['privilege.administer.dataQualityKpi'],
+    viewOrAdministerDataQuality: ['privilege.view.dataQualityKpi', 'privilege.administer.dataQualityKpi'],
     viewResultsOrAdministerDataQuality:['privilege.view.dataQualityResults', 'privilege.administer.dataQualityKpi'],
     validateManual: ['privilege.view.validateManual'],
     all: function() {
@@ -50,6 +52,9 @@ Ext.define('Cfg.privileges.Validation', {
     },
     canUpdateDeviceConfigurationValidation : function (){
         return Uni.Auth.checkPrivileges(Cfg.privileges.Validation.fineTuneOnDeviceConfiguration);
+    },
+    canViewOrAdministerDataQuality: function () {
+        return Uni.Auth.checkPrivileges(Cfg.privileges.Validation.viewOrAdministerDataQuality);
     },
     canViewResultsOrAdministerDataQuality: function () {
         return Uni.Auth.checkPrivileges(Cfg.privileges.Validation.viewResultsOrAdministerDataQuality);

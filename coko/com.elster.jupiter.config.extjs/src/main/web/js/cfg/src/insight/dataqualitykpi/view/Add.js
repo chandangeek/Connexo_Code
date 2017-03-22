@@ -43,7 +43,7 @@ Ext.define('Cfg.insight.dataqualitykpi.view.Add', {
                         store: 'Cfg.insight.dataqualitykpi.store.UsagePointGroups',
                         queryMode: 'local',
                         forceSelection: true,
-                        displayField: 'displayValue',
+                        displayField: 'name',
                         valueField: 'id'
                     },
                     {
