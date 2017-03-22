@@ -6,7 +6,7 @@ package com.energyict.mdc.device.topology.multielement;
 
 import com.elster.jupiter.metering.Channel;
 import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
-import com.energyict.mdc.device.topology.impl.PhysicalGatewayReference;
+import com.energyict.mdc.device.topology.PhysicalGatewayReference;
 
 import java.util.List;
 

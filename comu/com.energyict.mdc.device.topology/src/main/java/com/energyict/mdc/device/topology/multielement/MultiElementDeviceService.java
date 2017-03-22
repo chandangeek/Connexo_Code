@@ -5,7 +5,6 @@ import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.topology.DataLoggerReference;
 
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;

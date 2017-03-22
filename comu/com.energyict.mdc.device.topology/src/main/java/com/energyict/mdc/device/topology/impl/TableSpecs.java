@@ -13,6 +13,7 @@ import com.energyict.mdc.device.topology.CommunicationPathSegment;
 import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 import com.energyict.mdc.device.topology.G3DeviceAddressInformation;
 import com.energyict.mdc.device.topology.PLCNeighbor;
+import com.energyict.mdc.device.topology.PhysicalGatewayReference;
 
 import java.util.List;
 

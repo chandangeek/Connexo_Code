@@ -27,7 +27,7 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.topology.impl.Installer;
-import com.energyict.mdc.device.topology.impl.PhysicalGatewayReference;
+import com.energyict.mdc.device.topology.PhysicalGatewayReference;
 import com.energyict.mdc.device.topology.impl.PhysicalGatewayReferenceImpl;
 import com.energyict.mdc.device.topology.impl.ServerTopologyService;
 import com.energyict.mdc.device.topology.impl.utils.ChannelDataTransferor;

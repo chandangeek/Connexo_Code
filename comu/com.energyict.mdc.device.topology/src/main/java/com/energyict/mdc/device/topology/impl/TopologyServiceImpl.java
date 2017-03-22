@@ -50,6 +50,7 @@ import com.energyict.mdc.device.topology.G3Neighbor;
 import com.energyict.mdc.device.topology.Modulation;
 import com.energyict.mdc.device.topology.ModulationScheme;
 import com.energyict.mdc.device.topology.PhaseInfo;
+import com.energyict.mdc.device.topology.PhysicalGatewayReference;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.TopologyTimeslice;
@@ -729,7 +730,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     public void terminateTemporal(PhysicalGatewayReference gatewayReference, Instant now) {
-        gatewayReference.terminate(now, new ChannelDataTransferor());
+        gatewayReference.terminate(now);
         this.dataModel.update(gatewayReference);
     }
 

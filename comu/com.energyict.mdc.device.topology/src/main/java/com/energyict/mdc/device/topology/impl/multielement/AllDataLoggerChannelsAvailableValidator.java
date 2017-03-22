@@ -9,7 +9,6 @@ import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.impl.MessageSeeds;
 import com.energyict.mdc.device.topology.impl.TopologyServiceImpl;
-import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;

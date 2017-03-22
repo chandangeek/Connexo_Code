@@ -1,6 +1,6 @@
-package com.energyict.mdc.device.topology.multielement;
+package com.energyict.mdc.device.topology.impl.multielement;
 
-import com.energyict.mdc.device.topology.impl.multielement.MultiElementDeviceServiceImpl;
+import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;

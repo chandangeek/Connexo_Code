@@ -48,14 +48,15 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
     /**
      * Closes the current interval.
      */
-    public void terminate(Instant closingDate, ChannelDataTransferor channelDataTransferor) {
+    public void terminate(Instant closingDate) {
         if (!isEffectiveAt(closingDate)) {
             throw new IllegalArgumentException(MessageSeeds.Keys.INVALID_TERMINATION_DATE);
             //throw DataLoggerLinkException.invalidTerminationDate(thesaurus);
         }
 
+        ChannelDataTransferor channelDataTransferor = new ChannelDataTransferor();
         // Data on the slave channels having a dat
         this.dataLoggerChannelUsages.stream().forEach((usage) -> channelDataTransferor.transferChannelDataToDataLogger(usage, closingDate));
-        super.terminate(closingDate, channelDataTransferor);
+        super.terminate(closingDate);
     }
 }

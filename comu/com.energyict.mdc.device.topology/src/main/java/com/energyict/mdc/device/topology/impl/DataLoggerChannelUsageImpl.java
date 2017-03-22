@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ImplField;
 import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
+import com.energyict.mdc.device.topology.PhysicalGatewayReference;
 
 import com.google.common.collect.Range;
 

@@ -5,7 +5,6 @@
 package com.energyict.mdc.device.topology;
 
 import com.elster.jupiter.orm.associations.Effectivity;
-import com.energyict.mdc.device.topology.impl.PhysicalGatewayReference;
 
 public interface DataLoggerChannelUsage extends Effectivity {
 

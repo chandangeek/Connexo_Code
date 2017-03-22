@@ -238,7 +238,7 @@ public interface TopologyService {
      * {@link DeviceConfiguration} must be set as datalogger enabled.
      * The slave device's DeviceType must have the DATALOGGER_SLAVE {@link com.energyict.mdc.device.config.DeviceTypePurpose}
      * <p>
-     * Technically the link is persisted as a {@link com.energyict.mdc.device.topology.impl.PhysicalGatewayReference} object.
+     * Technically the link is persisted as a {@link PhysicalGatewayReference} object.
      * This PhysicalGateWayReference holds a List of DataLoggerChannelUsage linking the slave (pulse) channel to the datalogger (pulse) channel
      */
     void setDataLogger(Device slave, Device datalogger, Instant linkingDate, Map<Channel, Channel> slaveDataLoggerChannelMap, Map<Register, Register> slaveDataLoggerRegisterMap);

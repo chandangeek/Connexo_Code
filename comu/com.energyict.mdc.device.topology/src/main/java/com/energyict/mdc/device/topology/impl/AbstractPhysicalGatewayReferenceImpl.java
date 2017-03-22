@@ -10,8 +10,8 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ImplField;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.topology.PhysicalGatewayReference;
 import com.energyict.mdc.device.topology.impl.multielement.MultiElementDeviceReferenceImpl;
-import com.energyict.mdc.device.topology.impl.utils.ChannelDataTransferor;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -81,7 +81,7 @@ public abstract class AbstractPhysicalGatewayReferenceImpl implements PhysicalGa
     }
 
     @Override
-    public void terminate(Instant closingDate, ChannelDataTransferor channelDataTransferor) {
+    public void terminate(Instant closingDate) {
         if (!isEffectiveAt(closingDate)) {
             throw new IllegalArgumentException();
         }
