@@ -44,7 +44,6 @@ public class DeviceInfo extends DeviceVersionInfo {
     public String batch;
     public String masterDeviceName;
     public Long masterDeviceId;
-    public String dataloggerName; // only available when we are a dataloggerslave
     public List<DeviceTopologyInfo> slaveDevices;
     public int nbrOfDataCollectionIssues;
     public Long openDataValidationIssue;
@@ -56,9 +55,11 @@ public class DeviceInfo extends DeviceVersionInfo {
     public Boolean isDirectlyAddressed;
     public Boolean isGateway;
     public Boolean isDataLogger;
+    public String dataloggerName; // only available when we are a dataloggerslave
     public Boolean isDataLoggerSlave;
-    public Boolean isMultiElementMeter;
-    public Boolean isMultiElementSubmeter;
+    public Boolean isMultiElementDevice;
+    public String multiElementDeviceName; // only available when we are a multi-element slave
+    public Boolean isMultiElementSlave;
     public String serviceCategory;
     public String usagePoint;
     public DeviceEstimationStatusInfo estimationStatus;
@@ -115,10 +116,7 @@ public class DeviceInfo extends DeviceVersionInfo {
             deviceInfo.masterDeviceName = physicalGateway.get().getName();
         }
 
-        if (device.getDeviceType().isDataloggerSlave()) {
-            topologyService.findDataloggerReference(device, clock.instant())
-                    .ifPresent(dataLoggerReference -> deviceInfo.dataloggerName = dataLoggerReference.getGateway().getName());
-        }
+
         deviceInfo.gatewayType = device.getConfigurationGatewayType();
         deviceInfo.slaveDevices = slaveDevices;
         deviceInfo.nbrOfDataCollectionIssues = issueRetriever.numberOfDataCollectionIssues(device);
@@ -130,6 +128,10 @@ public class DeviceInfo extends DeviceVersionInfo {
         deviceInfo.isGateway = deviceConfiguration.canActAsGateway();
         deviceInfo.isDataLogger = deviceConfiguration.isDataloggerEnabled();
         deviceInfo.isDataLoggerSlave = device.getDeviceType().isDataloggerSlave();
+        if (device.getDeviceType().isDataloggerSlave()) {
+            topologyService.findDataloggerReference(device, clock.instant())
+                    .ifPresent(dataLoggerReference -> deviceInfo.dataloggerName = dataLoggerReference.getGateway().getName());
+        }
         device.getUsagePoint().ifPresent(usagePoint -> {
             deviceInfo.usagePoint = usagePoint.getName();
             deviceInfo.serviceCategory = usagePoint.getServiceCategory().getName();
