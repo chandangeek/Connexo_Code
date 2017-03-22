@@ -70,19 +70,6 @@
                 <version>${eict.xmodem.version}</version>
             </dependency>
 
-			<!--Only for connectiontypes module -->
-			<dependency>
-				<groupId>com.energyict.comserver</groupId>
-				<artifactId>comserver-core-impl</artifactId>
-				<version>${eiserver.version}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.energyict.comserver</groupId>
-				<artifactId>comserver-core-common</artifactId>
-				<version>${eiserver.version}</version>
-				<scope>provided</scope>
-			</dependency>
             <dependency>
                 <groupId>org.rxtx</groupId>
                 <artifactId>rxtx</artifactId>
