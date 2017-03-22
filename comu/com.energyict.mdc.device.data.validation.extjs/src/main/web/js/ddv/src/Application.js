@@ -17,7 +17,7 @@ Ext.define('Ddv.Application', {
 
     controllers: [
         'Ddv.controller.Main',
-        'Ddv.controller.Validations'
+        'Ddv.controller.DataQuality'
     ],
 
     stores: [

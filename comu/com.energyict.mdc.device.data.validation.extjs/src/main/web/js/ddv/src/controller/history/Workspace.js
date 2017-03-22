@@ -4,24 +4,15 @@
 
 Ext.define('Ddv.controller.history.Workspace', {
     extend: 'Uni.controller.history.Converter',
-    requires: [
-        'Ddv.controller.Validations'
-    ],
     rootToken: 'workspace',
-    previousPath: '',
-    currentPath: null,
 
     routeConfig: {
-        "workspace/validations": {
-            title: Uni.I18n.translate('validation.validations.title', 'DDV', 'Validations'),
-            route: 'workspace/validations',
-            controller: 'Ddv.controller.Validations',
-            action: 'showValidations'
+        "workspace/dataquality": {
+            title: Uni.I18n.translate('general.dataQuality', 'DDV', 'Data quality'),
+            route: 'workspace/dataquality',
+            controller: 'Ddv.controller.DataQuality',
+            action: 'showDataQuality',
+            privileges: Cfg.privileges.Validation.viewResultsOrAdministerDataQuality
         }
-    },
-
-    init: function () {
-        var router = this.getController('Uni.controller.history.Router');
-        router.addConfig(this.routeConfig);
     }
 });

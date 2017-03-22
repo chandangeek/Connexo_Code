@@ -9,12 +9,12 @@ Ext.define('Ddv.controller.Main', {
         'Uni.controller.Navigation',
         'Uni.Auth',
         'Cfg.privileges.Validation',
-        'Ddv.controller.Validations'
+        'Ddv.controller.DataQuality'
     ],
 
     controllers: [
         'Ddv.controller.history.Workspace',
-        'Ddv.controller.Validations'
+        'Ddv.controller.DataQuality'
     ],
 
     refs: [
@@ -25,18 +25,20 @@ Ext.define('Ddv.controller.Main', {
     ],
 
     init: function () {
+        this.initHistorians();
         this.initMenu();
         this.callParent();
     },
 
-    initMenu: function () {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            dataCollection = null,
-            items = [],
-            historian = me.getController('Ddv.controller.history.Workspace'); // Forces route registration.
+    initHistorians: function () {
+        this.getController('Ddv.controller.history.Workspace');
+    },
 
-        if (Cfg.privileges.Validation.canView()) {
+    initMenu: function () {
+        var dataCollection = null,
+            items = [];
+
+        if (Cfg.privileges.Validation.canViewResultsOrAdministerDataQuality()) {
             Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.workspace', 'DDV', 'Workspace'),
                 glyph: 'workspace',
@@ -45,24 +47,17 @@ Ext.define('Ddv.controller.Main', {
             }));
 
             items.push({
-                text: Uni.I18n.translate('validation.validations.title', 'DDV', 'Validations'),
-                href: '#/workspace/validations'
+                text: Uni.I18n.translate('general.dataQuality', 'DDV', 'Data quality'),
+                href: '#/workspace/dataquality'
             });
 
             dataCollection = Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('general.dataValidation', 'DDV', 'Data validation'),
                 portal: 'workspace',
-                route: 'validations',
                 items: items
             });
 
             Uni.store.PortalItems.add(dataCollection);
         }
-    },
-    /**
-     * @deprecated Fire an event instead, as shown below.
-     */
-    showContent: function (widget) {
-        this.getApplication().fireEvent('changecontentevent', widget);
     }
 });

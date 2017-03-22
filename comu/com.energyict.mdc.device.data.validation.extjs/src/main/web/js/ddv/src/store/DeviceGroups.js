@@ -8,10 +8,8 @@
 Ext.define('Ddv.store.DeviceGroups', {
     extend: 'Ext.data.Store',
     fields: [
-        {name: 'id', type: 'int'},
-        {name: 'name', type: 'string'}
+        'id', 'name'
     ],
-    autoLoad: false,
     proxy: {
         type: 'rest',
         url: '/api/ddq/fields/kpiDeviceGroups',
