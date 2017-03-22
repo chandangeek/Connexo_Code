@@ -153,7 +153,7 @@ Ext.define('Uni.controller.Error', {
                     title = Uni.I18n.translate(
                         'error.requestFailed',
                         'UNI',
-                        'Request failed'
+                        'Your action can\'t be successfully executed.'
                     );
                     me.showError(title, decoded.message ? decoded.message : message, decoded.errorCode ? decoded.errorCode : code);
                 }
@@ -176,9 +176,9 @@ Ext.define('Uni.controller.Error', {
                 break;
             case 404: // Not found.
                 title = Uni.I18n.translate(
-                    'error.requestFailed',
+                    'error.requestFailedConnexoKnownError',
                     'UNI',
-                    'Request failed'
+                    'Couldn\'t perform your action.'
                 );
                 message = Uni.I18n.translate(
                     'error.internalServerErrorMessage',
@@ -192,9 +192,9 @@ Ext.define('Uni.controller.Error', {
                 break;
             case 403: // Forbidden.
                 title = Uni.I18n.translate(
-                    'error.requestFailed',
+                    'error.requestFailedConnexoKnownError',
                     'UNI',
-                    'Request failed'
+                    'Couldn\'t perform your action.'
                 );
                 message = Uni.I18n.translate(
                     'error.internalServerErrorMessage',
