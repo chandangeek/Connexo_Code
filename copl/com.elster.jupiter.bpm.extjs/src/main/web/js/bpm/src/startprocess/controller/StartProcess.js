@@ -109,6 +109,7 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
         if (form.isValid()) {
             if (!formErrorsPanel.isHidden()) {
                 formErrorsPanel.hide();
+                startProcessForm.getForm().clearInvalid();
             }
 
             propertyForm.updateRecord();
