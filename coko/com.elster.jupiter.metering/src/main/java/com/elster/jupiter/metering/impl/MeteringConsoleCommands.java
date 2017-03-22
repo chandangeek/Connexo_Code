@@ -39,6 +39,8 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
@@ -108,10 +110,16 @@ public class MeteringConsoleCommands {
 
     private volatile ServerMeteringService meteringService;
     private volatile DataModel dataModel;
+    private volatile UserService userService;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile ServerMetrologyConfigurationService metrologyConfigurationService;
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
 
     @Reference
     public void setTransactionService(TransactionService transactionService) {
@@ -316,13 +324,15 @@ public class MeteringConsoleCommands {
     }
 
     public void createUsagePoint(String name, String timestamp) {
-        threadPrincipalService.set(() -> "Console");
+        User root = this.userService.findUser("root").orElseThrow(() -> new IllegalStateException("root user not found"));
+        threadPrincipalService.set(root);
         try (TransactionContext context = transactionService.getContext()) {
-            meteringService.getServiceCategory(ServiceKind.WATER)
+            UsagePoint usagePoint = meteringService.getServiceCategory(ServiceKind.WATER)
                     .orElseThrow(() -> new NoSuchElementException("No Water service category found"))
                     .newUsagePoint(name, Instant.parse(timestamp + "T00:00:00Z"))
                     .create();
             context.commit();
+            System.out.println("Createe usagePoint: " + usagePoint.getId());
         } finally {
             threadPrincipalService.clear();
         }
@@ -738,7 +748,7 @@ public class MeteringConsoleCommands {
     }
 
     public void addDeliverableToContract() {
-        System.out.println("Usage: addDeliverableToContract <metrology configuration id> <deliverable id> <default purpose>");
+        System.out.println("Usage: addDeliverableToContract <metrology configuration id> <deliverable id> (" + Stream.of(DefaultMetrologyPurpose.values()).map(DefaultMetrologyPurpose::name).collect(Collectors.joining(" | ")) + ")");
     }
 
     public void addDeliverableToContract(long metrologyConfigId, long deliverableId, String defaultPurpose) {

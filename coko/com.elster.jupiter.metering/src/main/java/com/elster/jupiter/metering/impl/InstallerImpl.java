@@ -75,7 +75,8 @@ public class InstallerImpl implements FullInstaller {
     private final DataModel dataModel;
     private final BundleContext bundleContext;
     private final InstallerV10_2Impl installerV10_2;
-    private final PrivilegesProviderV10_3 installerV10_3;
+    private final InstallerV10_3Impl installerV10_3;
+    private final PrivilegesProviderV10_3 privilegesProviderV10_3;
 
     @Inject
     public InstallerImpl(BundleContext bundleContext,
@@ -90,7 +91,8 @@ public class InstallerImpl implements FullInstaller {
                          Clock clock,
                          MeteringDataModelServiceImpl meteringDataModelService,
                          InstallerV10_2Impl installerV10_2,
-                         PrivilegesProviderV10_3 installerV10_3) {
+                         InstallerV10_3Impl installerV10_3,
+                         PrivilegesProviderV10_3 privilegesProviderV10_3) {
         this.bundleContext = bundleContext;
         this.dataModel = dataModel;
         this.meteringService = meteringService;
@@ -102,6 +104,7 @@ public class InstallerImpl implements FullInstaller {
         this.messageService = messageService;
         this.installerV10_2 = installerV10_2;
         this.installerV10_3 = installerV10_3;
+        this.privilegesProviderV10_3 = privilegesProviderV10_3;
         this.createAllReadingTypes = meteringDataModelService.isCreateAllReadingTypes();
         this.requiredReadingTypes = meteringDataModelService.getRequiredReadingTypes();
         this.clock = clock;
@@ -189,8 +192,9 @@ public class InstallerImpl implements FullInstaller {
                 () -> GasDayRelativePeriodCreator.createAll(this.meteringService, this.timeService),
                 logger
         );
+        installerV10_3.install(dataModelUpgrader, logger);
         userService.addModulePrivileges(installerV10_2);
-        userService.addModulePrivileges(installerV10_3);
+        userService.addModulePrivileges(privilegesProviderV10_3);
     }
 
     private void createEventTypes() {

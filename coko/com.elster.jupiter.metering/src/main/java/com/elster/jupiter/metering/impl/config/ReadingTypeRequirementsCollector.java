@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl.config;
 
+
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.CustomPropertyNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
@@ -11,6 +12,7 @@ import com.elster.jupiter.metering.config.FunctionCallNode;
 import com.elster.jupiter.metering.config.NullNode;
 import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 
 import java.util.Collections;
@@ -25,47 +27,47 @@ import java.util.stream.Collectors;
  * @since 2016-02-18 (13:28)
  */
 
-public class DeliverableNodesFromExpressionNode implements ExpressionNode.Visitor<List<ReadingTypeDeliverableNode>> {
+public class ReadingTypeRequirementsCollector implements ExpressionNode.Visitor<List<ReadingTypeRequirement>> {
 
     @Override
-    public List<ReadingTypeDeliverableNode> visitConstant(ConstantNode constant) {
+    public List<ReadingTypeRequirement> visitConstant(ConstantNode constant) {
         return Collections.emptyList();
     }
 
     @Override
-    public List<ReadingTypeDeliverableNode> visitProperty(CustomPropertyNode property) {
+    public List<ReadingTypeRequirement> visitProperty(CustomPropertyNode property) {
         return Collections.emptyList();
     }
 
     @Override
-    public List<ReadingTypeDeliverableNode> visitRequirement(ReadingTypeRequirementNode requirement) {
+    public List<ReadingTypeRequirement> visitRequirement(ReadingTypeRequirementNode requirement) {
+        return Collections.singletonList(requirement.getReadingTypeRequirement());
+    }
+
+    @Override
+    public List<ReadingTypeRequirement> visitDeliverable(ReadingTypeDeliverableNode deliverable) {
+        return deliverable.getReadingTypeDeliverable().getFormula().getExpressionNode().accept(new ReadingTypeRequirementsCollector());
+    }
+
+    @Override
+    public List<ReadingTypeRequirement> visitOperation(OperationNode operationNode) {
+        return getRequirementsFromChildren(operationNode);
+    }
+
+    @Override
+    public List<ReadingTypeRequirement> visitFunctionCall(FunctionCallNode functionCall) {
+        return getRequirementsFromChildren(functionCall);
+    }
+
+    @Override
+    public List<ReadingTypeRequirement> visitNull(NullNode nullNode) {
         return Collections.emptyList();
     }
 
-    @Override
-    public List<ReadingTypeDeliverableNode> visitDeliverable(ReadingTypeDeliverableNode deliverable) {
-        return Collections.singletonList(deliverable);
-    }
-
-    @Override
-    public List<ReadingTypeDeliverableNode> visitOperation(OperationNode operationNode) {
-        return getDeliverableNodesFromChildren(operationNode);
-    }
-
-    @Override
-    public List<ReadingTypeDeliverableNode> visitFunctionCall(FunctionCallNode functionCall) {
-        return getDeliverableNodesFromChildren(functionCall);
-    }
-
-    @Override
-    public List<ReadingTypeDeliverableNode> visitNull(NullNode nullNode) {
-        return Collections.emptyList();
-    }
-
-    private List<ReadingTypeDeliverableNode> getDeliverableNodesFromChildren(ExpressionNode node) {
+    private List<ReadingTypeRequirement> getRequirementsFromChildren(ExpressionNode node) {
         return node.getChildren()
                 .stream()
-                .map(child -> child.accept(new DeliverableNodesFromExpressionNode()))
+                .map(child -> child.accept(new ReadingTypeRequirementsCollector()))
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
     }
