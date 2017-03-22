@@ -195,6 +195,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
         when(messageFormat.format(anyVararg())).thenReturn(messageSeed.getDefaultFormat());
         doReturn(messageFormat).when(thesaurus).getFormat(messageSeed);
+        doReturn(messageFormat).when(thesaurus).getSimpleFormat(messageSeed);
     }
 
     @Before
