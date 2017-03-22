@@ -63,6 +63,9 @@ public class UsagePointChannelInfoFactory extends AbstractUsagePointChannelInfoF
                     info.interval = new TimeDurationInfo(TimeDuration.months(Math.toIntExact(intervalLength.get()
                             .get(ChronoUnit.MONTHS))));
                     break;
+                case YEARLY:
+                    info.interval = new TimeDurationInfo(TimeDuration.months(Math.toIntExact(intervalLength.get().get(ChronoUnit.YEARS))));
+                    break;
                 default:
                     info.interval = new TimeDurationInfo(TimeDuration.minutes(Math.toIntExact(intervalLength.get()
                             .get(ChronoUnit.SECONDS)) / SECONDS_PER_MINUTE));
