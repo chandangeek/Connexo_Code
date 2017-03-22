@@ -5,9 +5,7 @@
 package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Calendar;
-import com.elster.jupiter.calendar.Event;
 
-import java.time.Instant;
 import java.time.Year;
 import java.time.ZoneId;
 
@@ -34,9 +32,5 @@ public interface ServerCalendar extends Calendar {
      * @return The ZonedView
      */
     ZonedView forZone(ZoneId zoneId, Year year);
-
-    interface ZonedView {
-        Event eventFor(Instant instant);
-    }
 
 }

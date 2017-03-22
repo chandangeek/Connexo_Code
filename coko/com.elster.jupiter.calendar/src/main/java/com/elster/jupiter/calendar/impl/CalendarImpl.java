@@ -41,6 +41,7 @@ import java.time.LocalDate;
 import java.time.MonthDay;
 import java.time.Year;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -542,6 +543,11 @@ public class CalendarImpl implements ServerCalendar {
     @Override
     public ZonedView forZone(ZoneId zoneId, Year year) {
         return new ZonedCalenderViewImpl(this, this.clock, zoneId, year);
+    }
+
+    @Override
+    public ZonedView forZone(ZoneId zoneId, Year startYear, Year endYear) {
+        return new ZonedCalenderViewImpl(this, this.clock, zoneId, startYear);
     }
 
 }
