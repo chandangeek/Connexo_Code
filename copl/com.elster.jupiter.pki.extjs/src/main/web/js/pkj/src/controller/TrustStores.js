@@ -7,11 +7,13 @@ Ext.define('Pkj.controller.TrustStores', {
 
     views: [
         'Pkj.view.TrustStoresOverview',
+        'Pkj.view.TrustedCertificatesView',
         'Pkj.view.AddEditTrustStore',
         'Uni.view.window.Confirmation'
     ],
     stores: [
-        'Pkj.store.TrustStores'
+        'Pkj.store.TrustStores',
+        'Pkj.store.TrustedCertificates'
     ],
     models: [
         'Pkj.model.TrustStore'
@@ -57,7 +59,7 @@ Ext.define('Pkj.controller.TrustStores', {
     },
 
     showTrustStores: function() {
-        this.getApplication().fireEvent('changecontentevent', Ext.widget('truststores-overview'));
+        this.getApplication().fireEvent('changecontentevent', Ext.widget('truststores-overview', {router: this.getController('Uni.controller.history.Router')}));
     },
 
     navigateToTrustStoresOverviewPage: function () {
@@ -188,6 +190,32 @@ Ext.define('Pkj.controller.TrustStores', {
                 }
             }
         });
+    },
+
+    showTrustedCertificates: function(trustStoreId) {
+        var me = this,
+            model = Ext.ModelManager.getModel('Pkj.model.TrustStore'),
+            certificatesStore = Ext.getStore('Pkj.store.TrustedCertificates');
+
+        certificatesStore.getProxy().setExtraParam('trustStoreId', trustStoreId);
+        model.load(trustStoreId, {
+            success: function (record) {
+                certificatesStore.load(function() {
+                    me.showCertificatesPage(record, certificatesStore);
+                    me.getApplication().fireEvent('trustStoreLoaded', record.get('name'));
+                });
+            }
+        });
+    },
+
+    showCertificatesPage: function(trustStoreRecord, certificateStore) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            view;
+
+        view = Ext.widget('truststores-certificates-view', {store:certificateStore});
+        //view.down('form').loadRecord(trustStoreRecord);
+        me.getApplication().fireEvent('changecontentevent', view);
     }
 
 });

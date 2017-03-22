@@ -4,6 +4,7 @@
 Ext.define('Pkj.view.TrustStoresOverview', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.truststores-overview',
+    router: undefined,
 
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
@@ -22,6 +23,7 @@ Ext.define('Pkj.view.TrustStoresOverview', {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'truststores-grid',
+                        router: me.router,
                         itemId: 'pkj-truststores-grid'
                     },
                     emptyComponent: {

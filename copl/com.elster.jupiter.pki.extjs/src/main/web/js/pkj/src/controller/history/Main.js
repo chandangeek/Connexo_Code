@@ -32,7 +32,7 @@ Ext.define('Pkj.controller.history.Main', {
                             //privileges: Pkj.privileges.view,
                             title: Uni.I18n.translate('general.trustedCertificates', 'PKJ', 'Trusted certificates'),
                             controller: 'Pkj.controller.TrustStores',
-                            action: 'showTrustStoreOverview',
+                            action: 'showTrustedCertificates',
                             callback: function (route) {
                                 this.getApplication().on('trustStoreLoaded', function (name) {
                                     route.setTitle(name);

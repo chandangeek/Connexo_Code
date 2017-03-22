@@ -12,13 +12,19 @@ Ext.define('Pkj.view.TrustStoresGrid', {
         'Uni.view.toolbar.PagingBottom'
     ],
 
+    router: undefined,
+
     initComponent: function () {
         var me = this;
         me.columns = [
             {
                 header: Uni.I18n.translate('general.name', 'PKJ', 'Name'),
                 dataIndex: 'name',
-                flex: 1
+                flex: 1,
+                renderer: function (value, metaData, record) {
+                    var url = me.router.getRoute('administration/truststores/view').buildUrl({trustStoreId: record.get('id')});
+                    return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
+                }
             },
             {
                 xtype: 'uni-actioncolumn',
@@ -40,25 +46,9 @@ Ext.define('Pkj.view.TrustStoresGrid', {
                 emptyMsg: Uni.I18n.translate('trustStores.pagingtoolbartop.emptyMsg', 'PKJ', 'There are no trust stores to display'),
                 items: [
                     {
-                        xtype: 'uni-button-action',
-                        itemId: 'pkj-truststores-grid-actions-btn',
-                        text: Uni.I18n.translate('general.actions', 'PKJ', 'Actions'),
-                        //privileges: Mdc.privileges.Device.administrateDeviceCommunication,
-                        //dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.connectionMethodsActions,
-                        //hidden: true,
-                        menu: {
-                            plain: true,
-                            items: [
-                                {
-                                    text: Uni.I18n.translate('general.addTrustStore', 'PKJ', 'Add trust store'),
-                                    itemId: 'pkj-truststores-grid-add-truststore'
-                                },
-                                {
-                                    text: Uni.I18n.translate('general.importTrustStore', 'PKJ', 'Import trust store'),
-                                    itemId: 'pkj-truststores-grid-import-truststore'
-                                }
-                            ]
-                        }
+                        xtype: 'button',
+                        text: Uni.I18n.translate('general.addTrustStore', 'PKJ', 'Add trust store'),
+                        itemId: 'pkj-truststores-grid-add-truststore'
                     }
                 ]
             },
