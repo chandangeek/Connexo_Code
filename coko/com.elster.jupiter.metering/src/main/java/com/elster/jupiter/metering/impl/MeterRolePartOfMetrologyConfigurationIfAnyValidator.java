@@ -58,7 +58,7 @@ class MeterRolePartOfMetrologyConfigurationIfAnyValidator implements ConstraintV
                 .map(emc -> emc.getMetrologyConfiguration().getMeterRoles())
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
-        if (effectiveMeterRoles.contains(meterRole)) {
+        if (effectiveMeterRoles.contains(meterRole) || effectiveMeterRoles.isEmpty()) {
             return true;
         } else {
             context.disableDefaultConstraintViolation();
