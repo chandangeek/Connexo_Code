@@ -8,20 +8,16 @@ package com.elster.jupiter.yellowfin.rest.impl;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.yellowfin.YellowfinReportInfo;
 import com.elster.jupiter.yellowfin.YellowfinService;
-import com.elster.jupiter.yellowfin.impl.MessageSeeds;
+import com.elster.jupiter.yellowfin.MessageSeeds;
 import com.elster.jupiter.yellowfin.security.Privileges;
-import com.fasterxml.jackson.databind.util.JSONWrappedObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-import java.util.ArrayList;
 import java.util.List;
 
 @Path("/report")

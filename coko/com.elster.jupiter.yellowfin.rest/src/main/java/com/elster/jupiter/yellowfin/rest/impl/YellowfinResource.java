@@ -8,7 +8,7 @@ import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.yellowfin.YellowfinService;
-import com.elster.jupiter.yellowfin.impl.MessageSeeds;
+import com.elster.jupiter.yellowfin.MessageSeeds;
 import com.elster.jupiter.yellowfin.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;

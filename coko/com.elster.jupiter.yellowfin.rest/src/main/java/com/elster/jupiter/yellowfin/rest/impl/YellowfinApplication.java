@@ -9,9 +9,11 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.BinderProvider;
+import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.yellowfin.YellowfinService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -22,8 +24,8 @@ import javax.ws.rs.core.Application;
 import java.util.HashSet;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.yellowfin.rest" , service=Application.class , immediate = true , property = {"alias=/yfn", "app=SYS", "name=" + YellowfinApplication.COMPONENT_NAME} )
-public class YellowfinApplication extends Application implements BinderProvider{
+@Component(name = "com.elster.jupiter.yellowfin.rest", service = Application.class, immediate = true, property = {"alias=/yfn", "app=SYS", "name=" + YellowfinApplication.COMPONENT_NAME})
+public class YellowfinApplication extends Application implements BinderProvider {
     public static final String COMPONENT_NAME = "YFN";
 
     private final Set<Class<?>> classes = new HashSet<>();
@@ -40,9 +42,8 @@ public class YellowfinApplication extends Application implements BinderProvider{
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.of(YellowfinResource.class, YellowfinDeviceGroupsResource.class, YellowfinReportInfoResource.class);
+        return ImmutableSet.of(LocalizedExceptionMapper.class, YellowfinResource.class, YellowfinDeviceGroupsResource.class, YellowfinReportInfoResource.class);
     }
-
 
 
     @Reference
