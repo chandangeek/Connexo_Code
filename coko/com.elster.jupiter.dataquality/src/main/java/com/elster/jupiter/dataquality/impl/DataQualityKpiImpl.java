@@ -293,9 +293,7 @@ public abstract class DataQualityKpiImpl implements HasId, DataQualityKpi, Persi
         RecurrentTask recurrentTask = this.dataQualityKpiTask.get();
         this.dataQualityKpiTask.setNull();
         this.obsoleteTime = clock.instant();
-        this.dataModel.update(this,
-                Fields.OBSOLETE_TIME.fieldName(),
-                Fields.DATA_QUALITY_KPI_TASK.fieldName());
+        this.dataModel.update(this);
         recurrentTask.delete();
     }
 
