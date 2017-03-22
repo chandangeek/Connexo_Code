@@ -213,13 +213,14 @@ public class MetrologyConfigurationCrudTest {
 
     /**
      * This test verifies that {@link MetrologyConfiguration} created by using
-     * {@link com.elster.jupiter.metering.config.MetrologyConfigurationBuilder}
-     * will return <code>true</code> on {@link MetrologyConfiguration#isGapAllowed()}
+     * {@link com.elster.jupiter.metering.config.UsagePointMetrologyConfigurationBuilder}
+     * will return <code>true</code> on {@link MetrologyConfiguration#isGapAllowed()}<br>
+     * This builder is used during OOTB configuration installation
      */
     @Test
     @Transactional
-    public void testDefaultGapAllowedFlag() {
-        MetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newMetrologyConfiguration("Name", getServiceCategory())
+    public void testDefaultGapAllowedFlagOnUsagePointMetrologyConfiguration() {
+        MetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("Name", getServiceCategory())
                 .withDescription("Description")
                 .create();
 
