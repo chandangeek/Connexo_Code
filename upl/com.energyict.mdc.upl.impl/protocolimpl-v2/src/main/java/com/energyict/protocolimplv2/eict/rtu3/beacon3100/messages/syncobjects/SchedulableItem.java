@@ -3,9 +3,9 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.obis.ObisCode;
+import org.codehaus.jackson.map.annotate.JsonDeserialize;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
 /**
@@ -14,7 +14,8 @@ import java.util.List;
  * this causes problems on JSON de-serialization, because it cannot
  * instantiate back an AbstractDataType correctly.
  */
-@XmlRootElement
+@JsonSerialize(using=ScheduleableItemDataSerializer.class)
+@JsonDeserialize(using=SchedulableItemDeserializer.class)
 public class SchedulableItem {
     /**
      * The obis code for this item
@@ -22,34 +23,15 @@ public class SchedulableItem {
     protected ObisCode obisCode;
 
     /**
-     * Buffer size is stored and serialized as long, and re-converted back to U16 or U32
+     * Buffer size as AbstractDataType - this can be either Unsigned32 or Unsigned16
      */
-    private long bufferSize;
+    private AbstractDataType bufferSize;
 
-    /**
-     * Flag to know if we have to convert the bufferSize value after de-serialization to Unsigned32 or Unsigned16
-     */
-    private boolean u16 = false;
-
-    public SchedulableItem() {
-    }
-
-    public SchedulableItem(ObisCode obisCode) {
+    public SchedulableItem(ObisCode obisCode, AbstractDataType bufferSize) {
         this.obisCode = obisCode;
+        this.bufferSize = bufferSize;
     }
 
-    public SchedulableItem(ObisCode obisCode, Unsigned32 bufferSize) {
-        this.obisCode = obisCode;
-        this.bufferSize = bufferSize.getValue();
-    }
-
-    public SchedulableItem(ObisCode obisCode, Unsigned16 bufferSize) {
-        this.obisCode = obisCode;
-        this.bufferSize = bufferSize.getValue();
-        u16 = true;
-    }
-
-    @XmlAttribute
     public ObisCode getObisCode() {
         return obisCode;
     }
@@ -58,41 +40,25 @@ public class SchedulableItem {
         this.obisCode = obisCode;
     }
 
-    @XmlAttribute
-    public boolean getU16(){
-        return u16;
-    }
-
-    public void setU16(boolean u16){
-        this.u16 = u16;
-    }
-
-    @XmlAttribute
-    public long getBufferSize() {
+    public AbstractDataType getBufferSize() {
         return bufferSize;
     }
 
-    public void setBufferSize(long bufferSize) {
+    public void setBufferSize(AbstractDataType bufferSize) {
         this.bufferSize = bufferSize;
-    }
-
-    public void setBufferSizeFromAbstract(AbstractDataType bufferSize) {
-        this.bufferSize = bufferSize.longValue();
-
-        if (bufferSize.isUnsigned16()){
-            u16 = true;
-        }
     }
 
 
     public Structure toStructure() {
         final Structure structure = new Structure();
         structure.addDataType(new OctetString(obisCode.getLN()));
-        if (u16) {
-            structure.addDataType(new Unsigned16((int) bufferSize));
-        } else{
-            structure.addDataType(new Unsigned32(bufferSize));
+
+        if (bufferSize!=null){
+            structure.addDataType(bufferSize);
+        } else {
+            structure.addDataType(new Unsigned32(1));
         }
+
         return structure;
     }
 

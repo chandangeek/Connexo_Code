@@ -31,7 +31,9 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import org.codehaus.jackson.Version;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.module.SimpleModule;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -348,6 +350,12 @@ public class MasterDataSerializer {
 
     public static String jsonSerialize(Object object) {
         ObjectMapper mapper = ObjectMapperFactory.getObjectMapper();
+
+        SimpleModule module = new SimpleModule("ScheduleableItemSerializerModule", new Version(1, 0, 0, null));
+        module.addSerializer(SchedulableItem.class, new ScheduleableItemDataSerializer());
+        module.addDeserializer(SchedulableItem.class, new SchedulableItemDeserializer());
+        mapper.registerModule(module);
+
         StringWriter writer = new StringWriter();
         try {
             mapper.writeValue(writer, object);

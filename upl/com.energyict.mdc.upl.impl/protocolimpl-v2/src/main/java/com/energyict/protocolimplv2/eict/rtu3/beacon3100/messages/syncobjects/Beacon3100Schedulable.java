@@ -158,14 +158,14 @@ public class Beacon3100Schedulable {
 
     private void updateAllBufferSize(AbstractDataType bufferSize, List<SchedulableItem> items) {
         for (SchedulableItem item : items) {
-            item.setBufferSizeFromAbstract(bufferSize);
+            item.setBufferSize(bufferSize);
         }
     }
 
     private boolean updateBufferSize(ObisCode obisCode, AbstractDataType bufferSize, List<SchedulableItem> items) {
         SchedulableItem item = SchedulableItem.findObisCode(obisCode, items);
         if (item != null) {
-            item.setBufferSizeFromAbstract(bufferSize);
+            item.setBufferSize(bufferSize);
             return true;
         }
         return false;

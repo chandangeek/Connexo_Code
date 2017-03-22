@@ -37,7 +37,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
     public static final String READ_OLD_OBIS_CODES = "ReadOldObisCodes";
 
     public static final String DEFAULT_BACKLOG_LOADPROFILE = "DefaultBacklogLoadProfile";
-    public static final String DEFAULT_BACKLOG_EVENTLOG = "DefaultBacklogLoadProfile";
+    public static final String DEFAULT_BACKLOG_EVENTLOG = "DefaultBacklogEventLog";
     public static final String DEFAULT_BUFFERSIZE_REGISTERS = "DefaultBufferSizeRegisters";
 
     @Override
