@@ -171,6 +171,7 @@ public class KeyAccessorCommands {
             ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(certKeyAccessorType);
             clientCertificateWrapper.setAlias(alias);
             clientCertificateWrapper.setCertificate((X509Certificate) certificate);
+            clientCertificateWrapper.setCertificate((X509Certificate) certificate);
             PlaintextPrivateKeyWrapper privateKeyWrapper = (PlaintextPrivateKeyWrapper) clientCertificateWrapper.getPrivateKeyWrapper();
             privateKeyWrapper.setPrivateKey((PrivateKey) key);
             privateKeyWrapper.save();
