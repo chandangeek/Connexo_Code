@@ -307,7 +307,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         modelProxy = record.getProxy();
         record.phantom = false;       // force 'PUT' method for request otherwise 'POST' will be performed
         modelProxy.appendId = false; // remove 'id' part from request url
-        console.log(record);
+
         record.save(Ext.merge({
                 callback: function () {
                     wizard.setLoading(false);
