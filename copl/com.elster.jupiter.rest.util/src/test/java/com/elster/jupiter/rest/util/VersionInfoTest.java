@@ -164,6 +164,7 @@ public class VersionInfoTest {
         when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
         when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
+        when(thesaurus.getSimpleFormat(any(MessageSeed.class))).thenReturn(messageFormat);
         ConcurrentModificationException exception = new ConcurrentModificationException(thesaurus, MessageSeeds.CONCURRENT_EDIT_TITLE, "some");
         exception.setMessageBody(MessageSeeds.CONCURRENT_EDIT_BODY);
         exception.setMessageBodyArgs(new String[]{"some"});
@@ -182,6 +183,7 @@ public class VersionInfoTest {
         when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
         when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
+        when(thesaurus.getSimpleFormat(any(MessageSeed.class))).thenReturn(messageFormat);
         ConcurrentModificationException exception = new ConcurrentModificationException(thesaurus, MessageSeeds.CONCURRENT_EDIT_TITLE, "some");
         exception.setMessageBody(MessageSeeds.CONCURRENT_EDIT_BODY);
         exception.setMessageBodyArgs(new String[]{"some"});
@@ -202,6 +204,7 @@ public class VersionInfoTest {
         when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
         when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
+        when(thesaurus.getSimpleFormat(any(MessageSeed.class))).thenReturn(messageFormat);
         ConcurrentModificationException exception = new ConcurrentModificationException(thesaurus, MessageSeeds.CONCURRENT_EDIT_TITLE, "some");
         exception.setMessageBody(MessageSeeds.CONCURRENT_EDIT_BODY);
         exception.setMessageBodyArgs(new String[]{"some"});
