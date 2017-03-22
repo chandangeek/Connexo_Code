@@ -39,6 +39,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'calendarActionMenu'
                 }
