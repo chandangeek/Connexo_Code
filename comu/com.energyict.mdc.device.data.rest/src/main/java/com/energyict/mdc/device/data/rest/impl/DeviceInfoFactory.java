@@ -144,7 +144,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
                     .flatMap(List::stream).filter(Objects::nonNull)
                     .collect(Collectors.joining(", "));
         }
-        return DeviceInfo.from(device, slaveDevices, topologyService, new IssueRetriever(issueService), deviceLifeCycleConfigurationService,
+        return DeviceInfo.from(device, slaveDevices, topologyService, multiElementDeviceService, new IssueRetriever(issueService), deviceLifeCycleConfigurationService,
                 dataLoggerSlaveDeviceInfoFactory, formattedLocation, spatialCoordinates.map(SpatialCoordinates::toString).orElse(null), clock);
     }
 

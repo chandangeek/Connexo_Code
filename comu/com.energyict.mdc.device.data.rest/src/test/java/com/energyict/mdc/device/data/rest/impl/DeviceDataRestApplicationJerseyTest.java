@@ -282,6 +282,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setConnectionTaskService(connectionTaskService);
         application.setDeviceService(deviceService);
         application.setTopologyService(topologyService);
+        application.setMultiElementDeviceService(multiElementDeviceService);
         application.setBatchService(batchService);
         application.setEngineConfigurationService(engineConfigurationService);
         application.setIssueService(issueService);

@@ -69,6 +69,7 @@ import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateFactory;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -106,6 +107,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile ConnectionTaskService connectionTaskService;
     private volatile DeviceService deviceService;
     private volatile TopologyService topologyService;
+    private volatile MultiElementDeviceService multiElementDeviceService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile BatchService batchService;
@@ -242,6 +244,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     @Reference
     public void setTopologyService(TopologyService topologyService) {
         this.topologyService = topologyService;
+    }
+
+    @Reference
+    public void setMultiElementDeviceService(MultiElementDeviceService multiElementDeviceService) {
+        this.multiElementDeviceService = multiElementDeviceService;
     }
 
     @Reference
@@ -555,6 +562,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(communicationTaskService).to(CommunicationTaskService.class);
             bind(favoritesService).to(FavoritesService.class);
             bind(topologyService).to(TopologyService.class);
+            bind(multiElementDeviceService).to(MultiElementDeviceService.class);
             bind(DeviceConnectionTaskInfoFactory.class).to(DeviceConnectionTaskInfoFactory.class);
             bind(DeviceComTaskExecutionInfoFactory.class).to(DeviceComTaskExecutionInfoFactory.class);
             bind(DataCollectionKpiInfoFactory.class).to(DataCollectionKpiInfoFactory.class);

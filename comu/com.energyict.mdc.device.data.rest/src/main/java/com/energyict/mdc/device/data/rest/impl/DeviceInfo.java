@@ -16,6 +16,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -104,7 +105,7 @@ public class DeviceInfo extends DeviceVersionInfo {
         return deviceInfo;
     }
 
-    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, TopologyService topologyService, IssueRetriever issueRetriever, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, String location, String geoCoordinates, Clock clock) {
+    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, TopologyService topologyService, MultiElementDeviceService multiElementDeviceService, IssueRetriever issueRetriever, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, String location, String geoCoordinates, Clock clock) {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         DeviceInfo deviceInfo = from(device, location, geoCoordinates);
         deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType().getDeviceProtocolPluggableClass().map(HasId::getId).orElse(0L);
@@ -115,8 +116,6 @@ public class DeviceInfo extends DeviceVersionInfo {
             deviceInfo.masterDeviceId = physicalGateway.get().getId();
             deviceInfo.masterDeviceName = physicalGateway.get().getName();
         }
-
-
         deviceInfo.gatewayType = device.getConfigurationGatewayType();
         deviceInfo.slaveDevices = slaveDevices;
         deviceInfo.nbrOfDataCollectionIssues = issueRetriever.numberOfDataCollectionIssues(device);
@@ -129,8 +128,12 @@ public class DeviceInfo extends DeviceVersionInfo {
         deviceInfo.isDataLogger = deviceConfiguration.isDataloggerEnabled();
         deviceInfo.isDataLoggerSlave = device.getDeviceType().isDataloggerSlave();
         if (device.getDeviceType().isDataloggerSlave()) {
-            topologyService.findDataloggerReference(device, clock.instant())
-                    .ifPresent(dataLoggerReference -> deviceInfo.dataloggerName = dataLoggerReference.getGateway().getName());
+            topologyService.getDataLogger(device, clock.instant()).ifPresent(datalogger -> deviceInfo.dataloggerName = device.getName());
+        }
+        deviceInfo.isMultiElementDevice = deviceConfiguration.isMultiElementEnabled();
+        deviceInfo.isMultiElementSlave = device.getDeviceType().isMultiElementSlave();
+        if (device.getDeviceType().isMultiElementSlave()) {
+            multiElementDeviceService.getMultiElementDevice(device, clock.instant()).ifPresent(multiElementDevice -> deviceInfo.multiElementDeviceName = multiElementDevice.getName());
         }
         device.getUsagePoint().ifPresent(usagePoint -> {
             deviceInfo.usagePoint = usagePoint.getName();

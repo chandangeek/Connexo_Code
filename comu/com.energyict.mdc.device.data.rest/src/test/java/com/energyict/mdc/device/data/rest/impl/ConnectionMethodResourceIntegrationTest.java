@@ -48,6 +48,8 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask.ConnectionTaskLifecycl
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.impl.ServerTopologyService;
+import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -141,7 +143,8 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     private static RestQueryService restQueryService;
     private static FavoritesService favoritesService;
     private static DeviceLifeCycleService deviceLifecycleService;
-    private static TopologyService topologyService;
+    private static ServerTopologyService topologyService;
+    private static MultiElementDeviceService multiElementDeviceService;
     private static ServiceCallService serviceCallService;
     private static BpmService bpmService;
     private static ThreadPrincipalService threadPrincipalService;
@@ -163,7 +166,8 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         restQueryService = mock(RestQueryService.class);
         favoritesService = mock(FavoritesService.class);
         deviceLifecycleService = mock(DeviceLifeCycleService.class);
-        topologyService = mock(TopologyService.class);
+        topologyService = mock(ServerTopologyService.class);
+        multiElementDeviceService = mock(MultiElementDeviceService.class);
         serviceCallService = mock(ServiceCallService.class);
         bpmService = mock(BpmService.class);
         threadPrincipalService = mock(ThreadPrincipalService.class);
@@ -330,6 +334,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         application.setConnectionTaskService(inMemoryPersistence.getConnectionTaskService());
         application.setDeviceService(inMemoryPersistence.getDeviceService());
         application.setTopologyService(topologyService);
+        application.setMultiElementDeviceService(multiElementDeviceService);
         application.setBatchService(inMemoryPersistence.getBatchService());
         application.setEngineConfigurationService(inMemoryPersistence.getEngineConfigurationService());
         application.setIssueService(inMemoryPersistence.getIssueService());

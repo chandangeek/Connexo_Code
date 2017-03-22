@@ -66,10 +66,9 @@ public class DataLoggerSlaveDeviceInfoFactory {
         DataLoggerSlaveChannelInfo slaveChannelInfo = slaveChannelInfoFactory.from(channelInfoFactory.from(dataLoggerChannel), slaveChannel.map(channelInfoFactory::from));
         if (slaveChannel.isPresent()){
             Device slave = slaveChannel.get().getDevice();
-
             existingSlaveDeviceInfo = slaveDeviceInfos.stream().filter(slaveDeviceInfo -> slaveDeviceInfo.id == slave.getId()).findFirst();
             if (!existingSlaveDeviceInfo.isPresent()){
-                DataLoggerSlaveDeviceInfo newSlaveDeviceInfo = DataLoggerSlaveDeviceInfo.from(slave, batchService, topologyService, multiElementDeviceService, clock);
+                DataLoggerSlaveDeviceInfo newSlaveDeviceInfo = newSlaveWithLinkingInfo(slave);
                 existingSlaveDeviceInfo = Optional.of(newSlaveDeviceInfo);
                 slaveDeviceInfos.add(newSlaveDeviceInfo);
             }
@@ -93,7 +92,7 @@ public class DataLoggerSlaveDeviceInfoFactory {
             Device slave = slaveRegister.get().getDevice();
             existingSlaveDeviceInfo = slaveDeviceInfos.stream().filter(slaveDeviceInfo -> slaveDeviceInfo.id == slave.getId()).findFirst();
             if (!existingSlaveDeviceInfo.isPresent()){
-                DataLoggerSlaveDeviceInfo newSlaveDeviceInfo = DataLoggerSlaveDeviceInfo.from(slave, batchService, topologyService, multiElementDeviceService, clock);
+                DataLoggerSlaveDeviceInfo newSlaveDeviceInfo = newSlaveWithLinkingInfo(slave);
                 existingSlaveDeviceInfo = Optional.of(newSlaveDeviceInfo);
                 slaveDeviceInfos.add(newSlaveDeviceInfo);
             }
@@ -109,8 +108,19 @@ public class DataLoggerSlaveDeviceInfoFactory {
     }
 
     public DataLoggerSlaveDeviceInfos forDataLoggerSlaves(List<Device> devices) {
-        DataLoggerSlaveDeviceInfos dataLoggerSlaveDeviceInfos = new DataLoggerSlaveDeviceInfos(topologyService, multiElementDeviceService, clock, batchService);
-        dataLoggerSlaveDeviceInfos.addAll(devices);
-        return dataLoggerSlaveDeviceInfos;
+        return new DataLoggerSlaveDeviceInfos(devices, this);
+    }
+
+    DataLoggerSlaveDeviceInfo newSlaveWithLinkingInfo(Device slave){
+        DataLoggerSlaveDeviceInfo newSlaveDeviceInfo = new DataLoggerSlaveDeviceInfo(slave);
+        topologyService.findDataloggerReference(slave, clock.instant()).ifPresent(
+                dataLoggerReference -> {newSlaveDeviceInfo.linkingTimeStamp = dataLoggerReference.getRange().lowerEndpoint().toEpochMilli();}
+        );
+        topologyService.findLastDataloggerReference(slave).ifPresent(dataLoggerReference -> {
+             if (dataLoggerReference.isTerminated()) {
+                 newSlaveDeviceInfo.unlinkingTimeStamp = dataLoggerReference.getRange().upperEndpoint().toEpochMilli();
+             }
+        });
+        return newSlaveDeviceInfo;
     }
 }
