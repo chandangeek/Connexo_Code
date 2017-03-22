@@ -441,17 +441,11 @@ Ext.define('Uni.grid.FilterPanelTop', {
         me.filters.each(function (filter) {
 
             if (!flattenObjects && Ext.isDefined(filter.applyParamValue)) {
-                if (filter.dataIndex == 'amountOfSuspects') {
-                    //debugger;
-                }
                 filter.applyParamValue(params, includeUndefined, flattenObjects);
             } else {
                 var dataIndex = filter.dataIndex,
                     paramValue = filter.getParamValue();
 
-                if (filter.dataIndex == 'amountOfSuspects') {
-                    //debugger;
-                }
                 if(includeUndefined) {
                     params[dataIndex] = paramValue;
                 } else if (Ext.isDefined(paramValue) && !Ext.isEmpty(paramValue)) {

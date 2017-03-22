@@ -97,7 +97,25 @@ Ext.define('Uni.grid.filtertop.Numeric', {
 
     reset: function () {
         var me = this;
+        me.updateHref();
         me.down('#uni-search-criteria-numeric').reset();
         me.down('button[action=chooseValues]').setText(me.text);
+    },
+
+    updateHref: function () {
+        var me = this,
+            queryStringValues = Uni.util.QueryString.getQueryStringValues(false),
+            url = location.href.split('?')[0],
+            key = Object.keys(queryStringValues).find(function (key) {
+                return key.split('.')[0] == me.dataIndex;
+            });
+
+        if (key) {
+            delete queryStringValues[me.dataIndex + ".operator"];
+            delete queryStringValues[me.dataIndex + ".criteria"];
+            Uni.util.History.setParsePath(false);
+            Uni.util.History.suspendEventsForNextCall();
+            location.href =  url + '?' + Ext.Object.toQueryString(queryStringValues, false);
+        }
     }
 });
