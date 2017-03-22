@@ -46,13 +46,10 @@ class UpgraderV10_3 implements Upgrader {
     }
 
     private void upgradeUnmeasuredAntennaInstallation(){
-        Optional<MetrologyConfiguration> usagePointMetrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration("Unmeasured antenna installation");
-        if (usagePointMetrologyConfiguration.isPresent() && usagePointMetrologyConfiguration.get()
-                .getDeliverables()
-                .stream()
-                .noneMatch(d -> d.getName().equals("Yearly A+ kWh"))) {
-            UsagePointMetrologyConfiguration config = (UsagePointMetrologyConfiguration) usagePointMetrologyConfiguration
-                    .get();
+        metrologyConfigurationService.findMetrologyConfiguration("Residential net metering (consumption)")
+                .filter(metrologyConfiguration -> metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
+                .map(UsagePointMetrologyConfiguration.class::cast)
+                .ifPresent(config -> {
             ReadingType readingTypeYearlyAplusWh = meteringService.findReadingTypes(Collections.singletonList("1001.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
                     .stream()
                     .findFirst()
@@ -71,7 +68,7 @@ class UpgraderV10_3 implements Upgrader {
 
             metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey()).ifPresent(
                     meterRole -> {
-                        ReadingTypeDeliverableBuilder yearlyBuilder = config.newReadingTypeDeliverable("Yearly A+ kWh", readingTypeYearlyAplusWh, Formula.Mode.AUTO);
+                        ReadingTypeDeliverableBuilder yearlyBuilder = contractBilling.newReadingTypeDeliverable("Yearly A+ kWh", readingTypeYearlyAplusWh, Formula.Mode.AUTO);
                         FormulaBuilder yearlyAntennaPower = yearlyBuilder.property(antennaCPS, propertySpecs.stream()
                                 .filter(propertySpec -> "antennaPower".equals(propertySpec.getName())).findFirst()
                                 .orElseThrow(() -> new NoSuchElementException("antennaPower property spec not found")));
@@ -81,8 +78,10 @@ class UpgraderV10_3 implements Upgrader {
                         FormulaBuilder yearlyCompositionCPS = yearlyBuilder.multiply(yearlyAntennaPower, yearlyAntennaCount);
                         FormulaBuilder yearlyConstant = yearlyBuilder.multiply(yearlyBuilder.constant(24), yearlyBuilder.constant(365));
 
-                        contractBilling.addDeliverable(yearlyBuilder.build(yearlyBuilder.multiply(yearlyCompositionCPS, yearlyConstant)));
+                        if (contractBilling.getDeliverables().stream().noneMatch(deliverable -> readingTypeYearlyAplusWh.equals(deliverable.getReadingType()))) {
+                            yearlyBuilder.build(yearlyBuilder.multiply(yearlyCompositionCPS, yearlyConstant));
+                        }
                     });
-        }
+        });
     }
 }

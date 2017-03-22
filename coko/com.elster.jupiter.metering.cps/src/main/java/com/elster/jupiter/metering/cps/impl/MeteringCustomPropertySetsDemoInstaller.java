@@ -244,20 +244,20 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
                 .filter(propertySpec -> "antennaCount".equals(propertySpec.getName())).findFirst()
                 .orElseThrow(() -> new NoSuchElementException("antennaCount property spec not found"));
 
-        ReadingTypeDeliverableBuilder monthlyBuilder = config.newReadingTypeDeliverable("Monthly A+ kWh", readingTypeMonthlyAplusWh, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder monthlyBuilder = contractBilling.newReadingTypeDeliverable("Monthly A+ kWh", readingTypeMonthlyAplusWh, Formula.Mode.AUTO);
         FormulaBuilder monthlyAntennaPower = monthlyBuilder.property(antennaCPS, antennaPowerPropertySpec);
         FormulaBuilder monthlyAntennaCount = monthlyBuilder.property(antennaCPS, antennaCountPropertySpec);
         FormulaBuilder monthlyCompositionCPS = monthlyBuilder.multiply(monthlyAntennaPower, monthlyAntennaCount);
         FormulaBuilder monthlyConstant = monthlyBuilder.multiply(monthlyBuilder.constant(24), monthlyBuilder.constant(30));
 
-        ReadingTypeDeliverableBuilder yearlyBuilder = config.newReadingTypeDeliverable("Yearly A+ kWh", readingTypeYearlyAplusWh, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder yearlyBuilder = contractBilling.newReadingTypeDeliverable("Yearly A+ kWh", readingTypeYearlyAplusWh, Formula.Mode.AUTO);
         FormulaBuilder yearlyAntennaPower = yearlyBuilder.property(antennaCPS, antennaPowerPropertySpec);
         FormulaBuilder yearlyAntennaCount = yearlyBuilder.property(antennaCPS, antennaCountPropertySpec);
         FormulaBuilder yearlyCompositionCPS = yearlyBuilder.multiply(yearlyAntennaPower, yearlyAntennaCount);
         FormulaBuilder yearlyConstant = yearlyBuilder.multiply(yearlyBuilder.constant(24), yearlyBuilder.constant(365));
 
-        contractBilling.addDeliverable(monthlyBuilder.build(monthlyBuilder.multiply(monthlyCompositionCPS, monthlyConstant)));
-        contractBilling.addDeliverable(yearlyBuilder.build(yearlyBuilder.multiply(yearlyCompositionCPS, yearlyConstant)));
+        monthlyBuilder.build(monthlyBuilder.multiply(monthlyCompositionCPS, monthlyConstant));
+        yearlyBuilder.build(yearlyBuilder.multiply(yearlyCompositionCPS, yearlyConstant));
     }
 
     void residentialPrepay() {
@@ -299,7 +299,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
         ReadingTypeRequirement requirementAplus = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation().getDefaultFormat(), meterRole)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS));
 
-        contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingType15minAplusWh, requirementAplus, "Active energy+"));
+        buildFormulaSingleRequirement(contractInformation, readingType15minAplusWh, requirementAplus, "Active energy+");
     }
 
     void correctionFactors() {
@@ -339,7 +339,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
         ReadingTypeRequirement requirementAplus = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation().getDefaultFormat(), meterRole)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS));
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Corrected Daily A+ kWh", readingTypeDailyApluskWh, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = contractBilling.newReadingTypeDeliverable("Corrected Daily A+ kWh", readingTypeDailyApluskWh, Formula.Mode.AUTO);
         CustomPropertySet correctionFactorCPS = registeredCorrectionFactorCPS.getCustomPropertySet();
         List<PropertySpec> propertySpecs = correctionFactorCPS.getPropertySpecs();
         FormulaBuilder lossFactor = builder.property(correctionFactorCPS, propertySpecs.stream()
@@ -347,8 +347,8 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
                 .orElseThrow(() -> new NoSuchElementException("lossFactor property spec not found")));
 
 
-        contractBilling.addDeliverable(builder.build(builder.multiply(builder.requirement(requirementAplus), lossFactor)));
-        contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingTypeDailyAplusWh, requirementAplus, "Daily A+ Wh"));
+        builder.build(builder.multiply(builder.requirement(requirementAplus), lossFactor));
+        buildFormulaSingleRequirement(contractInformation, readingTypeDailyAplusWh, requirementAplus, "Daily A+ Wh");
     }
 
     void residentialGasWithCorrection(){
@@ -395,19 +395,19 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
         CustomPropertySet correctionFactorCPS = registeredCorrectionFactorCPS.getCustomPropertySet();
         List<PropertySpec> propertySpecs = correctionFactorCPS.getPropertySpecs();
 
-        ReadingTypeDeliverableBuilder hourlyBuilder = config.newReadingTypeDeliverable("Hourly corrected volume m3", readingTypeHourlyCorrectedVolume, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder hourlyBuilder = contractBilling.newReadingTypeDeliverable("Hourly corrected volume m3", readingTypeHourlyCorrectedVolume, Formula.Mode.AUTO);
         FormulaBuilder hourlyClimateCorrectionFactor = hourlyBuilder.property(correctionFactorCPS, propertySpecs.stream()
                 .filter(propertySpec -> "climateCorrectionFactor".equals(propertySpec.getName())).findFirst()
                 .orElseThrow(() -> new NoSuchElementException("climateCorrectionFactor property spec not found")));
 
-        ReadingTypeDeliverableBuilder dailyBuilder = config.newReadingTypeDeliverable("Daily corrected volume m3", readingTypeCorrectedDailyVolume, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder dailyBuilder = contractBilling.newReadingTypeDeliverable("Daily corrected volume m3", readingTypeCorrectedDailyVolume, Formula.Mode.AUTO);
         FormulaBuilder dailyClimateCorrectionFactor = dailyBuilder.property(correctionFactorCPS, propertySpecs.stream()
                 .filter(propertySpec -> "climateCorrectionFactor".equals(propertySpec.getName())).findFirst()
                 .orElseThrow(() -> new NoSuchElementException("climateCorrectionFactor property spec not found")));
 
-        contractBilling.addDeliverable(hourlyBuilder.build(hourlyBuilder.multiply(hourlyBuilder.requirement(requirementGasVolume), hourlyClimateCorrectionFactor)));
-        contractBilling.addDeliverable(dailyBuilder.build(dailyBuilder.multiply(dailyBuilder.requirement(requirementGasVolume), dailyClimateCorrectionFactor)));
-        contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingTypeHourlyVolume, requirementGasVolume, "Hourly volume m3"));
+        hourlyBuilder.build(hourlyBuilder.multiply(hourlyBuilder.requirement(requirementGasVolume), hourlyClimateCorrectionFactor));
+        dailyBuilder.build(dailyBuilder.multiply(dailyBuilder.requirement(requirementGasVolume), dailyClimateCorrectionFactor));
+        buildFormulaSingleRequirement(contractInformation, readingTypeHourlyVolume, requirementGasVolume, "Hourly volume m3");
     }
 
     private SearchablePropertyValue.ValueBean getUsagePointRequirement(String property, SearchablePropertyOperator operator, String... values) {
@@ -420,8 +420,8 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
                 .orElseThrow(() -> new NoSuchElementException("Default reading type template not found"));
     }
 
-    private ReadingTypeDeliverable buildFormulaSingleRequirement(UsagePointMetrologyConfiguration config, ReadingType readingType, ReadingTypeRequirement requirement, String name) {
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
+    private ReadingTypeDeliverable buildFormulaSingleRequirement(MetrologyContract contract, ReadingType readingType, ReadingTypeRequirement requirement, String name) {
+        ReadingTypeDeliverableBuilder builder = contract.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
         return builder.build(builder.requirement(requirement));
     }
 }
