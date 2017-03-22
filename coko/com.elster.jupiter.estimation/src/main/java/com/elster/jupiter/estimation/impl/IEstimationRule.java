@@ -29,7 +29,5 @@ interface IEstimationRule extends EstimationRule {
 
     void setProperties(Map<String, Object> map);
 
-    Estimator createNewEstimator();
-
     boolean appliesTo(Channel channel);
 }

@@ -4,8 +4,11 @@
 
 package com.elster.jupiter.estimation;
 
+import aQute.bnd.annotation.ConsumerType;
+
 import java.util.List;
 
+@ConsumerType
 public interface EstimationResult {
 
     List<EstimationBlock> remainingToBeEstimated();

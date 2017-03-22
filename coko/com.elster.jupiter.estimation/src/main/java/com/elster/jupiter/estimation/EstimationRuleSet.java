@@ -9,11 +9,14 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.collections.KPermutation;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@ProviderType
 public interface EstimationRuleSet extends IdentifiedObject {
 
     long getId();
