@@ -27,6 +27,7 @@ import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.topology.*;
+import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.*;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
