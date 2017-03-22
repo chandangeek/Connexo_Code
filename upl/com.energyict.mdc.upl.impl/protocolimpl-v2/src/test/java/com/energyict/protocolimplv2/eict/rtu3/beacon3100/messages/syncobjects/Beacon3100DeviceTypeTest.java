@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.mdc.tasks.ComTaskEnablementImpl;
 import com.energyict.obis.ObisCode;
 import org.junit.Test;
@@ -26,20 +27,20 @@ public class Beacon3100DeviceTypeTest {
         Beacon3100ProtocolConfiguration beaconProtocol1 = new Beacon3100ProtocolConfiguration("com.beacon.2", new TypedProperties());
 
         List<SchedulableItem> lpObisCodes= new ArrayList<>();
-        lpObisCodes.add(new SchedulableItem(new ObisCode(0,0,99,1,0,255)));
-        lpObisCodes.add(new SchedulableItem(new ObisCode(0,0,99,2,0,255)));
+        lpObisCodes.add(new SchedulableItem(new ObisCode(0,0,99,1,0,255), new Unsigned32(1)));
+        lpObisCodes.add(new SchedulableItem(new ObisCode(0,0,99,2,0,255), new Unsigned32(1)));
 
 
         List<SchedulableItem> registersObisCodes= new ArrayList<>();
-        registersObisCodes.add(new SchedulableItem(new ObisCode(0,1,8,0,0,255)));
-        registersObisCodes.add(new SchedulableItem(new ObisCode(0,2,8,0,0,255)));
-        registersObisCodes.add(new SchedulableItem(new ObisCode(0,3,8,0,0,255)));
-        registersObisCodes.add(new SchedulableItem(new ObisCode(0,4,8,0,0,255)));
+        registersObisCodes.add(new SchedulableItem(new ObisCode(0,1,8,0,0,255), new Unsigned32(1)));
+        registersObisCodes.add(new SchedulableItem(new ObisCode(0,2,8,0,0,255), new Unsigned32(1)));
+        registersObisCodes.add(new SchedulableItem(new ObisCode(0,3,8,0,0,255), new Unsigned32(1)));
+        registersObisCodes.add(new SchedulableItem(new ObisCode(0,4,8,0,0,255), new Unsigned32(1)));
 
 
         List<SchedulableItem> eventLogsObisCodes= new ArrayList<>();
-        eventLogsObisCodes.add(new SchedulableItem(new ObisCode(0,0,99,98,0,255)));
-        eventLogsObisCodes.add(new SchedulableItem(new ObisCode(0,0,99,98,1,255)));
+        eventLogsObisCodes.add(new SchedulableItem(new ObisCode(0,0,99,98,0,255), new Unsigned32(1)));
+        eventLogsObisCodes.add(new SchedulableItem(new ObisCode(0,0,99,98,1,255), new Unsigned32(1)));
 
 
         Beacon3100Schedulable schedulable1 = new Beacon3100Schedulable(new ComTaskEnablementImpl(), 1, 2, 3, lpObisCodes, registersObisCodes, eventLogsObisCodes );
@@ -92,8 +93,8 @@ public class Beacon3100DeviceTypeTest {
         Beacon3100ProtocolConfiguration beaconProtocol1 = new Beacon3100ProtocolConfiguration("com.beacon.2", new TypedProperties());
 
         List<SchedulableItem> lpObisCodes= new ArrayList<>();
-        lpObisCodes.add(new SchedulableItem(new ObisCode(0,0,99,1,0,255)));
-        lpObisCodes.add(new SchedulableItem(new ObisCode(0,0,99,2,0,255)));
+        lpObisCodes.add(new SchedulableItem(new ObisCode(0,0,99,1,0,255), new Unsigned32(1)));
+        lpObisCodes.add(new SchedulableItem(new ObisCode(0,0,99,2,0,255), new Unsigned32(1)));
 
 
         List<SchedulableItem> registersObisCodes= new ArrayList<>();
@@ -104,8 +105,8 @@ public class Beacon3100DeviceTypeTest {
 
 
         List<SchedulableItem> eventLogsObisCodes= new ArrayList<>();
-        eventLogsObisCodes.add(new SchedulableItem(new ObisCode(0,0,99,98,0,255)));
-        eventLogsObisCodes.add(new SchedulableItem(new ObisCode(0,0,99,98,1,255)));
+        eventLogsObisCodes.add(new SchedulableItem(new ObisCode(0,0,99,98,0,255), new Unsigned32(1)));
+        eventLogsObisCodes.add(new SchedulableItem(new ObisCode(0,0,99,98,1,255), new Unsigned32(1)));
 
 
         Beacon3100Schedulable schedulable1 = new Beacon3100Schedulable(new ComTaskEnablementImpl(), 1, 2, 3, lpObisCodes, registersObisCodes, eventLogsObisCodes, false );

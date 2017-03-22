@@ -41,8 +41,8 @@ public class Beacon3100ClientTypeTest {
     @Test
     public void testObisCodesCast() {
         Set<SchedulableItem> items = new HashSet<>();
-        items.add(new SchedulableItem(new ObisCode(1,1,1,1,1,1,true)));
-        items.add(new SchedulableItem(new ObisCode(2,2,2,2,2,2,false)));
+        items.add(new SchedulableItem(new ObisCode(1,1,1,1,1,1,true), new Unsigned32(1)));
+        items.add(new SchedulableItem(new ObisCode(2,2,2,2,2,2,false), new Unsigned16(1)));
         List<SchedulableItem> profiles = new ArrayList<>(items);
         Beacon3100Schedulable schedulable = new Beacon3100Schedulable(null, 1, 1, 1, profiles, null, null);
         schedulable.updateBufferSizeForAllLoadProfiles(new Unsigned32(10));

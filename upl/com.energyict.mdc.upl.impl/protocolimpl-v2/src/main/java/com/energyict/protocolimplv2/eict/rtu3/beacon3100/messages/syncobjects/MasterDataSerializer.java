@@ -4,6 +4,8 @@ import com.energyict.cpo.ObjectMapperFactory;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecPossibleValues;
 import com.energyict.cpo.TypedProperties;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
@@ -27,6 +29,7 @@ import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSuppor
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540ConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -54,6 +57,11 @@ public class MasterDataSerializer {
 
     private static final int NO_SCHEDULE = -1;
     private static Logger logger;
+    private Beacon3100Properties beacon3100Properties;
+
+    public MasterDataSerializer(Beacon3100Properties beacon3100Properties) {
+        this.beacon3100Properties = beacon3100Properties;
+    }
 
     /**
      * Return the serialized description of all master data (scheduling info, obiscodes, etc) for a given config.
@@ -464,6 +472,7 @@ public class MasterDataSerializer {
     }
 
     private List<SchedulableItem> getLogBookObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
+        Unsigned32 defaultBacklogSize = new Unsigned32(getProperties().getDefaultBacklogEventLogInSeconds());
         Set<SchedulableItem> logBookObisCodes = new HashSet<>();
         if (isConfiguredToCollectEvents(comTaskEnablement)) {
             for (ProtocolTask protocolTask : comTaskEnablement.getComTask().getProtocolTasks()) {
@@ -472,7 +481,7 @@ public class MasterDataSerializer {
                     if (logBookTypes.isEmpty()) {
                     //if no specific logbook type is specified in logbook protocol task then use the logbook specification from device configuration
                         for (LogBookSpec logBook : deviceConfiguration.getLogBookSpecs()) {
-                            logBookObisCodes.add(new SchedulableItem(logBook.getDeviceObisCode()));
+                            logBookObisCodes.add(new SchedulableItem(logBook.getDeviceObisCode(), defaultBacklogSize));
                         }
                     } else {
                     //if we have specific logbook types defined in logbook protocol task then add only then add only logbook types obiscodes
@@ -480,7 +489,7 @@ public class MasterDataSerializer {
 
                         for (LogBookSpec logBook : deviceConfiguration.getLogBookSpecs()) {
                             if(logBookTypes.contains(logBook.getLogBookType())){
-                                logBookObisCodes.add(new SchedulableItem(logBook.getDeviceObisCode()));
+                                logBookObisCodes.add(new SchedulableItem(logBook.getDeviceObisCode(), defaultBacklogSize));
                             }
                         }
                     }
@@ -499,6 +508,7 @@ public class MasterDataSerializer {
     }
 
     private List<SchedulableItem> getRegisterObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
+        Unsigned16 defaultBufferSize = new Unsigned16(getProperties().getDefaultBufferSizeRegisters());
         Set<SchedulableItem> registerObisCodes = new HashSet<>();
         if (isConfiguredToCollectRegisterData(comTaskEnablement)) {
             for (ProtocolTask protocolTask : comTaskEnablement.getComTask().getProtocolTasks()) {
@@ -506,7 +516,7 @@ public class MasterDataSerializer {
                     final List<RegisterGroup> registerGroups = ((RegistersTask) protocolTask).getRegisterGroups();
                     if (registerGroups.isEmpty()) {
                         for (RegisterSpec register : deviceConfiguration.getRegisterSpecs()) {
-                            registerObisCodes.add(new SchedulableItem(register.getDeviceObisCode()));
+                            registerObisCodes.add(new SchedulableItem(register.getDeviceObisCode(), defaultBufferSize));
                         }
                     } else {
                         for (RegisterSpec register : deviceConfiguration.getRegisterSpecs()) {
@@ -516,7 +526,7 @@ public class MasterDataSerializer {
                                     RegisterGroup rtuRegisterGroup = registerMapping.getRtuRegisterGroup();
                                     if (rtuRegisterGroup != null) {
                                         if (rtuRegisterGroup.getId() == registerGroup.getId()) {
-                                            registerObisCodes.add(new SchedulableItem(register.getDeviceObisCode()));
+                                            registerObisCodes.add(new SchedulableItem(register.getDeviceObisCode(), defaultBufferSize));
                                             break;
                                         }
                                     }
@@ -557,6 +567,7 @@ public class MasterDataSerializer {
     }
 
     private List<SchedulableItem> getLoadProfileObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
+        Unsigned32 defaultBacklogSize = new Unsigned32(getProperties().getDefaultBacklogLoadProfileInSeconds());
         Set<SchedulableItem> loadProfileObisCodes = new HashSet<>();
         if (isConfiguredToCollectLoadProfileData(comTaskEnablement)) {
             for (ProtocolTask protocolTask : comTaskEnablement.getComTask().getProtocolTasks()) {
@@ -564,11 +575,11 @@ public class MasterDataSerializer {
                     final List<LoadProfileType> loadProfileTypes = ((LoadProfilesTask) protocolTask).getLoadProfileTypes();
                     if (loadProfileTypes.isEmpty()) {
                         for (LoadProfileSpec loadProfile : deviceConfiguration.getLoadProfileSpecs()) {
-                            loadProfileObisCodes.add(new SchedulableItem(loadProfile.getDeviceObisCode()));
+                            loadProfileObisCodes.add(new SchedulableItem(loadProfile.getDeviceObisCode(), defaultBacklogSize));
                         }
                     } else {
                         for (LoadProfileType loadProfileType : loadProfileTypes) {
-                            loadProfileObisCodes.add(new SchedulableItem(loadProfileType.getObisCode()));
+                            loadProfileObisCodes.add(new SchedulableItem(loadProfileType.getObisCode(), defaultBacklogSize));
                         }
                     }
                 }
@@ -784,5 +795,8 @@ public class MasterDataSerializer {
         return DeviceConfigurationException.missingProperty(propertyName);
     }
 
+    protected Beacon3100Properties getProperties(){
+        return beacon3100Properties;
+    }
 
 }

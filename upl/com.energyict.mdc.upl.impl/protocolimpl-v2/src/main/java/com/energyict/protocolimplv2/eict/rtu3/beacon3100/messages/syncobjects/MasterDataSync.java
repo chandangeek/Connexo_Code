@@ -16,6 +16,7 @@ import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import org.json.JSONArray;
@@ -40,6 +41,8 @@ public class MasterDataSync {
 
     protected StringBuilder info = new StringBuilder();
 
+    protected DeviceMessageStatus syncStatus = null;
+
     public MasterDataSync(Beacon3100Messaging beacon3100Messaging) {
         this.beacon3100Messaging = beacon3100Messaging;
     }
@@ -47,7 +50,7 @@ public class MasterDataSync {
     /**
      * Sync all master data of the device types (tasks, schedules, security levels, master data obiscodes, etc)
      */
-    public CollectedMessage syncMasterData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage, boolean readOldObisCodes) throws IOException {
+    public CollectedMessage syncMasterData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         AllMasterData allMasterData;
         try {
             final String serializedMasterData = pendingMessage.getPreparedContext();    //This context field contains the serialized version of the master data.
@@ -75,9 +78,9 @@ public class MasterDataSync {
 
         createSchedules(masterDataAnalyser.getSchedulesToAdd());
         createClientTypes(masterDataAnalyser.getClientTypesToAdd());
-        createDeviceTypes(masterDataAnalyser.getDeviceTypesToAdd(), readOldObisCodes);
+        createDeviceTypes(masterDataAnalyser.getDeviceTypesToAdd());
 
-        updateDeviceTypes(getDeviceTypesToUpdate(masterDataAnalyser), readOldObisCodes);
+        updateDeviceTypes(getDeviceTypesToUpdate(masterDataAnalyser));
         updateClientTypes(masterDataAnalyser.getClientTypesToUpdate());
         updateSchedules(masterDataAnalyser.getSchedulesToUpdate());
 
@@ -90,6 +93,9 @@ public class MasterDataSync {
 
 
         collectedMessage.setDeviceProtocolInformation(getInfoMessage());
+        if (syncStatus!=null){
+            collectedMessage.setNewDeviceMessageStatus(syncStatus);
+        }
 
         //Now see if there were any warning while parsing the EIServer model, and add them as proper issues.
         List<Issue> issues = new ArrayList<>();
@@ -131,7 +137,7 @@ public class MasterDataSync {
     }
 
     private DeviceTypeManager getDeviceTypeManager() throws NotInObjectListException {
-        if(beacon3100Messaging.readOldObisCodes()) {
+        if(readOldObisCodes()) {
             return getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager();
         }else{
             return getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager(DeviceTypeManager.NEW_FW_OBISCODE);
@@ -139,7 +145,7 @@ public class MasterDataSync {
     }
 
     private ClientTypeManager getClientTypeManager() throws NotInObjectListException {
-        if(beacon3100Messaging.readOldObisCodes()) {
+        if(readOldObisCodes()) {
             return getProtocol().getDlmsSession().getCosemObjectFactory().getClientTypeManager();
         }else{
             return getProtocol().getDlmsSession().getCosemObjectFactory().getClientTypeManager(Beacon3100Messaging.CLIENT_MANAGER_NEW_OBISCODE);
@@ -147,7 +153,7 @@ public class MasterDataSync {
     }
 
     private ScheduleManager getScheduleManager() throws NotInObjectListException {
-        if(beacon3100Messaging.readOldObisCodes()) {
+        if(readOldObisCodes()) {
             return getProtocol().getDlmsSession().getCosemObjectFactory().getScheduleManager();
         }else{
             return getProtocol().getDlmsSession().getCosemObjectFactory().getScheduleManager(Beacon3100Messaging.SCHEDULE_MANAGER_NEW_OBISCODE);
@@ -165,7 +171,7 @@ public class MasterDataSync {
     /**
      * Sync the meter details. This assumes that the relevant device types are already synced!
      */
-    public CollectedMessage syncDeviceData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage,  boolean firmwareVersionLowerThan10) throws IOException {
+    public CollectedMessage syncDeviceData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         Beacon3100MeterDetails[] meterDetails;
         try {
             final String serializedMasterData = pendingMessage.getPreparedContext();    //This context field contains the serialized version of the master data.
@@ -181,7 +187,7 @@ public class MasterDataSync {
             return collectedMessage;
         }
 
-        syncDevices(meterDetails, firmwareVersionLowerThan10);
+        syncDevices(meterDetails);
 
         boolean cleanupUnusedMasterData = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.cleanUpUnusedDeviceTypesAttributeName).getDeviceMessageAttributeValue());
         if (cleanupUnusedMasterData) {
@@ -259,10 +265,10 @@ public class MasterDataSync {
         return true;
     }
 
-    private void syncDevices(Beacon3100MeterDetails[] allMeterDetails, boolean firmwareVersionLowerThan10) throws IOException {
+    private void syncDevices(Beacon3100MeterDetails[] allMeterDetails) throws IOException {
         boolean isFirmwareVersion140OrAbove = getIsFirmwareVersion140OrAbove();
         for (Beacon3100MeterDetails beacon3100MeterDetails : allMeterDetails) {
-            if(firmwareVersionLowerThan10) {
+            if(readOldObisCodes()) {
                 syncOneDevice(beacon3100MeterDetails.toStructure(isFirmwareVersion140OrAbove));
             }else{
                 syncOneDevice(beacon3100MeterDetails.toStructureFWVersion10AndAbove(beacon3100MeterDetails));
@@ -281,7 +287,7 @@ public class MasterDataSync {
                 info.append("- Schedule ADDED: [").append(beacon3100Schedule.getId()).append("] ").append(beacon3100Schedule.getName()).append("\n");
             } catch (IOException ex) {
                 info.append("- Could not add schedule [" + beacon3100Schedule.getId() + "]: " + ex.getMessage() + "\n");
-
+                syncStatus = DeviceMessageStatus.FAILED;
             }
         }
     }
@@ -296,6 +302,7 @@ public class MasterDataSync {
                 info.append("- Schedule UPDATED: [").append(beacon3100Schedule.getId()).append("] ").append(beacon3100Schedule.getName()).append("\n");
             } catch (IOException ex) {
                 info.append("- Could not update schedule [" + beacon3100Schedule.getId() + "]: " + ex.getMessage() + "\n");
+                syncStatus = DeviceMessageStatus.FAILED;
             }
         }
     }
@@ -310,6 +317,7 @@ public class MasterDataSync {
                 info.append("- Schedule DELETED: [").append(beacon3100ScheduleId).append("]\n");
             } catch (IOException ex) {
                 info.append("- Could not delete schedule [" + beacon3100ScheduleId + "]: " + ex.getMessage() + "\n");
+                syncStatus = DeviceMessageStatus.FAILED;
             }
         }
     }
@@ -340,6 +348,7 @@ public class MasterDataSync {
                 info.append("- ClientType UPDATED: [").append(beacon3100ClientType.getId()).append("] ClientMacAddress:").append(beacon3100ClientType.getClientMacAddress()).append("\n");
             } catch (IOException ex) {
                 info.append("- Could not update ClientType [" + beacon3100ClientType.getId() + "]: " + ex.getMessage() + "\n");
+                syncStatus = DeviceMessageStatus.FAILED;
             }
         }
     }
@@ -355,34 +364,37 @@ public class MasterDataSync {
                 info.append("- ClientType DELETED: [").append(beacon3100ClientTypeId).append("]\n");
             } catch (IOException ex) {
                 info.append("- Could not delete client type [" + beacon3100ClientTypeId + "]: " + ex.getMessage() + "\n");
+                syncStatus = DeviceMessageStatus.FAILED;
             }
         }
     }
 
-    private void createDeviceTypes(List<Beacon3100DeviceType> devicesTypesToAdd, boolean readOldObisCodes) throws NotInObjectListException {
+    private void createDeviceTypes(List<Beacon3100DeviceType> devicesTypesToAdd) throws NotInObjectListException {
         DeviceTypeManager deviceTypeManager = getDeviceTypeManager();
 
         info.append("*** CREATING DeviceTypes ***\n");
         for (Beacon3100DeviceType beacon3100DeviceType : devicesTypesToAdd){
             try {
-                deviceTypeManager.addDeviceType(beacon3100DeviceType.toStructure(readOldObisCodes));
+                deviceTypeManager.addDeviceType(beacon3100DeviceType.toStructure(readOldObisCodes()));
                 info.append("- DeviceType ADDED: [").append(beacon3100DeviceType.getId()).append("]: ").append(beacon3100DeviceType.getName()).append("\n");
             } catch (IOException ex) {
                 info.append("- Could not add DeviceType [" + beacon3100DeviceType.getId() + "]: " + ex.getMessage() + "\n");
+                syncStatus = DeviceMessageStatus.FAILED;
             }
         }
     }
 
-    private void updateDeviceTypes(List<Beacon3100DeviceType> devicesTypesToUpdate, boolean readOldObisCodes) throws NotInObjectListException {
+    private void updateDeviceTypes(List<Beacon3100DeviceType> devicesTypesToUpdate) throws NotInObjectListException {
         DeviceTypeManager deviceTypeManager = getDeviceTypeManager();
 
         info.append("*** UPDATING DeviceTypes ***\n");
         for (Beacon3100DeviceType beacon3100DeviceType : devicesTypesToUpdate){
             try {
-                deviceTypeManager.updateDeviceType(beacon3100DeviceType.toStructure(readOldObisCodes));
+                deviceTypeManager.updateDeviceType(beacon3100DeviceType.toStructure(readOldObisCodes()));
                 info.append("- DeviceType UPDATED: [").append(beacon3100DeviceType.getId()).append("]: ").append(beacon3100DeviceType.getName()).append("\n");
             } catch (IOException ex) {
                 info.append("- Could not update DeviceType [" + beacon3100DeviceType.getId() + "]: " + ex.getMessage() + "\n");
+                syncStatus = DeviceMessageStatus.FAILED;
             }
         }
     }
@@ -398,14 +410,19 @@ public class MasterDataSync {
                 info.append("- DeviceType DELETED: [").append(beacon3100DeviceTypeId).append("]\n");
             } catch (IOException ex) {
                 info.append("- Could not delete DeviceType [" + beacon3100DeviceTypeId + "]: " + ex.getMessage() + "\n");
+                syncStatus = DeviceMessageStatus.FAILED;
             }
         }
     }
 
     public CollectedMessage syncAllDeviceData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
-        syncAllDevices(new MasterDataSerializer().getMeterDetails(pendingMessage.getDeviceId()));
+        syncAllDevices(new MasterDataSerializer(getBeacon3100Properties()).getMeterDetails(pendingMessage.getDeviceId()));
 
         return collectedMessage;
+    }
+
+    private Beacon3100Properties getBeacon3100Properties() {
+        return (Beacon3100Properties) getProtocol().getDlmsSessionProperties();
     }
 
 
@@ -421,7 +438,7 @@ public class MasterDataSync {
 
     public CollectedMessage syncOneDeviceData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         int deviceId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.deviceId).getDeviceMessageAttributeValue());
-        Beacon3100MeterDetails meterDetails = new MasterDataSerializer().getMeterDetails(deviceId, pendingMessage.getDeviceId());
+        Beacon3100MeterDetails meterDetails = new MasterDataSerializer(getBeacon3100Properties()).getMeterDetails(deviceId, pendingMessage.getDeviceId());
 
         if(meterDetails != null) {
             syncOneDevice(meterDetails.toStructureFWVersion10AndAbove(meterDetails));
@@ -438,7 +455,7 @@ public class MasterDataSync {
         String startTime = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.startDate).getDeviceMessageAttributeValue();
         String endTime = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.endDate).getDeviceMessageAttributeValue();
         int deviceId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.deviceId).getDeviceMessageAttributeValue());
-        Beacon3100MeterDetails meterDetails = new MasterDataSerializer().getMeterDetails(deviceId, pendingMessage.getDeviceId());
+        Beacon3100MeterDetails meterDetails = new MasterDataSerializer(getBeacon3100Properties()).getMeterDetails(deviceId, pendingMessage.getDeviceId());
 
         if(meterDetails!= null) {
             try {
@@ -530,10 +547,10 @@ public class MasterDataSync {
         return collectedMessage;
     }
 
-    public CollectedMessage setBufferForAllEventLogs(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage, boolean readOldObisCodes) throws IOException {
+    public CollectedMessage setBufferForAllEventLogs(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         long bufferSize = Long.parseLong(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.bufferSize).getDeviceMessageAttributeValue());
 
-        List<Beacon3100DeviceType> deviceTypes =  new MasterDataSerializer().getDeviceTypes(pendingMessage.getDeviceId(), readOldObisCodes);
+        List<Beacon3100DeviceType> deviceTypes =  new MasterDataSerializer(getBeacon3100Properties()).getDeviceTypes(pendingMessage.getDeviceId(), readOldObisCodes());
 
         for(Beacon3100DeviceType beacon3100DeviceType : deviceTypes){
             if(beacon3100DeviceType.updateBufferSizeForAllEventLogs(new Unsigned32(bufferSize))) {
@@ -565,10 +582,10 @@ public class MasterDataSync {
         return collectedMessage;
     }
 
-    public CollectedMessage setBufferForAllLoadProfiles(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage,boolean readOldObisCodes) throws IOException {
+    public CollectedMessage setBufferForAllLoadProfiles(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         long bufferSize = Long.parseLong(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.bufferSize).getDeviceMessageAttributeValue());
 
-        List<Beacon3100DeviceType> beacon3100DeviceTypes =  new MasterDataSerializer().getDeviceTypes(pendingMessage.getDeviceId(), readOldObisCodes);
+        List<Beacon3100DeviceType> beacon3100DeviceTypes =  new MasterDataSerializer(getBeacon3100Properties()).getDeviceTypes(pendingMessage.getDeviceId(), readOldObisCodes());
 
         for(Beacon3100DeviceType beacon3100DeviceType : beacon3100DeviceTypes){
             if(beacon3100DeviceType.updateBufferSizeForAllLoadProfiles(new Unsigned32(bufferSize))) {
@@ -583,5 +600,9 @@ public class MasterDataSync {
 
     private List<Beacon3100DeviceType> getDeviceTypesToUpdate(MasterDataAnalyser masterDataAnalyser) {
         return masterDataAnalyser.getDeviceTypesToUpdate();
+    }
+
+    private boolean readOldObisCodes(){
+        return ((Beacon3100Properties)getProtocol().getDlmsSessionProperties()).getReadOldObisCodes();
     }
 }

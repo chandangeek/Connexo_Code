@@ -6,7 +6,6 @@ import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -159,14 +158,14 @@ public class Beacon3100Schedulable {
 
     private void updateAllBufferSize(AbstractDataType bufferSize, List<SchedulableItem> items) {
         for (SchedulableItem item : items) {
-            item.setBufferSize(bufferSize);
+            item.setBufferSizeFromAbstract(bufferSize);
         }
     }
 
     private boolean updateBufferSize(ObisCode obisCode, AbstractDataType bufferSize, List<SchedulableItem> items) {
         SchedulableItem item = SchedulableItem.findObisCode(obisCode, items);
         if (item != null) {
-            item.setBufferSize(bufferSize);
+            item.setBufferSizeFromAbstract(bufferSize);
             return true;
         }
         return false;

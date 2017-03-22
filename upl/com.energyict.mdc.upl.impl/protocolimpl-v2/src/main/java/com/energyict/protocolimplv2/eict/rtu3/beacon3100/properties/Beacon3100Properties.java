@@ -170,4 +170,16 @@ public class Beacon3100Properties extends DlmsProperties {
     public boolean getReadOldObisCodes(){
         return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.READ_OLD_OBIS_CODES, false);
     }
+
+    public long getDefaultBacklogLoadProfileInSeconds(){
+        return 24*60*60*getProperties().getTypedProperty(Beacon3100ConfigurationSupport.DEFAULT_BACKLOG_LOADPROFILE, BigDecimal.valueOf(10)).longValue();
+    }
+
+    public long getDefaultBacklogEventLogInSeconds(){
+        return 24*60*60*getProperties().getTypedProperty(Beacon3100ConfigurationSupport.DEFAULT_BACKLOG_EVENTLOG, BigDecimal.valueOf(10)).longValue();
+    }
+
+    public int getDefaultBufferSizeRegisters(){
+        return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.DEFAULT_BUFFERSIZE_REGISTERS, BigDecimal.valueOf(1)).intValue();
+    }
 }

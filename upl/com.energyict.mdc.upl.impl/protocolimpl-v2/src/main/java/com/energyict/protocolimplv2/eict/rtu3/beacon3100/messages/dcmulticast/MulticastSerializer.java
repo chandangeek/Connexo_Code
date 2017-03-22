@@ -8,6 +8,7 @@ import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class MulticastSerializer {
      * Fetch the relevant information (keys etc) from the given list of AM540 slave devices.
      * Return it in a serialized form (so it can also be used on the remote comserver).
      */
-    public static String serialize(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+    public static String serialize(OfflineDevice offlineDevice, DeviceMessage deviceMessage, Beacon3100Properties beacon3100Properties) {
         Object value = deviceMessage.getAttributes().get(0).getValue();
         if (!(value instanceof String)) {
             throw DeviceConfigurationException.invalidPropertyFormat("Device IDs", value.toString(), "Should be a comma separated list of integers");
@@ -65,7 +66,7 @@ public class MulticastSerializer {
                 throw DeviceConfigurationException.missingProperty("SerialNumber", "Device with ID '" + slaveDevice.getId() + "'");
             }
 
-            MasterDataSerializer masterDataSerializer = new MasterDataSerializer();
+            MasterDataSerializer masterDataSerializer = new MasterDataSerializer(beacon3100Properties);
             final byte[] dlmsMeterKEK = masterDataSerializer.parseKey(offlineDevice.getId(), Beacon3100ConfigurationSupport.DLMS_METER_KEK, beaconDevice.getProtocolProperties().getStringProperty(Beacon3100ConfigurationSupport.DLMS_METER_KEK));
             String macAddress = masterDataSerializer.parseCallHomeId(slaveDevice);
 

@@ -432,7 +432,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     protected Beacon3100Messaging getBeacon3100Messaging() {
         if (beacon3100Messaging == null) {
-            beacon3100Messaging = new Beacon3100Messaging(this, getDlmsSessionProperties().getReadOldObisCodes());
+            beacon3100Messaging = new Beacon3100Messaging(this);
         }
         return beacon3100Messaging;
     }
@@ -615,7 +615,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-11-15 11:14:48 +0100 (Tue, 15 Nov 2016)$";
+        return "$Date: 2017-03-22$";
     }
 
     @Override

@@ -36,6 +36,10 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
     public static final String INITIAL_FRAME_COUNTER = "InitialFrameCounter";
     public static final String READ_OLD_OBIS_CODES = "ReadOldObisCodes";
 
+    public static final String DEFAULT_BACKLOG_LOADPROFILE = "DefaultBacklogLoadProfile";
+    public static final String DEFAULT_BACKLOG_EVENTLOG = "DefaultBacklogLoadProfile";
+    public static final String DEFAULT_BUFFERSIZE_REGISTERS = "DefaultBufferSizeRegisters";
+
     @Override
     public List<PropertySpec> getOptionalProperties() {
         List<PropertySpec> optionalProperties = new ArrayList<>(super.getOptionalProperties());
@@ -60,6 +64,10 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         optionalProperties.add(initialFrameCounter());
         optionalProperties.add(readOldObisCodes());
 
+        optionalProperties.add(defaultBacklogLoadProfile());
+        optionalProperties.add(defaultBacklogEventLog());
+        optionalProperties.add(defaultBufferSizeRegisters());
+
         optionalProperties.remove(ntaSimulationToolPropertySpec());
         optionalProperties.remove(manufacturerPropertySpec());
         optionalProperties.remove(fixMbusHexShortIdPropertySpec());
@@ -67,6 +75,18 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         optionalProperties.remove(deviceId());
 
         return optionalProperties;
+    }
+
+    private PropertySpec defaultBufferSizeRegisters() {
+        return PropertySpecFactory.bigDecimalPropertySpec(DEFAULT_BUFFERSIZE_REGISTERS, BigDecimal.valueOf(1));
+    }
+
+    private PropertySpec defaultBacklogEventLog() {
+        return PropertySpecFactory.bigDecimalPropertySpec(DEFAULT_BACKLOG_EVENTLOG, BigDecimal.valueOf(10));
+    }
+
+    private PropertySpec defaultBacklogLoadProfile() {
+        return PropertySpecFactory.bigDecimalPropertySpec(DEFAULT_BACKLOG_LOADPROFILE, BigDecimal.valueOf(10));
     }
 
     private PropertySpec readOldObisCodes() {

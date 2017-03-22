@@ -3,9 +3,12 @@ package com.energyict.dlms.axrdencoding;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
 import java.math.BigDecimal;
 
+@XmlRootElement
 public class Unsigned32 extends AbstractDataType {
 
     private static final int SIZE = 5;
@@ -51,6 +54,7 @@ public class Unsigned32 extends AbstractDataType {
         return SIZE;
     }
 
+    @XmlAttribute
     public long getValue() {
         return value;
     }
