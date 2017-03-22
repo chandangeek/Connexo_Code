@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import static com.elster.jupiter.orm.Version.version;
 
@@ -59,12 +60,30 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        dataModelUpgrader.upgrade(dataModel, version(10,3));
+        dataModelUpgrader.upgrade(dataModel, version(10, 3));
         metrologyConfigurationsInstaller.createMetrologyConfigurations();
         upgradeResidentialNetMeteringConsumption();
         upgradeResidentialNetMeteringProduction();
         upgradeResidentialProsumerWith1Meter();
+        upgradeGapAllowedFlagForMetrologyConfigurations();
         userService.addModulePrivileges(this);
+    }
+
+    private void upgradeGapAllowedFlagForMetrologyConfigurations() {
+        List<MetrologyConfiguration> allMetrologyConfigurations = metrologyConfigurationService.findAllMetrologyConfigurations();
+        // check all existing metrology configurations
+        allMetrologyConfigurations.forEach((metrologyConfiguration -> {
+            // look on all OOTB configurations
+            Arrays.stream(MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration.values())
+                    // find OOTB configuration matching existing configuration
+                    .filter(ootbConfig -> ootbConfig.getName().equals(metrologyConfiguration.getName()))
+                    .findFirst()
+                    // change gapAllowed flag for existing metrology configuration if it does not match OOTB value
+                    .map(MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration::isGapAllowed)
+                    .filter(Predicate.isEqual(metrologyConfiguration.isGapAllowed()).negate())
+                    .ifPresent((isGapAllowed) -> metrologyConfiguration
+                            .startUpdate().setGapAllowed(isGapAllowed).complete());
+        }));
     }
 
     private void upgradeResidentialNetMeteringConsumption() {
