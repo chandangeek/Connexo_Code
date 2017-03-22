@@ -19,5 +19,6 @@ import aQute.bnd.annotation.ConsumerType;
  */
 @ConsumerType
 public interface PersistenceAware {
-	void postLoad();
+	default void postLoad() {};
+	default void postDelete() {};
 }
