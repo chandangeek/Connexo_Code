@@ -128,6 +128,7 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
         doReturn(messageFormat).when(thesaurus).getFormat(any(MessageSeed.class));
         doReturn(messageFormat).when(thesaurus).getFormat(any(TranslationKey.class));
+        doReturn(messageFormat).when(thesaurus).getSimpleFormat(any(MessageSeed.class));
     }
 
     @Override

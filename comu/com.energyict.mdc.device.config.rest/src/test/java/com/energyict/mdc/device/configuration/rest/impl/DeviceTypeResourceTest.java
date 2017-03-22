@@ -1484,6 +1484,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         Thesaurus thesaurus = mock(Thesaurus.class);
         NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
         when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(nlsMessageFormat);
+        when(thesaurus.getSimpleFormat(Matchers.<MessageSeed>anyObject())).thenReturn(nlsMessageFormat);
         MessageSeed messageSeed = mock(MessageSeed.class);
         doThrow(new SomeLocalizedException(thesaurus, messageSeed)).when(deviceType).update();
 
