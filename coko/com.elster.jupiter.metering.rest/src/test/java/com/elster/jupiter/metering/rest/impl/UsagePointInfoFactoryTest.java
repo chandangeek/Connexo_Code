@@ -6,6 +6,7 @@ package com.elster.jupiter.metering.rest.impl;
 
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 
 import java.util.Arrays;
 
@@ -32,6 +33,8 @@ public class UsagePointInfoFactoryTest {
     Thesaurus thesaurus;
     @Mock
     NlsService nlsService;
+    @Mock
+    ThreadPrincipalService threadPrincipalService;
 
     @Before
     public void setUp() throws Exception {
@@ -43,6 +46,7 @@ public class UsagePointInfoFactoryTest {
     public void testModelMapsToInfoFields() throws Exception {
         UsagePointInfoFactory factory = new UsagePointInfoFactory();
         factory.setNlsService(nlsService);
+        factory.setThreadPrincipalService(threadPrincipalService);
         factory.modelStructure().forEach(prop -> {
             try {
                 UsagePointTranslatedInfo.class.getField(prop.propertyName);

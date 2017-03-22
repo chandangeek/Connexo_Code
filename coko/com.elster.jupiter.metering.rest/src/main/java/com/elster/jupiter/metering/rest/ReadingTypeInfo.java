@@ -4,13 +4,15 @@
 
 package com.elster.jupiter.metering.rest;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ReadingType;
+
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.EnumSet;
+import java.util.Set;
 
 @XmlRootElement
 public class ReadingTypeInfo {
@@ -79,20 +81,20 @@ public class ReadingTypeInfo {
     }
 
     public static class ReadingTypeNames {
-    	
+
     	public String timeOfUse;
     	public String timeAttribute;
     	public String unitOfMeasure;
         public String phase;
-    	
+
      	ReadingTypeNames() {
     	}
-    	
+
     	ReadingTypeNames(ReadingType readingType) {
     		this.timeOfUse = readingType.getTou() == 0 ? "" : "ToU " + readingType.getTou();
-            if(!readingType.getMeasuringPeriod().equals(TimeAttribute.NOTAPPLICABLE)){
+            if (!readingType.getMeasuringPeriod().equals(TimeAttribute.NOTAPPLICABLE)) {
                 this.timeAttribute = readingType.getMeasuringPeriod().getDescription();
-            } else if(readingType.getMacroPeriod().equals(MacroPeriod.DAILY) || readingType.getMacroPeriod().equals(MacroPeriod.MONTHLY)){
+            } else if (this.recurringMacroPeriods().contains(readingType.getMacroPeriod())) {
                 this.timeAttribute = readingType.getMacroPeriod().getDescription();
             }
     		this.unitOfMeasure = readingType.getMultiplier().getSymbol() + readingType.getUnit().getSymbol();
@@ -102,5 +104,10 @@ public class ReadingTypeInfo {
                 this.phase = "";
             }
     	}
+
+        private Set<MacroPeriod> recurringMacroPeriods() {
+            return EnumSet.of(MacroPeriod.DAILY, MacroPeriod.MONTHLY, MacroPeriod.YEARLY);
+        }
+
     }
 }
