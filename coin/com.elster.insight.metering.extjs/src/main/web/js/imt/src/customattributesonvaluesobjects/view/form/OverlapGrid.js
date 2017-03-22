@@ -124,6 +124,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.form.OverlapGrid', {
 
                 {
                     xtype: 'uni-actioncolumn',
+                    width: 120,
                     itemId: 'custom-attribute-set-versions-grid-action-column',
                     privileges: Imt.privileges.MetrologyConfig.admin,
                     menu: {

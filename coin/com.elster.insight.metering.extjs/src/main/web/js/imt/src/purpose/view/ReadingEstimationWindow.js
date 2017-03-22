@@ -6,7 +6,7 @@ Ext.define('Imt.purpose.view.ReadingEstimationWindow', {
     extend: 'Ext.window.Window',
     alias: 'widget.reading-estimation-window',
     modal: true,
-    title: Uni.I18n.translate('general.selectEstimationRule', 'IMT', 'Select estimation rule'),
+    title: Uni.I18n.translate('general.editWithEstimator', 'IMT', 'Edit with estimator'),
     bothSuspected: false,
     record: null,
 
@@ -44,13 +44,13 @@ Ext.define('Imt.purpose.view.ReadingEstimationWindow', {
                     name: 'estimatorImpl',
                     fieldLabel: Uni.I18n.translate('estimationDevice.estimator', 'IMT', 'Estimator'),
                     required: true,
-                    editable: 'false',
+                    editable: false,
                     store: 'Imt.purpose.store.Estimators',
                     valueField: 'implementation',
                     displayField: 'displayName',
                     queryMode: 'local',
                     forceSelection: true,
-                    emptyText: Uni.I18n.translate('general.selectAnEstimationRule', 'IMT', 'Select an estimation rule...'),
+                    emptyText: Uni.I18n.translate('general.selectAnEstimator', 'IMT', 'Select an estimator...'),
                     listeners: {
                         change: {
                             fn: function (implementationCombo, newValue) {
