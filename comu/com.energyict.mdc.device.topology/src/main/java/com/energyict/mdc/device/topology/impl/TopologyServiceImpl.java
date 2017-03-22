@@ -387,6 +387,11 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         createNecessaryDataLoggerReferences(slave, dataLogger, slaveDataLoggerChannelMap, slaveDataLoggerRegisterMap, linkDate, dataLoggerMeterActivations, slaveMeterActivations);
     }
 
+    @Override
+    public Optional<Device> getDataLogger(Device slave, Instant when) {
+        return findDataloggerReference(slave, when).map(DataLoggerReference::getGateway);
+    }
+
     private void createNecessaryDataLoggerReferences(Device slave, Device dataLogger, Map<Channel, Channel> slaveDataLoggerChannelMap, Map<Register, Register> slaveDataLoggerRegisterMap, Instant linkDate, List<MeterActivation> dataLoggerMeterActivations, List<MeterActivation> slaveMeterActivations) {
         Instant start = linkDate;
         Instant end = null;

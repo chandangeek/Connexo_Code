@@ -265,6 +265,15 @@ public interface TopologyService {
     boolean isDataLoggerSlaveCandidate(Device device);
 
     /**
+     * Returns the data logger device the slave is linked with at given time
+     * @param slave for which to retrieve its data logger
+     * @param when time at which the link is effective
+     * @return the data logger device
+     */
+    Optional<Device> getDataLogger(Device slave, Instant when);
+
+
+    /**
      * Finds the dataloggerReference which is effective at the given timestamp.
      * If no reference was active, an empty optional will be returned
      *

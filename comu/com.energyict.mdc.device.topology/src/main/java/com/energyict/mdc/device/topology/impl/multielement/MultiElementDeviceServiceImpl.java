@@ -26,8 +26,8 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.topology.impl.Installer;
 import com.energyict.mdc.device.topology.PhysicalGatewayReference;
+import com.energyict.mdc.device.topology.impl.Installer;
 import com.energyict.mdc.device.topology.impl.PhysicalGatewayReferenceImpl;
 import com.energyict.mdc.device.topology.impl.ServerTopologyService;
 import com.energyict.mdc.device.topology.impl.utils.ChannelDataTransferor;
@@ -37,14 +37,11 @@ import com.energyict.mdc.device.topology.multielement.MultiElementDeviceReferenc
 import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 
 import com.google.common.collect.Range;
-import com.google.inject.AbstractModule;
-import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import javax.validation.MessageInterpolator;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -80,7 +77,7 @@ public class MultiElementDeviceServiceImpl implements MultiElementDeviceService,
         setTopologyService(topologyService);
         setUpgradeService(upgradeService);
         setNlsService(nlsService);
-      //  activate();
+        activate();
     }
 
     @Activate
@@ -90,17 +87,6 @@ public class MultiElementDeviceServiceImpl implements MultiElementDeviceService,
 
     private DataModel getDataModel() {
         return topologyService.dataModel();
-    }
-
-    private Module getModule() {
-        return new AbstractModule() {
-            @Override
-            protected void configure() {
-                bind(Thesaurus.class).toInstance(thesaurus);
-                bind(MessageInterpolator.class).toInstance(thesaurus);
-                bind(MultiElementDeviceService.class).toInstance(MultiElementDeviceServiceImpl.this);
-            }
-        };
     }
 
     @Reference
@@ -113,14 +99,10 @@ public class MultiElementDeviceServiceImpl implements MultiElementDeviceService,
         this.upgradeService = upgradeService;
     }
 
-    @Reference
-    public void setThesaurus(Thesaurus thesaurus) {
-        this.thesaurus = thesaurus;
-    }
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(MultiElementDeviceService.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus =  nlsService.getThesaurus(MultiElementDeviceService.COMPONENT_NAME, Layer.DOMAIN);
         this.meteringChannelProvider = new MeteringChannelProvider(thesaurus);
     }
 
@@ -204,14 +186,6 @@ public class MultiElementDeviceServiceImpl implements MultiElementDeviceService,
         multiElementDeviceReference.addChannelUsage(channelForSlave, channelForDataLogger);
     }
 
-    public Optional<MultiElementDeviceReference> findMultiElementDeviceReference(Device multiElementSlaveDevice, Instant effective) {
-        Condition condition = where(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName()).isEqualTo(multiElementSlaveDevice).and(where("interval").isEffective(effective));
-        return getDataModel().mapper(MultiElementDeviceReference.class)
-                .select(condition)
-                .stream()
-                .findAny(); // the business logic of the effectivity requires that there is only one object effective at a given time
-    }
-
     @Override
     public void removeSlave(Device slave, Instant when) {
         Instant unlinkTimeStamp = Utils.generalizeLinkingDate(when);
@@ -232,7 +206,12 @@ public class MultiElementDeviceServiceImpl implements MultiElementDeviceService,
 
     @Override
     public Optional<Device> getMultiElementDevice(Device slave, Instant when) {
-        return null;
+        return findMultiElementDeviceReference(slave, when).map(MultiElementDeviceReference::getGateway);
+    }
+
+    private Optional<MultiElementDeviceReference> findMultiElementDeviceReference(Device slave, Instant effective) {
+        Condition condition = where(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName()).isEqualTo(slave).and(where("interval").isEffective(effective));
+        return topologyService.dataModel().mapper(MultiElementDeviceReference.class).select(condition).stream().findAny();
     }
 
     @Override
