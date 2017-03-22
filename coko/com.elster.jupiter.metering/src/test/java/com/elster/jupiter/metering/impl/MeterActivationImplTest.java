@@ -14,12 +14,14 @@ import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EventType;
-import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterAlreadyLinkedToUsagePoint;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.aggregation.DataAggregationService;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -29,10 +31,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
 import javax.inject.Provider;
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.TimeZone;
 
@@ -85,10 +90,7 @@ public class MeterActivationImplTest extends EqualsContractTest {
     private Meter meter, otherMeter;
     @Mock
     private MeterRole meterRole;
-    private ChannelImpl channel1, channel2;
     private ReadingTypeImpl readingType1, readingType2, readingType3;
-    @Mock
-    private IntervalReadingRecord reading1, reading2;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DataModel dataModel;
     @Mock
@@ -100,6 +102,8 @@ public class MeterActivationImplTest extends EqualsContractTest {
     private IdsService idsService;
     @Mock
     private ServerMeteringService meteringService;
+    @Mock
+    private DataAggregationService aggregationService;
     @Mock
     private Vault vault;
     @Mock
@@ -124,9 +128,17 @@ public class MeterActivationImplTest extends EqualsContractTest {
 
         final Provider<ChannelImpl> channelFactory = () -> new ChannelImpl(dataModel, idsService, meteringService, clock, eventService);
         channelBuilder = () -> new ChannelBuilderImpl(dataModel, channelFactory);
-
+        MeterActivationContraintValidatorFactory contraintValidatorFactory = new MeterActivationContraintValidatorFactory(dataModel, thesaurus);
+        ValidatorFactory validatorFactory = Validation.byDefaultProvider()
+                .configure()
+                .constraintValidatorFactory(contraintValidatorFactory)
+                .messageInterpolator(thesaurus)
+                .buildValidatorFactory();
+        when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
+        when(meter.getUsagePoint(any())).thenReturn(Optional.empty());
         when(usagePoint.getId()).thenReturn(USAGEPOINT_ID);
         when(meter.getId()).thenReturn(METER_ID);
+        when(meter.getState(any())).thenReturn(Optional.empty());
         when(meter.getHeadEndInterface()).thenReturn(Optional.empty());
         when(idsService.getVault(anyString(), anyInt())).thenReturn(Optional.of(vault));
         when(idsService.getRecordSpec(anyString(), anyInt())).thenReturn(Optional.of(recordSpec));
@@ -134,8 +146,14 @@ public class MeterActivationImplTest extends EqualsContractTest {
         when(meter.getConfiguration(any())).thenReturn(Optional.empty());
         when(usagePoint.getConfiguration(any())).thenReturn(Optional.empty());
         when(dataModel.getInstance(ReadingTypeInChannel.class)).thenAnswer(invocation -> new ReadingTypeInChannel(dataModel, meteringService));
-        when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, channelBuilder));
+        when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, aggregationService, channelBuilder));
 
+        //make sure the meteractivation is valid
+        EffectiveMetrologyConfigurationOnUsagePoint effMetrologyConf = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(usagePoint.getEffectiveMetrologyConfigurations(any())).thenReturn(Collections.singletonList(effMetrologyConf));
+        UsagePointMetrologyConfiguration metrologyConfigiruation = mock(UsagePointMetrologyConfiguration.class);
+        when(effMetrologyConf.getMetrologyConfiguration()).thenReturn(metrologyConfigiruation);
+        when(metrologyConfigiruation.getMeterRoles()).thenReturn(Collections.singletonList(meterRole));
 
         meterActivation = getTestInstanceAndInitWithActivationTime();
     }

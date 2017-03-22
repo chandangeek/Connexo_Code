@@ -44,6 +44,12 @@ class Flatten implements ServerExpressionNode.Visitor<Void> {
     }
 
     @Override
+    public Void visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
+        this.flattened.add(slp);
+        return null;
+    }
+
+    @Override
     public Void visitNull(NullNode nullNode) {
         this.flattened.add(nullNode);
         return null;

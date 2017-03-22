@@ -55,6 +55,15 @@ class FromClauseForExpressionNode implements ServerExpressionNode.Visitor<Void> 
     }
 
     @Override
+    public Void visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
+        // First one wins (for backwards compatibility)
+        if (this.timeSeriesTableName == null) {
+            this.timeSeriesTableName = slp.sqlName();
+        }
+        return null;
+    }
+
+    @Override
     public Void visitNull(NullNode nullNode) {
         return null;
     }

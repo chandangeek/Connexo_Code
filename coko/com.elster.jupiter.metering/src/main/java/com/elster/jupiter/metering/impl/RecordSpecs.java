@@ -283,6 +283,49 @@ public enum RecordSpecs {
         int slotOffset() {
             return 2;
         }
+    },
+    /*
+        0 : process status
+        1 : multiplied value
+        2 : reading value
+        3 : text
+        4 : time period start
+        5 : time period end
+     */
+    BILLINGREGISTER_WITH_MULTIPLIED_REGISTER("Billing Multiplied Register", false) {
+        @Override
+        void addFieldSpecs(RecordSpecBuilder recordSpec) {
+            recordSpec.addFieldSpec("MultipliedValue", NUMBER);
+            recordSpec.addFieldSpec(VALUE, NUMBER);
+            recordSpec.addFieldSpec("Text", TEXT);
+            recordSpec.addFieldSpec("From Time", INSTANT);
+            recordSpec.addFieldSpec("To Time", INSTANT);
+        }
+
+        @Override
+        Object[] toArray(BaseReading reading, int slotIndex, ProcessStatus status) {
+            if (!Range.closed(0, 1).contains(slotIndex)) {
+                throw new IllegalArgumentException();
+            }
+            Object[] result = new Object[6];
+            result[0] = status.getBits();
+            result[slotOffset() + slotIndex] = reading.getValue();
+            result[3] = ((Reading) reading).getText();
+            reading.getTimePeriod().ifPresent(range -> {
+                if (range.hasLowerBound()) {
+                    result[4] = range.lowerEndpoint();
+                }
+                if (range.hasUpperBound()) {
+                    result[5] = range.upperEndpoint();
+                }
+            });
+            return result;
+        }
+
+        @Override
+        int slotOffset() {
+            return 1;
+        }
     },;
 
     public static final String PROCESS_STATUS = "ProcesStatus";
@@ -304,7 +347,7 @@ public enum RecordSpecs {
         }
     }
 
-    private RecordSpec create(IdsService idsService) {
+    public RecordSpec create(IdsService idsService) {
         RecordSpecBuilder recordSpecBuilder = idsService.createRecordSpec(MeteringService.COMPONENTNAME, ordinal() + 1, specName)
                 .addFieldSpec(PROCESS_STATUS, LONGINTEGER);
         if (interval) {

@@ -8,6 +8,7 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.CustomPropertyNode;
@@ -26,6 +27,7 @@ import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.QuantityValueFactory;
 import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.math.BigDecimal;
@@ -421,6 +423,36 @@ public class ExpressionNodeParserTest {
             // Asserts: see expected exception rule
         } catch (InvalidNodeException e) {
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CUSTOM_PROPERTY_MUST_BE_NUMERICAL);
+            throw e;
+        }
+    }
+
+    @Test(expected = InvalidNodeException.class)
+    public void nonSLPReferenceProperty() {
+        PropertySpec meter = mock(PropertySpec.class);
+        when(meter.getName()).thenReturn("meter");
+        when(meter.isReference()).thenReturn(true);
+        ValueFactory valueFactory = mock(ValueFactory.class);
+        when(valueFactory.isReference()).thenReturn(true);
+        when(valueFactory.getValueType()).thenReturn(Meter.class);
+        when(meter.getValueFactory()).thenReturn(valueFactory);
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getId()).thenReturn("c.e.j.metering.cps.ExampleCPS");
+        when(customPropertySet.getPropertySpecs()).thenReturn(Collections.singletonList(meter));
+        when(customPropertySet.isVersioned()).thenReturn(true);
+        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
+        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(this.customPropertySetService.findActiveCustomPropertySet("c.e.j.metering.cps.ExampleCPS")).thenReturn(Optional.of(registeredCustomPropertySet));
+        when(this.config.getCustomPropertySets()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
+        String formulaString = "property(c.e.j.metering.cps.ExampleCPS, meter))";
+
+        try {
+            // Business method
+            new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
+
+            // Asserts: see expected exception rule
+        } catch (InvalidNodeException e) {
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CUSTOM_PROPERTY_MUST_BE_SLP);
             throw e;
         }
     }

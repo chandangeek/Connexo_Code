@@ -11,6 +11,8 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
+import java.util.List;
+
 /**
  * Provides an implementation for the {@link ExpressionNode} interface
  * for a reference to a {@link ReadingTypeDeliverableForMeterActivationSet}.
@@ -98,6 +100,10 @@ class VirtualDeliverableNode implements ServerExpressionNode {
 
     String sqlName() {
         return this.deliverable.sqlName();
+    }
+
+    List<VirtualRequirementNode> nestedRequirements(Visitor<List<VirtualRequirementNode>> visitor) {
+        return this.deliverable.nestedRequirements(visitor);
     }
 
 }

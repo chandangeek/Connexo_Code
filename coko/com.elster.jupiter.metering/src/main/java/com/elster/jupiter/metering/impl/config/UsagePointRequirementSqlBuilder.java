@@ -59,7 +59,8 @@ public class UsagePointRequirementSqlBuilder implements Subquery {
 
     private void addUsagePointIdPropertyCondition(SearchBuilder<Object> searchBuilder) throws InvalidValueException {
         UsagePointIdSearchableProperty idProperty = new UsagePointIdSearchableProperty(this.searchDomain, propertySpecService);
-        SearchablePropertyValue.ValueBean idBean = new SearchablePropertyValue.ValueBean(idProperty.getName(), SearchablePropertyOperator.EQUAL, Collections.singletonList(String.valueOf(this.usagePoint.getId())));
+        SearchablePropertyValue.ValueBean idBean = new SearchablePropertyValue.ValueBean(idProperty.getName(), SearchablePropertyOperator.EQUAL, Collections.singletonList(String.valueOf(this.usagePoint
+                .getId())));
         new SearchablePropertyValue(idProperty, idBean).addAsCondition(searchBuilder);
     }
 }

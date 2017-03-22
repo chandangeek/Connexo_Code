@@ -11,9 +11,12 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterAlreadyActive;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -21,10 +24,13 @@ import com.elster.jupiter.orm.DataModel;
 import com.google.common.collect.Range;
 
 import javax.inject.Provider;
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
 import java.time.Clock;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,6 +47,7 @@ import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.ass
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -60,6 +67,8 @@ public class MeterImplTest {
     private Provider<EndDeviceEventRecordImpl> deviceEventFactory;
     @Mock
     private ServerMeteringService meteringService;
+    @Mock
+    private DataAggregationService aggregationService;
     @Mock
     private ServerMetrologyConfigurationService metrologyConfigurationService;
     @Mock
@@ -85,12 +94,25 @@ public class MeterImplTest {
         when(meteringService.getDataModel()).thenReturn(dataModel);
 
         doAnswer(invocation -> new MeterActivationImpl(dataModel, eventService, clock, thesaurus)).when(meterActivationFactory).get();
-        when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, channelBuilderFactory));
+        when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, aggregationService, channelBuilderFactory));
         when(thesaurus.forLocale(any())).thenAnswer(invocation -> invocation.getArguments()[0]);
         when(metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT)).thenReturn(meterRole);
         when(dataModel.getInstance(MeteringService.class)).thenReturn(meteringService);
         when(amrSystem.getName()).thenReturn(HEADEND_INTERFACE_NAME);
         when(meteringService.getHeadEndInterface(eq(HEADEND_INTERFACE_NAME))).thenReturn(Optional.empty());
+        MeterActivationContraintValidatorFactory contraintValidatorFactory = new MeterActivationContraintValidatorFactory(dataModel, thesaurus);
+        ValidatorFactory validatorFactory = Validation.byDefaultProvider()
+                .configure()
+                .constraintValidatorFactory(contraintValidatorFactory)
+                .messageInterpolator(thesaurus)
+                .buildValidatorFactory();
+        when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
+        //make sure the meteractivation is valid
+        EffectiveMetrologyConfigurationOnUsagePoint effMetrologyConf = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(usagePoint.getEffectiveMetrologyConfigurations(any())).thenReturn(Collections.singletonList(effMetrologyConf));
+        UsagePointMetrologyConfiguration metrologyConfigiruation = mock(UsagePointMetrologyConfiguration.class);
+        when(effMetrologyConf.getMetrologyConfiguration()).thenReturn(metrologyConfigiruation);
+        when(metrologyConfigiruation.getMeterRoles()).thenReturn(Collections.singletonList(meterRole));
     }
 
     @Test
