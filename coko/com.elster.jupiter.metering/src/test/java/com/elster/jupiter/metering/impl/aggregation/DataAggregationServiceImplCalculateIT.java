@@ -375,7 +375,7 @@ public class DataAggregationServiceImplCalculateIT {
         System.out.println("simplestNetConsumptionOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", fifteenMinutesNetConsumption, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = this.contract.newReadingTypeDeliverable("consumption", fifteenMinutesNetConsumption, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption =
                 builder.build(
                         builder.plus(
@@ -392,7 +392,6 @@ public class DataAggregationServiceImplCalculateIT {
         this.usagePoint.apply(this.configuration, jan1st2016);
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(netConsumption);
 
         // Business method
         try {
@@ -477,7 +476,8 @@ public class DataAggregationServiceImplCalculateIT {
         System.out.println("monthlyNetConsumptionBasedOn15MinValuesOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", monthlyNetConsumption, Formula.Mode.AUTO);
+        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
+        ReadingTypeDeliverableBuilder builder = this.contract.newReadingTypeDeliverable("consumption", monthlyNetConsumption, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption =
                 builder.build(
                         builder.plus(
@@ -492,9 +492,6 @@ public class DataAggregationServiceImplCalculateIT {
 
         // Apply MetrologyConfiguration to UsagePoint
         this.usagePoint.apply(this.configuration, jan1st2016);
-
-        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(netConsumption);
 
         // Business method
         try {
@@ -585,7 +582,8 @@ public class DataAggregationServiceImplCalculateIT {
         System.out.println("monthlyNetConsumptionBasedOn15And30MinValuesOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", monthlyNetConsumption, Formula.Mode.AUTO);
+        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
+        ReadingTypeDeliverableBuilder builder = this.contract.newReadingTypeDeliverable("consumption", monthlyNetConsumption, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption =
                 builder.build(builder.plus(
                         builder.requirement(consumption),
@@ -602,9 +600,6 @@ public class DataAggregationServiceImplCalculateIT {
 
         // Apply MetrologyConfiguration to UsagePoint
         this.usagePoint.apply(this.configuration, jan1st2016);
-
-        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(netConsumption);
 
         // Business method
         try {
@@ -700,7 +695,8 @@ public class DataAggregationServiceImplCalculateIT {
         System.out.println("simplestNetConsumptionOfProsumerWithMultipleMeterActivations::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", fifteenMinutesNetConsumption, Formula.Mode.AUTO);
+        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
+        ReadingTypeDeliverableBuilder builder = this.contract.newReadingTypeDeliverable("consumption", fifteenMinutesNetConsumption, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption =
                 builder.build(
                         builder.plus(
@@ -715,9 +711,6 @@ public class DataAggregationServiceImplCalculateIT {
 
         // Apply MetrologyConfiguration to UsagePoint
         this.usagePoint.apply(this.configuration, jan1st2016);
-
-        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(netConsumption);
 
         // Business method
         try {
@@ -836,7 +829,8 @@ public class DataAggregationServiceImplCalculateIT {
         System.out.println("simplestNetConsumptionOfProsumerWithMultipleMeterActivations::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", fifteenMinutesNetConsumption, Formula.Mode.AUTO);
+        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
+        ReadingTypeDeliverableBuilder builder = this.contract.newReadingTypeDeliverable("consumption", fifteenMinutesNetConsumption, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption =
                 builder.build(
                         builder.plus(
@@ -851,9 +845,6 @@ public class DataAggregationServiceImplCalculateIT {
 
         // Apply MetrologyConfiguration to UsagePoint
         this.usagePoint.apply(this.configuration, jan1st2016);
-
-        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(netConsumption);
 
         // Business method
         try {

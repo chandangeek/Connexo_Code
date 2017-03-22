@@ -95,30 +95,23 @@ public class OutputChannelDependenciesIT {
                     .orElseThrow(() -> new NoSuchElementException("Default meter role is not found"));
             aPlusRequirement = addReadingTypeRequirement(metrologyConfiguration, DefaultReadingTypeTemplate.A_PLUS, defaultMeterRole);
             aMinusRequirement = addReadingTypeRequirement(metrologyConfiguration, DefaultReadingTypeTemplate.A_MINUS, defaultMeterRole);
-            ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("15 min A+", min15Plus, Formula.Mode.AUTO);
+            ReadingTypeDeliverableBuilder builder = informationContract.newReadingTypeDeliverable("15 min A+", min15Plus, Formula.Mode.AUTO);
             min15PlusDeliverable = builder.build(builder.requirement(aPlusRequirement));
-            informationContract.addDeliverable(min15PlusDeliverable);
-            builder = metrologyConfiguration.newReadingTypeDeliverable("Daily A+", dailyPlus, Formula.Mode.AUTO);
+            builder = informationContract.newReadingTypeDeliverable("Daily A+", dailyPlus, Formula.Mode.AUTO);
             dailyPlusDeliverable = builder.build(builder.minus(builder.deliverable(min15PlusDeliverable), builder.constant(0)));
-            informationContract.addDeliverable(dailyPlusDeliverable);
-            builder = metrologyConfiguration.newReadingTypeDeliverable("Monthly A+", monthlyPlus, Formula.Mode.AUTO);
+            builder = informationContract.newReadingTypeDeliverable("Monthly A+", monthlyPlus, Formula.Mode.AUTO);
             monthlyPlusDeliverable = builder.build(
                     builder.divide(builder.plus(builder.requirement(aPlusRequirement), builder.deliverable(dailyPlusDeliverable)), builder.constant(2)));
-            informationContract.addDeliverable(monthlyPlusDeliverable);
-            builder = metrologyConfiguration.newReadingTypeDeliverable("Monthly A-", monthlyMinus, Formula.Mode.AUTO);
+            builder = informationContract.newReadingTypeDeliverable("Monthly A-", monthlyMinus, Formula.Mode.AUTO);
             monthlyMinusDeliverable = builder.build(builder.multiply(builder.constant(1), builder.requirement(aMinusRequirement)));
-            informationContract.addDeliverable(monthlyMinusDeliverable);
-            builder = metrologyConfiguration.newReadingTypeDeliverable("Monthly total", monthlyTotal, Formula.Mode.AUTO);
+            builder = informationContract.newReadingTypeDeliverable("Monthly total", monthlyTotal, Formula.Mode.AUTO);
             monthlyTotalDeliverable = builder.build(
                     builder.plus(builder.deliverable(monthlyMinusDeliverable), builder.deliverable(monthlyPlusDeliverable)));
-            informationContract.addDeliverable(monthlyTotalDeliverable);
-            builder = metrologyConfiguration.newReadingTypeDeliverable("Monthly net", monthlyNet, Formula.Mode.AUTO);
+            builder = informationContract.newReadingTypeDeliverable("Monthly net", monthlyNet, Formula.Mode.AUTO);
             monthlyNetDeliverable = builder.build(
                     builder.minus(builder.deliverable(monthlyPlusDeliverable), builder.deliverable(monthlyMinusDeliverable)));
-            informationContract.addDeliverable(monthlyNetDeliverable);
-            builder = metrologyConfiguration.newReadingTypeDeliverable("Nil", nil, Formula.Mode.EXPERT);
+            builder = informationContract.newReadingTypeDeliverable("Nil", nil, Formula.Mode.EXPERT);
             nilDeliverable = builder.build(builder.nullValue());
-            informationContract.addDeliverable(nilDeliverable);
             context.commit();
         }
     }

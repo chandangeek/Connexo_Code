@@ -111,7 +111,8 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     private List<MetrologyConfigurationCustomPropertySetUsage> customPropertySets = new ArrayList<>();
     private List<ReadingTypeRequirement> readingTypeRequirements = new ArrayList<>();
     private List<MetrologyContract> metrologyContracts = new ArrayList<>();
-    private List<ReadingTypeDeliverable> deliverables = new ArrayList<>();
+    @Deprecated // up to version 10.3
+    private List<ReadingTypeDeliverable> deliverables;
 
     private Instant obsoleteTime;
     @SuppressWarnings("unused")
@@ -337,7 +338,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     @Override
     public ReadingTypeDeliverableBuilderImpl newReadingTypeDeliverable(String name, ReadingType readingType, Formula.Mode mode) {
         return new ReadingTypeDeliverableBuilderImpl(
-                this,
+                this.metrologyContracts.stream().findFirst().get(),
                 name,
                 DeliverableType.NUMERICAL,
                 readingType,
@@ -350,7 +351,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     @Override
     public ReadingTypeDeliverableBuilderImpl newReadingTypeDeliverable(String name, DeliverableType deliverableType, ReadingType readingType, Formula.Mode mode) {
         return new ReadingTypeDeliverableBuilderImpl(
-                this,
+                this.metrologyContracts.stream().findFirst().get(),
                 name,
                 deliverableType,
                 readingType,
@@ -361,36 +362,17 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     }
 
     @Override
-    public ReadingTypeDeliverable addReadingTypeDeliverable(String name, DeliverableType deliverableType, ReadingType readingType, Formula formula) {
-        ReadingTypeDeliverableImpl deliverable =
-                this.metrologyConfigurationService.getDataModel()
-                        .getInstance(ReadingTypeDeliverableImpl.class)
-                        .init(this, name, deliverableType, readingType, (ServerFormula) formula);
-        Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), deliverable);
-        this.deliverables.add(deliverable);
-        touch();
-        return deliverable;
-    }
-
-
-    @Override
     public void removeReadingTypeDeliverable(ReadingTypeDeliverable deliverable) {
-        if (!metrologyConfigurationService.getDataModel()
-                .query(ReadingTypeDeliverableNodeImpl.class)
-                .select(where("readingTypeDeliverable").isEqualTo(deliverable))
-                .isEmpty()) {
-            throw new CannotDeleteReadingTypeDeliverableException(metrologyConfigurationService.getThesaurus(), deliverable.getName());
-        }
-        ((ReadingTypeDeliverableImpl) deliverable).prepareDelete();
-        if (this.deliverables.remove(deliverable)) {
-            this.eventService.postEvent(EventType.READING_TYPE_DELIVERABLE_DELETED.topic(), deliverable);
-            touch();
-        }
+        metrologyContracts.stream()
+                .filter(contract -> contract
+                        .getDeliverables().stream()
+                        .anyMatch(readingTypeDeliverable -> readingTypeDeliverable.equals(deliverable)))
+                .forEach(contract -> contract.removeDeliverable(deliverable));
     }
 
     @Override
     public List<ReadingTypeDeliverable> getDeliverables() {
-        return Collections.unmodifiableList(new ArrayList<>(this.deliverables));
+        return getContracts().stream().map(MetrologyContract::getDeliverables).flatMap(Collection::stream).collect(Collectors.toList());
     }
 
     void create() {
@@ -408,11 +390,6 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     }
 
     @Override
-    public void deliverableUpdated(ReadingTypeDeliverableImpl deliverable) {
-        this.touch();
-    }
-
-    @Override
     public void contractUpdated(MetrologyContractImpl contract) {
         this.touch();
     }
@@ -425,8 +402,11 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public void delete() {
+        getContracts().stream()
+                .map(MetrologyContract::getDeliverables)
+                .flatMap(Collection::stream)
+                .forEach(deliverable -> metrologyContracts.forEach(contract -> contract.removeDeliverable(deliverable)));
         getContracts().forEach(this::removeMetrologyContract);
-        getDeliverables().forEach(this::removeReadingTypeDeliverable);
         readingTypeRequirements.clear();
         customPropertySets.clear();
         this.metrologyConfigurationService.getDataModel().remove(this);

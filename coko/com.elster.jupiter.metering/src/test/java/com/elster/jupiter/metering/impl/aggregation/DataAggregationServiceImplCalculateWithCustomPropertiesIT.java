@@ -400,7 +400,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         PropertySpec antennaPowerPropertySpec = this.getAntennaPowerPropertySpec(registeredCustomPropertySet);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", monthlyNetConsumption, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = this.contract.newReadingTypeDeliverable("consumption", monthlyNetConsumption, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption =
                 builder.build(
                         builder.multiply(
@@ -419,7 +419,6 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         this.usagePoint.apply(this.configuration, jan1st2016);
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(netConsumption);
 
         // Business method
         try {
@@ -508,7 +507,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         System.out.println("15minNetConsumption::LOCALPOWER_REQUIREMENT_ID = " + this.localPowerRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", fifteenMinutesNetConsumption, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = this.contract.newReadingTypeDeliverable("consumption", fifteenMinutesNetConsumption, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption =
                 builder.build(
                         builder.plus(
@@ -525,7 +524,6 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         this.usagePoint.apply(this.configuration, jan1st2016);
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
-        this.contract.addDeliverable(netConsumption);
 
         // Business method
         try {

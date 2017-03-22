@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableList;
 import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.EnumSet;
 import java.util.logging.Logger;
@@ -65,6 +66,16 @@ public class UpgraderV10_3 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
+
+        dataModel.useConnectionRequiringTransaction(connection -> {
+            try (Statement statement = connection.createStatement()){
+                statement.execute("ALTER TABLE MTR_RT_DELIVERABLE ADD METROLOGY_CONTRACT NUMBER;");
+                statement.execute(
+                        "UPDATE MTR_RT_DELIVERABLE SET MTR_RT_DELIVERABLE.METROLOGY_CONTRACT = " +
+                                "(SELECT METROLOGY_CONTRACT FROM MTR_CONTRACT_TO_DELIVERABLE WHERE MTR_RT_DELIVERABLE.ID = MTR_CONTRACT_TO_DELIVERABLE.DELIVERABLE);");
+            }
+        });
+
         dataModelUpgrader.upgrade(dataModel, VERSION);
         dataModel.useConnectionRequiringTransaction(connection -> {
             try (Statement statement = connection.createStatement()) {

@@ -32,6 +32,13 @@ public interface ReadingTypeDeliverable extends HasId, HasName {
     MetrologyConfiguration getMetrologyConfiguration();
 
     /**
+     * Returns the {@link MetrologyContract} that defines this ReadingTypeDeliverable.
+     *
+     * @return The MetrologyContract
+     */
+    MetrologyContract getMetrologyContract();
+
+    /**
      * Returns the {@link Formula} that defines
      * how to calculate this ReadingTypeDeliverable.
      *

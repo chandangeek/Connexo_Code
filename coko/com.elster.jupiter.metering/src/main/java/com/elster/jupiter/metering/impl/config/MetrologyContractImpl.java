@@ -4,18 +4,21 @@
 
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
+import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -39,6 +42,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 public class MetrologyContractImpl implements MetrologyContract {
+
     public enum Fields {
         METROLOGY_CONFIG("metrologyConfiguration"),
         METROLOGY_PURPOSE("metrologyPurpose"),
@@ -57,6 +61,7 @@ public class MetrologyContractImpl implements MetrologyContract {
     }
 
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
+    private final CustomPropertySetService customPropertySetService;
 
     @SuppressWarnings("unused")
     private long id;
@@ -65,15 +70,16 @@ public class MetrologyContractImpl implements MetrologyContract {
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private final Reference<MetrologyPurpose> metrologyPurpose = ValueReference.absent();
     private boolean mandatory;
-    private List<MetrologyContractReadingTypeDeliverableUsage> deliverables = new ArrayList<>();
     private String userName;
     private long version;
     private Instant createTime;
     private Instant modTime;
+    private List<ReadingTypeDeliverable> deliverables = new ArrayList<>();
 
     @Inject
-    public MetrologyContractImpl(ServerMetrologyConfigurationService metrologyConfigurationService) {
+    public MetrologyContractImpl(ServerMetrologyConfigurationService metrologyConfigurationService, CustomPropertySetService customPropertySetService) {
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.customPropertySetService = customPropertySetService;
     }
 
     public MetrologyContractImpl init(ServerMetrologyConfiguration meterConfiguration, MetrologyPurpose metrologyPurpose) {
@@ -97,23 +103,53 @@ public class MetrologyContractImpl implements MetrologyContract {
     }
 
     @Override
-    public MetrologyContract addDeliverable(ReadingTypeDeliverable deliverable) {
-        MetrologyContractReadingTypeDeliverableUsage deliverableMapping = this.metrologyConfigurationService.getDataModel()
-                .getInstance(MetrologyContractReadingTypeDeliverableUsage.class)
-                .init(this, deliverable);
-        Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), deliverableMapping);
-        this.deliverables.add(deliverableMapping);
-        touch();
-        this.metrologyConfiguration.getOptional().ifPresent(configuration -> configuration.contractUpdated(this));
-        return this;
+    public ReadingTypeDeliverableBuilder newReadingTypeDeliverable(String name, ReadingType readingType, Formula.Mode mode) {
+        return new ReadingTypeDeliverableBuilderImpl(
+                this,
+                name,
+                DeliverableType.NUMERICAL,
+                readingType,
+                mode,
+                this.customPropertySetService,
+                this.metrologyConfigurationService.getDataModel(),
+                this.metrologyConfigurationService.getThesaurus());
     }
 
     @Override
-    public void removeDeliverable(ReadingTypeDeliverable deliverable) {
-        Iterator<MetrologyContractReadingTypeDeliverableUsage> iterator = this.deliverables.iterator();
+    public ReadingTypeDeliverableBuilder newReadingTypeDeliverable(String name, DeliverableType type, ReadingType readingType, Formula.Mode mode) {
+        return new ReadingTypeDeliverableBuilderImpl(
+                this,
+                name,
+                type,
+                readingType,
+                mode,
+                this.customPropertySetService,
+                this.metrologyConfigurationService.getDataModel(),
+                this.metrologyConfigurationService.getThesaurus());
+    }
+
+    @Override
+    public MetrologyContract addDeliverable(ReadingTypeDeliverable deliverable) {
+        return this;
+    }
+
+    ReadingTypeDeliverable addDeliverable(String name, DeliverableType deliverableType, ReadingType readingType, Formula formula) {
+        ReadingTypeDeliverableImpl deliverable =
+                this.metrologyConfigurationService.getDataModel()
+                        .getInstance(ReadingTypeDeliverableImpl.class)
+                        .init(this, name, deliverableType, readingType, (ServerFormula) formula);
+        Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), deliverable);
+        this.deliverables.add(deliverable);
+        touch();
+        return deliverable;
+    }
+
+    @Override
+    public void removeDeliverable(ReadingTypeDeliverable deliverableForRemove) {
+        Iterator<ReadingTypeDeliverable> iterator = this.deliverables.iterator();
         while (iterator.hasNext()) {
-            MetrologyContractReadingTypeDeliverableUsage usage = iterator.next();
-            if (usage.getDeliverable().equals(deliverable)) {
+            ReadingTypeDeliverable deliverable = iterator.next();
+            if (deliverable.equals(deliverableForRemove)) {
                 iterator.remove();
                 this.touch();
                 return;
@@ -123,9 +159,7 @@ public class MetrologyContractImpl implements MetrologyContract {
 
     @Override
     public List<ReadingTypeDeliverable> getDeliverables() {
-        return this.deliverables.stream()
-                .map(MetrologyContractReadingTypeDeliverableUsage::getDeliverable)
-                .collect(Collectors.toList());
+        return this.deliverables;
     }
 
     @Override
@@ -274,5 +308,10 @@ public class MetrologyContractImpl implements MetrologyContract {
         return readingTypesWithDependencyLevels.entrySet().stream()
                 .collect(Collectors.groupingBy(Map.Entry::getValue, TreeMap::new, Collectors.mapping(Map.Entry::getKey, Collectors.toSet())))
                 .values();
+    }
+
+    @Override
+    public void deliverableUpdated(ReadingTypeDeliverableImpl deliverable) {
+        this.touch();
     }
 }

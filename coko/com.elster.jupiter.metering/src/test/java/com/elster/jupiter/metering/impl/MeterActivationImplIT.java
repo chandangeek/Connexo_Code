@@ -31,6 +31,7 @@ import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -484,9 +485,9 @@ public class MeterActivationImplIT {
                 metrologyConfiguration
                         .newReadingTypeRequirement("Requirement", meterRole)
                         .withReadingType(readingType);
-        ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("Deliverable", readingType, Formula.Mode.AUTO);
-        ReadingTypeDeliverable deliverable = builder.build(builder.requirement(readingTypeRequirement));
-        metrologyConfiguration.addMandatoryMetrologyContract(metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING).get()).addDeliverable(deliverable);
+        MetrologyContract metrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING).get());
+        ReadingTypeDeliverableBuilder builder = metrologyContract.newReadingTypeDeliverable("Deliverable", readingType, Formula.Mode.AUTO);
+        builder.build(builder.requirement(readingTypeRequirement));
         usagePoint.apply(metrologyConfiguration, now);
 
         usagePoint.linkMeters()
