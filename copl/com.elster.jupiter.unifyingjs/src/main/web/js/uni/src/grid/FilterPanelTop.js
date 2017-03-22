@@ -25,7 +25,8 @@ Ext.define('Uni.grid.FilterPanelTop', {
         'Uni.grid.filtertop.NoUi',
         'Uni.grid.filtertop.ClosableCombobox',
         'Uni.grid.filtertop.DueDate',
-        'Uni.grid.filtertop.Numeric'
+        'Uni.grid.filtertop.Numeric',
+        'Uni.grid.filtertop.ReadingQuality'
     ],
 
     /**
@@ -438,12 +439,19 @@ Ext.define('Uni.grid.FilterPanelTop', {
         flattenObjects = flattenObjects || false;
 
         me.filters.each(function (filter) {
+
             if (!flattenObjects && Ext.isDefined(filter.applyParamValue)) {
+                if (filter.dataIndex == 'amountOfSuspects') {
+                    //debugger;
+                }
                 filter.applyParamValue(params, includeUndefined, flattenObjects);
             } else {
                 var dataIndex = filter.dataIndex,
                     paramValue = filter.getParamValue();
 
+                if (filter.dataIndex == 'amountOfSuspects') {
+                    //debugger;
+                }
                 if(includeUndefined) {
                     params[dataIndex] = paramValue;
                 } else if (Ext.isDefined(paramValue) && !Ext.isEmpty(paramValue)) {
@@ -589,6 +597,8 @@ Ext.define('Uni.grid.FilterPanelTop', {
                 return 'Uni.grid.filtertop.DueDate';
             case 'numeric':
                 return 'Uni.grid.filtertop.Numeric';
+            case 'readingquality':
+                return 'Uni.grid.filtertop.ReadingQuality';
             default:
                 return undefined;
         }
