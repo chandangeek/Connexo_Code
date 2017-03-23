@@ -26,6 +26,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
+import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.cps.impl.metrology.TranslationKeys;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointAntennaCPS;
@@ -317,9 +318,6 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
         ReadingType readingTypeDailyApluskWh = meteringService.getReadingType("11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0")
                 .orElseGet(() -> meteringService.createReadingType("11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
 
-        ReadingType readingTypeDailyAplusWh = meteringService.getReadingType("11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
-                .orElseGet(() -> meteringService.createReadingType("11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "A+"));
-
         MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
                 .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
         MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
@@ -328,7 +326,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
                 .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
         MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
 
-        RegisteredCustomPropertySet registeredCorrectionFactorCPS = customPropertySetService.findActiveCustomPropertySet("com.elster.jupiter.metering.cps.impl.metrology.UsagePointElectricityCorrectionFactorsDomExt")
+        RegisteredCustomPropertySet registeredCorrectionFactorCPS = customPropertySetService.findActiveCustomPropertySet(UsagePointElectricityCorrectionFactorsDomExt.class.getName())
                 .orElseThrow(() -> new NoSuchElementException("Correction factors custom property set not found"));
         config.addCustomPropertySet(registeredCorrectionFactorCPS);
 
@@ -348,7 +346,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
 
 
         builder.build(builder.multiply(builder.requirement(requirementAplus), lossFactor));
-        buildFormulaSingleRequirement(contractInformation, readingTypeDailyAplusWh, requirementAplus, "Daily A+ Wh");
+        buildFormulaSingleRequirement(contractInformation, readingTypeDailyApluskWh, requirementAplus, "Daily A+ Wh");
     }
 
     void residentialGasWithCorrection(){
@@ -370,7 +368,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
                 .orElseGet(() -> meteringService.createReadingType("11.0.0.4.1.7.58.0.0.0.0.0.0.0.0.0.42.0", "Daily volume m³"));
 
         ReadingType readingTypeHourlyVolume = meteringService.getReadingType("0.0.7.4.1.7.58.0.0.0.0.0.0.0.0.0.42.0")
-                .orElseGet(() -> meteringService.createReadingType("0.0.7.4.1.7.58.0.0.0.0.0.0.0.0.0.42.0", "Hourly volume km³"));
+                .orElseGet(() -> meteringService.createReadingType("0.0.7.4.1.7.58.0.0.0.0.0.0.0.0.0.42.0", "Hourly volume m³"));
 
         MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
                 .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
@@ -384,30 +382,30 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
                 .orElseThrow(() -> new NoSuchElementException("Default meter role not found"));
         config.addMeterRole(meterRole);
 
-        RegisteredCustomPropertySet registeredCorrectionFactorCPS = customPropertySetService.findActiveCustomPropertySet("com.elster.jupiter.metering.cps.impl.metrology.UsagePointGasCorrectionFactorsDomExt")
+        RegisteredCustomPropertySet registeredCorrectionFactorCPS = customPropertySetService.findActiveCustomPropertySet(UsagePointGasCorrectionFactorsDomExt.class.getName())
                 .orElseThrow(() -> new NoSuchElementException("Correction factors custom property set not found"));
         config.addCustomPropertySet(registeredCorrectionFactorCPS);
 
         ReadingTypeRequirement requirementGasVolume = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.GAS_VOLUME
                 .getNameTranslation().getDefaultFormat(), meterRole)
-                .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.GAS_VOLUME));
+                .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.GAS_VOLUME))
+                .overrideAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, 42);
 
         CustomPropertySet correctionFactorCPS = registeredCorrectionFactorCPS.getCustomPropertySet();
         List<PropertySpec> propertySpecs = correctionFactorCPS.getPropertySpecs();
-
-        ReadingTypeDeliverableBuilder hourlyBuilder = contractBilling.newReadingTypeDeliverable("Hourly corrected volume m3", readingTypeHourlyCorrectedVolume, Formula.Mode.AUTO);
-        FormulaBuilder hourlyClimateCorrectionFactor = hourlyBuilder.property(correctionFactorCPS, propertySpecs.stream()
+        PropertySpec climateCorrectionFactorSpec = propertySpecs.stream()
                 .filter(propertySpec -> "climateCorrectionFactor".equals(propertySpec.getName())).findFirst()
-                .orElseThrow(() -> new NoSuchElementException("climateCorrectionFactor property spec not found")));
+                .orElseThrow(() -> new NoSuchElementException("climateCorrectionFactor property spec not found"));
 
-        ReadingTypeDeliverableBuilder dailyBuilder = contractBilling.newReadingTypeDeliverable("Daily corrected volume m3", readingTypeCorrectedDailyVolume, Formula.Mode.AUTO);
-        FormulaBuilder dailyClimateCorrectionFactor = dailyBuilder.property(correctionFactorCPS, propertySpecs.stream()
-                .filter(propertySpec -> "climateCorrectionFactor".equals(propertySpec.getName())).findFirst()
-                .orElseThrow(() -> new NoSuchElementException("climateCorrectionFactor property spec not found")));
+        ReadingTypeDeliverableBuilder hourlyBuilder = contractBilling.newReadingTypeDeliverable("Hourly corrected volume m³", readingTypeHourlyCorrectedVolume, Formula.Mode.AUTO);
+        FormulaBuilder hourlyClimateCorrectionFactor = hourlyBuilder.property(correctionFactorCPS, climateCorrectionFactorSpec);
+
+        ReadingTypeDeliverableBuilder dailyBuilder = contractBilling.newReadingTypeDeliverable("Daily corrected volume m³", readingTypeCorrectedDailyVolume, Formula.Mode.AUTO);
+        FormulaBuilder dailyClimateCorrectionFactor = dailyBuilder.property(correctionFactorCPS, climateCorrectionFactorSpec);
 
         hourlyBuilder.build(hourlyBuilder.multiply(hourlyBuilder.requirement(requirementGasVolume), hourlyClimateCorrectionFactor));
         dailyBuilder.build(dailyBuilder.multiply(dailyBuilder.requirement(requirementGasVolume), dailyClimateCorrectionFactor));
-        buildFormulaSingleRequirement(contractInformation, readingTypeHourlyVolume, requirementGasVolume, "Hourly volume m3");
+        buildFormulaSingleRequirement(contractInformation, readingTypeHourlyVolume, requirementGasVolume, "Hourly volume m³");
     }
 
     private SearchablePropertyValue.ValueBean getUsagePointRequirement(String property, SearchablePropertyOperator operator, String... values) {
