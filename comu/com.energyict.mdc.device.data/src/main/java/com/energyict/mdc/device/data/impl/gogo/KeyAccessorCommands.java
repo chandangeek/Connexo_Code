@@ -22,6 +22,7 @@ import com.energyict.mdc.device.data.CertificateAccessor;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.impl.pki.SymmetricKeyAccessorImpl;
 
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
@@ -122,30 +123,56 @@ public class KeyAccessorCommands {
         List<List<?>> collection = new ArrayList<>();
         for (KeyAccessorType keyAccessorType: device.getDeviceType().getKeyAccessorTypes()) {
             Optional<KeyAccessor> keyAccessor = device.getKeyAccessor(keyAccessorType);
-            String extraValue = "";
-            if (keyAccessor.isPresent() && keyAccessor.get() instanceof CertificateAccessor) {
-                CertificateAccessor certificateAccessor = (CertificateAccessor) keyAccessor.get();
-                if (certificateAccessor.getActualValue() instanceof ClientCertificateWrapper) {
-                    ClientCertificateWrapper actualValue = (ClientCertificateWrapper) certificateAccessor.getActualValue();
-                    if (actualValue.getCertificate().isPresent()) {
-                        extraValue+="X.509";
-                    } else if (actualValue.getCSR().isPresent()) {
-                        extraValue+="CSR";
+            String actualExtraValue = "";
+            String tempExtraValue = "";
+            if (keyAccessor.isPresent()) {
+                if (keyAccessor.get() instanceof CertificateAccessor) {
+                    CertificateAccessor certificateAccessor = (CertificateAccessor) keyAccessor.get();
+                    if (certificateAccessor.getActualValue() instanceof ClientCertificateWrapper) {
+                        ClientCertificateWrapper actualValue = (ClientCertificateWrapper) certificateAccessor.getActualValue();
+                        actualExtraValue = toString(actualExtraValue, actualValue);
                     }
-                    PrivateKey privateKey = actualValue.getPrivateKeyWrapper().getPrivateKey();
-                    if (privateKey != null) {
-                        extraValue+=" + PK";
+                    if (certificateAccessor.getTempValue().isPresent() && certificateAccessor.getTempValue().get() instanceof ClientCertificateWrapper) {
+                        ClientCertificateWrapper tempValue = (ClientCertificateWrapper) certificateAccessor.getTempValue().get();
+                        tempExtraValue = toString(tempExtraValue, tempValue);
+                    }
+                } else if (keyAccessor.get() instanceof SymmetricKeyAccessorImpl) {
+                    SymmetricKeyAccessorImpl symmetricKeyAccessor = (SymmetricKeyAccessorImpl) keyAccessor.get();
+                    if (symmetricKeyAccessor.getActualValue() instanceof PlaintextSymmetricKey) {
+                        PlaintextSymmetricKey actualValue = (PlaintextSymmetricKey) symmetricKeyAccessor.getActualValue();
+                        if (actualValue.getKey().isPresent()) {
+                            actualExtraValue += actualValue.getKey().get().getAlgorithm();
+                        }
+                    }
+                    if (symmetricKeyAccessor.getTempValue().isPresent() && symmetricKeyAccessor.getTempValue().get() instanceof PlaintextSymmetricKey) {
+                        PlaintextSymmetricKey tempValue = (PlaintextSymmetricKey) symmetricKeyAccessor.getTempValue().get();
+                        if (tempValue.getKey().isPresent()) {
+                            tempExtraValue += tempValue.getKey().get().getAlgorithm();
+                        }
                     }
                 }
             }
             collection.add(Arrays.asList(keyAccessorType.getName(),
                     keyAccessorType.getKeyType().getName(),
-                    keyAccessor.isPresent() && keyAccessor.get().getActualValue()!=null ? (extraValue.isEmpty()?"Present":extraValue):"",
-                    keyAccessor.isPresent() && keyAccessor.get().getTempValue().isPresent() ? "Present":""
+                    keyAccessor.isPresent() && keyAccessor.get().getActualValue()!=null ? (actualExtraValue.isEmpty()?"Present":actualExtraValue):"",
+                    keyAccessor.isPresent() && keyAccessor.get().getTempValue().isPresent() ? (tempExtraValue.isEmpty()?"Present":tempExtraValue):""
             ));
         }
 
         MYSQL_PRINT.printTableWithHeader(Arrays.asList("Key accessor type", "Key type","Current value", "Temp value"), collection);
+    }
+
+    private String toString(String extraValue, ClientCertificateWrapper value) throws InvalidKeyException {
+        if (value.getCertificate().isPresent()) {
+            extraValue += "X.509";
+        } else if (value.getCSR().isPresent()) {
+            extraValue += "CSR";
+        }
+        PrivateKey privateKey = value.getPrivateKeyWrapper().getPrivateKey();
+        if (privateKey != null) {
+            extraValue += " + PK";
+        }
+        return extraValue;
     }
 
     public void importCertificateWithKey() {
@@ -222,11 +249,14 @@ public class KeyAccessorCommands {
             if (key==null) {
                 throw new RuntimeException("The keystore does not contain a key with alias "+alias);
             }
-            SymmetricKeyWrapper symmetricKeyWrapper = pkiService.newSymmetricKeyWrapper(keyAccessorType);
-            ((PlaintextSymmetricKey)symmetricKeyWrapper).setKey(new SecretKeySpec(key.getEncoded(), key.getAlgorithm()));
 
             KeyAccessor keyAccessor = device.getKeyAccessor(keyAccessorType)
                     .orElseGet(()->device.newKeyAccessor(keyAccessorType));
+            if (keyAccessor.getActualValue()!=null) {
+                ((SymmetricKeyWrapper)keyAccessor.getActualValue()).delete();
+            }
+            SymmetricKeyWrapper symmetricKeyWrapper = pkiService.newSymmetricKeyWrapper(keyAccessorType);
+            ((PlaintextSymmetricKey)symmetricKeyWrapper).setKey(new SecretKeySpec(key.getEncoded(), key.getAlgorithm()));
             keyAccessor.setActualValue(symmetricKeyWrapper);
             keyAccessor.save();
             context.commit();

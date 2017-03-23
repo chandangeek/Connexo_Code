@@ -3170,20 +3170,20 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             case ClientCertificate:
                 CertificateAccessorImpl certificateAccessor = dataModel.getInstance(CertificateAccessorImpl.class);
                 certificateAccessor.init(keyAccessorType, this);
+                this.keyAccessors.add(certificateAccessor);
                 ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(keyAccessorType);
                 certificateAccessor.setActualValue(clientCertificateWrapper);
                 certificateAccessor.save();
-                this.keyAccessors.add(certificateAccessor);
                 return certificateAccessor;
             case TrustedCertificate:
                 break;
             case SymmetricKey:
                 SymmetricKeyAccessorImpl symmetricKeyAccessor = dataModel.getInstance(SymmetricKeyAccessorImpl.class);
                 symmetricKeyAccessor.init(keyAccessorType, this);
+                this.keyAccessors.add(symmetricKeyAccessor);
                 SymmetricKeyWrapper symmetricKeyWrapper = pkiService.newSymmetricKeyWrapper(keyAccessorType);
                 symmetricKeyAccessor.setActualValue(symmetricKeyWrapper);
                 symmetricKeyAccessor.save();
-                this.keyAccessors.add(symmetricKeyAccessor);
                 return symmetricKeyAccessor;
             case Passphrase:
                 break;
