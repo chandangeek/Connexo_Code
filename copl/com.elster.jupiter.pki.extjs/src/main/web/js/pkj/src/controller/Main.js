@@ -12,7 +12,8 @@ Ext.define('Pkj.controller.Main', {
 
     controllers: [
         'Pkj.controller.history.Main',
-        'Pkj.controller.TrustStores'
+        'Pkj.controller.TrustStores',
+        'Pkj.controller.Certificates'
     ],
 
     stores: [
@@ -52,6 +53,10 @@ Ext.define('Pkj.controller.Main', {
                         href: '#/administration/truststores'
                         //hidden: Uni.Auth.hasNoPrivilege('privilege.view.trustStores'),
                         //route: 'truststores'
+                    },
+                    {
+                        text: Uni.I18n.translate('general.certificates', 'PKJ', 'Certificates'),
+                        href: '#/administration/certificates'
                     }
                 ]
             });

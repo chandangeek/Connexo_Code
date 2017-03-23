@@ -65,6 +65,13 @@ Ext.define('Pkj.controller.history.Main', {
                         }
 
                     }
+                },
+                certificates: {
+                    title: Uni.I18n.translate('general.certificates', 'PKJ', 'Certificates'),
+                    //privileges: Pkj.privileges.TrustStore.view,
+                    route: 'certificates',
+                    controller: 'Pkj.controller.Certificates',
+                    action: 'showCertificates'
                 }
             }
         }
