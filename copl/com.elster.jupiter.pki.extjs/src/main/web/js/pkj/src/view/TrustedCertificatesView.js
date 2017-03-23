@@ -33,7 +33,8 @@ Ext.define('Pkj.view.TrustedCertificatesView', {
                         itemId: 'pkj-no-certificates',
                         title: Uni.I18n.translate('trustedCertificates.empty.title', 'PKJ', 'No trusted certificates found'),
                         reasons: [
-                            Uni.I18n.translate('trustedCertificates.empty.list.reason1', 'PKJ', 'No trusted certificates have been defined yet.')
+                            Uni.I18n.translate('trustedCertificates.empty.list.reason1', 'PKJ', 'No trusted certificates have been defined yet.'),
+                            Uni.I18n.translate('trustedCertificates.empty.list.reason2', 'PKJ', 'No trusted certificates comply with the filter.')
                         ],
                         stepItems: [
                             {
