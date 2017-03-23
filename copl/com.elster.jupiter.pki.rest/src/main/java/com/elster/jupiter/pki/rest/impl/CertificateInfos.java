@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.pki.rest.impl;
 
+import com.elster.jupiter.pki.CertificateWrapper;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,13 +17,11 @@ public class CertificateInfos {
     public CertificateInfos() {
     }
 
-//    public CertificateInfos(Iterable<? extends RecurrentTask> allTasks, Thesaurus thesaurus, TimeService timeService, Locale locale, Clock clock) {
-//        for (RecurrentTask each : allTasks) {
-//            if (each.getNextExecution() != null)  {
-//                tasks.add(new TaskInfo(each, thesaurus, timeService, locale, clock));
-//                total++;
-//            }
-//        }
-//    }
+    public CertificateInfos(Iterable<? extends CertificateWrapper> certificates) {
+        for (CertificateWrapper each : certificates) {
+            this.certificates.add( new CertificateInfo(each) );
+            total++;
+        }
+    }
 
 }

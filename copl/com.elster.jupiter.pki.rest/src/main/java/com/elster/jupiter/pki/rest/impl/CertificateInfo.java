@@ -4,7 +4,7 @@
 
 package com.elster.jupiter.pki.rest.impl;
 
-import com.elster.jupiter.pki.ClientCertificateWrapper;
+import com.elster.jupiter.pki.CertificateWrapper;
 
 import java.time.Instant;
 
@@ -20,7 +20,7 @@ public class CertificateInfo {
     CertificateInfo() {
     }
 
-    CertificateInfo(ClientCertificateWrapper certificateWrapper) {
+    CertificateInfo(CertificateWrapper certificateWrapper) {
         this.alias = certificateWrapper.getAlias();
         this.expirationDate = certificateWrapper.getExpirationTime().orElse(null);
     }

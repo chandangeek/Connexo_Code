@@ -54,14 +54,7 @@ public class CertificateResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 //    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
     public CertificateInfos getCertificates(@Context UriInfo uriInfo, @Context SecurityContext securityContext) {
-        // FAKE
-        CertificateInfos infos = new CertificateInfos();
-        CertificateInfo info = new CertificateInfo();
-        info.alias = "Whatever";
-        info.expirationDate = Instant.now().plus(5, ChronoUnit.DAYS);
-        infos.certificates.add(info);
-        infos.total = 1;
-        return infos;
+        return new CertificateInfos(pkiService.findAllCertificates().find());
     }
 
     @POST
