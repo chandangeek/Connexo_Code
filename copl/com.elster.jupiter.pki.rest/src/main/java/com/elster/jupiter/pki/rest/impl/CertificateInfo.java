@@ -23,5 +23,9 @@ public class CertificateInfo {
     CertificateInfo(CertificateWrapper certificateWrapper) {
         this.alias = certificateWrapper.getAlias();
         this.expirationDate = certificateWrapper.getExpirationTime().orElse(null);
+        this.type = "";     // <<<<<< To do
+        this.issuer = "";   // <<<<<< To do
+        this.subject = "";  // <<<<<< To do
+        this.status = "";   // <<<<<< To do
     }
 }
