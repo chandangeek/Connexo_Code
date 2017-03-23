@@ -34,6 +34,16 @@ Ext.define('Isu.view.creationrules.List', {
                 dataIndex: 'issueType_name',
                 flex: 1
             },
+            {
+                itemId: 'statusColumn',
+                header: Uni.I18n.translate('general.title.status', 'ISU', 'Status'),
+                dataIndex: 'active',
+                renderer: function (value) {
+                    return value ? Uni.I18n.translate('administration.alarmCreationRules.active', 'ISU', 'Active')
+                        : Uni.I18n.translate('administration.alarmCreationRules.inactive', 'ISU', 'Inactive');
+                },
+                flex: 1
+            },
             {   itemId: 'action',
                 xtype: 'uni-actioncolumn',
                 privileges: Isu.privileges.Issue.createRule,
