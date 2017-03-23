@@ -72,6 +72,7 @@ import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckViolation;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfo;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfoFactory;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Where;
@@ -176,6 +177,7 @@ public class UsagePointResource {
     private final PropertyValueInfoService propertyValueInfoService;
     private final ValidationService validationService;
     private final MetrologyConfigurationHistoryInfoFactory metrologyConfigurationHistoryInfoFactory;
+    private final UsagePointTransitionInfoFactory usagePointTransitionInfoFactory;
 
     @Inject
     public UsagePointResource(RestQueryService queryService,
@@ -207,7 +209,8 @@ public class UsagePointResource {
                               UsagePointLifeCycleService usagePointLifeCycleService,
                               PropertyValueInfoService propertyValueInfoService,
                               ValidationService validationService,
-                              MetrologyConfigurationHistoryInfoFactory metrologyConfigurationHistoryInfoFactory) {
+                              MetrologyConfigurationHistoryInfoFactory metrologyConfigurationHistoryInfoFactory,
+                              UsagePointTransitionInfoFactory usagePointTransitionInfoFactory) {
         this.queryService = queryService;
         this.timeService = timeService;
         this.meteringService = meteringService;
@@ -238,6 +241,7 @@ public class UsagePointResource {
         this.propertyValueInfoService = propertyValueInfoService;
         this.validationService = validationService;
         this.metrologyConfigurationHistoryInfoFactory = metrologyConfigurationHistoryInfoFactory;
+        this.usagePointTransitionInfoFactory = usagePointTransitionInfoFactory;
     }
 
     @GET
@@ -384,6 +388,22 @@ public class UsagePointResource {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         return Response.ok()
                 .entity(PagedInfoList.fromCompleteList("meterActivations", usagePointInfoFactory.getMetersOnUsagePointInfo(usagePoint), queryParameters))
+                .build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @Transactional
+    @Path("/{name}/transitions")
+    public Response getAvailableTransitions(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+
+        List<UsagePointTransition> transitions = resourceHelper.getAvailableTransitions(usagePoint);
+
+        return Response.ok()
+                .entity(PagedInfoList.fromCompleteList("transitions", transitions.stream()
+                        .map(usagePointTransitionInfoFactory::from).collect(Collectors.toList()), queryParameters))
                 .build();
     }
 
