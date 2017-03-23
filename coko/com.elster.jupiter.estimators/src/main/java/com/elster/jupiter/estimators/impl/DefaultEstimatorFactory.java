@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.estimators.impl;
 
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.EstimatorFactory;
 import com.elster.jupiter.estimators.AbstractEstimator;
@@ -65,7 +66,8 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        thesaurus = nlsService.getThesaurus(MessageSeeds.COMPONENT_NAME, Layer.DOMAIN);
+        thesaurus = nlsService.getThesaurus(MessageSeeds.COMPONENT_NAME, Layer.DOMAIN)
+                .join(nlsService.getThesaurus(EstimationService.COMPONENTNAME, Layer.DOMAIN));
     }
 
     @Reference
@@ -90,7 +92,8 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
 
     @Override
     public String getComponentName() {
-        return MessageSeeds.COMPONENT_NAME;
+        // Translation keys are shared with estimation bundle
+        return EstimationService.COMPONENTNAME;
     }
 
     @Override

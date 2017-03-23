@@ -16,15 +16,18 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.units.Quantity;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,14 +37,12 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
-/**
- * Created by igh on 6/03/2015.
- */
 class LinearInterpolation extends AbstractEstimator {
 
-    public static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS.getKey();
-    private static final Long MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = 10L;
+    public static final String MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS = TranslationKeys.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS.getKey();
+    private static final TimeDuration MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = TimeDuration.days(1);
 
     /**
      * Contains {@link TranslationKey}s for all the
@@ -52,8 +53,9 @@ class LinearInterpolation extends AbstractEstimator {
      */
     public enum TranslationKeys implements TranslationKey {
         ESTIMATOR_NAME(LinearInterpolation.class.getName(), "Linear interpolation"),
-        MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS("linearinterpolation.maxNumberOfConsecutiveSuspects", "Max number of consecutive suspects"),
-        MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION("linearinterpolation.maxNumberOfConsecutiveSuspects.description", "The maximum number of consecutive suspects that is allowed. If this amount is exceeded data is not estimated, but can be manually edited or estimated.");
+        MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS("linearinterpolation.maxPeriodOfConsecutiveSuspects", "Maximum period of consecutive suspects"),
+        MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION("linearinterpolation.maxPeriodOfConsecutiveSuspects.description",
+                "The maximum period of consecutive suspects that is allowed. If this period is exceeded, data is not estimated, but can be manually edited or estimated.");
 
         private final String key;
         private final String defaultFormat;
@@ -62,7 +64,6 @@ class LinearInterpolation extends AbstractEstimator {
             this.key = key;
             this.defaultFormat = defaultFormat;
         }
-
 
         @Override
         public String getKey() {
@@ -77,7 +78,7 @@ class LinearInterpolation extends AbstractEstimator {
     }
 
     private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
-    private Long maxNumberOfConsecutiveSuspects;
+    private TimeDuration maxPeriodOfConsecutiveSuspects;
 
     LinearInterpolation(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
@@ -89,8 +90,8 @@ class LinearInterpolation extends AbstractEstimator {
 
     @Override
     public void init() {
-        this.maxNumberOfConsecutiveSuspects = getProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, Long.class)
-                .orElse(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE);
+        this.maxPeriodOfConsecutiveSuspects = getProperty(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.class)
+                .orElse(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE);
     }
 
     @Override
@@ -179,10 +180,14 @@ class LinearInterpolation extends AbstractEstimator {
     }
 
     private boolean isBlockSizeOk(EstimationBlock block) {
-        boolean blockSizeOk = block.estimatables().size() <= maxNumberOfConsecutiveSuspects.intValue();
+        Range<Instant> actualPeriodOfSuspects = Range.encloseAll(block.estimatables().stream()
+                .map(Estimatable::getTimestamp)
+                .collect(Collectors.toSet()));
+        boolean blockSizeOk = actualPeriodOfSuspects.upperEndpoint().toEpochMilli() - actualPeriodOfSuspects.lowerEndpoint().toEpochMilli()
+                < maxPeriodOfConsecutiveSuspects.getMilliSeconds(); // max period of consecutive suspects is assumed open-closed, thus strict inequality
         if (!blockSizeOk) {
-            String message = "Failed estimation with {rule}: Block {block} since it contains {0} suspects, which exceeds the maximum of {1}";
-            LoggingContext.get().info(getLogger(), message, block.estimatables().size(), maxNumberOfConsecutiveSuspects);
+            String message = "Failed estimation with {rule}: Block {block} since its size exceeds the maximum of {0}";
+            LoggingContext.get().info(getLogger(), message, maxPeriodOfConsecutiveSuspects);
         }
         return blockSizeOk;
     }
@@ -196,12 +201,12 @@ class LinearInterpolation extends AbstractEstimator {
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(getPropertySpecService()
-                .longSpec()
-                .named(TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS)
-                .describedAs(TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION)
+                .timeDurationSpec()
+                .named(TranslationKeys.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS)
+                .describedAs(TranslationKeys.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-                .setDefaultValue(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE)
+                .setDefaultValue(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE)
                 .finish());
         return builder.build();
     }
@@ -209,17 +214,19 @@ class LinearInterpolation extends AbstractEstimator {
     @Override
     public void validateProperties(Map<String, Object> estimatorProperties) {
         ImmutableMap.Builder<String, Consumer<Map.Entry<String, Object>>> builder = ImmutableMap.builder();
-        builder.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, property -> {
-            Long value = (Long) property.getValue();
-            if (value.intValue() < 1) {
-                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS, "properties." + MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
+        builder.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, property -> {
+            TimeDuration value = (TimeDuration) property.getValue();
+            if (value.getMilliSeconds() < 1) {
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_PERIOD_OF_ZERO_OR_NEGATIVE_LENGTH,
+                        "properties." + MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS);
             }
         });
 
         ImmutableMap<String, Consumer<Map.Entry<String, Object>>> propertyValidations = builder.build();
 
-        estimatorProperties.entrySet().forEach(property -> Optional.ofNullable(propertyValidations.get(property.getKey()))
-                .ifPresent(validator -> validator.accept(property)));
+        estimatorProperties.entrySet().forEach(property ->
+                Optional.ofNullable(propertyValidations.get(property.getKey()))
+                        .ifPresent(validator -> validator.accept(property)));
     }
 
 }

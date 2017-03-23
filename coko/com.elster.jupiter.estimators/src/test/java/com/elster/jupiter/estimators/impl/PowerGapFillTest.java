@@ -27,6 +27,7 @@ import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.units.Unit;
 
@@ -51,7 +52,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
-import static com.elster.jupiter.estimators.impl.PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS;
+import static com.elster.jupiter.estimators.impl.PowerGapFill.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.mockito.AdditionalMatchers.cmpEq;
@@ -73,7 +74,7 @@ public class PowerGapFillTest {
     @Rule
     public TestRule mcMurdo = Using.timeZoneOfMcMurdo();
 
-    public LogRecorder logRecorder;
+    private LogRecorder logRecorder;
     @Mock
     private Thesaurus thesaurus;
     @Mock
@@ -119,10 +120,10 @@ public class PowerGapFillTest {
         doReturn(Optional.of(readingRecord1)).when(bulkCimChannel).getReading(BEFORE.toInstant());
         doReturn(Optional.of(readingRecord2)).when(bulkCimChannel).getReading(ESTIMATABLE3.toInstant());
         doReturn(Optional.of(readingRecord2)).when(bulkCimChannel).getReading(AFTER.toInstant());
-        doReturn(Arrays.asList(mockReadingQuality(ProtocolReadingQualities.POWERDOWN.getCimCode()))).when(readingRecord1).getReadingQualities();
-        doReturn(Arrays.asList(mockReadingQuality(ProtocolReadingQualities.POWERUP.getCimCode()))).when(readingRecord2).getReadingQualities();
+        doReturn(Collections.singletonList(mockReadingQuality(ProtocolReadingQualities.POWERDOWN.getCimCode()))).when(readingRecord1).getReadingQualities();
+        doReturn(Collections.singletonList(mockReadingQuality(ProtocolReadingQualities.POWERUP.getCimCode()))).when(readingRecord2).getReadingQualities();
 
-        when(readingRecord1.hasReadingQuality(Matchers.<ReadingQualityType>any())).then(invocationOnMock -> {
+        when(readingRecord1.hasReadingQuality(Matchers.any(ReadingQualityType.class))).then(invocationOnMock -> {
             for (ReadingQuality readingQuality : readingRecord1.getReadingQualities()) {
                 if (readingQuality.getTypeCode().equals(((ReadingQualityType) invocationOnMock.getArguments()[0]).getCode())) {
                     return true;
@@ -131,7 +132,7 @@ public class PowerGapFillTest {
             return false;
         });
 
-        when(readingRecord2.hasReadingQuality(Matchers.<ReadingQualityType>any())).then(invocationOnMock -> {
+        when(readingRecord2.hasReadingQuality(Matchers.any(ReadingQualityType.class))).then(invocationOnMock -> {
             for (ReadingQuality readingQuality : readingRecord2.getReadingQualities()) {
                 if (readingQuality.getTypeCode().equals(((ReadingQualityType) invocationOnMock.getArguments()[0]).getCode())) {
                     return true;
@@ -174,8 +175,8 @@ public class PowerGapFillTest {
     @Test
     public void testPowerGapFillForDelta() {
 
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.hours(3));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -195,8 +196,8 @@ public class PowerGapFillTest {
     public void testPowerGapFillForBulk() {
         doReturn(bulkReadingType).when(estimationBlock).getReadingType();
 
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.hours(3));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -215,8 +216,8 @@ public class PowerGapFillTest {
     @Test
     public void testPowerGapFillDoesNotEstimateWhenTooManySuspects() {
 
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 1L);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.hours(2));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -225,7 +226,8 @@ public class PowerGapFillTest {
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")
+                && message.endsWith("since its size exceeds the maximum of 2 hours")).atLevel(Level.INFO);
     }
 
     @Test
@@ -233,8 +235,8 @@ public class PowerGapFillTest {
         doReturn(Optional.empty()).when(channel).getReading(BEFORE.toInstant());
         doReturn(Optional.empty()).when(bulkCimChannel).getReading(BEFORE.toInstant());
 
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.hours(3));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -251,8 +253,8 @@ public class PowerGapFillTest {
         doReturn(null).when(readingRecord1).getValue();
         doReturn(null).when(readingRecord1).getQuantity(bulkReadingType);
 
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.hours(3));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -269,8 +271,8 @@ public class PowerGapFillTest {
         doReturn(Optional.empty()).when(channel).getReading(ESTIMATABLE3.toInstant());
         doReturn(Optional.empty()).when(bulkCimChannel).getReading(ESTIMATABLE3.toInstant());
 
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.hours(3));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -287,8 +289,8 @@ public class PowerGapFillTest {
         doReturn(null).when(readingRecord2).getValue();
         doReturn(null).when(readingRecord2).getQuantity(bulkReadingType);
 
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.hours(3));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -304,8 +306,8 @@ public class PowerGapFillTest {
     public void testPowerGapFillDoesNotEstimateWhenDeltaHasNoBulkReadingType() {
         doReturn(Optional.empty()).when(deltaReadingType).getBulkReadingType();
 
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.hours(3));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -321,8 +323,8 @@ public class PowerGapFillTest {
     public void testPowerGapFillDoesNotEstimateWhenChannelDoesNotContainTheBulkReadingType() {
         doReturn(Optional.empty()).when(channel).getCimChannel(bulkReadingType);
 
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.hours(3));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -338,8 +340,8 @@ public class PowerGapFillTest {
     public void testPowerGapFillDoesNotEstimateWhenBeforeReadingDoesNotHavePowerDownFlag() {
         doReturn(Collections.emptyList()).when(readingRecord1).getReadingQualities();
 
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.hours(3));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -355,8 +357,8 @@ public class PowerGapFillTest {
     public void testPowerGapFillDoesNotEstimateWhenLastReadingDoesNotHavePowerUpFlag() {
         doReturn(Collections.emptyList()).when(readingRecord2).getReadingQualities();
 
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.hours(3));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -374,8 +376,8 @@ public class PowerGapFillTest {
         doReturn(Optional.empty()).when(channel).getReading(BEFORE.toInstant());
         doReturn(Optional.empty()).when(bulkCimChannel).getReading(BEFORE.toInstant());
 
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.hours(3));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -393,8 +395,8 @@ public class PowerGapFillTest {
         doReturn(null).when(readingRecord1).getValue();
         doReturn(null).when(readingRecord1).getQuantity(bulkReadingType);
 
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.hours(3));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -412,8 +414,8 @@ public class PowerGapFillTest {
         doReturn(Optional.empty()).when(channel).getReading(AFTER.toInstant());
         doReturn(Optional.empty()).when(bulkCimChannel).getReading(AFTER.toInstant());
 
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.hours(3));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -431,8 +433,8 @@ public class PowerGapFillTest {
         doReturn(null).when(readingRecord2).getValue();
         doReturn(null).when(readingRecord2).getQuantity(bulkReadingType);
 
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.hours(3));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -450,8 +452,8 @@ public class PowerGapFillTest {
         doReturn(bulkReadingType).when(estimationBlock).getReadingType();
         doReturn(Collections.emptyList()).when(readingRecord1).getReadingQualities();
 
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.hours(3));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -469,8 +471,8 @@ public class PowerGapFillTest {
         doReturn(bulkReadingType).when(estimationBlock).getReadingType();
         doReturn(Collections.emptyList()).when(readingRecord2).getReadingQualities();
 
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.hours(3));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -487,8 +489,8 @@ public class PowerGapFillTest {
         doReturn(false).when(deltaReadingType).isRegular();
         doReturn(false).when(bulkReadingType).isRegular();
 
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.hours(3));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -503,7 +505,7 @@ public class PowerGapFillTest {
 
     @Test(expected = LocalizedFieldValidationException.class)
     public void testInvalidPropertiesWhenConsecutiveIsZero() {
-        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 0L);
+        EstimationRuleProperties property = estimationRuleProperty(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.months(0));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService);
 
@@ -512,7 +514,7 @@ public class PowerGapFillTest {
 
     @Test(expected = LocalizedFieldValidationException.class)
     public void testInvalidPropertiesWhenConsecutiveIsNegative() {
-        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, -1L);
+        EstimationRuleProperties property = estimationRuleProperty(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.months(-1));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService);
 

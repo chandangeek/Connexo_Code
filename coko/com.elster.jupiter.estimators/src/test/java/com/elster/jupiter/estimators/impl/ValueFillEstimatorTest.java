@@ -21,6 +21,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.logging.LoggingContext;
 
 import java.math.BigDecimal;
@@ -43,7 +44,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
-import static com.elster.jupiter.estimators.impl.ValueFillEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS;
+import static com.elster.jupiter.estimators.impl.ValueFillEstimator.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -104,7 +105,7 @@ public class ValueFillEstimatorTest {
 
         Map<String, Object> properties = new HashMap<>();
         properties.put(ValueFillEstimator.FILL_VALUE, new BigDecimal(5));
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.seconds(26));
 
         Estimator estimator = new ValueFillEstimator(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -134,7 +135,7 @@ public class ValueFillEstimatorTest {
 
         Map<String, Object> properties = new HashMap<>();
         properties.put(ValueFillEstimator.FILL_VALUE, BigDecimal.valueOf(5));
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS,1L);
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.seconds(50));
 
         Estimator estimator = new ValueFillEstimator(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -143,12 +144,13 @@ public class ValueFillEstimatorTest {
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")
+                && message.endsWith("since its size exceeds the maximum of 50 seconds")).atLevel(Level.INFO);
     }
 
     @Test(expected = LocalizedFieldValidationException.class)
     public void testInvalidPropertiesWhenConsecutiveIsZero() {
-        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 0L);
+        EstimationRuleProperties property = estimationRuleProperty(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.millis(0));
 
         Estimator estimator = new ValueFillEstimator(thesaurus, propertySpecService);
 
@@ -157,7 +159,7 @@ public class ValueFillEstimatorTest {
 
     @Test(expected = LocalizedFieldValidationException.class)
     public void testInvalidPropertiesWhenConsecutiveIsNegative() {
-        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, -1L);
+        EstimationRuleProperties property = estimationRuleProperty(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.millis(-1));
 
         Estimator estimator = new ValueFillEstimator(thesaurus, propertySpecService);
 

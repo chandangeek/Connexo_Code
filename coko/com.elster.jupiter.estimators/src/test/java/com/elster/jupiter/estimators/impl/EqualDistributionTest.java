@@ -37,6 +37,7 @@ import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.units.Unit;
 
@@ -46,7 +47,6 @@ import com.google.common.collect.Range;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -69,7 +69,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static com.elster.jupiter.estimators.impl.EqualDistribution.ADVANCE_READINGS_SETTINGS;
-import static com.elster.jupiter.estimators.impl.EqualDistribution.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS;
+import static com.elster.jupiter.estimators.impl.EqualDistribution.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.mockito.AdditionalMatchers.cmpEq;
@@ -165,10 +165,10 @@ public class EqualDistributionTest {
         doReturn(Optional.of(intervalReadingRecord1)).when(bulkCimChannel).getReading(BEFORE.toInstant());
         doReturn(Optional.of(intervalReadingRecord2)).when(bulkCimChannel).getReading(ESTIMATABLE3.toInstant());
         doReturn(Optional.of(intervalReadingRecord2)).when(bulkCimChannel).getReading(AFTER.toInstant());
-        doReturn(Arrays.asList(mockReadingQuality(ProtocolReadingQualities.POWERDOWN.getCimCode()))).when(intervalReadingRecord1).getReadingQualities();
-        doReturn(Arrays.asList(mockReadingQuality(ProtocolReadingQualities.POWERUP.getCimCode()))).when(intervalReadingRecord2).getReadingQualities();
+        doReturn(Collections.singletonList(mockReadingQuality(ProtocolReadingQualities.POWERDOWN.getCimCode()))).when(intervalReadingRecord1).getReadingQualities();
+        doReturn(Collections.singletonList(mockReadingQuality(ProtocolReadingQualities.POWERUP.getCimCode()))).when(intervalReadingRecord2).getReadingQualities();
 
-        when(intervalReadingRecord1.hasReadingQuality(Matchers.<ReadingQualityType>any())).then(invocationOnMock -> {
+        when(intervalReadingRecord1.hasReadingQuality(Matchers.any(ReadingQualityType.class))).then(invocationOnMock -> {
             for (ReadingQuality readingQuality : intervalReadingRecord1.getReadingQualities()) {
                 if (readingQuality.getTypeCode().equals(((ReadingQualityType) invocationOnMock.getArguments()[0]).getCode())) {
                     return true;
@@ -177,7 +177,7 @@ public class EqualDistributionTest {
             return false;
         });
 
-        when(intervalReadingRecord2.hasReadingQuality(Matchers.<ReadingQualityType>any())).then(invocationOnMock -> {
+        when(intervalReadingRecord2.hasReadingQuality(Matchers.any(ReadingQualityType.class))).then(invocationOnMock -> {
             for (ReadingQuality readingQuality : intervalReadingRecord2.getReadingQualities()) {
                 if (readingQuality.getTypeCode().equals(((ReadingQualityType) invocationOnMock.getArguments()[0]).getCode())) {
                     return true;
@@ -284,7 +284,7 @@ public class EqualDistributionTest {
     @Test
     public void testEqualDistributionUsingBulk() {
         Map<String, Object> properties = new HashMap<>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1));
         properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
@@ -304,7 +304,7 @@ public class EqualDistributionTest {
     @Test
     public void testEqualDistributionUsingAdvances() {
         Map<String, Object> properties = new HashMap<>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1));
         properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
@@ -321,11 +321,10 @@ public class EqualDistributionTest {
         verify(estimatable3).setEstimation(cmpEq(BigDecimal.valueOf(5777778, 6)));
     }
 
-
     @Test
     public void testEqualDistributionDoesNotEstimateWhenTooManySuspects() {
         Map<String, Object> properties = new HashMap<>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 1L);
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.hours(2));
         properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
@@ -336,7 +335,7 @@ public class EqualDistributionTest {
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
         assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")
-                && message.endsWith("since it contains 3 suspects, which exceeds the maximum of 1")).atLevel(Level.INFO);
+                && message.endsWith("since its size exceeds the maximum of 2 hours")).atLevel(Level.INFO);
     }
 
     @Test
@@ -353,7 +352,7 @@ public class EqualDistributionTest {
         doReturn(true).when(suspect4).isSuspect();
 
         Map<String, Object> properties = new HashMap<>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1));
         properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
@@ -379,7 +378,7 @@ public class EqualDistributionTest {
                 .noneMatch()).thenReturn(false);
 
         Map<String, Object> properties = new HashMap<>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1));
         properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
@@ -405,7 +404,7 @@ public class EqualDistributionTest {
                 .noneMatch()).thenReturn(false);
 
         Map<String, Object> properties = new HashMap<>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1));
         properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
@@ -433,7 +432,7 @@ public class EqualDistributionTest {
         doReturn(AFTER_PLUS_2.toInstant()).when(suspect4).getReadingTimestamp();
 
         Map<String, Object> properties = new HashMap<>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1));
         properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
@@ -453,7 +452,7 @@ public class EqualDistributionTest {
 
         Map<String, Object> properties = new HashMap<>();
         properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
         estimator.init(LOGGER);
@@ -472,7 +471,7 @@ public class EqualDistributionTest {
 
         Map<String, Object> properties = new HashMap<>();
         properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
         estimator.init(LOGGER);
@@ -496,7 +495,7 @@ public class EqualDistributionTest {
 
         Map<String, Object> properties = new HashMap<>();
         properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
         estimator.init(LOGGER);
@@ -520,7 +519,7 @@ public class EqualDistributionTest {
 
         Map<String, Object> properties = new HashMap<>();
         properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
         estimator.init(LOGGER);
@@ -539,7 +538,7 @@ public class EqualDistributionTest {
 
         Map<String, Object> properties = new HashMap<>();
         properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
         estimator.init(LOGGER);
@@ -558,7 +557,7 @@ public class EqualDistributionTest {
 
         Map<String, Object> properties = new HashMap<>();
         properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
         estimator.init(LOGGER);
@@ -576,7 +575,7 @@ public class EqualDistributionTest {
         doReturn(null).when(intervalReadingRecord2).getValue();
 
         Map<String, Object> properties = new HashMap<>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1));
         properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
@@ -595,7 +594,7 @@ public class EqualDistributionTest {
         doReturn(Optional.empty()).when(deltaReadingType).getBulkReadingType();
 
         Map<String, Object> properties = new HashMap<>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1));
         properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
@@ -614,7 +613,7 @@ public class EqualDistributionTest {
         doReturn(Optional.empty()).when(channel).getCimChannel(bulkReadingType);
 
         Map<String, Object> properties = new HashMap<>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1));
         properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
@@ -634,7 +633,7 @@ public class EqualDistributionTest {
         doReturn(Optional.empty()).when(bulkCimChannel).getReading(BEFORE.toInstant());
 
         Map<String, Object> properties = new HashMap<>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1));
         properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
@@ -654,7 +653,7 @@ public class EqualDistributionTest {
         doReturn(false).when(bulkReadingType).isRegular();
 
         Map<String, Object> properties = new HashMap<>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1));
         properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
@@ -670,7 +669,7 @@ public class EqualDistributionTest {
 
     @Test(expected = LocalizedFieldValidationException.class)
     public void testInvalidPropertiesWhenConsecutiveIsZero() {
-        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 0L);
+        EstimationRuleProperties property = estimationRuleProperty(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.hours(0));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService);
 
@@ -679,7 +678,7 @@ public class EqualDistributionTest {
 
     @Test(expected = LocalizedFieldValidationException.class)
     public void testInvalidPropertiesWhenConsecutiveIsNegative() {
-        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, -1L);
+        EstimationRuleProperties property = estimationRuleProperty(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.hours(-1));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService);
 

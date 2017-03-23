@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.estimators.impl;
 
-import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
@@ -19,11 +18,11 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.units.Unit;
 
@@ -47,7 +46,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
-import static com.elster.jupiter.estimators.impl.LinearInterpolation.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS;
+import static com.elster.jupiter.estimators.impl.LinearInterpolation.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -65,7 +64,6 @@ public class LinearInterpolationTest {
     @Rule
     public TestRule mcMurdo = Using.timeZoneOfMcMurdo();
 
-    public static final ReadingQualityType SUSPECT = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT);
     @Mock
     private Thesaurus thesaurus;
     @Mock
@@ -120,8 +118,8 @@ public class LinearInterpolationTest {
     @Test
     public void testLinearInterpolation() {
 
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1));
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -139,8 +137,8 @@ public class LinearInterpolationTest {
     @Test
     public void testLinearInterpolationDoesNotEstimateWhenTooManySuspects() {
 
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 1L);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.hours(1));
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -149,15 +147,16 @@ public class LinearInterpolationTest {
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")
+                && message.endsWith("since its size exceeds the maximum of 1 hours")).atLevel(Level.INFO);
     }
 
     @Test
     public void testLinearInterpolationDoesNotEstimateWhenReadingTypeIsNotCumulative() {
         doReturn(false).when(readingType).isCumulative();
 
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1));
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -173,8 +172,8 @@ public class LinearInterpolationTest {
     public void testLinearInterpolationDoesNotEstimateWhenBeforeReadingNotThere() {
         doReturn(Optional.empty()).when(channel).getReading(BEFORE.toInstant());
 
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1));
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -191,7 +190,7 @@ public class LinearInterpolationTest {
         doReturn(Optional.empty()).when(channel).getReading(AFTER.toInstant());
 
         Map<String, Object> properties = new HashMap<>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1));
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -208,7 +207,7 @@ public class LinearInterpolationTest {
         doReturn(null).when(readingRecord1).getQuantity(readingType);
 
         Map<String, Object> properties = new HashMap<>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1));
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -225,7 +224,7 @@ public class LinearInterpolationTest {
         doReturn(null).when(readingRecord2).getQuantity(readingType);
 
         Map<String, Object> properties = new HashMap<>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1));
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -239,7 +238,7 @@ public class LinearInterpolationTest {
 
     @Test(expected = LocalizedFieldValidationException.class)
     public void testInvalidPropertiesWhenConsecutiveIsZero() {
-        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 0L);
+        EstimationRuleProperties property = estimationRuleProperty(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.weeks(0));
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService);
 
@@ -248,7 +247,7 @@ public class LinearInterpolationTest {
 
     @Test(expected = LocalizedFieldValidationException.class)
     public void testInvalidPropertiesWhenConsecutiveIsNegative() {
-        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, -1L);
+        EstimationRuleProperties property = estimationRuleProperty(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.weeks(-1));
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService);
 

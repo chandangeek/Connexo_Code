@@ -28,6 +28,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.streams.Functions;
@@ -59,9 +60,6 @@ import java.util.stream.Collectors;
 import static java.lang.Math.abs;
 import static java.math.RoundingMode.HALF_UP;
 
-/**
- * Created by igh on 25/03/2015.
- */
 class AverageWithSamplesEstimator extends AbstractEstimator {
 
     /**
@@ -73,9 +71,9 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
      */
     public enum TranslationKeys implements TranslationKey {
         ESTIMATOR_NAME(AverageWithSamplesEstimator.class.getName(), "Average with samples"),
-        MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS("averagewithsamples.maxNumberOfConsecutiveSuspects", "Max number of consecutive suspects"),
-        MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION("averagewithsamples.maxNumberOfConsecutiveSuspects.description",
-                "The maximum number of consecutive suspects that is allowed. If this amount is exceeded data is not estimated, but can be manually edited or estimated."),
+        MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS("averagewithsamples.maxPeriodOfConsecutiveSuspects", "Maximum period of consecutive suspects"),
+        MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION("averagewithsamples.maxPeriodOfConsecutiveSuspects.description",
+                "The maximum period of consecutive suspects that is allowed. If this period is exceeded, data is not estimated, but can be manually edited or estimated."),
         MIN_NUMBER_OF_SAMPLES("averagewithsamples.minNumberOfSamples", "Minimum samples"),
         MIN_NUMBER_OF_SAMPLES_DESCRIPTION("averagewithsamples.minNumberOfSamples.description", "The minimum amount of sample needed for estimation."),
         MAX_NUMBER_OF_SAMPLES("averagewithsamples.maxNumberOfSamples", "Maximum samples"),
@@ -133,14 +131,14 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
         }
     }
 
-    static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS.getKey();
+    static final String MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS = TranslationKeys.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS.getKey();
     static final String MIN_NUMBER_OF_SAMPLES = TranslationKeys.MIN_NUMBER_OF_SAMPLES.getKey();
     static final String MAX_NUMBER_OF_SAMPLES = TranslationKeys.MAX_NUMBER_OF_SAMPLES.getKey();
     static final String ALLOW_NEGATIVE_VALUES = TranslationKeys.ALLOW_NEGATIVE_VALUES.getKey();
     static final String RELATIVE_PERIOD = TranslationKeys.RELATIVE_PERIOD.getKey();
     static final String ADVANCE_READINGS_SETTINGS = TranslationKeys.ADVANCE_READINGS_SETTINGS.getKey();
 
-    private static final Long MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = 10L;
+    private static final TimeDuration MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = TimeDuration.days(1);
     private static final Long MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE = 1L;
     private static final Long MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE = 10L;
     private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
@@ -149,7 +147,7 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
     private final MeteringService meteringService;
     private final TimeService timeService;
 
-    private Long numberOfConsecutiveSuspects;
+    private TimeDuration maxPeriodOfConsecutiveSuspects;
     private Long minNumberOfSamples;
     private Long maxNumberOfSamples;
     private boolean allowNegativeValues = false;
@@ -208,11 +206,11 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
             throw new IllegalArgumentException("Estimator properties should be provided");
         }
         for (Map.Entry<String, Object> property : estimatorProperties.entrySet()) {
-            if (property.getKey().equals(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS)) {
-                Long value = (Long) property.getValue();
-                if (value.intValue() < 1) {
-                    throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS_SHOULD_BE_INTEGER_VALUE,
-                            MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
+            if (property.getKey().equals(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS)) {
+                TimeDuration value = (TimeDuration) property.getValue();
+                if (value.getMilliSeconds() < 1) {
+                    throw new LocalizedFieldValidationException(MessageSeeds.INVALID_PERIOD_OF_ZERO_OR_NEGATIVE_LENGTH,
+                            "properties." + MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS);
                 }
             } else if (property.getKey().equals(ADVANCE_READINGS_SETTINGS)) {
                 Object settings = property.getValue();
@@ -239,7 +237,7 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
     @Override
     public List<String> getRequiredProperties() {
         return Arrays.asList(
-                MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS,
+                MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS,
                 MAX_NUMBER_OF_SAMPLES,
                 MIN_NUMBER_OF_SAMPLES,
                 ALLOW_NEGATIVE_VALUES,
@@ -258,12 +256,12 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
 
         builder.add(getPropertySpecService()
-                .longSpec()
-                .named(TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS)
-                .describedAs(TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION)
+                .timeDurationSpec()
+                .named(TranslationKeys.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS)
+                .describedAs(TranslationKeys.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-                .setDefaultValue(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE)
+                .setDefaultValue(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE)
                 .finish());
 
         builder.add(
@@ -320,11 +318,11 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
 
     @Override
     public void init() {
-        numberOfConsecutiveSuspects = getProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, Long.class)
-                .orElse(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE);
+        maxPeriodOfConsecutiveSuspects = getProperty(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.class)
+                .orElse(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE);
 
         maxNumberOfSamples = getProperty(MAX_NUMBER_OF_SAMPLES, Long.class)
-                .orElse(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE);
+                .orElse(MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE);
 
         minNumberOfSamples = getProperty(MIN_NUMBER_OF_SAMPLES, Long.class)
                 .orElse(MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE);
@@ -352,10 +350,14 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
     }
 
     private boolean isBlockSizeOk(EstimationBlock block) {
-        boolean blockSizeOk = block.estimatables().size() <= numberOfConsecutiveSuspects;
+        Range<Instant> actualPeriodOfSuspects = Range.encloseAll(block.estimatables().stream()
+                .map(Estimatable::getTimestamp)
+                .collect(Collectors.toSet()));
+        boolean blockSizeOk = actualPeriodOfSuspects.upperEndpoint().toEpochMilli() - actualPeriodOfSuspects.lowerEndpoint().toEpochMilli()
+                < maxPeriodOfConsecutiveSuspects.getMilliSeconds(); // max period of consecutive suspects is assumed open-closed, thus strict inequality
         if (!blockSizeOk) {
-            String message = "Failed estimation with {rule}: Block {block} since it contains {0} suspects, which exceeds the maximum of {1}";
-            LoggingContext.get().info(getLogger(), message, block.estimatables().size(), numberOfConsecutiveSuspects);
+            String message = "Failed estimation with {rule}: Block {block} since its size exceeds the maximum of {0}";
+            LoggingContext.get().info(getLogger(), message, maxPeriodOfConsecutiveSuspects);
         }
         return blockSizeOk;
     }
@@ -436,7 +438,7 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
 
     private static void rescaleEstimation(EstimationBlock estimationBlock, BigDecimal totalConsumption) {
         BigDecimal factor = totalConsumption.divide(getTotalEstimatedConsumption(estimationBlock), 10, HALF_UP);
-        estimationBlock.estimatables().stream()
+        estimationBlock.estimatables()
                 .forEach(estimatable -> estimatable.setEstimation(estimatable.getEstimation().multiply(factor).setScale(6, HALF_UP)));
     }
 

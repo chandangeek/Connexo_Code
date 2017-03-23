@@ -20,7 +20,6 @@ import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
-import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -33,6 +32,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.impl.AllRelativePeriod;
 import com.elster.jupiter.util.logging.LoggingContext;
@@ -73,7 +73,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.estimators.impl.EqualDistribution.ADVANCE_READINGS_SETTINGS;
-import static com.elster.jupiter.estimators.impl.EqualDistribution.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS;
+import static com.elster.jupiter.estimators.impl.EqualDistribution.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -98,8 +98,6 @@ public class AverageWithSamplesEstimatorTest {
     private Thesaurus thesaurus;
     @Mock
     private PropertySpecService propertySpecService;
-    @Mock
-    private KpiService kpiService;
     @Mock
     private ValidationService validationService;
     @Mock
@@ -296,7 +294,7 @@ public class AverageWithSamplesEstimatorTest {
     @Test
     public void testEstimatePasses() {
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
-                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
+                .put(AverageWithSamplesEstimator.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.minutes(15))
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
                 .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
@@ -319,7 +317,7 @@ public class AverageWithSamplesEstimatorTest {
         readingRecords = readingRecords.subList(1, readingRecords.size() - 2);
         doReturn(readingRecords).when(channel).getReadings(Range.openClosed(START.toInstant(), LAST_CHECKED.toInstant()));
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
-                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
+                .put(AverageWithSamplesEstimator.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.minutes(15))
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
                 .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
@@ -351,7 +349,7 @@ public class AverageWithSamplesEstimatorTest {
                 .noneMatch()).thenReturn(false);
 
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
-                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
+                .put(AverageWithSamplesEstimator.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.minutes(15))
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
                 .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
@@ -376,7 +374,7 @@ public class AverageWithSamplesEstimatorTest {
 
         doReturn(asList(estimableExtra, estimable)).when(block).estimatables();
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
-                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 1L)
+                .put(AverageWithSamplesEstimator.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.minutes(15))
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
                 .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
@@ -392,7 +390,7 @@ public class AverageWithSamplesEstimatorTest {
         assertThat(result.estimated()).isEmpty();
         assertThat(result.remainingToBeEstimated()).containsExactly(block);
         JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
-        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("suspects, which exceeds the maximum of")).atLevel(Level.INFO);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("since its size exceeds the maximum of 15 minutes")).atLevel(Level.INFO);
     }
 
     @Test
@@ -401,7 +399,7 @@ public class AverageWithSamplesEstimatorTest {
         readingRecords = readingRecords.subList(1, readingRecords.size() - 3);
         doReturn(readingRecords).when(channel).getReadings(Range.openClosed(START.toInstant(), LAST_CHECKED.toInstant()));
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
-                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
+                .put(AverageWithSamplesEstimator.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.minutes(15))
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
                 .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
@@ -433,7 +431,7 @@ public class AverageWithSamplesEstimatorTest {
 
         doReturn(asList(estimable, estimable2)).when(block).estimatables();
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
-                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
+                .put(AverageWithSamplesEstimator.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1))
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
                 .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
@@ -467,7 +465,7 @@ public class AverageWithSamplesEstimatorTest {
         doReturn(deltaCimChannel).when(block).getCimChannel();
         doReturn(asList(estimable, estimable2)).when(block).estimatables();
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
-                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
+                .put(AverageWithSamplesEstimator.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1))
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
                 .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
@@ -494,7 +492,7 @@ public class AverageWithSamplesEstimatorTest {
 
         doReturn(asList(estimable, estimable2)).when(block).estimatables();
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
-                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
+                .put(AverageWithSamplesEstimator.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1))
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
                 .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
@@ -523,7 +521,7 @@ public class AverageWithSamplesEstimatorTest {
 
         doReturn(asList(estimable, estimable2)).when(block).estimatables();
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
-                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
+                .put(AverageWithSamplesEstimator.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1))
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
                 .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
@@ -548,7 +546,7 @@ public class AverageWithSamplesEstimatorTest {
 
         doReturn(asList(estimable, estimable2)).when(block).estimatables();
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
-                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
+                .put(AverageWithSamplesEstimator.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1))
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
                 .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
@@ -599,7 +597,7 @@ public class AverageWithSamplesEstimatorTest {
 
         doReturn(asList(estimable, estimable2)).when(block).estimatables();
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
-                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
+                .put(AverageWithSamplesEstimator.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1))
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
                 .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
@@ -628,7 +626,7 @@ public class AverageWithSamplesEstimatorTest {
 
         doReturn(asList(estimable, estimable2)).when(block).estimatables();
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
-                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
+                .put(AverageWithSamplesEstimator.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1))
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
                 .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
@@ -660,7 +658,7 @@ public class AverageWithSamplesEstimatorTest {
 
         doReturn(asList(estimable, estimable2)).when(block).estimatables();
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
-                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
+                .put(AverageWithSamplesEstimator.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1))
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
                 .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
@@ -685,7 +683,7 @@ public class AverageWithSamplesEstimatorTest {
         doReturn(false).when(bulkReadingType).isRegular();
 
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
-                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
+                .put(AverageWithSamplesEstimator.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.minutes(15))
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
                 .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
@@ -717,7 +715,7 @@ public class AverageWithSamplesEstimatorTest {
 
         doReturn(asList(estimable, estimable2)).when(block).estimatables();
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
-                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
+                .put(AverageWithSamplesEstimator.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1))
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
                 .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
@@ -738,7 +736,7 @@ public class AverageWithSamplesEstimatorTest {
 
     @Test(expected = LocalizedFieldValidationException.class)
     public void testInvalidPropertiesWhenConsecutiveIsZero() {
-        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 0L);
+        EstimationRuleProperties property = estimationRuleProperty(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(0));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService);
 
@@ -747,7 +745,7 @@ public class AverageWithSamplesEstimatorTest {
 
     @Test(expected = LocalizedFieldValidationException.class)
     public void testInvalidPropertiesWhenConsecutiveIsNegative() {
-        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, -1L);
+        EstimationRuleProperties property = estimationRuleProperty(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(-1));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService);
 
@@ -775,7 +773,7 @@ public class AverageWithSamplesEstimatorTest {
 
         doReturn(asList(estimable, estimable2)).when(block).estimatables();
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
-                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
+                .put(AverageWithSamplesEstimator.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1))
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
                 .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
@@ -806,7 +804,7 @@ public class AverageWithSamplesEstimatorTest {
 
         doReturn(asList(estimable, estimable2)).when(block).estimatables();
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
-                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
+                .put(AverageWithSamplesEstimator.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1))
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
                 .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
