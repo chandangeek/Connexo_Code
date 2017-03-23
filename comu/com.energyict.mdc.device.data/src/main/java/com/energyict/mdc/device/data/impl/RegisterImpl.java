@@ -24,6 +24,8 @@ import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.RegisterDataUpdater;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -35,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> implements Register<R, RS> {
@@ -100,9 +103,10 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
     }
 
     private List<R> getHistoryReadings(Range<Instant> interval, boolean changedDataOnly) {
-        List<ReadingRecord> koreReadings = this.device.getHistoryReadingsFor(this, interval, changedDataOnly);
+        List<ReadingRecord> koreReadings = this.device.getHistoryReadingsFor(this, interval);
         List<Optional<DataValidationStatus>> validationStatuses = this.getHistoryValidationStatuses(this, interval, koreReadings);
-        return this.toReadings(koreReadings, validationStatuses);
+        List<R> readings = this.toReadings(koreReadings, validationStatuses);
+        return changedDataOnly ? this.filterChangedData(readings) : readings;
     }
 
     private List<Optional<DataValidationStatus>> getValidationStatuses(List<ReadingRecord> readings) {
@@ -189,6 +193,20 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
         else {
             return this.newUnvalidatedReading(koreReadingAndStatus.getFirst());
         }
+    }
+
+    private List<R> filterChangedData(List<R> readings) {
+        return readings.stream()
+                .filter(r1 -> readings
+                        .stream()
+                        .filter(r2 -> r2.getTimeStamp().equals(r1.getTimeStamp()))
+                        .count() > 1)
+                .collect(Collectors.toList());
+    }
+
+    public static <T> Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor) {
+        Map<Object, Boolean> map = new ConcurrentHashMap<>();
+        return t -> map.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
 
     protected abstract R newUnvalidatedReading(ReadingRecord actualReading);

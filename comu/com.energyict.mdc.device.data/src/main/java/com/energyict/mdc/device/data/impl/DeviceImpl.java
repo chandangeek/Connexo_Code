@@ -1395,8 +1395,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return this.getListMeterAspect(meter -> this.getReadingsFor(register, interval, meter));
     }
 
-    List<ReadingRecord> getHistoryReadingsFor(Register<?, ?> register, Range<Instant> interval, boolean changedDataOnly) {
-        return this.getListMeterAspect(meter -> this.getHistoryReadingsFor(register, interval, changedDataOnly, meter));
+    List<ReadingRecord> getHistoryReadingsFor(Register<?, ?> register, Range<Instant> interval) {
+        return this.getListMeterAspect(meter -> this.getHistoryReadingsFor(register, interval, meter));
     }
 
     private List<ReadingRecord> getReadingsFor(Register<?, ?> register, Range<Instant> interval, Meter meter) {
@@ -1407,8 +1407,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .collect(Collectors.toList());
     }
 
-    private List<ReadingRecord> getHistoryReadingsFor(Register<?, ?> register, Range<Instant> interval, boolean changedDataOnly, Meter meter) {
-        List<? extends BaseReadingRecord> readings = meter.getJournalReadings(interval, changedDataOnly, register.getRegisterSpec().getRegisterType().getReadingType());
+    private List<ReadingRecord> getHistoryReadingsFor(Register<?, ?> register, Range<Instant> interval, Meter meter) {
+        List<? extends BaseReadingRecord> readings = meter.getJournalReadings(interval, register.getRegisterSpec().getRegisterType().getReadingType());
         return readings
                 .stream()
                 .map(ReadingRecord.class::cast)
@@ -1485,14 +1485,18 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                     }
             ));
 
-
-            meterHasData = this.addChannelWithHistoryDataToMap(clipped, changedDataOnly, meter.get(), channel, sortedHistoryLoadProfileReadingMap);
-
+            meterHasData = this.addChannelWithHistoryDataToMap(clipped, meter.get(), channel, sortedHistoryLoadProfileReadingMap);
             if (meterHasData) {
+                if (changedDataOnly) {
+                    sortedHistoryLoadProfileReadingMap = sortedHistoryLoadProfileReadingMap.entrySet()
+                            .stream()
+                            .filter(r -> r.getValue().size() > 1)
+                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                }
                 sortedHistoryLoadProfileReadingMap = sortedHistoryLoadProfileReadingMap.entrySet()
                         .stream()
                         .filter(r -> r.getValue().get(0).getReadingTime() != null)
-                        .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
                 sortedHistoryLoadProfileReadingMap.forEach(
                         (instant, loadProfileReadings1) -> {
                             loadProfileReadings.addAll(loadProfileReadings1);
@@ -1563,14 +1567,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return meterHasData;
     }
 
-    private <R> boolean addChannelWithHistoryDataToMap(Range<Instant> interval, boolean changedDataOnly, Meter meter, Channel mdcChannel, Map<Instant, List<LoadProfileJournalReadingImpl>> sortedHistoryLoadProfileReadingMap) {
+    private <R> boolean addChannelWithHistoryDataToMap(Range<Instant> interval, Meter meter, Channel mdcChannel, Map<Instant, List<LoadProfileJournalReadingImpl>> sortedHistoryLoadProfileReadingMap) {
         boolean meterHasData = false;
         List<MeterActivation> meterActivations = this.getSortedMeterActivations(meter, Ranges.closed(interval.lowerEndpoint(), interval.upperEndpoint()));
         for (MeterActivation meterActivation : meterActivations) {
             Range<Instant> meterActivationInterval = meterActivation.getInterval().toOpenClosedRange().intersection(interval);
             meterHasData |= meterActivationInterval.lowerEndpoint() != meterActivationInterval.upperEndpoint();
             ReadingType readingType = mdcChannel.getReadingType();
-            List<IntervalReadingRecord> meterReadings = (List<IntervalReadingRecord>) meter.getJournalReadings(meterActivationInterval, changedDataOnly, readingType);
+            List<IntervalReadingRecord> meterReadings = (List<IntervalReadingRecord>) meter.getJournalReadings(meterActivationInterval, readingType);
             // To avoid to have to collect the readingqualities meter reading by meter reading (meterreading.getReadingQualities()
             // does a lazy load (database access) we collect all readingqualities here;
             List<? extends ReadingQualityRecord> readingQualities = meter.getReadingQualities(meterActivationInterval);
