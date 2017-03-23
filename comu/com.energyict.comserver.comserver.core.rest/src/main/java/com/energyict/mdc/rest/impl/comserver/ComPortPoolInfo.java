@@ -4,7 +4,8 @@
 
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -12,7 +13,6 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.elster.jupiter.properties.rest.PropertyInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Instant;
