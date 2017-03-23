@@ -30,7 +30,7 @@ public class PkiApplication extends Application {
     private volatile Thesaurus thesaurus;
 
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.of(TrustStoreResource.class);
+        return ImmutableSet.of(TrustStoreResource.class, CertificateResource.class);
     }
 
     @Override
