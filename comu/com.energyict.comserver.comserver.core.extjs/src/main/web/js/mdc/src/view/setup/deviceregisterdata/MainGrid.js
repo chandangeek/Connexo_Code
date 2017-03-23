@@ -31,6 +31,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainGrid', {
                 items: [
                     {
                         xtype: 'button',
+                        itemId: 'device-register-data-add-reading-action-button',
                         text: Uni.I18n.translate('general.addReading', 'MDC', 'Add reading'),
                         privileges: Mdc.privileges.Device.administrateDeviceData,
                         href: '#/devices/' + encodeURIComponent(me.deviceId) + '/registers/' + me.registerId + '/data/add',
