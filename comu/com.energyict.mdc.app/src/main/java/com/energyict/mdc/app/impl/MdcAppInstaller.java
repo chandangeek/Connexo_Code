@@ -7,6 +7,7 @@ package com.energyict.mdc.app.impl;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.estimation.security.Privileges;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -170,8 +171,6 @@ public class MdcAppInstaller {
                     com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE,
                     com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_ATTRIBUTE,
                     com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS,
-                    com.energyict.mdc.device.data.security.Privileges.Constants.ESTIMATE_WITH_RULE,
-                    com.energyict.mdc.device.data.security.Privileges.Constants.EDIT_WITH_ESTIMATOR,
 
 
                     //Estimation
@@ -179,6 +178,8 @@ public class MdcAppInstaller {
                     com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
                     com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_TASK,
                     com.elster.jupiter.estimation.security.Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE,
+                    com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_WITH_RULE,
+                    com.elster.jupiter.estimation.security.Privileges.Constants.EDIT_WITH_ESTIMATOR,
 
                     //Export
                     com.elster.jupiter.export.security.Privileges.Constants.RUN_DATA_EXPORT_TASK,
