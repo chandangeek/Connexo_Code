@@ -256,7 +256,7 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
         when(consumption.getMatchesFor(channelsContainer)).thenReturn(Collections.singletonList(consumptionReadingType15min));
         when(consumption.getMatchingChannelsFor(channelsContainer)).thenReturn(Collections.singletonList(consumptionChannel));
         when(this.virtualFactory.allRequirements()).thenReturn(Collections.singletonList(virtualConsumption));
-
+        when(this.usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(this.effectiveMetrologyConfiguration));
         // Business method
         service.calculate(this.usagePoint, this.contract, aggregationPeriod);
 
@@ -367,6 +367,7 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
         when(consumption.getMatchesFor(channelsContainer)).thenReturn(Collections.singletonList(consumptionReadingType15min));
         when(consumption.getMatchingChannelsFor(channelsContainer)).thenReturn(Collections.singletonList(consumptionChannel));
         when(this.virtualFactory.allRequirements()).thenReturn(Collections.singletonList(virtualConsumption));
+        when(this.usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(this.effectiveMetrologyConfiguration));
 
         // Business method
         service.calculate(this.usagePoint, this.contract, aggregationPeriod);
