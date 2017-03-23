@@ -10,6 +10,7 @@ import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.PlaintextPrivateKeyWrapper;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
+import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -58,6 +59,7 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=generateCSR",
                 "osgi.command.function=truststores",
                 "osgi.command.function=createTrustStore",
+                "osgi.command.function=deleteTrustStore",
                 "osgi.command.function=importSymmetricKey",
                 "osgi.command.function=renew",
                 "osgi.command.function=swap",
@@ -362,6 +364,21 @@ public class KeyAccessorCommands {
         try (TransactionContext context = transactionService.getContext()) {
             pkiService.newTrustStore(name).description("Created by GoGo command").add();
             context.commit();
+        }
+    }
+
+    public void deleteTrustStore() {
+        System.out.println("Usage: deleteTrustStore <name>");
+        System.out.println("E.g. : deleteTrustStore \"DLMS main\"");
+    }
+
+    public void deleteTrustStore(String name) {
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            TrustStore trustStore = pkiService.findTrustStore(name)
+                    .orElseThrow(() -> new RuntimeException("No such trust store"));
+            trustStore.delete();
         }
     }
 }
