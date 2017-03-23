@@ -55,14 +55,15 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).map("name").add();
-            table.column("QUALITY_SYSTEM").number().conversion(ColumnConversion.NUMBER2ENUM).map("qualityCodeSystem").add();
+            Column qualitySystemColumn = table.column("QUALITY_SYSTEM").number().conversion(ColumnConversion.NUMBER2ENUM).map("qualityCodeSystem").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(DESCRIPTION_LENGTH).map("description").add();
             Column obsoleteColumn = table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
             table.addAuditColumns();
             table.primaryKey("VAL_PK_VALIDATIONRULESET").on(idColumn).add();
             table.unique("VAL_U_VALIDATIONRULESET").on(mRIDColumn).add();
-            table.unique("VAL_UQ_RULESET_NAME").on(nameColumn, obsoleteColumn).add();
+            table.unique("VAL_UQ_RULESET_NAME").on(nameColumn, obsoleteColumn).upTo(version(10, 3)).add();
+            table.unique("VAL_UQ_RULESET_NAME").on(nameColumn, obsoleteColumn, qualitySystemColumn).since(version(10, 3)).add();
         }
     },
     VAL_VALIDATIONRULESETVERSION {

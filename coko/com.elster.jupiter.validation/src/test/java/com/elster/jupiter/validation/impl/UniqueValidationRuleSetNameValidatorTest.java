@@ -4,12 +4,13 @@
 
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 
 import javax.validation.ConstraintValidatorContext;
-import java.util.Optional;
 
+import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -30,6 +32,8 @@ public class UniqueValidationRuleSetNameValidatorTest {
     private ConstraintValidatorContext context;
     @Mock
     private ValidationRuleSet validationRuleSet, validationRuleSet2;
+    @Mock
+    private Query<ValidationRuleSet> ruleSetQuery;
 
     @Before
     public void setUp() {
@@ -37,11 +41,12 @@ public class UniqueValidationRuleSetNameValidatorTest {
         when(validationRuleSet2.getName()).thenReturn(NAME);
         when(validationRuleSet.getId()).thenReturn(0L);
         when(validationRuleSet2.getId()).thenReturn(15L);
+        when(validationService.getRuleSetQuery()).thenReturn(ruleSetQuery);
     }
 
     @Test
     public void testValidReturnsTrue() {
-        when(validationService.getValidationRuleSet(NAME)).thenReturn(Optional.empty());
+        when(ruleSetQuery.select(any())).thenReturn(Lists.emptyList());
 
         UniqueValidationRuleSetNameValidator validator = new UniqueValidationRuleSetNameValidator(validationService);
 
@@ -50,7 +55,7 @@ public class UniqueValidationRuleSetNameValidatorTest {
 
     @Test
     public void testInvalidReturnsFalse() {
-        when(validationService.getValidationRuleSet(NAME)).thenReturn(Optional.of(validationRuleSet2));
+        when(ruleSetQuery.select(any())).thenReturn(Lists.newArrayList(validationRuleSet2));
 
         UniqueValidationRuleSetNameValidator validator = new UniqueValidationRuleSetNameValidator(validationService);
 
@@ -59,7 +64,7 @@ public class UniqueValidationRuleSetNameValidatorTest {
 
     @Test
     public void testIsValidWhenItselfIsInDb() {
-        when(validationService.getValidationRuleSet(NAME)).thenReturn(Optional.of(validationRuleSet));
+        when(ruleSetQuery.select(any())).thenReturn(Lists.newArrayList(validationRuleSet));
 
         UniqueValidationRuleSetNameValidator validator = new UniqueValidationRuleSetNameValidator(validationService);
 
@@ -68,7 +73,7 @@ public class UniqueValidationRuleSetNameValidatorTest {
 
     @Test
     public void testValidDoesNotTouchContext() {
-        when(validationService.getValidationRuleSet(NAME)).thenReturn(Optional.empty());
+        when(ruleSetQuery.select(any())).thenReturn(Lists.emptyList());
 
         UniqueValidationRuleSetNameValidator validator = new UniqueValidationRuleSetNameValidator(validationService);
 
