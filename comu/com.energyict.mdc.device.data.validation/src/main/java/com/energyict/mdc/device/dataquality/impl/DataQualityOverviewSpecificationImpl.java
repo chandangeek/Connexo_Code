@@ -10,18 +10,16 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 class DataQualityOverviewSpecificationImpl {
 
     private final List<KpiType> availableKpiTypes;
-
-    private Set<KpiType> enabledKpiTypes = new HashSet<>();
 
     private Set<EndDeviceGroup> deviceGroups = new HashSet<>();
 
@@ -29,11 +27,17 @@ class DataQualityOverviewSpecificationImpl {
 
     private Range<Instant> period = Range.all();
 
-    private MetricValueRange amountOfSuspects = new MetricValueRange.IgnoreRange();
-    private MetricValueRange amountOfConfirmed = new MetricValueRange.IgnoreRange();
-    private MetricValueRange amountOfEstimates = new MetricValueRange.IgnoreRange();
-    private MetricValueRange amountOfInformatives = new MetricValueRange.IgnoreRange();
-    private MetricValueRange amountOfEdited = new MetricValueRange.IgnoreRange();
+    private Set<KpiType> readingQualityTypes = new HashSet<>();
+
+    private Set<KpiType> validators = new HashSet<>();
+
+    private Set<KpiType> estimators = new HashSet<>();
+
+    private MetricValueRange amountOfSuspects;
+    private MetricValueRange amountOfConfirmed;
+    private MetricValueRange amountOfEstimates;
+    private MetricValueRange amountOfInformatives;
+    private MetricValueRange amountOfEdited;
 
     private int from;
     private int to;
@@ -54,8 +58,16 @@ class DataQualityOverviewSpecificationImpl {
         this.period = period;
     }
 
-    public void addKpiType(KpiType... kpiType) {
-        this.enabledKpiTypes.addAll(Arrays.asList(kpiType));
+    void addReadingQualityTypes(Collection<KpiType> readingQualityTypes) {
+        this.readingQualityTypes.addAll(readingQualityTypes);
+    }
+
+    void addValidators(Collection<KpiType> validators) {
+        this.validators.addAll(validators);
+    }
+
+    void addEstimators(Collection<KpiType> estimators) {
+        this.estimators.addAll(estimators);
     }
 
     void setAmountOfSuspects(long amountOfSuspects) {
@@ -115,24 +127,36 @@ class DataQualityOverviewSpecificationImpl {
         return period;
     }
 
-    MetricValueRange getAmountOfSuspects() {
-        return amountOfSuspects;
+    Set<KpiType> getReadingQualityTypes() {
+        return Collections.unmodifiableSet(readingQualityTypes);
     }
 
-    MetricValueRange getAmountOfConfirmed() {
-        return amountOfConfirmed;
+    Set<KpiType> getValidators() {
+        return Collections.unmodifiableSet(validators);
     }
 
-    MetricValueRange getAmountOfEstimates() {
-        return amountOfEstimates;
+    Set<KpiType> getEstimators() {
+        return Collections.unmodifiableSet(estimators);
     }
 
-    MetricValueRange getAmountOfInformatives() {
-        return amountOfInformatives;
+    Optional<MetricValueRange> getAmountOfSuspects() {
+        return Optional.ofNullable(amountOfSuspects);
     }
 
-    MetricValueRange getAmountOfEdited() {
-        return amountOfEdited;
+    Optional<MetricValueRange> getAmountOfConfirmed() {
+        return Optional.ofNullable(amountOfConfirmed);
+    }
+
+    Optional<MetricValueRange> getAmountOfEstimates() {
+        return Optional.ofNullable(amountOfEstimates);
+    }
+
+    Optional<MetricValueRange> getAmountOfInformatives() {
+        return Optional.ofNullable(amountOfInformatives);
+    }
+
+    Optional<MetricValueRange> getAmountOfEdited() {
+        return Optional.ofNullable(amountOfEdited);
     }
 
     int getFrom() {
@@ -141,10 +165,6 @@ class DataQualityOverviewSpecificationImpl {
 
     int getTo() {
         return to;
-    }
-
-    Set<KpiType> getEnabledKpiTypes() {
-        return Collections.unmodifiableSet(this.enabledKpiTypes);
     }
 
     List<KpiType> getAvailableKpiTypes() {
