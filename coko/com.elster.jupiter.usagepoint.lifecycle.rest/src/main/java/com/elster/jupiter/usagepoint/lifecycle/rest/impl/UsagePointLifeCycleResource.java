@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.rest.impl;
 
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -37,8 +38,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -55,6 +58,10 @@ public class UsagePointLifeCycleResource {
     private final MicroActionAndCheckInfoFactory microActionAndCheckInfoFactory;
     private final ResourceHelper resourceHelper;
     private final UsagePointLifeCycleStageInfoFactory stageInfoFactory;
+    private final BpmService bpmService;
+    private static final String USAGEPOINT_ASSOCIATION = "usagepoint";
+    private static final String PROCESS_KEY_DEVICE_STATES = "deviceStates";
+
 
     @Inject
     public UsagePointLifeCycleResource(UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
@@ -66,7 +73,8 @@ public class UsagePointLifeCycleResource {
                                        UsagePointLifeCyclePrivilegeInfoFactory privilegeInfoFactory,
                                        MicroActionAndCheckInfoFactory microActionAndCheckInfoFactory,
                                        ResourceHelper resourceHelper,
-                                       UsagePointLifeCycleStageInfoFactory stageInfoFactory) {
+                                       UsagePointLifeCycleStageInfoFactory stageInfoFactory,
+                                       BpmService bpmService) {
         this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
         this.statesResourceProvider = statesResourceProvider;
         this.transitionsResourceProvider = transitionsResourceProvider;
@@ -77,6 +85,7 @@ public class UsagePointLifeCycleResource {
         this.microActionAndCheckInfoFactory = microActionAndCheckInfoFactory;
         this.resourceHelper = resourceHelper;
         this.stageInfoFactory = stageInfoFactory;
+        this.bpmService = bpmService;
     }
 
     @GET
@@ -162,10 +171,25 @@ public class UsagePointLifeCycleResource {
     @Path("/processes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_VIEW, Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
-    public PagedInfoList getAllProcesses(@BeanParam JsonQueryParameters queryParams) {
-        List<BusinessProcessInfo> processes = this.finiteStateMachineService.findStateChangeBusinessProcesses().stream()
-                .map(this.bpmFactory::from).collect(Collectors.toList());
-        return PagedInfoList.fromCompleteList("processes", processes, queryParams);
+    public PagedInfoList getAllProcesses(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParams){
+        //noinspection unchecked
+        List<BusinessProcessInfo> activeProcesses = bpmService.getActiveBpmProcessDefinitions(USAGEPOINT_ASSOCIATION)
+                .stream()
+                /*.filter(bpmProcessDefinition -> bpmProcessDefinition.getAssociation().equals(USAGEPOINT_ASSOCIATION))
+                .filter(f -> List.class.isInstance(f.getProperties().get(PROCESS_KEY_DEVICE_STATES)))
+                .filter(s -> ((List<Object>) s.getProperties().get(PROCESS_KEY_DEVICE_STATES))
+                        .stream()
+                        .filter(HasIdAndName.class::isInstance)
+                        .anyMatch(v -> uriInfo.getQueryParameters().getFirst("stateId").equals("") || ((HasIdAndName) v).getId()
+                                .toString()
+                                .equals(uriInfo.getQueryParameters().getFirst("stateId"))))*/
+                .map(this.bpmFactory::from)
+                .collect(Collectors.toList());
+
+        return PagedInfoList.fromCompleteList("processes", activeProcesses, queryParams);
+//        List<BusinessProcessInfo> processes = this.finiteStateMachineService.findStateChangeBusinessProcesses().stream()
+//                .map(this.bpmFactory::from).collect(Collectors.toList());
+//        return PagedInfoList.fromCompleteList("processes", processes, queryParams);
     }
 
     @GET

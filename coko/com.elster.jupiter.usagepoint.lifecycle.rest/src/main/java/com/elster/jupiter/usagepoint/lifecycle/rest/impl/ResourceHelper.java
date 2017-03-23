@@ -4,8 +4,9 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.rest.impl;
 
+import com.elster.jupiter.bpm.BpmProcessDefinition;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
@@ -21,6 +22,7 @@ import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfo
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleTransitionInfo;
 
 import javax.inject.Inject;
+import java.util.Optional;
 
 public class ResourceHelper {
     private final ExceptionFactory exceptionFactory;
@@ -28,18 +30,21 @@ public class ResourceHelper {
     private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     private final FiniteStateMachineService finiteStateMachineService;
     private final MeteringService meteringService;
+    private final BpmService bpmService;
 
     @Inject
     public ResourceHelper(ExceptionFactory exceptionFactory,
                           ConcurrentModificationExceptionFactory conflictFactory,
                           UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
                           FiniteStateMachineService finiteStateMachineService,
-                          MeteringService meteringService) {
+                          MeteringService meteringService,
+                          BpmService bpmService) {
         this.exceptionFactory = exceptionFactory;
         this.conflictFactory = conflictFactory;
         this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
         this.finiteStateMachineService = finiteStateMachineService;
         this.meteringService = meteringService;
+        this.bpmService = bpmService;
     }
 
     public UsagePointLifeCycle getLifeCycleByIdOrThrowException(long id) {
@@ -70,13 +75,16 @@ public class ResourceHelper {
                 .orElseThrow(() -> this.exceptionFactory.newException(MessageSeeds.NO_SUCH_LIFE_CYCLE_STATE, id));
     }
 
-    public StateChangeBusinessProcess getBpmProcessOrThrowException(BusinessProcessInfo info) {
+    public BpmProcessDefinition getBpmProcessOrThrowException(BusinessProcessInfo info) {
         return getBpmProcessOrThrowException(info.id);
     }
 
-    public StateChangeBusinessProcess getBpmProcessOrThrowException(long id) {
-        return this.finiteStateMachineService.findStateChangeBusinessProcessById(id)
-                .orElseThrow(() -> this.exceptionFactory.newException(MessageSeeds.NO_SUCH_BUSINESS_PROCESS, id));
+    public BpmProcessDefinition getBpmProcessOrThrowException(long id) {
+        Optional<BpmProcessDefinition> process = bpmService.findBpmProcessDefinition(id);
+        if (!process.isPresent()) {
+            throw this.exceptionFactory.newException(MessageSeeds.NO_SUCH_BUSINESS_PROCESS, id);
+        }
+        return process.get();
     }
 
     private Long getCurrentStateVersion(long id) {

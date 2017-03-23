@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
+ *//*
+
 
 package com.elster.jupiter.usagepoint.lifecycle.rest;
 
@@ -203,3 +204,4 @@ public class UsagePointStateChangeRequestResourceTest extends UsagePointLifeCycl
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 }
+*/

@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
+ *//*
+
 
 package com.elster.jupiter.usagepoint.lifecycle.rest;
 
@@ -388,3 +389,4 @@ public class UsagePointLifeCycleResourceTest extends UsagePointLifeCycleApplicat
         assertThat(model.<Boolean>get("$.microChecks[0].isRequired")).isEqualTo(false);
     }
 }
+*/
