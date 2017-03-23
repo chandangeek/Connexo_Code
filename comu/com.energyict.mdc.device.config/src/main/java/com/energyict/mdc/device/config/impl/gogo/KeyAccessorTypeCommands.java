@@ -74,14 +74,14 @@ public class KeyAccessorTypeCommands {
                 .orElseThrow(() -> new RuntimeException("No such device type"));
         List<List<?>> kats = deviceType.getKeyAccessorTypes()
                 .stream()
-                .map(kat -> Arrays.asList(kat.getName(), kat.getKeyType().getName(), kat.getDuration(), kat.getKeyEncryptionMethod()))
+                .map(kat -> Arrays.asList(kat.getName(), kat.getKeyType().getName(), kat.getDuration(), kat.getKeyEncryptionMethod(), kat.getTrustStore().isPresent()?kat.getTrustStore().get().getName():""))
                 .collect(toList());
-        kats.add(0, Arrays.asList("Name", "Key type", "Duration", "Encryption method"));
+        kats.add(0, Arrays.asList("Name", "Key type", "Duration", "Encryption method", "Trust store"));
         MYSQL_PRINT.printTableWithHeader(kats);
     }
 
     public void createKeyAccessorType() {
-        System.out.println("Usage: createKeyAccessorTypes <name> <device type id> <key type name> <encryption method> <duration in days>");
+        System.out.println("Usage: createKeyAccessorTypes <name> <device type id> <key type name> <encryption method> <trust store> <duration in days>");
         System.out.println("Eg.  : createKeyAccessorTypes GUAK 153 AES128 SSM 365");
     }
 

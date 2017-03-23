@@ -30,6 +30,7 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
@@ -936,6 +937,14 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         return !this.dataModel
                 .mapper(ComTaskEnablement.class)
                 .find(ComTaskEnablementImpl.Fields.COM_TASK.fieldName(), comTask)
+                .isEmpty();
+    }
+
+    @Override
+    public boolean usedByKeyAccessorType(TrustStore trustStore) {
+        return !this.dataModel
+                .mapper(KeyAccessorTypeImpl.class)
+                .find(KeyAccessorTypeImpl.Fields.TRUSTSTORE.fieldName(), trustStore)
                 .isEmpty();
     }
 
