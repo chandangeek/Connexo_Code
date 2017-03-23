@@ -32,7 +32,7 @@ public class ConnectionMethodInfoFactory {
             connectionMethodInfo.displayDirection = DefaultTranslationKey.INBOUND.translateWith(thesaurus);
             return connectionMethodInfo;
         } else if (ScheduledConnectionTask.class.isAssignableFrom(connectionTask.getClass())) {
-            ConnectionMethodInfo connectionMethodInfo = new ScheduledConnectionMethodInfo((ScheduledConnectionTask) connectionTask, uriInfo, mdcPropertyUtils);
+            ConnectionMethodInfo connectionMethodInfo = new ScheduledConnectionMethodInfo((ScheduledConnectionTask) connectionTask, uriInfo, mdcPropertyUtils, thesaurus);
             connectionMethodInfo.displayDirection = DefaultTranslationKey.OUTBOUND.translateWith(thesaurus);
             return connectionMethodInfo;
         } else {
