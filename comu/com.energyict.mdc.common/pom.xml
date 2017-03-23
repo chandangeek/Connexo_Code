@@ -14,7 +14,7 @@
     </parent>
 
     <artifactId>mdc.common</artifactId>
-    <version>3.2.0${revision}</version>
+    <version>4.0.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.common</name>
     <description>
@@ -57,6 +57,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>time</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>time.rest</artifactId>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
