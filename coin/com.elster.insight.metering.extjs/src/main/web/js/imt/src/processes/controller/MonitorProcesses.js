@@ -15,14 +15,18 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
     ],
     stores: [
         'Imt.usagepointsetup.store.Devices',
-        'Imt.usagepointmanagement.store.MeterActivations'
+        'Imt.usagepointmanagement.store.MeterActivations',
+        'Imt.processes.store.PurposesWithValidationRuleSets',
+        'Imt.processes.store.AvailableTransitions'
     ],
     views: [
         'Imt.processes.view.UsagePointProcessesMainView',
         'Imt.processes.view.UsagePointStartProcess',
         'Imt.processes.view.MetrologyConfigurationOutputs',
         'Imt.processes.view.LinkedMeterActivations',
-        'Imt.processes.view.AvailableMeters'
+        'Imt.processes.view.AvailableMeters',
+        'Imt.processes.view.AvailableMetrologyConfigurations',
+        'Imt.processes.view.AvailableTransitions'
     ],
 
     showUsagePointProcesses: function (usagePointId) {
@@ -72,6 +76,9 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
                 Uni.property.controller.Registry.addProperty('METROLOGYCONFIGOUTPUT', 'Imt.processes.view.MetrologyConfigurationOutputs');
                 Uni.property.controller.Registry.addProperty('UP_METERACTIVATION', 'Imt.processes.view.LinkedMeterActivations');
                 Uni.property.controller.Registry.addProperty('METER_MRID', 'Imt.processes.view.AvailableMeters');
+                Uni.property.controller.Registry.addProperty('METROLOGYCONFIGURATION', 'Imt.processes.view.AvailableMetrologyConfigurations');
+                Uni.property.controller.Registry.addProperty('METROLOGYPURPOSES', 'Imt.processes.view.PurposesOnMetrologyConfigarations');
+                Uni.property.controller.Registry.addProperty('UP_TRANSITION', 'Imt.processes.view.AvailableTransitions');
                 me.getApplication().fireEvent('usagePointLoaded', usagePoint);
                 viewport.setLoading(false);
                 widget = Ext.widget('usage-point-processes-start', {
