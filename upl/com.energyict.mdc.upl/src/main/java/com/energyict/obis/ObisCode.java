@@ -270,17 +270,17 @@ public class ObisCode implements Serializable {
         if (tokenizer.countTokens() != 6) {
             throw new IllegalArgumentException(codeString);
         }
-        String token = tokenizer.nextToken();
+        String token = nextToken(tokenizer);
         int a = Integer.parseInt(token);
-        token = tokenizer.nextToken();
+        token = nextToken(tokenizer);
         int b = "x".equalsIgnoreCase(token) ? -1 : Integer.parseInt(token);
-        token = tokenizer.nextToken();
+        token = nextToken(tokenizer);
         int c = Integer.parseInt(token);
-        token = tokenizer.nextToken();
+        token = nextToken(tokenizer);
         int d = Integer.parseInt(token);
-        token = tokenizer.nextToken();
+        token = nextToken(tokenizer);
         int e = Integer.parseInt(token);
-        token = tokenizer.nextToken();
+        token = nextToken(tokenizer);
         boolean hasRelativeBillingPoint = token.startsWith("VZ");
         int f;
         if (hasRelativeBillingPoint) {
@@ -297,6 +297,10 @@ public class ObisCode implements Serializable {
             f = Integer.parseInt(token);
         }
         return new ObisCode(a, b, c, d, e, f, hasRelativeBillingPoint);
+    }
+
+    private static String nextToken(StringTokenizer tokenizer) {
+        return tokenizer.nextToken().trim();
     }
 
     // first 20 C field codes, applied to electricity related codes
