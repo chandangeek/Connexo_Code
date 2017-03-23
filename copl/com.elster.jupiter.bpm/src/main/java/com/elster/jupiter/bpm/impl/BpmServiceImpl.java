@@ -37,6 +37,9 @@ import com.elster.jupiter.util.json.JsonService;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -47,6 +50,8 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -208,6 +213,42 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
     }
 
     @Override
+    public boolean startProcess(BpmProcessDefinition bpmProcessDefinition, Map<String, Object> parameters) {
+        String jsonContent;
+        JSONArray arr = null;
+        String errorInvalidMessage = thesaurus.getString("error.flow.invalid.response", "Invalid response received, please check your Flow version.");
+        String errorNotFoundMessage = thesaurus.getString("error.flow.unavailable", "Connexo Flow is not available.");
+        try {
+            jsonContent = this.getBpmServer().doGet("/rest/deployment/processes");
+            if (!"".equals(jsonContent)) {
+                JSONObject jsnobject = new JSONObject(jsonContent);
+                arr = jsnobject.getJSONArray("processDefinitionList");
+            }
+        } catch (JSONException e) {
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity(errorInvalidMessage)
+                    .build());
+        } catch (RuntimeException e) {
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity(errorNotFoundMessage)
+                    .build());
+        }
+        if (arr != null) {
+            for(int i = 0; i < arr.length(); i++) {
+                try {
+                    JSONObject task = arr.getJSONObject(i);
+                    if(task.getString("name").equals(bpmProcessDefinition.getProcessName()) && task.getString("version").equals(bpmProcessDefinition.getVersion())){
+                        return startProcess(task.getString("deploymentId"), task.getString("id"), parameters);
+                    }
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
     public boolean startProcess(String deploymentId, String process, Map<String, Object> parameters, String auth) {
         boolean result = false;
         Optional<DestinationSpec> found = messageService.getDestinationSpec(BPM_QUEUE_DEST);
@@ -248,6 +289,11 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
     }
 
     @Override
+    public Optional<BpmProcessDefinition> findBpmProcessDefinition(long id){
+        return dataModel.mapper(BpmProcessDefinition.class).getOptional(id);
+    }
+
+    @Override
     public List<BpmProcessDefinition> getAllBpmProcessDefinitions() {
         return dataModel.mapper(BpmProcessDefinition.class).find();
     }
@@ -260,7 +306,7 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
     @Override
     public List<BpmProcessDefinition> getActiveBpmProcessDefinitions(String appKey) {
         Condition statusCondition = Operator.EQUALIGNORECASE.compare("status", "ACTIVE");
-        Condition appKeyCondition = Operator.EQUALIGNORECASE.compare("appKey", appKey);
+        Condition appKeyCondition = Operator.EQUALIGNORECASE.compare("association", appKey);
         return dataModel.query(BpmProcessDefinition.class).select(statusCondition.and(appKeyCondition));
     }
 

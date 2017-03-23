@@ -25,6 +25,8 @@ public interface BpmService {
 
     boolean startProcess(String deploymentId, String processId, Map<String, Object> parameters);
 
+    boolean startProcess(BpmProcessDefinition bpmProcessDefinition, Map<String, Object> parameters);
+
     boolean startProcess(String deploymentId, String processId, Map<String, Object> parameters, String auth);
 
     BpmServer getBpmServer();
@@ -36,6 +38,8 @@ public interface BpmService {
     BpmProcessDefinition findOrCreateBpmProcessDefinition(String processName, String association, String version, String status);
 
     List<BpmProcessDefinition> getBpmProcessDefinitions();
+
+    Optional<BpmProcessDefinition> findBpmProcessDefinition(long id);
 
     List<BpmProcessDefinition> getAllBpmProcessDefinitions();
 
