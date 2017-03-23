@@ -42,11 +42,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.HistoryPreview', {
                                 renderer: me.renderDateTimeLong
                             },
                             {
-                                fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
-                                itemId: 'mdc-register-preview-numerical-multiplier',
-                                name: 'multiplier'
-                            },
-                            {
                                 fieldLabel: Uni.I18n.translate('device.registerData.changedOn', 'MDC', 'Changed on'),
                                 name: 'reportedDateTime',
                                 renderer: me.renderDateTimeLong
