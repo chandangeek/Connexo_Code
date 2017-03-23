@@ -55,7 +55,7 @@ Ext.define('Pkj.view.TrustedCertificatesGrid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('trustStores.pagingtoolbarbottom.itemsPerPage', 'PKJ', 'Trusted certificates per page'),
+                itemsPerPageMsg: Uni.I18n.translate('trustedCertificates.pagingtoolbarbottom.itemsPerPage', 'PKJ', 'Trusted certificates per page'),
                 dock: 'bottom'
             }
         ];
