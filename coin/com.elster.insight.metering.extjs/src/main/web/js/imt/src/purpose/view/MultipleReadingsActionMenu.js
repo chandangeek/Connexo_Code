@@ -32,6 +32,14 @@ Ext.define('Imt.purpose.view.MultipleReadingsActionMenu', {
                 section: this.SECTION_ACTION
             },
             {
+                itemId: 'mark-projected',
+                privileges: Imt.privileges.UsagePoint.admin,
+                hidden: true,
+                text: Uni.I18n.translate('general.markAsProjected', 'IMT', 'Mark as projected'),
+                action: 'markProjected',
+                section: this.SECTION_ACTION
+            },
+            {
                 itemId: 'estimate-value-with-rule',
                 privileges: Imt.privileges.UsagePoint.admin,
                 hidden: true,

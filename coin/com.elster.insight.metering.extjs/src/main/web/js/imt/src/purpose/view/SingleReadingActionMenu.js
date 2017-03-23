@@ -17,8 +17,15 @@ Ext.define('Imt.purpose.view.SingleReadingActionMenu', {
             {
                 itemId: 'clear-projected',
                 hidden: true,
-                text: Uni.I18n.translate("general.clearProjectedFlag", 'IMT', 'Clear projected flag'),
+                text: Uni.I18n.translate('general.clearProjectedFlag', 'IMT', 'Clear projected flag'),
                 action: 'clearProjectedFlag',
+                section: this.SECTION_ACTION
+            },
+            {
+                itemId: 'mark-projected',
+                hidden: true,
+                text: Uni.I18n.translate('general.markAsProjected', 'IMT', 'Mark as projected'),
+                action: 'markProjected',
                 section: this.SECTION_ACTION
             },
             {
