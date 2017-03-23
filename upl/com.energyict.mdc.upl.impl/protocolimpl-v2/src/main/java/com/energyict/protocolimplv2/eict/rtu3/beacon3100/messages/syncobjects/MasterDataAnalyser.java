@@ -195,10 +195,14 @@ public class MasterDataAnalyser {
         
         // delete the remaining inactive items
         for (Long beaconDeviceTypeId : active.keySet()){
-            if (!active.get(beaconDeviceTypeId) && !deviceTypesUsedByMirrors.contains(beaconDeviceTypeId)) {
-                // we'll have to delete this one
-                deviceTypesToDelete.add(beaconDeviceTypeId);
-                log("- deviceType is not used anymore, will be deleted: "+beaconDeviceTypeId);
+            if (!active.get(beaconDeviceTypeId)){
+                if (deviceTypesUsedByMirrors.contains(beaconDeviceTypeId)) {
+                    log("- deviceType is not used anymore in EIServer, but it's used by other mirrors, so will not be deleted: "+beaconDeviceTypeId);
+                } else {
+                    // we'll have to delete this one
+                    deviceTypesToDelete.add(beaconDeviceTypeId);
+                    log("- deviceType is not used anymore, will be deleted: " + beaconDeviceTypeId);
+                }
             }
         }
         log("/finished analysing DeviceTypes");
