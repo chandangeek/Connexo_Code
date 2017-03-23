@@ -6,6 +6,7 @@ package com.elster.jupiter.dataquality.impl;
 
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.dataquality.DataQualityKpiService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -70,6 +71,7 @@ public class InMemoryPersistence {
                 new FileImportModule(),
                 new WebServicesModule(),
                 new UsagePointLifeCycleConfigurationModule(),
+                new CalendarModule(),
                 new MeteringModule(),
                 new BasicPropertiesModule(),
                 new TimeModule(),
