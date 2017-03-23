@@ -34,4 +34,8 @@ public class UsagePointManagementException extends UsagePointMeterActivationExce
     public static UsagePointManagementException incorrectMeterActivationRequirements(Thesaurus thesaurus, List<String> purposes) {
         return new UsagePointManagementException(thesaurus, MessageSeeds.METER_ACTIVATION_INVALID_REQUIREMENTS, purposes);
     }
+
+    public static UsagePointManagementException incorrectEndDeviceStage(Thesaurus thesaurus, String when) {
+        return new UsagePointManagementException(thesaurus, MessageSeeds.INVALID_END_DEVICE_STAGE, when);
+    }
 }

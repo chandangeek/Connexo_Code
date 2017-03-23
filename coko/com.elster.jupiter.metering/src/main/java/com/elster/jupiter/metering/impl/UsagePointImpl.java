@@ -13,6 +13,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.GasDetailBuilder;
 import com.elster.jupiter.metering.HeatDetailBuilder;
@@ -561,6 +562,7 @@ public class UsagePointImpl implements ServerUsagePoint {
         validateApplyTimeAndCreateDate(start);
         validateUsagePointStage(start);
         validateMeterActivationsStartDate(this.getMeterActivations(), start);
+        validateEndDeviceStage(this.getMeterActivations(), start);
         validateMetrologyConfigOverlapping(metrologyConfiguration, start);
         validateMeters(this.getMeterActivations(), metrologyConfiguration.getContracts());
         validateEffectiveMetrologyConfigurationInterval(start, end);
@@ -637,6 +639,23 @@ public class UsagePointImpl implements ServerUsagePoint {
         if (this.getEffectiveMetrologyConfigurations(Range.greaterThan(mcStart)).stream().findAny().isPresent()) {
             DateTimeFormatter dateTimeFormatter = userService.getUserPreferencesService().getDateTimeFormatter(threadPrincipalService.getPrincipal(), PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
             throw UsagePointManagementException.incorrectMetrologyConfigStartDate(thesaurus, metrologyConfiguration.getName(), this.getName(), dateTimeFormatter.format(LocalDateTime.ofInstant(mcStart, ZoneId.systemDefault())));
+        }
+    }
+
+    private void validateEndDeviceStage(List<MeterActivation> meterActivations, Instant mcStart) {
+        if (!meterActivations.isEmpty()) {
+            meterActivations.forEach(meterActivation -> {
+                if (meterActivation.getMeter().isPresent() && meterActivation.getMeter().get().getState(mcStart).isPresent()) {
+                    checkOperationalStage(meterActivation.getMeter().get().getState(mcStart).get().getName(), mcStart);
+                }
+            });
+        }
+    }
+
+    private void checkOperationalStage(String stateName, Instant mcStart) {
+        if (!EndDeviceStage.fromKey(stateName).equals(EndDeviceStage.OPERATIONAL)) {
+            DateTimeFormatter dateTimeFormatter = userService.getUserPreferencesService().getDateTimeFormatter(threadPrincipalService.getPrincipal(), PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
+            throw UsagePointManagementException.incorrectEndDeviceStage(thesaurus, dateTimeFormatter.format(LocalDateTime.ofInstant(mcStart, ZoneId.systemDefault())));
         }
     }
 
