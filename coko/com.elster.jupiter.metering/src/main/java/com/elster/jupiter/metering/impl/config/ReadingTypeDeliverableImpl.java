@@ -190,7 +190,7 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
 
     private void completeUpdate() {
         Save.action(getId()).save(this.dataModel, this);
-        this.metrologyContract.get().deliverableUpdated(this);
+        ((MetrologyContractImpl) this.metrologyContract.get()).deliverableUpdated(this);
         this.eventService.postEvent(EventType.READING_TYPE_DELIVERABLE_UPDATED.topic(), this);
     }
 

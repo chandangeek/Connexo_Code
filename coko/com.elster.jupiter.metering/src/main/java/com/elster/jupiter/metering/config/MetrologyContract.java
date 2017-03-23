@@ -51,8 +51,6 @@ public interface MetrologyContract extends HasId {
 
     void removeDeliverable(ReadingTypeDeliverable deliverable);
 
-    void deliverableUpdated(ReadingTypeDeliverableImpl deliverable);
-
     /**
      * Returns the List of {@link ReadingTypeDeliverable} that is being used by this MetrologyContract.
      *

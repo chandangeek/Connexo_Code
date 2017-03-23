@@ -319,8 +319,7 @@ public class MetrologyContractImpl implements MetrologyContract {
                 .values();
     }
 
-    @Override
-    public void deliverableUpdated(ReadingTypeDeliverableImpl deliverable) {
+    void deliverableUpdated(ReadingTypeDeliverableImpl deliverable) {
         this.touch();
     }
 }
