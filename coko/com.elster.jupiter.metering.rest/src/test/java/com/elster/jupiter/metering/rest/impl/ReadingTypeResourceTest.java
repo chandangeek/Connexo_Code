@@ -155,6 +155,7 @@ public class ReadingTypeResourceTest extends MeteringApplicationJerseyTest {
         ReadingTypeDeliverable deliverable = mock(ReadingTypeDeliverable.class);
         List<ReadingTypeDeliverable> readingTypeDeliverables = Collections.singletonList(deliverable);
         MetrologyContract metrologyContract = mock(MetrologyContract.class);
+        when(metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
         when(metrologyContract.getDeliverables()).thenReturn(readingTypeDeliverables);
         ReadingType readingType = mockReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
         when(deliverable.getReadingType()).thenReturn(readingType);

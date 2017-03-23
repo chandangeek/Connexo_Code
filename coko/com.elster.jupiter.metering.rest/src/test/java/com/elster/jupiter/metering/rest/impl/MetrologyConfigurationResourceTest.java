@@ -62,8 +62,11 @@ public class MetrologyConfigurationResourceTest extends MeteringApplicationJerse
         when(serviceCategory.getKind()).thenReturn(serviceKind);
         when(serviceCategory.getName()).thenReturn(serviceKind.getDefaultFormat());
         when(mock.getVersion()).thenReturn(1L);
+        MetrologyContract metrologyContract = mock(MetrologyContract.class);
+        when(mock.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
         ReadingType readingType = mockReadingType(readingTypeMRID);
         ReadingTypeDeliverable deliverable = mock(ReadingTypeDeliverable.class);
+        when(metrologyContract.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
         when(deliverable.getReadingType()).thenReturn(readingType);
         return mock;
     }
