@@ -60,6 +60,7 @@ public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJe
         when(messageFormat.format(anyVararg()))
             .thenAnswer(invocationOnMock -> MessageFormat.format(messageSeed.getDefaultFormat(), invocationOnMock.getArguments()));
         doReturn(messageFormat).when(thesaurus).getFormat(messageSeed);
+        doReturn(messageFormat).when(thesaurus).getSimpleFormat(messageSeed);
     }
 
     @Test
