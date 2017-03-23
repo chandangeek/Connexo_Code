@@ -32,7 +32,8 @@ Ext.define('Dal.view.creationrules.List', {
                 header: Uni.I18n.translate('general.title.status', 'DAL', 'Status'),
                 dataIndex: 'active',
                 renderer: function (value) {
-                    return value ? 'Active' : 'Inactive';
+                    return value ? Uni.I18n.translate('administration.alarmCreationRules.active', 'DAL', 'Active')
+                        : Uni.I18n.translate('administration.alarmCreationRules.inactive', 'DAL', 'Inactive');
                 },
                 flex: 1
             },
