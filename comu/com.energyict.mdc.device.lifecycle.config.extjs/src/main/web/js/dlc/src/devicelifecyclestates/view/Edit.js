@@ -78,6 +78,9 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                             columns: [
                                 {
                                     dataIndex: 'name',
+                                    renderer: function (value, metaData, record) {
+                                        return value + ' (' + record.get('version') + ')';
+                                    },
                                     flex: 1
                                 },
                                 {
@@ -153,6 +156,9 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                             columns: [
                                 {
                                     dataIndex: 'name',
+                                    renderer: function (value, metaData, record) {
+                                        return value + ' (' + record.get('version') + ')';
+                                    },
                                     flex: 1
                                 },
                                 {

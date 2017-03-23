@@ -8,6 +8,7 @@ Ext.define('Dlc.devicelifecyclestates.view.AddProcessesToState', {
     requires: ['Dlc.devicelifecyclestates.view.AddProcessesToStateGrid',
                'Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses'],
     overflowY: true,
+    stateId: null,
     storeToUpdate: null,
     content: [
         {
@@ -68,6 +69,7 @@ Ext.define('Dlc.devicelifecyclestates.view.AddProcessesToState', {
         var me = this,
            availableProcesses = Ext.data.StoreManager.lookup('Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses');
 
+        availableProcesses.getProxy().setExtraParam('stateId', me.stateId);
         me.callParent(arguments);
         if (availableProcesses) {
             availableProcesses.load(function(records, operation, success){
