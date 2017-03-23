@@ -7,7 +7,6 @@ Ext.define('Imt.usagepointlifecyclestates.model.TransitionBusinessProcess', {
     fields: [
         {name: 'id', type: 'int', useNull: true},
         {name: 'name', type: 'string'},
-        {name: 'deploymentId', type: 'string'},
-        {name: 'processId', type: 'string'}
+        {name: 'version', type: 'string'}
     ]
 });

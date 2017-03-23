@@ -20,6 +20,9 @@ Ext.define('Imt.usagepointlifecyclestates.view.AddProcessesToStateGrid', {
             {
                 header: Uni.I18n.translate('transitionBusinessProcesses.process.name', 'IMT', 'Name'),
                 dataIndex: 'name',
+                renderer: function (value, metaData, record) {
+                    return value + ' (' + record.get('version') + ')';
+                },
                 flex: 1
             }
         ]
