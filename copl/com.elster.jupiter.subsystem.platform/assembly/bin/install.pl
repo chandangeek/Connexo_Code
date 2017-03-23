@@ -15,7 +15,7 @@ use Archive::Zip;
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
-my $INSTALL_VERSION="v20170223";
+my $INSTALL_VERSION="v20170324";
 my $OS="$^O";
 my $JAVA_HOME="";
 my $CURRENT_DIR=getcwd;
@@ -506,6 +506,8 @@ sub install_facts {
 		my $INSTALLER_LICENSE="$CONNEXO_DIR/partners/facts/facts-license.lic";
 		my $FACTS_BASE_PROPERTIES="$CONNEXO_DIR/partners/facts/facts.properties";
 		my $FACTS_TEMP_PROPERTIES="$CONNEXO_DIR/custom.properties";
+		my $FACTS_BASE_POST_INSTALL="$CONNEXO_DIR/partners/facts/postinstall.xml";
+        my $FACTS_TEMP_POST_INSTALL="$CONNEXO_DIR/resources/postinstall.xml";
 		my $FACTS_BASE="$TOMCAT_BASE/$TOMCAT_DIR/webapps";
 		my $FACTS_DIR="$FACTS_BASE/facts";
 		my $FACTS_PORT=$TOMCAT_HTTP_PORT;
@@ -555,6 +557,19 @@ sub install_facts {
 		chdir "$CONNEXO_DIR";
 		system("\"$JAVA_HOME/bin/jar\" -uvf \"$CONNEXO_DIR/partners/facts/facts.jar\" custom.properties") == 0 or die "$JAVA_HOME/bin/jar -uvf \"$CONNEXO_DIR/partners/facts/facts.jar\" custom.properties failed: $?";
 		unlink("$CONNEXO_DIR/custom.properties");
+
+        make_path("$CONNEXO_DIR/resources");
+		copy("$FACTS_BASE_POST_INSTALL","$FACTS_TEMP_POST_INSTALL");
+		if ("$ACTIVATE_SSO" eq "yes") {
+		    replace_in_file("$FACTS_TEMP_POST_INSTALL",'\$\{url\}',"http://$HOST_NAME/facts/");
+		} else {
+		    replace_in_file("$FACTS_TEMP_POST_INSTALL",'\$\{url\}',"http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts");
+		}
+
+		system("\"$JAVA_HOME/bin/jar\" -uvf \"$CONNEXO_DIR/partners/facts/facts.jar\" resources/postinstall.xml") == 0 or die "$JAVA_HOME/bin/jar -uvf \"$CONNEXO_DIR/partners/facts/facts.jar\" custom.properties failed: $?";
+        unlink("$FACTS_TEMP_POST_INSTALL");
+        rmdir "$CONNEXO_DIR/resources";
+
         system("\"$JAVA_HOME/bin/java\" -jar \"$CONNEXO_DIR/partners/facts/facts.jar\" -silent") == 0 or die "$JAVA_HOME/bin/java -jar \"$CONNEXO_DIR/partners/facts/facts.jar\" -silent failed: $?";
 		if (!-d "$FACTS_DIR") { make_path("$FACTS_DIR"); }
 		copy("$FACTS_BASE/facts.war","$FACTS_DIR/facts.war") or die "File cannot be copied: $!";
