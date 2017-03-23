@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 import com.energyict.cpo.ObjectMapperFactory;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.ClientTypeManager;
+import com.energyict.dlms.cosem.ConcentratorSetup;
 import com.energyict.dlms.cosem.DeviceTypeManager;
 import com.energyict.dlms.cosem.ScheduleManager;
 import com.energyict.mdc.issues.Issue;
@@ -50,7 +51,8 @@ public class MasterDataSync {
     /**
      * Sync all master data of the device types (tasks, schedules, security levels, master data obiscodes, etc)
      */
-    public CollectedMessage syncMasterData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	public CollectedMessage syncMasterData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         AllMasterData allMasterData;
         try {
             final String serializedMasterData = pendingMessage.getPreparedContext();    //This context field contains the serialized version of the master data.
@@ -98,7 +100,7 @@ public class MasterDataSync {
         }
 
         //Now see if there were any warning while parsing the EIServer model, and add them as proper issues.
-        List<Issue> issues = new ArrayList<>();
+		List<Issue> issues = new ArrayList<>();
         for (int index = 0; index < allMasterData.getWarningKeys().size(); index++) {
             String warningKey = allMasterData.getWarningKeys().get(index);
             String warningArgument = allMasterData.getWarningArguments().get(index);
@@ -119,6 +121,7 @@ public class MasterDataSync {
                 getIsFirmwareVersion140OrAbove());
 
         masterDataAnalyser.analyseDeviceTypes(getDeviceTypeManager().readDeviceTypes(),
+        		this.getConcentratorSetup().getMeterInfo(),
                 allMasterData.getDeviceTypes());
 
         masterDataAnalyser.analyseSchedules(getScheduleManager().readSchedules(),
@@ -132,8 +135,24 @@ public class MasterDataSync {
 
 
         masterDataAnalyser.analyseDeviceTypes(getDeviceTypeManager().readDeviceTypes(),
+        		this.getConcentratorSetup().getMeterInfo(),
                 allMasterData.getDeviceTypes());
         return allMasterData.getDeviceTypes();
+    }
+    
+    /**
+     * Returns a reference to the {@link ConcentratorSetup}.
+     * 
+     * @return	A reference to the {@link ConcentratorSetup}.
+     * 
+     * @throws 	NotInObjectListException		If the {@link ConcentratorSetup} was not in the object-list.
+     */
+    private final ConcentratorSetup getConcentratorSetup() throws NotInObjectListException {
+    	if (this.readOldObisCodes()) {
+    		return this.getProtocol().getDlmsSession().getCosemObjectFactory().getConcentratorSetup();
+    	} else {
+    		return this.getProtocol().getDlmsSession().getCosemObjectFactory().getConcentratorSetup(Beacon3100Messaging.CONCENTRATOR_SETUP_NEW_LOGICAL_NAME);
+    	}
     }
 
     private DeviceTypeManager getDeviceTypeManager() throws NotInObjectListException {
@@ -235,14 +254,6 @@ public class MasterDataSync {
             }
         }
         return deviceTypesIDs;
-    }
-
-    /**
-     * Return a cached (read out only once) list of the IDs of all device types in the Beacon3100 data.
-     */
-    private Array readDeviceTypes() throws IOException {
-
-        return getDeviceTypeManager().readDeviceTypes();
     }
 
     public AbstractDlmsProtocol getProtocol() {
@@ -485,7 +496,7 @@ public class MasterDataSync {
     }
 
     private void syncOneDevice(Beacon3100MeterDetails beacon3100MeterDetails, long configurationId, String startTime, String endTime) throws ParseException, IOException {
-        ArrayList deviceTypeAssignements = new ArrayList();
+        List<DeviceTypeAssignment> deviceTypeAssignements = new ArrayList<>();
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
 
         deviceTypeAssignements.add(new DeviceTypeAssignment(configurationId, dateFormat.parse(startTime), dateFormat.parse(endTime)));
