@@ -4,13 +4,13 @@
 
 package com.elster.jupiter.fsm.impl;
 
+import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.UnknownProcessReferenceException;
 import com.elster.jupiter.fsm.impl.constraints.Unique;
@@ -181,23 +181,23 @@ public final class StateImpl implements State {
                 .collect(Collectors.toList());
     }
 
-    void addOnEntry(StateChangeBusinessProcess process) {
+    void addOnEntry(BpmProcessDefinition process) {
         this.processReferences.add(this.dataModel.getInstance(ProcessReferenceImpl.class).onEntry(this, process));
     }
 
-    void addOnExit(StateChangeBusinessProcess process) {
+    void addOnExit(BpmProcessDefinition process) {
         this.processReferences.add(this.dataModel.getInstance(ProcessReferenceImpl.class).onExit(this, process));
     }
 
-    void removeOnEntry(StateChangeBusinessProcess process) {
+    void removeOnEntry(BpmProcessDefinition process) {
         this.removeProcessReferences(process, ProcessReferenceImpl::isOnEntry);
     }
 
-    void removeOnExit(StateChangeBusinessProcess process) {
+    void removeOnExit(BpmProcessDefinition process) {
         this.removeProcessReferences(process, ProcessReferenceImpl::isOnExit);
     }
 
-    private void removeProcessReferences(StateChangeBusinessProcess process, Predicate<ProcessReferenceImpl> isEntryOrExit) {
+    private void removeProcessReferences(BpmProcessDefinition process, Predicate<ProcessReferenceImpl> isEntryOrExit) {
         List<ProcessReferenceImpl> obsoleteReferences = this.processReferences
                 .stream()
                 .filter(isEntryOrExit)

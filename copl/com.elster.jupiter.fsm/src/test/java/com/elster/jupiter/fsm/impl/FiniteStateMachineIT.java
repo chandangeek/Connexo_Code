@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
+ *//*
+
 
 package com.elster.jupiter.fsm.impl;
 
@@ -48,12 +49,14 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+*/
 /**
  * Integration test for the {@link FiniteStateMachineImpl} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (17:12)
- */
+ *//*
+
 public class FiniteStateMachineIT {
 
     private static InMemoryPersistence inMemoryPersistence;
@@ -1523,7 +1526,8 @@ public class FiniteStateMachineIT {
         assertThat(onExitProcesses.get(1).getStateChangeBusinessProcess().getId()).isEqualTo(onExit2.getId());
     }
 
-    /**
+    */
+/**
      * Builds an incomplete version of the default life cycle
      * with missing {@link State}s and transitions and then
      * completes that via the {@link FiniteStateMachineUpdater} interface.
@@ -1534,7 +1538,8 @@ public class FiniteStateMachineIT {
      * </ul>
      *
      * @see #buildDefaultLifeCycle()
-     */
+     *//*
+
     @Transactional
     @Test
     public void completeDefaultLifeCycle() {
@@ -2250,4 +2255,4 @@ public class FiniteStateMachineIT {
         return finiteStateMachineService;
     }
 
-}
+}*/

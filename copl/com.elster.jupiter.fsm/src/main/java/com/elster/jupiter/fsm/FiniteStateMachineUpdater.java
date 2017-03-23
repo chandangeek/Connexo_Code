@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.fsm;
 
+import com.elster.jupiter.bpm.BpmProcessDefinition;
+
 import aQute.bnd.annotation.ProviderType;
 
 /**
@@ -91,7 +93,7 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
          * @param process The StateChangeBusinessProcess
          * @return The StateBuilder
          */
-        StateUpdater onEntry(StateChangeBusinessProcess process);
+        StateUpdater onEntry(BpmProcessDefinition process);
 
         /**
          * Removes the {@link StateChangeBusinessProcess} from the list of
@@ -101,7 +103,7 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
          * @param process The StateChangeBusinessProcess
          * @return The StateBuilder
          */
-        StateUpdater removeOnEntry(StateChangeBusinessProcess process);
+        StateUpdater removeOnEntry(BpmProcessDefinition process);
 
         /**
          * Adds the {@link StateChangeBusinessProcess} to the list of
@@ -111,7 +113,7 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
          * @param process The StateChangeBusinessProcess
          * @return The StateBuilder
          */
-        StateUpdater onExit(StateChangeBusinessProcess process);
+        StateUpdater onExit(BpmProcessDefinition process);
 
         /**
          * Removes the {@link StateChangeBusinessProcess} from the list of
@@ -121,7 +123,7 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
          * @param process The StateChangeBusinessProcess
          * @return The StateBuilder
          */
-        StateUpdater removeOnExit(StateChangeBusinessProcess process);
+        StateUpdater removeOnExit(BpmProcessDefinition process);
 
         /**
          * Assists in building a {@link StateTransition} from the {@link State}

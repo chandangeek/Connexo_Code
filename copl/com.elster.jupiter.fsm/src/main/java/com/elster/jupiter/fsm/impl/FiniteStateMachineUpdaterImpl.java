@@ -4,12 +4,12 @@
 
 package com.elster.jupiter.fsm.impl;
 
+import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.UnknownStateException;
 import com.elster.jupiter.nls.Thesaurus;
@@ -166,7 +166,7 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
         }
 
         @Override
-        public StateUpdater onEntry(StateChangeBusinessProcess process) {
+        public StateUpdater onEntry(BpmProcessDefinition process) {
             if (this.underConstruction.getOnEntryProcesses().stream().map(ProcessReference::getStateChangeBusinessProcess)
                     .noneMatch(p -> {return p.getId() == process.getId();})){
                 this.underConstruction.addOnEntry(process);
@@ -175,13 +175,13 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
         }
 
         @Override
-        public StateUpdater removeOnEntry(StateChangeBusinessProcess process) {
+        public StateUpdater removeOnEntry(BpmProcessDefinition process) {
             this.underConstruction.removeOnEntry(process);
             return this;
         }
 
         @Override
-        public StateUpdater onExit(StateChangeBusinessProcess process) {
+        public StateUpdater onExit(BpmProcessDefinition process) {
             if (this.underConstruction.getOnExitProcesses().stream().map(ProcessReference::getStateChangeBusinessProcess)
                     .noneMatch(p -> {return p.getId() == process.getId();})){
                 this.underConstruction.addOnExit(process);
@@ -190,7 +190,7 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
         }
 
         @Override
-        public StateUpdater removeOnExit(StateChangeBusinessProcess process) {
+        public StateUpdater removeOnExit(BpmProcessDefinition process) {
             this.underConstruction.removeOnExit(process);
             return this;
         }
@@ -238,13 +238,13 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
         }
 
         @Override
-        public StateBuilder onEntry(StateChangeBusinessProcess process) {
+        public StateBuilder onEntry(BpmProcessDefinition process) {
             this.underConstruction.addOnEntry(process);
             return this;
         }
 
         @Override
-        public StateBuilder onExit(StateChangeBusinessProcess process) {
+        public StateBuilder onExit(BpmProcessDefinition process) {
             this.underConstruction.addOnExit(process);
             return this;
         }

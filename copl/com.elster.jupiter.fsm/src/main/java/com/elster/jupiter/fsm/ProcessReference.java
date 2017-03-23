@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.fsm;
 
+import com.elster.jupiter.bpm.BpmProcessDefinition;
+
 import aQute.bnd.annotation.ProviderType;
 
 /**
@@ -15,6 +17,6 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface ProcessReference {
 
-    StateChangeBusinessProcess getStateChangeBusinessProcess();
+    BpmProcessDefinition getStateChangeBusinessProcess();
 
 }

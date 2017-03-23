@@ -4,9 +4,9 @@
 
 package com.elster.jupiter.fsm.impl;
 
+import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.util.Checks;
@@ -42,7 +42,7 @@ final class ProcessReferenceImpl implements ProcessReference {
     @SuppressWarnings("unused") // Managed by ORM
     private long id;
     @IsPresent
-    private Reference<StateChangeBusinessProcess> process = Reference.empty();
+    private Reference<BpmProcessDefinition> process = Reference.empty();
     @IsPresent
     private Reference<State> state = Reference.empty();
     @NotNull
@@ -60,15 +60,15 @@ final class ProcessReferenceImpl implements ProcessReference {
         OnEntry, OnExit;
     }
 
-    ProcessReferenceImpl onEntry(State state, StateChangeBusinessProcess process) {
+    ProcessReferenceImpl onEntry(State state, BpmProcessDefinition process) {
         return this.initialize(state, Purpose.OnEntry, process);
     }
 
-    ProcessReferenceImpl onExit(State state, StateChangeBusinessProcess process) {
+    ProcessReferenceImpl onExit(State state, BpmProcessDefinition process) {
         return this.initialize(state, Purpose.OnExit, process);
     }
 
-    private ProcessReferenceImpl initialize(State state, Purpose purpose, StateChangeBusinessProcess process) {
+    private ProcessReferenceImpl initialize(State state, Purpose purpose, BpmProcessDefinition process) {
         this.state.set(state);
         this.purpose = purpose;
         this.process.set(process);
@@ -76,7 +76,7 @@ final class ProcessReferenceImpl implements ProcessReference {
     }
 
     @Override
-    public StateChangeBusinessProcess getStateChangeBusinessProcess() {
+    public BpmProcessDefinition getStateChangeBusinessProcess() {
         return process.get();
     }
 
@@ -88,7 +88,7 @@ final class ProcessReferenceImpl implements ProcessReference {
         return Purpose.OnExit.equals(this.purpose);
     }
 
-    public boolean matches(StateChangeBusinessProcess process) {
+    public boolean matches(BpmProcessDefinition process) {
         return Checks.is(this.process.get().getId()).equalTo(process.getId());
     }
 

@@ -4,10 +4,10 @@
 
 package com.elster.jupiter.fsm.impl;
 
+import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
@@ -125,13 +125,13 @@ public class FiniteStateMachineBuilderImpl implements FiniteStateMachineBuilder 
         }
 
         @Override
-        public StateBuilder onEntry(StateChangeBusinessProcess process) {
+        public StateBuilder onEntry(BpmProcessDefinition process) {
             this.underConstruction.addOnEntry(process);
             return this;
         }
 
         @Override
-        public StateBuilder onExit(StateChangeBusinessProcess process) {
+        public StateBuilder onExit(BpmProcessDefinition process) {
             this.underConstruction.addOnExit(process);
             return this;
         }

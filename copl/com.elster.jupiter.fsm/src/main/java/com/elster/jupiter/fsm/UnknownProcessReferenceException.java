@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.fsm;
 
+import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 
@@ -17,11 +18,10 @@ import com.elster.jupiter.nls.Thesaurus;
  */
 public final class UnknownProcessReferenceException extends LocalizedException {
 
-    public UnknownProcessReferenceException(Thesaurus thesaurus, State state, StateChangeBusinessProcess process) {
-        super(thesaurus, MessageSeeds.NO_SUCH_PROCESS_ON_STATE, process.getDeploymentId(), process.getProcessId(), state.getName(), state.getFiniteStateMachine().getName());
+    public UnknownProcessReferenceException(Thesaurus thesaurus, State state, BpmProcessDefinition process) {
+        super(thesaurus, MessageSeeds.NO_SUCH_PROCESS_ON_STATE, process.getId(), state.getName(), state.getFiniteStateMachine().getName());
         this.set("finiteStateMachineId", state.getFiniteStateMachine().getId());
-        this.set("deploymentId", process.getDeploymentId());
-        this.set("processId", process.getProcessId());
+        this.set("processId", process.getId());
         this.set("stateName", state.getName());
     }
 

@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.fsm.impl;
 
+import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
@@ -125,7 +126,7 @@ public enum TableSpecs {
             table.addAuditColumns().forEach(column -> column.since(version(10, 2)));
             table.foreignKey("FK_FSM_PROCESS")
                     .on(process)
-                    .references(FSM_STATE_CHANGE_PROCESS.name())
+                    .references(BpmProcessDefinition.class)
                     .map(ProcessReferenceImpl.Fields.PROCESS.fieldName())
                     .add();
             table.foreignKey("FK_FSM_PROCESS_STATE")
