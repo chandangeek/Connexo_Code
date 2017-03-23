@@ -24,7 +24,7 @@ import com.energyict.mdc.dynamic.Ean18Factory;
 import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.TimeDurationValueFactory;
+import com.elster.jupiter.properties.TimeDurationValueFactory;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
