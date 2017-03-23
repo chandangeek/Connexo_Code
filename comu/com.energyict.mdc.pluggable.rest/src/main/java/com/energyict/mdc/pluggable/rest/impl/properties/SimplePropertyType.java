@@ -8,7 +8,6 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.rest.PropertyType;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Password;
@@ -29,7 +28,6 @@ import java.util.Date;
 public enum SimplePropertyType implements PropertyType {
     PASSWORD(Password.class),
     HEXSTRING(HexString.class),
-    TIMEDURATION(TimeDuration.class),
     TIMEOFDAY(TimeOfDay.class),
     CLOCK(DateAndTimeFactory.class),
     CODETABLE(Calendar.class, true),
