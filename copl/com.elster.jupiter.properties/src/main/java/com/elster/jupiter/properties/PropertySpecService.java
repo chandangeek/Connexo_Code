@@ -5,6 +5,7 @@
 package com.elster.jupiter.properties;
 
 import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.TimeDuration;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -94,6 +95,14 @@ public interface PropertySpecService {
      * @return The PropertySpecBuilder
      */
     PropertySpecBuilderWizard.NlsOptions<TimeZone> timezoneSpec();
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of {@link TimeDuration} values.
+     *
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<TimeDuration> timeDurationSpec();
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
