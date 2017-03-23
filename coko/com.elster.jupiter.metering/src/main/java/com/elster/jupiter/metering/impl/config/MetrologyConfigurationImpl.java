@@ -402,10 +402,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public void delete() {
-        getContracts().stream()
-                .map(MetrologyContract::getDeliverables)
-                .flatMap(Collection::stream)
-                .forEach(deliverable -> metrologyContracts.forEach(contract -> contract.removeDeliverable(deliverable)));
+        getContracts().forEach(contract -> contract.getDeliverables().forEach(contract::removeDeliverable));
         getContracts().forEach(this::removeMetrologyContract);
         readingTypeRequirements.clear();
         customPropertySets.clear();

@@ -136,13 +136,8 @@ public class MetrologyContractChannelsContainerImplTestIT {
 
         ReadingType readingType3 = inMemoryBootstrapModule.getMeteringService().getReadingType("0.0.2.4.1.1.19.0.0.0.0.0.0.0.0.3.72.0")
                 .orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.19.0.0.0.0.0.0.0.0.3.72.0", ""));
-        builder = metrologyContract.newReadingTypeDeliverable("RTD3", readingType3, Formula.Mode.AUTO);
+        builder = metrologyContract2.newReadingTypeDeliverable("RTD3", readingType3, Formula.Mode.AUTO);
         builder.build(builder.constant(100L));
-
-        ReadingType readingType4 = inMemoryBootstrapModule.getMeteringService().getReadingType("0.0.2.4.1.1.19.0.0.0.0.0.0.0.0.0.72.0")
-                .orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.19.0.0.0.0.0.0.0.0.0.72.0", ""));
-        builder = metrologyContract.newReadingTypeDeliverable("RTD4", readingType4, Formula.Mode.AUTO);
-        builder.build(builder.constant(80L)); // Need for check that for RTD4 there is no channel
 
         UsagePoint usagePoint = serviceCategory.newUsagePoint("UP", inMemoryBootstrapModule.getClock().instant()).create();
         usagePoint.apply(metrologyConfiguration);

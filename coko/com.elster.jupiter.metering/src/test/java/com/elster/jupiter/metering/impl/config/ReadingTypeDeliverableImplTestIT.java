@@ -148,8 +148,29 @@ public class ReadingTypeDeliverableImplTestIT {
 
     @Test
     @Transactional
-    public void testCreateReadingTypeDeliverableWithTheSameNameOnDifferentMetrologyContract() {
+    public void testCreateReadingTypeDeliverableWithTheSameNameOnDifferentMetrologyConfiguration() {
         ServiceCategory electricity = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
+        ReadingTypeDeliverableBuilder builder = metrologyContract.newReadingTypeDeliverable("name", readingType, Formula.Mode.AUTO);
+        builder.build(builder.constant(10));
+        UsagePointMetrologyConfiguration otherMetrologyConfiguration =
+                inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .newUsagePointMetrologyConfiguration("new", electricity).create();
+        MetrologyPurpose metrologyPurpose = inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION).get();
+        MetrologyContract otherMetrologyContract = otherMetrologyConfiguration.addMetrologyContract(metrologyPurpose);
+        ReadingTypeDeliverableBuilder otherBuilder = otherMetrologyContract.newReadingTypeDeliverable("name", readingType, Formula.Mode.AUTO);
+
+        // Business method
+        ReadingTypeDeliverable deliverable = otherBuilder.build(otherBuilder.constant(10));
+
+        // Asserts
+        assertThat(deliverable).isNotNull();
+        assertThat(deliverable.getName()).isEqualTo("name");
+    }
+
+    @Test
+    @Transactional
+    public void testCreateReadingTypeDeliverableWithTheSameNameOnDifferentMetrologyContract() {
         ReadingTypeDeliverableBuilder builder = metrologyContract.newReadingTypeDeliverable("name", readingType, Formula.Mode.AUTO);
         builder.build(builder.constant(10));
         MetrologyPurpose metrologyPurpose = inMemoryBootstrapModule.getMetrologyConfigurationService()

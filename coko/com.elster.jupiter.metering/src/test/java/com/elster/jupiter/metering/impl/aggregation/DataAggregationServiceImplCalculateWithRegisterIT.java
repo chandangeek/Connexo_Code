@@ -326,6 +326,7 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
         MeterRole defaultMeterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("simplestNetConsumption", ELECTRICITY).create();
         this.configuration.addMeterRole(defaultMeterRole);
+        this.contract = configuration.addMetrologyContract(METROLOGY_PURPOSE);
 
         // Setup configuration requirements
         FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", defaultMeterRole).withReadingType(netConsumptionIndex);

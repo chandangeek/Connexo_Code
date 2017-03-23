@@ -390,7 +390,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
 
         // Setup MetrologyConfiguration
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("monthlyNetConsumption", ELECTRICITY).create();
-
+        this.contract = configuration.addMetrologyContract(METROLOGY_PURPOSE);
         // Add the CustomPropertySet
         RegisteredCustomPropertySet registeredCustomPropertySet = getCustomPropertySetService().findActiveCustomPropertySet(AntennaDetailsCustomPropertySet.ID).get();
         this.customPropertySetId = registeredCustomPropertySet.getId();
@@ -493,6 +493,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         MeterRole meterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("15minNetConsumption", ELECTRICITY).create();
         this.configuration.addMeterRole(meterRole);
+        this.contract = configuration.addMetrologyContract(METROLOGY_PURPOSE);
 
         // Add the CustomPropertySet
         RegisteredCustomPropertySet registeredCustomPropertySet = getCustomPropertySetService().findActiveCustomPropertySet(AntennaDetailsCustomPropertySet.ID).get();
