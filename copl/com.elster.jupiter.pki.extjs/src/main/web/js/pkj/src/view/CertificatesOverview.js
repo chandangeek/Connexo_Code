@@ -49,8 +49,8 @@ Ext.define('Pkj.view.CertificatesOverview', {
                                 },
                                 {
                                     xtype: 'button',
-                                    text: Uni.I18n.translate('general.importCertificate', 'PKJ', 'Import certificate'),
-                                    itemId: 'pkj-no-certificates-import-btn'
+                                    text: Uni.I18n.translate('general.addCertificate', 'PKJ', 'Add certificate'),
+                                    itemId: ''
                                 }
                             ]
                         },
