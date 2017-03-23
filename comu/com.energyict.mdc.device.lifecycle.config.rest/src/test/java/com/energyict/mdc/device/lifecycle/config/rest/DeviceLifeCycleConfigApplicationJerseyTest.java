@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
+ *//*
+
 
 package com.energyict.mdc.device.lifecycle.config.rest;
 
@@ -350,3 +351,4 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         return process;
     }
 }
+*/

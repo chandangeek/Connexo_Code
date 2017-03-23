@@ -99,6 +99,14 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.config</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>properties</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>bpm</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
@@ -158,11 +166,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>validation</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>properties</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -8,16 +8,14 @@ public class TransitionBusinessProcessInfo {
 
     public long id;
     public String name;
-    public String deploymentId;
-    public String processId;
+    public String version;
 
     public TransitionBusinessProcessInfo() {
     }
 
-    public TransitionBusinessProcessInfo(long id, String name, String deploymentId, String processId) {
+    public TransitionBusinessProcessInfo(long id, String name, String version) {
         this.id = id;
         this.name = name;
-        this.deploymentId = deploymentId;
-        this.processId = processId;
+        this.version = version;
     }
 }

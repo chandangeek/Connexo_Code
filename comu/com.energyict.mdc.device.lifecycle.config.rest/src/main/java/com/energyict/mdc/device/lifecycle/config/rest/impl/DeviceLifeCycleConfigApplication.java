@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.lifecycle.config.rest.impl;
 
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.nls.Layer;
@@ -65,6 +66,7 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
     private volatile UserService userService;
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
+    private volatile BpmService bpmService;
 
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile FiniteStateMachineService finiteStateMachineService;
@@ -85,6 +87,11 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Reference
+    public void setBpmService(BpmService bpmService) {
+        this.bpmService = bpmService;
     }
 
     @Reference
@@ -163,6 +170,7 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
         @Override
         protected void configure() {
             bind(userService).to(UserService.class);
+            bind(bpmService).to(BpmService.class);
             bind(transactionService).to(TransactionService.class);
             bind(restQueryService).to(RestQueryService.class);
             bind(nlsService).to(NlsService.class);

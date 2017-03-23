@@ -4,12 +4,13 @@
 
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
+import com.elster.jupiter.bpm.BpmProcessDefinition;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -49,6 +50,7 @@ public class DeviceLifeCycleStateResource {
     private final DeviceLifeCycleStateFactory deviceLifeCycleStateFactory;
     private final AuthorizedActionInfoFactory authorizedActionInfoFactory;
     private final ResourceHelper resourceHelper;
+    private final BpmService bpmService;
 
     @Inject
     public DeviceLifeCycleStateResource(
@@ -56,12 +58,14 @@ public class DeviceLifeCycleStateResource {
             FiniteStateMachineService finiteStateMachineService,
             DeviceLifeCycleStateFactory deviceLifeCycleStateFactory,
             AuthorizedActionInfoFactory authorizedActionInfoFactory,
-            ResourceHelper resourceHelper) {
+            ResourceHelper resourceHelper,
+            BpmService bpmService) {
         this.exceptionFactory = exceptionFactory;
         this.finiteStateMachineService = finiteStateMachineService;
         this.deviceLifeCycleStateFactory = deviceLifeCycleStateFactory;
         this.authorizedActionInfoFactory = authorizedActionInfoFactory;
         this.resourceHelper = resourceHelper;
+        this.bpmService = bpmService;
     }
 
     @GET @Transactional
@@ -97,8 +101,8 @@ public class DeviceLifeCycleStateResource {
         FiniteStateMachineUpdater fsmUpdater = deviceLifeCycle.getFiniteStateMachine().startUpdate();
 
         FiniteStateMachineUpdater.StateBuilder stateUpdater = fsmUpdater.newCustomState(stateInfo.name);
-        stateInfo.onEntry.stream().map(this::findStateChangeBusinessProcess).forEach(stateUpdater::onEntry);
-        stateInfo.onExit.stream().map(this::findStateChangeBusinessProcess).forEach(stateUpdater::onExit);
+        stateInfo.onEntry.stream().map(this::findBpmBusinessProcess).forEach(stateUpdater::onEntry);
+        stateInfo.onExit.stream().map(this::findBpmBusinessProcess).forEach(stateUpdater::onExit);
 
         State newState = stateUpdater.complete();
         boolean firstState = deviceLifeCycle.getFiniteStateMachine().getStates().isEmpty();
@@ -126,17 +130,17 @@ public class DeviceLifeCycleStateResource {
             stateUpdater.setName(info.name);
         }
 
-        info.onEntry.stream().map(this::findStateChangeBusinessProcess).forEach(stateUpdater::onEntry);
-        info.onExit.stream().map(this::findStateChangeBusinessProcess).forEach(stateUpdater::onExit);
+        info.onEntry.stream().map(this::findBpmBusinessProcess).forEach(stateUpdater::onEntry);
+        info.onExit.stream().map(this::findBpmBusinessProcess).forEach(stateUpdater::onExit);
         // remove 'obsolete' onEntry processes:
         stateForEdit.getOnEntryProcesses().stream()
                 .map(ProcessReference::getStateChangeBusinessProcess)
-                .filter(x -> isObsoleteStateChangeBusinessProcess(info.onEntry, x))
+                .filter(x -> isObsoleteBpmBusinessProcess(info.onEntry, x))
                 .forEach(stateUpdater::removeOnEntry);
         //remove 'obsolete' onExit processes
         stateForEdit.getOnExitProcesses().stream()
                 .map(ProcessReference::getStateChangeBusinessProcess)
-                .filter(x -> isObsoleteStateChangeBusinessProcess(info.onExit, x))
+                .filter(x -> isObsoleteBpmBusinessProcess(info.onExit, x))
                 .forEach(stateUpdater::removeOnExit);
 
         State stateAfterEdit = stateUpdater.complete();
@@ -145,16 +149,16 @@ public class DeviceLifeCycleStateResource {
         return Response.ok(deviceLifeCycleStateFactory.from(deviceLifeCycle, stateAfterEdit)).build();
     }
 
-    private StateChangeBusinessProcess findStateChangeBusinessProcess(TransitionBusinessProcessInfo businessProcessInfo){
-        Optional<StateChangeBusinessProcess> process = finiteStateMachineService.findStateChangeBusinessProcessById(businessProcessInfo.id);
+    private BpmProcessDefinition findBpmBusinessProcess(TransitionBusinessProcessInfo businessProcessInfo){
+        Optional<BpmProcessDefinition> process = bpmService.findBpmProcessDefinition(businessProcessInfo.id);
         if (!process.isPresent()) {
             throw exceptionFactory.newException(MessageSeeds.STATE_CHANGE_BUSINESS_PROCESS_NOT_FOUND, businessProcessInfo.id);
         }
         return process.get();
     }
 
-    private boolean isObsoleteStateChangeBusinessProcess(List<TransitionBusinessProcessInfo> transitionBussinessProcessInfos, StateChangeBusinessProcess stateChangeBusinessProcess){
-        return transitionBussinessProcessInfos.stream().noneMatch(x -> x.id == stateChangeBusinessProcess.getId());
+    private boolean isObsoleteBpmBusinessProcess(List<TransitionBusinessProcessInfo> transitionBussinessProcessInfos, BpmProcessDefinition bpmProcessDefinition){
+        return transitionBussinessProcessInfos.stream().noneMatch(x -> x.id == bpmProcessDefinition.getId());
     }
 
     @PUT @Transactional
