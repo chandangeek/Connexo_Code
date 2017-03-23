@@ -5,7 +5,6 @@
 package com.elster.jupiter.pki.rest.impl;
 
 import com.elster.jupiter.pki.TrustStore;
-import com.elster.jupiter.pki.TrustedCertificate;
 
 import java.util.Collections;
 import java.util.List;
