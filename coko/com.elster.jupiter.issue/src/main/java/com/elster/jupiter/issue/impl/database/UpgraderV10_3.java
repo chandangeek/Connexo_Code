@@ -5,6 +5,10 @@
 package com.elster.jupiter.issue.impl.database;
 
 
+import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
+import com.elster.jupiter.issue.impl.service.IssueDefaultActionsFactory;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -25,7 +29,6 @@ public class UpgraderV10_3 implements Upgrader {
     UpgraderV10_3(DataModel dataModel) {
         this.dataModel = dataModel;
     }
-
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
