@@ -317,8 +317,8 @@ public final class TimeSeriesImpl implements TimeSeries {
 	}
 
 	@Override
-	public List<TimeSeriesEntry> getJournalEntries(Range<Instant> interval, boolean changedDataOnly) {
-		return getVault().getJournalEntries(this, interval, changedDataOnly);
+	public List<TimeSeriesEntry> getJournalEntries(Range<Instant> interval) {
+		return getVault().getJournalEntries(this, interval);
 	}
 
 	@Override

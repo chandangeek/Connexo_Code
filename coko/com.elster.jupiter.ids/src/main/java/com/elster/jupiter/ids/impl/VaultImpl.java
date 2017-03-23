@@ -425,9 +425,9 @@ public final class VaultImpl implements IVault {
     }
 
     @Override
-    public List<TimeSeriesEntry> getJournalEntries(TimeSeriesImpl timeSeries, Range<Instant> interval, boolean changedDataOnly) {
+    public List<TimeSeriesEntry> getJournalEntries(TimeSeriesImpl timeSeries, Range<Instant> interval) {
         try {
-            return doGetJournalEntries(timeSeries, interval, changedDataOnly);
+            return doGetJournalEntries(timeSeries, interval);
         } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
@@ -472,8 +472,8 @@ public final class VaultImpl implements IVault {
         return builder;
     }
 
-    private SqlBuilder rangeJournalSql(TimeSeriesImpl timeSeries, Range<Instant> interval, boolean changedDataOnly) {
-        SqlBuilder builder = selectJournalSql(timeSeries, interval, changedDataOnly);
+    private SqlBuilder rangeJournalSql(TimeSeriesImpl timeSeries, Range<Instant> interval) {
+        SqlBuilder builder = selectJournalSql(timeSeries, interval);
         return builder;
     }
 
@@ -505,12 +505,6 @@ public final class VaultImpl implements IVault {
         builder.addLong(interval.hasUpperBound() ? interval.upperEndpoint().toEpochMilli() : Long.MAX_VALUE);
     }
 
-    private void appendChanged(boolean changedDataOnly, SqlBuilder builder) {
-        if (changedDataOnly) {
-            builder.append(" AND (journaltime != 0) ");
-        }
-    }
-
     private SqlBuilder entrySql(TimeSeriesImpl timeSeries, Instant when) {
         SqlBuilder builder = selectSql(timeSeries);
         builder.append(" AND UTCSTAMP =");
@@ -539,10 +533,10 @@ public final class VaultImpl implements IVault {
         return result;
     }
 
-    private List<TimeSeriesEntry> doGetJournalEntries(TimeSeriesImpl timeSeries, Range<Instant> interval, boolean changedDataOnly) throws SQLException {
+    private List<TimeSeriesEntry> doGetJournalEntries(TimeSeriesImpl timeSeries, Range<Instant> interval) throws SQLException {
         List<TimeSeriesEntry> result = new ArrayList<>();
         try (Connection connection = getConnection(false)) {
-            try (PreparedStatement statement = rangeJournalSql(timeSeries, interval, changedDataOnly).prepare(connection)) {
+            try (PreparedStatement statement = rangeJournalSql(timeSeries, interval).prepare(connection)) {
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
                         result.add(new TimeSeriesEntryImpl(timeSeries, rs, true));
@@ -621,7 +615,7 @@ public final class VaultImpl implements IVault {
         return builder;
     }
 
-    SqlBuilder selectJournalSql(TimeSeriesImpl timeSeries, Range<Instant> interval, boolean changedDataOnly) {
+    SqlBuilder selectJournalSql(TimeSeriesImpl timeSeries, Range<Instant> interval) {
         String columnNames = "";
         for (String column : timeSeries.getRecordSpec().columnNames()) {
             columnNames += ", " + column;
@@ -661,7 +655,6 @@ public final class VaultImpl implements IVault {
         builder.append("    ) ");
         builder.append(" WHERE 1=1 ");
         this.appendRange(interval, builder);
-        this.appendChanged(changedDataOnly, builder);
         builder.append(" order by UTCSTAMP DESC, VERSIONCOUNT desc");
         return builder;
     }
