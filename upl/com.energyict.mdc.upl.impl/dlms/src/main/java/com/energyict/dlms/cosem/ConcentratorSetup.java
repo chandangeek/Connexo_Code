@@ -17,6 +17,7 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.attributes.ConcentratorSetupAttributes;
 import com.energyict.dlms.cosem.methods.ConcentratorSetupMethods;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
  * Concentrator setup IC (for the Beacon 3100).
@@ -304,6 +305,22 @@ public final class ConcentratorSetup extends AbstractCosemObject {
 		 */
 		public final List<DeviceTypeAssignment> getDeviceTypeAssignments() {
 			return this.deviceTypeAssignments;
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public final String toString() {
+			final StringBuilder builder = new StringBuilder();
+			
+			builder.append("id : [").append(ProtocolTools.getHexStringFromBytes(this.id)).append("], ");
+			builder.append("serial number : [").append(this.serialNumber).append("], ");
+			builder.append("time zone : [").append(this.timezone).append("], ");
+			builder.append("device type assignments : [").append(this.deviceTypeAssignments).append("], ");
+			builder.append("scheduling state : [").append(this.schedulingState).append("]");
+			
+			return builder.toString();
 		}
 	}
 	
