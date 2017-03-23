@@ -259,11 +259,14 @@ public class DataQualityOverviewFilterTest {
         DataQualityOverviewFilter.READING_QUALITY.apply(jsonQueryFilter, overviewBuilder, resourceHelper);
 
         // Asserts
-        verify(overviewBuilder).havingSuspects();
-        verify(overviewBuilder).havingConfirmed();
-        verify(overviewBuilder).havingEstimates();
-        verify(overviewBuilder).havingInformatives();
-        verify(overviewBuilder).havingEdited();
+        ArgumentCaptor<Collection> argumentCaptor = ArgumentCaptor.forClass(Collection.class);
+        verify(overviewBuilder).having(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue()).containsOnly(
+                DeviceDataQualityService.ReadingQualityType.SUSPECTS,
+                DeviceDataQualityService.ReadingQualityType.CONFIRMED,
+                DeviceDataQualityService.ReadingQualityType.ESTIMATES,
+                DeviceDataQualityService.ReadingQualityType.INFORMATIVES,
+                DeviceDataQualityService.ReadingQualityType.EDITED);
     }
 
     @Test
@@ -292,7 +295,7 @@ public class DataQualityOverviewFilterTest {
 
         // Asserts
         ArgumentCaptor<Collection> argumentCaptor = ArgumentCaptor.forClass(Collection.class);
-        verify(overviewBuilder).suspectedBy(argumentCaptor.capture());
+        verify(overviewBuilder).havingSuspectsBy(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue()).containsOnly(validator);
     }
 
@@ -335,7 +338,7 @@ public class DataQualityOverviewFilterTest {
 
         // Asserts
         ArgumentCaptor<Collection> argumentCaptor = ArgumentCaptor.forClass(Collection.class);
-        verify(overviewBuilder).estimatedBy(argumentCaptor.capture());
+        verify(overviewBuilder).havingEstimatesBy(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue()).containsOnly(estimator);
     }
 
