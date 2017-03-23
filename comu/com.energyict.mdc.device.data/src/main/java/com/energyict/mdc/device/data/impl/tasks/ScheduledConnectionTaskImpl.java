@@ -3,8 +3,6 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.elster.jupiter.domain.util.Range;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
@@ -14,13 +12,11 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
@@ -35,7 +31,6 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.SerialConnectionPropertyNames;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
@@ -44,7 +39,6 @@ import com.energyict.protocol.exceptions.ConnectionException;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
-import java.security.Timestamp;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Calendar;
@@ -233,7 +227,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
             } else {
                 priority = earliestNextExecutionTimestampAndPriority.priority;
             }
-            if(!calledByComtaskExecution) {
+            if (!calledByComtaskExecution) {
                 this.synchronizeScheduledComTaskExecution(this.getNextExecutionTimestamp(), priority);
             }
         }
@@ -261,7 +255,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     @Override
     public void scheduledComTaskRescheduled(ComTaskExecution comTask) {
-        if(this.connectionStrategy.equals(ConnectionStrategy.MINIMIZE_CONNECTIONS)) {
+        if (this.connectionStrategy.equals(ConnectionStrategy.MINIMIZE_CONNECTIONS)) {
             calledByComtaskExecution = true;
         }
         this.schedule(comTask.getNextExecutionTimestamp());
@@ -542,11 +536,11 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
             when = null;
         } else {
             highestPriority = earliestNextExecutionTimeStampAndPriority.priority;
-            if(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp != null && when.isBefore(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp))  {
+            if (earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp != null && when.isBefore(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp)) {
                 when = earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp;
             }
             when = this.applyComWindowIfAny(when);
-            if(!calledByComtaskExecution) {
+            if (!calledByComtaskExecution) {
                 this.synchronizeScheduledComTaskExecution(when, highestPriority);
             }
         }
@@ -654,7 +648,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
         @Override
         public String getName() {
-            return SerialConnectionPropertyNames.COMPORT_NAME_PROPERTY_NAME.propertyName();
+            return com.energyict.mdc.upl.io.ConnectionType.Property.COMP_PORT_NAME.getName();
         }
 
         @Override
