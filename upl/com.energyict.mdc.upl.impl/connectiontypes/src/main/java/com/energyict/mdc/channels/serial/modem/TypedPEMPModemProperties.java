@@ -3,6 +3,8 @@ package com.energyict.mdc.channels.serial.modem;
 import com.energyict.mdc.channel.serial.modemproperties.AbstractPEMPModemProperties;
 import com.energyict.mdc.channel.serial.modemproperties.AtModemComponent;
 import com.energyict.mdc.channel.serial.modemproperties.PEMPModemConfiguration;
+import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
@@ -10,8 +12,6 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
-import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
-import com.energyict.mdc.upl.nls.TranslationKey;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -129,7 +129,7 @@ public class TypedPEMPModemProperties extends AbstractPEMPModemProperties implem
 
     @Override
     public PEMPModemConfiguration getPEMPModemConfiguration() {
-        return (PEMPModemConfiguration) getProperty(MODEM_CONFIGURATION_KEY);
+        return PEMPModemConfiguration.getPEMPModemConfiguration((String) getProperty(MODEM_CONFIGURATION_KEY));
     }
 
     public TypedProperties getAllProperties() {

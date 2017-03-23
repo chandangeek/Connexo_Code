@@ -9,7 +9,6 @@ import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -76,11 +75,10 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
-        return new ArrayList<>(Arrays.asList(
+        return Arrays.asList(
                 this.hostPropertySpec(),
                 this.portNumberPropertySpec(),
-                this.connectionTimeOutPropertySpec()
-        ));
+                this.connectionTimeOutPropertySpec());
     }
 
     @Override

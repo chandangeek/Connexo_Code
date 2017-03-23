@@ -14,6 +14,7 @@ import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -119,7 +120,7 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
-        List<PropertySpec> propertySpecs = super.getUPLPropertySpecs();
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(postDialDelayPropertySpec());
         propertySpecs.add(postDialRetriesPropertySpec());
         propertySpecs.add(postDialCommandPropertySpec());

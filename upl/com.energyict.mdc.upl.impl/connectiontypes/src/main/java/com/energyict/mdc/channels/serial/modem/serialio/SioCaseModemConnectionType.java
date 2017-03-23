@@ -21,13 +21,14 @@ import java.util.List;
  * Provides an implementation for the {@link ConnectionType} interface
  * for Serial Case communication, using the Sio library.
  * </p>
+ *
  * @author sva
  * @since 30/04/13 - 13:45
  */
 @XmlRootElement
 public class SioCaseModemConnectionType extends SioSerialConnectionType {
 
-    protected CaseModemComponent caseModemComponent;
+    private CaseModemComponent caseModemComponent;
 
     public SioCaseModemConnectionType(PropertySpecService propertySpecService) {
         super(propertySpecService);
@@ -35,11 +36,10 @@ public class SioCaseModemConnectionType extends SioSerialConnectionType {
 
     @Override
     public SerialPortComChannel connect() throws ConnectionException {
-        this.caseModemComponent = new CaseModemComponent(new TypedCaseModemProperties(getAllProperties(), this.getPropertySpecService()));
         // create the serial ComChannel and set all property values
         SerialPortComChannel comChannel = super.connect();
         try {
-            caseModemComponent.connect(getComPortName(getAllProperties()), comChannel);
+            getModemComponent().connect(getComPortName(getAllProperties()), comChannel);
         } catch (ModemException e) {
             throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.NestedModemException, e);
         } finally {
@@ -48,12 +48,17 @@ public class SioCaseModemConnectionType extends SioSerialConnectionType {
         return comChannel;
     }
 
+    protected CaseModemComponent getModemComponent() {
+        if (caseModemComponent == null) {
+            this.caseModemComponent = new CaseModemComponent(new TypedCaseModemProperties(getAllProperties(), this.getPropertySpecService()));
+        }
+        return caseModemComponent;
+    }
+
     @Override
     public void disconnect(ComChannel comChannel) throws ConnectionException {
         super.disconnect(comChannel);
-        if (caseModemComponent != null) {
-            caseModemComponent.disconnect((SerialPortComChannel) comChannel);
-        }
+        getModemComponent().disconnect((SerialPortComChannel) comChannel);
     }
 
     @Override

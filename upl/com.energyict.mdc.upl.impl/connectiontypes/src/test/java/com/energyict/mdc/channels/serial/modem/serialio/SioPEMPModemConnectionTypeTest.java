@@ -7,13 +7,14 @@ package com.energyict.mdc.channels.serial.modem.serialio;
 import com.energyict.mdc.channel.serial.SerialPortConfiguration;
 import com.energyict.mdc.channel.serial.ServerSerialPort;
 import com.energyict.mdc.channel.serial.SignalController;
-import com.energyict.mdc.channel.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.channel.serial.modemproperties.PEMPModemConfiguration;
 import com.energyict.mdc.channel.serial.modemproperties.TypedAtModemProperties;
 import com.energyict.mdc.channels.serial.modem.AbstractModemTests;
+import com.energyict.mdc.channels.serial.modem.PaknetModemComponent;
 import com.energyict.mdc.channels.serial.modem.TypedPEMPModemProperties;
-import com.energyict.mdc.protocol.ComChannelType;
+import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.io.ModemException;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocol.exceptions.ConnectionException;
 import org.junit.Test;
@@ -30,6 +31,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -76,16 +78,12 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests {
         result.setProperty(TypedAtModemProperties.DTR_TOGGLE_DELAY, Duration.ofMillis(DTR_TOGGLE_DELAY_VALUE));
         result.setProperty(TypedAtModemProperties.PHONE_NUMBER_PROPERTY_NAME, PHONE_NUMBER);
         result.setProperty(TypedPEMPModemProperties.MODEM_CONFIGURATION_KEY, MODEM_CONFIGURATION_KEY);
+        result.setProperty(ConnectionType.Property.COMP_PORT_NAME.getName(), comPortName);
 
         return result;
     }
 
-    private void getProperlyMockedComPort(AbstractModemTests.TestableSerialComChannel serialComChannel, SioSerialPort sioSerialPort) throws Exception {
-        when(serialComponentService.newSerialPort(any(SerialPortConfiguration.class))).thenReturn(sioSerialPort);
-        when(serialComponentService.newSerialComChannel(any(ServerSerialPort.class), any(ComChannelType.class))).thenReturn(serialComChannel);
-    }
-
-    @Test(timeout = TEST_LONG_TIMEOUT_MILLIS, expected = ConnectionException.class)
+    @Test(expected = ConnectionException.class)   //TODO timeout
     public void testInitializePEMPCommandStateFails() throws Exception {
         AbstractModemTests.TestableSerialComChannel serialComChannel = getTestableComChannel();
         serialComChannel.setResponses(Arrays.asList("   ", "\r\n*\r\n",
@@ -93,12 +91,8 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests {
                 "NotValidResponse", "NotValidResponse", "NotValidResponse", "NotValidResponse", "NotValidResponse",
                 "NotValidResponse", "NotValidResponse", "NotValidResponse", "NotValidResponse", "NotValidResponse",
                 "NotValidResponse", "NotValidResponse", "NotValidResponse", "NotValidResponse", "NotValidResponse"));
-        SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        getProperlyMockedComPort(serialComChannel, sioSerialPort);
 
-        SioPEMPModemConnectionType modemConnectionType = new SioPEMPModemConnectionType(propertySpecService);
-        modemConnectionType.setUPLProperties(getProperProperties());
-
+        SioPEMPModemConnectionType modemConnectionType = createConnectionType(serialComChannel);
         try {
             modemConnectionType.connect();
         } catch (ConnectionException e) {
@@ -114,11 +108,8 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests {
     public void testInitializePEMPCommandStateFailsWithTimeout() throws Exception {
         AbstractModemTests.TestableSerialComChannel serialComChannel = getTestableComChannel();
         serialComChannel.setResponses(Arrays.asList("   ", "\r\n*\r\n"));
-        SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        getProperlyMockedComPort(serialComChannel, sioSerialPort);
 
-        SioPEMPModemConnectionType modemConnectionType = new SioPEMPModemConnectionType(propertySpecService);
-        modemConnectionType.setUPLProperties(getProperProperties());
+        SioPEMPModemConnectionType modemConnectionType = createConnectionType(serialComChannel);
 
         try {
             modemConnectionType.connect();
@@ -135,46 +126,49 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests {
     public void testInitializePEMPCommandStateSucceeds() throws Exception {
         AbstractModemTests.TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(OK_LIST);
-        SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        SioPEMPModemConnectionType modemConnectionType = spy(new SioPEMPModemConnectionType(propertySpecService));
-
-        modemConnectionType.setUPLProperties(getProperProperties());
+        SioPEMPModemConnectionType modemConnectionType = createConnectionType(comChannel);
         modemConnectionType.connect();
 
-        verify(modemConnectionType.pempModemComponent, times(1)).initializeAfterConnect(comChannel);
+        verify(modemConnectionType.getModemComponent(), times(1)).initializeAfterConnect(comChannel);
     }
 
     @Test(timeout = TEST_TIMEOUT_MILLIS)
     public void verifyConnectSuccess() throws Exception {
         AbstractModemTests.TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(OK_LIST);
-        SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        SioPEMPModemConnectionType modemConnectionType = spy(new SioPEMPModemConnectionType(propertySpecService));
-
-        modemConnectionType.setUPLProperties(getProperProperties());
+        SioPEMPModemConnectionType modemConnectionType = createConnectionType(comChannel);
         modemConnectionType.connect();
 
-        verify(modemConnectionType.pempModemComponent, times(1)).dialModem(comChannel);
-        verify(modemConnectionType.pempModemComponent, times(1)).initializeAfterConnect(comChannel);
+        verify(modemConnectionType.getModemComponent(), times(1)).dialModem(comChannel);
+        verify(modemConnectionType.getModemComponent(), times(1)).initializeAfterConnect(comChannel);
     }
 
     @Test(timeout = TEST_TIMEOUT_MILLIS)
     public void verifyConnectSuccessAfterRetry() throws Exception {
         AbstractModemTests.TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "\r\n*\r\n", "\r\nFENS\r\n", "\r\nFENS\r\n", "\r\nFENS\r\n", "\r\nFENS\r\n", "RUBBISH", "\r\nXX COM\r\nYY\r\n"));
-        SioSerialPort sioSerialPort = mock(SioSerialPort.class);
-        getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        SioPEMPModemConnectionType modemConnectionType = spy(new SioPEMPModemConnectionType(propertySpecService));
-
-        modemConnectionType.setUPLProperties(getProperProperties());
+        SioPEMPModemConnectionType modemConnectionType = createConnectionType(comChannel);
         modemConnectionType.connect();
 
-        verify(modemConnectionType.pempModemComponent, times(1)).dialModem(comChannel);
-        verify(modemConnectionType.pempModemComponent, times(1)).initializeAfterConnect(comChannel);
+        verify(modemConnectionType.getModemComponent(), times(1)).dialModem(comChannel);
+        verify(modemConnectionType.getModemComponent(), times(1)).initializeAfterConnect(comChannel);
+    }
+
+    private SioPEMPModemConnectionType createConnectionType(TestableSerialComChannel comChannel) throws ConnectionException, PropertyValidationException {
+        return createConnectionType(comChannel, com.energyict.protocolimpl.properties.TypedProperties.empty());
+    }
+
+    private SioPEMPModemConnectionType createConnectionType(TestableSerialComChannel comChannel, TypedProperties overrides) throws ConnectionException, PropertyValidationException {
+        SioPEMPModemConnectionType atModemConnectionType = spy(new SioPEMPModemConnectionType(propertySpecService));
+        TypedProperties properProperties = getProperProperties();
+        properProperties.setAllProperties(overrides);
+        atModemConnectionType.setUPLProperties(properProperties);
+        PaknetModemComponent caseModemComponent = spy(atModemConnectionType.getModemComponent());
+        doReturn(caseModemComponent).when(atModemConnectionType).getModemComponent();
+        doReturn(comChannel).when(atModemConnectionType).newSioSerialConnection(any(SerialPortConfiguration.class));
+        return atModemConnectionType;
     }
 }

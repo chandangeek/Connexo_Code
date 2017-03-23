@@ -6,8 +6,7 @@ package com.energyict.mdc.channels;
 
 import com.energyict.mdc.channel.SynchroneousComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
-import com.energyict.protocol.exception.CommunicationException;
-import com.energyict.protocolcommon.exceptions.CodingException;
+import com.energyict.mdc.upl.io.ConnectionCommunicationException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,14 +43,14 @@ public class SynchroneousComChannelTest {
 
     }
 
-    @Test(expected = CodingException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testCreateIsWriteMode() {
         SynchroneousComChannel comChannel = this.newComChannel();
 
         // Business method
         comChannel.read();
 
-        // Expected a CodingException because newly created SynchroneousComChannel are in write mode and reading and writing is not supported
+        // Expected a UnsupportedOperationException because newly created SynchroneousComChannel are in write mode and reading and writing is not supported
     }
 
     @Test
@@ -100,7 +99,7 @@ public class SynchroneousComChannelTest {
         verify(this.outputStream).write(BYTE_VALUE);
     }
 
-    @Test(expected = CommunicationException.class)
+    @Test(expected = ConnectionCommunicationException.class)
     public void testWriteWithIOException() throws IOException {
         doThrow(IOException.class).when(this.outputStream).write(BYTE_VALUE);
         SynchroneousComChannel comChannel = this.newComChannel();
@@ -108,7 +107,7 @@ public class SynchroneousComChannelTest {
         // Business method
         comChannel.write(BYTE_VALUE);
 
-        // Was expecting a CommunicationException because the OutputStream caused an IOException
+        // Was expecting a ConnectionCommunicationException because the OutputStream caused an IOException
     }
 
     @Test
@@ -123,7 +122,7 @@ public class SynchroneousComChannelTest {
         verify(this.outputStream).write(bytes);
     }
 
-    @Test(expected = CommunicationException.class)
+    @Test(expected = ConnectionCommunicationException.class)
     public void testWriteIntoBufferWithIOException() throws IOException {
         SynchroneousComChannel comChannel = this.newComChannel();
         byte[] bytes = "testWriteFromBuffer".getBytes();
@@ -132,10 +131,10 @@ public class SynchroneousComChannelTest {
         // Business method
         comChannel.write(bytes);
 
-        // Was expecting a CommunicationException because the OutputStream caused an IOException
+        // Was expecting a ConnectionCommunicationException because the OutputStream caused an IOException
     }
 
-    @Test(expected = CommunicationException.class)
+    @Test(expected = ConnectionCommunicationException.class)
     public void testStartReadingWhenFlushThrowsException() throws IOException {
         doThrow(IOException.class).when(this.outputStream).flush();
         SynchroneousComChannel comChannel = this.newComChannel();
@@ -143,7 +142,7 @@ public class SynchroneousComChannelTest {
         // Business method
         comChannel.startReading();
 
-        // Was expecting a CommunicationException because the flush caused an IOException
+        // Was expecting a ConnectionCommunicationException because the flush caused an IOException
     }
 
     @Test
@@ -161,7 +160,7 @@ public class SynchroneousComChannelTest {
         assertThat(availableBytes).isEqualTo(expectedAvailableBytes);
     }
 
-    @Test(expected = CommunicationException.class)
+    @Test(expected = ConnectionCommunicationException.class)
     public void testAvailableWithIOException() throws IOException {
         when(this.inputStream.available()).thenThrow(new IOException("For unit testing purposes only"));
         SynchroneousComChannel comChannel = this.newComChannel();
@@ -170,7 +169,7 @@ public class SynchroneousComChannelTest {
         // Business method
         comChannel.available();
 
-        // Expected a CommunicationException because the InputStream cause an IOException
+        // Expected a ConnectionCommunicationException because the InputStream cause an IOException
     }
 
     @Test
@@ -202,14 +201,14 @@ public class SynchroneousComChannelTest {
         assertThat(valueRead).isEqualTo(BYTE_VALUE);
     }
 
-    @Test(expected = CommunicationException.class)
+    @Test(expected = ConnectionCommunicationException.class)
     public void testReadWithIOException() throws IOException {
         when(this.inputStream.read()).thenThrow(new IOException("For unit testing purposes only"));
         SynchroneousComChannel comChannel = this.newComChannel();
         comChannel.startReading();
         comChannel.read();
 
-        // Expected a CommunicationException because the InputStream caused an IOException
+        // Expected a ConnectionCommunicationException because the InputStream caused an IOException
     }
 
     @Test
@@ -227,7 +226,7 @@ public class SynchroneousComChannelTest {
         assertThat(bytesRead).isEqualTo(BUFFER_SIZE);
     }
 
-    @Test(expected = CommunicationException.class)
+    @Test(expected = ConnectionCommunicationException.class)
     public void testReadIntoBufferWithIOException() throws IOException {
         byte[] buffer = new byte[BUFFER_SIZE];
         when(this.inputStream.read(buffer)).thenThrow(new IOException("For unit testing purposes only"));
@@ -237,7 +236,7 @@ public class SynchroneousComChannelTest {
         // Business method
         comChannel.read(buffer);
 
-        // Expected a CommunicationException because the InputStream caused an IOException
+        // Expected a ConnectionCommunicationException because the InputStream caused an IOException
     }
 
     @Test
@@ -257,7 +256,7 @@ public class SynchroneousComChannelTest {
         assertThat(bytesRead).isEqualTo(expectedBytesRead);
     }
 
-    @Test(expected = CommunicationException.class)
+    @Test(expected = ConnectionCommunicationException.class)
     public void testReadIntoBufferWithOffsetAndLengthWithIOException() throws IOException {
         byte[] buffer = new byte[BUFFER_SIZE];
         int bytesWanted = BUFFER_SIZE / 2;
@@ -268,10 +267,10 @@ public class SynchroneousComChannelTest {
         // Business method
         comChannel.read(buffer, 0, bytesWanted);
 
-        // Expected a CommunicationException because the InputStream caused an IOException
+        // Expected a ConnectionCommunicationException because the InputStream caused an IOException
     }
 
-    @Test(expected = CodingException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testWriteWhileReading() {
         SynchroneousComChannel comChannel = this.newComChannel();
         comChannel.startReading();
@@ -279,7 +278,7 @@ public class SynchroneousComChannelTest {
         // Business method
         comChannel.write(BYTE_VALUE);
 
-        // Expected a CodingException because the ComChannel is actually in read mode
+        // Expected a UnsupportedOperationException because the ComChannel is actually in read mode
     }
 
     @Test
@@ -292,7 +291,7 @@ public class SynchroneousComChannelTest {
         // Nothing to assert but should not cause any exceptions.
     }
 
-    @Test(expected = CommunicationException.class)
+    @Test(expected = ConnectionCommunicationException.class)
     public void testCloseWithIOExceptionOnInputStream() throws IOException {
         doThrow(IOException.class).when(this.inputStream).close();
         SynchroneousComChannel comChannel = this.newComChannel();
@@ -300,10 +299,10 @@ public class SynchroneousComChannelTest {
         // Business method
         comChannel.close();
 
-        // Expected a CommunicationException because the InputStream caused an IOException when closing
+        // Expected a ConnectionCommunicationException because the InputStream caused an IOException when closing
     }
 
-    @Test(expected = CommunicationException.class)
+    @Test(expected = ConnectionCommunicationException.class)
     public void testCloseWithIOExceptionOnOutputStream() throws IOException {
         doThrow(IOException.class).when(this.outputStream).close();
         SynchroneousComChannel comChannel = this.newComChannel();
@@ -311,7 +310,7 @@ public class SynchroneousComChannelTest {
         // Business method
         comChannel.close();
 
-        // Expected a CommunicationException because the OutputStream caused an IOException when closoutg
+        // Expected a ConnectionCommunicationException because the OutputStream caused an IOException when closoutg
     }
 
     private SynchroneousComChannel newComChannel() {
