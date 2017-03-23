@@ -72,6 +72,7 @@ Ext.define('Dal.view.Grid', {
             {
                 itemId: 'action',
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: !!Dal.privileges.Alarm.adminDevice,
                 menu: {
                     xtype: 'alarms-action-menu',
