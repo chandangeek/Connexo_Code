@@ -102,8 +102,8 @@ public final class ConcentratorSetup extends AbstractCosemObject {
 		private static final DeviceTypeAssignment fromStructure(final Structure structure) throws IOException {
 			if (structure.nrOfDataTypes() == 3) {
 				final Unsigned32 deviceTypeId = structure.getDataType(0, Unsigned32.class);
-				final DateTime startTime = structure.getDataType(1, DateTime.class);
-				final DateTime endTime = structure.getDataType(2, DateTime.class);
+				final DateTime startTime = new DateTime(structure.getDataType(1, OctetString.class));
+				final DateTime endTime = new DateTime(structure.getDataType(2, OctetString.class));
 				
 				return new DeviceTypeAssignment(deviceTypeId.getValue(), startTime.getValue(), endTime.getValue());
 			} else {

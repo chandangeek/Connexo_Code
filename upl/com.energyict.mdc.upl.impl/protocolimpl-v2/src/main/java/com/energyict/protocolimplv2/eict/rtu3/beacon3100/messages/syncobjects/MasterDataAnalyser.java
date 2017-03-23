@@ -158,9 +158,12 @@ public class MasterDataAnalyser {
     public void analyseDeviceTypes(Array existingBeaconDeviceTypesArray , final List<ConcentratorSetup.MeterInfo> existingMirrors, List<Beacon3100DeviceType> masterDataDeviceTypes) throws IOException {
         Map<Long, AbstractDataType> existingBeaconDeviceTypes = new HashMap<>();
         Map<Long, Boolean> active = new HashMap<>();
+        
         final Set<Long> deviceTypesUsedByMirrors = getDeviceTypesUsedByMirrors(existingMirrors);
         
+        log("Device types in use by mirrors : [" + deviceTypesUsedByMirrors + "]");
         log("Analysing DeviceType existing in Beacon:");
+        
         for (AbstractDataType existingDeviceType : existingBeaconDeviceTypesArray) {
             if (existingDeviceType.isStructure() && existingDeviceType.getStructure().nrOfDataTypes() > 0) {
                 final long existingDeviceTypeId = existingDeviceType.getStructure().getDataType(0).longValue(); //First element of the structure is the deviceType ID
