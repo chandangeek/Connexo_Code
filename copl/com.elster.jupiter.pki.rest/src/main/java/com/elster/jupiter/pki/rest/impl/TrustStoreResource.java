@@ -7,6 +7,7 @@ package com.elster.jupiter.pki.rest.impl;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -20,6 +21,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.rest.MessageSeeds;
@@ -81,6 +83,20 @@ public class TrustStoreResource {
         }
         throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
+
+    @POST
+    @Transactional
+    @Path("/{id}/validateKeyStoreFile")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+//    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    public Response validateKeyStoreFile(TrustStoreInfo info) {
+        if (info.keyStoreFileSize != null && info.keyStoreFileSize.intValue() > 250 * 1024) {
+            throw new LocalizedFieldValidationException(MessageSeeds.KEYSTORE_FILE_TOO_BIG, "keyStoreFile");
+        }
+        return Response.ok().build();
+    }
+
 
     @POST
     @Transactional

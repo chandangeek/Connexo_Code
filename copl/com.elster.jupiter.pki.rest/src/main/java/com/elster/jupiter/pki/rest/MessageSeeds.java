@@ -11,7 +11,8 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
 
-    NO_SUCH_TRUSTSTORE(1, "noSuchTrustStore", "Trust store {0} does not exist");
+    NO_SUCH_TRUSTSTORE(1, "noSuchTrustStore", "Trust store {0} does not exist"),
+    KEYSTORE_FILE_TOO_BIG(2, "keyStoreFileTooBig", "File size should be less than 250 kB");
 
     private final int number;
     private final String key;
