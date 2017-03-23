@@ -1,16 +1,19 @@
 package com.energyict.mdc.protocol.api.device.data;
 
 import com.elster.jupiter.metering.ReadingType;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
+import com.energyict.protocol.ChannelInfo;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import com.energyict.protocol.ChannelInfo;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 /**
@@ -75,7 +78,7 @@ public class ChannelInfoTest {
         assertFalse(noMeterIdentifier2.equals(meterIdentifier));
         assertTrue(undefinedUnit.equals(channelInfo));
         assertTrue(channelInfo.equals(undefinedUnit));
-        assertFalse(channelInfo.equals(nullReadingType));
+        assertTrue(channelInfo.equals(nullReadingType));
         assertFalse(channelInfo.equals(otherReadingTypeMrid));
     }
 }
