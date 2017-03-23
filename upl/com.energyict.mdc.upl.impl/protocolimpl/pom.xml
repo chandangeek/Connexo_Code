@@ -88,30 +88,6 @@
             <artifactId>guava</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.energyict.comserver</groupId>
-            <artifactId>comserver-core-impl</artifactId>
-            <scope>test</scope>
-            <exclusions>        <!--Only comserver-core-impl-->
-                <exclusion>
-                    <artifactId>*</artifactId>
-                    <groupId>*</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>com.energyict.comserver</groupId>
-            <artifactId>comserver-core-common</artifactId>
-            <scope>test</scope>
-            <exclusions>        <!--Only comserver-core-common-->
-                <exclusion>
-                    <artifactId>*</artifactId>
-                    <groupId>*</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
         <!--
               To be in sync with the EIServer version 		-->
         <dependency>
