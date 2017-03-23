@@ -218,8 +218,8 @@ public abstract class AbstractCimChannel implements CimChannel {
                 .map(ReadingQuality::getType)
                 .forEach(readingQualityType -> {
                     Optional<ReadingQualityRecord> readingQualityRecord = getRecordOfType(currentQualityRecords, readingQualityType);
-                    if(readingQualityRecord.isPresent()) {
-                        readingQualityRecord.get().makeActual();
+                    if(readingQualityRecord.isPresent() && !readingQualityRecord.get().isActual()) {
+                            readingQualityRecord.get().makeActual();
                     } else {
                         createReadingQuality(readingQualityType, reading);
                     }
