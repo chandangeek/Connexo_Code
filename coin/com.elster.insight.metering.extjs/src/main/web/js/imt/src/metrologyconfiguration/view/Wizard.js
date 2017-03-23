@@ -98,29 +98,15 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                             {
                                 boxLabel: Uni.I18n.translate('metrologyConfiguration.wizard.custtomAttributes.create', 'IMT', 'Create new versions for versioned custom attribute sets'),
                                 name: 'customAttributes',
-                                inputValue: 'create',
+                                inputValue: 0,
                                 checked: true
                             },
                             {
                                 boxLabel: Uni.I18n.translate('metrologyConfiguration.wizard.custtomAttributes.override', 'IMT', 'Override values of existing versions of versioned custom attribute sets'),
                                 name: 'customAttributes',
-                                inputValue: 'override'
+                                inputValue: 1
                             }
                         ],
-                        listeners: {
-                            change: function (group, newValue) {
-                                var controller = me.down('textfield[name=mRID]'),
-                                    form = me.down('#reading-type-add-fields-container');
-                                switch (newValue.customAttributes) {
-                                    case 'create':
-
-                                        break;
-                                    case 'override':
-
-                                        break;
-                                }
-                            }
-                        }
                     },
                     {
                         xtype: 'purposes-field',
