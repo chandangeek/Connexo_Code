@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data;
 
+import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
@@ -282,6 +283,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     Optional<? extends MeterActivation> getCurrentMeterActivation();
 
+    Optional<? extends MeterActivation> getMeterActivation(Instant when);
+
     List<MeterActivation> getMeterActivationsMostRecentFirst();
 
     /**
@@ -421,6 +424,13 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     State getState();
 
     /**
+     * Gets the current {@link Stage} of the State of this Device.
+     *
+     * @return The current Stage
+     */
+    Stage getStage();
+
+    /**
      * Gets the {@link State} of this Device as it was
      * known at the specified point in time.
      * May return an empty optional when the point in time
@@ -513,6 +523,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
         ScheduledConnectionTaskBuilder setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus status);
 
+        ScheduledConnectionTaskBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties);
+
         /**
          * Creates the actual ScheduledConnectionTask with the objects set in this builder.
          *
@@ -533,6 +545,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
         InboundConnectionTaskBuilder setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus status);
 
+        InboundConnectionTaskBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties);
+
         /**
          * Creates the actual InboundConnectionTask with the objects set in this builder.
          *
@@ -550,6 +564,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
         ConnectionInitiationTaskBuilder setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus status);
 
+        ConnectionInitiationTaskBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties);
 
         /**
          * Creates the actual ConnectionInitiationTask with the objects set in this builder.
