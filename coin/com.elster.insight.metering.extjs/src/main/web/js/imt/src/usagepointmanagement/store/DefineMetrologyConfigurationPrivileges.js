@@ -12,7 +12,7 @@ Ext.define('Imt.usagepointmanagement.store.DefineMetrologyConfigurationPrivilege
 
     proxy: {
         type: 'rest',
-        url: '/api/udr/usagepoints/{usagePointId}/privileges',
+        url: '/api/udr/usagepoints/{usagePointId}/metrologyconfiguration/privileges',
 
         reader: {
             type: 'json',

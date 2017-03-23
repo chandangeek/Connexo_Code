@@ -98,15 +98,15 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                             {
                                 boxLabel: Uni.I18n.translate('metrologyConfiguration.wizard.custtomAttributes.create', 'IMT', 'Create new versions for versioned custom attribute sets'),
                                 name: 'customAttributes',
-                                inputValue: 0,
+                                inputValue: false,
                                 checked: true
                             },
                             {
                                 boxLabel: Uni.I18n.translate('metrologyConfiguration.wizard.custtomAttributes.override', 'IMT', 'Override values of existing versions of versioned custom attribute sets'),
                                 name: 'customAttributes',
-                                inputValue: 1
+                                inputValue: true
                             }
-                        ],
+                        ]
                     },
                     {
                         xtype: 'purposes-field',

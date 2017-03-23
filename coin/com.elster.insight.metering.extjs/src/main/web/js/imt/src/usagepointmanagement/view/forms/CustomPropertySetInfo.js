@@ -42,7 +42,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.CustomPropertySetInfo', {
         ];
 
         me.callParent(arguments);
-        console.log(me.predefinedRecord);
+
         if (me.predefinedRecord) {
             me.loadRecord(me.predefinedRecord);
         }
