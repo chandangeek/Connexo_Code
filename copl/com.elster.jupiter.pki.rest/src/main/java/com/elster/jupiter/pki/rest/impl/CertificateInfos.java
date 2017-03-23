@@ -4,12 +4,8 @@
 
 package com.elster.jupiter.pki.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
-
-import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public class CertificateInfos {
 
