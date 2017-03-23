@@ -12,6 +12,7 @@ import com.elster.jupiter.transaction.TransactionService;
 
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -30,7 +31,9 @@ public class PkiApplication extends Application {
     private volatile Thesaurus thesaurus;
 
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.of(TrustStoreResource.class);
+        return ImmutableSet.of(
+                TrustStoreResource.class,
+                MultiPartFeature.class);
     }
 
     @Override
@@ -44,7 +47,7 @@ public class PkiApplication extends Application {
                 bind(transactionService).to(TransactionService.class);
                 bind(thesaurus).to(Thesaurus.class);
                 bind(TrustStoreInfoFactory.class).to(TrustStoreInfoFactory.class);
-                bind(TrustedCertificateInfoFactory.class).to(TrustedCertificateInfoFactory.class);
+                bind(CertificateInfoFactory.class).to(CertificateInfoFactory.class);
                 bind(ExceptionFactory.class).to(ExceptionFactory.class);
             }
         });

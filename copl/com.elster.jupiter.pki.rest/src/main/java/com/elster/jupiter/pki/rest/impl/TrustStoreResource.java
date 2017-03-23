@@ -4,7 +4,20 @@
 
 package com.elster.jupiter.pki.rest.impl;
 
-import javax.annotation.security.RolesAllowed;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.TrustedCertificate;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.ListPager;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
+
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
+
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -15,45 +28,32 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.pki.PkiService;
-import com.elster.jupiter.pki.TrustStore;
-import com.elster.jupiter.pki.rest.MessageSeeds;
-import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.ListPager;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.Transactional;
-
-import java.util.Collections;
+import java.io.InputStream;
+import java.security.NoSuchProviderException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Path("/truststores")
 public class TrustStoreResource {
 
     private final PkiService pkiService;
     private final TrustStoreInfoFactory trustStoreInfoFactory;
-    private final TrustedCertificateInfoFactory trustedCertificateInfoFactory;
+    private final CertificateInfoFactory certificateInfoFactory;
     private final ExceptionFactory exceptionFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public TrustStoreResource(PkiService pkiService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, TrustStoreInfoFactory trustStoreInfoFactory, TrustedCertificateInfoFactory trustedCertificateInfoFactory) {
+    public TrustStoreResource(PkiService pkiService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, TrustStoreInfoFactory trustStoreInfoFactory, CertificateInfoFactory certificateInfoFactory) {
         this.pkiService = pkiService;
         this.exceptionFactory = exceptionFactory;
         this.conflictFactory = conflictFactory;
         this.trustStoreInfoFactory = trustStoreInfoFactory;
-        this.trustedCertificateInfoFactory = trustedCertificateInfoFactory;
+        this.certificateInfoFactory = certificateInfoFactory;
     }
 
     @GET
@@ -66,22 +66,38 @@ public class TrustStoreResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public TrustStoreInfo getTrustStore(@PathParam("id") long id) {
-        Optional<TrustStore> trustStore = this.pkiService.findTrustStore(id);
-        if (trustStore.isPresent()) {
-            return trustStoreInfoFactory.asInfo(trustStore.get());
-        }
-        throw new WebApplicationException(Response.Status.NOT_FOUND);
+        TrustStore trustStore = findTrustStoreOrThrowException(id);
+        return trustStoreInfoFactory.asInfo(trustStore);
     }
 
     @GET
     @Path("/{id}/certificates")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList getCertificates(@PathParam("id") long id, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
-        Optional<TrustStore> trustStore = this.pkiService.findTrustStore(id);
-        if (trustStore.isPresent()) {
-            return asPagedInfoList(trustedCertificateInfoFactory.asInfo(trustStore.get(), uriInfo), "certificates", queryParameters);
+    public PagedInfoList getCertificates(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
+        TrustStore trustStore = findTrustStoreOrThrowException(id);
+        return asPagedInfoList(certificateInfoFactory.asInfo(trustStore.getCertificates()), "certificates", queryParameters);
+    }
+
+    @POST
+    @Path("/{id}/certificates")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response getCertificates(
+            @PathParam("id") long trustStoreId,
+            @FormDataParam("file") InputStream certificateInputStream,
+            @FormDataParam("file") FormDataContentDisposition contentDispositionHeader,
+            @FormDataParam("alias") String alias) {
+        try {
+            TrustStore trustStore = findTrustStoreOrThrowException(trustStoreId);
+            CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509", "BC");
+            X509Certificate certificate = (X509Certificate) certificateFactory.generateCertificate(certificateInputStream);
+            TrustedCertificate trustedCertificate = trustStore.addCertificate(alias, certificate);
+            return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
+        } catch (CertificateException e) {
+            throw exceptionFactory.newException(MessageSeeds.COULD_NOT_CREATE_CERTIFICATE, e);
+        } catch (NoSuchProviderException e) {
+            throw exceptionFactory.newException(MessageSeeds.COULD_NOT_CREATE_CERTIFICATE_FACTORY, e);
         }
-        throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
 
     @POST
@@ -131,19 +147,23 @@ public class TrustStoreResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response deleteTrustStore(@PathParam("id") long id) {
-//        pkiService.findTrustStore(id)
-//                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_TRUSTSTORE));
-//                .delete();
+        findTrustStoreOrThrowException(id).delete();
         return Response.status(Response.Status.OK).build();
     }
 
-    public Long getCurrentTrustStoreVersion(long id) {
+    private Long getCurrentTrustStoreVersion(long id) {
         return pkiService.findTrustStore(id).map(TrustStore::getVersion).orElse(null);
     }
 
-    private PagedInfoList asPagedInfoList(List<TrustedCertificateInfo> trustedCertificateInfos, String rootKeyName, JsonQueryParameters queryParameters) {
-        List<TrustedCertificateInfo> pagedInfos = ListPager.of(trustedCertificateInfos).from(queryParameters).find();
+    private PagedInfoList asPagedInfoList(List<CertificateInfo> certificateInfos, String rootKeyName, JsonQueryParameters queryParameters) {
+        List<CertificateInfo> pagedInfos = ListPager.of(certificateInfos).from(queryParameters).find();
         return PagedInfoList.fromPagedList(rootKeyName, pagedInfos, queryParameters);
     }
+
+    private TrustStore findTrustStoreOrThrowException(@PathParam("id") long id) {
+        return this.pkiService.findTrustStore(id)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_TRUSTSTORE));
+    }
+
 
 }

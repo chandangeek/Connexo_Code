@@ -6,7 +6,7 @@ package com.elster.jupiter.pki.rest.impl;
 
 import java.time.Instant;
 
-public class TrustedCertificateInfo {
+public class CertificateInfo {
 
     public String alias;
     public Instant expirationDate;
