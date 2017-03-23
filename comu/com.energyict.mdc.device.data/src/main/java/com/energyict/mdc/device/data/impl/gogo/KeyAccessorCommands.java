@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.device.data.impl.gogo;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PkiService;
@@ -63,18 +65,20 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=importSymmetricKey",
                 "osgi.command.function=renew",
                 "osgi.command.function=swap",
-                "osgi.command.function=clearTemp"
+                "osgi.command.function=clearTemp",
+                "osgi.command.function=createEventType"
 
         },
         immediate = true)
 public class KeyAccessorCommands {
     public static final MysqlPrint MYSQL_PRINT = new MysqlPrint();
 
-    private DeviceConfigurationService deviceConfigurationService;
-    private DeviceService deviceService;
-    private PkiService pkiService;
-    private TransactionService transactionService;
-    private ThreadPrincipalService threadPrincipalService;
+    private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile DeviceService deviceService;
+    private volatile PkiService pkiService;
+    private volatile TransactionService transactionService;
+    private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile EventService eventService;
 
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
@@ -99,6 +103,11 @@ public class KeyAccessorCommands {
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
     public void keyAccessors() {
@@ -379,6 +388,27 @@ public class KeyAccessorCommands {
             TrustStore trustStore = pkiService.findTrustStore(name)
                     .orElseThrow(() -> new RuntimeException("No such trust store"));
             trustStore.delete();
+            context.commit();
+        }
+    }
+
+    public void createEventType() {
+        System.out.println("Usage: createEventType <name> <componentName> <topic>");
+        System.out.println("E.g. : createEventType TRUSTSTORE_VALIDATE_DELETE PKI com/elster/jupiter/pki/truststore/DELETED");
+    }
+
+    public void createEventType(String name, String componentName, String topic) {
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            eventService.buildEventTypeWithTopic(topic)
+                    .name(name)
+                    .component(componentName)
+                    .category("Crud")
+                    .scope("System")
+                    .withProperty("id", ValueType.LONG, "id")
+                    .create();
+            context.commit();
         }
     }
 }
