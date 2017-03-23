@@ -8,6 +8,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.upl.io.ConnectionCommunicationException;
 import com.energyict.mdc.upl.io.ModemException;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import javax.xml.bind.annotation.XmlElement;
 import java.io.IOException;
@@ -47,8 +48,8 @@ public class AtModemComponent implements ModemComponent, Serializable {
     @XmlElement
     private AbstractAtModemProperties atModemProperties;
 
-    public AtModemComponent() {
-        this(new TypedAtModemProperties());
+    public AtModemComponent(PropertySpecService propertySpecService) {
+        this(new TypedAtModemProperties(propertySpecService));
     }
 
     public AtModemComponent(AbstractAtModemProperties atModemProperties) {

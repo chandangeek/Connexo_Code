@@ -1,8 +1,8 @@
 package com.energyict.mdc.channel.serial.modemproperties;
 
-import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -27,71 +27,74 @@ public class TypedAtModemProperties extends AbstractAtModemProperties implements
     private static final BigDecimal DEFAULT_COMMAND_TRIES = new BigDecimal(3);
     private static final Duration DEFAULT_COMMAND_TIMEOUT = Duration.ofSeconds(5);
     private TypedProperties properties;
+    private final PropertySpecService propertySpecService;
 
-    public TypedAtModemProperties() {
+    public TypedAtModemProperties(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
-    public TypedAtModemProperties(TypedProperties properties) {
+    public TypedAtModemProperties(TypedProperties properties, PropertySpecService propertySpecService) {
         this.properties = properties;
+        this.propertySpecService = propertySpecService;
     }
 
-    public static PropertySpec atModemAddressSelectorSpec() {
-        return Services.propertySpecService().stringSpec().named(MODEM_ADDRESS_SELECTOR, MODEM_ADDRESS_SELECTOR).describedAs(MODEM_ADDRESS_SELECTOR)
+    public PropertySpec atModemAddressSelectorSpec() {
+        return propertySpecService.stringSpec().named(MODEM_ADDRESS_SELECTOR, MODEM_ADDRESS_SELECTOR).describedAs(MODEM_ADDRESS_SELECTOR)
                 .setDefaultValue(DEFAULT_MODEM_ADDRESS_SELECTOR).finish();
     }
 
-    public static PropertySpec atModemPostDialCommandsSpec() {
-        return Services.propertySpecService().stringSpec().named(MODEM_POST_DIAL_COMMANDS, MODEM_POST_DIAL_COMMANDS).describedAs(MODEM_POST_DIAL_COMMANDS)
+    public PropertySpec atModemPostDialCommandsSpec() {
+        return propertySpecService.stringSpec().named(MODEM_POST_DIAL_COMMANDS, MODEM_POST_DIAL_COMMANDS).describedAs(MODEM_POST_DIAL_COMMANDS)
                 .setDefaultValue(DEFAULT_MODEM_POST_DIAL_COMMANDS).finish();
     }
 
-    public static PropertySpec atGlobalModemInitStringSpec() {
-        return Services.propertySpecService().stringSpec().named(MODEM_GLOBAL_INIT_STRINGS, MODEM_GLOBAL_INIT_STRINGS).describedAs(MODEM_GLOBAL_INIT_STRINGS)
+    public PropertySpec atGlobalModemInitStringSpec() {
+        return propertySpecService.stringSpec().named(MODEM_GLOBAL_INIT_STRINGS, MODEM_GLOBAL_INIT_STRINGS).describedAs(MODEM_GLOBAL_INIT_STRINGS)
                 .setDefaultValue(DEFAULT_MODEM_GLOBAL_INIT_STRINGS).finish();
     }
 
-    public static PropertySpec atModemInitStringSpec() {
-        return Services.propertySpecService().stringSpec().named(MODEM_INIT_STRINGS, MODEM_INIT_STRINGS).describedAs(MODEM_INIT_STRINGS)
+    public PropertySpec atModemInitStringSpec() {
+        return propertySpecService.stringSpec().named(MODEM_INIT_STRINGS, MODEM_INIT_STRINGS).describedAs(MODEM_INIT_STRINGS)
                 .setDefaultValue(DEFAULT_MODEM_INIT_STRINGS).finish();
     }
 
-    public static PropertySpec atCommandTriesSpec() {
-        return Services.propertySpecService().bigDecimalSpec().named(COMMAND_TRIES, COMMAND_TRIES).describedAs(COMMAND_TRIES)
+    public PropertySpec atCommandTriesSpec() {
+        return propertySpecService.bigDecimalSpec().named(COMMAND_TRIES, COMMAND_TRIES).describedAs(COMMAND_TRIES)
                 .setDefaultValue(DEFAULT_COMMAND_TRIES).finish();
     }
 
-    public static PropertySpec atCommandTimeoutSpec() {
-        return Services.propertySpecService().durationSpec().named(COMMAND_TIMEOUT, COMMAND_TIMEOUT).describedAs(COMMAND_TIMEOUT)
+    public PropertySpec atCommandTimeoutSpec() {
+        return propertySpecService.durationSpec().named(COMMAND_TIMEOUT, COMMAND_TIMEOUT).describedAs(COMMAND_TIMEOUT)
                 .setDefaultValue(DEFAULT_COMMAND_TIMEOUT).finish();
     }
 
-    public static PropertySpec delayBeforeSendSpec() {
-        return Services.propertySpecService().durationSpec().named(DELAY_BEFORE_SEND, DELAY_BEFORE_SEND).describedAs(DELAY_BEFORE_SEND)
+    public PropertySpec delayBeforeSendSpec() {
+        return propertySpecService.durationSpec().named(DELAY_BEFORE_SEND, DELAY_BEFORE_SEND).describedAs(DELAY_BEFORE_SEND)
                 .setDefaultValue(DEFAULT_DELAY_BEFORE_SEND).finish();
     }
 
-    public static PropertySpec delayAfterConnectSpec() {
-        return Services.propertySpecService().durationSpec().named(DELAY_AFTER_CONNECT, DELAY_AFTER_CONNECT).describedAs(DELAY_AFTER_CONNECT)
+    public PropertySpec delayAfterConnectSpec() {
+        return propertySpecService.durationSpec().named(DELAY_AFTER_CONNECT, DELAY_AFTER_CONNECT).describedAs(DELAY_AFTER_CONNECT)
                 .setDefaultValue(DEFAULT_DELAY_AFTER_CONNECT).finish();
     }
 
-    public static PropertySpec atConnectTimeoutSpec() {
-        return Services.propertySpecService().durationSpec().named(CONNECT_TIMEOUT, CONNECT_TIMEOUT).describedAs(CONNECT_TIMEOUT)
+    public PropertySpec atConnectTimeoutSpec() {
+        return propertySpecService.durationSpec().named(CONNECT_TIMEOUT, CONNECT_TIMEOUT).describedAs(CONNECT_TIMEOUT)
                 .setDefaultValue(DEFAULT_COMMAND_TIMEOUT).finish();
     }
 
-    public static PropertySpec atCommandPrefixSpec() {
-        return Services.propertySpecService().stringSpec().named(MODEM_DIAL_PREFIX, MODEM_DIAL_PREFIX).describedAs(MODEM_DIAL_PREFIX)
+    public PropertySpec atCommandPrefixSpec() {
+        return propertySpecService.stringSpec().named(MODEM_DIAL_PREFIX, MODEM_DIAL_PREFIX).describedAs(MODEM_DIAL_PREFIX)
                 .setDefaultValue(DEFAULT_MODEM_DIAL_PREFIX).finish();
     }
 
-    public static PropertySpec dtrToggleDelaySpec() {
-        return Services.propertySpecService().durationSpec().named(DTR_TOGGLE_DELAY, DTR_TOGGLE_DELAY).describedAs(DTR_TOGGLE_DELAY)
+    public PropertySpec dtrToggleDelaySpec() {
+        return propertySpecService.durationSpec().named(DTR_TOGGLE_DELAY, DTR_TOGGLE_DELAY).describedAs(DTR_TOGGLE_DELAY)
                 .setDefaultValue(DEFAULT_DTR_TOGGLE_DELAY).finish();
     }
 
-    public static PropertySpec phoneNumberSpec() {
-        return Services.propertySpecService().durationSpec().named(PHONE_NUMBER_PROPERTY_NAME, PHONE_NUMBER_PROPERTY_NAME).describedAs(PHONE_NUMBER_PROPERTY_NAME).finish();
+    public PropertySpec phoneNumberSpec() {
+        return propertySpecService.durationSpec().named(PHONE_NUMBER_PROPERTY_NAME, PHONE_NUMBER_PROPERTY_NAME).describedAs(PHONE_NUMBER_PROPERTY_NAME).finish();
     }
 
     @Override
