@@ -56,6 +56,7 @@ import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.And;
@@ -67,7 +68,6 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -1746,7 +1746,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         ChannelInfo mock = new ChannelInfo();
         mock.id = id;
         mock.interval = new TimeDurationInfo(900);
-        mock.parent = new VersionInfo<String>(deviceMRID, version);
+        mock.parent = new VersionInfo<>(deviceMRID, version);
         return mock;
     }
 
