@@ -9,8 +9,8 @@ import com.elster.jupiter.rest.api.util.v1.hypermedia.PropertyCopier;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.SelectableFieldFactory;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -29,9 +29,6 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
-/**
- * Created by bvn on 7/15/15.
- */
 public class PartialConnectionTaskInfoFactory extends SelectableFieldFactory<PartialConnectionTaskInfo, PartialConnectionTask> {
 
     private final MdcPropertyUtils mdcPropertyUtils;
