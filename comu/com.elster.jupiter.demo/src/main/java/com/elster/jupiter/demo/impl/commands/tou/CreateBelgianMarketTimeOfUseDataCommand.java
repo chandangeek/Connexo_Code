@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.demo.impl.commands.tou;
 
-import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.demo.impl.commands.CommandWithTransaction;
 
 import javax.inject.Inject;
@@ -22,7 +21,7 @@ public class CreateBelgianMarketTimeOfUseDataCommand extends CommandWithTransact
     private final Provider<CreateCalendarCommand> calendarCommandProvider;
 
     @Inject
-    public CreateBelgianMarketTimeOfUseDataCommand(CalendarService calendarService, Provider<CreateEventSetCommand> eventSetCommandProvider, Provider<CreateCalendarCommand> calendarCommandProvider) {
+    public CreateBelgianMarketTimeOfUseDataCommand(Provider<CreateEventSetCommand> eventSetCommandProvider, Provider<CreateCalendarCommand> calendarCommandProvider) {
         this.eventSetCommandProvider = eventSetCommandProvider;
         this.calendarCommandProvider = calendarCommandProvider;
     }

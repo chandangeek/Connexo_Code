@@ -10,6 +10,7 @@ import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 
 import javax.inject.Inject;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Month;
 import java.time.MonthDay;
@@ -117,118 +118,118 @@ public class CreateCalendarCommand {
     private enum FixedHolidays {
         EASTER_MONDAY_2015 {
             @Override
-            MonthDay monthDay() {
-                return MonthDay.of(Month.APRIL, 6);
+            LocalDate date() {
+                return LocalDate.of(2015, Month.APRIL, 6);
             }
         },
         ASCENSION_DAY_2015 {
             @Override
-            MonthDay monthDay() {
-                return MonthDay.of(Month.MAY, 14);
+            LocalDate date() {
+                return LocalDate.of(2015, Month.MAY, 14);
             }
         },
         PENTECOST_MONDAY_2015 {
             @Override
-            MonthDay monthDay() {
-                return MonthDay.of(Month.MAY, 25);
+            LocalDate date() {
+                return LocalDate.of(2015, Month.MAY, 25);
             }
         },
         EASTER_MONDAY_2016 {
             @Override
-            MonthDay monthDay() {
-                return MonthDay.of(Month.MARCH, 28);
+            LocalDate date() {
+                return LocalDate.of(2016, Month.MARCH, 28);
             }
         },
         ASCENSION_DAY_2016 {
             @Override
-            MonthDay monthDay() {
-                return MonthDay.of(Month.MAY, 5);
+            LocalDate date() {
+                return LocalDate.of(2016, Month.MAY, 5);
             }
         },
         PENTECOST_MONDAY_2016 {
             @Override
-            MonthDay monthDay() {
-                return MonthDay.of(Month.MAY, 16);
+            LocalDate date() {
+                return LocalDate.of(2016, Month.MAY, 16);
             }
         },
         EASTER_MONDAY_2017 {
             @Override
-            MonthDay monthDay() {
-                return MonthDay.of(Month.APRIL, 17);
+            LocalDate date() {
+                return LocalDate.of(2017, Month.APRIL, 17);
             }
         },
         ASCENSION_DAY_2017 {
             @Override
-            MonthDay monthDay() {
-                return MonthDay.of(Month.MAY, 25);
+            LocalDate date() {
+                return LocalDate.of(2017, Month.MAY, 25);
             }
         },
         PENTECOST_MONDAY_2017 {
             @Override
-            MonthDay monthDay() {
-                return MonthDay.of(Month.JUNE, 5);
+            LocalDate date() {
+                return LocalDate.of(2017, Month.JUNE, 5);
             }
         },
         EASTER_MONDAY_2018 {
             @Override
-            MonthDay monthDay() {
-                return MonthDay.of(Month.APRIL, 2);
+            LocalDate date() {
+                return LocalDate.of(2018, Month.APRIL, 2);
             }
         },
         ASCENSION_DAY_2018 {
             @Override
-            MonthDay monthDay() {
-                return MonthDay.of(Month.MAY, 10);
+            LocalDate date() {
+                return LocalDate.of(2018, Month.MAY, 10);
             }
         },
         PENTECOST_MONDAY_2018 {
             @Override
-            MonthDay monthDay() {
-                return MonthDay.of(Month.MAY, 21);
+            LocalDate date() {
+                return LocalDate.of(2018, Month.MAY, 21);
             }
         },
         EASTER_MONDAY_2019 {
             @Override
-            MonthDay monthDay() {
-                return MonthDay.of(Month.APRIL, 22);
+            LocalDate date() {
+                return LocalDate.of(2019, Month.APRIL, 22);
             }
         },
         ASCENSION_DAY_2019 {
             @Override
-            MonthDay monthDay() {
-                return MonthDay.of(Month.MAY, 30);
+            LocalDate date() {
+                return LocalDate.of(2019, Month.MAY, 30);
             }
         },
         PENTECOST_MONDAY_2019 {
             @Override
-            MonthDay monthDay() {
-                return MonthDay.of(Month.JUNE, 10);
+            LocalDate date() {
+                return LocalDate.of(2019, Month.JUNE, 10);
             }
         },
         EASTER_MONDAY_2020 {
             @Override
-            MonthDay monthDay() {
-                return MonthDay.of(Month.APRIL, 13);
+            LocalDate date() {
+                return LocalDate.of(2020, Month.APRIL, 13);
             }
         },
         ASCENSION_DAY_2020 {
             @Override
-            MonthDay monthDay() {
-                return MonthDay.of(Month.MAY, 21);
+            LocalDate date() {
+                return LocalDate.of(2020, Month.MAY, 21);
             }
         },
         PENTECOST_MONDAY_2020 {
             @Override
-            MonthDay monthDay() {
-                return MonthDay.of(Month.JUNE, 1);
+            LocalDate date() {
+                return LocalDate.of(2020, Month.JUNE, 1);
             }
         };
 
         public void addTo(CalendarService.CalendarBuilder builder) {
-            builder.except(HOLIDAY_DAYTYPE_NAME).occursAlwaysOn(this.monthDay()).add();
+            builder.except(HOLIDAY_DAYTYPE_NAME).occursOnceOn(this.date()).add();
         }
 
-        abstract MonthDay monthDay();
+        abstract LocalDate date();
     }
 
 }
