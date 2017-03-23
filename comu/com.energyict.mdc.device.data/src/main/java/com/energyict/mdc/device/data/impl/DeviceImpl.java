@@ -1625,14 +1625,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                             if ((rqj.getTypeCode().compareTo("2.5.258") == 0) || (rqj.getTypeCode().compareTo("2.5.259") == 0)) {
                                 journalReadingOptional = instantListEntry.getValue()
                                         .stream()
-                                        .sorted((a, b) -> a.getReadingTime().compareTo(b.getReadingTime()))
-                                        .filter(x -> x.getReadingTime().compareTo(rqj.getTimestamp()) > 0)
+                                        .sorted((a, b) -> b.getReadingTime().compareTo(a.getReadingTime()))
+                                        .filter(x -> x.getReadingTime().compareTo(rqj.getTimestamp()) <= 0)
                                         .findFirst();
                             } else {
                                 journalReadingOptional = instantListEntry.getValue()
                                         .stream()
-                                        .sorted((a, b) -> b.getReadingTime().compareTo(a.getReadingTime()))
-                                        .filter(x -> x.getReadingTime().compareTo(rqj.getTimestamp()) <= 0)
+                                        .sorted((a, b) -> a.getReadingTime().compareTo(b.getReadingTime()))
+                                        .filter(x -> x.getReadingTime().compareTo(rqj.getTimestamp()) >= 0)
                                         .findFirst();
                             }
                             journalReadingOptional.ifPresent(journalReading -> {
