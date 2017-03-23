@@ -1,7 +1,9 @@
 package com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.properties;
 
+import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.CertificateWrapperId;
 import com.energyict.cbo.PrivateKeyAlias;
+import com.energyict.cbo.PrivateKeyWrapper;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
@@ -220,7 +222,7 @@ public class T210DSecurityProvider extends NTASecurityProvider implements Genera
      * Throw the proper exception if the private key could not be found based on the configured alias.
      */
     private PrivateKey parsePrivateKey(String propertyName) {
-        PrivateKeyAlias alias = properties.getTypedProperty(propertyName);
+        PrivateKeyWrapper alias = properties.getTypedProperty(propertyName);
         if (alias == null) {
             throw DeviceConfigurationException.missingProperty(propertyName);
         } else {
@@ -229,7 +231,7 @@ public class T210DSecurityProvider extends NTASecurityProvider implements Genera
                 if (privateKey == null) {
                     throw DeviceConfigurationException.invalidPropertyFormat(
                             propertyName,
-                            alias.getAlias(),
+                            propertyName,
                             "The configured alias does not refer to an existing entry in the EIServer persisted key store.");
                 }
 
@@ -241,22 +243,22 @@ public class T210DSecurityProvider extends NTASecurityProvider implements Genera
                     if (privateKeyBytes.length != keySize) {
                         throw DeviceConfigurationException.invalidPropertyFormat(
                                 propertyName,
-                                "Private key with alias '" + alias.getAlias() + "'",
+                                "Private key with alias '" + propertyName + "'",
                                 "The private key should be for the " + getECCCurve().getCurveName() + " elliptic curve (DLMS security suite " + securitySuite + ")");
                     }
                 } else {
                     throw DeviceConfigurationException.invalidPropertyFormat(
                             propertyName,
-                            "Private key with alias '" + alias.getAlias() + "'",
+                            "Private key with alias '" + propertyName + "'",
                             "The private key should be for elliptic curve cryptography");
                 }
 
 
                 return privateKey;
-            } catch (InvalidKeySpecException e) {
+            } catch (InvalidKeySpecException | BusinessException e) {
                 throw DeviceConfigurationException.invalidPropertyFormat(
                         propertyName,
-                        "Private key with alias '" + alias.getAlias() + "'",
+                        "Private key with alias '" + propertyName + "'",
                         "The private key must be a valid, PKCS8 encoded key");
             }
         }
