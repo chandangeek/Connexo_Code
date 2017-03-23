@@ -23,7 +23,7 @@ public interface ReadingContainer {
 
     List<? extends BaseReadingRecord> getReadings(Range<Instant> range, ReadingType readingType);
 
-    default List<? extends BaseReadingRecord> getJournalReadings(Range<Instant> range, boolean changedDataOnly, ReadingType readingType) {
+    default List<? extends BaseReadingRecord> getJournalReadings(Range<Instant> range, ReadingType readingType) {
         return null;
     }
 

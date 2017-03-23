@@ -172,8 +172,8 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
     }
 
     @Override
-    public List<? extends BaseReadingRecord> getJournalReadings(Range<Instant> range, boolean changedDataOnly, ReadingType readingType) {
-        return MeterActivationsImpl.from(meterActivations, range).getJournalReadings(range, changedDataOnly, readingType);
+    public List<? extends BaseReadingRecord> getJournalReadings(Range<Instant> range, ReadingType readingType) {
+        return MeterActivationsImpl.from(meterActivations, range).getJournalReadings(range, readingType);
     }
 
     @Override
