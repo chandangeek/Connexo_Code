@@ -64,5 +64,11 @@ public interface TrustStore {
      */
     void loadKeyStore(KeyStore keyStore);
 
-    public void save();
+    void save();
+
+    /**
+     * Removes the trust store and all trusted certificates contained in it.
+     * A trust store can only be deleted if it is no longer referred to by a KeyAccessorType.
+     */
+    void delete();
 }

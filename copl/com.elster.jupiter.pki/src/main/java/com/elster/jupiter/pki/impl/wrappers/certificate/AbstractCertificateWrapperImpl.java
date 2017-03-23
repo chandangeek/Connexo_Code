@@ -38,17 +38,18 @@ import static java.util.stream.Collectors.toList;
 @UniqueAlias(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.ALIAS_UNIQUE + "}")
 public abstract class AbstractCertificateWrapperImpl implements CertificateWrapper {
     public static final String CLIENT_CERTIFICATE_DISCRIMINATOR = "C";
+    public static final String TRUSTED_CERTIFICATE_DISCRIMINATOR = "T";
+    public static final String CERTIFICATE_DISCRIMINATOR = "R";
 
     private final DataModel dataModel;
+
     private final Thesaurus thesaurus;
-
     private final PropertySpecService propertySpecService;
-
     public static final Map<String, Class<? extends CertificateWrapper>> IMPLEMENTERS =
             ImmutableMap.of(
                     CLIENT_CERTIFICATE_DISCRIMINATOR, ClientCertificateWrapperImpl.class,
-                    "T", TrustedCertificateImpl.class,
-                    "R", RequestableCertificateWrapperImpl.class);
+                    TRUSTED_CERTIFICATE_DISCRIMINATOR, TrustedCertificateImpl.class,
+                    CERTIFICATE_DISCRIMINATOR, RequestableCertificateWrapperImpl.class);
 
     public enum Fields {
         CERTIFICATE("certificate"),

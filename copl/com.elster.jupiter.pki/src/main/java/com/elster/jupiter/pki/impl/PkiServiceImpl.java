@@ -3,6 +3,7 @@ package com.elster.jupiter.pki.impl;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -22,11 +23,13 @@ import com.elster.jupiter.pki.SymmetricKeyFactory;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.AbstractPlaintextPrivateKeyWrapperImpl;
+import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.ClientCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.RequestableCertificateWrapperImpl;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.util.conditions.Where;
 
 import com.google.inject.AbstractModule;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -39,6 +42,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.security.Security;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -66,15 +70,18 @@ public class PkiServiceImpl implements PkiService {
     private volatile DataVaultService dataVaultService;
     private volatile OrmService ormService;
     private volatile PropertySpecService propertySpecService;
+    private volatile EventService eventService;
 
     @Inject
     public PkiServiceImpl(OrmService ormService, UpgradeService upgradeService, NlsService nlsService,
-                          DataVaultService dataVaultService, PropertySpecService propertySpecService) {
+                          DataVaultService dataVaultService, PropertySpecService propertySpecService,
+                          EventService eventService) {
         this.setOrmService(ormService);
         this.setUpgradeService(upgradeService);
         this.setNlsService(nlsService);
         this.setDataVaultService(dataVaultService);
         this.setPropertySpecService(propertySpecService);
+        this.setEventService(eventService);
         this.activate();
     }
 
@@ -122,6 +129,11 @@ public class PkiServiceImpl implements PkiService {
     }
 
     @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
+    }
+
+    @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
@@ -165,6 +177,7 @@ public class PkiServiceImpl implements PkiService {
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(PkiService.class).toInstance(PkiServiceImpl.this);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
+                bind(EventService.class).toInstance(eventService);
             }
         };
     }
@@ -282,6 +295,13 @@ public class PkiServiceImpl implements PkiService {
     @Override
     public Optional<ClientCertificateWrapper> findClientCertificateWrapper(String alias) {
         return getDataModel().mapper(ClientCertificateWrapper.class).getUnique(ClientCertificateWrapperImpl.Fields.ALIAS.fieldName(), alias);
+    }
+
+    @Override
+    public Finder<CertificateWrapper> findAllCertificates() {
+        return DefaultFinder.of(CertificateWrapper.class,
+                Where.where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)),
+                getDataModel());
     }
 
     private class ClientCertificateTypeBuilderImpl implements ClientCertificateTypeBuilder {

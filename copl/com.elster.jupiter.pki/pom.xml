@@ -64,6 +64,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>time</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>events</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.bouncycastle</groupId>
@@ -111,11 +115,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools.persistence</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>events</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -5,6 +5,7 @@
 package com.elster.jupiter.pki.impl.wrappers;
 
 import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -42,6 +43,7 @@ public class SoftwareSecurityDataModel {
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile UpgradeService upgradeService;
+    private volatile EventService eventService;
     private PkiService pkiService;
 
     // OSGi
@@ -51,13 +53,14 @@ public class SoftwareSecurityDataModel {
     @Inject // Testing purposes
     public SoftwareSecurityDataModel(OrmService ormService, UpgradeService upgradeService, NlsService nlsService,
                                      DataVaultService dataVaultService, PropertySpecService propertySpecService,
-                                     PkiService pkiService) {
+                                     PkiService pkiService, EventService eventService) {
         this.setOrmService(ormService);
         this.setUpGradeService(upgradeService);
         this.setNlsService(nlsService);
         this.setPropertySpecService(propertySpecService);
         this.setDataVaultService(dataVaultService);
         this.setPkiService(pkiService);
+        this.setEventService(eventService);
         activate();
     }
 
@@ -74,6 +77,11 @@ public class SoftwareSecurityDataModel {
     @Reference
     public void setUpGradeService(UpgradeService upGradeService) {
         this.upgradeService = upGradeService;
+    }
+
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
     @Reference
@@ -116,6 +124,7 @@ public class SoftwareSecurityDataModel {
                 bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(PkiService.class).toInstance(pkiService);
+                bind(EventService.class).toInstance(eventService);
             }
         };
     }

@@ -139,6 +139,12 @@ public interface PkiService {
 
     Optional<ClientCertificateWrapper> findClientCertificateWrapper(String alias);
 
+    /**
+     * Returns all non-trusted certificates, that means, all certificates for the 'certificate store'
+     * @return All Certificates and ClientCertificates, TrustedCertificates will not be part of the list.
+     */
+    Finder<CertificateWrapper> findAllCertificates();
+
     public interface CertificateTypeBuilder {
         CertificateTypeBuilder description(String description);
         KeyType add();

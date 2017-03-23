@@ -18,7 +18,9 @@ import static java.util.stream.Collectors.toList;
 @Component(name = "com.elster.jupiter.pki.gogo.impl.PkiGogoCommand",
         service = PkiGogoCommand.class,
         property = {"osgi.command.scope=pki",
-                "osgi.command.function=keytypes"},
+                "osgi.command.function=keytypes",
+                "osgi.command.function=certificateStore"
+        },
         immediate = true)
 public class PkiGogoCommand {
     public static final MysqlPrint MYSQL_PRINT = new MysqlPrint();
@@ -41,4 +43,13 @@ public class PkiGogoCommand {
         collect.add(0, Arrays.asList("name", "type", "algorithm"));
         MYSQL_PRINT.printTableWithHeader(collect);
     }
+
+    public void certificateStore() {
+        List<List<?>> certs = pkiService.findAllCertificates()
+                .stream()
+                .map(cert -> Arrays.asList(cert.getAlias(), cert.getCertificate().isPresent()))
+                .collect(toList());
+        MYSQL_PRINT.printTableWithHeader(Arrays.asList("Alias", "Certificate"), certs);
+    }
+
 }

@@ -6,6 +6,7 @@ package com.elster.jupiter.pki.impl;
 
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -34,6 +35,7 @@ public class TrustStoreImpl implements TrustStore {
 
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
+    private final EventService eventService;
 
     public enum Fields {
         NAME("name"),
@@ -72,9 +74,10 @@ public class TrustStoreImpl implements TrustStore {
     private List<TrustedCertificate> trustedCertificates = new ArrayList<>();
 
     @Inject
-    public TrustStoreImpl(DataModel dataModel, Thesaurus thesaurus) {
+    public TrustStoreImpl(DataModel dataModel, Thesaurus thesaurus, EventService eventService) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
+        this.eventService = eventService;
     }
 
     @Override
@@ -161,5 +164,13 @@ public class TrustStoreImpl implements TrustStore {
 
     public void save() {
         Save.action(id).save(dataModel, this);
+    }
+
+    public void delete() {
+        this.eventService.postEvent(EventType.TRUSTSTORE_VALIDATE_DELETE.topic(), this);
+        this.getCertificates().forEach(TrustedCertificate::delete);
+        dataModel.remove(this);
+        this.eventService.postEvent(EventType.TRUSTSTORE_DELETED.topic(), this);
+
     }
 }
