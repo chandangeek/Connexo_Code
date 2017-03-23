@@ -28,17 +28,6 @@ public class MetricValueRangeTest {
     }
 
     @Test
-    public void ignoreMatch() {
-        MetricValueRange.IgnoreRange ignoreRange = new MetricValueRange.IgnoreRange();
-
-        // Business method
-        ignoreRange.appendHavingTo(sqlBuilder, EXPRESSION);
-
-        // Asserts
-        assertThat(sqlBuilder.toString()).isEqualTo(EXPRESSION + " >= 0");
-    }
-
-    @Test
     public void exactMatch() {
         MetricValueRange.ExactMatch exactMatch = new MetricValueRange.ExactMatch(10L);
 
