@@ -47,8 +47,8 @@ Ext.define('Pkj.view.TrustedCertificatesGrid', {
                 items: [
                     {
                         xtype: 'button',
-                        text: Uni.I18n.translate('general.importTrustedCertificate', 'PKJ', 'Import trusted certificate'),
-                        itemId: 'pkj-certificates-grid-import-certificate'
+                        text: Uni.I18n.translate('general.importTrustedCertificates', 'PKJ', 'Import trusted certificates'),
+                        itemId: 'pkj-certificates-grid-import-certificates'
                     }
                 ]
             },

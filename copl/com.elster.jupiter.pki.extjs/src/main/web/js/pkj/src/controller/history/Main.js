@@ -54,6 +54,12 @@ Ext.define('Pkj.controller.history.Main', {
                                         }, {single: true});
                                         return this;
                                     }
+                                },
+                                importcertificates: {
+                                    route: 'importcertificates',
+                                    title: Uni.I18n.translate('general.importTrustedCertificates', 'PKJ', 'Import trusted certificates'),
+                                    controller: 'Pkj.controller.TrustStores',
+                                    action: 'showImportCertificatesPage'
                                 }
                             }
                         }

@@ -6,7 +6,8 @@ Ext.define('Pkj.model.TrustStore', {
     fields: [
         'id',
         'name',
-        'description'
+        'description',
+        {name: 'keyStoreFileSize', type: 'number', useNull: true}
     ],
     proxy: {
         type: 'rest',
@@ -14,5 +15,18 @@ Ext.define('Pkj.model.TrustStore', {
         reader: {
             type: 'json'
         }
+    },
+
+    doValidate: function (callback) {
+        var data = this.getProxy().getWriter().getRecordData(this);
+        delete data.firmwareFile;
+
+        Ext.Ajax.request({
+            method: 'POST',
+            url: this.proxy.url + this.getId() + '/validate',
+            callback: callback,
+            jsonData: data
+        });
     }
+
 });

@@ -37,10 +37,9 @@ Ext.define('Pkj.view.TrustedCertificatesView', {
                         ],
                         stepItems: [
                             {
-                                text: Uni.I18n.translate('general.importTrustedCertificate', 'PKJ', 'Import trusted certificate'),
+                                text: Uni.I18n.translate('general.importTrustedCertificates', 'PKJ', 'Import trusted certificates'),
                                 xtype: 'button',
-                                itemId: 'pkj-add-certificate-btn',
-                                action: 'addTrustedCertificate'
+                                itemId: 'pkj-import-certificates-step'
                             }
                         ]
                     },

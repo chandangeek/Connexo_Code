@@ -9,6 +9,7 @@ Ext.define('Pkj.controller.TrustStores', {
         'Pkj.view.TrustStoresOverview',
         'Pkj.view.TrustedCertificatesView',
         'Pkj.view.AddEditTrustStore',
+        'Pkj.view.ImportTrustedCertificate',
         'Uni.view.window.Confirmation'
     ],
     stores: [
@@ -35,8 +36,14 @@ Ext.define('Pkj.controller.TrustStores', {
         {
             ref: 'trustStorePreviewForm',
             selector: 'truststores-overview truststore-preview truststore-preview-form'
+        },
+        {
+            ref: 'certificateImportForm',
+            selector: 'trusted-certificate-import-form'
         }
     ],
+
+    currentTrustStoreId: undefined,
 
     init: function() {
         this.control({
@@ -54,6 +61,15 @@ Ext.define('Pkj.controller.TrustStores', {
             },
             'truststore-action-menu': {
                 click: this.onMenuAction
+            },
+            'button#pkj-certificates-grid-import-certificates': {
+                click: this.navigateToImportTrustedCertificates
+            },
+            'button#pkj-import-certificates-step': {
+                click: this.navigateToImportTrustedCertificates
+            },
+            'button#pkj-trusted-certificate-import-form-import-btn': {
+                click: this.importCertificates
             }
         });
     },
@@ -74,6 +90,12 @@ Ext.define('Pkj.controller.TrustStores', {
         this.getController('Uni.controller.history.Router')
             .getRoute('administration/truststores/view/edit')
             .forward({trustStoreId: record.get('id')});
+    },
+
+    navigateToImportTrustedCertificates: function(buttonClicked) {
+        this.getController('Uni.controller.history.Router')
+            .getRoute('administration/truststores/view/importcertificates')
+            .forward({trustStoreId: this.currentTrustStoreId});
     },
 
     showAddTrustStore: function() {
@@ -200,6 +222,7 @@ Ext.define('Pkj.controller.TrustStores', {
         certificatesStore.getProxy().setExtraParam('trustStoreId', trustStoreId);
         model.load(trustStoreId, {
             success: function (record) {
+                me.currentTrustStoreId = trustStoreId;
                 certificatesStore.load(function() {
                     me.showCertificatesPage(record, certificatesStore);
                     me.getApplication().fireEvent('trustStoreLoaded', record.get('name'));
@@ -216,6 +239,94 @@ Ext.define('Pkj.controller.TrustStores', {
         view = Ext.widget('truststores-certificates-view', {store:certificateStore});
         //view.down('form').loadRecord(trustStoreRecord);
         me.getApplication().fireEvent('changecontentevent', view);
+    },
+
+    showImportCertificatesPage: function(trustStoreId) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            model = Ext.ModelManager.getModel('Pkj.model.TrustStore');
+
+        model.load(trustStoreId, {
+            success: function (trustStoreRecord) {
+                me.getApplication().fireEvent('trustStoreLoaded', trustStoreRecord.get('name'));
+                me.getApplication().fireEvent('changecontentevent',
+                    Ext.widget('trusted-certificate-import', {
+                        cancelLink: router.getRoute('administration/truststores/view').buildUrl({trustStoreId:me.trustStoreId}),
+                        trustStoreRecord: trustStoreRecord
+                    })
+                );
+            }
+        });
+    },
+
+    importCertificates: function() {
+        //var me = this,
+        //    form = me.getCertificateImportForm(),
+        //    errorMsgPanel = form.down('uni-form-error-message'),
+        //    record = form.updateRecord().getRecord(),
+        //    input = form.down('filefield').button.fileInputEl.dom,
+        //    file = input.files[0],
+        //    precallback = function (options, success, response) {
+        //        if (success) {
+        //            callback(options, success, response);
+        //        } else {
+        //            me.setFormErrors(response, form);
+        //            form.setLoading(false);
+        //        }
+        //    },
+        //    callback = function (options, success, response) {
+        //        if (success) {
+        //            debugger;
+        //            //record.doSave(
+        //            //    {
+        //            //        backUrl: backUrl,
+        //            //        callback: me.getOnSaveOptionsCallbackFunction(form, backUrl, Uni.I18n.translate('firmware.edit.added.success', 'FWC', 'Firmware version added'))
+        //            //    },
+        //            //    form
+        //            //);
+        //        } else {
+        //            me.setFormErrors(response, form);
+        //            form.setLoading(false);
+        //        }
+        //    };
+        //
+        //
+        //errorMsgPanel.hide();
+        //form.getForm().clearInvalid();
+        //if (!form.isValid()) {
+        //    errorMsgPanel.show();
+        //    return;
+        //}
+        //
+        //if (file) {
+        //    form.setLoading();
+        //    record.set('keyStoreFileSize', file.size);
+        //    record.doValidate(precallback);
+        //} else {
+        //    record.set('keyStoreFileSize', null);
+        //    record.doValidate(precallback);
+        //}
+    },
+
+    setFormErrors: function (response, form) {
+        //form.down('uni-form-error-message').show();
+        //var json = Ext.decode(response.responseText);
+        //if (json && json.errors) {
+        //    var errorsToShow = [];
+        //    Ext.each(json.errors, function (item) {
+        //        switch (item.id) {
+        //            case 'firmwareFileSize':
+        //                item.id = 'firmwareFile';
+        //                errorsToShow.push(item);
+        //                break;
+        //            default:
+        //                errorsToShow.push(item);
+        //                break;
+        //        }
+        //    });
+        //    form.getForm().markInvalid(errorsToShow);
+        //}
     }
+
 
 });
