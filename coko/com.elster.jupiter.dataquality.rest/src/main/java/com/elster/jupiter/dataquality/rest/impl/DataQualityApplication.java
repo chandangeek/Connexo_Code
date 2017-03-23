@@ -13,6 +13,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.common.collect.ImmutableSet;
@@ -46,7 +47,8 @@ public class DataQualityApplication extends Application implements MessageSeedPr
         return ImmutableSet.of(
                 DeviceKpiResource.class,
                 UsagePointKpiResource.class,
-                FieldResource.class
+                FieldResource.class,
+                RestValidationExceptionMapper.class
         );
     }
 
