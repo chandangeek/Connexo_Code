@@ -1,7 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.cbo.Quantity;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -11,8 +10,17 @@ import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.mdc.upl.messages.DeviceMessage;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
+import com.energyict.cbo.Quantity;
 import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;
@@ -22,6 +30,7 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -33,7 +42,7 @@ import java.util.logging.Logger;
  * Date: 15/01/13
  * Time: 10:13
  */
-public class SimpleTestMeterProtocol implements MeterProtocol, MessageProtocol {
+public class SimpleTestMeterProtocol implements MeterProtocol, MessageProtocol, DeviceMessageSupport {
 
     public SimpleTestMeterProtocol() {
     }
@@ -217,4 +226,30 @@ public class SimpleTestMeterProtocol implements MeterProtocol, MessageProtocol {
     public String writeValue(MessageValue value) {
         return null;          // nothing to set
     }
+
+    @Override
+    public List<DeviceMessageSpec> getSupportedMessages() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
+        return null;
+    }
+
+    @Override
+    public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
+        return null;
+    }
+
+    @Override
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
+        return String.valueOf(messageAttribute);
+    }
+
+    @Override
+    public Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return Optional.empty();
+    }
+
 }

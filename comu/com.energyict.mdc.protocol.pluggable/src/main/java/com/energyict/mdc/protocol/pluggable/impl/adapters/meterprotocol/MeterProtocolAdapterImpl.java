@@ -69,6 +69,7 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.tasks.support.DeviceClockSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 
@@ -505,7 +506,11 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
 
     @Override
     public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-        return getDeviceSecuritySupport().getSecurityProperties();
+        if (this.delegateSecurityToActualProtocol()) {
+            return getDeviceSecuritySupport().getSecurityProperties();
+        } else {
+            return this.meterProtocolSecuritySupportAdapter.getSecurityProperties();
+        }
     }
 
     @Override

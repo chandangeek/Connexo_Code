@@ -8,11 +8,15 @@ import com.energyict.mdc.upl.nls.TranslationKey;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-11-28 (09:43)
  */
-class ConnexoTranslationKeyAdapter implements com.elster.jupiter.nls.TranslationKey {
+public class ConnexoTranslationKeyAdapter implements com.elster.jupiter.nls.TranslationKey {
     private final TranslationKey actual;
 
     ConnexoTranslationKeyAdapter(TranslationKey actual) {
         this.actual = actual;
+    }
+
+    public TranslationKey getActual() {
+        return actual;
     }
 
     @Override

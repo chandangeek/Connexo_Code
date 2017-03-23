@@ -3,19 +3,29 @@ package com.energyict.mdc.protocol.pluggable.impl;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoTranslationKeyAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLPropertySpecServiceImpl;
 import com.energyict.mdc.upl.nls.NlsMessageFormat;
 import com.energyict.mdc.upl.nls.Thesaurus;
@@ -39,6 +49,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -56,7 +67,9 @@ public class UPLPropertySpecServiceImplTest {
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
     @Mock
-    private Thesaurus thesaurus;
+    private Thesaurus uplThesaurus;
+    @Mock
+    private com.elster.jupiter.nls.Thesaurus thesaurus;
     @Mock
     private NlsService nlsService;
 
@@ -69,6 +82,12 @@ public class UPLPropertySpecServiceImplTest {
                 new MockModule(bundleContext),
                 inMemoryBootstrapModule,
                 new ThreadSecurityModule(),
+                new EventsModule(),
+                new DomainUtilModule(),
+                new TimeModule(),
+                new PubSubModule(),
+                new UtilModule(),
+                new BasicPropertiesModule(),
                 new OrmModule(),
                 new NlsModule(),
                 new DataVaultModule(),
@@ -95,11 +114,22 @@ public class UPLPropertySpecServiceImplTest {
     private void mockTranslation(TranslationKeys translationKey) {
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
         when(messageFormat.format(anyVararg())).thenReturn(translationKey.getDefaultFormat());
-        when(this.thesaurus.getFormat(translationKey)).thenReturn(messageFormat);
+        when(this.uplThesaurus.getFormat(translationKey)).thenReturn(messageFormat);
+        when(this.thesaurus.getFormat(any(ConnexoTranslationKeyAdapter.class)))
+            .thenAnswer(invocation -> {
+                com.elster.jupiter.nls.NlsMessageFormat messageFormat1 = mock(com.elster.jupiter.nls.NlsMessageFormat.class);
+                ConnexoTranslationKeyAdapter adapter = (ConnexoTranslationKeyAdapter) invocation.getArguments()[0];
+                if (adapter != null) {
+                    TranslationKey uplTranslationKey = adapter.getActual();
+                    when(messageFormat1.format(anyVararg())).thenReturn(uplTranslationKey.getDefaultFormat());
+                }
+                return messageFormat1;
+            });
     }
 
     @Before
     public void initializePropertySpecService() throws Exception {
+        when(this.nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(this.thesaurus);
         DataVaultService dataVaultService = injector.getInstance(DataVaultService.class);
         this.propertySpecService =
                 new UPLPropertySpecServiceImpl(
@@ -117,7 +147,12 @@ public class UPLPropertySpecServiceImplTest {
         String expectedDescription = "description";
 
         // Business method
-        PropertySpec propertySpec = this.propertySpecService.stringSpec().named(expectedName, expectedDisplayName).describedAs(expectedDescription).finish();
+        PropertySpec propertySpec =
+                this.propertySpecService
+                    .stringSpec()
+                        .named(expectedName, expectedDisplayName)
+                        .describedAs(expectedDescription)
+                        .finish();
 
         // Asserts
         assertThat(propertySpec).isNotNull();
@@ -125,7 +160,7 @@ public class UPLPropertySpecServiceImplTest {
         assertThat(propertySpec.getDisplayName()).isEqualTo(expectedDisplayName);
         assertThat(propertySpec.getDescription()).isEqualTo(expectedDescription);
         assertThat(propertySpec.isRequired()).isFalse();
-        assertThat(propertySpec.getDefaultValue()).isNull();
+        assertThat(propertySpec.getDefaultValue()).isEmpty();
         assertThat(propertySpec.getPossibleValues()).isNull();
     }
 
@@ -141,11 +176,11 @@ public class UPLPropertySpecServiceImplTest {
 
         // Asserts
         assertThat(propertySpec).isNotNull();
-        assertThat(propertySpec.getName()).isEqualTo(TranslationKeys.NAME.getDefaultFormat());
-        assertThat(propertySpec.getDisplayName()).isEqualTo(TranslationKeys.DISPLAYNAME.getDefaultFormat());
+        assertThat(propertySpec.getName()).isEqualTo(TranslationKeys.NAME.getKey());
+        assertThat(propertySpec.getDisplayName()).isEqualTo(TranslationKeys.NAME.getDefaultFormat());
         assertThat(propertySpec.getDescription()).isEqualTo(TranslationKeys.DESCRIPTION.getDefaultFormat());
         assertThat(propertySpec.isRequired()).isFalse();
-        assertThat(propertySpec.getDefaultValue()).isNull();
+        assertThat(propertySpec.getDefaultValue()).isEmpty();
         assertThat(propertySpec.getPossibleValues()).isNull();
     }
 
@@ -167,7 +202,7 @@ public class UPLPropertySpecServiceImplTest {
         assertThat(propertySpec.getDisplayName()).isEqualTo(TranslationKeys.DISPLAYNAME.getDefaultFormat());
         assertThat(propertySpec.getDescription()).isEqualTo(TranslationKeys.DESCRIPTION.getDefaultFormat());
         assertThat(propertySpec.isRequired()).isFalse();
-        assertThat(propertySpec.getDefaultValue()).isNull();
+        assertThat(propertySpec.getDefaultValue()).isEmpty();
         assertThat(propertySpec.getPossibleValues()).isNull();
     }
 
@@ -178,7 +213,7 @@ public class UPLPropertySpecServiceImplTest {
         private MockModule(BundleContext bundleContext) {
             super();
             this.bundleContext = bundleContext;
-            this.eventAdmin =  mock(EventAdmin.class);
+            this.eventAdmin = mock(EventAdmin.class);
         }
 
         @Override
@@ -186,6 +221,7 @@ public class UPLPropertySpecServiceImplTest {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(UserService.class).toInstance(mock(UserService.class));
         }
     }
 

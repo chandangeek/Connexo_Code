@@ -1,11 +1,12 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common.mocks;
 
-import com.energyict.cbo.Quantity;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
+
+import com.energyict.cbo.Quantity;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -128,9 +129,9 @@ public class MockCollectedRegister implements CollectedRegister {
     @Override
     public void setCollectedTimeStamps(Date readTime, Date fromTime, Date toTime, Date eventTime) {
         this.setReadTime(readTime);
-        this.setEventTime(eventTime);
         this.setFromTime(fromTime);
         this.setToTime(toTime);
+        this.setEventTime(eventTime);
     }
 
     @Override

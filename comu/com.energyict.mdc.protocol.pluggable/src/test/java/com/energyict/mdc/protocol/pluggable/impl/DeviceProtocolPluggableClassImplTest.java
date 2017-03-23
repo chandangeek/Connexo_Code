@@ -193,7 +193,11 @@ public class DeviceProtocolPluggableClassImplTest {
             try (PreparedStatement statement = connection.prepareStatement(insertSecuritySupportAdapterMappingSql())) {
                 statement.setString(1, "com.energyict.mdc.protocol.pluggable.mocks.MockSmartMeterProtocol");
                 statement.setString(2, NoSecuritySupport.class.getName());
-                statement.executeUpdate();
+                statement.addBatch();
+                statement.setString(1, "com.energyict.mdc.protocol.pluggable.mocks.MockMeterProtocol");
+                statement.setString(2, NoSecuritySupport.class.getName());
+                statement.addBatch();
+                statement.executeBatch();
             }
         }
         when(deviceProtocolSecurityService.createDeviceProtocolSecurityFor(NoSecuritySupport.class.getName())).thenReturn(new NoSecuritySupport());
