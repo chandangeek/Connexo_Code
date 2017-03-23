@@ -7,11 +7,11 @@ package com.elster.jupiter.dataquality.rest.impl;
 import com.elster.jupiter.dataquality.DataQualityKpiService;
 import com.elster.jupiter.dataquality.UsagePointDataQualityKpi;
 import com.elster.jupiter.dataquality.security.Privileges;
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.LongIdWithNameInfo;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
 
 import javax.annotation.security.RolesAllowed;
@@ -80,9 +80,11 @@ public class UsagePointKpiResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_DATA_QUALITY_KPI_CONFIGURATION})
     public Response createDataQualityKpi(UsagePointDataQualityKpiInfo info) {
-        if (info.purposes == null || info.purposes.length == 0) {
-            throw new LocalizedFieldValidationException(MessageSeeds.CAN_NOT_BE_EMPTY, "purposes");
-        }
+        new RestValidationBuilder()
+                .notEmpty(info.usagePointGroup, "usagePointGroup", MessageSeeds.CAN_NOT_BE_EMPTY)
+                .on(info.purposes).field("purposes").check(purposes -> purposes != null && purposes.length != 0).message(MessageSeeds.CAN_NOT_BE_EMPTY).test()
+                .notEmpty(info.frequency, "frequency", MessageSeeds.CAN_NOT_BE_EMPTY)
+                .validate();
         for (LongIdWithNameInfo purpose : info.purposes) {
             info.metrologyPurpose = purpose;
             dataQualityKpiInfoFactory.createNewKpi(info);
