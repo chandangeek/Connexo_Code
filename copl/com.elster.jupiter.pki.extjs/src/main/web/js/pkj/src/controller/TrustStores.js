@@ -280,7 +280,7 @@ Ext.define('Pkj.controller.TrustStores', {
         //            //record.doSave(
         //            //    {
         //            //        backUrl: backUrl,
-        //            //        callback: me.getOnSaveOptionsCallbackFunction(form, backUrl, Uni.I18n.translate('firmware.edit.added.success', 'FWC', 'Firmware version added'))
+        //            //        callback: me.getOnSaveOptionsCallbackFunction(form, backUrl, 'Firmware version added'))
         //            //    },
         //            //    form
         //            //);
