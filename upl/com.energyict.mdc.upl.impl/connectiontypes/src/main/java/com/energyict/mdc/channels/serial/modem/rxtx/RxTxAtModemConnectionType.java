@@ -36,7 +36,7 @@ public class RxTxAtModemConnectionType extends RxTxSerialConnectionType {
 
     @Override
     public SerialPortComChannel connect() throws ConnectionException {
-        this.atModemComponent = new AtModemComponent(new TypedAtModemProperties(getAllProperties()));
+        this.atModemComponent = new AtModemComponent(new TypedAtModemProperties(getAllProperties(), getPropertySpecService()));
         // create the serial ComChannel and set all property values
         SerialPortComChannel comChannel = super.connect();
         try {
@@ -60,7 +60,7 @@ public class RxTxAtModemConnectionType extends RxTxSerialConnectionType {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.addAll(new TypedAtModemProperties().getUPLPropertySpecs());
+        propertySpecs.addAll(new TypedAtModemProperties(getPropertySpecService()).getUPLPropertySpecs());
         return propertySpecs;
     }
 

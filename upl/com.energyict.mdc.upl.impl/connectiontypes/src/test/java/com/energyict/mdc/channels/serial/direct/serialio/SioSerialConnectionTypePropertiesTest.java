@@ -4,14 +4,14 @@
 
 package com.energyict.mdc.channels.serial.direct.serialio;
 
+import com.energyict.mdc.channels.AbstractConnectionTypePropertiesTest;
 import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecService;
+import org.fest.assertions.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.Optional;
 
 
 /**
@@ -21,20 +21,20 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 2013-03-22 (13:58)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class SioSerialConnectionTypePropertiesTest {
-
-    @Mock
-    private PropertySpecService propertySpecService;
+public class SioSerialConnectionTypePropertiesTest extends AbstractConnectionTypePropertiesTest {
 
     @Test
-    public void testAllOptionalPropertiesAreReturnedByGetPropertySpec () {
-        SioSerialConnectionType connectionType = new SioSerialConnectionType(this.propertySpecService);
-        for (PropertySpec optionalPropertySpec : connectionType.getUPLPropertySpecs()) {
-            assertThat(connectionType.getUPLPropertySpec(optionalPropertySpec.getName())).
-                    as("Property " + optionalPropertySpec.getName() + " is not returned by getPropertySpec").
-                    isNotNull();
-            assertThat(connectionType.getUPLPropertySpec(optionalPropertySpec.getName())).isEqualTo(optionalPropertySpec);
-        }
+    public void testGetPropertiesIsNotNull() {
+        SioSerialConnectionType connectionType = new SioSerialConnectionType(propertySpecService);
+        Assertions.assertThat(connectionType.getUPLPropertySpecs()).isNotNull();
     }
 
+    @Test
+    public void testAllPropertiesAreReturnedByGetPropertySpec() {
+        SioSerialConnectionType connectionType = new SioSerialConnectionType(propertySpecService);
+        for (PropertySpec optionalPropertySpec : connectionType.getUPLPropertySpecs()) {
+            Optional<PropertySpec> uplPropertySpec = connectionType.getUPLPropertySpec(optionalPropertySpec.getName());
+            assertPropertySpecsEqual(optionalPropertySpec, uplPropertySpec);
+        }
+    }
 }

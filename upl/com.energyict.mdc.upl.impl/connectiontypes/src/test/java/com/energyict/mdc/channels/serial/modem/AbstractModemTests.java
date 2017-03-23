@@ -7,13 +7,27 @@ package com.energyict.mdc.channels.serial.modem;
 import com.energyict.mdc.channel.serial.SerialComChannelImpl;
 import com.energyict.mdc.channel.serial.ServerSerialPort;
 import com.energyict.mdc.protocol.ComChannelType;
+import com.energyict.mdc.upl.io.SerialComponentService;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.propertyspec.MockPropertySpecService;
+import org.junit.BeforeClass;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.mockito.Mockito.mock;
+
 public class AbstractModemTests {
 
+    protected static PropertySpecService propertySpecService;
+    protected static SerialComponentService serialComponentService;
+
+    @BeforeClass
+    public static void initializeMocksAndFactories() {
+        propertySpecService = new MockPropertySpecService();
+        serialComponentService = mock(SerialComponentService.class);
+    }
 
     protected static final String RUBBISH_FOR_FLUSH = "rubbishForFlush";
     protected static final String PHONE_NUMBER = "00123456789";

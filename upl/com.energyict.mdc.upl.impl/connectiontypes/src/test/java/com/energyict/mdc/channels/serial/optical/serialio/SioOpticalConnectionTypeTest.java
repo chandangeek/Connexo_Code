@@ -5,28 +5,14 @@
 package com.energyict.mdc.channels.serial.optical.serialio;
 
 import com.energyict.mdc.channel.serial.SerialPortConfiguration;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import org.junit.Before;
+import com.energyict.mdc.channels.AbstractConnectionTypePropertiesTest;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 
-public class SioOpticalConnectionTypeTest {
-
-    private PropertySpecService propertySpecService;
-
-    @Before
-    public void initializeMocksAndFactories() {
-        propertySpecService = mock(PropertySpecService.class);
-/*
-        //TODO
-        PropertySpecBuilderWizard.NlsOptions propertySpecBuilder = new PropertySpecBuilderImpl();
-        when(propertySpecService.encryptedStringSpec()).thenReturn(propertySpecBuilder);
-*/
-    }
+public class SioOpticalConnectionTypeTest extends AbstractConnectionTypePropertiesTest {
 
     @Test
     public void allowSimultaneousConnectionsTest() {

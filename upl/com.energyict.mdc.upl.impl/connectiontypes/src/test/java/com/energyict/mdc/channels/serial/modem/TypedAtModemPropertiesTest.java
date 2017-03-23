@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.channels.serial.modem;
 
-import com.energyict.mdc.channel.serial.modemproperties.TypedAtModemProperties;
 import com.energyict.mdc.channel.serial.modemproperties.postdialcommand.AbstractAtPostDialCommand;
 import com.energyict.mdc.channel.serial.modemproperties.postdialcommand.PostDialCommandParser;
 import org.junit.Test;
@@ -21,7 +20,6 @@ public class TypedAtModemPropertiesTest {
 
     @Test
     public void testSuccessfulValidatePostDialCommand() throws Exception {
-        TypedAtModemProperties modemProperties = new TypedAtModemProperties();
         String postDialCommands = "(D)(D:50)(F)(F:100)(W:\\(data\\))(S:7E1)";
 
         // Business method
@@ -33,7 +31,6 @@ public class TypedAtModemPropertiesTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testInvalidValidatePostDialCommand() throws Exception {
-        TypedAtModemProperties modemProperties = new TypedAtModemProperties();
         String postDialCommands = "(D(D:50)(F)(F:100)(W:\\(data\\))(S:7E1)";
 
         // Business method - Expecting an ApplicationException, cause the postDialCommands string is missing a ')'.
@@ -42,7 +39,6 @@ public class TypedAtModemPropertiesTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testAnotherInvalidValidatePostDialCommand() throws Exception {
-        TypedAtModemProperties modemProperties = new TypedAtModemProperties();
         String postDialCommands = "(D)(D:50)(F)(F:100)(W:data)(S:0E1)";
 
         // Business method - Expecting an ApplicationException, cause the serialCommunicationSettingsCommand contains invalid nr of data bits.

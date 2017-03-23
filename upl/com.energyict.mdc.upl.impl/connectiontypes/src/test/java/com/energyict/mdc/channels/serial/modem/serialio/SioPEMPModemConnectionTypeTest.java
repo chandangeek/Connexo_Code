@@ -14,11 +14,8 @@ import com.energyict.mdc.channels.serial.modem.AbstractModemTests;
 import com.energyict.mdc.channels.serial.modem.TypedPEMPModemProperties;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.upl.io.ModemException;
-import com.energyict.mdc.upl.io.SerialComponentService;
-import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocol.exceptions.ConnectionException;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -56,21 +53,6 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests {
             "\r\nXX COM\r\nYY\r\n"
     );
 
-    private PropertySpecService propertySpecService;
-    private SerialComponentService serialComponentService;
-
-    @Before
-    public void initializeMocksAndFactories() {
-        propertySpecService = mock(PropertySpecService.class);
-        serialComponentService = mock(SerialComponentService.class);
-/*
-        //TODO
-        PropertySpecBuilderWizard.NlsOptions propertySpecBuilder = new PropertySpecBuilderImpl();
-        when(propertySpecService.encryptedStringSpec()).thenReturn(propertySpecBuilder);
-*/
-
-    }
-
     private AbstractModemTests.TestableSerialComChannel getTestableComChannel() {
         InputStream inputStream = mock(InputStream.class);
         OutputStream outputStream = mock(OutputStream.class);
@@ -99,8 +81,8 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests {
     }
 
     private void getProperlyMockedComPort(AbstractModemTests.TestableSerialComChannel serialComChannel, SioSerialPort sioSerialPort) throws Exception {
-        when(this.serialComponentService.newSerialPort(any(SerialPortConfiguration.class))).thenReturn(sioSerialPort);
-        when(this.serialComponentService.newSerialComChannel(any(ServerSerialPort.class), any(ComChannelType.class))).thenReturn(serialComChannel);
+        when(serialComponentService.newSerialPort(any(SerialPortConfiguration.class))).thenReturn(sioSerialPort);
+        when(serialComponentService.newSerialComChannel(any(ServerSerialPort.class), any(ComChannelType.class))).thenReturn(serialComChannel);
     }
 
     @Test(timeout = TEST_LONG_TIMEOUT_MILLIS, expected = ConnectionException.class)
