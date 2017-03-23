@@ -101,6 +101,7 @@ public class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
 
     public void setKey(SecretKey key) {
         this.encryptedKey=dataVaultService.encrypt(key.getEncoded());
+        this.save();
     }
 
     @Override
