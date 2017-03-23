@@ -32,7 +32,7 @@ public class MetrologyConfigurationHistoryInfoFactory {
         MetrologyConfigurationHistoryInfo info = new MetrologyConfigurationHistoryInfo();
         info.start = metrologyConfiguration.getStart();
         info.end = metrologyConfiguration.getEnd();
-        info.metrologyConfiguration = new IdWithNameInfo(metrologyConfiguration.getId(), metrologyConfiguration.getMetrologyConfiguration()
+        info.metrologyConfiguration = new IdWithNameInfo(metrologyConfiguration.getMetrologyConfiguration().getId(), metrologyConfiguration.getMetrologyConfiguration()
                 .getName());
         info.current = metrologyConfiguration.isEffectiveAt(clock.instant());
 
@@ -44,8 +44,7 @@ public class MetrologyConfigurationHistoryInfoFactory {
                                 .map(readingTypeInfoFactory::from)
                                 .collect(Collectors.toList())));
 
-        String correlationId = usagePoint.getMRID() + ":processOnMetrologyConfig:" + metrologyConfiguration.getId();
-        info.ongoingProcesses = bpmService.getRunningProcesses(auth, filterFor(correlationId)).processes
+        info.ongoingProcesses = bpmService.getRunningProcesses(auth, filterFor(metrologyConfiguration)).processes
                 .stream()
                 .map(processInstanceInfo -> new IdWithNameInfo(processInstanceInfo.processId, processInstanceInfo.name))
                 .collect(Collectors.toList());
@@ -54,7 +53,8 @@ public class MetrologyConfigurationHistoryInfoFactory {
         return info;
     }
 
-    private String filterFor(String correlationId) {
-        return "?variableid=correlationId&variableValue=" + correlationId;
+    private String filterFor(EffectiveMetrologyConfigurationOnUsagePoint metrologyConfiguration) {
+        return "?variableid=correlationId&variableValue=" + metrologyConfiguration.getUsagePoint().getMRID() + ":processOnMetrologyConfig:"
+                + metrologyConfiguration.getMetrologyConfiguration().getId();
     }
 }

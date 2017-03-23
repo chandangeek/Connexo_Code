@@ -571,8 +571,8 @@ public class UsagePointResource {
 
     @GET
     @Path("{name}/history/metrologyConfigurations")
-    @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.VIEW_ANY_USAGEPOINT})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     public PagedInfoList getMetrologyConfigurationsHistory(@PathParam("name") String name, @HeaderParam("Authorization") String auth, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         List<MetrologyConfigurationHistoryInfo> infos = usagePoint.getEffectiveMetrologyConfigurations()
