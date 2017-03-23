@@ -17,6 +17,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.File;
 import java.net.URL;
+import java.security.KeyStore;
 import java.security.Security;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -95,7 +96,7 @@ public class TrustStoreResourceTest extends PkiApplicationTest {
         deviceTypeBodyPart.setValue(MediaType.APPLICATION_JSON_TYPE, "myCert");
         multiPart.bodyPart(filePart).bodyPart(deviceTypeBodyPart);
 
-        Response response = target("/truststores/1001/certificates").
+        Response response = target("/truststores/1001/certificates/single").
                 request(MediaType.TEXT_PLAIN).
                 post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -104,5 +105,81 @@ public class TrustStoreResourceTest extends PkiApplicationTest {
         verify(store, times(1)).addCertificate(stringArgumentCaptor.capture(), certificateArgumentCaptor.capture());
         assertThat(stringArgumentCaptor.getValue()).isEqualTo("myCert");
         assertThat(certificateArgumentCaptor.getValue().getIssuerDN().getName()).contains("CN=MyRootCA");
+    }
+
+    @Test
+    public void testImportKeyStore() throws Exception {
+        TrustStore store = mockTrustStore(TRUST_STORE_NAME, 1001);
+        when(pkiService.findTrustStore(1001)).thenReturn(Optional.of(store));
+
+        String fileName = "SM2016MDMCA-chain.jks";
+        Form form = new Form();
+        form.param("password", "changeit");
+        URL resource = TrustStoreResourceTest.class.getClassLoader().getResource(fileName);
+        String path = resource.getPath();
+        File file = new File(path);
+        MultiPart multiPart = new MultiPart();
+        final FileDataBodyPart filePart = new FileDataBodyPart("file", file, MediaType.APPLICATION_OCTET_STREAM_TYPE);
+        FormDataBodyPart deviceTypeBodyPart = new FormDataBodyPart();
+        deviceTypeBodyPart.setName("password");
+        deviceTypeBodyPart.setValue(MediaType.APPLICATION_JSON_TYPE, "changeit");
+        multiPart.bodyPart(filePart).bodyPart(deviceTypeBodyPart);
+
+        Response response = target("/truststores/1001/certificates/keystore").
+                request(MediaType.TEXT_PLAIN).
+                post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        ArgumentCaptor<KeyStore> keyStoreArgumentCaptor = ArgumentCaptor.forClass(KeyStore.class);
+        verify(store, times(1)).loadKeyStore(keyStoreArgumentCaptor.capture());
+        assertThat(keyStoreArgumentCaptor.getValue().containsAlias("sm_2016_mdm_ca")).isTrue();
+        assertThat(keyStoreArgumentCaptor.getValue().containsAlias("sm_2016_root_ca")).isTrue();
+    }
+
+    @Test
+    public void testImportKeyStoreWrongPassword() throws Exception {
+        TrustStore store = mockTrustStore(TRUST_STORE_NAME, 1001);
+        when(pkiService.findTrustStore(1001)).thenReturn(Optional.of(store));
+
+        String fileName = "SM2016MDMCA-chain.jks";
+        Form form = new Form();
+        form.param("password", "WRONG");
+        URL resource = TrustStoreResourceTest.class.getClassLoader().getResource(fileName);
+        String path = resource.getPath();
+        File file = new File(path);
+        MultiPart multiPart = new MultiPart();
+        final FileDataBodyPart filePart = new FileDataBodyPart("file", file, MediaType.APPLICATION_OCTET_STREAM_TYPE);
+        FormDataBodyPart deviceTypeBodyPart = new FormDataBodyPart();
+        deviceTypeBodyPart.setName("password");
+        deviceTypeBodyPart.setValue(MediaType.APPLICATION_JSON_TYPE, "WRONG");
+        multiPart.bodyPart(filePart).bodyPart(deviceTypeBodyPart);
+
+        Response response = target("/truststores/1001/certificates/keystore").
+                request(MediaType.TEXT_PLAIN).
+                post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testImportIllegalKeyStore() throws Exception {
+        TrustStore store = mockTrustStore(TRUST_STORE_NAME, 1001);
+        when(pkiService.findTrustStore(1001)).thenReturn(Optional.of(store));
+
+        String fileName = "myRootCA.cert";
+        Form form = new Form();
+        form.param("password", "changeit");
+        URL resource = TrustStoreResourceTest.class.getClassLoader().getResource(fileName);
+        String path = resource.getPath();
+        File file = new File(path);
+        MultiPart multiPart = new MultiPart();
+        final FileDataBodyPart filePart = new FileDataBodyPart("file", file, MediaType.APPLICATION_OCTET_STREAM_TYPE);
+        FormDataBodyPart deviceTypeBodyPart = new FormDataBodyPart();
+        deviceTypeBodyPart.setName("password");
+        deviceTypeBodyPart.setValue(MediaType.APPLICATION_JSON_TYPE, "changeit");
+        multiPart.bodyPart(filePart).bodyPart(deviceTypeBodyPart);
+
+        Response response = target("/truststores/1001/certificates/keystore").
+                request(MediaType.TEXT_PLAIN).
+                post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 }

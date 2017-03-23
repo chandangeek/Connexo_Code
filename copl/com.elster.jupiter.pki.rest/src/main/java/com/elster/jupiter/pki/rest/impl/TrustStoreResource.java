@@ -7,7 +7,6 @@ package com.elster.jupiter.pki.rest.impl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.TrustStore;
-import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -32,6 +31,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
+import java.security.KeyStore;
 import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -41,6 +41,7 @@ import java.util.List;
 @Path("/truststores")
 public class TrustStoreResource {
 
+    public static final int MAX_FILE_SIZE = 250 * 1024;
     private final PkiService pkiService;
     private final TrustStoreInfoFactory trustStoreInfoFactory;
     private final CertificateInfoFactory certificateInfoFactory;
@@ -79,24 +80,55 @@ public class TrustStoreResource {
     }
 
     @POST
-    @Path("/{id}/certificates")
+    @Path("/{id}/certificates/single")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.TEXT_PLAIN)
-    public Response getCertificates(
+    @Transactional
+    public Response importSingleCertificate(
             @PathParam("id") long trustStoreId,
             @FormDataParam("file") InputStream certificateInputStream,
             @FormDataParam("file") FormDataContentDisposition contentDispositionHeader,
             @FormDataParam("alias") String alias) {
         try {
+            if (contentDispositionHeader.getSize() > MAX_FILE_SIZE) {
+                throw new LocalizedFieldValidationException(MessageSeeds.FILE_TOO_BIG, "file");
+            }
             TrustStore trustStore = findTrustStoreOrThrowException(trustStoreId);
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509", "BC");
             X509Certificate certificate = (X509Certificate) certificateFactory.generateCertificate(certificateInputStream);
-            TrustedCertificate trustedCertificate = trustStore.addCertificate(alias, certificate);
+            if (certificate==null) {
+                throw new LocalizedFieldValidationException(MessageSeeds.COULD_NOT_CREATE_CERTIFICATE, "file");
+            }
+            trustStore.addCertificate(alias, certificate);
             return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
         } catch (CertificateException e) {
-            throw exceptionFactory.newException(MessageSeeds.COULD_NOT_CREATE_CERTIFICATE, e);
+            throw new LocalizedFieldValidationException(MessageSeeds.COULD_NOT_CREATE_CERTIFICATE, "file", e);
         } catch (NoSuchProviderException e) {
             throw exceptionFactory.newException(MessageSeeds.COULD_NOT_CREATE_CERTIFICATE_FACTORY, e);
+        }
+    }
+
+    @POST
+    @Path("/{id}/certificates/keystore")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.TEXT_PLAIN)
+    @Transactional
+    public Response importKeyStore(
+            @PathParam("id") long trustStoreId,
+            @FormDataParam("file") InputStream keyStoreInputStream,
+            @FormDataParam("file") FormDataContentDisposition contentDispositionHeader,
+            @FormDataParam("password") String password) {
+        try {
+            if (contentDispositionHeader.getSize() > MAX_FILE_SIZE) {
+                throw new LocalizedFieldValidationException(MessageSeeds.FILE_TOO_BIG, "file");
+            }
+            TrustStore trustStore = findTrustStoreOrThrowException(trustStoreId);
+            KeyStore keyStore = KeyStore.getInstance("JKS");
+            keyStore.load(keyStoreInputStream, password.toCharArray());
+            trustStore.loadKeyStore(keyStore);
+            return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
+        } catch (Exception e) {
+            throw new LocalizedFieldValidationException(MessageSeeds.COULD_NOT_READ_KEYSTORE, "file", e);
         }
     }
 
@@ -107,8 +139,8 @@ public class TrustStoreResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 //    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
     public Response validateKeyStoreFile(TrustStoreInfo info) {
-        if (info.keyStoreFileSize != null && info.keyStoreFileSize.intValue() > 250 * 1024) {
-            throw new LocalizedFieldValidationException(MessageSeeds.KEYSTORE_FILE_TOO_BIG, "keyStoreFile");
+        if (info.keyStoreFileSize != null && info.keyStoreFileSize.intValue() > MAX_FILE_SIZE) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FILE_TOO_BIG, "keyStoreFile");
         }
         return Response.ok().build();
     }
