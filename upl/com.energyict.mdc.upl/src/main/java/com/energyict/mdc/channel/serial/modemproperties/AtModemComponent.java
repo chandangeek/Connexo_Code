@@ -270,6 +270,10 @@ public class AtModemComponent implements ModemComponent, Serializable {
         comChannel.write((dataToWrite + (confirm ? AtModemComponent.CONFIRM : "")).getBytes());
     }
 
+    public void write(ComChannel comChannel, String dataToWrite) {
+        this.write(comChannel, dataToWrite, true);
+    }
+
     /**
      * Read bytes from the comChannel and verifies against the given expected value.
      * If the value doesn't match, then we retry until the maximum number of tries is reached.

@@ -110,7 +110,7 @@ public enum BaudrateValue {
     public static BaudrateValue valueFor(BigDecimal numercialValue) {
         return Stream
                 .of(values())
-                .filter(each -> each.getBaudrate().compareTo(numercialValue) == 0)
+                .filter(each -> each.getBaudrate().equals(numercialValue))
                 .findAny()
                 .orElse(null);
     }

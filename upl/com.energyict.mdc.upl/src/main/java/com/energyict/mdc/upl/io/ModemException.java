@@ -8,7 +8,6 @@ package com.energyict.mdc.upl.io;
  */
 public class ModemException extends RuntimeException {
     private final Type type;
-    private final String portName;
     private final Object[] messageArguments;
 
     public enum Type {
@@ -24,7 +23,7 @@ public class ModemException extends RuntimeException {
         AT_MODEM_ERROR,
         AT_MODEM_NO_ANSWER,
         AT_MODEM_NO_CARRIER,
-        AT_MODEM_NO_DIALTONE;
+        AT_MODEM_NO_DIALTONE
     }
 
     public enum DialErrorType {
@@ -103,7 +102,7 @@ public class ModemException extends RuntimeException {
      * Creates an {@link ModemException} indicating that on the modem for the given comPort, a dial error occurred.
      *
      * @param comPortName The comPort on which the error occurred
-     * @param type The Type for this ModemException
+     * @param type        The Type for this ModemException
      * @return the newly created exception
      */
     public static ModemException dialingError(String comPortName, DialErrorType type, String lastCommandSend) {
@@ -136,17 +135,12 @@ public class ModemException extends RuntimeException {
         return type;
     }
 
-    public String getPortName() {
-        return portName;
-    }
-
     public Object[] getMessageArguments() {
         return messageArguments;
     }
 
-    private ModemException(Type type, String portName, Object... messageArguments) {
+    private ModemException(Type type, Object... messageArguments) {
         this.type = type;
-        this.portName = portName;
         this.messageArguments = messageArguments;
     }
 

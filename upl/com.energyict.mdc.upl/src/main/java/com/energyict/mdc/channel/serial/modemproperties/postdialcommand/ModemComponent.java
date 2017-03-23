@@ -52,10 +52,9 @@ public interface ModemComponent {
      *
      * @param comChannel  the comChannel to write to
      * @param dataToWrite the data to write
+     * @param confirm     send a confirmation after the data or not
      */
     void write(ComChannel comChannel, String dataToWrite, boolean confirm);
 
-    default void write(ComChannel comChannel, String dataToWrite) {
-        this.write(comChannel, dataToWrite, true);
-    }
+    void write(ComChannel comChannel, String dataToWrite);
 }

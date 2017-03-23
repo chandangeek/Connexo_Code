@@ -29,7 +29,7 @@ public enum NrOfDataBits {
     public static NrOfDataBits valueFor(BigDecimal numercialValue) {
         return Stream
                 .of(values())
-                .filter(each -> each.getNrOfDataBits().compareTo(numercialValue) == 0)
+                .filter(each -> each.getNrOfDataBits().equals(numercialValue))
                 .findAny()
                 .orElse(null);
     }

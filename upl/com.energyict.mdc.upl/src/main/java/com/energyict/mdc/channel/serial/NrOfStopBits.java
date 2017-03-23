@@ -27,7 +27,7 @@ public enum NrOfStopBits {
     public static NrOfStopBits valueFor(BigDecimal numercialValue) {
         return Stream
                 .of(values())
-                .filter(each -> each.getNrOfStopBits().compareTo(numercialValue) == 0)
+                .filter(each -> each.getNrOfStopBits().equals(numercialValue))
                 .findAny()
                 .orElse(null);
     }
