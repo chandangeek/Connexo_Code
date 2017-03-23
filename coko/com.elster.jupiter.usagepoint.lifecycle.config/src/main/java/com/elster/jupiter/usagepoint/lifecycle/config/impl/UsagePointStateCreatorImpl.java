@@ -4,11 +4,11 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.config.impl;
 
+import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
@@ -37,13 +37,13 @@ public class UsagePointStateCreatorImpl implements UsagePointState.UsagePointSta
     }
 
     @Override
-    public UsagePointStateCreatorImpl onEntry(StateChangeBusinessProcess process) {
+    public UsagePointStateCreatorImpl onEntry(BpmProcessDefinition process) {
         this.stateBuilder.onEntry(process);
         return this;
     }
 
     @Override
-    public UsagePointStateCreatorImpl onExit(StateChangeBusinessProcess process) {
+    public UsagePointStateCreatorImpl onExit(BpmProcessDefinition process) {
         this.stateBuilder.onExit(process);
         return this;
     }

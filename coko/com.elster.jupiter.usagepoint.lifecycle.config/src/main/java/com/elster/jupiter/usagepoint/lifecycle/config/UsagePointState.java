@@ -4,8 +4,8 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.config;
 
+import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.fsm.ProcessReference;
-import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
@@ -40,9 +40,9 @@ public interface UsagePointState extends HasId, HasName {
     @ProviderType
     interface UsagePointStateCreator<T extends UsagePointStateCreator> {
 
-        T onEntry(StateChangeBusinessProcess process);
+        T onEntry(BpmProcessDefinition process);
 
-        T onExit(StateChangeBusinessProcess process);
+        T onExit(BpmProcessDefinition process);
 
         T setInitial();
 
@@ -55,8 +55,8 @@ public interface UsagePointState extends HasId, HasName {
     interface UsagePointStateUpdater extends UsagePointStateCreator<UsagePointStateUpdater> {
         UsagePointStateUpdater setName(String newName);
 
-        UsagePointStateUpdater removeOnEntry(StateChangeBusinessProcess process);
+        UsagePointStateUpdater removeOnEntry(BpmProcessDefinition process);
 
-        UsagePointStateUpdater removeOnExit(StateChangeBusinessProcess process);
+        UsagePointStateUpdater removeOnExit(BpmProcessDefinition process);
     }
 }

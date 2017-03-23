@@ -4,9 +4,9 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.config.impl;
 
+import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 
@@ -30,25 +30,25 @@ public class UsagePointStateUpdaterImpl implements UsagePointState.UsagePointSta
     }
 
     @Override
-    public UsagePointState.UsagePointStateUpdater removeOnEntry(StateChangeBusinessProcess process) {
+    public UsagePointState.UsagePointStateUpdater removeOnEntry(BpmProcessDefinition process) {
         this.stateUpdater.removeOnEntry(process);
         return this;
     }
 
     @Override
-    public UsagePointState.UsagePointStateUpdater removeOnExit(StateChangeBusinessProcess process) {
+    public UsagePointState.UsagePointStateUpdater removeOnExit(BpmProcessDefinition process) {
         this.stateUpdater.removeOnExit(process);
         return this;
     }
 
     @Override
-    public UsagePointState.UsagePointStateUpdater onEntry(StateChangeBusinessProcess process) {
+    public UsagePointState.UsagePointStateUpdater onEntry(BpmProcessDefinition process) {
         this.stateUpdater.onEntry(process);
         return this;
     }
 
     @Override
-    public UsagePointState.UsagePointStateUpdater onExit(StateChangeBusinessProcess process) {
+    public UsagePointState.UsagePointStateUpdater onExit(BpmProcessDefinition process) {
         this.stateUpdater.onExit(process);
         return this;
     }
