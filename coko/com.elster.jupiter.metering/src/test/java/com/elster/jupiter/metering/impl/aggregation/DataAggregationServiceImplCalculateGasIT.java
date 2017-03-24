@@ -34,7 +34,6 @@ import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -86,7 +85,6 @@ import java.time.Instant;
 import java.time.LocalTime;
 import java.time.Month;
 import java.time.MonthDay;
-import java.time.temporal.TemporalUnit;
 import java.util.Optional;
 
 import org.junit.After;
@@ -389,7 +387,7 @@ public class DataAggregationServiceImplCalculateGasIT {
         this.initializeSqlBuilders();
 
         // Apply MetrologyConfiguration to UsagePoint
-        this.usagePoint.apply(this.configuration, jan1st2016.plusSeconds(60));
+        this.usagePoint.apply(this.configuration, feb1st2016);
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
         this.contract.addDeliverable(netConsumption);
@@ -471,7 +469,7 @@ public class DataAggregationServiceImplCalculateGasIT {
         this.initializeSqlBuilders();
 
         // Apply MetrologyConfiguration to UsagePoint
-        this.usagePoint.apply(this.configuration, jan1st2016.plusSeconds(60));
+        this.usagePoint.apply(this.configuration, feb1st2016);
 
         this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
         this.contract.addDeliverable(netConsumption);
@@ -525,18 +523,15 @@ public class DataAggregationServiceImplCalculateGasIT {
         ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         this.usagePoint = electricity.newUsagePoint(name, jan1st2016)
                 .create();
-        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("UP", electricity).create();
-        usagePointMetrologyConfiguration.addMeterRole(getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT));
-        usagePoint.apply(usagePointMetrologyConfiguration, jan1st2016);
     }
 
     private void activateMeterWith15min_m3_Channel(MeterRole meterRole) {
-        MeterActivation meterActivation = this.usagePoint.activate(this.meter, meterRole, jan1st2016);
+        MeterActivation meterActivation = this.usagePoint.activate(this.meter, meterRole, feb1st2016);
         meterActivation.getChannelsContainer().createChannel(fifteenMinutesGasCubicMeter);
     }
 
     private void activateMeterWith15min_kWh_Channel(MeterRole meterRole) {
-        MeterActivation meterActivation = this.usagePoint.activate(this.meter, meterRole, jan1st2016);
+        MeterActivation meterActivation = this.usagePoint.activate(this.meter, meterRole, feb1st2016);
         meterActivation.getChannelsContainer().createChannel(fifteenMinutesGas_kWh);
     }
 
