@@ -106,6 +106,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyCollectionOf;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -210,7 +211,7 @@ public class ScheduledJobImplTest {
         when(this.securityPropertySet.getEncryptionDeviceAccessLevel()).thenReturn(encryptionDeviceAccessLevel);
     }
 
-    @Test(timeout = 5000)
+    @Test // (timeout = 5000)
     public void prepareDeviceProtocolTest() {
         DeviceProtocol deviceProtocol = mock(MeterProtocolAdapter.class);
         when(deviceProtocol.getDeviceProtocolDialects()).thenReturn(Collections.<DeviceProtocolDialect>emptyList());
@@ -223,13 +224,14 @@ public class ScheduledJobImplTest {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineDevice));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-
-        ScheduledConnectionTask connectionTask = createMockOutboundConnectionTask();
-        ComTask comTask = createMockComTask();
         ProtocolDialectConfigurationProperties mockProtocolDialectConfigurationProperties = createMockProtocolDialectConfigurationProperties();
+        ScheduledConnectionTask connectionTask = createMockOutboundConnectionTask(mockProtocolDialectConfigurationProperties);
+        when(connectionTask.getDevice()).thenReturn(device);
+        when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(mockProtocolDialectConfigurationProperties);
+        doReturn(connectionTask).when(comServerDAO).executionStarted(connectionTask, comServer);
+        ComTask comTask = createMockComTask();
 
-        ServerComTaskExecution scheduledComTask = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
-
+        ServerComTaskExecution scheduledComTask = createMockServerScheduledComTask(device, connectionTask, comTask);
         ScheduledComTaskExecutionGroup comTaskExecutionGroup = new ScheduledComTaskExecutionGroup(comPort, comServerDAO, this.deviceCommandExecutor, connectionTask, serviceProvider);
         comTaskExecutionGroup.establishConnectionFor(comPort);
         CommandRoot commandRoot = comTaskExecutionGroup.prepareAll(Collections.singletonList(scheduledComTask));
@@ -264,14 +266,15 @@ public class ScheduledJobImplTest {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineDevice));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = this.createMockProtocolDialectConfigurationProperties();
+        ScheduledConnectionTask connectionTask = createMockOutboundConnectionTask(protocolDialectConfigurationProperties);
+        when(connectionTask.getDevice()).thenReturn(device);
+        doReturn(connectionTask).when(comServerDAO).executionStarted(connectionTask, comServer);
 
-        ScheduledConnectionTask connectionTask = createMockOutboundConnectionTask();
         ComTask comTask = createMockComTask();
-        ProtocolDialectConfigurationProperties mockProtocolDialectConfigurationProperties = createMockProtocolDialectConfigurationProperties();
-
-        ServerComTaskExecution comTask1 = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
-        ServerComTaskExecution comTask2 = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
-        ServerComTaskExecution comTask3 = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
+        ServerComTaskExecution comTask1 = createMockServerScheduledComTask(device, connectionTask, comTask);
+        ServerComTaskExecution comTask2 = createMockServerScheduledComTask(device, connectionTask, comTask);
+        ServerComTaskExecution comTask3 = createMockServerScheduledComTask(device, connectionTask, comTask);
 
         ScheduledComTaskExecutionGroup group = new ScheduledComTaskExecutionGroup(comPort, comServerDAO, this.deviceCommandExecutor, connectionTask, serviceProvider);
         group.establishConnectionFor(comPort);
@@ -362,18 +365,19 @@ public class ScheduledJobImplTest {
             ConnectionException, InterruptedException {
         OnlineComServer comServer = this.createMockOnlineComServer();
         final OutboundComPort comPort = this.createMockOutBoundComPort(comServer);
+        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = this.createMockProtocolDialectConfigurationProperties();
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);
         when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.MINIMIZE_CONNECTIONS);
+        when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         OfflineDevice offlineDevice = this.createMockOfflineDevice();
         Device device = this.createMockDevice();
         when(connectionTask.getDevice()).thenReturn(device);
         when(connectionTask.connect(comPort)).thenReturn(new VoidTestComChannel());
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = this.createMockProtocolDialectConfigurationProperties();
         CountDownLatch deviceCommandExecutionStartedLatch = new CountDownLatch(1);
         DeviceCommandExecutor deviceCommandExecutor = new LatchDrivenDeviceCommandExecutor(this.deviceCommandExecutor, deviceCommandExecutionStartedLatch);
-        ServerComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask(), protocolDialectConfigurationProperties);
+        ServerComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask());
 
         final ComServerDAO comServerDAO = getMockedComServerDAO();
         when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineDevice));
@@ -454,17 +458,18 @@ public class ScheduledJobImplTest {
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.TRACE);
         final OutboundComPort comPort = this.createMockOutBoundComPort(comServer);
         when(comPort.getComServer()).thenReturn(comServer);
+        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = this.createMockProtocolDialectConfigurationProperties();
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);
         when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.MINIMIZE_CONNECTIONS);
+        when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         Device device = this.createMockDevice();
         when(connectionTask.getDevice()).thenReturn(device);
         when(connectionTask.connect(eq(comPort), anyList())).thenReturn(mock(ComChannel.class));
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = this.createMockProtocolDialectConfigurationProperties();
         CountDownLatch deviceCommandExecutionStartedLatch = new CountDownLatch(1);
         DeviceCommandExecutor deviceCommandExecutor = new LatchDrivenDeviceCommandExecutor(this.deviceCommandExecutor, deviceCommandExecutionStartedLatch);
-        ComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask(), protocolDialectConfigurationProperties);
+        ComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask());
         ComServerDAOImpl comServerDAO = getMockedComServerDAO();
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollectionOf(Long.class))).thenReturn(true);
@@ -518,17 +523,18 @@ public class ScheduledJobImplTest {
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.TRACE);
         final OutboundComPort comPort = this.createMockOutBoundComPort(comServer);
         when(comPort.getComServer()).thenReturn(comServer);
+        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = this.createMockProtocolDialectConfigurationProperties();
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);
         when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.MINIMIZE_CONNECTIONS);
+        when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         Device device = this.createMockDevice();
         when(connectionTask.getDevice()).thenReturn(device);
         doThrow(ConnectionException.class).when(connectionTask).connect(eq(comPort), anyList());    //Simulate a connection failure
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = this.createMockProtocolDialectConfigurationProperties();
         CountDownLatch deviceCommandExecutionStartedLatch = new CountDownLatch(1);
         DeviceCommandExecutor deviceCommandExecutor = new LatchDrivenDeviceCommandExecutor(this.deviceCommandExecutor, deviceCommandExecutionStartedLatch);
-        ComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask(), protocolDialectConfigurationProperties);
+        ComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask());
         ComServerDAOImpl comServerDAO = getMockedComServerDAO();
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollectionOf(Long.class))).thenReturn(true);
@@ -575,12 +581,11 @@ public class ScheduledJobImplTest {
     }
 
 
-    private ServerComTaskExecution createMockServerScheduledComTask(Device device, OutboundConnectionTask connectionTask, ComTask comTask, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
+    private ServerComTaskExecution createMockServerScheduledComTask(Device device, OutboundConnectionTask connectionTask, ComTask comTask) {
         ServerComTaskExecution scheduledComTask = mock(ServerComTaskExecution.class);
         when(scheduledComTask.getDevice()).thenReturn(device);
         when(scheduledComTask.getConnectionTask()).thenReturn(Optional.of(connectionTask));
         when(scheduledComTask.getComTask()).thenReturn(comTask);
-        when(scheduledComTask.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         return scheduledComTask;
     }
 
@@ -596,10 +601,11 @@ public class ScheduledJobImplTest {
         return comTask;
     }
 
-    private ScheduledConnectionTask createMockOutboundConnectionTask() {
+    private ScheduledConnectionTask createMockOutboundConnectionTask(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);
+        when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         return connectionTask;
     }
 
