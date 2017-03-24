@@ -12,6 +12,7 @@ import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.EstimationRuleSetTpl;
 import com.elster.jupiter.demo.impl.templates.EstimationTaskTpl;
 import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -54,12 +55,12 @@ public class CreateEstimationSetupCommand extends CommandWithTransaction {
 
     private void createEstimationRuleSets() {
         this.estimationRuleSet = Builders.from(EstimationRuleSetTpl.RESIDENTIAL_CUSTOMERS)
-                .withPostBuilder(new EstimationRuleEstimateWithSamplesPostBuilder(this.timeService.getAllRelativePeriod(), 10L))
+                .withPostBuilder(new EstimationRuleEstimateWithSamplesPostBuilder(this.timeService.getAllRelativePeriod(), TimeDuration.minutes(150)))
                 .withPostBuilder(new EstimationRuleValueFillPostBuilder())
                 .get();
 
         this.strictEstimationRuleSet = Builders.from(EstimationRuleSetTpl.RESIDENTIAL_CUSTOMERS_STRICT)
-                .withPostBuilder(new EstimationRuleEstimateWithSamplesPostBuilder(this.timeService.getAllRelativePeriod(), 2L))
+                .withPostBuilder(new EstimationRuleEstimateWithSamplesPostBuilder(this.timeService.getAllRelativePeriod(), TimeDuration.minutes(30)))
                 .get();
     }
 
