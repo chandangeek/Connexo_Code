@@ -25,6 +25,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
+import com.elster.jupiter.metering.UsagePointManagementException;
 import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -71,6 +72,7 @@ import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckViolation;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfo;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfoFactory;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Where;
@@ -174,6 +176,8 @@ public class UsagePointResource {
     private final UsagePointLifeCycleService usagePointLifeCycleService;
     private final PropertyValueInfoService propertyValueInfoService;
     private final ValidationService validationService;
+    private final MetrologyConfigurationHistoryInfoFactory metrologyConfigurationHistoryInfoFactory;
+    private final UsagePointTransitionInfoFactory usagePointTransitionInfoFactory;
 
     @Inject
     public UsagePointResource(RestQueryService queryService,
@@ -204,7 +208,9 @@ public class UsagePointResource {
                               TransactionService transactionService,
                               UsagePointLifeCycleService usagePointLifeCycleService,
                               PropertyValueInfoService propertyValueInfoService,
-                              ValidationService validationService) {
+                              ValidationService validationService,
+                              MetrologyConfigurationHistoryInfoFactory metrologyConfigurationHistoryInfoFactory,
+                              UsagePointTransitionInfoFactory usagePointTransitionInfoFactory) {
         this.queryService = queryService;
         this.timeService = timeService;
         this.meteringService = meteringService;
@@ -234,6 +240,8 @@ public class UsagePointResource {
         this.usagePointLifeCycleService = usagePointLifeCycleService;
         this.propertyValueInfoService = propertyValueInfoService;
         this.validationService = validationService;
+        this.metrologyConfigurationHistoryInfoFactory = metrologyConfigurationHistoryInfoFactory;
+        this.usagePointTransitionInfoFactory = usagePointTransitionInfoFactory;
     }
 
     @GET
@@ -383,6 +391,22 @@ public class UsagePointResource {
                 .build();
     }
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @Transactional
+    @Path("/{name}/transitions")
+    public Response getAvailableTransitions(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+
+        List<UsagePointTransition> transitions = resourceHelper.getAvailableTransitions(usagePoint);
+
+        return Response.ok()
+                .entity(PagedInfoList.fromCompleteList("transitions", transitions.stream()
+                        .map(usagePointTransitionInfoFactory::from).collect(Collectors.toList()), queryParameters))
+                .build();
+    }
+
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -412,14 +436,10 @@ public class UsagePointResource {
                                                 MetrologyConfigurationInfo info) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, upVersion);
 
-        if (usagePoint.getEffectiveMetrologyConfiguration(usagePoint.getInstallationTime()).isPresent()) {
-            throw resourceHelper.usagePointAlreadyLinkedException(name);
-        }
-
-        new RestValidationBuilder()
+        RestValidationBuilder validationBuilder = new RestValidationBuilder()
                 .notEmpty(info.id, "id")
-                .notEmpty(info.name, "name")
-                .validate();
+                .notEmpty(info.name, "name");
+        validationBuilder.validate();
 
         if (validate) {
             if (customPropertySetId > 0) {
@@ -439,18 +459,18 @@ public class UsagePointResource {
         }
 
         UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = resourceHelper.findAndLockActiveUsagePointMetrologyConfigurationOrThrowException(info.id, info.version);
-            if (info.purposes != null) {
-                usagePoint.apply(usagePointMetrologyConfiguration, usagePoint.getInstallationTime(), usagePointMetrologyConfiguration.getContracts()
-                        .stream()
-                        .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
-                        .filter(metrologyContract -> info.purposes.stream()
-                                .anyMatch(purpose -> metrologyContract.getId() == purpose.id))
-                        .filter(metrologyContract -> !metrologyContract.isMandatory())
-                        .distinct()
-                        .collect(Collectors.toSet()));
-            } else {
-                usagePoint.apply(usagePointMetrologyConfiguration, usagePoint.getInstallationTime());
-            }
+        if (info.purposes != null) {
+            usagePoint.apply(usagePointMetrologyConfiguration, info.activationTime, usagePointMetrologyConfiguration.getContracts()
+                    .stream()
+                    .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
+                    .filter(metrologyContract -> info.purposes.stream()
+                            .anyMatch(purpose -> metrologyContract.getId() == purpose.id))
+                    .filter(metrologyContract -> !metrologyContract.isMandatory())
+                    .distinct()
+                    .collect(Collectors.toSet()));
+        } else {
+            usagePoint.apply(usagePointMetrologyConfiguration, info.activationTime);
+        }
         for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
             UsagePointPropertySet propertySet = usagePoint.forCustomProperties()
                     .getPropertySet(customPropertySetInfo.id);
@@ -576,6 +596,20 @@ public class UsagePointResource {
         return Response.status(Response.Status.CREATED)
                 .build();
 
+    }
+
+    @GET
+    @Path("{name}/history/metrologyConfigurations")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    public PagedInfoList getMetrologyConfigurationsHistory(@PathParam("name") String name, @HeaderParam("Authorization") String auth, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        List<MetrologyConfigurationHistoryInfo> infos = usagePoint.getEffectiveMetrologyConfigurations()
+                .stream()
+                .map(metrologyConfiguration -> metrologyConfigurationHistoryInfoFactory.from(metrologyConfiguration, usagePoint, auth))
+                .collect(Collectors.toList());
+
+        return PagedInfoList.fromCompleteList("data", infos, queryParameters);
     }
 
     private void validateServiceKind(String serviceKindString) {
@@ -1020,7 +1054,11 @@ public class UsagePointResource {
                 info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
                 checkMeterRolesActivationTime(info.metrologyConfiguration.meterRoles, usagePoint.getInstallationTime(), validationBuilder);
                 usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) resourceHelper.findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id);
-                usagePoint.apply(usagePointMetrologyConfiguration);
+                try {
+                    usagePoint.apply(usagePointMetrologyConfiguration, info.metrologyConfiguration.activationTime);
+                } catch (UsagePointManagementException ex) {
+                    failStartDateCheck(validationBuilder);
+                }
                 resourceHelper.activateMeters(info, usagePoint);
             }
         }
@@ -1043,8 +1081,13 @@ public class UsagePointResource {
             usagePoint = usagePointBuilder.create();
             info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
             if (info.metrologyConfiguration != null) {
-                usagePoint.apply((UsagePointMetrologyConfiguration)resourceHelper
-                        .findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id));
+                UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) resourceHelper
+                        .findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id);
+                try {
+                    usagePoint.apply(usagePointMetrologyConfiguration, info.metrologyConfiguration.activationTime);
+                } catch (UsagePointManagementException ex) {
+                    failStartDateCheck(validationBuilder);
+                }
             }
 
             resourceHelper.activateMeters(info, usagePoint);
@@ -1053,5 +1096,10 @@ public class UsagePointResource {
         }
 
         return usagePoint;
+    }
+
+    private void failStartDateCheck(RestValidationBuilder validationBuilder) {
+        validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE, "activationTime"));
+        validationBuilder.validate();
     }
 }

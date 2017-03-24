@@ -430,6 +430,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(EstimationTaskInfoFactory.class).to(EstimationTaskInfoFactory.class);
             bind(UsagePointTransitionInfoFactory.class).to(UsagePointTransitionInfoFactory.class);
             bind(propertySpecService).to(PropertySpecService.class);
+            bind(MetrologyConfigurationHistoryInfoFactory.class).to(MetrologyConfigurationHistoryInfoFactory.class);
         }
     }
 }

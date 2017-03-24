@@ -247,10 +247,9 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.displayType = this.getUsagePointDisplayType(usagePoint);
 
         usagePoint.getCurrentEffectiveMetrologyConfiguration()
-                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
                 .ifPresent(mc -> {
                     info.metrologyConfiguration = new MetrologyConfigurationInfo(mc, usagePoint, this.thesaurus, this.clock, readingTypeDeliverableFactory);
-                    info.displayMetrologyConfiguration = mc.getName();
+                    info.displayMetrologyConfiguration = mc.getMetrologyConfiguration().getName();
                 });
 
         addDetailsInfo(info, usagePoint);
