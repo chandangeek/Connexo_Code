@@ -20,6 +20,7 @@ import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.validation.Validator;
 
+import com.google.common.collect.ImmutableSet;
 import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.core.Response;
@@ -28,7 +29,6 @@ import java.net.URLEncoder;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -230,14 +230,15 @@ public class DataQualityResultsResourceTest extends DeviceDataQualityRestApplica
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
-        verify(overviewBuilder).in(eq(new HashSet<>(Collections.singleton(usagePointGroup))));
-        verify(overviewBuilder).of(eq(new HashSet<>(Collections.singleton(metrologyConfiguration))));
-        verify(overviewBuilder).with(eq(new HashSet<>(Collections.singleton(metrologyPurpose))));
+        verify(overviewBuilder).in(eq(ImmutableSet.of(usagePointGroup)));
+        verify(overviewBuilder).of(eq(ImmutableSet.of(metrologyConfiguration)));
+        verify(overviewBuilder).with(eq(ImmutableSet.of(metrologyPurpose)));
         verify(overviewBuilder).in(eq(Ranges.openClosed(Instant.EPOCH, Instant.EPOCH.plusSeconds(1))));
-        verify(overviewBuilder).having(eq(new HashSet<>(Arrays.asList(
-                UsagePointDataQualityService.ReadingQualityType.SUSPECTS, UsagePointDataQualityService.ReadingQualityType.ESTIMATES))));
-        verify(overviewBuilder).havingSuspectsBy(eq(Arrays.asList(validator_1)));
-        verify(overviewBuilder).havingEstimatesBy(eq(Arrays.asList(estimator_1)));
+        verify(overviewBuilder).having(eq(ImmutableSet.of(
+                UsagePointDataQualityService.ReadingQualityType.SUSPECTS,
+                UsagePointDataQualityService.ReadingQualityType.ESTIMATES)));
+        verify(overviewBuilder).havingSuspectsBy(eq(Collections.singletonList(validator_1)));
+        verify(overviewBuilder).havingEstimatesBy(eq(Collections.singletonList(estimator_1)));
         verify(overviewBuilder).paged(11, 23);
     }
 
