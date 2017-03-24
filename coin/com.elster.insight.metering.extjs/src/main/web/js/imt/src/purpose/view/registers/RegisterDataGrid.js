@@ -25,14 +25,14 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
                 header: Uni.I18n.translate('general.measurementPeriod', 'IMT', 'Measurement period'),
                 flex: 2,
                 dataIndex: 'interval',
-                renderer: function (value) {
+                renderer: function (value, meataData, record) {
                     if(!Ext.isEmpty(value)) {
                         var endDate = new Date(value.end);
                         if (!!value.start && !!value.end) {
                             var startDate = new Date(value.start);
-                            return Uni.DateTime.formatDateTimeShort(startDate) + ' - ' + Uni.DateTime.formatDateTimeShort(endDate);
+                            return Uni.DateTime.formatDateTimeShort(startDate) + ' - ' + Uni.DateTime.formatDateTimeShort(endDate) + Imt.purpose.util.TooltipRenderer.prepareIcon(record);
                         } else {
-                            return Uni.DateTime.formatDateTimeShort(endDate);
+                            return Uni.DateTime.formatDateTimeShort(endDate) + Imt.purpose.util.TooltipRenderer.prepareIcon(record);
                         }
                     }
                     return '-';
