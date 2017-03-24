@@ -53,6 +53,8 @@ public class OutputChannelDataInfo {
 
     public List<ReadingQualityInfo> readingQualities;
 
+    public String calendarName;
+
     public boolean partOfTimeOfUseGap;
 
     public EstimationQuantityInfo estimatedByRule;

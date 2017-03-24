@@ -40,7 +40,7 @@ public class OutputChannelDataInfoFactory {
         outputChannelDataInfo.interval = IntervalInfo.from(readingWithValidationStatus.getTimePeriod());
         outputChannelDataInfo.value = readingWithValidationStatus.getValue();
         outputChannelDataInfo.calculatedValue = readingWithValidationStatus.getCalculatedValue().orElse(null);
-        if(readingWithValidationStatus.getCalendar().isPresent()){
+        if (readingWithValidationStatus.getCalendar().isPresent()) {
             outputChannelDataInfo.calendarName = readingWithValidationStatus.getCalendar().get().getName();
         }
         setValidationFields(readingWithValidationStatus, outputChannelDataInfo);

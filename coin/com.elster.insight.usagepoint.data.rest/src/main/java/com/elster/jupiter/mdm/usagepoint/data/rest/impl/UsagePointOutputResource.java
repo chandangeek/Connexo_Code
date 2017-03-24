@@ -56,7 +56,6 @@ import com.google.common.collect.TreeRangeSet;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.swing.text.html.Option;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -124,7 +123,7 @@ public class UsagePointOutputResource {
                              EstimationService estimationService,
                              MeteringService meteringService,
                              DataValidationTaskInfoFactory dataValidationTaskInfoFactory,
-                             CalendarService calendarService) {
+                             CalendarService calendarService,
                              EstimationTaskInfoFactory estimationTaskInfoFactory,
                              EstimationRuleInfoFactory estimationRuleInfoFactory,
                              UsagePointConfigurationService usagePointConfigurationService) {
